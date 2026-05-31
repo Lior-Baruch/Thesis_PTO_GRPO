@@ -51,11 +51,13 @@ from .config import (  # noqa: E402
     EXPERIMENT_PALETTE, ORACLE_METRIC_MAP,
     ORACLE_TOKEN_ALIASES, COMPOSITE_METRICS,
     EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, DEFAULT_CONCURRENCY,
-    EVAL_SCORES_DIR,
+    DATA_DIR, METHOD_DATA_DIR, EVAL_QUESTIONNAIRE_DIRS,
+    eval_scores_root_for_method, eval_csv_dir,
     # Dataclasses + helpers
     EDAConfig, PlotContext, set_plot_style,
     # Experiment registry
-    Experiment, EXPERIMENTS, get_data_paths, get_model_names, resolve_paths,
+    Experiment, EXPERIMENTS, get_data_paths, get_model_names,
+    get_model_eval_layout, resolve_paths,
 )
 
 from .data import (  # noqa: E402
@@ -106,9 +108,11 @@ __all__ = [
     "EXPERIMENT_PALETTE", "ORACLE_METRIC_MAP",
     "ORACLE_TOKEN_ALIASES", "COMPOSITE_METRICS",
     "EVAL_MODEL", "EVAL_TEMPERATURE", "MAX_RETRIES", "DEFAULT_CONCURRENCY",
-    "EVAL_SCORES_DIR",
+    "DATA_DIR", "METHOD_DATA_DIR", "EVAL_QUESTIONNAIRE_DIRS",
+    "eval_scores_root_for_method", "eval_csv_dir",
     "EDAConfig", "PlotContext", "set_plot_style",
-    "Experiment", "EXPERIMENTS", "get_data_paths", "get_model_names", "resolve_paths",
+    "Experiment", "EXPERIMENTS", "get_data_paths", "get_model_names",
+    "get_model_eval_layout", "resolve_paths",
     # data
     "load_data", "combine_data", "reconstruct_conversation_text",
     "add_patient_characteristics",
@@ -127,4 +131,7 @@ __all__ = [
     "EVAL_CODE_AVAILABLE",
 ]
 if EVAL_CODE_AVAILABLE:
-    __all__ += ["call_openai_json", "score_conversations", "build_default_eval_configs"]
+    __all__ += [
+        "call_openai_json", "evaluate_conversation",
+        "build_default_eval_configs", "run_all_evaluations_async",
+    ]

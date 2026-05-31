@@ -217,18 +217,20 @@ Exp3_PTO_GRPO/
 │   └── PTO_Exp3/
 │       ├── train_PTO_Iterative.ipynb    visible orchestration loop (mirrors GRPO_Exp3)
 │       └── trainer.py                   PTOConfig + run_one_iteration + build_pref_pairs_for_conversation + …
-├── data/
-│   ├── pto/                             Exp2-sourced PTO artifacts (NOT regenerated here)
+├── data/                               eval scores co-locate per method, labelled metric=<M>/oracle=<O>/ (M=scoring metric, O=training oracle)
+│   ├── pto_Exp2/                        Exp2-sourced PTO artifacts + their scores (NOT regenerated here)
 │   │   ├── pref_trees/{CSQ-8,CTRL,Q1Q2,WAI}/
-│   │   └── eval_conversations/{Base,CSQ-8,CTRL,Q1Q2,WAI}/
-│   ├── pto_v2/                          produced by PTO_Exp3 runs
-│   │   ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training, pref_pairs/}
-│   │   └── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
-│   ├── grpo/                            produced by GRPO_Exp3 runs
+│   │   ├── eval_conversations/{Base,CSQ-8,CTRL,Q1Q2,WAI}/
+│   │   └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+│   │                                        ↳ partial_q1q2/<Model>/{id}_t{n_turns}.csv  (Partial_Conv_Oracle_EDA cache)
+│   ├── grpo_Exp3/                       produced by GRPO_Exp3 runs
 │   │   ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training}/
-│   │   └── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
-│   └── eval_scores/{Q1,Q2,WAI_SR,CSQ8,MI_SAT,MITI}/<Model>/<patient_id>.csv
-│                                            ↳ partial_q1q2/<Model>/{id}_t{n_turns}.csv  (Partial_Conv_Oracle_EDA cache)
+│   │   ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
+│   │   └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+│   └── pto_Exp3/                        produced by PTO_Exp3 runs (same shape as grpo_Exp3)
+│       ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training, pref_pairs/}
+│       ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
+│       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
 │   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe)
 │   ├── Conv_EDA.ipynb                   main analysis (~38 cells)
@@ -255,7 +257,7 @@ full conversations. Is the partial reward a faithful proxy?
 
 **Method.** Pick `Base` + best `L5_Q1Q2_V*`. Slice each of their 96 convs at
 every other patient turn, score every cut with Q1+Q2, compare against the
-existing final-conv Q1+Q2 scores. All cuts cached to `data/eval_scores/partial_q1q2/`.
+existing final-conv Q1+Q2 scores. All cuts cached to `data/pto_Exp2/eval_scores/partial_q1q2/`.
 
 **Headline.** Pairwise rank agreement (sign-of-difference vs final) is
 - only **0.66 (Base) / 0.73 (L5_V10)** at `n_turns=2` — barely above chance (0.5),
@@ -346,6 +348,6 @@ rclone sync C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO gdrive:Thesis_PTO_GR
 ## Gotchas
 
 - **HF model-card READMEs** inside `data/grpo_Exp3/runs/.../checkpoint-*/` are auto-generated — DO NOT delete or treat as project docs.
-- **`Partial_Conv_Oracle_EDA` knobs** `MIN_TURNS=2` and `SAMPLE_EVERY_N_PATIENT_TURNS=2` are part of the cache key — changing them invalidates `data/eval_scores/partial_q1q2/`.
+- **`Partial_Conv_Oracle_EDA` knobs** `MIN_TURNS=2` and `SAMPLE_EVERY_N_PATIENT_TURNS=2` are part of the cache key — changing them invalidates `data/pto_Exp2/eval_scores/partial_q1q2/`.
 - **Pref-tree audit trail.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — they're how you debug "why is this iteration's DPO update weird?" without rerunning generation + branching + scoring (the expensive part).
 - **An archived 23 MB K=3 PTO_Exp3 smoke-test** from the V4 era lives in `../archive/pto_v2_smoke/`. Ignore for new work.

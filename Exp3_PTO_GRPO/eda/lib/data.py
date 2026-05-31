@@ -111,6 +111,7 @@ def add_patient_characteristics(df: pd.DataFrame, id_col: str = "id") -> pd.Data
 
 _MODEL_NAME_PATTERN  = re.compile(r"^L(?P<lookahead>\d+)_(?P<oracle>[A-Za-z0-9_]+)_V(?P<iteration>\d+)$")
 _GRPOExp3_NAME_PATTERN = re.compile(r"^GRPOExp3_(?:(?P<base>Base)|I(?P<iter>\d+))$")
+_PTOExp3_NAME_PATTERN  = re.compile(r"^PTOExp3_(?:(?P<base>Base)|I(?P<iter>\d+))$")
 
 
 def _normalize_oracle_token(token: str, *, strict: bool = False) -> str:
@@ -145,6 +146,13 @@ def parse_model_metadata(model_name: str) -> Dict[str, Any]:
         oracle = "Base" if is_base else "Q1Q2"
         return {"LookAhead": -1, "OracleGroup": oracle, "Iteration": iteration, "ExperimentGroup": "GRPO_Exp3"}
 
+    m = _PTOExp3_NAME_PATTERN.match(model_name)
+    if m:
+        is_base = bool(m.group("base"))
+        iteration = 0 if is_base else int(m.group("iter"))
+        oracle = "Base" if is_base else "Q1Q2"
+        return {"LookAhead": -1, "OracleGroup": oracle, "Iteration": iteration, "ExperimentGroup": "PTO_Exp3"}
+
     m = _MODEL_NAME_PATTERN.match(model_name)
     if m:
         la = int(m.group("lookahead"))
@@ -171,7 +179,7 @@ def add_model_metadata_columns(df: pd.DataFrame, model_col: str = "Model") -> pd
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 
-_NON_DPO_GROUPS = ("Base", "GRPO_Exp3")
+_NON_DPO_GROUPS = ("Base", "GRPO_Exp3", "PTO_Exp3")
 _LOOKAHEAD_RANK = {0: 0, 5: 1}  # known look-ahead values rank ahead of "other"
 
 
@@ -196,8 +204,8 @@ def _model_sort_key(model_name):
     else:
         lookahead_rank = _LOOKAHEAD_RANK.get(int(md["LookAhead"]), 2)
     oracle = str(md["OracleGroup"])
-    # GRPO_Exp3 doesn't sweep oracle; rank 0 keeps it ahead of the unknown bucket.
-    oracle_rank = 0 if md["ExperimentGroup"] == "GRPO_Exp3" else _oracle_rank(oracle)
+    # GRPO_Exp3 / PTO_Exp3 don't sweep oracle; rank 0 keeps them ahead of the unknown bucket.
+    oracle_rank = 0 if md["ExperimentGroup"] in ("GRPO_Exp3", "PTO_Exp3") else _oracle_rank(oracle)
     it = md["Iteration"]
     iter_rank = int(it) if not pd.isna(it) else 10**9
     return (group_rank, lookahead_rank, oracle_rank, oracle, iter_rank, str(model_name))
@@ -250,20 +258,19 @@ def build_experiment_palette(df: pd.DataFrame) -> dict:
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 
-def _load_one_eval_folder(
-    folder_path: str,
-    model_list: List[str],
+def _load_eval_for_models(
+    model_folders: Dict[str, str],
     add_characteristics: bool = True,
 ) -> Optional[pd.DataFrame]:
-    """Load per-patient eval CSVs for a set of models from a single folder.
+    """Load per-patient eval CSVs given a ``{model: folder}`` map.
 
-    Layout: ``folder_path/{model}/{patient_id}.csv``. Returns ``None`` when no
-    matching files exist.
+    Layout: ``folder/{patient_id}.csv``. Each model points at its own folder, so
+    models from different methods (living under different ``eval_scores`` roots)
+    are concatenated transparently. Returns ``None`` when no matching files exist.
     """
     rows = []
-    for model in model_list:
-        mf = os.path.join(folder_path, model)
-        if not os.path.exists(mf):
+    for model, mf in model_folders.items():
+        if not os.path.isdir(mf):
             continue
         for fn in sorted(
             os.listdir(mf),
@@ -315,19 +322,37 @@ def merge_q1_q2_results(q1_df: Optional[pd.DataFrame], q2_df: Optional[pd.DataFr
     return add_model_metadata_columns(merged)
 
 
-def load_all_eval_results(eval_folders: dict, model_list: List[str], model_order: Optional[list] = None) -> dict:
-    """Load every ``{name: folder}`` in *eval_folders*; return ``{name: df-or-None}``."""
+def load_all_eval_results(
+    model_layout: Dict[str, Dict[str, str]],
+    model_list: List[str],
+    model_order: Optional[list] = None,
+    questionnaire_dirs: Optional[Dict[str, str]] = None,
+) -> dict:
+    """Load eval scores for *model_list*, each model read from its labelled folder.
+
+    ``model_layout`` maps model name -> ``{'root', 'oracle'}`` (see
+    ``config.get_model_eval_layout``). ``questionnaire_dirs`` maps display name ->
+    folder basename (defaults to ``config.EVAL_QUESTIONNAIRE_DIRS``). Per model,
+    scores are read from
+    ``<root>/metric=<subdir>/oracle=<oracle>/<model>/{patient_id}.csv``.
+    Returns ``{display_name: df-or-None}``.
+    """
+    from .config import EVAL_QUESTIONNAIRE_DIRS, eval_csv_dir
+    questionnaire_dirs = questionnaire_dirs or EVAL_QUESTIONNAIRE_DIRS
     out: dict = {}
-    for label, folder in eval_folders.items():
-        if not os.path.exists(folder):
-            print(f"Warning: {label} folder not found: {folder}")
-            out[label] = None
-            continue
-        df = _load_one_eval_folder(folder, model_list)
+    for label, sub in questionnaire_dirs.items():
+        model_folders = {
+            m: eval_csv_dir(model_layout[m]["root"], model_layout[m]["oracle"], sub, m)
+            for m in model_list
+            if m in model_layout
+        }
+        df = _load_eval_for_models(model_folders)
         if df is not None and len(df) > 0:
             df = add_model_metadata_columns(df)
             if model_order:
                 df = apply_model_order(df, model_order=model_order)
+        else:
+            df = None
         out[label] = df
     return out
 
@@ -403,7 +428,7 @@ def select_best_models_by_own_oracle(
 
     summaries, selected = [], [baseline]
     for group in sorted(discovered):
-        oracle_key = "Q1Q2" if group == "GRPO_Exp3" else str(group).split("_", 1)[-1]
+        oracle_key = "Q1Q2" if group in ("GRPO_Exp3", "PTO_Exp3") else str(group).split("_", 1)[-1]
         if oracle_key not in oracle_metric_map:
             continue
         display_name, metric_col = oracle_metric_map[oracle_key]

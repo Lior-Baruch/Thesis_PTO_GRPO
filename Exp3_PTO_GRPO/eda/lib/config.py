@@ -33,7 +33,7 @@ EFFECT_SIZE_THRESHOLDS = {"small": 0.2, "medium": 0.5, "large": 0.8}
 
 # Ordering (left-to-right in every plot)
 ORACLE_ORDER = ["WAI", "CSQ8", "Q1Q2", "MI_SAT", "MITI"]
-GROUP_ORDER = {"Base": 0, "GRPO_Exp3": 4}
+GROUP_ORDER = {"Base": 0, "GRPO_Exp3": 4, "PTO_Exp3": 5}
 DPO_GROUP_ORDER = 1  # All DPO (L0/L5) variants share this rank
 
 EXPERIMENT_PALETTE = {
@@ -42,6 +42,7 @@ EXPERIMENT_PALETTE = {
     "L0_CSQ8": "#2ca02c", "L5_CSQ8": "#74c476",
     "L0_WAI":  "#d62728", "L5_WAI":  "#fb6a4a",
     "GRPO_Exp3": "#aec7e8",
+    "PTO_Exp3":  "#c5b0d5",
 }
 
 # Oracle key -> (display name for plots, DataFrame column)
@@ -96,8 +97,48 @@ MAX_RETRIES = 3
 DEFAULT_CONCURRENCY = 32
 
 
-# Eval scores live alongside the rest of the experiment data.
-EVAL_SCORES_DIR = os.path.join(WORKSPACE_ROOT, "data", "eval_scores")
+# Each training method owns its eval_scores/ inside its own data dir, so a
+# model's gradings live next to the conversations they grade and method
+# namespaces never collide. The score path is resolved per-model from the
+# experiment's ``method`` + training ``oracle`` (see ``eval_scores_root_for_method``,
+# ``get_model_eval_layout``, ``eval_csv_dir``).
+DATA_DIR = os.path.join(WORKSPACE_ROOT, "data")
+
+# Training method -> the data/ subdir that owns its eval_scores/.
+METHOD_DATA_DIR = {
+    "DPO":       "pto_Exp2",   # Exp2 PTO baselines + Base (frozen reference)
+    "GRPO_Exp3": "grpo_Exp3",
+    "PTO_Exp3":  "pto_Exp3",
+}
+
+# Questionnaire display name -> on-disk folder basename under <method>/eval_scores/.
+EVAL_QUESTIONNAIRE_DIRS = {
+    "CSQ-8":  "CSQ8",
+    "WAI-SR": "WAI_SR",
+    "MI-SAT": "MI_SAT",
+    "MITI":   "MITI",
+    "Q1":     "Q1",
+    "Q2":     "Q2",
+}
+
+
+def eval_scores_root_for_method(method: str) -> str:
+    """Absolute ``data/<method_dir>/eval_scores`` for a training method.
+
+    Unknown methods fall back to the Exp2 reference dir (``pto_Exp2``).
+    """
+    return os.path.join(DATA_DIR, METHOD_DATA_DIR.get(method, "pto_Exp2"), "eval_scores")
+
+
+def eval_csv_dir(root: str, oracle: str, metric_subdir: str, model: str) -> str:
+    """Folder holding a model's per-patient eval CSVs for one metric.
+
+    Layout: ``<root>/metric=<metric>/oracle=<oracle>/<model>/``. The two labelled
+    levels make the *scoring metric* (what graded it) and the *training oracle*
+    (what it was trained on) explicit and unambiguous — e.g.
+    ``…/eval_scores/metric=WAI_SR/oracle=Q1Q2/L5_Q1Q2_V10/``.
+    """
+    return os.path.join(root, f"metric={metric_subdir}", f"oracle={oracle}", model)
 
 
 def set_plot_style() -> None:
@@ -117,25 +158,21 @@ def set_plot_style() -> None:
 class EDAConfig:
     """Runtime knobs for eval and analysis.
 
-    ``eval_base_dir`` defaults to ``data/eval_scores/`` under the experiment
-    root — identical on local and Colab.
+    Eval scores are co-located per method and labelled by metric + training
+    oracle: ``data/<method>/eval_scores/metric=<M>/oracle=<O>/<model>/``.
+    ``method`` selects the method root (``eval_base_dir``); cross-method work
+    (Run_Eval / Conv_EDA) resolves each model's root + oracle via
+    :func:`get_model_eval_layout` and builds paths with :func:`eval_csv_dir`.
     """
-    eval_base_dir: str = EVAL_SCORES_DIR
+    method: str = "DPO"
     eval_model: str = EVAL_MODEL
     eval_temp: float = EVAL_TEMPERATURE
     async_concurrency: int = DEFAULT_CONCURRENCY
-    eval_folders: Dict[str, str] = field(default_factory=dict)
+    eval_base_dir: Optional[str] = None
 
     def __post_init__(self):
-        if not self.eval_folders:
-            self.eval_folders = {
-                "CSQ-8":  os.path.join(self.eval_base_dir, "CSQ8"),
-                "WAI-SR": os.path.join(self.eval_base_dir, "WAI_SR"),
-                "MI-SAT": os.path.join(self.eval_base_dir, "MI_SAT"),
-                "MITI":   os.path.join(self.eval_base_dir, "MITI"),
-                "Q1":     os.path.join(self.eval_base_dir, "Q1"),
-                "Q2":     os.path.join(self.eval_base_dir, "Q2"),
-            }
+        if self.eval_base_dir is None:
+            self.eval_base_dir = eval_scores_root_for_method(self.method)
 
 
 @dataclass
@@ -168,9 +205,16 @@ class Experiment:
     def model_name(self) -> str:
         if self.method == "GRPO_Exp3":
             return "GRPOExp3_Base" if self.epoch == 0 else f"GRPOExp3_I{self.epoch}"
+        if self.method == "PTO_Exp3":
+            return "PTOExp3_Base" if self.epoch == 0 else f"PTOExp3_I{self.epoch}"
         if self.oracle == "Base":
             return "Base"
         return f"L{self.lookahead}_{self.oracle}_V{self.version}"
+
+    @property
+    def oracle_label(self) -> str:
+        """Training-oracle folder label; 'none' for the untrained Base rollout."""
+        return "none" if self.oracle in (None, "Base") else self.oracle
 
 
 # Path roots are experiment-root-relative (the experiment root is the Exp3 dir).
@@ -221,14 +265,13 @@ EXPERIMENTS: List[Experiment] = [
     # Experiment("Q1Q2", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_1_TT0.9_TP0.7", method="GRPO_Exp3", epoch=1),
     # Experiment("Q1Q2", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_2_TT0.9_TP0.7", method="GRPO_Exp3", epoch=2),
 
-    # PTO_Exp3 — uncomment + edit per real run. Same shape as GRPO_Exp3 but
-    # written under data/pto_Exp3/. Note Experiment.model_name has no PTOExp3
-    # branch yet; if you start treating PTO_Exp3 as a distinct ExperimentGroup
-    # in plots, extend Experiment.model_name (and parse_model_metadata) similarly.
+    # PTO_Exp3 — uncomment + edit per real run. Same shape as GRPO_Exp3, written
+    # under data/pto_Exp3/ (its scores co-locate at data/pto_Exp3/eval_scores/).
+    # method="PTO_Exp3" → model_name PTOExp3_Base / PTOExp3_I{epoch}.
     # _PTO_EXP3_NAME = "PTO_Iterative_Oracle_Llama32-1B_LA5_MCL10_M4"
-    # Experiment("Q1Q2", 5, 1, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_0_TT0.9_TP0.7"),
-    # Experiment("Q1Q2", 5, 2, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_1_TT0.9_TP0.7"),
-    # Experiment("Q1Q2", 5, 3, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_2_TT0.9_TP0.7"),
+    # Experiment("Base", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_0_TT0.9_TP0.7", method="PTO_Exp3", epoch=0),
+    # Experiment("Q1Q2", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_1_TT0.9_TP0.7", method="PTO_Exp3", epoch=1),
+    # Experiment("Q1Q2", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_2_TT0.9_TP0.7", method="PTO_Exp3", epoch=2),
 ]
 
 
@@ -242,6 +285,22 @@ def get_model_names(experiments: Optional[List[Experiment]] = None) -> List[str]
     """``[e.model_name for e in experiments]`` (defaults to :data:`EXPERIMENTS`)."""
     experiments = experiments or EXPERIMENTS
     return [e.model_name for e in experiments]
+
+
+def get_model_eval_layout(experiments: Optional[List[Experiment]] = None) -> Dict[str, Dict[str, str]]:
+    """``{model_name: {'root': <eval_scores root>, 'oracle': <oracle label>}}``.
+
+    The single source of truth for *where a model's gradings live* (``root``,
+    per method) and *which training oracle produced it* (``oracle``). Drives the
+    ``<root>/metric=<M>/oracle=<O>/<model>/`` layout — build paths with
+    :func:`eval_csv_dir`. The writer (``eval.run_all_evaluations_async``) and
+    reader (``data.load_all_eval_results``) both take this map.
+    """
+    experiments = experiments or EXPERIMENTS
+    return {
+        e.model_name: {"root": eval_scores_root_for_method(e.method), "oracle": e.oracle_label}
+        for e in experiments
+    }
 
 
 def resolve_paths(experiments: Optional[List[Experiment]] = None) -> List[str]:

@@ -13,7 +13,7 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from .config import DEFAULT_CONCURRENCY, EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES
+from .config import DEFAULT_CONCURRENCY, EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, eval_csv_dir
 from .data import reconstruct_conversation_text
 
 
@@ -170,7 +170,13 @@ if EVAL_CODE_AVAILABLE:
             return None
 
     def build_default_eval_configs(config) -> list:
-        """Build the default eval-config list from an :class:`EDAConfig`."""
+        """Build the default eval-config list from an :class:`EDAConfig`.
+
+        Each config carries the questionnaire's folder *basename* (``q_subdir``),
+        not an absolute folder — the writer joins it under each model's own
+        method root (see :func:`run_all_evaluations_async`).
+        """
+        from .config import EVAL_QUESTIONNAIRE_DIRS
         specs = [
             ("CSQ-8", QuestionnaireID.CSQ8),
             ("WAI-SR", QuestionnaireID.WAI_SR),
@@ -182,29 +188,35 @@ if EVAL_CODE_AVAILABLE:
         return [
             {
                 "name": n, "id": q,
-                "save_folder": config.eval_folders[n],
+                "q_subdir": EVAL_QUESTIONNAIRE_DIRS[n],
                 "model": config.eval_model,
                 "eval_temperature": config.eval_temp,
             }
             for n, q in specs
-            if n in config.eval_folders
         ]
 
     # ╔══════════════════════════════════════════════════════════════════════════╗
     # ║                            BATCH RUNNERS                               ║
     # ╚══════════════════════════════════════════════════════════════════════════╝
 
-    async def _process_one_questionnaire(client, combined_data: pd.DataFrame, qconfig: dict) -> dict:
-        """Score every conversation with one questionnaire; skip already-written CSVs."""
+    async def _process_one_questionnaire(
+        client, combined_data: pd.DataFrame, qconfig: dict, model_layout: dict,
+    ) -> dict:
+        """Score every conversation with one questionnaire; skip already-written CSVs.
+
+        Each model is written under its own labelled folder:
+        ``<root>/metric=<q_subdir>/oracle=<oracle>/<model>/<patient_id>.csv`` —
+        root + oracle come from ``model_layout[model]``. Models with no entry in
+        ``model_layout`` are skipped (with a warning).
+        """
         q_id = qconfig["id"]
-        save_folder = qconfig["save_folder"]
+        q_subdir = qconfig["q_subdir"]
         name = qconfig.get("name", f"Q{q_id.value if isinstance(q_id, QuestionnaireID) else q_id}")
         model_id = qconfig.get("model", EVAL_MODEL)
         eval_temp = qconfig.get("eval_temperature", EVAL_TEMPERATURE)
         concurrency = qconfig.get("concurrency", DEFAULT_CONCURRENCY)
         verbose = qconfig.get("verbose", True)
 
-        os.makedirs(save_folder, exist_ok=True)
         stats = {"completed": 0, "skipped_existing": 0, "skipped_incomplete": 0, "errors": 0}
         lock = asyncio.Lock()
         sem = asyncio.Semaphore(concurrency)
@@ -238,7 +250,12 @@ if EVAL_CODE_AVAILABLE:
 
         tasks = []
         for model in combined_data["Model"].unique():
-            mf = os.path.join(save_folder, model)
+            entry = model_layout.get(str(model))
+            if entry is None:
+                if verbose:
+                    print(f"  (skip {model}: no entry in model_layout)")
+                continue
+            mf = eval_csv_dir(entry["root"], entry["oracle"], q_subdir, str(model))
             os.makedirs(mf, exist_ok=True)
             if verbose:
                 print(f"Evaluating {name} for model: {model}")
@@ -255,11 +272,19 @@ if EVAL_CODE_AVAILABLE:
         return stats
 
     async def run_all_evaluations_async(
-        client, combined_data: pd.DataFrame, configs: list, concurrency: int = DEFAULT_CONCURRENCY,
+        client, combined_data: pd.DataFrame, configs: list, model_layout: dict,
+        concurrency: int = DEFAULT_CONCURRENCY,
     ) -> dict:
-        """Run ``_process_one_questionnaire`` for every config sequentially."""
+        """Run ``_process_one_questionnaire`` for every config sequentially.
+
+        ``model_layout`` maps each model name to ``{'root', 'oracle'}`` (use
+        :func:`config.get_model_eval_layout`), so scores land under
+        ``<root>/metric=<M>/oracle=<O>/<model>/``.
+        """
         results = {}
         for c in configs:
             c = {**c, "concurrency": concurrency}
-            results[c["name"]] = await _process_one_questionnaire(client, combined_data, c)
+            results[c["name"]] = await _process_one_questionnaire(
+                client, combined_data, c, model_layout,
+            )
         return results
