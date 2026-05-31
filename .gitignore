@@ -1,0 +1,46 @@
+# === Secrets — NEVER commit ===
+HF_key.txt
+openai_key.txt
+**/HF_key.txt
+**/openai_key.txt
+.env
+.env.*
+*.key
+*.pem
+*credentials*.json
+*service_account*.json
+
+# === Python environment & caches ===
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# === Generated experiment data + historical archive (large) ===
+**/data/
+**/eda/eval/
+archive/
+# Sentence-embedding caches (these .npy files are ~139 MB each — over GitHub's limit)
+**/emb_cache_words/
+*.npy
+
+# === Model weights / training artifacts / logs ===
+*.safetensors
+*.bin
+*.pt
+*.ckpt
+*.gguf
+**/runs/
+**/checkpoints/
+**/outputs/
+wandb/
+
+# === OS / IDE / Claude local ===
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.claude/

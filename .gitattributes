@@ -1,0 +1,9 @@
+# Normalize line endings: store as LF in the repo, check out native on each platform.
+* text=auto eol=lf
+*.ipynb text eol=lf
+
+# Treat common binaries as binary (no EOL/diff munging).
+*.png binary
+*.jpg binary
+*.pdf binary
+*.safetensors binary
