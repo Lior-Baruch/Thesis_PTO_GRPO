@@ -563,6 +563,7 @@ def _build_grpo_args(cfg: TrainingConfig, inner_outdir: str, num_train_prompts: 
     return GRPOConfig(
         output_dir=inner_outdir,
         hub_model_id=cfg.current_adapter_repo,
+        run_name=cfg.current_adapter_repo,  # WandbCallback names artifacts model-{run_name}; align with hub_model_id
         per_device_train_batch_size=cfg.train_batch_size,
         per_device_eval_batch_size=cfg.eval_batch_size,
         gradient_accumulation_steps=cfg.gradient_accumulation_steps,

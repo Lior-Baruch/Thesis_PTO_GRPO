@@ -308,6 +308,23 @@ Different sweep arms write to disjoint dirs — runs never collide.
 3. Maybe → either method @ MCL = 2.
 4. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
 
+## Dependency stack — audited 2026-06-01
+
+Trainers were audited against the latest docs of the pinned stack
+(`transformers==5.8.1`, `trl==1.4.0`, `peft==0.19.1`, `huggingface_hub==1.14.0`,
+`wandb==0.26.1`) and are **verified current** — despite the lingering "TRL
+v0.28" comments in the code, nothing is deprecated:
+- **`scale_rewards="group"`** ([GRPO_Exp3/trainer.py](code/GRPO_Exp3/trainer.py)) is the TRL **default** (`"group"/"batch"/"none"`), not a stale value.
+- **async reward fn** ([_shared/reward.py](code/_shared/reward.py)) is natively awaited by TRL 1.x (`inspect.iscoroutinefunction` → `asyncio.gather`); extra dataset columns forwarded as kwargs; per-sample `None` supported.
+- `processing_class=`, `eval_strategy=` already on the new transformers-5/TRL-1 API.
+- `hf_xet` is a **required transitive dep** of `huggingface_hub` 1.x — already installed, nothing to add.
+- `gpt-4o-mini-2024-07-18` (patient + oracle) has **no API retirement date** per OpenAI dev docs (the only relevant shutdown is `gpt-4o-2024-05-13`, a different model).
+
+Same-session polish (now in code): both notebooks' Colab install cell is
+**pinned to requirements.txt** (commented; `weave` dropped), `authenticate()`
+sets `WANDB_LOG_MODEL="checkpoint"` (versioned adapter artifact, third backup),
+and both configs set `run_name=current_adapter_repo`.
+
 ## Colab vs local
 
 Realistic workflow: **training on Colab (GPU)**, **EDA + Run_Eval locally**.
@@ -328,16 +345,44 @@ Experiment root resolution:
 
 HF token IS used locally — Llama-3.2-1B is gated.
 
-### Sync (rclone)
+### Sync (Colab ↔ local)
+
+**Results pull — Google Drive Desktop, no rclone.** `data/grpo_Exp3` and
+`data/pto_Exp3` are **directory symlinks** into Drive
+(`G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data\<method>`). Colab writes to mounted
+Drive → Drive Desktop (kept in **streaming** mode, low disk) surfaces it locally →
+files appear straight inside the repo; EDA reads through the link unchanged (all reads
+go via `WORKSPACE_ROOT/data/...`). EDA only reads `conversations/` + `eval_scores/`
+CSVs, so streaming downloads just those on open; big artifacts (`runs/`, adapters,
+`*.safetensors`) are never read locally and also live on HF Hub + W&B.
+`data/pto_Exp2` stays a **real local dir** (2.4 GB static reference EDA reads every
+run — do NOT link it).
+
+Re-create the links (Windows **Developer Mode** on; use `mklink`, **not** PowerShell
+`New-Item -ItemType SymbolicLink` — WinPS 5.1 ignores Dev Mode and still demands admin):
 ```powershell
-# pull from Drive
-rclone sync gdrive:Thesis_PTO_GRPO C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO `
-    --exclude "/.venv/**" --exclude "/archive/**" --progress
-# push to Drive
-rclone sync C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO gdrive:Thesis_PTO_GRPO `
-    --exclude "/.venv/**" --exclude "/archive/**" --progress
+$D = "G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data"
+$R = "C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data"
+cmd /c "mklink /D ""$R\grpo_Exp3"" ""$D\grpo_Exp3"""
+cmd /c "mklink /D ""$R\pto_Exp3""  ""$D\pto_Exp3"""
 ```
-`rclone sync A B` makes B mirror A — **deletes files in B not in A**. Use `rclone copy` for additive, `rclone check` for a dry-run diff.
+To undo: delete the **link** (`Remove-Item "$R\grpo_Exp3"`) — Drive data untouched.
+
+**Code push (local → Drive for Colab) is manual, `code/` only.** The whole `code/`
+tree was pushed to `G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code\` (2026-06-01, robocopy) —
+that's all Colab needs; open a `train_*_Iterative.ipynb` from there in Colab. Do **not**
+push `data/` (the symlink targets already live in Drive; `pto_Exp2` is a 2.4 GB local-only
+reference) or `eda/` (local-only). Keys come from **Colab Secrets** (`OPENAI_API_KEY`,
+`huggingface`, `wandb`), not the `.txt` files. After editing code locally, push the update by **dragging the `code` folder** onto the Drive
+`Exp3_PTO_GRPO\` parent — a merge that adds/overwrites but **never deletes** (Lior's default).
+For an exact mirror that also **removes** files you renamed/deleted, robocopy `/MIR` — but it
+is destructive on the destination, so run it **only with Lior's explicit go-ahead**:
+```powershell
+robocopy "C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code" `
+         "G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code" /MIR /XD __pycache__
+```
+Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
+`rclone sync A B` mirrors (deletes extras in B); use `copy` for additive, `check` for a dry-run diff.
 
 ## EDA extension points
 

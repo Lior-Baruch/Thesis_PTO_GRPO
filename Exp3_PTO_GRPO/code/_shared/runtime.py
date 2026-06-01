@@ -230,6 +230,15 @@ def authenticate(rt: RuntimeInfo, hf: bool = True, wandb_enabled: bool = False) 
         else:
             print("WARNING: No HF token found (looked in Colab userdata, env, HF_key.txt).")
 
+    # Log each saved checkpoint as a versioned W&B Artifact (a third durable
+    # copy alongside Drive + Hub). Must be set BEFORE any Trainer is built, so
+    # it lives here in auth rather than at trainer-construction time. setdefault
+    # respects an explicit user override. "checkpoint" (not "end") is used
+    # because "end" requires load_best_model_at_end=True, which we don't set.
+    if wandb_enabled:
+        os.environ.setdefault("WANDB_LOG_MODEL", "checkpoint")
+        print(f"W&B model logging: WANDB_LOG_MODEL={os.environ['WANDB_LOG_MODEL']}")
+
     if wandb_enabled and rt.in_colab:
         from google.colab import userdata  # type: ignore
         import wandb
