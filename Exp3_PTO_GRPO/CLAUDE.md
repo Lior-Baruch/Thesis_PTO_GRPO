@@ -301,10 +301,40 @@ Different sweep arms write to disjoint dirs — runs never collide.
 2. **Train.** Same visible-orchestration pattern. Outputs land under `data/pto_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`. Each iteration also saves the constructed pref pairs to `iteration_N/pref_pairs/pairs.csv` (audit trail; the prompt + chosen + rejected + scores per pair).
 3. **Inspect + Score + EDA.** Same as GRPO_Exp3 (the TB dashboard is shared via `_shared/tb_plots.py`).
 
+## Look-ahead performance (K>0) — serial bottleneck + planned batched fix
+
+**Status (2026-06-02).** The K-turn look-ahead reward path works but is the K>0
+wall-clock bottleneck. Root cause: in [_shared/reward.py](code/_shared/reward.py),
+`make_reward_fn` → `simulate_lookahead_batch` runs the batch of B completions as
+*independent* `simulate_lookahead_single` coroutines, and **every therapist
+look-ahead turn is a batch-of-1 `model.generate` serialized through one
+`gpu_lock`** — so a K=5 reward call does ~2·B sequential single-sequence
+generations. Patient + oracle API calls are already concurrent (fine).
+
+**Landed (low-risk, this session).** Inside `reward_fn`: (a) look-ahead timing +
+realized-turn telemetry (`Look-ahead: N sims × K=… in X.Xs (avg … turns realized,
+M ended early)`) — the serial-path baseline; (b) a loud guard when `k>0` but every
+`patient_system_prompt` is empty (degenerate patient). No algorithm change.
+
+**Planned (replan in a fresh session, before the K=5 arm).** Rewrite
+`simulate_lookahead_batch` as a **lock-step batched rollout** reusing the proven
+batched helpers from the initial-generation loop:
+[generate_therapist_responses_batch](code/_shared/convs.py) (one padded GPU call
+per therapist step, chunked to a safe sub-batch) + the patient-batch helper,
+mirroring [conversation_loop_batch](code/_shared/convs.py). Collapses ~2·B serial
+generations → ~2 batched ones. **Doing it *safely* is the open design question**
+(the reason it's deferred): look-ahead generate runs *during* a GRPO step with the
+policy in `train()` / `use_cache=False`, so the batched path must replicate the
+per-call `eval()` + `use_cache=True` toggle and restore it, keep an OOM fallback
+(halve the sub-batch), and not race the trainer's own generation. Semantics are
+unchanged (statistically equivalent, not bit-identical — sampling RNG differs).
+Sequence: batched fix → K=3 quicktest → K=5 arm.
+
 ## Sweep priority (2026-05-28)
 
-1. GRPO_Exp3 @ K ∈ {0, 5}, MCL = 10 (definite next step).
-2. Maybe → PTO_Exp3 @ K ∈ {0, 5}, MCL = 10.
+0. **K=3 look-ahead quicktest** — validate the look-ahead path end-to-end on the current (serial) reward; immediate (2026-06-02).
+1. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12** (definite next step; land the batched-look-ahead fix before the K=5 arm).
+2. Maybe → PTO_Exp3 @ K ∈ {0, 5}, MCL = 12.
 3. Maybe → either method @ MCL = 2.
 4. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
 

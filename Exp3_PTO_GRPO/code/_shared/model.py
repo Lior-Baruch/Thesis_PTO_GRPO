@@ -193,41 +193,64 @@ def validate_hf_checkpoint(checkpoint_path: str) -> Tuple[bool, List[str]]:
 
 def load_base_model(
     model_id: str,
-    quantization_config,
+    quantization_config=None,
     for_training: bool = False,
     trust_remote_code: bool = True,
     attn_implementation: Optional[str] = "sdpa",
+    dtype=None,
 ):
-    """Load a base causal LM with quantization.
+    """Load a base causal LM, optionally 4-bit quantized.
+
+    Two paths:
+      * ``quantization_config`` given → 4-bit (bnb) load + ``prepare_model_for_kbit_training``.
+      * ``quantization_config is None`` → full-precision (bf16) load. On a GPU with
+        ample VRAM (e.g. an A100 vs a 1B model) this skips the per-matmul dequant
+        overhead, speeding up generation. LoRA then trains under bf16 autocast
+        (set ``bf16=True`` in the trainer args).
 
     Args:
         model_id: HuggingFace model ID.
-        quantization_config: BitsAndBytesConfig for quantization.
-        for_training: If True, sets use_cache=False and prepares for kbit training.
-            If False, sets use_cache=True (inference mode).
+        quantization_config: BitsAndBytesConfig, or None for a bf16 load.
+        for_training: If True, sets use_cache=False (and, when quantized, runs
+            ``prepare_model_for_kbit_training``). If False, inference mode.
         trust_remote_code: Pass to from_pretrained.
         attn_implementation: Attention implementation (e.g., "sdpa"). Set None to omit.
+        dtype: Override compute dtype for the bf16 path. If None, auto-detects
+            bf16 support and falls back to fp16. Ignored when quantized (the
+            bnb compute dtype is used instead).
 
     Returns:
-        Loaded model on GPU with quantization applied.
+        Loaded model on GPU.
     """
+    import torch
+
     kwargs = dict(
-        quantization_config=quantization_config,
         device_map="auto",
         trust_remote_code=trust_remote_code,
     )
     if attn_implementation is not None:
         kwargs["attn_implementation"] = attn_implementation
 
-    if for_training:
-        kwargs["dtype"] = quantization_config.bnb_4bit_compute_dtype
+    if quantization_config is not None:
+        kwargs["quantization_config"] = quantization_config
+        if for_training:
+            kwargs["dtype"] = quantization_config.bnb_4bit_compute_dtype
+    else:
+        if dtype is None:
+            dtype = (
+                torch.bfloat16
+                if torch.cuda.is_available() and torch.cuda.is_bf16_supported()
+                else torch.float16
+            )
+        kwargs["dtype"] = dtype
 
     from transformers import AutoModelForCausalLM
-    print(f"  Loading base model: {model_id} (for_training={for_training})")
+    _quant_tag = "4bit" if quantization_config is not None else "bf16"
+    print(f"  Loading base model: {model_id} (for_training={for_training}, quant={_quant_tag})")
     model = AutoModelForCausalLM.from_pretrained(model_id, **kwargs)
     model.config.use_cache = not for_training
 
-    if for_training:
+    if for_training and quantization_config is not None:
         from peft import prepare_model_for_kbit_training
         prepare_model_for_kbit_training(model)
 

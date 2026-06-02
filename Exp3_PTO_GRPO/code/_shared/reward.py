@@ -17,6 +17,7 @@ Layout (top → bottom):
 
 import re
 import gc
+import time
 import asyncio
 import json
 from dataclasses import dataclass
@@ -587,6 +588,18 @@ def make_reward_fn(
 
         if lookahead_cfg.k > 0:
             patient_system_prompt = kwargs.get("patient_system_prompt", [""] * len(prompts))
+            # Guard: look-ahead simulates patient turns conditioned on this prompt.
+            # If it's missing/empty the patient is degenerate — warn loudly rather
+            # than silently scoring against an empty system prompt.
+            if all(not (sp or "").strip() for sp in patient_system_prompt):
+                print(
+                    "    ⚠ Look-ahead k>0 but all patient_system_prompt are empty — "
+                    "simulating patient turns against an empty system prompt "
+                    "(degenerate patient). Check that the dataset carries "
+                    "'patient_system_prompt'."
+                )
+
+            la_start = time.time()
             extended_transcripts = await simulate_lookahead_batch(
                 transcripts=list(transcript),
                 completions=list(completions),
@@ -607,6 +620,27 @@ def make_reward_fn(
                 patient_max_retries=lookahead_cfg.patient_api_max_retries,
                 patient_backoff_seconds=lookahead_cfg.patient_api_backoff_seconds,
             )
+            la_time = time.time() - la_start
+
+            # Telemetry: realized look-ahead turns per sim (approximate, by counting
+            # role labels added beyond the original transcript + the completion). A
+            # sim that ran fewer than K turns ended early (SESSION ENDED / API fail).
+            # This is the serial-path baseline for the deferred batched rewrite.
+            def _count_labels(s: str) -> int:
+                return s.count("[PATIENT]:") + s.count("[THERAPIST]:")
+
+            la_turns = [
+                max(0, _count_labels(ext) - _count_labels(orig) - 1)
+                for ext, orig in zip(extended_transcripts, list(transcript))
+            ]
+            avg_la = float(np.mean(la_turns)) if la_turns else 0.0
+            n_early = sum(1 for n in la_turns if n < lookahead_cfg.k)
+            print(
+                f"    Look-ahead: {len(extended_transcripts)} sims × K={lookahead_cfg.k} "
+                f"in {la_time:.1f}s (avg {avg_la:.1f} turns realized, "
+                f"{n_early} ended early)"
+            )
+
             tasks = [
                 _process_single_sample(
                     client, oracle_cfg, primitives, questionnaire_ids, stats,

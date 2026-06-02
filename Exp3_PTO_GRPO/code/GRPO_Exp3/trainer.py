@@ -576,6 +576,7 @@ def _build_grpo_args(cfg: TrainingConfig, inner_outdir: str, num_train_prompts: 
         temperature=cfg.grpo_temperature,
         scale_rewards="group",  # Original GRPO group normalization
         loss_type=cfg.grpo_loss_type,
+        bf16=True,  # bf16 autocast for LoRA params (correct for both bf16 + 4-bit-bf16-compute bases; A100 supports it)
         seed=cfg.seed,
         remove_unused_columns=False,
         lr_scheduler_type="cosine",
