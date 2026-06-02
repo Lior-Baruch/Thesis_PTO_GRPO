@@ -70,17 +70,19 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, trainer.py}` with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Immediate:** K=3 look-ahead quicktest (`RUN_MODE="quicktest"`, `LOOKAHEAD_K=3`) to
-validate the look-ahead reward path end-to-end on the current (serial) implementation.
-Entry: [Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb](Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb).
+**Landed:** the *batched, safely-parallel* look-ahead rollout (the K>0 wall-clock
+bottleneck) — `simulate_lookahead_batch` is now a lock-step batched rewrite, plus a
+`LOOKAHEAD_SUB_BATCH_SIZE` knob and an optional equivalence harness
+(`_shared/lookahead_check.py`). Implemented + logic-tested; see
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance".
 
-**Before the K=5 arm:** replan + implement a *batched, safely-parallel* look-ahead
-rollout — the per-completion serial batch-1 GPU path is the K>0 wall-clock bottleneck
-(see [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance").
-Low-risk reward-fn telemetry + a patient-prompt guard already landed.
+**Immediate (real-GPU validation):** run the optional **section 6** equivalence cell
+(serial vs batched), then the K=3 look-ahead quicktest (`RUN_MODE="quicktest"`,
+`LOOKAHEAD_K=3`), local **bf16** only. Entry:
+[Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb](Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb).
 
-**Then:** full GRPO_Exp3 sweep over K ∈ {0, 5} on Q1+Q2 at MCL = 12. Optional: PTO_Exp3
-over the same grid via [Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
+**Then:** full GRPO_Exp3 sweep over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab). Optional:
+PTO_Exp3 over the same grid via [Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
 
 ## Hardware
 Local: Windows, RTX 5070 Ti (12 GB VRAM), CUDA 12.8, torch 2.11.0+cu128.

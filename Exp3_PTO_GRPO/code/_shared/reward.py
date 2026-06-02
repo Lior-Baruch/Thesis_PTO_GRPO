@@ -27,7 +27,12 @@ import numpy as np
 import torch
 
 from questionnaires import get_prompt_eval_questionnaire
-from .convs import handle_session_end, generate_patient_response_async
+from .convs import (
+    handle_session_end,
+    generate_patient_response_async,
+    generate_patient_responses_batch,
+    generate_therapist_responses_batch,
+)
 
 
 # Pattern: [PATIENT]: or [THERAPIST]: at the start of a transcript segment.
@@ -128,6 +133,12 @@ async def _generate_therapist_single_async(
     Uses ``torch.inference_mode()`` and temporarily enables KV-cache so that
     generation works even when the model is in training mode. The caller's
     ``model.train()`` / ``use_cache`` state is restored in a ``finally`` block.
+
+    LEGACY (batch-of-1): the live look-ahead path now uses the lock-step batched
+    rollout in :func:`simulate_lookahead_batch` (which generates all active sims
+    in one padded ``model.generate``). This function + :func:`simulate_lookahead_single`
+    are kept only as the ground-truth semantics reference and the comparison
+    oracle for the batched-vs-serial equivalence check. Not on the hot path.
     """
 
     def _sync_generate() -> Optional[str]:
@@ -191,8 +202,90 @@ async def _generate_therapist_single_async(
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║              BATCHED THERAPIST GENERATION (OOM-resilient)                  ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+def _therapist_generate_chunked(
+    therapist_model,
+    therapist_tokenizer,
+    batch_messages: List[List[Dict]],
+    max_tokens: int,
+    temperature: float,
+    max_input_tokens: int,
+    stop_strings: Optional[List[str]],
+    start_sub_batch: int,
+) -> Tuple[List[Optional[str]], int, int]:
+    """Generate one therapist response per message-list, with OOM-driven halving.
+
+    Sync helper (call via ``run_in_executor`` under ``gpu_lock``). Wraps
+    :func:`convs.generate_therapist_responses_batch`, which returns
+    ``(responses|None, error_type)`` and never raises on OOM (it cleans the CUDA
+    cache and returns ``"oom"``). Inputs are processed in chunks of ``sb``
+    (starting at ``start_sub_batch``):
+
+    - success → place responses at their indices.
+    - ``"oom"`` → if ``sb == 1`` freeze that single item (``None``) and advance;
+      else halve ``sb`` and retry the same chunk. The reduced ``sb`` is **sticky**
+      (returned so the caller reuses it for later steps — no re-paying OOM cost).
+    - ``"runtime_error"`` (non-OOM) → halving won't help, so freeze the chunk's
+      items (``None``) and advance. (Diverges from ``conversation_loop_batch``,
+      which aborts the whole batch; for a reward computation, scoring a shorter
+      transcript beats killing a GRPO step on a transient hiccup.)
+
+    Even a sub-batch=1 OOM is non-fatal: that item returns ``None`` and the sim
+    freezes on its current transcript.
+
+    Returns ``(responses, final_sub_batch, n_generate_calls)`` with
+    ``responses`` order-aligned to ``batch_messages``.
+    """
+    n = len(batch_messages)
+    responses: List[Optional[str]] = [None] * n
+    sb = max(1, start_sub_batch)
+    n_calls = 0
+
+    i = 0
+    while i < n:
+        chunk = batch_messages[i:i + sb]
+        resp, error_type = generate_therapist_responses_batch(
+            therapist_model, therapist_tokenizer, chunk,
+            max_tokens, temperature,
+            max_input_tokens=max_input_tokens, stop_strings=stop_strings,
+        )
+        n_calls += 1
+
+        if error_type is None:
+            for j, r in enumerate(resp):
+                responses[i + j] = r
+            i += len(chunk)
+        elif error_type == "oom":
+            if sb == 1:
+                # A single sequence still OOMs — freeze it and move on.
+                responses[i] = None
+                i += 1
+            else:
+                sb = max(1, sb // 2)  # sticky: smaller sb persists for later chunks
+                # don't advance i — retry the same start at the smaller sb
+        else:  # "runtime_error" — freeze this chunk, advance.
+            for j in range(len(chunk)):
+                responses[i + j] = None
+            i += len(chunk)
+
+    return responses, sb, n_calls
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                   LOOK-AHEAD SIMULATION                                    ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+@dataclass
+class _LookaheadSim:
+    """Mutable per-completion state for the lock-step batched look-ahead rollout."""
+    msgs_therapist: List[Dict]
+    msgs_patient: List[Dict]
+    extended_transcript: str
+    active: bool = True
 
 
 async def simulate_lookahead_single(
@@ -220,6 +313,11 @@ async def simulate_lookahead_single(
     Alternates patient (OpenAI API) and therapist (local GPU) turns.
     Returns the full extended transcript (original + completion + look-ahead
     turns) as plain text suitable for oracle evaluation.
+
+    LEGACY (serial, batch-of-1): kept as the ground-truth semantics reference and
+    the comparison oracle for the batched-vs-serial equivalence check. The live
+    path is :func:`simulate_lookahead_batch` (lock-step batched). Not on the hot
+    path — see the module/notebook verification cell.
     """
     try:
         msgs_therapist, msgs_patient = _parse_transcript_to_messages(
@@ -316,35 +414,149 @@ async def simulate_lookahead_batch(
     gpu_lock: asyncio.Lock,
     patient_max_retries: int = 3,
     patient_backoff_seconds: float = 1.0,
+    sub_batch_size: Optional[int] = None,
+    telemetry: Optional[dict] = None,
 ) -> List[str]:
-    """Run look-ahead simulations for a batch of (transcript, completion) pairs.
+    """Lock-step batched look-ahead for a batch of (transcript, completion) pairs.
 
-    Patient API calls run concurrently (bounded by *patient_sem*); GPU calls
-    are serialized by *gpu_lock*.
+    All sims advance in unison (patient → therapist → patient → …), so each
+    therapist turn is **one padded batched** ``model.generate`` over the active
+    sims rather than B serial batch-of-1 calls. Collapses ~B·K serial
+    generations into ~K batched ones. Semantics match the legacy serial
+    :func:`simulate_lookahead_single` (statistically equivalent, not
+    bit-identical — sampling RNG differs).
+
+    Speaker is a pure function of the step index (even = patient, odd =
+    therapist): every sim is constructed here at the same phase, and the only
+    way to leave the cadence is to go inactive (dropped from the active set), so
+    — unlike :func:`convs.conversation_loop_batch` — there is no speaker-desync
+    case to recover from.
+
+    Safety: patient API calls run concurrently (bounded by *patient_sem*).
+    Therapist generation holds *gpu_lock* per step (never across the patient
+    ``await``) and toggles ``eval()`` / ``use_cache=True`` for the duration,
+    restoring the caller's ``train()`` / ``use_cache`` in a ``finally`` — this
+    runs during a live GRPO step with the policy in ``train()``. OOM is handled
+    by sub-batch halving in :func:`_therapist_generate_chunked`.
+
+    A sim is **frozen** (kept at its current transcript, removed from later
+    steps) when its patient call fails, either side emits ``SESSION ENDED``, or
+    therapist generation returns ``None`` (OOM/runtime error). A transcript that
+    fails to parse is also frozen on its seed text rather than aborting the whole
+    call — deliberately more robust than the serial path, which propagates the
+    ``ValueError``.
+
+    Args:
+        sub_batch_size: cap on the therapist generate batch (None = all active
+            sims at once). Halved automatically on OOM and kept sticky.
+        telemetry: if a dict is passed, it is populated with ``gpu_calls`` and
+            ``sub_batch`` (the final, possibly-halved size) for logging. Callers
+            that don't need it (e.g. PTO branch scoring) omit it to stay quiet.
+
+    Returns:
+        ``List[str]`` of extended transcripts, in input order.
     """
-    tasks = [
-        simulate_lookahead_single(
-            transcript=t, completion=c,
-            system_prompt_therapist=system_prompt_therapist,
-            system_prompt_patient=sp,
-            therapist_model=therapist_model,
-            therapist_tokenizer=therapist_tokenizer,
-            client=client,
-            patient_model_id=patient_model_id,
-            lookahead_k=lookahead_k,
-            temperature_therapist=temperature_therapist,
-            temperature_patient=temperature_patient,
-            max_tokens=max_tokens,
-            max_input_tokens=max_input_tokens,
-            stop_strings=stop_strings,
-            patient_sem=patient_sem,
-            gpu_lock=gpu_lock,
-            patient_max_retries=patient_max_retries,
-            patient_backoff_seconds=patient_backoff_seconds,
-        )
-        for t, c, sp in zip(transcripts, completions, system_prompts_patient)
-    ]
-    return await asyncio.gather(*tasks)
+    # Build per-sim state. A transcript that can't be parsed freezes that sim on
+    # its seed transcript rather than aborting the whole reward call.
+    sims: List[_LookaheadSim] = []
+    for transcript, completion, sp_patient in zip(
+        transcripts, completions, system_prompts_patient
+    ):
+        seed_transcript = f"{transcript}\n\n[THERAPIST]: {completion}"
+        try:
+            msgs_therapist, msgs_patient = _parse_transcript_to_messages(
+                transcript, system_prompt_therapist, sp_patient,
+            )
+            msgs_therapist.append({"role": "assistant", "content": completion})
+            msgs_patient.append({"role": "user", "content": completion})
+            sims.append(_LookaheadSim(msgs_therapist, msgs_patient, seed_transcript, True))
+        except ValueError as e:
+            preview = transcript[:280] + ("..." if len(transcript) > 280 else "")
+            print(
+                f"  ⚠ Look-ahead transcript parse failed (length={len(transcript)} "
+                f"chars); freezing this sim on its seed transcript. Preview: "
+                f"{preview!r} ({e})"
+            )
+            sims.append(_LookaheadSim([], [], seed_transcript, False))
+
+    loop = asyncio.get_event_loop()
+    sb = sub_batch_size  # mutable; halving in the chunked helper persists across steps
+    total_gpu_calls = 0
+
+    # After the completion (a therapist turn), the next speaker is the patient.
+    for step in range(lookahead_k):
+        active = [s for s in sims if s.active]
+        if not active:
+            break
+
+        speaker_role = "patient" if step % 2 == 0 else "therapist"
+
+        if speaker_role == "patient":
+            responses = await generate_patient_responses_batch(
+                client, patient_model_id,
+                [s.msgs_patient for s in active],
+                max_tokens, temperature_patient, patient_sem,
+                patient_max_retries, patient_backoff_seconds,
+            )
+            for sim, resp in zip(active, responses):
+                if isinstance(resp, BaseException) or resp is None:
+                    sim.active = False
+                    continue
+                if "SESSION ENDED" in resp.upper():
+                    try:
+                        _, _, cleaned = handle_session_end(resp, "patient")
+                        if cleaned:
+                            sim.extended_transcript += f"\n\n[PATIENT]: {cleaned}"
+                    except ValueError:
+                        pass
+                    sim.active = False
+                    continue
+                sim.msgs_therapist.append({"role": "user", "content": resp})
+                sim.msgs_patient.append({"role": "assistant", "content": resp})
+                sim.extended_transcript += f"\n\n[PATIENT]: {resp}"
+        else:  # therapist turn — one batched GPU generate under gpu_lock + eval toggle
+            start_sb = sb if sb is not None else len(active)
+            async with gpu_lock:
+                old_use_cache = therapist_model.config.use_cache
+                was_training = therapist_model.training
+                therapist_model.config.use_cache = True
+                therapist_model.eval()
+                try:
+                    responses, sb, n_calls = await loop.run_in_executor(
+                        None, _therapist_generate_chunked,
+                        therapist_model, therapist_tokenizer,
+                        [s.msgs_therapist for s in active],
+                        max_tokens, temperature_therapist, max_input_tokens,
+                        stop_strings, start_sb,
+                    )
+                finally:
+                    therapist_model.config.use_cache = old_use_cache
+                    if was_training:
+                        therapist_model.train()
+            total_gpu_calls += n_calls
+
+            for sim, resp in zip(active, responses):
+                if resp is None:
+                    sim.active = False
+                    continue
+                if "SESSION ENDED" in resp.upper():
+                    try:
+                        _, _, cleaned = handle_session_end(resp, "therapist")
+                        if cleaned:
+                            sim.extended_transcript += f"\n\n[THERAPIST]: {cleaned}"
+                    except ValueError:
+                        pass
+                    sim.active = False
+                    continue
+                sim.msgs_therapist.append({"role": "assistant", "content": resp})
+                sim.msgs_patient.append({"role": "user", "content": resp})
+                sim.extended_transcript += f"\n\n[THERAPIST]: {resp}"
+
+    if telemetry is not None:
+        telemetry["gpu_calls"] = total_gpu_calls
+        telemetry["sub_batch"] = sb
+
+    return [s.extended_transcript for s in sims]
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -376,6 +588,11 @@ class LookaheadConfig:
     patient_api_max_retries: int
     patient_api_backoff_seconds: float
     stop_strings: Optional[List[str]] = None
+    # Sub-batch size for the batched look-ahead therapist generation. None =
+    # generate all active sims in one padded ``model.generate`` call (largest
+    # batch, fastest). Set an int to cap GPU memory; the batched rollout halves
+    # it automatically on OOM. See :func:`simulate_lookahead_batch`.
+    lookahead_sub_batch_size: Optional[int] = None
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -600,6 +817,7 @@ def make_reward_fn(
                 )
 
             la_start = time.time()
+            la_telemetry: dict = {}
             extended_transcripts = await simulate_lookahead_batch(
                 transcripts=list(transcript),
                 completions=list(completions),
@@ -619,6 +837,8 @@ def make_reward_fn(
                 gpu_lock=primitives.gpu_lock(),
                 patient_max_retries=lookahead_cfg.patient_api_max_retries,
                 patient_backoff_seconds=lookahead_cfg.patient_api_backoff_seconds,
+                sub_batch_size=lookahead_cfg.lookahead_sub_batch_size,
+                telemetry=la_telemetry,
             )
             la_time = time.time() - la_start
 
@@ -638,7 +858,9 @@ def make_reward_fn(
             print(
                 f"    Look-ahead: {len(extended_transcripts)} sims × K={lookahead_cfg.k} "
                 f"in {la_time:.1f}s (avg {avg_la:.1f} turns realized, "
-                f"{n_early} ended early)"
+                f"{n_early} ended early; batched, "
+                f"{la_telemetry.get('gpu_calls', '?')} GPU calls, "
+                f"sub_batch={la_telemetry.get('sub_batch', '?')})"
             )
 
             tasks = [

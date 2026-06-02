@@ -362,6 +362,7 @@ async def _score_branches(
             gpu_lock=primitives.gpu_lock(),
             patient_max_retries=lookahead_cfg.patient_api_max_retries,
             patient_backoff_seconds=lookahead_cfg.patient_api_backoff_seconds,
+            sub_batch_size=lookahead_cfg.lookahead_sub_batch_size,
         )
         full_convs = extended
     else:

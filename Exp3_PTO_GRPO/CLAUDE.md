@@ -204,13 +204,14 @@ Exp3_PTO_GRPO/
 ├── code/
 │   ├── system_prompts_builder.py        V3 prompts (single canonical copy; EDA also reads this one)
 │   ├── questionnaires.py                V5 oracle (JSON schema, 6 questionnaires)
-│   ├── _shared/                         5 cross-method modules (GRPO_Exp3 + PTO_Exp3 both import)
+│   ├── _shared/                         cross-method modules (GRPO_Exp3 + PTO_Exp3 both import)
 │   │   ├── __init__.py                  public-API re-exports
 │   │   ├── runtime.py                   Colab/local detect, auth, paths, preflight
 │   │   ├── model.py                     tokenizer/quant/LoRA + checkpoint discovery + iteration resume
 │   │   ├── convs.py                     conv state + async gen + per-turn prompt extraction (MCL filter)
-│   │   ├── reward.py                    oracle scoring + K-turn look-ahead + reward-fn factory
-│   │   └── tb_plots.py                  TB callbacks + logging lifecycle + TB parser + plot dashboard
+│   │   ├── reward.py                    oracle scoring + K-turn look-ahead (batched) + reward-fn factory
+│   │   ├── tb_plots.py                  TB callbacks + logging lifecycle + TB parser + plot dashboard
+│   │   └── lookahead_check.py           OPTIONAL (off hot path): serial-vs-batched look-ahead equivalence + OOM smoke
 │   ├── GRPO_Exp3/
 │   │   ├── train_GRPO_Iterative.ipynb   visible orchestration loop
 │   │   └── trainer.py                   TrainingConfig + run_one_iteration + run_final_eval + …
@@ -301,34 +302,53 @@ Different sweep arms write to disjoint dirs — runs never collide.
 2. **Train.** Same visible-orchestration pattern. Outputs land under `data/pto_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`. Each iteration also saves the constructed pref pairs to `iteration_N/pref_pairs/pairs.csv` (audit trail; the prompt + chosen + rejected + scores per pair).
 3. **Inspect + Score + EDA.** Same as GRPO_Exp3 (the TB dashboard is shared via `_shared/tb_plots.py`).
 
-## Look-ahead performance (K>0) — serial bottleneck + planned batched fix
+## Look-ahead performance (K>0) — batched rollout LANDED
 
-**Status (2026-06-02).** The K-turn look-ahead reward path works but is the K>0
-wall-clock bottleneck. Root cause: in [_shared/reward.py](code/_shared/reward.py),
-`make_reward_fn` → `simulate_lookahead_batch` runs the batch of B completions as
-*independent* `simulate_lookahead_single` coroutines, and **every therapist
-look-ahead turn is a batch-of-1 `model.generate` serialized through one
-`gpu_lock`** — so a K=5 reward call does ~2·B sequential single-sequence
-generations. Patient + oracle API calls are already concurrent (fine).
+**Status (2026-06-02).** The K>0 wall-clock bottleneck is fixed:
+`simulate_lookahead_batch` in [_shared/reward.py](code/_shared/reward.py) is now a
+**lock-step batched rollout**. All B completions advance in unison (patient →
+therapist → …), so each therapist look-ahead turn is **one padded batched
+`model.generate`** over the active sims instead of B serial batch-of-1 calls —
+collapsing ~B·K serial generations into ~K batched ones. Semantics match the
+legacy serial path (statistically equivalent, not bit-identical — sampling RNG
+differs). Both GRPO (`make_reward_fn`) and PTO (`build_pref_pairs`,
+[PTO_Exp3/trainer.py](code/PTO_Exp3/trainer.py)) get it through the shared fn.
 
-**Landed (low-risk, this session).** Inside `reward_fn`: (a) look-ahead timing +
-realized-turn telemetry (`Look-ahead: N sims × K=… in X.Xs (avg … turns realized,
-M ended early)`) — the serial-path baseline; (b) a loud guard when `k>0` but every
-`patient_system_prompt` is empty (degenerate patient). No algorithm change.
+**How it's safe.** The batched therapist step holds `gpu_lock` per-step (never
+across the patient API `await`) with the `eval()` + `use_cache=True` toggle nested
+inside, restored in a `finally` (look-ahead runs *during* a GRPO step with the
+policy in `train()`). OOM is handled by `_therapist_generate_chunked`: a
+chunk-and-halve loop over `generate_therapist_responses_batch` that halves the
+sub-batch on OOM (kept **sticky**) and freezes a sim (scores its shorter
+transcript) only if even sub-batch=1 OOMs — never aborts the GRPO step. A sim is
+likewise frozen on SESSION ENDED, patient-API failure, or an unparseable
+transcript (the serial path let parse errors propagate; batched is deliberately
+more robust). Verified by a fakes-based logic test (happy path, per-sim freezing,
+OOM halving 4→2,2, sub-batch=1 OOM, parse-failure isolation, toggle restoration
+after a mid-rollout exception — all pass).
 
-**Planned (replan in a fresh session, before the K=5 arm).** Rewrite
-`simulate_lookahead_batch` as a **lock-step batched rollout** reusing the proven
-batched helpers from the initial-generation loop:
-[generate_therapist_responses_batch](code/_shared/convs.py) (one padded GPU call
-per therapist step, chunked to a safe sub-batch) + the patient-batch helper,
-mirroring [conversation_loop_batch](code/_shared/convs.py). Collapses ~2·B serial
-generations → ~2 batched ones. **Doing it *safely* is the open design question**
-(the reason it's deferred): look-ahead generate runs *during* a GRPO step with the
-policy in `train()` / `use_cache=False`, so the batched path must replicate the
-per-call `eval()` + `use_cache=True` toggle and restore it, keep an OOM fallback
-(halve the sub-batch), and not race the trainer's own generation. Semantics are
-unchanged (statistically equivalent, not bit-identical — sampling RNG differs).
-Sequence: batched fix → K=3 quicktest → K=5 arm.
+**Knob.** `LOOKAHEAD_SUB_BATCH_SIZE` (notebook cell 1 → `LookaheadConfig.lookahead_sub_batch_size`,
+default `32`; `None` = all active sims in one call). Halved automatically on OOM
+(kept sticky for the rest of the rollout).
+
+**Telemetry.** The existing `reward_fn` line now reports the batched cost:
+`Look-ahead: N sims × K=… in X.Xs (… ended early; batched, G GPU calls, sub_batch=S)`.
+The legacy `simulate_lookahead_single` / `_generate_therapist_single_async` are kept
+(marked LEGACY) as the equivalence-check reference, not on the hot path.
+
+**Validation harness.** [_shared/lookahead_check.py](code/_shared/lookahead_check.py)
+(`make_quick_fixtures` + `compare_serial_vs_batched`) runs both paths on the same
+fixtures and prints realized-turn + Q1+Q2 reward mean/std for each plus the batched
+speedup. Wired as an **optional section 6 cell** in
+[GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb)
+(guarded by `LOOKAHEAD_K > 0`). Raise `LOOKAHEAD_SUB_BATCH_SIZE` past VRAM to exercise
+OOM halving.
+
+**Remaining (real-GPU validation).** A fakes-based logic test already covers control
+flow (freezing, OOM halve, toggle restore). Still to run on hardware: (a) the
+`compare_serial_vs_batched` equivalence cell — `|Δmean|` of Q1+Q2 reward within
+~0.07–0.10 oracle noise; (b) local **bf16** K=3 quicktest end-to-end; (c) Colab
+K=3+K=5 smoke. Sequence: ✅ batched fix → K=3 quicktest → K=5 arm.
 
 ## Sweep priority (2026-05-28)
 
