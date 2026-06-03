@@ -3,7 +3,7 @@
 Llama-3.2-1B therapist vs gpt-4o-mini patient/oracle. Two methods compared
 under matched look-ahead + oracle:
 - **PTO_Exp3** (preference-tree → DPO loss). Refactored as a lean sibling of
-  GRPO_Exp3 (one notebook + one `trainer.py`, sharing `_shared/`). Output dir:
+  GRPO_Exp3 (one notebook + one `pto_trainer.py`, sharing `_shared/`). Output dir:
   `data/pto_Exp3/`. The Exp2-sourced `data/pto_Exp2/` artifacts are still read by the
   EDA registry but **not regenerated here** unless you re-run PTO_Exp3.
 - **GRPO_Exp3** (iterative). Sweep not yet run — definite next step.
@@ -18,7 +18,8 @@ Both trainers (`code/GRPO_Exp3/`, `code/PTO_Exp3/`) follow the same shape:
 ```
 <METHOD>_Exp3/
 ├── train_<METHOD>_Iterative.ipynb   thicker — per-iteration orchestration visible
-└── trainer.py                       <Method>Config + run_one_iteration + run_final_eval + write_run_metadata + build_wandb_ctx
+└── <method>_trainer.py              <Method>Config + run_one_iteration + run_final_eval + write_run_metadata + build_wandb_ctx
+                                     (named per method — grpo_trainer.py / pto_trainer.py — so `from <m>_trainer` can't collide in a shared kernel)
 ```
 
 with the per-iteration loop composed *visibly in the notebook* (no
@@ -67,7 +68,7 @@ don't trample each other. See [_shared/reward.py](code/_shared/reward.py).
 
 ### GRPO_Exp3 + K-turn look-ahead
 
-**Per iteration `n` (loop body in [GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb), helpers in [trainer.py](code/GRPO_Exp3/trainer.py)):**
+**Per iteration `n` (loop body in [GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb), helpers in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py)):**
 
 1. **Generate rollouts.** `π_n` simulates 96 conversations versus `P`, one per
    patient permutation (each iter's 96 are shuffled by `seed + n`). Saved to
@@ -111,7 +112,7 @@ trajectory the *current policy* would actually take after it, so siblings that
 
 ### PTO_Exp3 + K-turn look-ahead
 
-**Per iteration `n` (loop body in [PTO_Exp3/train_PTO_Iterative.ipynb](code/PTO_Exp3/train_PTO_Iterative.ipynb), helpers in [trainer.py](code/PTO_Exp3/trainer.py)):**
+**Per iteration `n` (loop body in [PTO_Exp3/train_PTO_Iterative.ipynb](code/PTO_Exp3/train_PTO_Iterative.ipynb), helpers in [pto_trainer.py](code/PTO_Exp3/pto_trainer.py)):**
 
 1. **Generate rollouts.** Same as GRPO step 1 — `π_n` simulates 96 conversations
    versus `P`. Saved to `data/pto_Exp3/conversations/.../model_iter_{n-1}/`.
@@ -214,10 +215,10 @@ Exp3_PTO_GRPO/
 │   │   └── lookahead_check.py           OPTIONAL (off hot path): serial-vs-batched look-ahead equivalence + OOM smoke
 │   ├── GRPO_Exp3/
 │   │   ├── train_GRPO_Iterative.ipynb   visible orchestration loop
-│   │   └── trainer.py                   TrainingConfig + run_one_iteration + run_final_eval + …
+│   │   └── grpo_trainer.py              TrainingConfig + run_one_iteration + run_final_eval + …
 │   └── PTO_Exp3/
 │       ├── train_PTO_Iterative.ipynb    visible orchestration loop (mirrors GRPO_Exp3)
-│       └── trainer.py                   PTOConfig + run_one_iteration + build_pref_pairs_for_conversation + …
+│       └── pto_trainer.py               PTOConfig + run_one_iteration + build_pref_pairs_for_conversation + …
 ├── data/                               eval scores co-locate per method, labelled metric=<M>/oracle=<O>/ (M=scoring metric, O=training oracle)
 │   ├── pto_Exp2/                        Exp2-sourced PTO artifacts + their scores (NOT regenerated here)
 │   │   ├── pref_trees/{CSQ-8,CTRL,Q1Q2,WAI}/
@@ -292,7 +293,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 ## Running GRPO_Exp3
 
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
-2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [trainer.py](code/GRPO_Exp3/trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
+2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
 4. **Score + EDA.** In [eda/lib/config.py](eda/lib/config.py), add a registry entry pointing to the new run's conversation folder. Then [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → [eda/Conv_EDA.ipynb](eda/Conv_EDA.ipynb).
 
@@ -312,7 +313,7 @@ therapist → …), so each therapist look-ahead turn is **one padded batched
 collapsing ~B·K serial generations into ~K batched ones. Semantics match the
 legacy serial path (statistically equivalent, not bit-identical — sampling RNG
 differs). Both GRPO (`make_reward_fn`) and PTO (`build_pref_pairs`,
-[PTO_Exp3/trainer.py](code/PTO_Exp3/trainer.py)) get it through the shared fn.
+[PTO_Exp3/pto_trainer.py](code/PTO_Exp3/pto_trainer.py)) get it through the shared fn.
 
 **How it's safe.** The batched therapist step holds `gpu_lock` per-step (never
 across the patient API `await`) with the `eval()` + `use_cache=True` toggle nested
@@ -364,7 +365,7 @@ Trainers were audited against the latest docs of the pinned stack
 (`transformers==5.8.1`, `trl==1.4.0`, `peft==0.19.1`, `huggingface_hub==1.14.0`,
 `wandb==0.26.1`) and are **verified current** — despite the lingering "TRL
 v0.28" comments in the code, nothing is deprecated:
-- **`scale_rewards="group"`** ([GRPO_Exp3/trainer.py](code/GRPO_Exp3/trainer.py)) is the TRL **default** (`"group"/"batch"/"none"`), not a stale value.
+- **`scale_rewards="group"`** ([GRPO_Exp3/grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py)) is the TRL **default** (`"group"/"batch"/"none"`), not a stale value.
 - **async reward fn** ([_shared/reward.py](code/_shared/reward.py)) is natively awaited by TRL 1.x (`inspect.iscoroutinefunction` → `asyncio.gather`); extra dataset columns forwarded as kwargs; per-sample `None` supported.
 - `processing_class=`, `eval_strategy=` already on the new transformers-5/TRL-1 API.
 - `hf_xet` is a **required transitive dep** of `huggingface_hub` 1.x — already installed, nothing to add.

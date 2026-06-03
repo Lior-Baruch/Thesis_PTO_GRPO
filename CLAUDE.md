@@ -46,8 +46,10 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
 **Shared infrastructure (Exp3).** Both GRPO_Exp3 and PTO_Exp3 trainers import from
 `Exp3_PTO_GRPO/code/_shared/` (5 modules: runtime, model, convs, reward, tb_plots).
-Each method's `trainer.py` owns just the method-specific bits (`TrainingConfig`/
-`PTOConfig`, iteration body, dataset shape, TRL trainer wrapping).
+Each method's trainer module (`grpo_trainer.py` / `pto_trainer.py` — named per method
+so `from <method>_trainer import …` can't collide in a shared kernel) owns just the
+method-specific bits (`TrainingConfig`/`PTOConfig`, iteration body, dataset shape, TRL
+trainer wrapping).
 
 **Naming:** PTO is the framework, DPO is the loss. Don't call GRPO data "pref data" — it has none.
 
@@ -67,7 +69,7 @@ Thesis_PTO_GRPO/
 - **Workspace root resolver.** Walks up from `os.getcwd()` looking for `HF_key.txt`+`openai_key.txt` together → resolves to experiment root (`Exp{1,2,3}_*/`). Used by every notebook.
 - **EDA path remapping.** Legacy strings like `"LLM_DATA/Conversation_with_Eval_V3/..."` (Exp1/Exp2 EDAs) are remapped at load time by `_resolve_data_path(...)`. Don't rewrite the literals.
 - **File version suffixes (`_V3`, `_V5`)** are dropped when the file lives in an experiment dir (the dir provides version context). Method-lineage subdirs in Exp3 are named after the experiment (`GRPO_Exp3/`, `PTO_Exp3/`).
-- **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, trainer.py}` with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
+- **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
 **Landed:** the *batched, safely-parallel* look-ahead rollout (the K>0 wall-clock

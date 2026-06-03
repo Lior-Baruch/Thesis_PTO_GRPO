@@ -1,5 +1,5 @@
 """
-trainer.py — GRPO_Exp3 orchestration helpers and convenience entry point.
+grpo_trainer.py — GRPO_Exp3 orchestration helpers and convenience entry point.
 
 The user-facing pattern is to compose the helpers visibly from the notebook:
 

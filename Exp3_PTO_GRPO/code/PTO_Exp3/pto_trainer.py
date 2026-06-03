@@ -1,5 +1,5 @@
 """
-trainer.py — PTO_Exp3 orchestration helpers + pref-tree construction + DPO loop.
+pto_trainer.py — PTO_Exp3 orchestration helpers + pref-tree construction + DPO loop.
 
 PTO_Exp3 mirrors GRPO_Exp3's iterative structure but uses preference-tree
 construction (per-turn branching, K-turn look-ahead, oracle scoring, τ-filtered
