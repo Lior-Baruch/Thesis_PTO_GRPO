@@ -21,10 +21,10 @@ Typical use (notebook cell)::
     from _shared.lookahead_check import make_quick_fixtures, compare_serial_vs_batched
     fx = make_quick_fixtures(
         policy=base_policy, tokenizer=tokenizer, client=client,
-        permutations=all_permutations[:6],
+        permutations=all_permutations[:8],
         therapist_system_prompt=therapist_system_prompt,
         therapist_init_utterance=therapist_init_utterance,
-        cfg=cfg, n_fixtures=16,
+        cfg=cfg, n_fixtures=48,
     )
     res = await compare_serial_vs_batched(
         **fx, system_prompt_therapist=therapist_system_prompt,
@@ -71,9 +71,9 @@ def make_quick_fixtures(
     therapist_system_prompt: str,
     therapist_init_utterance: str,
     cfg,
-    n_fixtures: int = 16,
-    fixtures_per_conv: int = 3,
-    num_utterances: int = 12,
+    n_fixtures: int = 48,
+    fixtures_per_conv: int = 8,
+    num_utterances: int = 31,
 ) -> Dict[str, list]:
     """Generate short convs with *policy* and derive look-ahead fixtures.
 
