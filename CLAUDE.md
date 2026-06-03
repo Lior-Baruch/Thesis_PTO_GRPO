@@ -18,7 +18,7 @@ Three controlled comparisons, all live in Exp3:
 | **Patient + oracle** | GPT-3.5 | gpt-4o-mini-2024-07-18 | gpt-4o-mini-2024-07-18 |
 | **Patient prompts** | V1 (cooperative) | V3 (less cooperative) | V3 |
 | **Oracle output** | V1 (regex; Q1+Q2 only) | V5 (JSON schema; 6 questionnaires) | V5 |
-| **PTO** | K ∈ {0, 5}, 7 iters | 4 oracles × K ∈ {0, 5} | **PTO_Exp3** (refactored, iterative; rebuilt as a lean sibling of GRPO_Exp3) |
+| **PTO** | K ∈ {0, 5}, 7 iters | 4 oracles × K ∈ {0, 5} | **PTO_Exp3** (iterative; lean sibling of GRPO_Exp3, controlled hyperparams matched) |
 | **GRPO** | — | V1 (static prompts, weak baseline) | **GRPO_Exp3** (iterative) — both methods now share `code/_shared/` |
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
@@ -72,19 +72,23 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Landed:** the *batched, safely-parallel* look-ahead rollout (the K>0 wall-clock
-bottleneck) — `simulate_lookahead_batch` is now a lock-step batched rewrite, plus a
-`LOOKAHEAD_SUB_BATCH_SIZE` knob and an optional equivalence harness
-(`_shared/lookahead_check.py`). Implemented + logic-tested; see
+**Landed (through 2026-06-03):** batched look-ahead rollout (`simulate_lookahead_batch`)
++ `LOOKAHEAD_SUB_BATCH_SIZE` knob, **equivalence validated on real GPU** (|Δmean| of
+Q1+Q2 reward = 0.024, within oracle noise; 1.5× speedup). **torchao Colab crash fixed**
+(peft 0.19.1 raises in `dispatch_torchao` on Colab's pre-baked torchao<0.16.0 → install
+cell uninstalls it in both notebooks). **PTO_Exp3 brought to parity with GRPO_Exp3**
+(controlled hyperparameters matched, M=8, bf16 toggle, zero-pairs/​split robustness).
+Both trainer modules renamed `grpo_trainer.py` / `pto_trainer.py`. See
 [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance".
 
-**Immediate (real-GPU validation):** run the optional **section 6** equivalence cell
-(serial vs batched), then the K=3 look-ahead quicktest (`RUN_MODE="quicktest"`,
-`LOOKAHEAD_K=3`), local **bf16** only. Entry:
-[Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb](Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb).
+**Immediate:** (1) confirm the GRPO_Exp3 **K=3 bf16 quicktest** trains through on Colab
+post-torchao-fix; (2) run the **local bf16 PTO_Exp3 quicktest** (`RUN_MODE="quicktest"`,
+`USE_4BIT=False`) to shake out the mirrored config end-to-end.
 
-**Then:** full GRPO_Exp3 sweep over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab). Optional:
-PTO_Exp3 over the same grid via [Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
+**Then:** full sweeps over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab) for **both**
+GRPO_Exp3 and PTO_Exp3 (matched), parallel sessions. Entries:
+[GRPO](Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb) ·
+[PTO](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
 
 ## Hardware
 Local: Windows, RTX 5070 Ti (12 GB VRAM), CUDA 12.8, torch 2.11.0+cu128.

@@ -2,11 +2,15 @@
 
 Llama-3.2-1B therapist vs gpt-4o-mini patient/oracle. Two methods compared
 under matched look-ahead + oracle:
-- **PTO_Exp3** (preference-tree → DPO loss). Refactored as a lean sibling of
-  GRPO_Exp3 (one notebook + one `pto_trainer.py`, sharing `_shared/`). Output dir:
+- **PTO_Exp3** (preference-tree → DPO loss). Lean sibling of GRPO_Exp3 (one notebook
+  + one `pto_trainer.py`, sharing `_shared/`). **Controlled hyperparameters matched to
+  GRPO_Exp3** (2026-06-03): NUM_ITERATIONS=10, MCL=12, K∈{0,5}, gen temps + API
+  concurrency; M (`NUM_BRANCHES_PER_TURN`)=8 mirrors GRPO's `NUM_GENERATIONS`;
+  `DPO_BETA`=0.1 kept (DPO loss temp, not GRPO's KL β). bf16 `USE_4BIT` toggle + a
+  zero-pairs actionable error + train/eval split fix also landed. Output dir:
   `data/pto_Exp3/`. The Exp2-sourced `data/pto_Exp2/` artifacts are still read by the
   EDA registry but **not regenerated here** unless you re-run PTO_Exp3.
-- **GRPO_Exp3** (iterative). Sweep not yet run — definite next step.
+- **GRPO_Exp3** (iterative). K=3 bf16 quicktest running on Colab; full K∈{0,5} sweep not yet run — definite next step.
 
 Reward (training) = **Q1 + Q2 only**, matching the ICLR look-ahead paper.
 Reward (eval) = all six MI questionnaires (Q1, Q2, WAI-SR, CSQ-8, MI-SAT, MITI).
@@ -345,17 +349,20 @@ speedup. Wired as an **optional section 6 cell** in
 (guarded by `LOOKAHEAD_K > 0`). Raise `LOOKAHEAD_SUB_BATCH_SIZE` past VRAM to exercise
 OOM halving.
 
-**Remaining (real-GPU validation).** A fakes-based logic test already covers control
-flow (freezing, OOM halve, toggle restore). Still to run on hardware: (a) the
-`compare_serial_vs_batched` equivalence cell — `|Δmean|` of Q1+Q2 reward within
-~0.07–0.10 oracle noise; (b) local **bf16** K=3 quicktest end-to-end; (c) Colab
-K=3+K=5 smoke. Sequence: ✅ batched fix → K=3 quicktest → K=5 arm.
+**Validation (updated 2026-06-03).** ✅ (a) `compare_serial_vs_batched` equivalence
+**passed on real GPU** (Colab, 48 fixtures, K=3): serial Q1+Q2 mean 2.577 vs batched
+2.553, **|Δmean| = 0.024** (< oracle noise ~0.07–0.10); identical realized turns 2.88;
+1.5× speedup (2 GPU calls, sub_batch=32). 🔄 (b) GRPO_Exp3 **K=3 bf16 quicktest** on
+Colab — got through conv generation + prompt extraction, was blocked at the GRPO
+training block by the torchao/peft Colab crash (now fixed; re-running). ⬜ (c) Colab
+**K=5** arm after the K=3 quicktest trains through. Sequence: ✅ batched fix →
+✅ equivalence → 🔄 K=3 quicktest → K=5 arm.
 
-## Sweep priority (2026-05-28)
+## Sweep priority (updated 2026-06-03)
 
-0. **K=3 look-ahead quicktest** — validate the look-ahead path end-to-end on the current (serial) reward; immediate (2026-06-02).
-1. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12** (definite next step; land the batched-look-ahead fix before the K=5 arm).
-2. Maybe → PTO_Exp3 @ K ∈ {0, 5}, MCL = 12.
+0. **K=3 look-ahead quicktest** — ✅ equivalence validated; 🔄 GRPO end-to-end re-running on Colab post-torchao-fix; PTO local bf16 smoke next.
+1. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12** (definite next step).
+2. **PTO_Exp3 @ K ∈ {0, 5}, MCL = 12** — now first-class (config matched to GRPO); run alongside GRPO in parallel sessions.
 3. Maybe → either method @ MCL = 2.
 4. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
 
@@ -375,6 +382,14 @@ Same-session polish (now in code): both notebooks' Colab install cell is
 **pinned to requirements.txt** (commented; `weave` dropped), `authenticate()`
 sets `WANDB_LOG_MODEL="checkpoint"` (versioned adapter artifact, third backup),
 and both configs set `run_name=current_adapter_repo`.
+
+**Update 2026-06-03.** Install cell now also (commented) `%pip uninstall -y torchao` —
+Colab pre-bakes torchao<0.16.0, which peft 0.19.1 rejects by *raising* inside
+`get_peft_model`'s `dispatch_torchao` (crashed both trainers at iter 1). A100 optimizer
+batch raised to **16 decision-points/step** (GRPO `TRAIN_BATCH_SIZE`=128, PTO DPO 16×1;
+LR held). `NUM_ITERATIONS` 8→10 both. Trainer modules renamed `trainer.py` →
+`grpo_trainer.py` / `pto_trainer.py` (avoids a `from trainer import` collision when both
+notebooks share one local kernel — sys.modules cached the first-loaded trainer).
 
 ## Colab vs local
 
