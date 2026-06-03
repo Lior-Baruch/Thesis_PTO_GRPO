@@ -531,7 +531,12 @@ def build_iteration_datasets_dpo(
     Conversation-level grouping (no leakage between train/eval).
     Returns: ``(train_dataset, eval_dataset)``.
     """
-    assert pref_pairs, "No pref pairs to train on!"
+    if not pref_pairs:
+        raise ValueError(
+            "build_iteration_datasets_dpo received 0 pref pairs. All branches tied "
+            "within PREF_FILTER_TAU, or MIN_CONV_LENGTH filtered every branch point — "
+            "lower PREF_FILTER_TAU / MIN_CONV_LENGTH or raise NUM_BRANCHES_PER_TURN."
+        )
 
     conv_groups = defaultdict(list)
     for p in pref_pairs:
@@ -541,12 +546,23 @@ def build_iteration_datasets_dpo(
     rng = random.Random(seed)
     rng.shuffle(conv_ids)
 
-    n_eval_convs = max(1, int(len(conv_ids) * eval_split_ratio))
+    # Keep >=1 conv in train even when very few convs yield pairs (else a tiny
+    # quicktest can route the only conv to eval and leave train empty).
+    n_eval_convs = (
+        min(max(1, int(len(conv_ids) * eval_split_ratio)), len(conv_ids) - 1)
+        if len(conv_ids) >= 2 else 0
+    )
     eval_conv_ids = set(conv_ids[:n_eval_convs])
     train_conv_ids = set(conv_ids[n_eval_convs:])
 
     train_pairs = [p for cid in train_conv_ids for p in conv_groups[cid]]
     eval_pairs = [p for cid in eval_conv_ids for p in conv_groups[cid]]
+    if not train_pairs:
+        raise ValueError(
+            f"All {len(pref_pairs)} pref pairs landed in eval (train empty): "
+            f"conv_ids={len(conv_ids)}, n_eval_convs={n_eval_convs}. "
+            "Raise NUM_CONVERSATIONS_PER_ITER or lower EVAL_SPLIT_RATIO."
+        )
 
     def _to_dataset(pairs):
         return Dataset.from_dict({
@@ -830,6 +846,17 @@ def run_one_iteration(
         os.path.join(pref_dir, "pairs.csv"), index=False
     )
     print(f"  ✓ Pref pairs saved: {pref_dir}/pairs.csv")
+
+    # Fail fast (with guidance) if this iteration produced no trainable signal.
+    # The (empty) pairs.csv above is kept as evidence.
+    if not pref_pairs:
+        raise ValueError(
+            f"Iteration {iteration} produced 0 pref pairs from {len(completed_states)} "
+            f"conversations (avg len {avg_conv_len:.1f} utts). Every branch tied within "
+            f"PREF_FILTER_TAU={cfg.pref_filter_tau}, or MIN_CONV_LENGTH={cfg.min_conv_length} "
+            f"filtered every branch point. Lower PREF_FILTER_TAU / MIN_CONV_LENGTH, or raise "
+            f"NUM_BRANCHES_PER_TURN (currently {cfg.num_branches_per_turn})."
+        )
 
     # Free KV caches before training setup
     gc.collect()
