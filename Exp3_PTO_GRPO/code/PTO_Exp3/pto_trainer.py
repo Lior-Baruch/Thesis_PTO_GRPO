@@ -938,6 +938,7 @@ def _build_dpo_args(cfg: PTOConfig, inner_outdir: str, num_train_pairs: int) -> 
         max_length=cfg.max_allowed_prompt_length + cfg.max_completion_length,
         beta=cfg.dpo_beta,
         loss_type=cfg.dpo_loss_type,
+        bf16=True,  # bf16 autocast for LoRA params (base loads in bf16); matches GRPOConfig's precision path
         # Precompute reference log-probs in a no-grad pre-pass so the training step has no
         # reference forward / "ref"-adapter switch (DPO-equivalent; saves VRAM + dodges the
         # iter-2 local Blackwell training crash). See PTOConfig.precompute_ref_log_probs.
