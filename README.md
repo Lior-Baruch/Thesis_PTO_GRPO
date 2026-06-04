@@ -14,8 +14,10 @@ Three controlled comparisons (all live in **Exp3**):
    — can iterative GRPO compete with PTO?
 3. **Oracle questionnaire** (Q1+Q2 vs WAI-SR vs CSQ-8 vs MI-SAT/MITI) — held for later.
 
-- **PTO** = the framework: per-turn branching → `K`-turn look-ahead + oracle → τ-filtered
-  (chosen, rejected) preference pairs → DPO update.
+- **PTO** = the framework: grow a preference tree → `K`-turn look-ahead + oracle → τ-filtered
+  (chosen, rejected) preference pairs → DPO update. The default `greedy` mode grows one trunk
+  by appending the best-of-`M` completion at each therapist turn, so the choice feeds the next
+  branch point (true PTO); the `independent` mode branches a pre-recorded conversation.
 - **GRPO** = current policy simulates conversations → per-turn prompts (MCL filter) →
   GRPO update with optional `K`-turn look-ahead. The same conversations double as the eval set.
 
