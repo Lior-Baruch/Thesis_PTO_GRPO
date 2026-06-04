@@ -377,7 +377,7 @@ training block by the torchao/peft Colab crash (now fixed; re-running). ⬜ (c) 
 
 ## Sweep priority (updated 2026-06-04)
 
-0. **Local bf16 PTO_Exp3 greedy quicktest** (`RUN_MODE="quicktest"`, `USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) — **immediate next action.** Shake out the mirrored config + the new greedy true-PTO mode (committed `e27b9de`) end-to-end. This is the first real-model run of greedy; the `_greedy_smoke.py` test was local fakes only. bf16 path only — 4-bit crashes on the local Blackwell GPU.
+0. **Full local bf16 PTO_Exp3 greedy quicktest** (`RUN_MODE="quicktest"`, `USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) — **immediate next action.** Shake out the mirrored config + the new greedy true-PTO mode (committed `e27b9de`) end-to-end. First real-model run of greedy; the `_greedy_smoke.py` test was local fakes only. bf16 only — 4-bit crashes on the local Blackwell GPU. **iter-2 crash mitigated:** the first attempt got through iter-1 DPO but rebooted the PC at the iter-2 DPO step (the TRL `"ref"`-adapter forward-in-backward on sm_120); `precompute_ref_log_probs=True` (`DPO_PRECOMPUTE_REF_LOGPS` knob) moves that ref forward into a no-grad pre-pass, and the **isolated `_iter2_dpo_smoke.py` test PASSED** (first time the iter-2 step survived locally). Now confirm the *full* pipeline produces `iteration_2/adapter/` + `model_iter_2`. If GRPO's quicktest (trimmed block) also reboots at iter-2, it shares the root cause but has no precompute knob → merge-each-iter or Colab.
 1. **K=3 look-ahead quicktest** — ✅ equivalence validated; 🔄 GRPO end-to-end re-running on Colab post-torchao-fix.
 2. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12**.
 3. **PTO_Exp3 @ K ∈ {0, 5}, MCL = 12** — config matched to GRPO; run alongside GRPO in parallel sessions.

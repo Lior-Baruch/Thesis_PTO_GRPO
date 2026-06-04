@@ -153,6 +153,13 @@ class PTOConfig:
     gen_verbose: bool
     gen_verbose_detailed: bool
 
+    # DPO memory/stability. precompute_ref_log_probs=True computes all reference
+    # log-probs in a no-grad pre-pass and trains WITHOUT a reference forward / adapter
+    # switch during the backward step. Semantically identical for DPO (the reference is
+    # frozen anyway); frees ref VRAM during the step and avoids the iter-2 "ref"-adapter
+    # forward that coincides with the local Blackwell (sm_120) training crash.
+    precompute_ref_log_probs: bool = True
+
 
 @dataclass
 class PTOSummary:
@@ -931,6 +938,10 @@ def _build_dpo_args(cfg: PTOConfig, inner_outdir: str, num_train_pairs: int) -> 
         max_length=cfg.max_allowed_prompt_length + cfg.max_completion_length,
         beta=cfg.dpo_beta,
         loss_type=cfg.dpo_loss_type,
+        # Precompute reference log-probs in a no-grad pre-pass so the training step has no
+        # reference forward / "ref"-adapter switch (DPO-equivalent; saves VRAM + dodges the
+        # iter-2 local Blackwell training crash). See PTOConfig.precompute_ref_log_probs.
+        precompute_ref_log_probs=cfg.precompute_ref_log_probs,
         seed=cfg.seed,
         remove_unused_columns=False,
         lr_scheduler_type="cosine",

@@ -81,13 +81,23 @@ cell uninstalls it in both notebooks). **PTO_Exp3 brought to parity with GRPO_Ex
 Both trainer modules renamed `grpo_trainer.py` / `pto_trainer.py`. **Greedy true-PTO
 mode committed (2026-06-04, `e27b9de`):** `PREF_TREE_MODE=greedy` grows ONE trunk via
 best-of-M feedback (`grow_preference_trees_batch`); old slice-branch path kept as
-`independent`; `_PT{greedy|indep}` baked into `EXPERIMENT_NAME`. See
-[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance".
+`independent`; `_PT{greedy|indep}` baked into `EXPERIMENT_NAME`. **Greedy now slices its
+MCL-prefix off the step-1 conv** (no separate prefix-gen pass; `420299b`). **Training oracle
+encoded in `EXPERIMENT_NAME`** (`7cbb475`; `{Q1Q2|WAI|CSQ8|MI_SAT|MITI}` token from
+`QUESTIONNAIRE_IDS`, matches EDA `oracle=<O>`) → ready for the oracle sweep. **iteration-2
+local-crash fix (2026-06-04):** `precompute_ref_log_probs=True` on the PTO DPOConfig
+(`DPO_PRECOMPUTE_REF_LOGPS` knob) moves the TRL `"ref"`-adapter forward out of the training
+backward step — **isolated iter-2 DPO smoke test PASSED** on the local Blackwell (first time
+that step survived; `_iter2_dpo_smoke.py`). GRPO quicktest block trimmed for local 12 GB.
+See [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance".
 
-**Immediate:** (1) run the **local bf16 PTO_Exp3 greedy quicktest** (`RUN_MODE="quicktest"`,
-`USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) to shake out the mirrored config + the new
-greedy mode end-to-end (first real-model run — prior greedy test was local fakes only);
-(2) confirm the GRPO_Exp3 **K=3 bf16 quicktest** trains through on Colab post-torchao-fix.
+**Immediate:** (1) run the **full local bf16 PTO_Exp3 greedy quicktest** top-to-bottom
+(`RUN_MODE="quicktest"`, `USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) — the iter-2 DPO step
+is now mitigated; confirm `iteration_2/adapter/` + `model_iter_2` appear (the artifacts the
+crashed run never reached); (2) try the **local GRPO_Exp3 quicktest** (trimmed block) — note
+GRPO has no `precompute_ref_log_probs` knob, so if it also reboots at iteration 2 the same
+ref-path fix (merge-each-iter / Colab) applies; (3) confirm the GRPO_Exp3 **K=3 bf16
+quicktest** trains through on Colab post-torchao-fix.
 
 **Then:** full sweeps over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab) for **both**
 GRPO_Exp3 and PTO_Exp3 (matched), parallel sessions. Entries:
