@@ -1091,6 +1091,27 @@ def turns_to_messages(turns: List[Dict], system_prompt: str) -> List[Dict]:
     return messages
 
 
+def turns_to_patient_messages(turns: List[Dict], system_prompt: str) -> List[Dict]:
+    """Patient-perspective view of role-tagged turns (therapist→user, patient→assistant).
+
+    Mirror of :func:`turns_to_messages` with the roles flipped and the patient's
+    system prompt — matches the ``messages_Patient_assist`` shape built by
+    :func:`initialize_conversation`.
+
+    Args:
+        turns: List of {"role": "therapist"|"patient", "content": str} dicts.
+        system_prompt: System prompt for the patient.
+
+    Returns:
+        List of message dicts with role in {'system','assistant','user'}.
+    """
+    messages = [{"role": "system", "content": str(system_prompt)}]
+    role_map = {"therapist": "user", "patient": "assistant"}
+    for turn in turns:
+        messages.append({"role": role_map[turn["role"]], "content": str(turn["content"])})
+    return messages
+
+
 def _estimate_turn_token_costs(turns: List[Dict], tokenizer) -> List[int]:
     """Estimate per-turn token costs by encoding each turn's ChatML wrapper.
 

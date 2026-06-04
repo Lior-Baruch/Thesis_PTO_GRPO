@@ -50,6 +50,7 @@ from _shared import (
     generate_therapist_responses_batch,
     generate_patient_responses_batch,
     turns_to_messages,
+    turns_to_patient_messages,
     format_conversation_for_oracle,
     # reward
     OracleConfig, LookaheadConfig, OracleAsyncPrimitives,
@@ -597,6 +598,41 @@ class _TreeState:
     pairs: List[Dict] = field(default_factory=list)
 
 
+def _slice_prefix_seeds(completed_states, min_conv_length: int) -> List[ConversationState]:
+    """Slice the first ``min_conv_length`` utterances off each Step-1 conversation to
+    seed greedy tree growth — no separate prefix-generation pass needed.
+
+    A conv qualifies only if it extends *past* ``min_conv_length`` (so the MCL-length
+    prefix never ends on a session-terminating patient turn). ``min_conv_length`` is even
+    (notebook ``_validate_config``), so ``turns[min_conv_length - 1]`` is a patient turn
+    and the prefix's next speaker is the therapist.
+
+    Containers are copied (``turns`` dict-by-dict, fresh ``conversation``/message lists)
+    so the grower — which appends turns and rehydrates ``messages_*`` via
+    :func:`grow_preference_trees_batch` — never mutates the Step-1 conv (it is the frozen
+    eval data + metadata source). Message lists are left empty; the grower rebuilds them
+    from ``turns``. Mirrors the :func:`load_conversation_from_csv` construction.
+    """
+    seeds: List[ConversationState] = []
+    for s in completed_states:
+        if s.failed or len(s.turns) <= min_conv_length:
+            continue
+        prefix_turns = s.turns[:min_conv_length]
+        if prefix_turns[-1]["role"] != "patient":
+            print(f"    ⚠ Conv {s.permutation_index}: MCL prefix doesn't end on a patient "
+                  f"turn (last role={prefix_turns[-1]['role']!r}); skipped as a seed")
+            continue
+        seeds.append(ConversationState(
+            permutation_index=s.permutation_index,
+            conversation=list(s.conversation[:min_conv_length]),
+            messages_Patient_assist=[],
+            messages_Therapist_assist=[],
+            turns=[dict(t) for t in prefix_turns],
+            next_speaker="therapist",
+        ))
+    return seeds
+
+
 async def _grow_therapist_depth(
     active: List["_TreeState"],
     *,
@@ -755,10 +791,13 @@ async def grow_preference_trees_batch(
         # content; skip prefixes cut short by an early SESSION ENDED.
         if s.failed or len(s.conversation) < 2 or s.next_speaker != "therapist":
             continue
-        trees.append(_TreeState(
-            conv=s,
-            patient_system_prompt=permutations[s.permutation_index]["patient_system_prompt"],
-        ))
+        patient_sys = permutations[s.permutation_index]["patient_system_prompt"]
+        # run_generation_only freed these for memory (_record_completed_state); rebuild
+        # from the intact `turns` so the therapist/patient depths and
+        # _process_session_response have full system+history context, not stale [].
+        s.messages_Therapist_assist = turns_to_messages(s.turns, therapist_system_prompt)
+        s.messages_Patient_assist = turns_to_patient_messages(s.turns, patient_sys)
+        trees.append(_TreeState(conv=s, patient_system_prompt=patient_sys))
     if not trees:
         return []
 
@@ -885,7 +924,11 @@ def _build_dpo_args(cfg: PTOConfig, inner_outdir: str, num_train_pairs: int) -> 
         gradient_accumulation_steps=cfg.gradient_accumulation_steps,
         learning_rate=cfg.learning_rate,
         num_train_epochs=cfg.epochs_per_iteration,
-        max_completion_length=cfg.max_completion_length,
+        # TRL 1.4.0 DPOConfig caps the FULL tokenized prompt+completion via a single
+        # max_length (the separate max_prompt_length / max_completion_length args were
+        # removed). Size it as prompt cap + completion cap so the full-transcript greedy
+        # prompts aren't truncated from the start (truncation_mode is 'keep_start').
+        max_length=cfg.max_allowed_prompt_length + cfg.max_completion_length,
         beta=cfg.dpo_beta,
         loss_type=cfg.dpo_loss_type,
         seed=cfg.seed,
@@ -983,7 +1026,17 @@ def save_iteration_checkpoint(
     print(f"\n── Saving iteration_{iteration} checkpoint ──")
 
     adapter_save_path = os.path.join(iter_dir, ADAPTER_SUBDIR)
-    policy.save_pretrained(adapter_save_path)
+    # Save ONLY the policy adapter — not the transient frozen "ref" adapter that TRL's
+    # DPOTrainer adds for PEFT DPO (a copy of the iter-start weights, used only as the
+    # reference during training). Without this, iter 2+ would persist a redundant ref/
+    # subfolder into every checkpoint (and push it to the Hub). Resume is unaffected:
+    # from_pretrained loads the root "default" adapter, and TRL recreates "ref" next iter.
+    save_adapters = (
+        ["default"]
+        if (isinstance(policy, PeftModel) and "ref" in getattr(policy, "peft_config", {}))
+        else None
+    )
+    policy.save_pretrained(adapter_save_path, selected_adapters=save_adapters)
     tokenizer.save_pretrained(adapter_save_path)
     print(f"  ✓ Adapter saved: {adapter_save_path}")
 
@@ -1116,20 +1169,13 @@ def run_one_iteration(
           f"min_conv_length={cfg.min_conv_length}) ──")
     pref_start = time.time()
     if cfg.pref_tree_mode == "greedy":
-        # Greedy true-PTO: a SEPARATE prefix pass (MCL utts, ending on a patient turn)
-        # → grow each trunk by appending best-of-M. Prefixes are throwaway seeds (NOT
-        # saved as model_iter_* eval data) generated with a distinct patient seed.
-        print(f"  Generating {len(active_permutations)} tree prefixes "
-              f"({cfg.min_conv_length} utts each)...")
-        seed_states, _seed_gen_time, _seed_avg_len = run_generation_only(
-            policy=policy, tokenizer=tokenizer, client=client,
-            active_permutations=active_permutations,
-            therapist_system_prompt=therapist_system_prompt,
-            therapist_init_utterance=therapist_init_utterance,
-            conv_dir=None, cfg=cfg,
-            patient_api_seed=cfg.seed + iteration + 100000,
-            num_utterances=cfg.min_conv_length - 1,
-        )
+        # Greedy true-PTO: SLICE the first MCL utts off each Step-1 conv (ending on a
+        # patient turn) → grow each trunk by appending best-of-M. No separate prefix
+        # generation pass — the seeds reuse the Step-1 openings (then diverge); the
+        # Step-1 convs themselves stay the frozen model_iter_* eval data.
+        seed_states = _slice_prefix_seeds(completed_states, cfg.min_conv_length)
+        print(f"  Sliced {len(seed_states)} tree prefixes ({cfg.min_conv_length} utts, "
+              f"ending on a patient turn) from {len(completed_states)} Step-1 convs")
         gc.collect()
         torch.cuda.empty_cache()
         pref_pairs = _run_async(grow_preference_trees_batch(

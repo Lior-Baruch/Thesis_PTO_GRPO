@@ -132,9 +132,10 @@ runs **lock-step across all trunks** (mirrors the batched look-ahead).
 1. **Eval pass.** `π_n` simulates 96 full conversations versus `P`, saved to
    `data/pto_Exp3/conversations/.../model_iter_{n-1}/` (doubles as eval, like GRPO).
 2. **Build preference pairs.**
-   - **`greedy` (`grow_preference_trees_batch`):** a SEPARATE prefix pass generates 96
-     short trunks of `MCL` utterances ending on a patient turn (throwaway, not saved
-     as eval). Then grow each trunk: at each therapist turn sample `M` completions from
+   - **`greedy` (`grow_preference_trees_batch`):** SLICE the first `MCL` utterances off
+     each step-1 conv (ending on a patient turn) as the trunk seeds — no separate prefix
+     pass; the seeds reuse the eval-conv openings then diverge. Then grow each trunk: at
+     each therapist turn sample `M` completions from
      `π_n` at `BRANCH_SAMPLE_TEMPERATURE` → K-turn look-ahead → oracle-score → **append
      the best completion to the trunk** (so it feeds the next branch point) → `P`
      replies → repeat until the trunk reaches `NUM_UTTERANCES_FOR_DATA` utterances.
@@ -315,7 +316,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 
 ## Running PTO_Exp3
 
-1. **Configure.** [code/PTO_Exp3/train_PTO_Iterative.ipynb](code/PTO_Exp3/train_PTO_Iterative.ipynb) cell 1 = flat globals. Key extra knobs vs GRPO: `PREF_TREE_MODE` (`greedy`|`independent`), `NUM_BRANCHES_PER_TURN`, `PREF_FILTER_TAU`, `BRANCH_SAMPLE_TEMPERATURE`, `DPO_BETA`, `DPO_LOSS_TYPE`. `greedy` mode requires an EVEN `MIN_CONV_LENGTH` (prefix ends on a patient turn) and runs a second short prefix-generation pass per iteration.
+1. **Configure.** [code/PTO_Exp3/train_PTO_Iterative.ipynb](code/PTO_Exp3/train_PTO_Iterative.ipynb) cell 1 = flat globals. Key extra knobs vs GRPO: `PREF_TREE_MODE` (`greedy`|`independent`), `NUM_BRANCHES_PER_TURN`, `PREF_FILTER_TAU`, `BRANCH_SAMPLE_TEMPERATURE`, `DPO_BETA`, `DPO_LOSS_TYPE`. `greedy` mode requires an EVEN `MIN_CONV_LENGTH` (so the sliced prefix ends on a patient turn) and slices its trunk seeds from the step-1 convs (no separate prefix-generation pass).
 2. **Train.** Same visible-orchestration pattern. Outputs land under `data/pto_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`. Each iteration also saves the constructed pref pairs to `iteration_N/pref_pairs/pairs.csv` (audit trail; the prompt + chosen + rejected + scores per pair).
 3. **Inspect + Score + EDA.** Same as GRPO_Exp3 (the TB dashboard is shared via `_shared/tb_plots.py`).
 
