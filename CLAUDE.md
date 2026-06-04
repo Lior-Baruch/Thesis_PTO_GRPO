@@ -36,13 +36,13 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 ## Key methodological shift across experiments
 - **Look-ahead K** stayed central throughout (the lever from the ICLR paper).
 - **The hard part moved from "can PTO beat the baseline?" (Exp1, settled) to "is GRPO competitive with PTO under matched look-ahead?" (Exp3, open).**
-- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the `Partial_Conv_Oracle_EDA` shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
+- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the `Partial_Conv_Oracle_EDA` shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
 
 ## Methods (one line each)
 - **PTO V1** (Exp1) = original preference-tree exploration + K look-ahead + DPO. Published.
 - **GRPO V1** (Exp2) = static prompt set, weak baseline.
 - **GRPO_Exp3** = current policy simulates 96 convs → per-turn prompts (MCL filter) → GRPO update with optional K-turn look-ahead. Convs double as eval.
-- **PTO_Exp3** = current policy simulates 96 convs → per-turn branching (`M` candidates) with MCL filter → K-turn look-ahead + oracle → τ-filtered (chosen, rejected) pref pairs → DPO update. Lean sibling of GRPO_Exp3.
+- **PTO_Exp3** = per-turn branching (`M` candidates) → K-turn look-ahead + oracle → τ-filtered (chosen, rejected) pref pairs → DPO update. Lean sibling of GRPO_Exp3. **Two `PREF_TREE_MODE`s:** `greedy` (default, true PTO — start from an MCL-length prefix and grow ONE trunk by appending the best-of-M completion at each therapist turn, so the choice feeds the next branch point) and `independent` (branch each patient turn of a pre-recorded conv, no feedback). Mode baked into `EXPERIMENT_NAME`.
 
 **Shared infrastructure (Exp3).** Both GRPO_Exp3 and PTO_Exp3 trainers import from
 `Exp3_PTO_GRPO/code/_shared/` (5 modules: runtime, model, convs, reward, tb_plots).

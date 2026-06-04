@@ -30,7 +30,7 @@ import json
 import time
 import random
 from collections import defaultdict
-from dataclasses import asdict, dataclass
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
 from typing import Callable, Dict, List, Optional, Sequence
 
@@ -45,8 +45,10 @@ from trl import DPOConfig, DPOTrainer
 
 from _shared import (
     # convs
+    ConversationState,
     generate_all_conversations,
     generate_therapist_responses_batch,
+    generate_patient_responses_batch,
     turns_to_messages,
     format_conversation_for_oracle,
     # reward
@@ -61,6 +63,11 @@ from _shared import (
     init_iteration_logging, finish_iteration_logging,
     setup_tensorboard_logging, patch_trainer_tensorboard_callback,
 )
+# Private helper (not in _shared public API): applies one generated response to a
+# ConversationState — appends the turn, keeps both message-perspective lists synced,
+# flips next_speaker, and handles the SESSION ENDED marker. The greedy grower drives
+# trunk growth through it (same machinery conversation_loop_batch uses).
+from _shared.convs import _process_session_response
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -112,6 +119,7 @@ class PTOConfig:
     stop_strings: Optional[List[str]]
 
     # Pref tree construction (PTO-specific)
+    pref_tree_mode: str                 # "greedy" (true PTO: grow trunk from best-of-M) | "independent" (branch pre-recorded conv)
     num_branches_per_turn: int          # M candidate completions per branch point
     pref_filter_tau: float              # drop pairs with chosen_score - rejected_score <= tau
     branch_sample_temperature: float    # temperature for sampling M completions
@@ -241,12 +249,17 @@ def run_generation_only(
     policy, tokenizer, client,
     active_permutations,
     therapist_system_prompt, therapist_init_utterance,
-    conv_dir: str,
+    conv_dir: Optional[str],
     cfg: PTOConfig,
     patient_api_seed: Optional[int] = None,
+    num_utterances: Optional[int] = None,
 ):
     """Generate conversations with the current policy. Mirrors GRPO_Exp3's lean
     generation path — produces ConversationState objects, no prompt extraction.
+
+    ``conv_dir=None`` skips disk persistence (used for throwaway greedy-mode tree
+    prefixes). ``num_utterances`` overrides ``cfg.num_utterances_for_data`` (e.g. a
+    short ``min_conv_length-1`` prefix pass).
     """
     gen_start = time.time()
     policy.eval()
@@ -262,7 +275,7 @@ def run_generation_only(
         save_dir=conv_dir,
         patient_model_id=cfg.patient_model_id,
         max_tokens_per_response=cfg.max_tokens_per_response,
-        num_utterances=cfg.num_utterances_for_data,
+        num_utterances=(num_utterances if num_utterances is not None else cfg.num_utterances_for_data),
         temperature_therapist=cfg.temperature_therapist_gen,
         temperature_patient=cfg.temperature_patient,
         batch_size=cfg.conversation_batch_size,
@@ -325,7 +338,30 @@ def _sample_M_completions(
     return [r for r in responses if r and r.strip()]
 
 
-async def _score_branches(
+async def _oracle_score_extended(
+    client,
+    oracle_cfg: OracleConfig,
+    primitives: OracleAsyncPrimitives,
+    full_conversation: str,
+    questionnaire_ids: Sequence[int],
+) -> Optional[float]:
+    """Mean oracle reward over ``questionnaire_ids`` for one already-extended
+    transcript. Returns ``None`` if any questionnaire fails."""
+    scores: List[float] = []
+    for qid in questionnaire_ids:
+        data, _ = await get_evaluation_json(
+            client, oracle_cfg, primitives,
+            transcript="", completion="",
+            questionnaire_id=int(qid),
+            full_conversation_override=full_conversation,
+        )
+        if data is None:
+            return None
+        scores.append(float(data["mean_score"]))
+    return float(np.mean(scores))
+
+
+async def _score_completions_batch(
     client,
     oracle_cfg: OracleConfig,
     lookahead_cfg: LookaheadConfig,
@@ -333,21 +369,21 @@ async def _score_branches(
     *,
     policy, tokenizer,
     therapist_system_prompt: str,
-    patient_system_prompt: str,
-    transcript: str,
+    transcripts: List[str],
     completions: List[str],
+    patient_system_prompts: List[str],
     questionnaire_ids: Sequence[int],
 ) -> List[Optional[float]]:
-    """Score ``len(completions)`` candidate completions via lookahead + oracle.
-
-    Returns a list of mean rewards (None on oracle failure for that branch).
-    """
+    """Score a parallel batch of (transcript, completion, patient_prompt) triples via
+    K-turn look-ahead (when ``k>0``) + oracle. Shared by the independent-branch scorer
+    (:func:`_score_branches`) and the greedy grower (:func:`grow_preference_trees_batch`).
+    Returns one mean reward per item (``None`` on oracle failure)."""
     if lookahead_cfg.k > 0:
-        extended = await simulate_lookahead_batch(
-            transcripts=[transcript] * len(completions),
+        full_convs = await simulate_lookahead_batch(
+            transcripts=transcripts,
             completions=completions,
             system_prompt_therapist=therapist_system_prompt,
-            system_prompts_patient=[patient_system_prompt] * len(completions),
+            system_prompts_patient=patient_system_prompts,
             therapist_model=policy,
             therapist_tokenizer=tokenizer,
             client=client,
@@ -364,25 +400,45 @@ async def _score_branches(
             patient_backoff_seconds=lookahead_cfg.patient_api_backoff_seconds,
             sub_batch_size=lookahead_cfg.lookahead_sub_batch_size,
         )
-        full_convs = extended
     else:
-        full_convs = [f"{transcript}\n\n[THERAPIST]: {c}" for c in completions]
+        full_convs = [
+            f"{t}\n\n[THERAPIST]: {c}" for t, c in zip(transcripts, completions)
+        ]
 
-    async def _score_one(full_conv: str) -> Optional[float]:
-        scores: List[float] = []
-        for qid in questionnaire_ids:
-            data, _ = await get_evaluation_json(
-                client, oracle_cfg, primitives,
-                transcript="", completion="",
-                questionnaire_id=int(qid),
-                full_conversation_override=full_conv,
-            )
-            if data is None:
-                return None
-            scores.append(float(data["mean_score"]))
-        return float(np.mean(scores))
+    return await asyncio.gather(*[
+        _oracle_score_extended(client, oracle_cfg, primitives, fc, questionnaire_ids)
+        for fc in full_convs
+    ])
 
-    return await asyncio.gather(*[_score_one(fc) for fc in full_convs])
+
+async def _score_branches(
+    client,
+    oracle_cfg: OracleConfig,
+    lookahead_cfg: LookaheadConfig,
+    primitives: OracleAsyncPrimitives,
+    *,
+    policy, tokenizer,
+    therapist_system_prompt: str,
+    patient_system_prompt: str,
+    transcript: str,
+    completions: List[str],
+    questionnaire_ids: Sequence[int],
+) -> List[Optional[float]]:
+    """Score ``len(completions)`` candidates from ONE prefix (independent-branch path).
+
+    Thin wrapper over :func:`_score_completions_batch` with the single transcript +
+    patient prompt broadcast across the completions.
+    """
+    n = len(completions)
+    return await _score_completions_batch(
+        client, oracle_cfg, lookahead_cfg, primitives,
+        policy=policy, tokenizer=tokenizer,
+        therapist_system_prompt=therapist_system_prompt,
+        transcripts=[transcript] * n,
+        completions=completions,
+        patient_system_prompts=[patient_system_prompt] * n,
+        questionnaire_ids=questionnaire_ids,
+    )
 
 
 async def build_pref_pairs_for_conversation(
@@ -514,6 +570,239 @@ async def extract_pref_pairs_from_conversations(
                 f"(min_conv_length={cfg.min_conv_length}, tau={cfg.pref_filter_tau})"
             )
     return all_pairs
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║              PREF-TREE CONSTRUCTION — GREEDY MODE (lock-step)              ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# True PTO: start each conversation from a short prefix (``min_conv_length`` utts,
+# ending on a patient turn) and grow ONE trunk greedily — at each therapist turn,
+# branch M completions, look-ahead + oracle-score them, append the BEST to the trunk
+# (so the chosen completion feeds the next branch point), let the patient continue,
+# repeat. Contrast with the independent path above, which branches each patient turn
+# of a PRE-RECORDED conversation and never feeds the winner back.
+
+
+@dataclass
+class _TreeState:
+    """One live trunk during greedy growth.
+
+    ``conv`` is a plain :class:`ConversationState` — we reuse all its turn/message
+    bookkeeping so the patient- and therapist-perspective message lists stay synced
+    as the trunk grows (via ``_process_session_response``).
+    """
+    conv: ConversationState
+    patient_system_prompt: str
+    pairs: List[Dict] = field(default_factory=list)
+
+
+async def _grow_therapist_depth(
+    active: List["_TreeState"],
+    *,
+    client, policy, tokenizer,
+    therapist_system_prompt: str,
+    oracle_cfg: OracleConfig,
+    lookahead_cfg: LookaheadConfig,
+    primitives: OracleAsyncPrimitives,
+    cfg: PTOConfig,
+    M: int,
+) -> None:
+    """One therapist (branching) depth across all active trunks.
+
+    Branch ``M`` completions per trunk, look-ahead + oracle-score them all in one
+    batch, then per trunk append the best completion (always — to advance the trunk)
+    and emit a (chosen, rejected) pair when the score gap exceeds ``pref_filter_tau``.
+    """
+    # 1. Flatten (trunk × M): repeat each trunk's therapist-view messages M times;
+    #    keep the per-trunk oracle transcript (computed once) for scoring.
+    transcripts = [
+        format_conversation_for_oracle(t.conv.messages_Therapist_assist) for t in active
+    ]
+    flat_messages = [t.conv.messages_Therapist_assist for t in active for _ in range(M)]
+
+    # 2. Branch-sample, chunked at conversation_batch_size to bound VRAM (active×M
+    #    can be large; simulate_lookahead_batch sub-batches its own therapist turns).
+    completions: List[Optional[str]] = [None] * len(flat_messages)
+    chunk = max(1, cfg.conversation_batch_size)
+    gpu_lock = primitives.gpu_lock()
+    for start in range(0, len(flat_messages), chunk):
+        sub = flat_messages[start:start + chunk]
+        async with gpu_lock:
+            responses, error = generate_therapist_responses_batch(
+                therapist_model=policy,
+                therapist_tokenizer=tokenizer,
+                batch_messages=sub,
+                max_tokens=cfg.branch_max_tokens,
+                temperature=cfg.branch_sample_temperature,
+                max_input_tokens=cfg.therapist_max_input_tokens,
+                stop_strings=cfg.stop_strings,
+            )
+        if error is not None or responses is None:
+            print(f"    ⚠ Branch sampling failed for a chunk ({error}); those branches dropped")
+            continue
+        for j, r in enumerate(responses):
+            completions[start + j] = r
+
+    # 3+4. Look-ahead + oracle-score every non-empty completion in ONE batch.
+    score_idx = [i for i, c in enumerate(completions) if c and c.strip()]
+    if score_idx:
+        packed = await _score_completions_batch(
+            client, oracle_cfg, lookahead_cfg, primitives,
+            policy=policy, tokenizer=tokenizer,
+            therapist_system_prompt=therapist_system_prompt,
+            transcripts=[transcripts[i // M] for i in score_idx],
+            completions=[completions[i] for i in score_idx],
+            patient_system_prompts=[active[i // M].patient_system_prompt for i in score_idx],
+            questionnaire_ids=cfg.questionnaire_ids,
+        )
+        score_by_flat = {i: packed[k] for k, i in enumerate(score_idx)}
+    else:
+        score_by_flat = {}
+
+    # 5. Per trunk: pick best/worst, append winner, emit pair if gap > τ.
+    for ti, t in enumerate(active):
+        scored = []
+        for m in range(M):
+            flat_i = ti * M + m
+            c = completions[flat_i]
+            s = score_by_flat.get(flat_i)
+            if c and c.strip() and s is not None:
+                scored.append((s, c))
+        if not scored:
+            t.conv.is_active = False  # freeze: no valid branch to advance the trunk
+            continue
+        scored.sort(key=lambda sc: sc[0])
+        worst_score, worst_text = scored[0]
+        best_score, best_text = scored[-1]
+
+        # Snapshot the prompt from the trunk BEFORE appending the winner.
+        prompt = tokenizer.apply_chat_template(
+            turns_to_messages(t.conv.turns, therapist_system_prompt),
+            add_generation_prompt=True, tokenize=False,
+        )
+        branch_depth = len(t.conv.conversation)
+
+        # Always append the winner so the trunk advances (the greedy feedback the
+        # independent path lacks). Flips next_speaker -> patient; handles SESSION
+        # ENDED inside the winner (freezes the trunk, keeps cleaned text).
+        _process_session_response(t.conv, best_text, "therapist", "user", "assistant")
+
+        if len(scored) >= 2 and (best_score - worst_score) > cfg.pref_filter_tau:
+            t.pairs.append({
+                "prompt": prompt,
+                "chosen": best_text,
+                "rejected": worst_text,
+                "chosen_score": best_score,
+                "rejected_score": worst_score,
+                "conversation_id": t.conv.permutation_index,
+                "branch_depth": branch_depth,
+            })
+
+
+async def _grow_patient_depth(
+    active: List["_TreeState"],
+    *,
+    client,
+    cfg: PTOConfig,
+    primitives: OracleAsyncPrimitives,
+) -> None:
+    """One patient depth across all active trunks (fresh API call per trunk)."""
+    batch_messages = [t.conv.messages_Patient_assist for t in active]
+    responses = await generate_patient_responses_batch(
+        client, cfg.patient_model_id, batch_messages,
+        cfg.max_tokens_per_response, cfg.temperature_patient,
+        primitives.lookahead_patient_sem(),
+        cfg.patient_api_max_retries, cfg.patient_api_backoff_seconds,
+        seed=None,
+    )
+    for t, resp in zip(active, responses):
+        if isinstance(resp, BaseException) or resp is None:
+            t.conv.is_active = False
+            t.conv.failed = True
+            continue
+        _process_session_response(t.conv, resp, "patient", "assistant", "user")
+
+
+async def grow_preference_trees_batch(
+    seed_states,
+    permutations,
+    *,
+    policy, tokenizer, client,
+    therapist_system_prompt: str,
+    oracle_cfg: OracleConfig,
+    lookahead_cfg: LookaheadConfig,
+    primitives: OracleAsyncPrimitives,
+    cfg: PTOConfig,
+) -> List[Dict]:
+    """Greedy preference-tree growth (true PTO), lock-step across all seed trunks.
+
+    Each seed is a short prefix (``min_conv_length`` utts ending on a patient turn).
+    All active trunks advance in unison: a therapist depth branches ``M`` per trunk,
+    look-ahead + oracle-scores them, and appends the best to each trunk (emitting a
+    (chosen, rejected) pair when the gap exceeds ``pref_filter_tau``); a patient depth
+    continues each trunk. Trunks grow until they reach ``num_utterances_for_data``
+    utterances or freeze (SESSION ENDED / API failure / no valid branch score).
+
+    Returns the same flat ``List[Dict]`` pref-pair shape as the independent path.
+    """
+    policy.eval()
+    policy.config.use_cache = True
+
+    trees: List[_TreeState] = []
+    for s in seed_states:
+        # A usable seed ends on a patient turn (next speaker = therapist) with real
+        # content; skip prefixes cut short by an early SESSION ENDED.
+        if s.failed or len(s.conversation) < 2 or s.next_speaker != "therapist":
+            continue
+        trees.append(_TreeState(
+            conv=s,
+            patient_system_prompt=permutations[s.permutation_index]["patient_system_prompt"],
+        ))
+    if not trees:
+        return []
+
+    M = cfg.num_branches_per_turn
+    target_len = cfg.num_utterances_for_data
+    depth = 0
+
+    while True:
+        active = [
+            t for t in trees
+            if t.conv.is_active and len(t.conv.conversation) < target_len
+        ]
+        if not active:
+            break
+
+        speaker = active[0].conv.next_speaker
+        # Defensive desync guard (mirror conversation_loop_batch): freeze any trunk
+        # that drifted off-cadence, keeping its data.
+        desynced = [t for t in active if t.conv.next_speaker != speaker]
+        if desynced:
+            for t in desynced:
+                t.conv.is_active = False
+            active = [t for t in active if t.conv.is_active]
+            if not active:
+                break
+
+        if speaker == "therapist":
+            await _grow_therapist_depth(
+                active, client=client, policy=policy, tokenizer=tokenizer,
+                therapist_system_prompt=therapist_system_prompt,
+                oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
+                primitives=primitives, cfg=cfg, M=M,
+            )
+        else:
+            await _grow_patient_depth(
+                active, client=client, cfg=cfg, primitives=primitives,
+            )
+
+        depth += 1
+        if cfg.gen_verbose:
+            n_pairs = sum(len(t.pairs) for t in trees)
+            print(f"    [tree] depth {depth} ({speaker}): {len(active)} active, {n_pairs} pairs so far")
+
+    return [p for t in trees for p in t.pairs]
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -821,20 +1110,46 @@ def run_one_iteration(
     gc.collect()
     torch.cuda.empty_cache()
 
-    # ── Step 2: Build pref pairs (per-conv branch sampling + lookahead + oracle) ──
-    print(f"\n── Step 2: Building pref pairs "
+    # ── Step 2: Build pref pairs (mode-dependent) ──
+    print(f"\n── Step 2: Building pref pairs [mode={cfg.pref_tree_mode}] "
           f"(num_branches={cfg.num_branches_per_turn}, tau={cfg.pref_filter_tau}, "
           f"min_conv_length={cfg.min_conv_length}) ──")
     pref_start = time.time()
-    pref_pairs = _run_async(extract_pref_pairs_from_conversations(
-        completed_states=completed_states,
-        permutations=active_permutations,
-        policy=policy, tokenizer=tokenizer, client=client,
-        therapist_system_prompt=therapist_system_prompt,
-        oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
-        primitives=primitives,
-        cfg=cfg,
-    ))
+    if cfg.pref_tree_mode == "greedy":
+        # Greedy true-PTO: a SEPARATE prefix pass (MCL utts, ending on a patient turn)
+        # → grow each trunk by appending best-of-M. Prefixes are throwaway seeds (NOT
+        # saved as model_iter_* eval data) generated with a distinct patient seed.
+        print(f"  Generating {len(active_permutations)} tree prefixes "
+              f"({cfg.min_conv_length} utts each)...")
+        seed_states, _seed_gen_time, _seed_avg_len = run_generation_only(
+            policy=policy, tokenizer=tokenizer, client=client,
+            active_permutations=active_permutations,
+            therapist_system_prompt=therapist_system_prompt,
+            therapist_init_utterance=therapist_init_utterance,
+            conv_dir=None, cfg=cfg,
+            patient_api_seed=cfg.seed + iteration + 100000,
+            num_utterances=cfg.min_conv_length - 1,
+        )
+        gc.collect()
+        torch.cuda.empty_cache()
+        pref_pairs = _run_async(grow_preference_trees_batch(
+            seed_states=seed_states,
+            permutations=active_permutations,
+            policy=policy, tokenizer=tokenizer, client=client,
+            therapist_system_prompt=therapist_system_prompt,
+            oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
+            primitives=primitives, cfg=cfg,
+        ))
+    else:  # "independent" — branch each patient turn of the (pre-recorded) eval convs
+        pref_pairs = _run_async(extract_pref_pairs_from_conversations(
+            completed_states=completed_states,
+            permutations=active_permutations,
+            policy=policy, tokenizer=tokenizer, client=client,
+            therapist_system_prompt=therapist_system_prompt,
+            oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
+            primitives=primitives,
+            cfg=cfg,
+        ))
     pref_time = time.time() - pref_start
     print(f"  ✓ Built {len(pref_pairs)} pref pairs in {pref_time:.1f}s "
           f"(from {len(completed_states)} conversations)")

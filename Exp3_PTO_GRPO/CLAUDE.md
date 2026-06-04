@@ -10,6 +10,11 @@ under matched look-ahead + oracle:
   zero-pairs actionable error + train/eval split fix also landed. Output dir:
   `data/pto_Exp3/`. The Exp2-sourced `data/pto_Exp2/` artifacts are still read by the
   EDA registry but **not regenerated here** unless you re-run PTO_Exp3.
+  **Two data-gen modes via `PREF_TREE_MODE` (2026-06-03):** `greedy` (default, true PTO
+  — grow ONE trunk from an MCL prefix by appending best-of-M) and `independent` (the
+  earlier behavior — branch each patient turn of a pre-recorded conv, no feedback).
+  Baked into `EXPERIMENT_NAME` (`_PT{greedy|indep}`) so the arms never collide. See
+  the algorithm section below.
 - **GRPO_Exp3** (iterative). K=3 bf16 quicktest running on Colab; full K∈{0,5} sweep not yet run — definite next step.
 
 Reward (training) = **Q1 + Q2 only**, matching the ICLR look-ahead paper.
@@ -116,26 +121,31 @@ trajectory the *current policy* would actually take after it, so siblings that
 
 ### PTO_Exp3 + K-turn look-ahead
 
+**`PREF_TREE_MODE` selects how pref pairs are built** (default `greedy` = true PTO;
+`independent` = the earlier slice-branch behavior, kept as an alternate arm). Both
+share the M-branch → look-ahead → oracle-score → τ-filter → DPO machinery; the mode is
+baked into `EXPERIMENT_NAME` (`_PT{greedy|indep}`) so arms never collide. The grower
+runs **lock-step across all trunks** (mirrors the batched look-ahead).
+
 **Per iteration `n` (loop body in [PTO_Exp3/train_PTO_Iterative.ipynb](code/PTO_Exp3/train_PTO_Iterative.ipynb), helpers in [pto_trainer.py](code/PTO_Exp3/pto_trainer.py)):**
 
-1. **Generate rollouts.** Same as GRPO step 1 — `π_n` simulates 96 conversations
-   versus `P`. Saved to `data/pto_Exp3/conversations/.../model_iter_{n-1}/`.
-2. **Build preference tree.** For each conversation, for each therapist turn
-   index `t` whose prefix-so-far has `≥ MCL` utterances and that is not the
-   final turn:
-
-   a. **Branch.** Sample `M = NUM_BRANCHES_PER_TURN` candidate therapist
-      completions from `π_n` at `BRANCH_SAMPLE_TEMPERATURE` (independent draws
-      from the same prefix).
-
-   b. **Score each branch.** For each candidate `t_m`, compute `r_m` exactly
-      as in GRPO step 3b — including K-turn look-ahead when `K > 0`.
-
-   c. **Best/worst with τ filter.** Let `chosen = argmax_m r_m`,
-      `rejected = argmin_m r_m`. If `r_chosen - r_rejected > PREF_FILTER_TAU`,
-      emit one preference pair `(prefix_prompt, chosen_text, rejected_text)`;
-      otherwise skip this branch point (the policy already produces tied-quality
-      siblings, no informative gradient).
+1. **Eval pass.** `π_n` simulates 96 full conversations versus `P`, saved to
+   `data/pto_Exp3/conversations/.../model_iter_{n-1}/` (doubles as eval, like GRPO).
+2. **Build preference pairs.**
+   - **`greedy` (`grow_preference_trees_batch`):** a SEPARATE prefix pass generates 96
+     short trunks of `MCL` utterances ending on a patient turn (throwaway, not saved
+     as eval). Then grow each trunk: at each therapist turn sample `M` completions from
+     `π_n` at `BRANCH_SAMPLE_TEMPERATURE` → K-turn look-ahead → oracle-score → **append
+     the best completion to the trunk** (so it feeds the next branch point) → `P`
+     replies → repeat until the trunk reaches `NUM_UTTERANCES_FOR_DATA` utterances.
+     Emit a pair `(trunk-so-far prompt, chosen, rejected)` at each branch point where
+     `r_chosen − r_rejected > PREF_FILTER_TAU`; **always** append the best to advance
+     the trunk (a tie just emits no pair). Freeze a trunk on SESSION ENDED / API
+     failure / no valid branch score.
+   - **`independent` (`build_pref_pairs_for_conversation`):** branch at every patient
+     turn of the step-1 conversation whose prefix-so-far is `≥ MCL` and isn't the final
+     turn — `M` completions, look-ahead, best/worst with the same τ filter — but against
+     the **pre-recorded** trunk (the winner is never fed back).
 3. **DPO update.** Train `DPOTrainer` on the collected pref pairs for
    `EPOCHS_PER_ITERATION` epochs. The DPO loss is
    ```
@@ -281,8 +291,10 @@ Direct response to the Partial_Conv_Oracle_EDA finding.
 
 - **GRPO_Exp3.** Cell 1's `MIN_CONV_LENGTH` → `TrainingConfig.min_conv_length` →
   `extract_prompts_from_conversations(min_conv_length=...)` in [_shared/convs.py](code/_shared/convs.py).
-- **PTO_Exp3.** Cell 1's `MIN_CONV_LENGTH` → `PTOConfig.min_conv_length` →
-  `build_pref_pairs_for_conversation` skips branch points whose conv-so-far is shorter.
+- **PTO_Exp3.** Cell 1's `MIN_CONV_LENGTH` → `PTOConfig.min_conv_length`. In `greedy`
+  mode it's where the **tree starts** (prefix length, must be EVEN so the prefix ends on
+  a patient turn); in `independent` mode it's the slice filter (`build_pref_pairs_for_conversation`
+  skips branch points whose conv-so-far is shorter). Either way: no training context below MCL.
 - **Semantics.** Drop slices/branches where the conversation-so-far has fewer than `MIN_CONV_LENGTH` total utterances (same `n_turns` unit as Partial_Conv_Oracle_EDA — therapist + patient combined).
 - **Default = 2** = no-op. Recommended exploratory values: `10` (EDA's 0.8 threshold), `30` (0.9 threshold).
 - **Encoded in `EXPERIMENT_NAME`** as `_MCL{N}` so runs at different MCL never share an output folder.
@@ -290,7 +302,7 @@ Direct response to the Partial_Conv_Oracle_EDA finding.
 ## EXPERIMENT_NAME schemes
 
 - GRPO_Exp3: `GRPO_Iterative_Oracle_Llama32-1B_LA{K}_MCL{MCL}_G{G}`
-- PTO_Exp3:  `PTO_Iterative_Oracle_Llama32-1B_LA{K}_MCL{MCL}_M{NUM_BRANCHES_PER_TURN}`
+- PTO_Exp3:  `PTO_Iterative_Oracle_Llama32-1B_LA{K}_MCL{MCL}_M{NUM_BRANCHES_PER_TURN}_PT{greedy|indep}`
 
 Different sweep arms write to disjoint dirs — runs never collide.
 
@@ -303,7 +315,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 
 ## Running PTO_Exp3
 
-1. **Configure.** [code/PTO_Exp3/train_PTO_Iterative.ipynb](code/PTO_Exp3/train_PTO_Iterative.ipynb) cell 1 = flat globals. Key extra knobs vs GRPO: `NUM_BRANCHES_PER_TURN`, `PREF_FILTER_TAU`, `BRANCH_SAMPLE_TEMPERATURE`, `DPO_BETA`, `DPO_LOSS_TYPE`.
+1. **Configure.** [code/PTO_Exp3/train_PTO_Iterative.ipynb](code/PTO_Exp3/train_PTO_Iterative.ipynb) cell 1 = flat globals. Key extra knobs vs GRPO: `PREF_TREE_MODE` (`greedy`|`independent`), `NUM_BRANCHES_PER_TURN`, `PREF_FILTER_TAU`, `BRANCH_SAMPLE_TEMPERATURE`, `DPO_BETA`, `DPO_LOSS_TYPE`. `greedy` mode requires an EVEN `MIN_CONV_LENGTH` (prefix ends on a patient turn) and runs a second short prefix-generation pass per iteration.
 2. **Train.** Same visible-orchestration pattern. Outputs land under `data/pto_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`. Each iteration also saves the constructed pref pairs to `iteration_N/pref_pairs/pairs.csv` (audit trail; the prompt + chosen + rejected + scores per pair).
 3. **Inspect + Score + EDA.** Same as GRPO_Exp3 (the TB dashboard is shared via `_shared/tb_plots.py`).
 
