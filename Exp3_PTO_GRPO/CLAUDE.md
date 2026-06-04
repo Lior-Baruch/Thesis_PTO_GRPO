@@ -370,13 +370,14 @@ training block by the torchao/peft Colab crash (now fixed; re-running). ⬜ (c) 
 **K=5** arm after the K=3 quicktest trains through. Sequence: ✅ batched fix →
 ✅ equivalence → 🔄 K=3 quicktest → K=5 arm.
 
-## Sweep priority (updated 2026-06-03)
+## Sweep priority (updated 2026-06-04)
 
-0. **K=3 look-ahead quicktest** — ✅ equivalence validated; 🔄 GRPO end-to-end re-running on Colab post-torchao-fix; PTO local bf16 smoke next.
-1. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12** (definite next step).
-2. **PTO_Exp3 @ K ∈ {0, 5}, MCL = 12** — now first-class (config matched to GRPO); run alongside GRPO in parallel sessions.
-3. Maybe → either method @ MCL = 2.
-4. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
+0. **Local bf16 PTO_Exp3 greedy quicktest** (`RUN_MODE="quicktest"`, `USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) — **immediate next action.** Shake out the mirrored config + the new greedy true-PTO mode (committed `e27b9de`) end-to-end. This is the first real-model run of greedy; the `_greedy_smoke.py` test was local fakes only. bf16 path only — 4-bit crashes on the local Blackwell GPU.
+1. **K=3 look-ahead quicktest** — ✅ equivalence validated; 🔄 GRPO end-to-end re-running on Colab post-torchao-fix.
+2. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12**.
+3. **PTO_Exp3 @ K ∈ {0, 5}, MCL = 12** — config matched to GRPO; run alongside GRPO in parallel sessions.
+4. Maybe → either method @ MCL = 2.
+5. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
 
 ## Dependency stack — audited 2026-06-01
 

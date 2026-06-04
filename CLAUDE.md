@@ -72,18 +72,22 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Landed (through 2026-06-03):** batched look-ahead rollout (`simulate_lookahead_batch`)
+**Landed (through 2026-06-04):** batched look-ahead rollout (`simulate_lookahead_batch`)
 + `LOOKAHEAD_SUB_BATCH_SIZE` knob, **equivalence validated on real GPU** (|Δmean| of
 Q1+Q2 reward = 0.024, within oracle noise; 1.5× speedup). **torchao Colab crash fixed**
 (peft 0.19.1 raises in `dispatch_torchao` on Colab's pre-baked torchao<0.16.0 → install
 cell uninstalls it in both notebooks). **PTO_Exp3 brought to parity with GRPO_Exp3**
 (controlled hyperparameters matched, M=8, bf16 toggle, zero-pairs/​split robustness).
-Both trainer modules renamed `grpo_trainer.py` / `pto_trainer.py`. See
+Both trainer modules renamed `grpo_trainer.py` / `pto_trainer.py`. **Greedy true-PTO
+mode committed (2026-06-04, `e27b9de`):** `PREF_TREE_MODE=greedy` grows ONE trunk via
+best-of-M feedback (`grow_preference_trees_batch`); old slice-branch path kept as
+`independent`; `_PT{greedy|indep}` baked into `EXPERIMENT_NAME`. See
 [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance".
 
-**Immediate:** (1) confirm the GRPO_Exp3 **K=3 bf16 quicktest** trains through on Colab
-post-torchao-fix; (2) run the **local bf16 PTO_Exp3 quicktest** (`RUN_MODE="quicktest"`,
-`USE_4BIT=False`) to shake out the mirrored config end-to-end.
+**Immediate:** (1) run the **local bf16 PTO_Exp3 greedy quicktest** (`RUN_MODE="quicktest"`,
+`USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) to shake out the mirrored config + the new
+greedy mode end-to-end (first real-model run — prior greedy test was local fakes only);
+(2) confirm the GRPO_Exp3 **K=3 bf16 quicktest** trains through on Colab post-torchao-fix.
 
 **Then:** full sweeps over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab) for **both**
 GRPO_Exp3 and PTO_Exp3 (matched), parallel sessions. Entries:
