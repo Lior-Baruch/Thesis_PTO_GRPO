@@ -260,7 +260,7 @@ EXPERIMENTS: List[Experiment] = [
     # GRPO_Exp3 — uncomment + edit per real run.
     # epoch=0 → GRPOExp3_Base (base-model run, model_iter_0), epoch=N → GRPOExp3_IN.
     # Conv subdir pattern: ``model_iter_{N}_TT{temp_t}_TP{temp_p}``.
-    # _GRPOExp3_EXP = "GRPO_Iterative_Oracle_Llama32-1B_LA5_MCL10_G4"
+    # _GRPOExp3_EXP = "GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL10_G4"  # _<ORACLE> token (Q1Q2/WAI/CSQ8/MI_SAT/MITI) must match Experiment(oracle=...)
     # Experiment("Base", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_0_TT0.9_TP0.7", method="GRPO_Exp3", epoch=0),
     # Experiment("Q1Q2", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_1_TT0.9_TP0.7", method="GRPO_Exp3", epoch=1),
     # Experiment("Q1Q2", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_2_TT0.9_TP0.7", method="GRPO_Exp3", epoch=2),
@@ -268,7 +268,7 @@ EXPERIMENTS: List[Experiment] = [
     # PTO_Exp3 — uncomment + edit per real run. Same shape as GRPO_Exp3, written
     # under data/pto_Exp3/ (its scores co-locate at data/pto_Exp3/eval_scores/).
     # method="PTO_Exp3" → model_name PTOExp3_Base / PTOExp3_I{epoch}.
-    # _PTO_EXP3_NAME = "PTO_Iterative_Oracle_Llama32-1B_LA5_MCL10_M4"
+    # _PTO_EXP3_NAME = "PTO_Iterative_Q1Q2_Llama32-1B_LA5_MCL10_M4_PTgreedy"  # _<ORACLE> token must match Experiment(oracle=...)
     # Experiment("Base", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_0_TT0.9_TP0.7", method="PTO_Exp3", epoch=0),
     # Experiment("Q1Q2", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_1_TT0.9_TP0.7", method="PTO_Exp3", epoch=1),
     # Experiment("Q1Q2", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_2_TT0.9_TP0.7", method="PTO_Exp3", epoch=2),

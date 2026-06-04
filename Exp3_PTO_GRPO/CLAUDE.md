@@ -302,8 +302,12 @@ Direct response to the Partial_Conv_Oracle_EDA finding.
 
 ## EXPERIMENT_NAME schemes
 
-- GRPO_Exp3: `GRPO_Iterative_Oracle_Llama32-1B_LA{K}_MCL{MCL}_G{G}`
-- PTO_Exp3:  `PTO_Iterative_Oracle_Llama32-1B_LA{K}_MCL{MCL}_M{NUM_BRANCHES_PER_TURN}_PT{greedy|indep}`
+- GRPO_Exp3: `GRPO_Iterative_{Oracle}_Llama32-1B_LA{K}_MCL{MCL}_G{G}`
+- PTO_Exp3:  `PTO_Iterative_{Oracle}_Llama32-1B_LA{K}_MCL{MCL}_M{NUM_BRANCHES_PER_TURN}_PT{greedy|indep}`
+
+`{Oracle}` is the training-oracle token derived from `QUESTIONNAIRE_IDS` in cell 1
+(`Q1Q2`|`WAI`|`CSQ8`|`MI_SAT`|`MITI`) — identical to the EDA `oracle=<O>` tokens, so a run's
+folder/Hub name and its `eval_scores/.../oracle=<O>/` folder agree. An unmapped ID set raises.
 
 Different sweep arms write to disjoint dirs — runs never collide.
 
