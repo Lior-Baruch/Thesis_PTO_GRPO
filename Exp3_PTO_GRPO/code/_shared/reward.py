@@ -39,6 +39,16 @@ from .convs import (
 _TRANSCRIPT_LINE_RE = re.compile(r"^\[(PATIENT|THERAPIST)\]:\s*(.*)$", re.DOTALL)
 
 
+def _count_role_labels(s: str) -> int:
+    """Count ``[PATIENT]:`` / ``[THERAPIST]:`` role labels in a transcript.
+
+    Used to estimate realized look-ahead turns (how many role-labelled
+    utterances a rollout produced beyond the original prefix). Shared by the
+    GRPO reward fn and the PTO detailed scorer.
+    """
+    return s.count("[PATIENT]:") + s.count("[THERAPIST]:")
+
+
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                     TRANSCRIPT PARSING                                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -657,8 +667,9 @@ async def get_evaluation_json(
 ):
     """Score one (conversation, questionnaire) with the oracle.
 
-    Returns ``(data, n_questions)`` where ``data`` is the parsed JSON response
-    augmented with ``mean_score``, or ``(None, n_questions)`` on failure.
+    Returns ``(data, n_questions, attempts)`` where ``data`` is the parsed JSON
+    response augmented with ``mean_score`` (or None on failure) and ``attempts``
+    is how many oracle calls were made (1 + retries), surfaced for EDA.
 
     Args:
         full_conversation_override: If provided, use this as the full
@@ -717,19 +728,81 @@ async def get_evaluation_json(
                 raise ValueError(f"Invalid score values (expected {scale_min}-{scale_max})")
 
             data["mean_score"] = float(np.mean(scores))
-            return data, n_questions
+            return data, n_questions, attempt + 1
 
         except _NON_RETRYABLE as e:
             print(f"  ⚠ Oracle non-retryable error (qid={questionnaire_id}): {e}")
-            return None, n_questions
+            return None, n_questions, attempt + 1
 
         except Exception as e:
             if attempt >= oracle_cfg.max_retries - 1:
                 print(f"  ⚠ Oracle failed after {oracle_cfg.max_retries} attempts (qid={questionnaire_id}): {e}")
-                return None, n_questions
+                return None, n_questions, oracle_cfg.max_retries
             await asyncio.sleep(2 ** attempt)
 
-    return None, n_questions
+    return None, n_questions, 0
+
+
+async def _process_single_sample_detailed(
+    client,
+    oracle_cfg: OracleConfig,
+    primitives: OracleAsyncPrimitives,
+    questionnaire_ids: Sequence[int],
+    stats: dict,
+    idx: int,
+    transcript: str,
+    completion: str,
+    full_conversation_override: Optional[str] = None,
+) -> dict:
+    """Score one sample and return the full per-candidate detail for EDA.
+
+    Returns ``{"score", "sub_scores", "success", "retries"}``: ``score`` is the
+    mean over ``questionnaire_ids`` (None if any oracle call fails — TRL converts
+    None → NaN and skips), ``sub_scores`` maps each questionnaire id (string key)
+    to its mean, ``retries`` is the total oracle retries beyond the first attempt
+    per call. Tracks per-batch success/fail in ``stats`` identically to the
+    score-only path.
+    """
+    if full_conversation_override is None and not completion.strip():
+        stats["fail"] += 1
+        return {"score": None, "sub_scores": None, "success": False, "retries": 0}
+
+    rewards: List[float] = []
+    sub_scores: Dict[str, float] = {}
+    total_attempts = 0
+    num_calls = 0
+    for qid in questionnaire_ids:
+        data, _, attempts = await get_evaluation_json(
+            client, oracle_cfg, primitives,
+            transcript=transcript,
+            completion=completion,
+            questionnaire_id=int(qid),
+            full_conversation_override=full_conversation_override,
+        )
+        num_calls += 1
+        total_attempts += attempts
+        if data is None:
+            stats["fail"] += 1
+            return {
+                "score": None,
+                "sub_scores": (sub_scores or None),
+                "success": False,
+                "retries": max(0, total_attempts - num_calls),
+            }
+        m = float(data["mean_score"])
+        sub_scores[str(int(qid))] = m
+        rewards.append(m)
+
+    if (idx + 1) % 10 == 0:
+        print(f"    Evaluated sample {idx + 1}")
+
+    stats["success"] += 1
+    return {
+        "score": float(np.mean(rewards)),
+        "sub_scores": sub_scores,
+        "success": True,
+        "retries": max(0, total_attempts - num_calls),
+    }
 
 
 async def _process_single_sample(
@@ -743,39 +816,92 @@ async def _process_single_sample(
     completion: str,
     full_conversation_override: Optional[str] = None,
 ) -> Optional[float]:
-    """Compute reward for one sample by averaging scores across questionnaires.
+    """Score-only wrapper over :func:`_process_single_sample_detailed`.
 
-    Returns None if any oracle call fails (TRL converts None → NaN and skips).
-    Tracks per-batch success/fail in ``stats``.
+    Preserves the original contract (returns the mean reward or None, updates
+    ``stats``) for callers that don't need the per-candidate breakdown.
     """
-    if full_conversation_override is None and not completion.strip():
-        stats["fail"] += 1
-        return None
-
-    rewards: List[float] = []
-    for qid in questionnaire_ids:
-        data, _ = await get_evaluation_json(
-            client, oracle_cfg, primitives,
-            transcript=transcript,
-            completion=completion,
-            questionnaire_id=int(qid),
-            full_conversation_override=full_conversation_override,
-        )
-        if data is None:
-            stats["fail"] += 1
-            return None
-        rewards.append(float(data["mean_score"]))
-
-    if (idx + 1) % 10 == 0:
-        print(f"    Evaluated sample {idx + 1}")
-
-    stats["success"] += 1
-    return float(np.mean(rewards))
+    detail = await _process_single_sample_detailed(
+        client, oracle_cfg, primitives, questionnaire_ids, stats, idx,
+        transcript, completion, full_conversation_override=full_conversation_override,
+    )
+    return detail["score"]
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                       REWARD FN FACTORY                                    ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+def _coerce_int(v):
+    """Best-effort ``int()`` for ids that may arrive as numpy/str; pass through on failure."""
+    try:
+        return int(v)
+    except (TypeError, ValueError):
+        return v
+
+
+def _record_grpo_generations(
+    recorder, iteration, was_training, num_generations,
+    completions, transcripts, scores, details, lookahead_records,
+    conversation_ids, group_base, epoch,
+):
+    """Buffer one EDA **branch** record per GRPO prompt-group (all G nested).
+
+    TRL passes completions as G-consecutive blocks per prompt (RepeatSampler
+    ``mini_repeat_count=num_generations``); reshaping scores to ``(-1, G)``
+    recovers each group's mean/std (advantage sign = ``sign(score - group_mean)``).
+    The prefix (oracle transcript) is identical across a group's G rows, so it's
+    stored once on the branch. ``branch_id`` is offset by ``group_base`` so it's
+    unique across the iteration's many reward-fn calls (one branch row per group,
+    per epoch). If a batch isn't divisible by G we skip (with a warning) rather
+    than risk a mis-grouped record — never crash training.
+    """
+    G = max(1, int(num_generations))
+    n = len(completions)
+    if n == 0:
+        return
+    if n % G != 0:
+        print(f"    ⚠ EDA: {n} completions not divisible by G={G}; skipping group records this call")
+        return
+    arr = np.array([np.nan if s is None else float(s) for s in scores], dtype=float).reshape(-1, G)
+    with np.errstate(invalid="ignore"):
+        gmean = np.nanmean(arr, axis=1)
+        gstd = np.nanstd(arr, axis=1)
+    conv_ids = conversation_ids if conversation_ids is not None else [None] * n
+    phase = "train" if was_training else "eval"
+    base = group_base["n"]
+    num_groups = n // G
+    for grp in range(num_groups):
+        start = grp * G
+        cands = []
+        for c in range(G):
+            j = start + c
+            cands.append({
+                "idx": c,
+                "completion": completions[j],
+                "score": details[j]["score"],
+                "sub_scores": details[j]["sub_scores"],
+                "oracle": {"success": details[j]["success"], "retries": details[j]["retries"]},
+                "lookahead": lookahead_records[j] if j < len(lookahead_records) else None,
+            })
+        valid = [(c["score"], c["idx"]) for c in cands if c["score"] is not None]
+        chosen_idx = max(valid)[1] if valid else None
+        gm, gs = gmean[grp], gstd[grp]
+        recorder.append({
+            "method": "GRPO_Exp3",
+            "iteration": int(iteration),
+            "phase": phase,
+            "conversation_id": _coerce_int(conv_ids[start] if start < len(conv_ids) else None),
+            "branch_id": int(base + grp),
+            "epoch": (float(epoch) if epoch is not None else None),
+            "prefix": transcripts[start] if start < len(transcripts) else None,
+            "group_mean": None if np.isnan(gm) else float(gm),
+            "group_std": None if np.isnan(gs) else float(gs),
+            "chosen_idx": chosen_idx,
+            "candidates": cands,
+        })
+    group_base["n"] = base + num_groups
 
 
 def make_reward_fn(
@@ -788,6 +914,9 @@ def make_reward_fn(
     oracle_cfg: OracleConfig,
     lookahead_cfg: LookaheadConfig,
     primitives: OracleAsyncPrimitives,
+    recorder=None,
+    iteration: int = 0,
+    num_generations: int = 1,
 ) -> Callable:
     """Build the async reward function for TRL v0.28+.
 
@@ -796,12 +925,25 @@ def make_reward_fn(
 
     The reward fn closes over ``policy`` so look-ahead simulation uses the
     iteration's current weights.
+
+    When ``recorder`` (an :class:`EDARecorder`) is provided and enabled, every
+    candidate (all ``G`` per prompt-group) is buffered with its score,
+    per-questionnaire sub-scores, look-ahead transcript + realized-turn flags, and
+    the group mean/std (so the GRPO advantage sign is recoverable).
+    ``num_generations`` (G) reshapes the flat completion list back into
+    prompt-groups; group ids are made unique within the iteration. Appends are
+    in-memory only (no disk I/O on the hot path) — the caller flushes once after
+    training.
     """
     stats = {"success": 0, "fail": 0}
+    group_base = {"n": 0}  # running prompt-group offset → unique branch_or_group_id per iteration
 
     async def reward_fn(prompts, completions, transcript, **kwargs):
         stats["success"] = 0
         stats["fail"] = 0
+        # Phase tag for EDA, captured BEFORE look-ahead's nested eval() toggle:
+        # TRL puts the policy in eval mode during evaluate().
+        was_training = bool(getattr(policy, "training", True))
 
         if lookahead_cfg.k > 0:
             patient_system_prompt = kwargs.get("patient_system_prompt", [""] * len(prompts))
@@ -846,11 +988,8 @@ def make_reward_fn(
             # role labels added beyond the original transcript + the completion). A
             # sim that ran fewer than K turns ended early (SESSION ENDED / API fail).
             # This is the serial-path baseline for the deferred batched rewrite.
-            def _count_labels(s: str) -> int:
-                return s.count("[PATIENT]:") + s.count("[THERAPIST]:")
-
             la_turns = [
-                max(0, _count_labels(ext) - _count_labels(orig) - 1)
+                max(0, _count_role_labels(ext) - _count_role_labels(orig) - 1)
                 for ext, orig in zip(extended_transcripts, list(transcript))
             ]
             avg_la = float(np.mean(la_turns)) if la_turns else 0.0
@@ -863,27 +1002,47 @@ def make_reward_fn(
                 f"sub_batch={la_telemetry.get('sub_batch', '?')})"
             )
 
+            # Store only the look-ahead TAIL (the K simulated turns): slice the
+            # prefix+completion off the front. Look-ahead builds the string by pure
+            # concatenation (seed = transcript + completion), so the slice is exact.
+            _transcripts = list(transcript)
+            lookahead_records = []
+            for i in range(len(extended_transcripts)):
+                seed = f"{_transcripts[i]}\n\n[THERAPIST]: {completions[i]}"
+                ext = extended_transcripts[i]
+                tail = ext[len(seed):] if ext.startswith(seed) else ext
+                lookahead_records.append({
+                    "k": lookahead_cfg.k,
+                    "realized_turns": la_turns[i],
+                    "ended_early": la_turns[i] < lookahead_cfg.k,
+                    "tail": tail,
+                })
             tasks = [
-                _process_single_sample(
+                _process_single_sample_detailed(
                     client, oracle_cfg, primitives, questionnaire_ids, stats,
                     idx, "", "", full_conversation_override=ext_t,
                 )
                 for idx, ext_t in enumerate(extended_transcripts)
             ]
         else:
+            lookahead_records = [
+                {"k": 0, "realized_turns": 0, "ended_early": False, "tail": None}
+                for _ in range(len(completions))
+            ]
             tasks = [
-                _process_single_sample(
+                _process_single_sample_detailed(
                     client, oracle_cfg, primitives, questionnaire_ids, stats,
                     idx, t, c,
                 )
                 for idx, (t, c) in enumerate(zip(transcript, completions))
             ]
 
-        results = await asyncio.gather(*tasks)
+        details = await asyncio.gather(*tasks)
+        scores = [d["score"] for d in details]
 
         total = stats["success"] + stats["fail"]
         success_rate = stats["success"] / total if total > 0 else 0.0
-        n_none = sum(1 for r in results if r is None)
+        n_none = sum(1 for s in scores if s is None)
         print(
             f"    Oracle batch: {stats['success']}/{total} succeeded "
             f"({success_rate:.0%}), {n_none} rewards → None"
@@ -896,6 +1055,31 @@ def make_reward_fn(
                 f"Aborting to prevent training on biased subset."
             )
 
-        return results
+        # ── Optional: push per-step custom scalars into TRL's native TB/W&B stream.
+        log_metric = kwargs.get("log_metric")
+        if callable(log_metric):
+            try:
+                if total > 0:
+                    log_metric("oracle/success_rate", success_rate)
+                if lookahead_cfg.k > 0 and lookahead_records:
+                    log_metric(
+                        "lookahead/realized_turns_mean",
+                        float(np.mean([r["realized_turns"] for r in lookahead_records])),
+                    )
+            except Exception as e:
+                print(f"    ⚠ log_metric failed (non-fatal): {e}")
+
+        # ── EDA: buffer one branch row per group (all G nested), in-memory only.
+        #    The caller flushes once after training — never touch disk on the hot path.
+        if recorder is not None and getattr(recorder, "enabled", False):
+            _trainer_state = kwargs.get("trainer_state")
+            _epoch = getattr(_trainer_state, "epoch", None) if _trainer_state is not None else None
+            _record_grpo_generations(
+                recorder, iteration, was_training, num_generations,
+                completions, list(transcript), scores, details, lookahead_records,
+                kwargs.get("conversation_id"), group_base, _epoch,
+            )
+
+        return scores
 
     return reward_fn

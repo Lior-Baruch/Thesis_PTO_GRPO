@@ -375,6 +375,45 @@ training block by the torchao/peft Colab crash (now fixed; re-running). ⬜ (c) 
 **K=5** arm after the K=3 quicktest trains through. Sequence: ✅ batched fix →
 ✅ equivalence → 🔄 K=3 quicktest → K=5 arm.
 
+## Per-generation EDA capture + live TensorBoard (landed 2026-06-05)
+
+**EDA capture.** Each iteration writes
+`runs/<MODE_TAG>/<EXP_NAME>/iteration_N/eda/generations.jsonl` with **every** candidate the
+policy generated (previously PTO kept only the final (chosen,rejected) pair; GRPO kept nothing
+per-prompt). Owned by [_shared/eda_recorder.py](code/_shared/eda_recorder.py) (`EDARecorder`:
+in-memory buffer, one atomic flush/iteration — Drive-FUSE-friendly). **Branch-centric schema —
+one JSON row per branch:**
+- `prefix` (oracle-format transcript of the conv-so-far, stored ONCE), `candidates:[…]` nested
+  (each: `completion`, `score`, per-questionnaire `sub_scores`, `oracle{success,retries}`,
+  `lookahead{k,realized_turns,ended_early,tail}`), `chosen_idx` (= argmax score).
+- `lookahead.tail` = the K simulated turns only (prefix+completion sliced off — exact, since
+  look-ahead concatenates). Reconstruct a candidate's oracle-scored text =
+  `prefix + "\n\n[THERAPIST]: " + completion + (tail or "")`.
+- **GRPO:** one branch row per group **per epoch** (rows carry `epoch` + `group_mean/group_std`);
+  recorded in the reward fn ([reward.py](code/_shared/reward.py) `_record_grpo_generations`,
+  reshapes TRL's G-consecutive completions). **PTO:** one row per branch with candidate `role`
+  (chosen/rejected/neither); recorded in `_record_pto_branch` (greedy + independent).
+- Base full conversations are the already-saved `model_iter_*` eval convs (greedy's base = its
+  eval conv) — no separate trunk artifact. EDA load: `read_json(lines=True)` →
+  `df.explode("candidates")`.
+- Knobs (cell 1): `SAVE_EDA_GENERATIONS`, `SAVE_LOOKAHEAD_TRANSCRIPTS` (drops the per-candidate
+  `tail` — the size lever).
+
+**Live TensorBoard.** [_shared/tb_plots.py](code/_shared/tb_plots.py) `RunTBLogger` writes ONE
+continuous `SummaryWriter` to `runs/.../tb_live/` at the cumulative cross-iteration step, so the
+TB **web UI** shows smoothable curves + per-iteration reward histograms + sample completions
+(unlike TRL's per-iteration event files that restart at step 0); mirrors to W&B. Per-iteration
+EDA aggregates (`eda/*`, `pto/*`, `grpo/*`) are computed from the recorder buffer.
+`plot_iteration_metrics` is now **method-aware** (DPO: rewards/accuracies, margins,
+chosen/rejected, logps; GRPO: reward_std, frac_reward_zero_std, completion length) +
+`summarize_available_tags`. Knobs: `TB_LIVE_LOGGING`, `TB_SAMPLE_COMPLETIONS_N`. **GRPO inline
+completion table silenced** (`LOG_COMPLETIONS=False` default; sample completions go to TB text +
+a W&B table instead). Both notebooks add a continuous-only `%tensorboard --logdir .../tb_live` cell.
+
+**Status:** offline-validated (py_compile + full import + a logic smoke test of the record blocks,
+aggregates, and tb_live writer — all pass). Real-model bf16 quicktest pending (confirm
+`iteration_N/eda/generations.jsonl` one-row-per-branch + `tb_live/` render).
+
 ## Sweep priority (updated 2026-06-04)
 
 0. **Full local bf16 PTO_Exp3 greedy quicktest** (`RUN_MODE="quicktest"`, `USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) — **immediate next action.** Shake out the mirrored config + the new greedy true-PTO mode (committed `e27b9de`) end-to-end. First real-model run of greedy; the `_greedy_smoke.py` test was local fakes only. bf16 only — 4-bit crashes on the local Blackwell GPU. **iter-2 crash mitigated:** the first attempt got through iter-1 DPO but rebooted the PC at the iter-2 DPO step (the TRL `"ref"`-adapter forward-in-backward on sm_120); `precompute_ref_log_probs=True` (`DPO_PRECOMPUTE_REF_LOGPS` knob) moves that ref forward into a no-grad pre-pass, and the **isolated `_iter2_dpo_smoke.py` test PASSED** (first time the iter-2 step survived locally). Now confirm the *full* pipeline produces `iteration_2/adapter/` + `model_iter_2`. If GRPO's quicktest (trimmed block) also reboots at iter-2, it shares the root cause but has no precompute knob → merge-each-iter or Colab.
@@ -479,4 +518,5 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 - **HF model-card READMEs** inside `data/grpo_Exp3/runs/.../checkpoint-*/` are auto-generated — DO NOT delete or treat as project docs.
 - **`Partial_Conv_Oracle_EDA` knobs** `MIN_TURNS=2` and `SAMPLE_EVERY_N_PATIENT_TURNS=2` are part of the cache key — changing them invalidates `data/pto_Exp2/eval_scores/partial_q1q2/`.
 - **Pref-tree audit trail.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — they're how you debug "why is this iteration's DPO update weird?" without rerunning generation + branching + scoring (the expensive part).
+- **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Per-generation EDA capture") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **An archived 23 MB K=3 PTO_Exp3 smoke-test** from the V4 era lives in `../archive/pto_v2_smoke/`. Ignore for new work.

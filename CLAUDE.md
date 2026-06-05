@@ -23,7 +23,7 @@ Three controlled comparisons, all live in Exp3:
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | all 6 questionnaires |
-| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | + `lib/` package, `Partial_Conv_Oracle_EDA.ipynb` |
+| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | + `lib/` package, `Partial_Conv_Oracle_EDA.ipynb`, per-generation `iteration_N/eda/generations.jsonl` |
 | **Convs / models** | (paper figures) | 4,512 / 47 | 3,456 / 36 (PTO Exp2 data) + new GRPO/PTO_Exp3 runs pending |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
@@ -72,6 +72,20 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
+**Landed (2026-06-05) — per-generation EDA capture + live TensorBoard.** Each iteration now
+writes `data/<method>_Exp3/runs/.../iteration_N/eda/generations.jsonl` — **one row per branch**
+(oracle-transcript prefix stored once; all M/G candidates nested with score +
+per-questionnaire sub-scores + the K-turn look-ahead `tail`; GRPO rows carry `epoch` + group
+mean/std, PTO rows carry candidate `role` + `chosen_idx`). New `_shared/eda_recorder.py`;
+records emitted from the GRPO reward fn (`reward.py`) and the PTO branch builders
+(`pto_trainer.py`). **Live TB:** `_shared/tb_plots.py::RunTBLogger` writes a continuous
+`runs/.../tb_live/` (cumulative-step → smoothable in the TB web UI) + reward histograms +
+sample completions; `plot_iteration_metrics` is now method-aware (surfaces the DPO/GRPO-specific
+TRL tags the old 2×2 ignored). GRPO inline completion table silenced (`LOG_COMPLETIONS=False`
+default). All flag-guarded (`SAVE_EDA_GENERATIONS`, `SAVE_LOOKAHEAD_TRANSCRIPTS`,
+`TB_LIVE_LOGGING`); offline-validated, real-model quicktest pending. See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Per-generation EDA capture + live TensorBoard".
+
 **Landed (through 2026-06-04):** batched look-ahead rollout (`simulate_lookahead_batch`)
 + `LOOKAHEAD_SUB_BATCH_SIZE` knob, **equivalence validated on real GPU** (|Δmean| of
 Q1+Q2 reward = 0.024, within oracle noise; 1.5× speedup). **torchao Colab crash fixed**

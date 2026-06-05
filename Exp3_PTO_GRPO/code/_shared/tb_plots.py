@@ -23,12 +23,14 @@ by the sum of completed steps in earlier iterations. Without this, iter1 step
 """
 
 import json
+import math
 import os
 import re
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import wandb
 from tensorboard.backend.event_processing import event_accumulator as ea
@@ -300,6 +302,57 @@ def scan_scalar_tags(log_root, head: int = 8) -> None:
     print(f"Total unique scalar tags: {len(all_scalar_tags)}")
 
 
+def summarize_available_tags(metrics: Dict[str, list]) -> Dict[str, List[str]]:
+    """Bucket the parsed scalar tags by family and print, flagging ``other`` loudly.
+
+    ``metrics`` is the dict from :func:`parse_tensorboard_logs`. The point is to make
+    sure no useful DPO/GRPO tag is silently dropped by the dashboard — anything that
+    lands in ``other`` is printed as a hint to add it to a pane.
+    """
+    buckets: Dict[str, List[str]] = {
+        "loss": [], "reward": [], "rewards/*": [], "logps/*": [], "logits/*": [],
+        "kl/entropy": [], "clip_ratio*": [], "completions/*": [], "lr": [],
+        "eda/pto/grpo": [], "other": [],
+    }
+    for tag in sorted(metrics.keys()):
+        t = tag.lower()
+        if "loss" in t:
+            buckets["loss"].append(tag)
+        elif "rewards/" in t:
+            buckets["rewards/*"].append(tag)
+        elif t.startswith(("eda/", "pto/", "grpo/")):
+            buckets["eda/pto/grpo"].append(tag)
+        elif "reward" in t:
+            buckets["reward"].append(tag)
+        elif "logps" in t:
+            buckets["logps/*"].append(tag)
+        elif "logits" in t:
+            buckets["logits/*"].append(tag)
+        elif "kl" in t or "entropy" in t:
+            buckets["kl/entropy"].append(tag)
+        elif "clip_ratio" in t:
+            buckets["clip_ratio*"].append(tag)
+        elif "completion" in t:
+            buckets["completions/*"].append(tag)
+        elif "learning_rate" in t or t.endswith("/lr") or t == "lr":
+            buckets["lr"].append(tag)
+        else:
+            buckets["other"].append(tag)
+
+    print("Available TB scalar tags by family:")
+    for fam, tags in buckets.items():
+        if tags:
+            print(f"  {fam}: {len(tags)}")
+            for tg in tags:
+                print(f"     - {tg}")
+    if buckets["other"]:
+        print(
+            f"\n  ⚠ {len(buckets['other'])} tag(s) not in a known family — consider "
+            f"adding to the dashboard: {buckets['other']}"
+        )
+    return buckets
+
+
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                          PLOT UTILITIES                                      ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -372,11 +425,86 @@ def _draw_iter_boundaries(ax, boundaries: List[Tuple[int, int]]) -> None:
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 
+def _build_panes(metrics: Dict[str, list]) -> List[Tuple[str, str, list]]:
+    """Method-aware pane specs: ``(title, ylabel, [(tag, label, color, linestyle), ...])``.
+
+    Detects DPO vs GRPO from the tags TRL actually wrote so the dashboard surfaces
+    the method-specific metrics the old fixed 2×2 ignored (DPO: rewards/accuracies,
+    margins, chosen/rejected, logps; GRPO: reward_std, frac_reward_zero_std,
+    completion length). Empty panes are dropped by the caller.
+    """
+    has_dpo = any("rewards/chosen" in t for t in metrics)
+    has_grpo = any(("reward_std" in t) or ("frac_reward_zero_std" in t) for t in metrics)
+
+    panes: List[Tuple[str, str, list]] = []
+    panes.append(("Loss", "Loss", [
+        ("train/loss", "Train loss", "#1f77b4", "-"),
+        ("eval/loss", "Eval loss", "#ff7f0e", "-"),
+    ]))
+
+    if has_dpo:
+        panes.append(("DPO implicit rewards", "Reward", [
+            ("train/rewards/chosen", "Train chosen", "#2ca02c", "-"),
+            ("train/rewards/rejected", "Train rejected", "#d62728", "-"),
+            ("eval/rewards/chosen", "Eval chosen", "#2ca02c", "--"),
+            ("eval/rewards/rejected", "Eval rejected", "#d62728", "--"),
+        ]))
+        panes.append(("Reward accuracy & margin", "Value", [
+            ("train/rewards/accuracies", "Train accuracy", "#9467bd", "-"),
+            ("eval/rewards/accuracies", "Eval accuracy", "#9467bd", "--"),
+            ("train/rewards/margins", "Train margin", "#8c564b", "-"),
+            ("eval/rewards/margins", "Eval margin", "#8c564b", "--"),
+        ]))
+        panes.append(("Log-probs (chosen vs rejected)", "logp", [
+            ("train/logps/chosen", "Train chosen", "#17becf", "-"),
+            ("train/logps/rejected", "Train rejected", "#bcbd22", "-"),
+        ]))
+    elif has_grpo:
+        panes.append(("Reward", "Reward", [
+            ("train/reward", "Train reward", "#2ca02c", "-"),
+            ("eval/reward", "Eval reward", "#d62728", "-"),
+            ("train/reward_std", "Train reward std", "#9467bd", "--"),
+        ]))
+        panes.append(("Reward-group health", "Fraction", [
+            ("train/frac_reward_zero_std", "Train frac zero-std", "#8c564b", "-"),
+            ("eval/frac_reward_zero_std", "Eval frac zero-std", "#8c564b", "--"),
+        ]))
+        panes.append(("Completion length", "Tokens / ratio", [
+            ("train/completions/mean_length", "Mean length", "#1f77b4", "-"),
+            ("train/completions/clipped_ratio", "Clipped ratio", "#ff7f0e", "-"),
+        ]))
+    else:
+        panes.append(("Reward", "Reward", [
+            ("train/reward", "Train reward", "#2ca02c", "-"),
+            ("eval/reward", "Eval reward", "#d62728", "-"),
+        ]))
+
+    # GRPO logs KL + entropy; DPO doesn't → this pane is auto-dropped if empty.
+    panes.append(("KL / Entropy", "Value", [
+        ("train/kl", "Train KL", "#17becf", "-"),
+        ("eval/kl", "Eval KL", "#bcbd22", "--"),
+        ("train/entropy", "Train entropy", "#7f7f7f", "-"),
+        ("eval/entropy", "Eval entropy", "#e377c2", "--"),
+    ]))
+    panes.append(("Learning rate", "LR", [
+        ("train/learning_rate", "Learning rate", "#1f77b4", "-"),
+    ]))
+    return panes
+
+
 def plot_iteration_metrics(log_root, smooth_window: int = 2):
-    """Render the standard 2×2 training dashboard: loss / reward / KL+entropy / LR.
+    """Render a method-aware cross-iteration training dashboard.
+
+    Auto-detects DPO (PTO) vs GRPO from the event-file tags and renders the
+    metrics each trainer actually logs (so DPO's rewards/accuracies + margins and
+    GRPO's reward_std + frac_reward_zero_std are no longer hidden). Per-iteration
+    step offsets chain the curves end-to-end; dotted vlines mark iteration
+    boundaries. Backward-compatible: falls back to a generic reward pane.
 
     Args:
         log_root: directory containing ``events.out.tfevents.*`` files (recursed).
+                  Point this at the per-iteration ``runs/.../`` tree; for the
+                  continuous live curves use the TB web UI on ``tb_live/`` instead.
         smooth_window: moving-average window for visual smoothing only.
     """
     print("Parsing TensorBoard event files...")
@@ -389,65 +517,248 @@ def plot_iteration_metrics(log_root, smooth_window: int = 2):
 
     print(f"Found {len(metrics)} scalar tags across {len(boundaries)} iteration(s)")
 
-    tags = {
-        "train_loss": resolve_tag(metrics, "train/loss", "train/loss"),
-        "eval_loss": resolve_tag(metrics, "eval/loss", "eval/loss"),
-        "train_reward": resolve_tag(metrics, "train/reward", "train/reward"),
-        "eval_reward": resolve_tag(metrics, "eval/reward", "eval/reward"),
-        "train_reward_std": resolve_tag(metrics, "train/reward_std", "train/reward_std"),
-        "eval_reward_std": resolve_tag(metrics, "eval/reward_std", "eval/reward_std"),
-        "train_kl": resolve_tag(metrics, "train/kl", "train/kl"),
-        "eval_kl": resolve_tag(metrics, "eval/kl", "eval/kl"),
-        "train_entropy": resolve_tag(metrics, "train/entropy", "train/entropy"),
-        "eval_entropy": resolve_tag(metrics, "eval/entropy", "eval/entropy"),
-        "lr": resolve_tag(metrics, "train/learning_rate", "learning_rate"),
-    }
+    # Resolve each pane's specs to tags that are actually present; drop empty panes.
+    resolved_panes: List[Tuple[str, str, list]] = []
+    for title, ylabel, specs in _build_panes(metrics):
+        present = []
+        for tag_name, label, color, ls in specs:
+            tag = resolve_tag(metrics, tag_name, tag_name)
+            if tag is not None and tag in metrics:
+                present.append((tag, label, color, ls))
+        if present:
+            resolved_panes.append((title, ylabel, present))
 
-    fig, axes = plt.subplots(2, 2, figsize=(14, 9))
-    fig.suptitle("Training Dashboard (Key Metrics)", fontsize=16)
+    if not resolved_panes:
+        print("\n⚠ No known metric families present to plot. Use scan_scalar_tags / "
+              "summarize_available_tags to inspect what's there.")
+        return None
 
-    # 1) Loss
-    ax = axes[0, 0]
-    found = False
-    found |= plot_if_present(ax, metrics, tags["train_loss"], "Train loss", color="#1f77b4", smooth_window=smooth_window)
-    found |= plot_if_present(ax, metrics, tags["eval_loss"], "Eval loss", color="#ff7f0e", smooth_window=smooth_window)
-    _draw_iter_boundaries(ax, boundaries)
-    ax.set_title("Loss"); ax.set_xlabel("Cumulative step"); ax.set_ylabel("Loss"); ax.grid(True, alpha=0.3)
-    (ax.legend(fontsize=9) if found else _annotate_empty(ax, "No loss metrics found"))
+    ncols = 2
+    nrows = (len(resolved_panes) + ncols - 1) // ncols
+    fig, axes = plt.subplots(nrows, ncols, figsize=(14, 4.5 * nrows), squeeze=False)
+    fig.suptitle("Training Dashboard", fontsize=16)
 
-    # 2) Reward
-    ax = axes[0, 1]
-    found = False
-    found |= plot_if_present(ax, metrics, tags["train_reward"], "Train reward", color="#2ca02c", smooth_window=smooth_window)
-    found |= plot_if_present(ax, metrics, tags["eval_reward"], "Eval reward", color="#d62728", smooth_window=smooth_window)
-    found |= plot_if_present(ax, metrics, tags["train_reward_std"], "Train reward std", color="#9467bd", smooth_window=smooth_window, linestyle="--")
-    found |= plot_if_present(ax, metrics, tags["eval_reward_std"], "Eval reward std", color="#8c564b", smooth_window=smooth_window, linestyle="--")
-    _draw_iter_boundaries(ax, boundaries)
-    ax.set_title("Reward"); ax.set_xlabel("Cumulative step"); ax.set_ylabel("Reward"); ax.grid(True, alpha=0.3)
-    (ax.legend(fontsize=9) if found else _annotate_empty(ax, "No reward metrics found"))
+    for idx, (title, ylabel, present) in enumerate(resolved_panes):
+        ax = axes[idx // ncols][idx % ncols]
+        any_plotted = False
+        for tag, label, color, ls in present:
+            sw = 1 if "learning_rate" in tag else smooth_window
+            any_plotted |= plot_if_present(ax, metrics, tag, label, color=color,
+                                           smooth_window=sw, linestyle=ls)
+        _draw_iter_boundaries(ax, boundaries)
+        ax.set_title(title); ax.set_xlabel("Cumulative step"); ax.set_ylabel(ylabel)
+        ax.grid(True, alpha=0.3)
+        if any_plotted:
+            ax.legend(fontsize=9)
 
-    # 3) KL + Entropy
-    ax = axes[1, 0]
-    found = False
-    found |= plot_if_present(ax, metrics, tags["train_kl"], "Train KL", color="#17becf", smooth_window=smooth_window)
-    found |= plot_if_present(ax, metrics, tags["eval_kl"], "Eval KL", color="#bcbd22", smooth_window=smooth_window)
-    found |= plot_if_present(ax, metrics, tags["train_entropy"], "Train entropy", color="#7f7f7f", smooth_window=smooth_window, linestyle="--")
-    found |= plot_if_present(ax, metrics, tags["eval_entropy"], "Eval entropy", color="#e377c2", smooth_window=smooth_window, linestyle="--")
-    _draw_iter_boundaries(ax, boundaries)
-    ax.set_title("KL / Entropy"); ax.set_xlabel("Cumulative step"); ax.set_ylabel("Value"); ax.grid(True, alpha=0.3)
-    (ax.legend(fontsize=9) if found else _annotate_empty(ax, "No KL/entropy metrics found"))
-
-    # 4) Learning rate
-    ax = axes[1, 1]
-    found = plot_if_present(ax, metrics, tags["lr"], "Learning rate", color="#1f77b4", smooth_window=1)
-    _draw_iter_boundaries(ax, boundaries)
-    ax.set_title("Learning Rate"); ax.set_xlabel("Cumulative step"); ax.set_ylabel("LR"); ax.grid(True, alpha=0.3)
-    (ax.legend(fontsize=9) if found else _annotate_empty(ax, "No learning-rate metric found"))
+    # Blank any unused grid cells.
+    for j in range(len(resolved_panes), nrows * ncols):
+        axes[j // ncols][j % ncols].axis("off")
 
     plt.tight_layout()
     plt.show()
-
-    print("\nKey tags used:")
-    for k, v in tags.items():
-        print(f"  {k}: {v}")
+    print(f"\nRendered {len(resolved_panes)} pane(s) from {len(metrics)} tags.")
     return fig
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║              LIVE RUN-LEVEL LOGGER (continuous TB + W&B mirror)            ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+
+def _finite(v) -> bool:
+    try:
+        return math.isfinite(float(v))
+    except (TypeError, ValueError):
+        return False
+
+
+def _fmt(v) -> str:
+    """Format a score-ish value for display ('—' for None/NaN)."""
+    if v is None or not _finite(v):
+        return "—"
+    return f"{float(v):.3f}"
+
+
+def _clip(s, n: int) -> str:
+    s = "" if s is None else str(s)
+    return s if len(s) <= n else s[:n] + "…"
+
+
+def _tail(s, n: int) -> str:
+    s = "" if s is None else str(s)
+    return s if len(s) <= n else "…" + s[-n:]
+
+
+def _format_samples_markdown(samples) -> str:
+    """Render a few candidate records as TB-friendly markdown."""
+    blocks = []
+    for i, r in enumerate(samples):
+        sub = r.get("sub_scores") or {}
+        sub_s = ", ".join(f"Q{k}={_fmt(v)}" for k, v in sub.items())
+        if r.get("pto"):
+            tag = f"role=**{(r['pto'] or {}).get('role')}**"
+        elif r.get("grpo"):
+            g = r["grpo"] or {}
+            tag = f"groupμ={_fmt(g.get('group_mean'))} σ={_fmt(g.get('group_std'))}"
+        else:
+            tag = ""
+        la = r.get("lookahead") or {}
+        la_s = ""
+        if la.get("k"):
+            la_s = f" · lookahead {la.get('realized_turns')}/{la.get('k')}"
+        blocks.append(
+            f"**#{i} — score {_fmt(r.get('score'))}** {tag}"
+            f"{(' (' + sub_s + ')') if sub_s else ''}{la_s}\n\n"
+            f"_…prompt tail:_ `{_tail(r.get('prompt'), 280)}`\n\n"
+            f"_completion:_ {_clip(r.get('completion'), 800)}\n\n---"
+        )
+    return "\n\n".join(blocks)
+
+
+class RunTBLogger:
+    """Run-level continuous logger for a smoothable TB web UI + W&B mirror.
+
+    TRL's per-iteration event files restart ``global_step`` at 0, so the native TB
+    UI can't show a continuous cross-iteration curve (the matplotlib dashboard
+    stitches them only post-hoc). This writes ONE ``SummaryWriter`` for the whole
+    run to ``<local_outdir>/tb_live/`` and logs at the cumulative step, so the TB
+    web UI renders continuous, smoothable curves *during* training. Custom EDA
+    aggregates (mean candidate reward, oracle success, look-ahead realized turns,
+    PTO τ-filter rate / GRPO group-std) + per-iteration reward histograms + a few
+    sample completions land here, mirrored to W&B when active.
+
+    All methods no-op when ``enabled=False`` or the writer failed to open, and
+    every backend call is wrapped so a logging hiccup never aborts training.
+    """
+
+    def __init__(self, local_outdir: str, report_to, *, enabled: bool = True):
+        self.enabled = bool(enabled)
+        self.report_to = list(report_to or [])
+        self.use_wandb = "wandb" in self.report_to
+        self.writer = None
+        self._layout_written = False
+        self.log_dir = os.path.join(local_outdir, "tb_live")
+        if not self.enabled:
+            return
+        try:
+            from torch.utils.tensorboard import SummaryWriter
+            os.makedirs(self.log_dir, exist_ok=True)
+            self.writer = SummaryWriter(log_dir=self.log_dir)
+            print(f"  ✓ Live TensorBoard logger → {self.log_dir}")
+        except Exception as e:
+            print(f"  ⚠ RunTBLogger: SummaryWriter unavailable ({e}); live TB disabled")
+            self.enabled = False
+
+    def _write_custom_layout(self) -> None:
+        if self.writer is None or self._layout_written:
+            return
+        layout = {
+            "EDA": {
+                "candidate_reward": ["Multiline", ["eda/mean_candidate_reward"]],
+                "oracle_success_rate": ["Multiline", ["eda/oracle_success_rate"]],
+                "lookahead": ["Multiline",
+                              ["eda/lookahead_realized_turns_mean", "eda/lookahead_ended_early_frac"]],
+            },
+            "PTO": {
+                "pref_pairs": ["Multiline", ["pto/pref_pair_count", "pto/branch_points"]],
+                "tau_filter_rate": ["Multiline", ["pto/tau_filter_rate"]],
+            },
+            "GRPO": {
+                "group_std": ["Multiline", ["grpo/group_reward_std_mean"]],
+                "frac_zero_std": ["Multiline", ["grpo/frac_zero_std"]],
+            },
+        }
+        try:
+            self.writer.add_custom_scalars(layout)
+        except Exception as e:
+            print(f"  ⚠ RunTBLogger: add_custom_scalars failed ({e})")
+        self._layout_written = True
+
+    def _wandb_log(self, payload: dict, step: int) -> None:
+        if not (self.use_wandb and wandb.run is not None):
+            return
+        try:
+            wandb.log({**payload, "cumulative_global_step": int(step)})
+        except Exception as e:
+            print(f"  ⚠ RunTBLogger: wandb.log failed ({e})")
+
+    def log_scalars(self, scalars: dict, *, step: int, iteration=None) -> None:
+        if not self.enabled:
+            return
+        self._write_custom_layout()
+        clean = {k: float(v) for k, v in scalars.items() if v is not None and _finite(v)}
+        for k, v in clean.items():
+            try:
+                self.writer.add_scalar(k, v, global_step=int(step))
+            except Exception as e:
+                print(f"  ⚠ RunTBLogger: add_scalar({k}) failed ({e})")
+        try:
+            self.writer.flush()
+        except Exception:
+            pass
+        self._wandb_log(clean, step)
+
+    def log_histogram(self, tag: str, values, *, step: int, iteration=None) -> None:
+        if not self.enabled or not values:
+            return
+        arr = np.asarray([float(v) for v in values if _finite(v)], dtype=float)
+        if arr.size == 0:
+            return
+        try:
+            self.writer.add_histogram(tag, arr, global_step=int(step))
+            self.writer.flush()
+        except Exception as e:
+            print(f"  ⚠ RunTBLogger: add_histogram failed ({e})")
+        if self.use_wandb and wandb.run is not None:
+            try:
+                wandb.log({tag: wandb.Histogram(arr), "cumulative_global_step": int(step)})
+            except Exception as e:
+                print(f"  ⚠ RunTBLogger: wandb histogram failed ({e})")
+
+    def log_text(self, tag: str, text: str, *, step: int) -> None:
+        if not self.enabled:
+            return
+        try:
+            self.writer.add_text(tag, text, global_step=int(step))
+            self.writer.flush()
+        except Exception as e:
+            print(f"  ⚠ RunTBLogger: add_text failed ({e})")
+
+    def log_sample_completions(self, samples, *, step: int, iteration=None) -> None:
+        """Log a few candidate records as TB markdown text + a W&B table.
+
+        Replaces the noisy inline GRPO completion dump: a readable spread of
+        best/median/worst completions you can browse in the TB UI / W&B.
+        """
+        if not self.enabled or not samples:
+            return
+        tag = f"samples/iteration_{iteration}" if iteration is not None else "samples"
+        self.log_text(tag, _format_samples_markdown(samples), step=step)
+        if self.use_wandb and wandb.run is not None:
+            try:
+                cols = ["score", "tag", "prompt_tail", "completion"]
+                rows = []
+                for r in samples:
+                    if r.get("pto"):
+                        t = (r["pto"] or {}).get("role")
+                    elif r.get("grpo"):
+                        g = r["grpo"] or {}
+                        t = f"gμ={_fmt(g.get('group_mean'))}/σ={_fmt(g.get('group_std'))}"
+                    else:
+                        t = ""
+                    rows.append([_fmt(r.get("score")), t,
+                                 _tail(r.get("prompt"), 280), _clip(r.get("completion"), 800)])
+                wandb.log({f"samples/iter_{iteration}": wandb.Table(columns=cols, data=rows),
+                           "cumulative_global_step": int(step)})
+            except Exception as e:
+                print(f"  ⚠ RunTBLogger: wandb table failed ({e})")
+
+    def close(self) -> None:
+        if self.writer is not None:
+            try:
+                self.writer.flush()
+                self.writer.close()
+            except Exception:
+                pass
+            self.writer = None

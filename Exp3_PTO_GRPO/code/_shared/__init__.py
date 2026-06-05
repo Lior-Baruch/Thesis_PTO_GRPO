@@ -82,7 +82,9 @@ from .tb_plots import (
     parse_tensorboard_logs,
     compute_iteration_boundaries,
     scan_scalar_tags,
+    summarize_available_tags,
     plot_iteration_metrics,
+    RunTBLogger,
     CheckpointMetadataCallback,
     CumulativeStepCallback,
     init_iteration_logging,
@@ -90,6 +92,8 @@ from .tb_plots import (
     setup_tensorboard_logging,
     patch_trainer_tensorboard_callback,
 )
+
+from .eda_recorder import EDARecorder
 
 
 __all__ = [
@@ -122,8 +126,10 @@ __all__ = [
     "simulate_lookahead_single", "simulate_lookahead_batch",
     # tb_plots
     "find_event_files", "parse_tensorboard_logs", "compute_iteration_boundaries",
-    "scan_scalar_tags", "plot_iteration_metrics",
+    "scan_scalar_tags", "summarize_available_tags", "plot_iteration_metrics", "RunTBLogger",
     "CheckpointMetadataCallback", "CumulativeStepCallback",
     "init_iteration_logging", "finish_iteration_logging",
     "setup_tensorboard_logging", "patch_trainer_tensorboard_callback",
+    # eda_recorder
+    "EDARecorder",
 ]

@@ -63,12 +63,16 @@ from _shared import (
     CheckpointMetadataCallback, CumulativeStepCallback,
     init_iteration_logging, finish_iteration_logging,
     setup_tensorboard_logging, patch_trainer_tensorboard_callback,
+    # EDA capture
+    EDARecorder,
 )
 # Private helper (not in _shared public API): applies one generated response to a
 # ConversationState — appends the turn, keeps both message-perspective lists synced,
 # flips next_speaker, and handles the SESSION ENDED marker. The greedy grower drives
 # trunk growth through it (same machinery conversation_loop_batch uses).
 from _shared.convs import _process_session_response
+# Shared realized-look-ahead-turn counter (reused by the detailed PTO scorer).
+from _shared.reward import _count_role_labels
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -159,6 +163,18 @@ class PTOConfig:
     # frozen anyway); frees ref VRAM during the step and avoids the iter-2 "ref"-adapter
     # forward that coincides with the local Blackwell (sm_120) training crash.
     precompute_ref_log_probs: bool = True
+
+    # EDA capture + live TensorBoard (flag-guarded; defaults preserve old behavior).
+    # save_eda_generations: write iteration_N/eda/generations.jsonl with every
+    #   candidate (all M per branch) + scores + sub-scores + look-ahead transcript.
+    # save_lookahead_transcripts: keep the heavy per-candidate K-turn transcript
+    #   (the dominant size lever); flags + scores are kept either way.
+    # tb_live_logging: run-level continuous SummaryWriter (smoothable TB web UI).
+    # tb_sample_completions_n: how many spread-sampled completions to log as TB text.
+    save_eda_generations: bool = False
+    save_lookahead_transcripts: bool = True
+    tb_live_logging: bool = False
+    tb_sample_completions_n: int = 8
 
 
 @dataclass
@@ -346,6 +362,52 @@ def _sample_M_completions(
     return [r for r in responses if r and r.strip()]
 
 
+async def _oracle_score_extended_detailed(
+    client,
+    oracle_cfg: OracleConfig,
+    primitives: OracleAsyncPrimitives,
+    full_conversation: str,
+    questionnaire_ids: Sequence[int],
+) -> dict:
+    """Detailed oracle scoring of one already-extended transcript.
+
+    Returns ``{"score", "sub_scores", "success", "retries"}`` (mirror of
+    ``reward._process_single_sample_detailed`` for a pre-built full conversation):
+    ``score`` is the mean over ``questionnaire_ids`` (None if any questionnaire
+    fails), ``sub_scores`` maps each id (string key) to its mean, ``retries`` is
+    the total oracle retries beyond the first attempt per call.
+    """
+    rewards: List[float] = []
+    sub_scores: Dict[str, float] = {}
+    total_attempts = 0
+    num_calls = 0
+    for qid in questionnaire_ids:
+        data, _, attempts = await get_evaluation_json(
+            client, oracle_cfg, primitives,
+            transcript="", completion="",
+            questionnaire_id=int(qid),
+            full_conversation_override=full_conversation,
+        )
+        num_calls += 1
+        total_attempts += attempts
+        if data is None:
+            return {
+                "score": None,
+                "sub_scores": (sub_scores or None),
+                "success": False,
+                "retries": max(0, total_attempts - num_calls),
+            }
+        m = float(data["mean_score"])
+        sub_scores[str(int(qid))] = m
+        rewards.append(m)
+    return {
+        "score": float(np.mean(rewards)),
+        "sub_scores": sub_scores,
+        "success": True,
+        "retries": max(0, total_attempts - num_calls),
+    }
+
+
 async def _oracle_score_extended(
     client,
     oracle_cfg: OracleConfig,
@@ -354,22 +416,14 @@ async def _oracle_score_extended(
     questionnaire_ids: Sequence[int],
 ) -> Optional[float]:
     """Mean oracle reward over ``questionnaire_ids`` for one already-extended
-    transcript. Returns ``None`` if any questionnaire fails."""
-    scores: List[float] = []
-    for qid in questionnaire_ids:
-        data, _ = await get_evaluation_json(
-            client, oracle_cfg, primitives,
-            transcript="", completion="",
-            questionnaire_id=int(qid),
-            full_conversation_override=full_conversation,
-        )
-        if data is None:
-            return None
-        scores.append(float(data["mean_score"]))
-    return float(np.mean(scores))
+    transcript (score-only wrapper). Returns ``None`` if any questionnaire fails."""
+    detail = await _oracle_score_extended_detailed(
+        client, oracle_cfg, primitives, full_conversation, questionnaire_ids,
+    )
+    return detail["score"]
 
 
-async def _score_completions_batch(
+async def _score_completions_batch_detailed(
     client,
     oracle_cfg: OracleConfig,
     lookahead_cfg: LookaheadConfig,
@@ -381,11 +435,15 @@ async def _score_completions_batch(
     completions: List[str],
     patient_system_prompts: List[str],
     questionnaire_ids: Sequence[int],
-) -> List[Optional[float]]:
-    """Score a parallel batch of (transcript, completion, patient_prompt) triples via
-    K-turn look-ahead (when ``k>0``) + oracle. Shared by the independent-branch scorer
-    (:func:`_score_branches`) and the greedy grower (:func:`grow_preference_trees_batch`).
-    Returns one mean reward per item (``None`` on oracle failure)."""
+) -> List[dict]:
+    """Like :func:`_score_completions_batch` but returns a per-candidate detail dict
+    (``score`` / ``sub_scores`` / ``success`` / ``retries`` / ``lookahead{...}``) for EDA.
+
+    The ``lookahead`` sub-dict carries the K-turn extended transcript the oracle
+    actually scored plus realized-turn provenance (``realized_turns``,
+    ``ended_early``), reusing :func:`_shared.reward._count_role_labels` so the count
+    matches the GRPO reward fn exactly.
+    """
     if lookahead_cfg.k > 0:
         full_convs = await simulate_lookahead_batch(
             transcripts=transcripts,
@@ -413,10 +471,59 @@ async def _score_completions_batch(
             f"{t}\n\n[THERAPIST]: {c}" for t, c in zip(transcripts, completions)
         ]
 
-    return await asyncio.gather(*[
-        _oracle_score_extended(client, oracle_cfg, primitives, fc, questionnaire_ids)
+    details = await asyncio.gather(*[
+        _oracle_score_extended_detailed(client, oracle_cfg, primitives, fc, questionnaire_ids)
         for fc in full_convs
     ])
+
+    # Store only the look-ahead TAIL (the K simulated turns): slice the
+    # prefix+completion seed off the front (exact — look-ahead concatenates).
+    out: List[dict] = []
+    for i, d in enumerate(details):
+        if lookahead_cfg.k > 0:
+            realized = max(0, _count_role_labels(full_convs[i]) - _count_role_labels(transcripts[i]) - 1)
+            seed = f"{transcripts[i]}\n\n[THERAPIST]: {completions[i]}"
+            ext = full_convs[i]
+            tail = ext[len(seed):] if ext.startswith(seed) else ext
+            la = {
+                "k": lookahead_cfg.k,
+                "realized_turns": realized,
+                "ended_early": realized < lookahead_cfg.k,
+                "tail": tail,
+            }
+        else:
+            la = {"k": 0, "realized_turns": 0, "ended_early": False, "tail": None}
+        out.append({**d, "lookahead": la})
+    return out
+
+
+async def _score_completions_batch(
+    client,
+    oracle_cfg: OracleConfig,
+    lookahead_cfg: LookaheadConfig,
+    primitives: OracleAsyncPrimitives,
+    *,
+    policy, tokenizer,
+    therapist_system_prompt: str,
+    transcripts: List[str],
+    completions: List[str],
+    patient_system_prompts: List[str],
+    questionnaire_ids: Sequence[int],
+) -> List[Optional[float]]:
+    """Score a parallel batch of (transcript, completion, patient_prompt) triples via
+    K-turn look-ahead (when ``k>0``) + oracle. Score-only wrapper over
+    :func:`_score_completions_batch_detailed`. Returns one mean reward per item
+    (``None`` on oracle failure)."""
+    details = await _score_completions_batch_detailed(
+        client, oracle_cfg, lookahead_cfg, primitives,
+        policy=policy, tokenizer=tokenizer,
+        therapist_system_prompt=therapist_system_prompt,
+        transcripts=transcripts,
+        completions=completions,
+        patient_system_prompts=patient_system_prompts,
+        questionnaire_ids=questionnaire_ids,
+    )
+    return [d["score"] for d in details]
 
 
 async def _score_branches(
@@ -449,6 +556,88 @@ async def _score_branches(
     )
 
 
+async def _score_branches_detailed(
+    client,
+    oracle_cfg: OracleConfig,
+    lookahead_cfg: LookaheadConfig,
+    primitives: OracleAsyncPrimitives,
+    *,
+    policy, tokenizer,
+    therapist_system_prompt: str,
+    patient_system_prompt: str,
+    transcript: str,
+    completions: List[str],
+    questionnaire_ids: Sequence[int],
+) -> List[dict]:
+    """Detail-returning variant of :func:`_score_branches` (one dict per candidate)."""
+    n = len(completions)
+    return await _score_completions_batch_detailed(
+        client, oracle_cfg, lookahead_cfg, primitives,
+        policy=policy, tokenizer=tokenizer,
+        therapist_system_prompt=therapist_system_prompt,
+        transcripts=[transcript] * n,
+        completions=completions,
+        patient_system_prompts=[patient_system_prompt] * n,
+        questionnaire_ids=questionnaire_ids,
+    )
+
+
+def _record_pto_branch(
+    recorder,
+    *,
+    iteration: int,
+    phase: str,
+    conversation_id: int,
+    branch_id: int,
+    prefix: str,
+    completions: List[str],
+    details: List[dict],
+    best_idx: int,
+    worst_idx: int,
+    emitted_pair: bool,
+) -> None:
+    """Append ONE EDA branch record (oracle-transcript ``prefix`` once + all M nested).
+
+    ``details`` aligns with ``completions``. Each candidate's ``role`` is "chosen"
+    for the top-ranked (always present — greedy always appends it), "rejected" only
+    when a τ-passing pair was emitted, else "neither". Candidates whose oracle
+    scoring failed (score None) are still recorded; ``chosen_idx`` = best. No-op
+    when the recorder is disabled.
+    """
+    if recorder is None or not getattr(recorder, "enabled", False):
+        return
+    cands = []
+    for idx, (c, d) in enumerate(zip(completions, details)):
+        if idx == best_idx:
+            role = "chosen"
+        elif idx == worst_idx and emitted_pair:
+            role = "rejected"
+        else:
+            role = "neither"
+        cands.append({
+            "idx": int(idx),
+            "completion": c,
+            "score": d.get("score"),
+            "sub_scores": d.get("sub_scores"),
+            "role": role,
+            "oracle": {"success": bool(d.get("success", False)), "retries": int(d.get("retries", 0))},
+            "lookahead": d.get("lookahead"),
+        })
+    recorder.append({
+        "method": "PTO_Exp3",
+        "iteration": int(iteration),
+        "phase": phase,
+        "conversation_id": int(conversation_id),
+        "branch_id": int(branch_id),
+        "epoch": None,
+        "prefix": prefix,
+        "group_mean": None,
+        "group_std": None,
+        "chosen_idx": (int(best_idx) if best_idx is not None and best_idx >= 0 else None),
+        "candidates": cands,
+    })
+
+
 async def build_pref_pairs_for_conversation(
     state,
     permutation,
@@ -459,6 +648,8 @@ async def build_pref_pairs_for_conversation(
     lookahead_cfg: LookaheadConfig,
     primitives: OracleAsyncPrimitives,
     cfg: PTOConfig,
+    recorder=None,
+    iteration: int = 0,
 ) -> List[Dict]:
     """Build all (prompt, chosen, rejected) DPO pairs from one conversation.
 
@@ -510,8 +701,8 @@ async def build_pref_pairs_for_conversation(
         if len(completions) < 2:
             continue  # need at least 2 to form a pair
 
-        # ── Step 2: score each branch (lookahead + oracle) ──
-        scores = await _score_branches(
+        # ── Step 2: score each branch (lookahead + oracle), keeping per-candidate detail ──
+        branch_details = await _score_branches_detailed(
             client, oracle_cfg, lookahead_cfg, primitives,
             policy=policy, tokenizer=tokenizer,
             therapist_system_prompt=therapist_system_prompt,
@@ -522,18 +713,36 @@ async def build_pref_pairs_for_conversation(
         )
 
         # ── Step 3: best/worst → pref pair with τ filter ──
-        scored = [(s, c) for s, c in zip(scores, completions) if s is not None]
-        if len(scored) < 2:
+        scored = [
+            (branch_details[k]["score"], k)
+            for k in range(len(completions))
+            if branch_details[k]["score"] is not None
+        ]
+        scored.sort(key=lambda sk: sk[0])
+        best_idx = scored[-1][1] if scored else -1
+        worst_idx = scored[0][1] if scored else -1
+        emitted_pair = (
+            len(scored) >= 2 and (scored[-1][0] - scored[0][0]) > cfg.pref_filter_tau
+        )
+
+        # Record ALL candidates for EDA as one branch row (prefix = oracle
+        # transcript of the conv-so-far, incl. oracle-failed / middle ranks).
+        _record_pto_branch(
+            recorder,
+            iteration=iteration, phase="independent",
+            conversation_id=state.permutation_index, branch_id=i,
+            prefix=transcript, completions=completions, details=branch_details,
+            best_idx=best_idx, worst_idx=worst_idx, emitted_pair=emitted_pair,
+        )
+
+        if not emitted_pair:
             continue
-        scored.sort(key=lambda sc: sc[0])
-        worst_score, worst_text = scored[0]
-        best_score, best_text = scored[-1]
-        if (best_score - worst_score) <= cfg.pref_filter_tau:
-            continue
+        best_score, best_k = scored[-1]
+        worst_score, worst_k = scored[0]
         pairs.append({
             "prompt": prompt,
-            "chosen": best_text,
-            "rejected": worst_text,
+            "chosen": completions[best_k],
+            "rejected": completions[worst_k],
             "chosen_score": best_score,
             "rejected_score": worst_score,
             "conversation_id": state.permutation_index,
@@ -553,6 +762,8 @@ async def extract_pref_pairs_from_conversations(
     lookahead_cfg: LookaheadConfig,
     primitives: OracleAsyncPrimitives,
     cfg: PTOConfig,
+    recorder=None,
+    iteration: int = 0,
 ) -> List[Dict]:
     """Build pref pairs across all conversations. Sequential per-conversation
     (branch sampling is GPU-bound) but the scoring inside each conversation is
@@ -570,6 +781,8 @@ async def extract_pref_pairs_from_conversations(
             oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
             primitives=primitives,
             cfg=cfg,
+            recorder=recorder,
+            iteration=iteration,
         )
         all_pairs.extend(pairs)
         if cfg.gen_verbose:
@@ -650,6 +863,8 @@ async def _grow_therapist_depth(
     primitives: OracleAsyncPrimitives,
     cfg: PTOConfig,
     M: int,
+    recorder=None,
+    iteration: int = 0,
 ) -> None:
     """One therapist (branching) depth across all active trunks.
 
@@ -687,10 +902,11 @@ async def _grow_therapist_depth(
         for j, r in enumerate(responses):
             completions[start + j] = r
 
-    # 3+4. Look-ahead + oracle-score every non-empty completion in ONE batch.
+    # 3+4. Look-ahead + oracle-score every non-empty completion in ONE batch,
+    #      keeping per-candidate detail (sub-scores + look-ahead transcript) for EDA.
     score_idx = [i for i, c in enumerate(completions) if c and c.strip()]
     if score_idx:
-        packed = await _score_completions_batch(
+        packed = await _score_completions_batch_detailed(
             client, oracle_cfg, lookahead_cfg, primitives,
             policy=policy, tokenizer=tokenizer,
             therapist_system_prompt=therapist_system_prompt,
@@ -699,25 +915,39 @@ async def _grow_therapist_depth(
             patient_system_prompts=[active[i // M].patient_system_prompt for i in score_idx],
             questionnaire_ids=cfg.questionnaire_ids,
         )
-        score_by_flat = {i: packed[k] for k, i in enumerate(score_idx)}
+        detail_by_flat = {i: packed[k] for k, i in enumerate(score_idx)}
     else:
-        score_by_flat = {}
+        detail_by_flat = {}
 
     # 5. Per trunk: pick best/worst, append winner, emit pair if gap > τ.
     for ti, t in enumerate(active):
-        scored = []
+        # Gather this trunk's M candidates (aligned), incl. failed-sample / failed-oracle
+        # slots so the EDA records every branch even when scoring dropped some.
+        trunk_completions: List[str] = []
+        trunk_details: List[dict] = []
         for m in range(M):
             flat_i = ti * M + m
             c = completions[flat_i]
-            s = score_by_flat.get(flat_i)
-            if c and c.strip() and s is not None:
-                scored.append((s, c))
+            d = detail_by_flat.get(flat_i)
+            trunk_completions.append(c if (c and c.strip()) else "")
+            trunk_details.append(
+                d if d is not None
+                else {"score": None, "sub_scores": None, "success": False, "retries": 0, "lookahead": None}
+            )
+
+        scored = [
+            (trunk_details[m]["score"], m)
+            for m in range(M)
+            if trunk_completions[m] and trunk_details[m]["score"] is not None
+        ]
         if not scored:
             t.conv.is_active = False  # freeze: no valid branch to advance the trunk
             continue
-        scored.sort(key=lambda sc: sc[0])
-        worst_score, worst_text = scored[0]
-        best_score, best_text = scored[-1]
+        scored.sort(key=lambda sm: sm[0])
+        worst_score, worst_m = scored[0]
+        best_score, best_m = scored[-1]
+        best_text = trunk_completions[best_m]
+        worst_text = trunk_completions[worst_m]
 
         # Snapshot the prompt from the trunk BEFORE appending the winner.
         prompt = tokenizer.apply_chat_template(
@@ -726,12 +956,24 @@ async def _grow_therapist_depth(
         )
         branch_depth = len(t.conv.conversation)
 
+        emitted_pair = len(scored) >= 2 and (best_score - worst_score) > cfg.pref_filter_tau
+
+        # Record ALL M candidates for EDA as one branch row (prefix = oracle
+        # transcript of the conv-so-far, incl. None-score / middle ranks).
+        _record_pto_branch(
+            recorder,
+            iteration=iteration, phase="tree",
+            conversation_id=t.conv.permutation_index, branch_id=branch_depth,
+            prefix=transcripts[ti], completions=trunk_completions, details=trunk_details,
+            best_idx=best_m, worst_idx=worst_m, emitted_pair=emitted_pair,
+        )
+
         # Always append the winner so the trunk advances (the greedy feedback the
         # independent path lacks). Flips next_speaker -> patient; handles SESSION
         # ENDED inside the winner (freezes the trunk, keeps cleaned text).
         _process_session_response(t.conv, best_text, "therapist", "user", "assistant")
 
-        if len(scored) >= 2 and (best_score - worst_score) > cfg.pref_filter_tau:
+        if emitted_pair:
             t.pairs.append({
                 "prompt": prompt,
                 "chosen": best_text,
@@ -777,6 +1019,8 @@ async def grow_preference_trees_batch(
     lookahead_cfg: LookaheadConfig,
     primitives: OracleAsyncPrimitives,
     cfg: PTOConfig,
+    recorder=None,
+    iteration: int = 0,
 ) -> List[Dict]:
     """Greedy preference-tree growth (true PTO), lock-step across all seed trunks.
 
@@ -837,6 +1081,7 @@ async def grow_preference_trees_batch(
                 therapist_system_prompt=therapist_system_prompt,
                 oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
                 primitives=primitives, cfg=cfg, M=M,
+                recorder=recorder, iteration=iteration,
             )
         else:
             await _grow_patient_depth(
@@ -1140,6 +1385,7 @@ def run_one_iteration(
     lookahead_cfg: LookaheadConfig,
     primitives: OracleAsyncPrimitives,
     wandb_ctx,
+    tb_logger=None,
     cfg: PTOConfig,
 ):
     """One full PTO iteration: generate → build pref pairs → DPO train → save.
@@ -1150,6 +1396,13 @@ def run_one_iteration(
     iter_dir = os.path.join(cfg.local_outdir, f"{ITER_PREFIX}{iteration}")
     os.makedirs(iter_dir, exist_ok=True)
     conv_dir = _conv_dir_for_iter(cfg, iteration - 1)
+
+    # Per-iteration EDA recorder (in-memory; flushed once after pref-pair building).
+    recorder = EDARecorder(
+        os.path.join(iter_dir, "eda", "generations.jsonl"),
+        enabled=getattr(cfg, "save_eda_generations", False),
+        save_transcripts=getattr(cfg, "save_lookahead_transcripts", True),
+    )
 
     iter_rng = random.Random(cfg.seed + iteration)
     shuffled = list(all_permutations)
@@ -1197,6 +1450,7 @@ def run_one_iteration(
             therapist_system_prompt=therapist_system_prompt,
             oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
             primitives=primitives, cfg=cfg,
+            recorder=recorder, iteration=iteration,
         ))
     else:  # "independent" — branch each patient turn of the (pre-recorded) eval convs
         pref_pairs = _run_async(extract_pref_pairs_from_conversations(
@@ -1207,6 +1461,7 @@ def run_one_iteration(
             oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
             primitives=primitives,
             cfg=cfg,
+            recorder=recorder, iteration=iteration,
         ))
     pref_time = time.time() - pref_start
     print(f"  ✓ Built {len(pref_pairs)} pref pairs in {pref_time:.1f}s "
@@ -1219,6 +1474,11 @@ def run_one_iteration(
         os.path.join(pref_dir, "pairs.csv"), index=False
     )
     print(f"  ✓ Pref pairs saved: {pref_dir}/pairs.csv")
+
+    # Persist the full per-candidate EDA records (all M per branch) for this iter.
+    recorder.flush()
+    if recorder.enabled:
+        print(f"  ✓ EDA generations saved: {recorder.out_path} ({len(recorder.records)} candidate rows)")
 
     # Fail fast (with guidance) if this iteration produced no trainable signal.
     # The (empty) pairs.csv above is kept as evidence.
@@ -1275,6 +1535,19 @@ def run_one_iteration(
         wandb_ctx=wandb_ctx, report_to=cfg.report_to,
         tensorboard_log_dir=tb_logging_dir,
     )
+
+    # ── Live TensorBoard / W&B: per-iteration EDA aggregates at the iteration's
+    #    end-of-training cumulative step (continuous, smoothable run-level view). ──
+    if tb_logger is not None and recorder.records:
+        scalars, scores = recorder.aggregate()
+        scalars["iteration/num_pref_pairs"] = float(len(pref_pairs))
+        end_step = cumulative_step_offset + step_delta
+        tb_logger.log_scalars(scalars, step=end_step, iteration=iteration)
+        if scores:
+            tb_logger.log_histogram("eda/candidate_reward_hist", scores, step=end_step, iteration=iteration)
+        samples = recorder.sample_for_display(getattr(cfg, "tb_sample_completions_n", 0))
+        if samples:
+            tb_logger.log_sample_completions(samples, step=end_step, iteration=iteration)
 
     # ── Step 5: Save ──
     iter_metadata = {

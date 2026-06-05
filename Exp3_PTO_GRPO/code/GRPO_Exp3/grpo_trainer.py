@@ -67,6 +67,8 @@ from _shared import (
     CheckpointMetadataCallback, CumulativeStepCallback,
     init_iteration_logging, finish_iteration_logging,
     setup_tensorboard_logging, patch_trainer_tensorboard_callback,
+    # EDA capture
+    EDARecorder,
 )
 
 
@@ -154,6 +156,19 @@ class TrainingConfig:
     # Verbosity
     gen_verbose: bool
     gen_verbose_detailed: bool
+
+    # EDA capture + live TensorBoard. Exception to the "all fields required" rule
+    # above: these are OPTIONAL observability features, defaulted off so they never
+    # silently change a training run. The notebook still sets them explicitly.
+    # save_eda_generations: write iteration_N/eda/generations.jsonl with every
+    #   GRPO candidate (all G per prompt-group) + scores + sub-scores + look-ahead.
+    # save_lookahead_transcripts: keep the heavy per-candidate K-turn transcript.
+    # tb_live_logging: run-level continuous SummaryWriter (smoothable TB web UI).
+    # tb_sample_completions_n: how many spread-sampled completions to log as TB text.
+    save_eda_generations: bool = False
+    save_lookahead_transcripts: bool = True
+    tb_live_logging: bool = False
+    tb_sample_completions_n: int = 8
 
 
 @dataclass
@@ -616,6 +631,7 @@ def run_one_iteration(
     lora_config,
     reward_factory: Callable,
     wandb_ctx,
+    tb_logger=None,
     cfg: TrainingConfig,
 ):
     """One full iteration: generate → split → train → save. Returns
@@ -679,9 +695,17 @@ def run_one_iteration(
         "lora_r": cfg.lora_r,
     }
 
+    # Per-iteration EDA recorder. The reward fn appends one record per GRPO
+    # candidate (all G per prompt-group) in-memory; we flush once after training.
+    recorder = EDARecorder(
+        os.path.join(iter_dir, "eda", "generations.jsonl"),
+        enabled=getattr(cfg, "save_eda_generations", False),
+        save_transcripts=getattr(cfg, "save_lookahead_transcripts", True),
+    )
+
     # Build the reward function *with the current policy* so look-ahead sees
     # the iteration's current weights. See ``_shared.reward.make_reward_fn``.
-    reward_fn = reward_factory(policy)
+    reward_fn = reward_factory(policy, recorder=recorder, iteration=iteration)
 
     new_policy, step_delta, train_time = run_training_phase(
         policy=policy, tokenizer=tokenizer,
@@ -695,6 +719,24 @@ def run_one_iteration(
         wandb_ctx=wandb_ctx, report_to=cfg.report_to,
         tensorboard_log_dir=tb_logging_dir,
     )
+
+    # Persist the full per-candidate EDA records (all G per group, train + eval).
+    recorder.flush()
+    if recorder.enabled:
+        print(f"  ✓ EDA generations saved: {recorder.out_path} ({len(recorder.records)} candidate rows)")
+
+    # ── Live TensorBoard / W&B: per-iteration EDA aggregates at the iteration's
+    #    end-of-training cumulative step (continuous, smoothable run-level view). ──
+    if tb_logger is not None and recorder.records:
+        scalars, scores = recorder.aggregate()
+        scalars["iteration/num_prompts"] = float(len(all_prompts))
+        end_step = cumulative_step_offset + step_delta
+        tb_logger.log_scalars(scalars, step=end_step, iteration=iteration)
+        if scores:
+            tb_logger.log_histogram("eda/candidate_reward_hist", scores, step=end_step, iteration=iteration)
+        samples = recorder.sample_for_display(getattr(cfg, "tb_sample_completions_n", 0))
+        if samples:
+            tb_logger.log_sample_completions(samples, step=end_step, iteration=iteration)
 
     # ── Step 4: Save ──
     iter_metadata = {
