@@ -458,6 +458,10 @@ not VRAM (GPU sat at ~17 GB in PTO Step 2, ~67 GB in the GRPO step).
 startup); saved `model_iter_0` conv CSVs are reused via resume, so Step-1 gen isn't repeated.
 Expect GRPO ~3 h/iter, PTO ~1.5–2× faster on Step 2.
 
+**Launched 2026-06-07 (tuned config).** Three arms running on Colab: **GRPO LA0, GRPO LA5,
+PTO LA0** (PTO LA5 pending). The earlier mid-flight 3-epoch run dirs were archived (renamed
+with an `(Archive_V2)` suffix) rather than deleted, so the tuned arms write fresh folders.
+
 ## First full-run failures + fixes (2026-06-06/07)
 
 The first full Colab runs (LA5/MCL12/Q1Q2) were stopped — long + API-costly, nothing obvious in
@@ -648,3 +652,4 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 - **An archived 23 MB K=3 PTO_Exp3 smoke-test** from the V4 era lives in `../archive/pto_v2_smoke/`. Ignore for new work.
 - **Local sm_120 import order: `trl` must be imported BEFORE `torch`.** On the local Blackwell GPU, `from trl import …` *after* torch is already imported **segfaults at CUDA init** (a native init-order conflict, exit 139 — not OOM, not a bug in the trainers; Colab is unaffected, which is why the full runs ran there). The trainer modules already import `trl` first; only matters if you run something locally that imports torch/`_shared` first. Verified 2026-06-07.
 - **Local offline smoke:** [code/_local_smoke.py](code/_local_smoke.py) — `python _local_smoke.py {stopgen|dpo|grpo|all}`. Tiny, no OpenAI; validates the stop-string bind, the DPO prompt-cap + no-OOM (grad-ckpt+precompute), and a GRPO step on the local GPU (~3 GB peak). Imports `trl` first (see above). All three PASS as of 2026-06-07.
+- **Oracle prompt caching depends on the rubric-first layout.** [questionnaires.py](code/questionnaires.py) `get_prompt_eval_questionnaire` puts the fixed instructions + questionnaire rubric FIRST and the variable transcript LAST, so OpenAI's automatic prompt caching hits the ~1,084-token fixed prefix on every oracle call (≈50 % input discount + lower latency — the run is **API-bound**, so this matters). The margin over OpenAI's 1,024-token minimum is thin: **don't trim the oracle instructions/rubric or move the transcript ahead of them**, or caching silently stops (verified 2026-06-07: prefix is transcript-independent for Q1). Patient API calls auto-cache too (stable system + growing-history prefix). The therapist's local `model.generate` has **no** cross-call prefix reuse under HF — that would need vLLM, and the GPU isn't the bottleneck, so it's deliberately not added.

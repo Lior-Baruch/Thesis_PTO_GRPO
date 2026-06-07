@@ -81,6 +81,8 @@ conc 64→128, patient 48→96, look-ahead sub-batch 32→64 GRPO / 32→128 PTO
 shorten PTO trunks — the big remaining PTO lever), and a GRPO warmup-calc fix (prints the real ~100
 steps; LR horizon was always fine). Re-push `code/` + **restart** the runs to apply. See
 [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Runtime tuning for Colab throughput".
+**Launched 2026-06-07:** GRPO LA0, GRPO LA5, PTO LA0 running on Colab (PTO LA5 pending); old
+mid-flight run dirs archived with an `(Archive_V2)` suffix.
 
 **Landed (2026-06-07, latest) — ChatML self-play / role-swap leak found in run data + fixed.**
 Inspecting the quicktest output (not a crash) exposed a real data-quality bug: base Llama-3.2-1B
