@@ -72,6 +72,16 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
+**Landed (2026-06-07, runtime tuning) — Colab throughput pass on the K=5 arms.**
+First full A100-80GB arms were too slow (GRPO ~7 h/iter @ 150 steps; PTO Step-2 dominated —
+both K=5 look-ahead/oracle bound, not VRAM). Applied throughput knobs (conv-batch 16→64, oracle
+conc 64→128, patient 48→96, look-ahead sub-batch 32→64 GRPO / 32→128 PTO), reverted PTO DPO to
+16×1 + grad-ckpt off (A100-80GB; **keep 2×8 + grad-ckpt on for L4/T4**), `EPOCHS_PER_ITERATION 3→2`
+(both arms, matched; K=5 + 10 iters kept), a no-op `GREEDY_TRUNK_TARGET_LEN` knob (lower it to
+shorten PTO trunks — the big remaining PTO lever), and a GRPO warmup-calc fix (prints the real ~100
+steps; LR horizon was always fine). Re-push `code/` + **restart** the runs to apply. See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Runtime tuning for Colab throughput".
+
 **Landed (2026-06-07, latest) — ChatML self-play / role-swap leak found in run data + fixed.**
 Inspecting the quicktest output (not a crash) exposed a real data-quality bug: base Llama-3.2-1B
 **self-plays `<|im_start|>` tokens** (they're not special tokens; the base model never learned the

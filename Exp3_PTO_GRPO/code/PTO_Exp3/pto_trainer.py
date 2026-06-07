@@ -175,6 +175,13 @@ class PTOConfig:
     # precompute interplay correctly, so it composes with precompute_ref_log_probs.
     gradient_checkpointing: bool = True
 
+    # Greedy-mode trunk-length cap (PREF_TREE_MODE="greedy"). None ⇒ use
+    # num_utterances_for_data (identical to the original behavior). A lower value
+    # (cell-1 GREEDY_TRUNK_TARGET_LEN, e.g. 30) grows shorter trunks → fewer
+    # branching depths → a large Step-2 speedup. This is a science change (shallower
+    # trunks = shallower look-ahead context), so it is opt-in and off by default.
+    greedy_trunk_target_len: Optional[int] = None
+
     # EDA capture + live TensorBoard (flag-guarded; defaults preserve old behavior).
     # save_eda_generations: write iteration_N/eda/generations.jsonl with every
     #   candidate (all M per branch) + scores + sub-scores + look-ahead transcript.
@@ -1078,7 +1085,13 @@ async def grow_preference_trees_batch(
         return []
 
     M = cfg.num_branches_per_turn
+    # Greedy trunk length cap: defaults (None) to num_utterances_for_data — identical
+    # to the original behavior. A lower cfg.greedy_trunk_target_len (cell-1
+    # GREEDY_TRUNK_TARGET_LEN) grows shorter trunks → fewer branching depths → a big
+    # Step-2 speedup (a science change: shallower trunks/look-ahead context).
     target_len = cfg.num_utterances_for_data
+    if getattr(cfg, "greedy_trunk_target_len", None) is not None:
+        target_len = min(target_len, cfg.greedy_trunk_target_len)
     depth = 0
 
     while True:

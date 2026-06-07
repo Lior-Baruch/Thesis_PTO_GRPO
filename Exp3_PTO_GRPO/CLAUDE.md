@@ -349,9 +349,9 @@ more robust). Verified by a fakes-based logic test (happy path, per-sim freezing
 OOM halving 4→2,2, sub-batch=1 OOM, parse-failure isolation, toggle restoration
 after a mid-rollout exception — all pass).
 
-**Knob.** `LOOKAHEAD_SUB_BATCH_SIZE` (notebook cell 1 → `LookaheadConfig.lookahead_sub_batch_size`,
-default `32`; `None` = all active sims in one call). Halved automatically on OOM
-(kept sticky for the rest of the rollout).
+**Knob.** `LOOKAHEAD_SUB_BATCH_SIZE` (notebook cell 1 → `LookaheadConfig.lookahead_sub_batch_size`;
+cell 1 now sets **64 (GRPO) / 128 (PTO)** on A100-80GB — see "Runtime tuning for Colab throughput";
+`None` = all active sims in one call). Halved automatically on OOM (kept sticky for the rest of the rollout).
 
 **Telemetry.** The existing `reward_fn` line now reports the batched cost:
 `Look-ahead: N sims × K=… in X.Xs (… ended early; batched, G GPU calls, sub_batch=S)`.
@@ -417,6 +417,47 @@ length) reads the per-iteration `tb_logs/` event files and works regardless. Kno
 for GRPO + PTO). Logging revert validated offline (py_compile + import + TRL-config construct);
 confirm clean per-iteration W&B charts on the next quicktest.
 
+## Runtime tuning for Colab throughput (2026-06-07)
+
+First full K=5/MCL12/Q1Q2 arms on a Colab **A100-80GB** were far too slow: GRPO
+**~7 h/iteration** (150 optimizer steps — `per_device_train_batch_size=64` counts
+*completions*, so with `NUM_GENERATIONS=8` that's 16 prompts/step → 803/16×3 ≈ 150),
+PTO **Step-2-dominated** (greedy trunks grow 12→49 utts ≈ 18 branching depths, each a
+K=5 look-ahead over ~672 candidate sims). The wall is the **K=5 look-ahead** — mostly
+*sequential OpenAI API latency* + oracle scoring, which GPU batch size doesn't touch —
+not VRAM (GPU sat at ~17 GB in PTO Step 2, ~67 GB in the GRPO step).
+
+- **Throughput knobs (both notebooks cell 1; statistically equivalent, no science
+  change):** `CONVERSATION_BATCH_SIZE 16→64`, `ORACLE_MAX_CONCURRENCY 64→128`,
+  `PATIENT_API_CONCURRENCY 48→96`, `LOOKAHEAD_SUB_BATCH_SIZE 32→64` (GRPO; step already
+  ~67 GB — auto-halves on OOM) / `32→128` (PTO; Step 2 has headroom).
+- **DPO batch reverted for A100 (PTO only):** `per_device_train_batch_size 2→16` ×
+  `gradient_accumulation_steps 8→1` (**effective 16 unchanged**) + `DPO_GRADIENT_CHECKPOINTING
+  True→False` (~30 % faster DPO). This UNDOES the small-GPU conservatism in "First full-run
+  failures" below — it assumes A100-80GB; **on an L4/T4 keep 2×8 + grad-ckpt on** or the
+  LM-head logits OOM returns.
+- **`EPOCHS_PER_ITERATION 3→2` (both arms, matched).** ~⅓ off GRPO training (150→~100
+  steps/iter); little effect on PTO (DPO is cheap; Step 2 dominates). `NUM_ITERATIONS`
+  kept at 10; K=5 kept (the science). Changes absolute scores, not the comparison
+  (applied equally to both methods).
+- **New PTO lever — `GREEDY_TRUNK_TARGET_LEN`** ([pto_trainer.py](code/PTO_Exp3/pto_trainer.py)
+  `PTOConfig.greedy_trunk_target_len`, wired from cell 1): caps greedy trunk growth via
+  `target_len = min(NUM_UTTERANCES_FOR_DATA, GREEDY_TRUNK_TARGET_LEN)`. **Defaults to
+  `NUM_UTTERANCES_FOR_DATA` = no-op.** Lower it (e.g. 30 ≈ the partial-oracle EDA's 0.9
+  rank-agreement point) to grow shorter trunks → far fewer branching depths → the biggest
+  remaining PTO Step-2 speedup. It's a **science change** (shallower trunks/look-ahead
+  context) and is **NOT in `EXPERIMENT_NAME`**, so isolate a lowered run by clearing/renaming
+  its output dir.
+- **GRPO warmup-calc fix** ([_build_grpo_args](code/GRPO_Exp3/grpo_trainer.py)): now divides
+  by the real prompts/step `(train_batch_size/num_generations)*grad_accum`, so the printed
+  `total_train_steps` matches the real ~100 (was 21 at 3 epochs). Only the warmup print/value
+  was wrong; the cosine LR horizon was always correct (HF Trainer recomputes it from the
+  dataloader length).
+
+**To apply:** re-push `code/` to Drive and **restart** the runs (cell 1 is read only at
+startup); saved `model_iter_0` conv CSVs are reused via resume, so Step-1 gen isn't repeated.
+Expect GRPO ~3 h/iter, PTO ~1.5–2× faster on Step 2.
+
 ## First full-run failures + fixes (2026-06-06/07)
 
 The first full Colab runs (LA5/MCL12/Q1Q2) were stopped — long + API-costly, nothing obvious in
@@ -437,7 +478,8 @@ unit test of the prompt cap):
   unchanged — the batch is what fixes the logits OOM; grad-ckpt does NOT touch the logits tensor);
   `gradient_checkpointing=True` (`DPO_GRADIENT_CHECKPOINTING`; TRL handles the PEFT/precompute
   interplay) so it fits any Colab GPU. NOT the local Blackwell crash — `precompute_ref_log_probs` was
-  already on.
+  already on. **Superseded on A100-80GB (2026-06-07): reverted to 16×1 + grad-ckpt off for speed —
+  see "Runtime tuning for Colab throughput". Keep 2×8 + grad-ckpt on for smaller GPUs (L4/T4).**
 - **GRPO didn't crash but ran ~11.5 h/iter and reward-hacks length.** `<|im_end|>` is template text,
   not the base tokenizer's eos, and `GRPOConfig` set no stop → TRL's in-loop sampling runs to the
   200-tok cap, self-playing the patient's reply (entropy 3.97→1.92, 96% clipped), which both pollutes
@@ -445,7 +487,8 @@ unit test of the prompt cap):
   `GRPOConfig(generation_kwargs={"stop_strings": cfg.stop_strings})` — `patch_generate` already
   injects the tokenizer so `stop_strings` binds (the same path look-ahead relies on during the step) —
   plus a defensive `<|im_end|>` clean in `make_reward_fn`. (The ~11.5 h/iter cost itself — in-loop K=5
-  look-ahead + 3 epochs + look-ahead eval — is config/throughput, not a bug; untouched for now.)
+  look-ahead + 3 epochs + look-ahead eval — is config/throughput, not a bug; **addressed 2026-06-07 —
+  see "Runtime tuning for Colab throughput".**)
 
 See also "Logging = HF defaults" above (the W&B charts were broken by the custom step-axis override,
 now reverted to one HF run per iteration).
@@ -501,6 +544,8 @@ untouched; see Gotchas / the local-crash memory). Full K∈{0,5} sweep runs on C
 1. **GRPO_Exp3 + PTO_Exp3 @ K ∈ {0, 5}, MCL = 12 (Colab) — the immediate next action.** 4 arms; set
    `LOOKAHEAD_K` per arm in cell 1 (`EXPERIMENT_NAME` auto-encodes `LA{K}` → disjoint folders); push
    `code/` to Drive first; keys from Colab Secrets. K=3 look-ahead equivalence already ✅ validated.
+   **Throughput/epoch tuning applied 2026-06-07 (EPOCHS 3→2, batch + concurrency bumps) — see
+   "Runtime tuning for Colab throughput".**
 2. Maybe → either method @ MCL = 2.
 3. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
 

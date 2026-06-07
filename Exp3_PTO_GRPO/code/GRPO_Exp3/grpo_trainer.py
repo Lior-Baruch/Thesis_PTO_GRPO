@@ -563,8 +563,17 @@ def save_iteration_checkpoint(
 
 def _build_grpo_args(cfg: TrainingConfig, inner_outdir: str, num_train_prompts: int) -> GRPOConfig:
     """Compute warmup_steps and assemble GRPOConfig for one iteration."""
-    effective_batch_size = cfg.train_batch_size * cfg.gradient_accumulation_steps
-    steps_per_epoch = max(1, int(np.ceil(num_train_prompts / effective_batch_size)))
+    # GRPO's per_device_train_batch_size counts *completions*, not prompts: TRL's
+    # RepeatSampler emits num_generations completions per prompt, so the unique
+    # prompts consumed per optimizer step is
+    #   (train_batch_size / num_generations) * gradient_accumulation_steps.
+    # Dividing num_train_prompts by the raw train_batch_size*grad_accum under-counts
+    # steps by num_generations× (e.g. printed 21 vs the real ~150 at G=8), which only
+    # under-sized the warmup print/value — the HF Trainer recomputes the cosine
+    # horizon from the real dataloader length, so the LR schedule itself was fine.
+    prompts_per_device = max(1, cfg.train_batch_size // max(1, cfg.num_generations))
+    prompts_per_step = max(1, prompts_per_device * cfg.gradient_accumulation_steps)
+    steps_per_epoch = max(1, int(np.ceil(num_train_prompts / prompts_per_step)))
     total_train_steps = max(1, steps_per_epoch * cfg.epochs_per_iteration)
     warmup_steps = max(0, int(np.ceil(total_train_steps * cfg.warmup_steps_ratio)))
     print(f"  Warmup: {warmup_steps} steps (total_train_steps={total_train_steps}, ratio={cfg.warmup_steps_ratio})")
