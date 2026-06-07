@@ -656,6 +656,155 @@ def _record_pto_branch(
     })
 
 
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║         PREF-BUILD RESUME / CHECKPOINT (Step 2)                            ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# Step 2 (pref-pair build) is the most expensive PTO phase (~tens of minutes at K=0,
+# hours at K=5). To survive a crash between Step 2 and the adapter save — and to skip
+# a finished build on restart — we persist progress to two files under
+# ``iteration_N/pref_pairs/``:
+#   - ``pairs.csv``      : completion marker. Present ⇒ build done → reload + skip Step 2.
+#   - ``_progress.json`` : atomic per-step snapshot during the build; deleted once
+#                          ``pairs.csv`` is written.
+# Fully automatic, mirroring Step 1's per-CSV conversation resume. The greedy/independent
+# builders own ``_progress.json`` (load + per-step write); ``run_one_iteration`` owns the
+# ``pairs.csv`` marker + deleting ``_progress.json`` on success.
+
+_PAIRS_FILENAME = "pairs.csv"
+_PROGRESS_FILENAME = "_progress.json"
+
+
+def _json_default(o):
+    """JSON serializer fallback for numpy scalars/arrays that may sit in EDA records."""
+    if isinstance(o, np.integer):
+        return int(o)
+    if isinstance(o, np.floating):
+        return float(o)
+    if isinstance(o, np.ndarray):
+        return o.tolist()
+    return str(o)
+
+
+def _atomic_write_text(path: str, text: str) -> None:
+    """Write text atomically (tmp + ``os.replace``) — Drive-FUSE-friendly, crash-safe.
+    Same pattern as ``EDARecorder.flush()``."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    with open(tmp, "w", encoding="utf-8") as f:
+        f.write(text)
+    os.replace(tmp, path)
+
+
+def _write_pairs_csv(pref_pairs: List[Dict], path: str) -> None:
+    """Atomically write the pref-pairs audit/reload CSV (Level-A completion marker)."""
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    tmp = path + ".tmp"
+    pd.DataFrame(pref_pairs).to_csv(tmp, index=False)
+    os.replace(tmp, path)
+
+
+def _reload_pairs_csv(path: str) -> List[Dict]:
+    """Reconstruct the ``pref_pairs`` list from a completed ``pairs.csv`` (Level-A resume).
+
+    ``keep_default_na=False`` keeps ``prompt``/``chosen``/``rejected`` as literal strings
+    (no NaN coercion of empty fields); the two score columns are coerced back to float.
+    ``build_iteration_datasets_dpo`` only needs prompt/chosen/rejected, so this round-trips
+    a valid list. An empty CSV (a 0-pair build) returns ``[]`` → the caller's zero-pairs
+    guard then fires exactly as on a fresh build.
+    """
+    try:
+        df = pd.read_csv(path, keep_default_na=False)
+    except pd.errors.EmptyDataError:
+        return []
+    records = df.to_dict("records")
+    for r in records:
+        for k in ("chosen_score", "rejected_score"):
+            if k in r and r[k] != "":
+                try:
+                    r[k] = float(r[k])
+                except (TypeError, ValueError):
+                    pass
+    return records
+
+
+def _pref_config_key(cfg: PTOConfig) -> dict:
+    """Step-2 config fingerprint a resumed ``_progress.json`` must match. ``EXPERIMENT_NAME``
+    encodes MCL/M/mode/K but NOT τ — so guard on the full set explicitly."""
+    return {
+        "min_conv_length": cfg.min_conv_length,
+        "num_branches_per_turn": cfg.num_branches_per_turn,
+        "pref_filter_tau": cfg.pref_filter_tau,
+        "num_utterances_for_data": cfg.num_utterances_for_data,
+        "greedy_trunk_target_len": getattr(cfg, "greedy_trunk_target_len", None),
+        "seed": cfg.seed,
+    }
+
+
+def _write_pref_progress(
+    progress_path: str,
+    *,
+    mode: str,
+    iteration: int,
+    cfg: PTOConfig,
+    perm_ids: Sequence[int],
+    pairs: List[Dict],
+    eda_records: List[Dict],
+    depth: int = 0,
+    processed_conv_ids: Optional[Sequence[int]] = None,
+    trunks: Optional[List[Dict]] = None,
+) -> None:
+    """Atomically snapshot in-progress Step-2 state for resume (see module section above)."""
+    snap = {
+        "mode": mode,
+        "iteration": int(iteration),
+        "config_key": _pref_config_key(cfg),
+        "perm_ids": sorted(int(p) for p in perm_ids),
+        "depth": int(depth),
+        "processed_conv_ids": sorted(int(c) for c in (processed_conv_ids or [])),
+        "trunks": trunks or [],
+        "pairs": pairs,
+        "eda_records": eda_records or [],
+    }
+    _atomic_write_text(progress_path, json.dumps(snap, ensure_ascii=False, default=_json_default))
+
+
+def _load_pref_progress(
+    progress_path: Optional[str],
+    cfg: PTOConfig,
+    iteration: int,
+    mode: str,
+    expected_perm_ids: Sequence[int],
+) -> Optional[dict]:
+    """Load a Step-2 progress snapshot iff it matches the current run; else ``None`` (rebuild).
+
+    Guards on ``mode`` / ``iteration`` / ``config_key`` / ``perm_ids`` and tolerates a
+    corrupt/partial file (any error ⇒ rebuild). Prevents resuming a build made under a
+    different τ/MCL/M or against a different conversation set.
+    """
+    if not progress_path or not os.path.exists(progress_path):
+        return None
+    try:
+        with open(progress_path, encoding="utf-8") as f:
+            snap = json.load(f)
+    except Exception as e:
+        print(f"  ⚠ _progress.json unreadable ({type(e).__name__}: {e}); rebuilding Step 2 from scratch.")
+        return None
+    reasons = []
+    if snap.get("mode") != mode:
+        reasons.append("mode")
+    if snap.get("iteration") != int(iteration):
+        reasons.append("iteration")
+    if snap.get("config_key") != _pref_config_key(cfg):
+        reasons.append("config")
+    if snap.get("perm_ids") != sorted(int(p) for p in expected_perm_ids):
+        reasons.append("perm_ids")
+    if reasons:
+        print(f"  ⚠ Stale _progress.json (mismatch: {', '.join(reasons)}); rebuilding Step 2 from scratch.")
+        return None
+    return snap
+
+
 async def build_pref_pairs_for_conversation(
     state,
     permutation,
@@ -788,14 +937,38 @@ async def extract_pref_pairs_from_conversations(
     cfg: PTOConfig,
     recorder=None,
     iteration: int = 0,
+    progress_path: Optional[str] = None,
 ) -> List[Dict]:
     """Build pref pairs across all conversations. Sequential per-conversation
     (branch sampling is GPU-bound) but the scoring inside each conversation is
     async-batched.
+
+    Resume-aware: a per-conversation ``_progress.json`` checkpoint (when ``progress_path``
+    is given) lets an interrupted build skip already-processed conversations and carry
+    their pairs forward on restart.
     """
+    usable = [
+        s for s in completed_states
+        if not (s.failed or not s.conversation or len(s.conversation) <= 1)
+    ]
+    conv_perm_ids = sorted(int(s.permutation_index) for s in usable)
+
     all_pairs: List[Dict] = []
+    processed: set = set()
+    resume_state = _load_pref_progress(progress_path, cfg, iteration, "independent", conv_perm_ids)
+    if resume_state is not None:
+        all_pairs = list(resume_state.get("pairs", []))
+        processed = {int(c) for c in resume_state.get("processed_conv_ids", [])}
+        if recorder is not None and getattr(recorder, "enabled", False):
+            recorder.records = list(resume_state.get("eda_records", []))
+        if cfg.gen_verbose:
+            print(f"    [resume] independent: {len(processed)} convs already done, "
+                  f"{len(all_pairs)} pref pairs carried")
+
     for state in completed_states:
         if state.failed or not state.conversation or len(state.conversation) <= 1:
+            continue
+        if int(state.permutation_index) in processed:
             continue
         perm = permutations[state.permutation_index]
         pairs = await build_pref_pairs_for_conversation(
@@ -809,6 +982,14 @@ async def extract_pref_pairs_from_conversations(
             iteration=iteration,
         )
         all_pairs.extend(pairs)
+        processed.add(int(state.permutation_index))
+        if progress_path is not None:
+            _write_pref_progress(
+                progress_path, mode="independent", iteration=iteration, cfg=cfg,
+                perm_ids=conv_perm_ids, pairs=all_pairs,
+                eda_records=(recorder.records if (recorder is not None and getattr(recorder, "enabled", False)) else []),
+                processed_conv_ids=sorted(processed),
+            )
         if cfg.gen_verbose:
             print(
                 f"    conv {state.permutation_index}: emitted {len(pairs)} pref pair(s) "
@@ -1053,6 +1234,7 @@ async def grow_preference_trees_batch(
     cfg: PTOConfig,
     recorder=None,
     iteration: int = 0,
+    progress_path: Optional[str] = None,
 ) -> List[Dict]:
     """Greedy preference-tree growth (true PTO), lock-step across all seed trunks.
 
@@ -1084,6 +1266,34 @@ async def grow_preference_trees_batch(
     if not trees:
         return []
 
+    # ── Resume (Level B): if a matching _progress.json exists, restore each trunk's
+    # grown state + carried pairs + EDA records and continue from the saved depth.
+    seed_perm_ids = sorted(int(s.permutation_index) for s in seed_states)
+    carried_pairs: List[Dict] = []
+    start_depth = 0
+    resume_state = _load_pref_progress(progress_path, cfg, iteration, "greedy", seed_perm_ids)
+    if resume_state is not None:
+        saved = {int(t["permutation_index"]): t for t in resume_state.get("trunks", [])}
+        for tree in trees:
+            st = saved.get(int(tree.conv.permutation_index))
+            if st is None:
+                continue
+            tree.conv.turns = [dict(t) for t in st["turns"]]
+            tree.conv.conversation = [t["content"] for t in tree.conv.turns]
+            tree.conv.next_speaker = st["next_speaker"]
+            tree.conv.is_active = bool(st["is_active"])
+            # Rebuild the message lists from the restored turns (same as the seed path).
+            tree.conv.messages_Therapist_assist = turns_to_messages(tree.conv.turns, therapist_system_prompt)
+            tree.conv.messages_Patient_assist = turns_to_patient_messages(tree.conv.turns, tree.patient_system_prompt)
+        carried_pairs = list(resume_state.get("pairs", []))
+        start_depth = int(resume_state.get("depth", 0))
+        if recorder is not None and getattr(recorder, "enabled", False):
+            recorder.records = list(resume_state.get("eda_records", []))
+        if cfg.gen_verbose:
+            n_resumed = sum(1 for t in trees if int(t.conv.permutation_index) in saved)
+            print(f"    [resume] greedy: restored {n_resumed} trunk states at depth {start_depth}, "
+                  f"{len(carried_pairs)} pref pairs carried")
+
     M = cfg.num_branches_per_turn
     # Greedy trunk length cap: defaults (None) to num_utterances_for_data — identical
     # to the original behavior. A lower cfg.greedy_trunk_target_len (cell-1
@@ -1092,7 +1302,7 @@ async def grow_preference_trees_batch(
     target_len = cfg.num_utterances_for_data
     if getattr(cfg, "greedy_trunk_target_len", None) is not None:
         target_len = min(target_len, cfg.greedy_trunk_target_len)
-    depth = 0
+    depth = start_depth
 
     while True:
         active = [
@@ -1127,11 +1337,29 @@ async def grow_preference_trees_batch(
             )
 
         depth += 1
+
+        # ── Checkpoint (Level B): snapshot at this end-of-depth lock-step boundary so an
+        # interrupted build resumes here. Cheap (trunk text + pairs); atomic write.
+        if progress_path is not None:
+            _write_pref_progress(
+                progress_path, mode="greedy", iteration=iteration, cfg=cfg,
+                perm_ids=seed_perm_ids,
+                pairs=carried_pairs + [p for t in trees for p in t.pairs],
+                eda_records=(recorder.records if (recorder is not None and getattr(recorder, "enabled", False)) else []),
+                depth=depth,
+                trunks=[{
+                    "permutation_index": t.conv.permutation_index,
+                    "turns": t.conv.turns,
+                    "next_speaker": t.conv.next_speaker,
+                    "is_active": t.conv.is_active,
+                } for t in trees],
+            )
+
         if cfg.gen_verbose:
-            n_pairs = sum(len(t.pairs) for t in trees)
+            n_pairs = len(carried_pairs) + sum(len(t.pairs) for t in trees)
             print(f"    [tree] depth {depth} ({speaker}): {len(active)} active, {n_pairs} pairs so far")
 
-    return [p for t in trees for p in t.pairs]
+    return carried_pairs + [p for t in trees for p in t.pairs]
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -1472,57 +1700,79 @@ def run_one_iteration(
     gc.collect()
     torch.cuda.empty_cache()
 
-    # ── Step 2: Build pref pairs (mode-dependent) ──
+    # ── Step 2: Build pref pairs (mode-dependent) — resume-aware ──
+    # ``pairs.csv`` is the completion marker (present ⇒ build done → reload + skip Step 2);
+    # ``_progress.json`` is the per-step in-build checkpoint (owned by the builders; deleted
+    # here on success). Mirrors Step 1's per-CSV conversation resume — fully automatic.
     print(f"\n── Step 2: Building pref pairs [mode={cfg.pref_tree_mode}] "
           f"(num_branches={cfg.num_branches_per_turn}, tau={cfg.pref_filter_tau}, "
           f"min_conv_length={cfg.min_conv_length}) ──")
-    pref_start = time.time()
-    if cfg.pref_tree_mode == "greedy":
-        # Greedy true-PTO: SLICE the first MCL utts off each Step-1 conv (ending on a
-        # patient turn) → grow each trunk by appending best-of-M. No separate prefix
-        # generation pass — the seeds reuse the Step-1 openings (then diverge); the
-        # Step-1 convs themselves stay the frozen model_iter_* eval data.
-        seed_states = _slice_prefix_seeds(completed_states, cfg.min_conv_length)
-        print(f"  Sliced {len(seed_states)} tree prefixes ({cfg.min_conv_length} utts, "
-              f"ending on a patient turn) from {len(completed_states)} Step-1 convs")
-        gc.collect()
-        torch.cuda.empty_cache()
-        pref_pairs = _run_async(grow_preference_trees_batch(
-            seed_states=seed_states,
-            permutations=active_permutations,
-            policy=policy, tokenizer=tokenizer, client=client,
-            therapist_system_prompt=therapist_system_prompt,
-            oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
-            primitives=primitives, cfg=cfg,
-            recorder=recorder, iteration=iteration,
-        ))
-    else:  # "independent" — branch each patient turn of the (pre-recorded) eval convs
-        pref_pairs = _run_async(extract_pref_pairs_from_conversations(
-            completed_states=completed_states,
-            permutations=active_permutations,
-            policy=policy, tokenizer=tokenizer, client=client,
-            therapist_system_prompt=therapist_system_prompt,
-            oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
-            primitives=primitives,
-            cfg=cfg,
-            recorder=recorder, iteration=iteration,
-        ))
-    pref_time = time.time() - pref_start
-    print(f"  ✓ Built {len(pref_pairs)} pref pairs in {pref_time:.1f}s "
-          f"(from {len(completed_states)} conversations)")
-
-    # Persist the per-iter pref pairs to disk so the run is auditable.
     pref_dir = os.path.join(iter_dir, "pref_pairs")
     os.makedirs(pref_dir, exist_ok=True)
-    pd.DataFrame(pref_pairs).to_csv(
-        os.path.join(pref_dir, "pairs.csv"), index=False
-    )
-    print(f"  ✓ Pref pairs saved: {pref_dir}/pairs.csv")
+    pairs_csv = os.path.join(pref_dir, _PAIRS_FILENAME)
+    progress_path = os.path.join(pref_dir, _PROGRESS_FILENAME)
+    pref_start = time.time()
 
-    # Persist the full per-candidate EDA records (all M per branch) for this iter.
-    recorder.flush()
-    if recorder.enabled:
-        print(f"  ✓ EDA generations saved: {recorder.out_path} ({len(recorder.records)} candidate rows)")
+    if os.path.exists(pairs_csv):
+        # Level A: a completed build is on disk — reload + skip Step 2 entirely. (Do NOT
+        # flush the recorder here: generations.jsonl was already written by that build, and
+        # the fresh recorder is empty — flushing would clobber it.)
+        pref_pairs = _reload_pairs_csv(pairs_csv)
+        pref_time = time.time() - pref_start
+        print(f"  ✓ Found completed pairs.csv — reloaded {len(pref_pairs)} pref pairs, "
+              f"skipping Step 2 build")
+    else:
+        if cfg.pref_tree_mode == "greedy":
+            # Greedy true-PTO: SLICE the first MCL utts off each Step-1 conv (ending on a
+            # patient turn) → grow each trunk by appending best-of-M. No separate prefix
+            # generation pass — the seeds reuse the Step-1 openings (then diverge); the
+            # Step-1 convs themselves stay the frozen model_iter_* eval data.
+            seed_states = _slice_prefix_seeds(completed_states, cfg.min_conv_length)
+            print(f"  Sliced {len(seed_states)} tree prefixes ({cfg.min_conv_length} utts, "
+                  f"ending on a patient turn) from {len(completed_states)} Step-1 convs")
+            gc.collect()
+            torch.cuda.empty_cache()
+            pref_pairs = _run_async(grow_preference_trees_batch(
+                seed_states=seed_states,
+                permutations=active_permutations,
+                policy=policy, tokenizer=tokenizer, client=client,
+                therapist_system_prompt=therapist_system_prompt,
+                oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
+                primitives=primitives, cfg=cfg,
+                recorder=recorder, iteration=iteration,
+                progress_path=progress_path,
+            ))
+        else:  # "independent" — branch each patient turn of the (pre-recorded) eval convs
+            pref_pairs = _run_async(extract_pref_pairs_from_conversations(
+                completed_states=completed_states,
+                permutations=active_permutations,
+                policy=policy, tokenizer=tokenizer, client=client,
+                therapist_system_prompt=therapist_system_prompt,
+                oracle_cfg=oracle_cfg, lookahead_cfg=lookahead_cfg,
+                primitives=primitives,
+                cfg=cfg,
+                recorder=recorder, iteration=iteration,
+                progress_path=progress_path,
+            ))
+        pref_time = time.time() - pref_start
+        print(f"  ✓ Built {len(pref_pairs)} pref pairs in {pref_time:.1f}s "
+              f"(from {len(completed_states)} conversations)")
+
+        # Persist the per-iter pref pairs (atomic) — this is the completion marker.
+        _write_pairs_csv(pref_pairs, pairs_csv)
+        print(f"  ✓ Pref pairs saved: {pairs_csv}")
+
+        # Persist the full per-candidate EDA records (all M per branch) for this iter.
+        recorder.flush()
+        if recorder.enabled:
+            print(f"  ✓ EDA generations saved: {recorder.out_path} ({len(recorder.records)} candidate rows)")
+
+        # Build complete — drop the in-build progress checkpoint (pairs.csv is now the marker).
+        if os.path.exists(progress_path):
+            try:
+                os.remove(progress_path)
+            except OSError:
+                pass
 
     # Fail fast (with guidance) if this iteration produced no trainable signal.
     # The (empty) pairs.csv above is kept as evidence.

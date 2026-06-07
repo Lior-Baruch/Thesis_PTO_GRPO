@@ -72,6 +72,17 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
+**Landed (2026-06-07, latest) — automatic resume for the PTO Step-2 pref build.**
+The DPO-OOM crash exposed that a failure after Step 2 but before the adapter re-ran the whole
+~41-min pref build. Fixed in [pto_trainer.py](Exp3_PTO_GRPO/code/PTO_Exp3/pto_trainer.py): (A)
+if `iteration_N/pref_pairs/pairs.csv` exists it's reloaded and Step 2 is skipped; (B) the
+greedy/independent builders checkpoint per-step to `_progress.json` and resume mid-build. Guarded
+on mode+iteration+config(incl. τ, not in EXPERIMENT_NAME)+conv-id set; atomic writes; no
+double-count. Validated by py_compile + a helper unit test; end-to-end resume awaits a real
+GPU+oracle run. **Restart PTO LA0 to benefit** (its crashed-run `pairs.csv` with 782 pairs is on
+disk → skips straight to DPO). See [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) →
+"Step-2 (pref-build) resume".
+
 **Landed (2026-06-07, runtime tuning) — Colab throughput pass on the K=5 arms.**
 First full A100-80GB arms were too slow (GRPO ~7 h/iter @ 150 steps; PTO Step-2 dominated —
 both K=5 look-ahead/oracle bound, not VRAM). Applied throughput knobs (conv-batch 16→64, oracle

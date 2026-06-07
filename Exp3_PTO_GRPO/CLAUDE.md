@@ -324,6 +324,32 @@ Different sweep arms write to disjoint dirs — runs never collide.
 2. **Train.** Same visible-orchestration pattern. Outputs land under `data/pto_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`. Each iteration also saves the constructed pref pairs to `iteration_N/pref_pairs/pairs.csv` (audit trail; the prompt + chosen + rejected + scores per pair).
 3. **Inspect + Score + EDA.** Same as GRPO_Exp3 (the TB dashboard is shared via `_shared/tb_plots.py`).
 
+## Step-2 (pref-build) resume — automatic (landed 2026-06-07)
+
+Step 2 ("Building pref pairs") is the dominant PTO phase (~41 min at K=0, hours at K=5) and
+now **resumes automatically**, mirroring Step 1's per-CSV conversation resume — because
+`resolve_start_state` only treats an iteration as done once `iteration_N/adapter/` exists, so
+a crash *after* Step 2 but *before* the adapter (e.g. the DPO OOM) used to re-run the whole
+build. Two levels, both in [pto_trainer.py](code/PTO_Exp3/pto_trainer.py):
+- **Level A — reload a completed build.** If `iteration_N/pref_pairs/pairs.csv` exists, it's
+  reloaded (`_reload_pairs_csv`) and Step 2 is skipped entirely. `pairs.csv` is now both the
+  audit trail AND the completion marker (written atomically). On this path the EDA recorder is
+  **not** re-flushed (the existing `generations.jsonl` is preserved).
+- **Level B — resume a partial build.** The greedy/independent builders own
+  `iteration_N/pref_pairs/_progress.json`, an atomic per-step snapshot (greedy: after each
+  depth — the lock-step boundary; independent: after each conversation) holding trunk
+  `turns`/`next_speaker`/`is_active` + carried pairs + EDA records. On restart they restore
+  state and continue; on success `run_one_iteration` deletes `_progress.json`.
+- **Guards (`_load_pref_progress`):** a snapshot is only resumed if `mode` + `iteration` +
+  config fingerprint `{MCL, M, τ, num_utterances, greedy_trunk_target_len, seed}` + the
+  conversation-id set all match the current run — so a checkpoint from a different **τ** (which
+  is NOT in `EXPERIMENT_NAME`) is discarded, not silently mixed. Corrupt/missing ⇒ rebuild.
+- **Correctness:** resumed trees start with empty `.pairs` (old pairs live only in
+  `carried_pairs`) ⇒ no double-count; resume is statistically (not bitwise) equal — post-resume
+  completions are freshly sampled, already-emitted pairs are reused verbatim. Validated:
+  `py_compile` + an AST-extracted helper unit test (round-trip, empty, numpy-safe, all 4 guard
+  mismatches, corrupt/missing). End-to-end greedy/independent resume awaits a real GPU+oracle run.
+
 ## Look-ahead performance (K>0) — batched rollout LANDED
 
 **Status (2026-06-02).** The K>0 wall-clock bottleneck is fixed:
@@ -656,7 +682,7 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 
 - **HF model-card READMEs** inside `data/grpo_Exp3/runs/.../checkpoint-*/` are auto-generated — DO NOT delete or treat as project docs.
 - **`Partial_Conv_Oracle_EDA` knobs** `MIN_TURNS=2` and `SAMPLE_EVERY_N_PATIENT_TURNS=2` are part of the cache key — changing them invalidates `data/pto_Exp2/eval_scores/partial_q1q2/`.
-- **Pref-tree audit trail.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — they're how you debug "why is this iteration's DPO update weird?" without rerunning generation + branching + scoring (the expensive part).
+- **Pref-tree audit trail = resume marker.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — it's both the DPO debug trail AND the Step-2 completion marker: its presence makes a restart **reload it and skip the ~41-min build** (see "Step-2 (pref-build) resume"). The sibling `iteration_N/pref_pairs/_progress.json` is the in-build per-step checkpoint (auto-deleted on success; safe to delete manually to force a clean rebuild).
 - **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Per-generation EDA capture") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **An archived 23 MB K=3 PTO_Exp3 smoke-test** from the V4 era lives in `../archive/pto_v2_smoke/`. Ignore for new work.
 - **Local sm_120 import order: `trl` must be imported BEFORE `torch`.** On the local Blackwell GPU, `from trl import …` *after* torch is already imported **segfaults at CUDA init** (a native init-order conflict, exit 139 — not OOM, not a bug in the trainers; Colab is unaffected, which is why the full runs ran there). The trainer modules already import `trl` first; only matters if you run something locally that imports torch/`_shared` first. Verified 2026-06-07.
