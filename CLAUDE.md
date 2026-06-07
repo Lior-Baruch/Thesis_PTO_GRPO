@@ -75,8 +75,10 @@ Thesis_PTO_GRPO/
 **Landed (2026-06-07, runtime tuning) — Colab throughput pass on the K=5 arms.**
 First full A100-80GB arms were too slow (GRPO ~7 h/iter @ 150 steps; PTO Step-2 dominated —
 both K=5 look-ahead/oracle bound, not VRAM). Applied throughput knobs (conv-batch 16→64, oracle
-conc 64→128, patient 48→96, look-ahead sub-batch 32→64 GRPO / 32→128 PTO), reverted PTO DPO to
-16×1 + grad-ckpt off (A100-80GB; **keep 2×8 + grad-ckpt on for L4/T4**), `EPOCHS_PER_ITERATION 3→2`
+conc 64→128, patient 48→96, look-ahead sub-batch 32→64 GRPO / 32→128 PTO), **kept PTO DPO at 2×8 +
+grad-ckpt on** (a 16×1 + grad-ckpt-off attempt OOM'd the A100 at the iter-1 DPO step — per-device
+batch sizes the full-seq 128k-vocab logits tensor; DPO is ~minutes vs Step-2's ~41 min so it isn't
+worth raising), `EPOCHS_PER_ITERATION 3→2`
 (both arms, matched; K=5 + 10 iters kept), a no-op `GREEDY_TRUNK_TARGET_LEN` knob (lower it to
 shorten PTO trunks — the big remaining PTO lever), and a GRPO warmup-calc fix (prints the real ~100
 steps; LR horizon was always fine). Re-push `code/` + **restart** the runs to apply. See

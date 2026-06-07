@@ -431,11 +431,15 @@ not VRAM (GPU sat at ~17 GB in PTO Step 2, ~67 GB in the GRPO step).
   change):** `CONVERSATION_BATCH_SIZE 16→64`, `ORACLE_MAX_CONCURRENCY 64→128`,
   `PATIENT_API_CONCURRENCY 48→96`, `LOOKAHEAD_SUB_BATCH_SIZE 32→64` (GRPO; step already
   ~67 GB — auto-halves on OOM) / `32→128` (PTO; Step 2 has headroom).
-- **DPO batch reverted for A100 (PTO only):** `per_device_train_batch_size 2→16` ×
-  `gradient_accumulation_steps 8→1` (**effective 16 unchanged**) + `DPO_GRADIENT_CHECKPOINTING
-  True→False` (~30 % faster DPO). This UNDOES the small-GPU conservatism in "First full-run
-  failures" below — it assumes A100-80GB; **on an L4/T4 keep 2×8 + grad-ckpt on** or the
-  LM-head logits OOM returns.
+- **DPO batch: kept at the proven `2×8` + grad-ckpt ON (PTO only).** I briefly tried `16×1` +
+  grad-ckpt off here for A100 speed — it **OOM'd at the iter-1 DPO step (78.5/80 GB)**. DPO
+  materializes logits over the full prompt+completion × 128k vocab with no `logits_to_keep`, and
+  **`per_device_train_batch_size` (not the effective batch) sizes that tensor**, so 2→16 made it
+  ~8× and grad-ckpt-off also retained all activations. **Reverted to `per_device=2 × grad_accum=8`
+  (effective 16) + `DPO_GRADIENT_CHECKPOINTING=True`** — the config from "First full-run failures".
+  Negligible cost: DPO is ~2–3 min vs Step 2's ~41 min, so per-device DPO batch is NOT a useful
+  speed lever. (If DPO speed ever matters: the liger DPO loss avoids materializing full logits —
+  needs `liger-kernel` installed.)
 - **`EPOCHS_PER_ITERATION 3→2` (both arms, matched).** ~⅓ off GRPO training (150→~100
   steps/iter); little effect on PTO (DPO is cheap; Step 2 dominates). `NUM_ITERATIONS`
   kept at 10; K=5 kept (the science). Changes absolute scores, not the comparison
@@ -461,6 +465,10 @@ Expect GRPO ~3 h/iter, PTO ~1.5–2× faster on Step 2.
 **Launched 2026-06-07 (tuned config).** Three arms running on Colab: **GRPO LA0, GRPO LA5,
 PTO LA0** (PTO LA5 pending). The earlier mid-flight 3-epoch run dirs were archived (renamed
 with an `(Archive_V2)` suffix) rather than deleted, so the tuned arms write fresh folders.
+**PTO LA0 then OOM'd at the iter-1 DPO step** (the 16×1 + grad-ckpt-off mistake above); DPO config
+reverted to `2×8` + grad-ckpt on, re-push + restart the PTO arm. PTO Step 2 took **2454 s / 782
+pairs / 37 depths** before the crash (K=0 → no look-ahead; that time is branch-sampling generation
++ oracle scoring only — not yet decomposed into GPU vs API).
 
 ## First full-run failures + fixes (2026-06-06/07)
 
@@ -482,8 +490,9 @@ unit test of the prompt cap):
   unchanged — the batch is what fixes the logits OOM; grad-ckpt does NOT touch the logits tensor);
   `gradient_checkpointing=True` (`DPO_GRADIENT_CHECKPOINTING`; TRL handles the PEFT/precompute
   interplay) so it fits any Colab GPU. NOT the local Blackwell crash — `precompute_ref_log_probs` was
-  already on. **Superseded on A100-80GB (2026-06-07): reverted to 16×1 + grad-ckpt off for speed —
-  see "Runtime tuning for Colab throughput". Keep 2×8 + grad-ckpt on for smaller GPUs (L4/T4).**
+  already on. **(2026-06-07: a 16×1 + grad-ckpt-off attempt on A100 for speed OOM'd at the iter-1
+  DPO step — this `2×8` + grad-ckpt-on config is the one that stands. `per_device` batch sizes the
+  full-seq logits tensor, so keep it at 2. See "Runtime tuning for Colab throughput".)**
 - **GRPO didn't crash but ran ~11.5 h/iter and reward-hacks length.** `<|im_end|>` is template text,
   not the base tokenizer's eos, and `GRPOConfig` set no stop → TRL's in-loop sampling runs to the
   200-tok cap, self-playing the patient's reply (entropy 3.97→1.92, 96% clipped), which both pollutes
