@@ -29,6 +29,7 @@ import torch
 from questionnaires import get_prompt_eval_questionnaire
 from .convs import (
     handle_session_end,
+    clean_completion,
     generate_patient_response_async,
     generate_patient_responses_batch,
     generate_therapist_responses_batch,
@@ -37,6 +38,11 @@ from .convs import (
 
 # Pattern: [PATIENT]: or [THERAPIST]: at the start of a transcript segment.
 _TRANSCRIPT_LINE_RE = re.compile(r"^\[(PATIENT|THERAPIST)\]:\s*(.*)$", re.DOTALL)
+
+# Reward assigned to a degenerate (empty after cleaning) GRPO completion. Below
+# the oracle's ~1–5 Q1+Q2 range so a self-played / empty turn sits clearly under
+# any real turn in its group → strong negative group-relative advantage.
+REWARD_FLOOR = 0.0
 
 
 def _count_role_labels(s: str) -> int:
@@ -187,7 +193,7 @@ async def _generate_therapist_single_async(
 
         new_tokens = outputs[0][input_ids.shape[1]:]
         decoded = therapist_tokenizer.decode(new_tokens, skip_special_tokens=True)
-        cleaned = decoded.split("<|im_end|>")[0].strip()
+        cleaned = clean_completion(decoded)
 
         del encoded, outputs, input_ids, attention_mask
         return cleaned or None
@@ -546,7 +552,10 @@ async def simulate_lookahead_batch(
             total_gpu_calls += n_calls
 
             for sim, resp in zip(active, responses):
-                if resp is None:
+                if resp is None or not resp.strip():
+                    # None = OOM/runtime failure; empty = degenerate turn (the
+                    # generator cut a self-played <|im_start|> leak to nothing).
+                    # Either way freeze the sim on its transcript so far.
                     sim.active = False
                     continue
                 if "SESSION ENDED" in resp.upper():
@@ -880,7 +889,10 @@ def _record_grpo_generations(
             cands.append({
                 "idx": c,
                 "completion": completions[j],
-                "score": details[j]["score"],
+                # Training reward (== oracle score, except degenerate completions
+                # floored to REWARD_FLOOR) so the EDA score matches group_mean/std
+                # and the advantage TRL actually used; sub_scores stay raw-oracle.
+                "score": scores[j],
                 "sub_scores": details[j]["sub_scores"],
                 "oracle": {"success": details[j]["success"], "retries": details[j]["retries"]},
                 "lookahead": lookahead_records[j] if j < len(lookahead_records) else None,
@@ -945,7 +957,12 @@ def make_reward_fn(
         # overran (so the oracle never scores a self-played patient/therapist turn,
         # and the recorded candidate is the real turn). The policy gradient still
         # applies to TRL's raw sampled token ids — this only affects scoring/EDA.
-        completions = [c.split("<|im_end|>")[0].strip() for c in completions]
+        completions = [clean_completion(c) for c in completions]
+        # A completion that cleans to empty is degenerate (the policy self-played a
+        # <|im_start|> leak / produced nothing usable). Don't reward it off the
+        # oracle scoring the surviving patient turns — floor it so GRPO gets a clear
+        # negative signal and learns to stop emitting bare role headers.
+        degenerate = [not c for c in completions]
         stats["success"] = 0
         stats["fail"] = 0
         # Phase tag for EDA, captured BEFORE look-ahead's nested eval() toggle:
@@ -1046,6 +1063,10 @@ def make_reward_fn(
 
         details = await asyncio.gather(*tasks)
         scores = [d["score"] for d in details]
+        # Override degenerate completions with the reward floor (below the oracle's
+        # 1–5 range) regardless of what the oracle returned for the empty turn.
+        if any(degenerate):
+            scores = [REWARD_FLOOR if degenerate[i] else s for i, s in enumerate(scores)]
 
         total = stats["success"] + stats["fail"]
         success_rate = stats["success"] / total if total > 0 else 0.0

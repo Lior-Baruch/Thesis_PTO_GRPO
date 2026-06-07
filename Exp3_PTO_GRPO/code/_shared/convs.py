@@ -30,8 +30,40 @@ import pandas as pd
 import torch
 
 
-# Default stop-strings for therapist generation (ChatML end-of-turn marker).
-_DEFAULT_STOP_STRINGS = ["<|im_end|>"]
+# ChatML control markers. `<|im_end|>` ends a turn; `<|im_start|>` opens one.
+# The base (non-instruct) Llama-3.2-1B has never been trained on this template
+# (these are NOT special tokens — they tokenize as ordinary BPE pieces), so early
+# in training it frequently self-plays by emitting `<|im_start|>` and writing the
+# *other* speaker's turn as literal text. We therefore (a) stop generation at the
+# FIRST of either marker and (b) cut any residual leak out of the decoded text.
+_CHATML_MARKERS = ("<|im_end|>", "<|im_start|>")
+
+# Default stop-strings for therapist generation. `<|im_start|>` is included so a
+# self-play attempt halts the moment the model opens a fake new turn (preventing
+# both the `<|im_start|>`-spam degenerate turns and the role-swap derailment where
+# a leaked first-person `<|im_start|>user` line flips the patient simulator into
+# counselor mode for the rest of the conversation).
+_DEFAULT_STOP_STRINGS = ["<|im_end|>", "<|im_start|>"]
+
+
+def clean_completion(text: Optional[str]) -> str:
+    """Cut a raw therapist completion at the first ChatML control marker.
+
+    Returns the content before the earliest `<|im_start|>`/`<|im_end|>` (stripped).
+    With `<|im_start|>` in the stop-strings this is usually a no-op, but it
+    salvages any completion that overran (the generation stop and this cut use the
+    same markers, so the saved conversation, the oracle transcript, and any DPO
+    pair are always free of leaked role headers). An empty string signals a
+    degenerate turn (the model produced only a marker / nothing usable).
+    """
+    if not text:
+        return ""
+    cut = len(text)
+    for marker in _CHATML_MARKERS:
+        i = text.find(marker)
+        if i != -1 and i < cut:
+            cut = i
+    return text[:cut].strip()
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -261,7 +293,17 @@ def _process_session_response(
     If ``SESSION ENDED`` appears, the conversation is marked inactive and the
     trailing explanation is stored. Any text before the marker is still kept as
     a valid turn. Returns ``True`` when generation should continue.
+
+    A degenerate (empty after cleaning) turn ends the conversation rather than
+    appending an empty utterance: the therapist generator cuts self-played
+    ``<|im_start|>`` leaks (``clean_completion``), which can leave nothing usable.
+    Ending here keeps the saved conversation clean (and short) instead of padding
+    it with an empty turn or, worse, letting a leak derail the roles.
     """
+    if not response_content or not response_content.strip():
+        state.is_active = False
+        return False
+
     if "SESSION ENDED" in response_content.upper():
         try:
             ended_by, ended_expl, response_content = handle_session_end(
@@ -434,8 +476,7 @@ def generate_therapist_responses_batch(
     for i in range(len(batch_messages)):
         new_tokens = outputs[i][padded_input_length:]
         decoded = therapist_tokenizer.decode(new_tokens, skip_special_tokens=True)
-        cleaned = decoded.split("<|im_end|>")[0].strip()
-        responses.append(cleaned)
+        responses.append(clean_completion(decoded))
 
     del encoded, outputs
 

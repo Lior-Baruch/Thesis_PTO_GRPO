@@ -450,18 +450,59 @@ unit test of the prompt cap):
 See also "Logging = HF defaults" above (the W&B charts were broken by the custom step-axis override,
 now reverted to one HF run per iteration).
 
+## ChatML self-play leak (found + fixed 2026-06-07)
+
+Found by **reading the quicktest output** (`pref_pairs/pairs.csv` + the `model_iter_*` convs), not
+from a crash. Base **Llama-3.2-1B self-plays `<|im_start|>` tokens**: they are NOT special tokens
+(tokenizer vocab stays 128256; the ChatML template renders them as ordinary BPE text the base model
+has never been trained on), so early in training the therapist emits `<|im_start|>` and writes the
+*other* speaker's turn as literal text. Two failure modes, one cause:
+- **PTO spam** — therapist turns become pure `<|im_start|>assistant/<|im_start|>patient` piles (no
+  content); the oracle still scored them ~4.5/5 (it was grading the coherent *patient* turns) →
+  degenerate (chosen,rejected) DPO pairs.
+- **GRPO / conv-gen role-swap** — one leaked first-person `<|im_start|>user\nI've been struggling…`
+  line flips the gpt-4o-mini patient into **counselor** mode → roles invert for the rest of the conv
+  (patient calls the therapist "Emma"; therapist discloses problems). Coherent-looking but mislabeled;
+  ~2/4 seed convs derailed; also collapsed GRPO `group_std`→~0.012 (near-zero advantages).
+
+**Fix (in code):**
+- `STOP_STRINGS = ["<|im_end|>", "<|im_start|>"]` (both notebooks cell 1 + `_DEFAULT_STOP_STRINGS` in
+  [_shared/convs.py](code/_shared/convs.py)) — generation halts the moment a fake turn opens.
+- New `_shared/convs.py::clean_completion` cuts at the FIRST marker; used at every decode site
+  (`generate_therapist_responses_batch`, [reward.py](code/_shared/reward.py) look-ahead hot+legacy,
+  GRPO `reward_fn`). Empty-after-clean **ends the conversation** (`_process_session_response`);
+  look-ahead sims freeze on empty.
+- GRPO floors degenerate completions to `REWARD_FLOOR = 0.0` (below the oracle 1–5 range) so a
+  self-played turn gets a strong negative group-relative advantage; EDA candidate `score` now records
+  the floored/training reward (matches `group_mean/std`). PTO needed no extra logic (its builders
+  already drop empty candidates).
+
+**Validated locally (quicktest, 2026-06-07):** PTO spam-conv dropped (real pairs, 0 degenerate rows,
+roles correct, both iters complete); GRPO 0 `<|im_start|>` leak across 56 candidates, model_iter_1
+convs role-correct, `group_std` 0.013–2.04 (mean 0.28), floor reached training (1 completion → 0.0).
+GRPO iter-2 then hit the local Blackwell save-time crash (hardware — training completed, save path
+untouched; see Gotchas / the local-crash memory). Full K∈{0,5} sweep runs on Colab regardless.
+
 ## Sweep priority (updated 2026-06-07)
 
-0. **Quicktest on Colab (both methods)** — `RUN_MODE="quicktest"` (now reports to W&B; params
-   lowered; `USE_4BIT=False`). **Immediate next action**, gating the long runs: confirm the PTO OOM
-   fix (must reach `iteration_2/adapter/` + `model_iter_2`), the GRPO stop-string fix
-   (`completions/mean_length` well below the 200 cap), and that the W&B charts are back to the default
-   HF/TRL per-run metrics. See "First full-run failures + fixes".
-1. **K=3 look-ahead quicktest** — ✅ equivalence validated; 🔄 GRPO end-to-end re-running on Colab post-torchao-fix.
-2. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12**.
-3. **PTO_Exp3 @ K ∈ {0, 5}, MCL = 12** — config matched to GRPO; run alongside GRPO in parallel sessions.
-4. Maybe → either method @ MCL = 2.
-5. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
+0. **Quicktest (both methods) — ✅ DONE 2026-06-07, validated LOCALLY end-to-end** (not Colab; the
+   full notebooks ran via nbconvert, `RUN_MODE="quicktest"`, `WANDB_MODE=offline`, venv kernel
+   `thesis-venv313`). PTO OOM fix confirmed (reached `iteration_2/adapter/` + `model_iter_2`, no
+   step-1 OOM, no PC reboot); GRPO stop-string fix confirmed (`completions/mean_length`=48.4 < 64
+   cap). `_local_smoke.py all` also 3× PASS. Offline W&B runs in each notebook's `wandb/offline-run-*`
+   (online project is empty until `wandb sync`; Colab full runs report live). See "First full-run
+   failures + fixes" below and the root CLAUDE.md "Next step".
+
+   **To run a notebook headless locally again:** register the venv as a kernel once
+   (`.venv\Scripts\python.exe -m ipykernel install --user --name thesis-venv313`), then
+   `WANDB_MODE=offline ... -m jupyter nbconvert --to notebook --execute
+   --ExecutePreprocessor.kernel_name=thesis-venv313 <nb>` (offline avoids the W&B login hang; the
+   default `python3` kernel is the system interpreter and lacks torch/trl).
+1. **GRPO_Exp3 + PTO_Exp3 @ K ∈ {0, 5}, MCL = 12 (Colab) — the immediate next action.** 4 arms; set
+   `LOOKAHEAD_K` per arm in cell 1 (`EXPERIMENT_NAME` auto-encodes `LA{K}` → disjoint folders); push
+   `code/` to Drive first; keys from Colab Secrets. K=3 look-ahead equivalence already ✅ validated.
+2. Maybe → either method @ MCL = 2.
+3. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
 
 ## Dependency stack — audited 2026-06-01
 

@@ -72,6 +72,33 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
+**Landed (2026-06-07, latest) — ChatML self-play / role-swap leak found in run data + fixed.**
+Inspecting the quicktest output (not a crash) exposed a real data-quality bug: base Llama-3.2-1B
+**self-plays `<|im_start|>` tokens** (they're not special tokens; the base model never learned the
+template). Two failure modes — PTO got empty `<|im_start|>`-spam turns scored 4.5/5 → garbage
+(chosen,rejected) pairs; GRPO/conv-gen got **role-swap** (one leaked `<|im_start|>user` line flips
+the gpt-4o-mini patient into counselor mode → roles invert for the rest of the conv, also collapsing
+GRPO `group_std`→~0.012). **Fix:** `STOP_STRINGS=["<|im_end|>","<|im_start|>"]`, a shared
+`clean_completion` cut at the first marker (every decode site), end-conv-on-empty-turn, and a
+`REWARD_FLOOR=0.0` for degenerate GRPO completions. **Validated locally:** PTO spam-conv dropped
+(real pairs, 0 degenerate rows, roles correct); GRPO 0 leak, roles correct, `group_std` 0.013–2.04
+(mean 0.28), floor reached training. (GRPO iter-2 then hit the local Blackwell save-time crash —
+hardware, not the fix; full runs are on Colab.) See [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md)
+→ "ChatML self-play leak".
+
+**Landed (2026-06-07, later) — both quicktests PASSED end-to-end LOCALLY; code review found no bugs.**
+A 3-agent review of `_shared/` + both trainers + both notebooks (+ source-verified the two flagged
+spots) found **no correctness bugs** — every fix below is confirmed in code. Then the FULL notebook
+quicktest (not just `_local_smoke.py`) ran top-to-bottom for **both** methods via nbconvert
+(`RUN_MODE="quicktest"`, `WANDB_MODE=offline`, a registered venv Jupyter kernel `thesis-venv313` —
+the only pre-existing kernel pointed at system Python, which lacks torch/trl): **PTO reached
+`iteration_2/adapter/` + `model_iter_2` with NO DPO step-1 OOM and NO PC reboot** (first time the
+greedy iter-2 DPO step survived locally); **GRPO** `completions/mean_length` = 48.4 (cap 64) confirms
+the stop-string bind held in-loop. `_local_smoke.py all` also 3× PASS. Offline W&B runs sit in each
+notebook's `wandb/offline-run-*` (sync with `wandb sync` if wanted; Colab reports live).
+**Next: the full K∈{0,5} sweep on Colab (4 arms).** See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Sweep priority".
+
 **Landed (2026-06-06/07) — first full Colab runs diagnosed + fixed; logging reverted to HF defaults.**
 The first full runs (LA5/MCL12/Q1Q2) were stopped: **PTO crashed at the first DPO step** and
 **GRPO ran ~11.5 h/iter while reward-hacking length**. Root causes + fixes (validated: py_compile +
@@ -130,15 +157,15 @@ backward step — **isolated iter-2 DPO smoke test PASSED** on the local Blackwe
 that step survived; `_iter2_dpo_smoke.py`). GRPO quicktest block trimmed for local 12 GB.
 See [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance".
 
-**Immediate:** run the **quicktest on Colab** for both methods (`RUN_MODE="quicktest"`; now reports
-to W&B, params lowered, `USE_4BIT=False`). **PTO** must reach `iteration_2/adapter/` + `model_iter_2`
-(the artifacts the crashed run never produced). **GRPO**: watch `completions/mean_length` drop well
-below the 200 cap (confirms the `stop_strings` bound through `unwrap_model_for_generation` — the one
-residual risk; a mis-bind crashes instantly at first generation, cheap to catch), and confirm the
-W&B charts now look like the normal HF/TRL per-run metrics.
+**Immediate (DONE 2026-06-07):** quicktest validated end-to-end **locally** for both methods (see the
+2026-06-07-later note at the top of this section) — PTO reached `iteration_2/adapter/` + `model_iter_2`
+no-OOM/no-reboot; GRPO `completions/mean_length`=48.4 (cap 64). No Colab quicktest needed; go straight
+to the full sweep.
 
-**Then:** full sweeps over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab) for **both**
-GRPO_Exp3 and PTO_Exp3 (matched), parallel sessions. Entries:
+**Then (NOW the immediate next):** full sweeps over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab) for **both**
+GRPO_Exp3 and PTO_Exp3 (matched), parallel sessions — 4 arms, set `LOOKAHEAD_K` per arm in cell 1
+(`EXPERIMENT_NAME` auto-encodes `LA{K}` → disjoint folders). Push `code/` to Drive first; keys from
+Colab Secrets. Entries:
 [GRPO](Exp3_PTO_GRPO/code/GRPO_Exp3/train_GRPO_Iterative.ipynb) ·
 [PTO](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
 
