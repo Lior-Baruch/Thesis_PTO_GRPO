@@ -399,24 +399,64 @@ one JSON row per branch:**
 - Knobs (cell 1): `SAVE_EDA_GENERATIONS`, `SAVE_LOOKAHEAD_TRANSCRIPTS` (drops the per-candidate
   `tail` — the size lever).
 
-**Live TensorBoard.** [_shared/tb_plots.py](code/_shared/tb_plots.py) `RunTBLogger` writes ONE
-continuous `SummaryWriter` to `runs/.../tb_live/` at the cumulative cross-iteration step, so the
-TB **web UI** shows smoothable curves + per-iteration reward histograms + sample completions
-(unlike TRL's per-iteration event files that restart at step 0); mirrors to W&B. Per-iteration
-EDA aggregates (`eda/*`, `pto/*`, `grpo/*`) are computed from the recorder buffer.
-`plot_iteration_metrics` is now **method-aware** (DPO: rewards/accuracies, margins,
-chosen/rejected, logps; GRPO: reward_std, frac_reward_zero_std, completion length) +
-`summarize_available_tags`. Knobs: `TB_LIVE_LOGGING`, `TB_SAMPLE_COMPLETIONS_N`. **GRPO inline
-completion table silenced** (`LOG_COMPLETIONS=False` default; sample completions go to TB text +
-a W&B table instead). Both notebooks add a continuous-only `%tensorboard --logdir .../tb_live` cell.
+**Logging = HF defaults (reverted 2026-06-07).** Training logs go through HF's own
+`WandbCallback`/`TensorBoardCallback`: **one W&B run per iteration** (grouped under the experiment
+via `wandb_ctx["run_id"]`), charts on the default `train/global_step` axis, TRL's native metrics +
+completions table (`LOG_COMPLETIONS=True`). The earlier custom `cumulative_global_step` step-axis
+override (in `init_iteration_logging`) + `CumulativeStepCallback` are **removed** — they fought HF's
+own `define_metric("*", step_metric="train/global_step")` and broke the familiar charts.
+**The custom continuous view is opt-in:** `TB_LIVE_LOGGING` defaults **False**; set it True to also
+get [_shared/tb_plots.py](code/_shared/tb_plots.py) `RunTBLogger`'s one continuous `tb_live/`
+SummaryWriter (smoothable cross-iteration curves + reward histograms + sample completions, mirrored
+to W&B) plus the EDA aggregates (`eda/*`, `pto/*`, `grpo/*`). The post-hoc matplotlib dashboard
+`plot_iteration_metrics` (method-aware: DPO rewards/margins/logps; GRPO reward_std/frac_zero_std/
+length) reads the per-iteration `tb_logs/` event files and works regardless. Knobs:
+`TB_LIVE_LOGGING`, `TB_SAMPLE_COMPLETIONS_N`, `LOG_COMPLETIONS`.
 
-**Status:** offline-validated (py_compile + full import + a logic smoke test of the record blocks,
-aggregates, and tb_live writer — all pass). Real-model bf16 quicktest pending (confirm
-`iteration_N/eda/generations.jsonl` one-row-per-branch + `tb_live/` render).
+**Status:** EDA capture validated on the first full runs (`iteration_1/eda/generations.jsonl` written
+for GRPO + PTO). Logging revert validated offline (py_compile + import + TRL-config construct);
+confirm clean per-iteration W&B charts on the next quicktest.
 
-## Sweep priority (updated 2026-06-04)
+## First full-run failures + fixes (2026-06-06/07)
 
-0. **Full local bf16 PTO_Exp3 greedy quicktest** (`RUN_MODE="quicktest"`, `USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) — **immediate next action.** Shake out the mirrored config + the new greedy true-PTO mode (committed `e27b9de`) end-to-end. First real-model run of greedy; the `_greedy_smoke.py` test was local fakes only. bf16 only — 4-bit crashes on the local Blackwell GPU. **iter-2 crash mitigated:** the first attempt got through iter-1 DPO but rebooted the PC at the iter-2 DPO step (the TRL `"ref"`-adapter forward-in-backward on sm_120); `precompute_ref_log_probs=True` (`DPO_PRECOMPUTE_REF_LOGPS` knob) moves that ref forward into a no-grad pre-pass, and the **isolated `_iter2_dpo_smoke.py` test PASSED** (first time the iter-2 step survived locally). Now confirm the *full* pipeline produces `iteration_2/adapter/` + `model_iter_2`. If GRPO's quicktest (trimmed block) also reboots at iter-2, it shares the root cause but has no precompute knob → merge-each-iter or Colab.
+The first full Colab runs (LA5/MCL12/Q1Q2) were stopped — long + API-costly, nothing obvious in
+W&B/TB. Diagnosis + fixes (validated: py_compile + import + TRL-config construct + a fake-tokenizer
+unit test of the prompt cap):
+
+- **PTO crashed at the first DPO step (OOM).** DPO's `_compute_loss` takes `outputs.logits` over the
+  FULL prompt+completion (no `logits_to_keep`, unlike GRPO which restricts to the ~200 completion
+  tokens — verified vs TRL 1.4.0 source). Greedy trunks are ~2.4k tokens (max ~6k), so the LM-head
+  logits tensor = batch 16 × 2 (chosen+rejected) × ~2248 × 128k vocab × 2 B ≈ 17 GiB (×copies +
+  backward → OOM). Latent second bug: `truncation_mode="keep_start"` slices `[:max_length]`, so for a
+  prompt longer than `max_length` the *response* is dropped and `completion_mask` is all-zeros. **TB
+  looked empty because only the `args`/`model_config` text summaries were written — zero training
+  steps.** **Fix:** `build_truncated_training_prompt` ([convs.py](code/_shared/convs.py)) caps the DPO
+  prompt to `max_allowed_prompt_length` (drop-oldest, keeps system+recent — identical to GRPO's
+  `extract_prompts_from_conversations`, and matches the serve-time context window) at both pref
+  builders; DPO `per_device_train_batch_size 16→2` × `gradient_accumulation_steps 1→8` (effective 16
+  unchanged — the batch is what fixes the logits OOM; grad-ckpt does NOT touch the logits tensor);
+  `gradient_checkpointing=True` (`DPO_GRADIENT_CHECKPOINTING`; TRL handles the PEFT/precompute
+  interplay) so it fits any Colab GPU. NOT the local Blackwell crash — `precompute_ref_log_probs` was
+  already on.
+- **GRPO didn't crash but ran ~11.5 h/iter and reward-hacks length.** `<|im_end|>` is template text,
+  not the base tokenizer's eos, and `GRPOConfig` set no stop → TRL's in-loop sampling runs to the
+  200-tok cap, self-playing the patient's reply (entropy 3.97→1.92, 96% clipped), which both pollutes
+  the oracle transcript and trains the ramble. **Fix:**
+  `GRPOConfig(generation_kwargs={"stop_strings": cfg.stop_strings})` — `patch_generate` already
+  injects the tokenizer so `stop_strings` binds (the same path look-ahead relies on during the step) —
+  plus a defensive `<|im_end|>` clean in `make_reward_fn`. (The ~11.5 h/iter cost itself — in-loop K=5
+  look-ahead + 3 epochs + look-ahead eval — is config/throughput, not a bug; untouched for now.)
+
+See also "Logging = HF defaults" above (the W&B charts were broken by the custom step-axis override,
+now reverted to one HF run per iteration).
+
+## Sweep priority (updated 2026-06-07)
+
+0. **Quicktest on Colab (both methods)** — `RUN_MODE="quicktest"` (now reports to W&B; params
+   lowered; `USE_4BIT=False`). **Immediate next action**, gating the long runs: confirm the PTO OOM
+   fix (must reach `iteration_2/adapter/` + `model_iter_2`), the GRPO stop-string fix
+   (`completions/mean_length` well below the 200 cap), and that the W&B charts are back to the default
+   HF/TRL per-run metrics. See "First full-run failures + fixes".
 1. **K=3 look-ahead quicktest** — ✅ equivalence validated; 🔄 GRPO end-to-end re-running on Colab post-torchao-fix.
 2. GRPO_Exp3 @ K ∈ {0, 5}, **MCL = 12**.
 3. **PTO_Exp3 @ K ∈ {0, 5}, MCL = 12** — config matched to GRPO; run alongside GRPO in parallel sessions.
@@ -520,3 +560,5 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 - **Pref-tree audit trail.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — they're how you debug "why is this iteration's DPO update weird?" without rerunning generation + branching + scoring (the expensive part).
 - **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Per-generation EDA capture") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **An archived 23 MB K=3 PTO_Exp3 smoke-test** from the V4 era lives in `../archive/pto_v2_smoke/`. Ignore for new work.
+- **Local sm_120 import order: `trl` must be imported BEFORE `torch`.** On the local Blackwell GPU, `from trl import …` *after* torch is already imported **segfaults at CUDA init** (a native init-order conflict, exit 139 — not OOM, not a bug in the trainers; Colab is unaffected, which is why the full runs ran there). The trainer modules already import `trl` first; only matters if you run something locally that imports torch/`_shared` first. Verified 2026-06-07.
+- **Local offline smoke:** [code/_local_smoke.py](code/_local_smoke.py) — `python _local_smoke.py {stopgen|dpo|grpo|all}`. Tiny, no OpenAI; validates the stop-string bind, the DPO prompt-cap + no-OOM (grad-ckpt+precompute), and a GRPO step on the local GPU (~3 GB peak). Imports `trl` first (see above). All three PASS as of 2026-06-07.

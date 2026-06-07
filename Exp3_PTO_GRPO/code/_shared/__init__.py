@@ -63,6 +63,7 @@ from .convs import (
     format_conversation_for_oracle,
     turns_to_messages,
     turns_to_patient_messages,
+    build_truncated_training_prompt,
     extract_prompts_from_conversations,
     extract_prompts_from_saved_conversations,
 )
@@ -119,6 +120,7 @@ __all__ = [
     "conversation_loop_batch", "synthesize_conversations_batch",
     "run_synthesis_batch", "generate_all_conversations",
     "format_conversation_for_oracle", "turns_to_messages", "turns_to_patient_messages",
+    "build_truncated_training_prompt",
     "extract_prompts_from_conversations", "extract_prompts_from_saved_conversations",
     # reward
     "OracleConfig", "LookaheadConfig", "OracleAsyncPrimitives",

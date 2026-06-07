@@ -459,7 +459,6 @@ def run_training_phase(
         peft_config=peft_cfg,
         callbacks=[
             CheckpointMetadataCallback(iteration=iteration, metadata=iter_metadata_base),
-            CumulativeStepCallback(step_offset=cumulative_step_offset, report_to=report_to),
         ],
     )
 
@@ -590,6 +589,15 @@ def _build_grpo_args(cfg: TrainingConfig, inner_outdir: str, num_train_prompts: 
         beta=cfg.grpo_beta,
         temperature=cfg.grpo_temperature,
         scale_rewards="group",  # Original GRPO group normalization
+        # Stop TRL's in-loop sampling at the turn terminator. <|im_end|> is template
+        # text (not the base tokenizer's eos), so without this the 1B policy samples
+        # straight through it to max_completion_length — fabricating the patient's
+        # reply + the next turn (self-play). That polluted the oracle-scored transcript
+        # AND, because GRPO credits every sampled token, trained the policy toward
+        # 200-token rambles (length/entropy collapse). patch_generate() injects the
+        # tokenizer into model.generate so stop_strings works (it's the same patched
+        # path look-ahead already relies on during the step).
+        generation_kwargs=({"stop_strings": list(cfg.stop_strings)} if cfg.stop_strings else None),
         loss_type=cfg.grpo_loss_type,
         bf16=True,  # bf16 autocast for LoRA params (correct for both bf16 + 4-bit-bf16-compute bases; A100 supports it)
         seed=cfg.seed,

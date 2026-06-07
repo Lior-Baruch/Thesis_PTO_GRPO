@@ -87,41 +87,51 @@ class CumulativeStepCallback(TrainerCallback):
 
 
 def init_iteration_logging(report_to, iteration: int, cumulative_step_offset: int, wandb_ctx):
-    """Initialize the logging backend for this iteration's training phase.
+    """Open this iteration's W&B run — ONE run per iteration (the default HF
+    Trainer pattern: every ``Trainer`` logs its own ``train/global_step`` 0..N).
 
-    Called just before ``trainer.train()``.
+    Called just before ``trainer.train()``. Per-iteration runs are grouped under
+    the experiment so they stay together in the W&B UI while each shows clean,
+    monotonic, default-axis charts. We deliberately do NOT override W&B's step
+    metric: HF's ``WandbCallback`` already defines ``train/global_step`` as the
+    step axis and logs every HF/TRL metric against it — layering a custom
+    ``cumulative_global_step`` axis on top (the old behavior) is what broke the
+    familiar charts. ``finish_iteration_logging`` closes the run.
 
-    - wandb: open (or resume) a single run once, then reuse it.
-    - tensorboard / none: no-op (HF Trainer auto-creates the SummaryWriter).
+    ``cumulative_step_offset`` is accepted for call-site compatibility but unused
+    (per-iteration runs need no cross-iteration offset). tensorboard / none:
+    no-op (HF Trainer auto-creates the SummaryWriter).
     """
     if "wandb" in report_to and wandb_ctx is not None:
-        if wandb.run is None:
-            wandb.init(
-                project=wandb_ctx["project"],
-                name=wandb_ctx["run_id"],
-                id=wandb_ctx["run_id"],
-                resume="allow",
-                config=wandb_ctx["config"],
-            )
-            wandb.define_metric("cumulative_global_step")
-            wandb.define_metric("*", step_metric="cumulative_global_step")
-            print(f"  ✓ W&B initialized (run_id={wandb_ctx['run_id']})")
-        else:
-            print(f"  ✓ W&B run already active: {wandb.run.id}")
+        if wandb.run is not None:
+            wandb.finish()
+        run_name = f"{wandb_ctx['run_id']}_iter{iteration}"
+        wandb.init(
+            project=wandb_ctx["project"],
+            name=run_name,
+            id=run_name,
+            group=wandb_ctx["run_id"],
+            resume="allow",
+            config={**wandb_ctx["config"], "iteration": iteration},
+        )
+        print(f"  ✓ W&B run for iteration {iteration}: {run_name} "
+              f"(group={wandb_ctx['run_id']})")
 
     if "tensorboard" in report_to:
         print("  ✓ TensorBoard logging to logging_dir set in trainer config")
 
 
 def finish_iteration_logging(report_to, iteration: int, iter_level_metrics: dict):
-    """Log iteration-level summary metrics.
+    """Log iteration-level summary metrics, then CLOSE this iteration's run.
 
-    Called after adapter save. W&B is intentionally kept open so the whole
-    experiment stays on a single run with a continuous step axis.
+    One run per iteration (see :func:`init_iteration_logging`): finish here so the
+    next iteration opens a fresh run with its own clean step axis.
     """
     if "wandb" in report_to and wandb.run is not None:
-        wandb.log(iter_level_metrics)
-        print(f"  ✓ W&B iteration metrics logged for iteration {iteration}")
+        if iter_level_metrics:
+            wandb.log(iter_level_metrics)
+        wandb.finish()
+        print(f"  ✓ W&B iteration {iteration} run finalized")
     if "tensorboard" in report_to:
         # Iteration-level metrics are already in the checkpoint metadata JSON.
         # TensorBoard scalars come from the Trainer's built-in logging.

@@ -1198,6 +1198,43 @@ def _truncate_by_token_tail(prompt: str, tokenizer, max_prompt_tokens: int) -> s
     return tokenizer.decode(tokens[-max_prompt_tokens:], skip_special_tokens=False)
 
 
+def build_truncated_training_prompt(
+    partial_turns: List[Dict],
+    system_prompt: str,
+    tokenizer,
+    max_prompt_tokens: int,
+    truncation_mode: str = "drop_oldest",
+) -> Optional[str]:
+    """Render ``partial_turns`` as a chat-template therapist prompt, capped to
+    ``max_prompt_tokens`` by dropping the oldest turns (the system message and the
+    most recent turns are always kept).
+
+    Single-conversation analogue of the truncation
+    :func:`extract_prompts_from_conversations` applies to every GRPO prompt, so a
+    one-at-a-time caller (PTO's pref-pair builders) constructs its training prompt
+    *identically* to GRPO (same budget, same drop-oldest rule). Two reasons this
+    matters: (1) it matches the inference-time therapist context window
+    (``therapist_max_input_tokens``), so we don't train on a context the model
+    never sees at serve time; (2) it stops the full grown transcript from being
+    fed to ``DPOTrainer`` verbatim — an un-truncated greedy trunk (~2.4k tokens,
+    up to ~6k) blows past the DPO ``max_length``, which both OOMs the LM-head
+    logits and (with the default ``keep_start`` truncation) slices the *response*
+    off the end. Returns ``None`` if even a single (most recent) turn exceeds the
+    budget — the caller should skip the pair.
+    """
+    messages = turns_to_messages(partial_turns, system_prompt)
+    prompt = tokenizer.apply_chat_template(
+        messages, add_generation_prompt=True, tokenize=False
+    )
+    if len(tokenizer.encode(prompt, add_special_tokens=False)) <= max_prompt_tokens:
+        return prompt
+    if truncation_mode == "drop_oldest":
+        return _truncate_by_dropping_turns(
+            partial_turns, system_prompt, tokenizer, max_prompt_tokens
+        )
+    return _truncate_by_token_tail(prompt, tokenizer, max_prompt_tokens)
+
+
 def extract_prompts_from_conversations(
     completed_states: List[ConversationState],
     system_prompt: str,

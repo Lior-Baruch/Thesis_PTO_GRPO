@@ -52,6 +52,7 @@ from _shared import (
     turns_to_messages,
     turns_to_patient_messages,
     format_conversation_for_oracle,
+    build_truncated_training_prompt,
     # reward
     OracleConfig, LookaheadConfig, OracleAsyncPrimitives,
     get_evaluation_json, simulate_lookahead_batch,
@@ -163,6 +164,16 @@ class PTOConfig:
     # frozen anyway); frees ref VRAM during the step and avoids the iter-2 "ref"-adapter
     # forward that coincides with the local Blackwell (sm_120) training crash.
     precompute_ref_log_probs: bool = True
+
+    # gradient_checkpointing trades ~30% step-time for a large VRAM cut by
+    # recomputing transformer-layer activations in the backward pass instead of
+    # storing them. With the prompt cap above bounding sequence length, this lets
+    # DPO fit any Colab GPU (L4/T4 as well as A100). It does NOT shrink the LM-head
+    # logits tensor (that scales with batch × seq_len × vocab — the per_device
+    # batch reduction handles that); the two levers are complementary. TRL's
+    # DPOTrainer wires the PEFT input-require-grads + use_reentrant + no-grad
+    # precompute interplay correctly, so it composes with precompute_ref_log_probs.
+    gradient_checkpointing: bool = True
 
     # EDA capture + live TensorBoard (flag-guarded; defaults preserve old behavior).
     # save_eda_generations: write iteration_N/eda/generations.jsonl with every
@@ -683,10 +694,16 @@ async def build_pref_pairs_for_conversation(
         prefix_messages = turns_to_messages(partial_turns, therapist_system_prompt)
         transcript = format_conversation_for_oracle(prefix_messages)
 
-        # Render the prompt the same way DPOTrainer's tokenizer will see it.
-        prompt = tokenizer.apply_chat_template(
-            prefix_messages, add_generation_prompt=True, tokenize=False,
+        # Render the prompt the same way DPOTrainer's tokenizer will see it, capped
+        # (drop oldest turns) to the same budget GRPO uses — see
+        # build_truncated_training_prompt. Skip the branch point (before the
+        # expensive sampling/scoring) if even the most recent turn won't fit.
+        prompt = build_truncated_training_prompt(
+            partial_turns, therapist_system_prompt, tokenizer,
+            max_prompt_tokens=cfg.max_allowed_prompt_length,
         )
+        if prompt is None:
+            continue
 
         # ── Step 1: sample M branches ──
         completions = _sample_M_completions(
@@ -949,14 +966,22 @@ async def _grow_therapist_depth(
         best_text = trunk_completions[best_m]
         worst_text = trunk_completions[worst_m]
 
-        # Snapshot the prompt from the trunk BEFORE appending the winner.
-        prompt = tokenizer.apply_chat_template(
-            turns_to_messages(t.conv.turns, therapist_system_prompt),
-            add_generation_prompt=True, tokenize=False,
+        # Snapshot the prompt from the trunk BEFORE appending the winner, capped
+        # (drop oldest turns) to the same budget GRPO uses — see
+        # build_truncated_training_prompt. The trunk still advances either way;
+        # only pair emission is gated on a renderable prompt (`prompt is None`
+        # ⇒ even the most recent turn exceeds the budget — effectively never).
+        prompt = build_truncated_training_prompt(
+            t.conv.turns, therapist_system_prompt, tokenizer,
+            max_prompt_tokens=cfg.max_allowed_prompt_length,
         )
         branch_depth = len(t.conv.conversation)
 
-        emitted_pair = len(scored) >= 2 and (best_score - worst_score) > cfg.pref_filter_tau
+        emitted_pair = (
+            len(scored) >= 2
+            and (best_score - worst_score) > cfg.pref_filter_tau
+            and prompt is not None
+        )
 
         # Record ALL M candidates for EDA as one branch row (prefix = oracle
         # transcript of the conv-so-far, incl. None-score / middle ranks).
@@ -1178,8 +1203,10 @@ def _build_dpo_args(cfg: PTOConfig, inner_outdir: str, num_train_pairs: int) -> 
         num_train_epochs=cfg.epochs_per_iteration,
         # TRL 1.4.0 DPOConfig caps the FULL tokenized prompt+completion via a single
         # max_length (the separate max_prompt_length / max_completion_length args were
-        # removed). Size it as prompt cap + completion cap so the full-transcript greedy
-        # prompts aren't truncated from the start (truncation_mode is 'keep_start').
+        # removed) and truncates with truncation_mode='keep_start' (drops the END on
+        # overflow). The pref-pair builders now pre-cap the prompt to
+        # max_allowed_prompt_length (build_truncated_training_prompt), so prompt +
+        # completion ≤ this max_length and keep_start never slices the response off.
         max_length=cfg.max_allowed_prompt_length + cfg.max_completion_length,
         beta=cfg.dpo_beta,
         loss_type=cfg.dpo_loss_type,
@@ -1188,6 +1215,11 @@ def _build_dpo_args(cfg: PTOConfig, inner_outdir: str, num_train_pairs: int) -> 
         # reference forward / "ref"-adapter switch (DPO-equivalent; saves VRAM + dodges the
         # iter-2 local Blackwell training crash). See PTOConfig.precompute_ref_log_probs.
         precompute_ref_log_probs=cfg.precompute_ref_log_probs,
+        # Recompute layer activations in backward (big VRAM cut; see
+        # PTOConfig.gradient_checkpointing). use_reentrant=False is the correct
+        # mode for PEFT + this transformers version.
+        gradient_checkpointing=cfg.gradient_checkpointing,
+        gradient_checkpointing_kwargs={"use_reentrant": False},
         seed=cfg.seed,
         remove_unused_columns=False,
         lr_scheduler_type="cosine",
@@ -1236,7 +1268,6 @@ def run_training_phase(
         peft_config=peft_cfg,
         callbacks=[
             CheckpointMetadataCallback(iteration=iteration, metadata=iter_metadata_base),
-            CumulativeStepCallback(step_offset=cumulative_step_offset, report_to=report_to),
         ],
     )
 

@@ -939,6 +939,13 @@ def make_reward_fn(
     group_base = {"n": 0}  # running prompt-group offset → unique branch_or_group_id per iteration
 
     async def reward_fn(prompts, completions, transcript, **kwargs):
+        # Trim each completion at the turn terminator before it reaches the oracle
+        # or the EDA recorder. With GRPOConfig.generation_kwargs stopping at
+        # <|im_end|> this is usually a no-op, but it salvages any completion that
+        # overran (so the oracle never scores a self-played patient/therapist turn,
+        # and the recorded candidate is the real turn). The policy gradient still
+        # applies to TRL's raw sampled token ids — this only affects scoring/EDA.
+        completions = [c.split("<|im_end|>")[0].strip() for c in completions]
         stats["success"] = 0
         stats["fail"] = 0
         # Phase tag for EDA, captured BEFORE look-ahead's nested eval() toggle:

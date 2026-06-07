@@ -72,6 +72,31 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
+**Landed (2026-06-06/07) — first full Colab runs diagnosed + fixed; logging reverted to HF defaults.**
+The first full runs (LA5/MCL12/Q1Q2) were stopped: **PTO crashed at the first DPO step** and
+**GRPO ran ~11.5 h/iter while reward-hacking length**. Root causes + fixes (validated: py_compile +
+import + TRL-config construct + helper unit test + **local GPU smoke** — stop-bind, DPO no-OOM with
+grad-ckpt+precompute, GRPO step; `Exp3_PTO_GRPO/code/_local_smoke.py`):
+- **PTO OOM** — DPO computes the LM-head logits over the FULL prompt+completion (128k vocab; no
+  `logits_to_keep`, unlike GRPO), and greedy trunks are ~2.4k tokens → a ~17 GiB logits tensor
+  (×copies/backward) at batch 16; plus `truncation_mode="keep_start"` sliced the *response* off
+  over-long prompts. **Fix:** new `_shared/convs.py::build_truncated_training_prompt` caps the DPO
+  prompt to `max_allowed_prompt_length` (drop-oldest, keeps system+recent — same as GRPO + matches
+  serve-time context) at both pref builders; DPO batch `16→2` × grad-accum `1→8` (effective 16);
+  `gradient_checkpointing=True` (`DPO_GRADIENT_CHECKPOINTING` knob).
+- **GRPO self-play/length hack** — `<|im_end|>` is template text (not the base eos) and `GRPOConfig`
+  set no stop → in-loop sampling ran to the 200-tok cap, self-playing the patient (96% clipped,
+  entropy collapse). **Fix:** `GRPOConfig(generation_kwargs={"stop_strings": cfg.stop_strings})`
+  (works via the existing `patch_generate` tokenizer injection) + defensive `<|im_end|>` clean in
+  `make_reward_fn`.
+- **Logging reverted to HF defaults** — the custom `cumulative_global_step` step-axis override fought
+  HF's `WandbCallback` (which already defines `train/global_step`) and broke the charts. Now **one
+  W&B run per iteration** (grouped), HF's WandbCallback owns the axis; `CumulativeStepCallback`
+  removed; `TB_LIVE_LOGGING` defaults **False** (custom continuous view is opt-in); GRPO
+  `LOG_COMPLETIONS` back to **True** (TRL's native completions table). `generations.jsonl` EDA still
+  written. Quicktest now reports to W&B + params lowered. See
+  [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "First full-run failures + fixes".
+
 **Landed (2026-06-05) — per-generation EDA capture + live TensorBoard.** Each iteration now
 writes `data/<method>_Exp3/runs/.../iteration_N/eda/generations.jsonl` — **one row per branch**
 (oracle-transcript prefix stored once; all M/G candidates nested with score +
@@ -105,13 +130,12 @@ backward step — **isolated iter-2 DPO smoke test PASSED** on the local Blackwe
 that step survived; `_iter2_dpo_smoke.py`). GRPO quicktest block trimmed for local 12 GB.
 See [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Look-ahead performance".
 
-**Immediate:** (1) run the **full local bf16 PTO_Exp3 greedy quicktest** top-to-bottom
-(`RUN_MODE="quicktest"`, `USE_4BIT=False`, `PREF_TREE_MODE="greedy"`) — the iter-2 DPO step
-is now mitigated; confirm `iteration_2/adapter/` + `model_iter_2` appear (the artifacts the
-crashed run never reached); (2) try the **local GRPO_Exp3 quicktest** (trimmed block) — note
-GRPO has no `precompute_ref_log_probs` knob, so if it also reboots at iteration 2 the same
-ref-path fix (merge-each-iter / Colab) applies; (3) confirm the GRPO_Exp3 **K=3 bf16
-quicktest** trains through on Colab post-torchao-fix.
+**Immediate:** run the **quicktest on Colab** for both methods (`RUN_MODE="quicktest"`; now reports
+to W&B, params lowered, `USE_4BIT=False`). **PTO** must reach `iteration_2/adapter/` + `model_iter_2`
+(the artifacts the crashed run never produced). **GRPO**: watch `completions/mean_length` drop well
+below the 200 cap (confirms the `stop_strings` bound through `unwrap_model_for_generation` — the one
+residual risk; a mis-bind crashes instantly at first generation, cheap to catch), and confirm the
+W&B charts now look like the normal HF/TRL per-run metrics.
 
 **Then:** full sweeps over K ∈ {0, 5} on Q1+Q2 at MCL = 12 (Colab) for **both**
 GRPO_Exp3 and PTO_Exp3 (matched), parallel sessions. Entries:
