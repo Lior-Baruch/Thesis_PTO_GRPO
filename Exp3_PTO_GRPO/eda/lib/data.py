@@ -110,8 +110,8 @@ def add_patient_characteristics(df: pd.DataFrame, id_col: str = "id") -> pd.Data
 
 
 _MODEL_NAME_PATTERN  = re.compile(r"^L(?P<lookahead>\d+)_(?P<oracle>[A-Za-z0-9_]+)_V(?P<iteration>\d+)$")
-_GRPOExp3_NAME_PATTERN = re.compile(r"^GRPOExp3_(?:(?P<base>Base)|I(?P<iter>\d+))$")
-_PTOExp3_NAME_PATTERN  = re.compile(r"^PTOExp3_(?:(?P<base>Base)|I(?P<iter>\d+))$")
+_GRPOExp3_NAME_PATTERN = re.compile(r"^GRPOExp3_LA(?P<la>\d+)_(?:(?P<base>Base)|I(?P<iter>\d+))$")
+_PTOExp3_NAME_PATTERN  = re.compile(r"^PTOExp3_LA(?P<la>\d+)_(?:(?P<base>Base)|I(?P<iter>\d+))$")
 
 
 def _normalize_oracle_token(token: str, *, strict: bool = False) -> str:
@@ -144,14 +144,14 @@ def parse_model_metadata(model_name: str) -> Dict[str, Any]:
         is_base = bool(m.group("base"))
         iteration = 0 if is_base else int(m.group("iter"))
         oracle = "Base" if is_base else "Q1Q2"
-        return {"LookAhead": -1, "OracleGroup": oracle, "Iteration": iteration, "ExperimentGroup": "GRPO_Exp3"}
+        return {"LookAhead": int(m.group("la")), "OracleGroup": oracle, "Iteration": iteration, "ExperimentGroup": "GRPO_Exp3"}
 
     m = _PTOExp3_NAME_PATTERN.match(model_name)
     if m:
         is_base = bool(m.group("base"))
         iteration = 0 if is_base else int(m.group("iter"))
         oracle = "Base" if is_base else "Q1Q2"
-        return {"LookAhead": -1, "OracleGroup": oracle, "Iteration": iteration, "ExperimentGroup": "PTO_Exp3"}
+        return {"LookAhead": int(m.group("la")), "OracleGroup": oracle, "Iteration": iteration, "ExperimentGroup": "PTO_Exp3"}
 
     m = _MODEL_NAME_PATTERN.match(model_name)
     if m:
@@ -199,7 +199,9 @@ def _oracle_rank(oracle: str) -> int:
 def _model_sort_key(model_name):
     md = parse_model_metadata(model_name)
     group_rank = _group_rank(md["ExperimentGroup"])
-    if md["ExperimentGroup"] in _NON_DPO_GROUPS:
+    # Base has no look-ahead; everything else (DPO L0/L5 + Exp3 LA0/LA5) ranks by K so
+    # LA0 sorts before LA5 within its group. (group_rank already separates the groups.)
+    if md["ExperimentGroup"] == "Base":
         lookahead_rank = -1
     else:
         lookahead_rank = _LOOKAHEAD_RANK.get(int(md["LookAhead"]), 2)

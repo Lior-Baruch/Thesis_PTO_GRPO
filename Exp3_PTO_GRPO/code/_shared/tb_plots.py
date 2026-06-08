@@ -43,11 +43,21 @@ from transformers import TrainerCallback
 
 
 class CheckpointMetadataCallback(TrainerCallback):
-    """Write ``experiment_metadata.json`` alongside each saved epoch checkpoint."""
+    """Write ``experiment_metadata.json`` alongside each saved checkpoint.
 
-    def __init__(self, iteration: int, metadata: dict):
+    When a ``recorder`` is supplied (GRPO, where candidates are recorded *during*
+    training), also snapshot its current EDA buffer into the checkpoint dir as
+    ``eda_snapshot.jsonl`` on each save. A mid-iteration crash + resume reloads that
+    snapshot (bound to the checkpoint resume actually walks back to) so the
+    iteration's ``generations.jsonl`` isn't missing the pre-crash steps — HF
+    fast-forwards skipped batches without re-invoking the reward fn. Both files are
+    extra payload inside ``checkpoint-N/`` and are ignored by HF/TRL resume.
+    """
+
+    def __init__(self, iteration: int, metadata: dict, recorder=None):
         self.iteration = iteration
         self.metadata = metadata
+        self.recorder = recorder
 
     def on_save(self, args, state, control, **kwargs):
         checkpoint_dir = os.path.join(args.output_dir, f"checkpoint-{state.global_step}")
@@ -61,6 +71,8 @@ class CheckpointMetadataCallback(TrainerCallback):
         }
         with open(os.path.join(checkpoint_dir, "experiment_metadata.json"), "w") as f:
             json.dump(payload, f, indent=2)
+        if self.recorder is not None and getattr(self.recorder, "enabled", False):
+            self.recorder.snapshot_to(os.path.join(checkpoint_dir, "eda_snapshot.jsonl"))
 
 
 class CumulativeStepCallback(TrainerCallback):

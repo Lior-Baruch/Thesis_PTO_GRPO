@@ -142,6 +142,7 @@ class PTOConfig:
     warmup_steps_ratio: float
     logging_steps: int
     save_strategy: str
+    save_steps: int          # checkpoint cadence when save_strategy="steps"
     save_total_limit: Optional[int]
     eval_split_ratio: float
     lora_r: int
@@ -1468,6 +1469,7 @@ def _build_dpo_args(cfg: PTOConfig, inner_outdir: str, num_train_pairs: int) -> 
         logging_steps=cfg.logging_steps,
         report_to=cfg.report_to,
         save_strategy=cfg.save_strategy,
+        save_steps=cfg.save_steps,  # honored only when save_strategy="steps"
         save_total_limit=cfg.save_total_limit,
         push_to_hub=False,
         eval_strategy="epoch",

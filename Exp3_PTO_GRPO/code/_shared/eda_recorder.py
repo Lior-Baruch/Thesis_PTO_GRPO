@@ -95,23 +95,63 @@ class EDARecorder:
                     la["tail"] = None
         self.records.append(record)
 
-    def flush(self) -> Optional[str]:
-        """Atomically write the buffer to ``out_path`` (tmp + os.replace).
+    def _write_jsonl(self, path: str) -> str:
+        """Atomically write the current buffer to *path* (tmp + os.replace).
 
-        One write per iteration keeps the Colab Drive-FUSE mount happy. Returns the
-        path written, or None when disabled. Writes even an empty file so its
-        presence is a reliable "this iteration ran" signal for the EDA.
+        Shared by :meth:`flush` (end-of-iteration → ``out_path``) and
+        :meth:`snapshot_to` (per-checkpoint crash-recovery copy). Writes even an
+        empty file so its presence is a reliable "this ran" signal.
         """
-        if not self.enabled:
-            return None
-        os.makedirs(os.path.dirname(self.out_path), exist_ok=True)
-        tmp = self.out_path + ".tmp"
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        tmp = path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as f:
             for rec in self.records:
                 f.write(json.dumps(rec, ensure_ascii=False, default=_to_jsonable))
                 f.write("\n")
-        os.replace(tmp, self.out_path)
-        return self.out_path
+        os.replace(tmp, path)
+        return path
+
+    def flush(self) -> Optional[str]:
+        """Atomically write the buffer to ``out_path`` (tmp + os.replace).
+
+        One write per iteration keeps the Colab Drive-FUSE mount happy. Returns the
+        path written, or None when disabled.
+        """
+        if not self.enabled:
+            return None
+        return self._write_jsonl(self.out_path)
+
+    def snapshot_to(self, path: str) -> Optional[str]:
+        """Atomically write the current buffer to *path* (crash-recovery snapshot).
+
+        Called from the checkpoint ``on_save`` callback to drop the in-memory
+        records alongside each HF checkpoint, so a mid-iteration crash + resume can
+        reload the pre-crash records (see :meth:`load_from`) instead of losing them.
+        No-op (returns None) when disabled. Bound to the checkpoint dir so it stays
+        aligned with whichever checkpoint resume actually walks back to.
+        """
+        if not self.enabled:
+            return None
+        return self._write_jsonl(path)
+
+    def load_from(self, path: str) -> int:
+        """Replace the buffer with records read from a JSONL snapshot at *path*.
+
+        Inverse of :meth:`snapshot_to`, called on resume before training restarts so
+        the final :meth:`flush` writes pre-crash + post-resume rows. Guarded no-op
+        (returns 0) when disabled or the file is missing/unreadable — so existing
+        checkpoints without a snapshot behave exactly as before. Returns the number
+        of records loaded.
+        """
+        if not self.enabled or not path or not os.path.exists(path):
+            return 0
+        try:
+            with open(path, "r", encoding="utf-8") as f:
+                recs = [json.loads(line) for line in f if line.strip()]
+        except (OSError, ValueError):
+            return 0
+        self.records = recs
+        return len(recs)
 
     # ── Aggregates (for the live TensorBoard / W&B per-iteration scalars) ──
 

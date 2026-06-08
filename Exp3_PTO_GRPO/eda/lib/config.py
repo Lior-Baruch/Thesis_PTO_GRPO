@@ -203,10 +203,15 @@ class Experiment:
 
     @property
     def model_name(self) -> str:
+        # Exp3 methods carry their look-ahead K in the name (and so in the per-model
+        # eval_scores/.../<model>/ folder) so LA0 and LA5 arms of the same method
+        # never collide. ``lookahead`` is required for Exp3 entries.
         if self.method == "GRPO_Exp3":
-            return "GRPOExp3_Base" if self.epoch == 0 else f"GRPOExp3_I{self.epoch}"
+            tail = "Base" if self.epoch == 0 else f"I{self.epoch}"
+            return f"GRPOExp3_LA{self.lookahead}_{tail}"
         if self.method == "PTO_Exp3":
-            return "PTOExp3_Base" if self.epoch == 0 else f"PTOExp3_I{self.epoch}"
+            tail = "Base" if self.epoch == 0 else f"I{self.epoch}"
+            return f"PTOExp3_LA{self.lookahead}_{tail}"
         if self.oracle == "Base":
             return "Base"
         return f"L{self.lookahead}_{self.oracle}_V{self.version}"
@@ -257,21 +262,39 @@ EXPERIMENTS: List[Experiment] = [
         for v in range(1, 11)
     ],
 
-    # GRPO_Exp3 — uncomment + edit per real run.
-    # epoch=0 → GRPOExp3_Base (base-model run, model_iter_0), epoch=N → GRPOExp3_IN.
-    # Conv subdir pattern: ``model_iter_{N}_TT{temp_t}_TP{temp_p}``.
-    # _GRPOExp3_EXP = "GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL10_G4"  # _<ORACLE> token (Q1Q2/WAI/CSQ8/MI_SAT/MITI) must match Experiment(oracle=...)
-    # Experiment("Base", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_0_TT0.9_TP0.7", method="GRPO_Exp3", epoch=0),
-    # Experiment("Q1Q2", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_1_TT0.9_TP0.7", method="GRPO_Exp3", epoch=1),
-    # Experiment("Q1Q2", None, None, f"{_GRPO_CONV}/full/{_GRPOExp3_EXP}/model_iter_2_TT0.9_TP0.7", method="GRPO_Exp3", epoch=2),
+    # ── Exp3 iterative runs (one entry per saved model_iter_N) ──────────────────
+    # Pattern per run: the run's EXPERIMENT_NAME folder + per-iter conv subdir
+    # ``model_iter_{N}_TT{temp_t}_TP{temp_p}``. epoch=0 = the base-model rollout
+    # (model_iter_0 → <METHOD>Exp3_LA{K}_Base), epoch=N = the iter-N policy
+    # (model_iter_N → <METHOD>Exp3_LA{K}_I{N}). ``lookahead`` MUST be the run's K so
+    # LA0/LA5 arms get distinct model names + eval_scores folders. The run's _<ORACLE>
+    # token (Q1Q2/WAI/CSQ8/MI_SAT/MITI) must match Experiment(oracle=...).
+    # Only model_iter dirs that exist on disk are listed (partial/stopped runs):
+    #   PTO LA0 → model_iter_0..3 ; GRPO LA0 → model_iter_0..1 ; GRPO LA5 → model_iter_0.
 
-    # PTO_Exp3 — uncomment + edit per real run. Same shape as GRPO_Exp3, written
-    # under data/pto_Exp3/ (its scores co-locate at data/pto_Exp3/eval_scores/).
-    # method="PTO_Exp3" → model_name PTOExp3_Base / PTOExp3_I{epoch}.
-    # _PTO_EXP3_NAME = "PTO_Iterative_Q1Q2_Llama32-1B_LA5_MCL10_M4_PTgreedy"  # _<ORACLE> token must match Experiment(oracle=...)
-    # Experiment("Base", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_0_TT0.9_TP0.7", method="PTO_Exp3", epoch=0),
-    # Experiment("Q1Q2", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_1_TT0.9_TP0.7", method="PTO_Exp3", epoch=1),
-    # Experiment("Q1Q2", None, None, f"{_PTO_EXP3_CONV}/full/{_PTO_EXP3_NAME}/model_iter_2_TT0.9_TP0.7", method="PTO_Exp3", epoch=2),
+    # GRPO_Exp3 LA0 (completed iter 1; convs model_iter_0..1)
+    *[
+        Experiment("Base" if n == 0 else "Q1Q2", 0, None,
+                   f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
+                   method="GRPO_Exp3", epoch=n)
+        for n in range(0, 2)
+    ],
+    # GRPO_Exp3 LA5 (only the base rollout exists yet; iter 1 never completed)
+    Experiment("Base", 5, None,
+               f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8/model_iter_0_TT0.9_TP0.7",
+               method="GRPO_Exp3", epoch=0),
+
+    # PTO_Exp3 LA0 greedy (completed iters 1..3; convs model_iter_0..3).
+    # NOTE: model_iter_3 (the iter-3 policy's eval rollout) is PARTIAL — only ~5/96
+    # convs, because iter-4's Step-1 generation was cut off by the OpenAI cap. I3
+    # eval stats are underpowered until that rollout is re-run; model_iter_0..2 are
+    # full (96 each). (The iter-3 *training* reward is complete — see iteration_3/eda.)
+    *[
+        Experiment("Base" if n == 0 else "Q1Q2", 0, None,
+                   f"{_PTO_EXP3_CONV}/full/PTO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_M8_PTgreedy/model_iter_{n}_TT0.9_TP0.7",
+                   method="PTO_Exp3", epoch=n)
+        for n in range(0, 4)
+    ],
 ]
 
 

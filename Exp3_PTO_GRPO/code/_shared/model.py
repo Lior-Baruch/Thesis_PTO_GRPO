@@ -176,6 +176,22 @@ def get_latest_hf_checkpoint(training_dir: str) -> Optional[str]:
     return checkpoints[-1] if checkpoints else None
 
 
+def get_latest_valid_hf_checkpoint(training_dir: str) -> Optional[str]:
+    """Highest-step ``checkpoint-N`` that passes :func:`validate_hf_checkpoint`, or None.
+
+    Walks the checkpoints newest→oldest and returns the first complete one. Unlike
+    :func:`get_latest_hf_checkpoint` (which returns the highest-step dir even if it's a
+    half-written crash artifact), this skips corrupt checkpoints — so a crash *during* a
+    checkpoint write falls back to the previous good one instead of discarding the whole
+    iteration. Matters once ``save_strategy="steps"`` makes checkpoint writes frequent
+    (use ``save_total_limit >= 2`` so a fallback actually exists on disk).
+    """
+    for path in reversed(list_hf_checkpoints(training_dir)):
+        if validate_hf_checkpoint(path)[0]:
+            return path
+    return None
+
+
 def validate_hf_checkpoint(checkpoint_path: str) -> Tuple[bool, List[str]]:
     """Validate a HuggingFace checkpoint for ``resume_from_checkpoint``.
 
@@ -473,18 +489,26 @@ def resolve_start_state(local_outdir: str, base_policy, tokenizer):
     candidate_training_dir = os.path.join(
         local_outdir, f"{ITER_PREFIX}{latest_iteration + 1}", "training"
     )
-    latest_ckpt = get_latest_hf_checkpoint(candidate_training_dir)
+    all_ckpts = list_hf_checkpoints(candidate_training_dir)
 
     # ── Case B: incomplete iteration ──
-    if latest_ckpt is not None:
+    if all_ckpts:
         candidate_iter = latest_iteration + 1
-        is_valid, missing = validate_hf_checkpoint(latest_ckpt)
-        if is_valid:
-            print(f"  Resuming iteration_{candidate_iter} from {os.path.basename(latest_ckpt)}")
-            policy = PeftModel.from_pretrained(base_for_adapter, latest_ckpt, is_trainable=True)
+        # Walk back to the newest *complete* checkpoint: a crash mid-write can leave the
+        # highest-step dir half-written, and with save_strategy="steps" that's frequent
+        # enough to matter. With save_total_limit >= 2 a good fallback exists on disk.
+        valid_ckpt = get_latest_valid_hf_checkpoint(candidate_training_dir)
+        if valid_ckpt is not None:
+            newest = os.path.basename(all_ckpts[-1])
+            if os.path.basename(valid_ckpt) != newest:
+                print(f"  ⚠ Newest checkpoint {newest} invalid; falling back to "
+                      f"{os.path.basename(valid_ckpt)}")
+            print(f"  Resuming iteration_{candidate_iter} from {os.path.basename(valid_ckpt)}")
+            policy = PeftModel.from_pretrained(base_for_adapter, valid_ckpt, is_trainable=True)
             patch_generate(policy, tokenizer)
-            return candidate_iter, policy, latest_ckpt
-        print(f"  ⚠ Checkpoint {os.path.basename(latest_ckpt)} invalid (missing: {missing})")
+            return candidate_iter, policy, valid_ckpt
+        print(f"  ⚠ No valid checkpoint in iteration_{candidate_iter}/training "
+              f"({len(all_ckpts)} found, all incomplete)")
         print(f"    Starting iteration_{candidate_iter} from scratch")
         if latest_iteration == 0:
             policy = base_for_adapter
@@ -531,7 +555,9 @@ def compute_cumulative_step_offset(local_outdir: str) -> int:
     in_progress_training_dir = os.path.join(
         local_outdir, f"{ITER_PREFIX}{latest_completed + 1}", "training"
     )
-    in_progress_ckpt = get_latest_hf_checkpoint(in_progress_training_dir)
+    # Walk-back to match the checkpoint resolve_start_state actually resumes from
+    # (a half-written newest checkpoint is skipped there, so skip it here too).
+    in_progress_ckpt = get_latest_valid_hf_checkpoint(in_progress_training_dir)
     if in_progress_ckpt is not None:
         partial_steps = int(os.path.basename(in_progress_ckpt).split("-")[-1])
         offset += partial_steps

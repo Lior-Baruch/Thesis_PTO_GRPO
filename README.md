@@ -26,8 +26,8 @@ Three controlled comparisons (all live in **Exp3**):
 | Dir | Status | Therapist | Patient + oracle |
 |---|---|---|---|
 | [Exp1_ICLR2025/](Exp1_ICLR2025/) | Frozen — published | Llama-2-7B | GPT-3.5 |
-| [Exp2_PTO/](Exp2_PTO/) | Complete — reference baseline | Llama-3.x | gpt-4o-mini |
-| [Exp3_PTO_GRPO/](Exp3_PTO_GRPO/) | **Active** | Llama-3.2-1B | gpt-4o-mini |
+| [Exp2_PTO/](Exp2_PTO/) | Complete — reference baseline | Llama-3.2-1B (4-bit NF4) | gpt-4o-mini |
+| [Exp3_PTO_GRPO/](Exp3_PTO_GRPO/) | **Active** | Llama-3.2-1B (bf16) | gpt-4o-mini |
 
 Each experiment directory is **self-contained**: its own `code/`, `eda/`, `data/`, and local
 `system_prompts_builder.py` + `questionnaires.py` (versions deliberately diverge across

@@ -140,6 +140,7 @@ class TrainingConfig:
     warmup_steps_ratio: float
     logging_steps: int
     save_strategy: str
+    save_steps: int          # checkpoint cadence when save_strategy="steps"
     save_total_limit: Optional[int]
     eval_split_ratio: float
     log_completions: bool
@@ -428,6 +429,7 @@ def run_training_phase(
     wandb_ctx,
     report_to,
     tensorboard_log_dir: Optional[str] = None,
+    recorder=None,
 ):
     """Create GRPOTrainer, train, and return updated policy.
 
@@ -458,7 +460,12 @@ def run_training_phase(
         eval_dataset=eval_dataset,
         peft_config=peft_cfg,
         callbacks=[
-            CheckpointMetadataCallback(iteration=iteration, metadata=iter_metadata_base),
+            # recorder → also snapshots the EDA buffer into each checkpoint at
+            # on_save, so a mid-iteration crash + resume can reload the pre-crash
+            # candidates (HF fast-forwards skipped steps without re-recording).
+            CheckpointMetadataCallback(
+                iteration=iteration, metadata=iter_metadata_base, recorder=recorder
+            ),
         ],
     )
 
@@ -617,6 +624,7 @@ def _build_grpo_args(cfg: TrainingConfig, inner_outdir: str, num_train_prompts: 
         report_to=cfg.report_to,
         log_completions=cfg.log_completions,
         save_strategy=cfg.save_strategy,
+        save_steps=cfg.save_steps,  # honored only when save_strategy="steps"
         save_total_limit=cfg.save_total_limit,
         push_to_hub=False,
         eval_strategy="epoch",
@@ -724,6 +732,16 @@ def run_one_iteration(
     # the iteration's current weights. See ``_shared.reward.make_reward_fn``.
     reward_fn = reward_factory(policy, recorder=recorder, iteration=iteration)
 
+    # Mid-iteration resume: reload the EDA snapshot saved alongside the checkpoint
+    # we're resuming from, so the post-resume flush keeps the pre-crash candidates
+    # (HF fast-forwards skipped steps without re-invoking the reward fn). One-shot,
+    # matching run_training_phase's resume consumption; no-op if the snapshot is
+    # absent (e.g. checkpoints written before this feature).
+    if resume_checkpoint and iteration == start_iteration and recorder.enabled:
+        n_loaded = recorder.load_from(os.path.join(resume_checkpoint, "eda_snapshot.jsonl"))
+        if n_loaded:
+            print(f"  ✓ Reloaded {n_loaded} EDA candidate rows from {os.path.basename(resume_checkpoint)} snapshot")
+
     new_policy, step_delta, train_time = run_training_phase(
         policy=policy, tokenizer=tokenizer,
         grpo_args=grpo_args, lora_config=lora_config,
@@ -735,6 +753,7 @@ def run_one_iteration(
         iter_metadata_base=iter_metadata_base,
         wandb_ctx=wandb_ctx, report_to=cfg.report_to,
         tensorboard_log_dir=tb_logging_dir,
+        recorder=recorder,
     )
 
     # Persist the full per-candidate EDA records (all G per group, train + eval).

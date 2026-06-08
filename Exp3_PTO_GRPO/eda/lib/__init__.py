@@ -85,6 +85,12 @@ from .analysis import (  # noqa: E402
     plot_session_ending,
 )
 
+from .iterations import (  # noqa: E402
+    # Cross-iteration training-reward EDA (reads iteration_N/eda/generations.jsonl)
+    load_generations, aggregate_reward_by_iter, scan_degeneracy,
+    plot_reward_trajectory,
+)
+
 # Eval pipeline (oracle scoring) — re-exported behind a flag because the
 # questionnaires module needs to be reachable on sys.path. The path prepend
 # above usually makes it work, but rare envs without it shouldn't break the
@@ -127,6 +133,9 @@ __all__ = [
     "plot_metric_by_model", "plot_subscales", "plot_all_metrics_grid",
     "plot_metrics_by_patient_characteristic", "plot_correlation_heatmaps",
     "plot_session_ending",
+    # iterations (cross-iteration training-reward EDA)
+    "load_generations", "aggregate_reward_by_iter", "scan_degeneracy",
+    "plot_reward_trajectory",
     # eval (gated)
     "EVAL_CODE_AVAILABLE",
 ]

@@ -1,6 +1,6 @@
 # Exp2_PTO — COMPLETE (reference)
 
-PTO sweep on Llama-3.x + gpt-4o-mini against four oracles (Q1+Q2, WAI-SR,
+PTO sweep on Llama-3.2-1B + gpt-4o-mini against four oracles (Q1+Q2, WAI-SR,
 CSQ-8, CTRL). V3 patient prompts (less cooperative), V5 oracle (JSON schema,
 six questionnaires supported: Q1, Q2, WAI-SR, CSQ-8, MI-SAT, MITI 4.2).
 Plus a **first GRPO attempt (V1, static-data) kept as a weak baseline**.
@@ -10,7 +10,7 @@ EDA verified end-to-end: 4,512 convs / 47 models / 9 experiment groups.
 ## Setup
 | Role | Model |
 |---|---|
-| Therapist | Llama-3.x (4-bit + LoRA via DPO) |
+| Therapist | Llama-3.2-1B (4-bit NF4 + LoRA via DPO) — same base as Exp3, but Exp3 generates convs in bf16 |
 | Patient simulator | `gpt-4o-mini-2024-07-18` |
 | Oracle (evaluator) | `gpt-4o-mini-2024-07-18` |
 

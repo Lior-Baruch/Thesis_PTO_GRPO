@@ -350,6 +350,67 @@ build. Two levels, both in [pto_trainer.py](code/PTO_Exp3/pto_trainer.py):
   `py_compile` + an AST-extracted helper unit test (round-trip, empty, numpy-safe, all 4 guard
   mismatches, corrupt/missing). End-to-end greedy/independent resume awaits a real GPU+oracle run.
 
+## Sub-epoch checkpointing + resume (landed 2026-06-08)
+
+Both trainers used to checkpoint **once per epoch** (`SAVE_STRATEGY="epoch"`, `SAVE_TOTAL_LIMIT=1`).
+A GRPO epoch is ~50 optimizer steps × ~1.5–2 min/step (G=8 sampling + K=5 look-ahead + oracle), so a
+mid-epoch Colab crash threw away ~an epoch. Now both notebooks checkpoint **every `SAVE_STEPS=10`
+optimizer steps**.
+
+- **Knobs (cell 1, both notebooks).** `SAVE_STRATEGY="steps"`, new `SAVE_STEPS=10`, `SAVE_TOTAL_LIMIT=2`
+  (+ a `SAVE_STEPS>0` validation). A new **required** `save_steps` field on `TrainingConfig`/`PTOConfig`
+  threads through `_build_grpo_args`/`_build_dpo_args` into `GRPOConfig`/`DPOConfig` (`save_steps=` is
+  honored only when `save_strategy="steps"`). No HF constraint tripped: `save_strategy="steps"` +
+  `eval_strategy="epoch"` is legal because neither builder sets `load_best_model_at_end` (the
+  "strategies must match" rule only fires when that's True).
+- **Why step checkpoints "just work" for resume.** TRL/HF names every checkpoint
+  `checkpoint-{global_step}` regardless of strategy, and the existing Case-B path
+  ([model.py](code/_shared/model.py) `resolve_start_state` → `trainer.train(resume_from_checkpoint=…)`)
+  reads only the dir-name step + the three required files (`adapter_model.safetensors`,
+  `adapter_config.json`, `trainer_state.json`) — all present in a step checkpoint. Step accounting is
+  unchanged (`step_delta = global_step − resumed_steps`; the in-progress checkpoint's steps are already
+  in the startup offset → no double-count).
+- **Hardened resume (walk-back).** Frequent saves raise the odds a crash lands mid-write. New
+  `get_latest_valid_hf_checkpoint(training_dir)` ([model.py](code/_shared/model.py), exported) walks
+  checkpoints newest→oldest and returns the first that passes `validate_hf_checkpoint`. Case B now
+  resumes from the latest **valid** checkpoint (logs a fallback if the newest is corrupt) and only
+  restarts the iteration from scratch if **none** is valid; `compute_cumulative_step_offset` uses the
+  same walk-back for the in-progress iteration. `SAVE_TOTAL_LIMIT=2` guarantees a good fallback is on
+  disk.
+- **Existing/in-flight runs continue with NO migration.** Completed iters resume from
+  `iteration_N/adapter/` (Case C, strategy-agnostic); a run crashed mid-iteration under the old epoch
+  config resumes from its epoch `checkpoint-N` (a valid integer-named dir), then writes step
+  checkpoints going forward (`list_hf_checkpoints` sorts old+new into one monotonic sequence; the old
+  epoch ckpt isn't pruned until ≥2 newer ones exist — after we've already resumed from it). To keep a
+  run on per-epoch saving, set `SAVE_STRATEGY="epoch"` for that session.
+- **Quicktest-safe.** With tiny step counts `SAVE_STEPS` may exceed total steps → zero
+  `checkpoint-N` written, which is harmless: the completed-iteration marker is the **separate**
+  `iteration_N/adapter/` save (`save_iteration_checkpoint`), which `resolve_start_state` keys off.
+
+### EDA completeness on resume (GRPO-only, same change)
+
+The per-generation EDA buffer ([eda_recorder.py](code/_shared/eda_recorder.py)) is flushed once at
+iteration end, and HF resume **fast-forwards skipped steps without re-invoking the reward fn** — so a
+mid-iteration-resumed GRPO iter's `eda/generations.jsonl` used to drop the pre-crash candidates. Fix:
+`CheckpointMetadataCallback` ([tb_plots.py](code/_shared/tb_plots.py)) now takes an optional
+`recorder` and, on each `on_save`, also writes `checkpoint-N/eda_snapshot.jsonl` (new
+`EDARecorder.snapshot_to`); on a one-shot mid-iteration resume `run_one_iteration` reloads that
+snapshot (`EDARecorder.load_from`) **before** training so the end-of-iter flush keeps pre-crash +
+post-resume rows. Bound to the **checkpoint dir** so it stays aligned under the walk-back. The
+snapshot is extra payload inside `checkpoint-N/` (invisible to `validate_hf_checkpoint` /
+`resume_from_checkpoint`); a missing snapshot is a guarded no-op, so pre-feature checkpoints behave
+exactly as before. **PTO needs no change** — its recorder is used only in Step-2 (already resume-aware),
+and its DPO `CheckpointMetadataCallback` is constructed without a recorder. Caveat: under GRPO inner-loop
+`μ>1` (quicktest=2; production=1, exactly clean) one generation batch could double-record at the
+boundary — dedupe on read by `branch_id` if it ever matters.
+
+**Validation.** py_compile (all edited files) + GRPOConfig/DPOConfig construct with the steps config +
+`get_latest_valid_hf_checkpoint` walk-back unit test (skips a corrupt newest, returns it once complete,
+None on empty) + snapshot/reload round-trip + callback `on_save` writes/`recorder=None` skips +
+`_local_smoke.py all` (stopgen/dpo/grpo) PASS. **End-to-end crash-resume (assert the resumed iter's
+`generations.jsonl` keeps pre-crash rows) awaits a GPU+oracle quicktest.** Re-push `code/` + restart to
+apply.
+
 ## Look-ahead performance (K>0) — batched rollout LANDED
 
 **Status (2026-06-02).** The K>0 wall-clock bottleneck is fixed:

@@ -14,7 +14,7 @@ Three controlled comparisons, all live in Exp3:
 | | [Exp1_ICLR2025/](Exp1_ICLR2025/) | [Exp2_PTO/](Exp2_PTO/) | [Exp3_PTO_GRPO/](Exp3_PTO_GRPO/) |
 |---|---|---|---|
 | **Status** | Frozen — published | Complete — EDA verified | **Active — refactored; both trainers pending real runs** |
-| **Therapist** | Llama-2-7B | Llama-3.x | Llama-3.2-1B |
+| **Therapist** | Llama-2-7B | Llama-3.2-1B (4-bit NF4) | Llama-3.2-1B (bf16) |
 | **Patient + oracle** | GPT-3.5 | gpt-4o-mini-2024-07-18 | gpt-4o-mini-2024-07-18 |
 | **Patient prompts** | V1 (cooperative) | V3 (less cooperative) | V3 |
 | **Oracle output** | V1 (regex; Q1+Q2 only) | V5 (JSON schema; 6 questionnaires) | V5 |
@@ -31,6 +31,7 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 ## Data lineage
 - **Exp1 → Exp2:** independent re-implementation. Stronger oracle, harder patients, JSON-schema rubric, more questionnaires. No data flow.
 - **Exp2 → Exp3:** PTO `pref_trees/` and `eval_conversations/` for {Base, Q1Q2, WAI, CSQ-8, CTRL} were **copied** into `Exp3_PTO_GRPO/data/pto_Exp2/`. The Exp2 PTO results stand as a reference baseline. GRPO V1 baseline from Exp2 was **dropped** (Exp3 focuses on PTO_Exp3 vs GRPO_Exp3 only).
+  - ⚠ **Exp2 and Exp3 absolute oracle scores are NOT on the same axis.** Same therapist base (Llama-3.2-1B), but Exp2 generated its convs in **4-bit NF4** and Exp3 in **bf16**. 4-bit induces ~30× more phrase-loop degeneration (≈9.5% vs 0.3% of therapist turns run to the token cap as repeated spam), which the oracle floors — so Exp2 Base ≈ 2.38 Q1+Q2 vs Exp3 Base ≈ 3.0, *even though it's the same model*. The clean (non-degenerate) Exp2 subset scores ≈ 2.93 ≈ Exp3. **Compare within Exp3 only**; to put Exp2 on the same axis, regenerate its convs in bf16.
 - **Exp3 self-loop:** GRPO_Exp3 regenerates its own training data each iter from the current policy; those same convs are the eval set (no separate generate-eval step for trained iters).
 
 ## Key methodological shift across experiments
@@ -72,6 +73,24 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
+**Landed (2026-06-08, latest) — sub-epoch checkpointing + hardened resume (both trainers).**
+Epochs are long (GRPO ~50 opt-steps/epoch × ~1.5–2 min/step with K=5), so per-epoch saves risked
+losing ~an epoch on a Colab crash. Both notebooks now checkpoint **every `SAVE_STEPS=10` optimizer
+steps** (`SAVE_STRATEGY="steps"`); a new required `save_steps` field on `TrainingConfig`/`PTOConfig`
+threads into `GRPOConfig`/`DPOConfig`. `SAVE_TOTAL_LIMIT 1→2` + a new
+[model.py](Exp3_PTO_GRPO/code/_shared/model.py) `get_latest_valid_hf_checkpoint` make Case-B resume
+**walk back to the newest *complete* checkpoint** instead of discarding the iteration on a corrupt
+newest write. **Existing/in-flight runs continue with no migration** (resume is format-agnostic; old
+per-epoch checkpoints stay valid resume points — set `SAVE_STRATEGY="epoch"` to keep per-epoch). Also
+landed an **EDA-completeness-on-resume** fix (GRPO-only): `CheckpointMetadataCallback` snapshots the
+per-generation buffer into each `checkpoint-N/eda_snapshot.jsonl` (new `EDARecorder.snapshot_to/
+load_from`), reloaded on resume so a crashed iteration's `generations.jsonl` keeps its pre-crash rows
+(snapshot is extra payload inside the ckpt dir — invisible to HF resume; absent-snapshot = graceful
+no-op). PTO unaffected (its recorder is Step-2 only). Validated: py_compile + GRPOConfig/DPOConfig
+construct + walk-back unit test + snapshot/reload unit tests + `_local_smoke.py all` PASS; end-to-end
+crash-resume awaits a GPU+oracle quicktest. **Re-push `code/` + restart** to apply. See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Sub-epoch checkpointing + resume".
+
 **Landed (2026-06-07, latest) — automatic resume for the PTO Step-2 pref build.**
 The DPO-OOM crash exposed that a failure after Step 2 but before the adapter re-ran the whole
 ~41-min pref build. Fixed in [pto_trainer.py](Exp3_PTO_GRPO/code/PTO_Exp3/pto_trainer.py): (A)
