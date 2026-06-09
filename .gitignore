@@ -26,6 +26,7 @@ archive/
 # Sentence-embedding caches (these .npy files are ~139 MB each — over GitHub's limit)
 **/emb_cache_words/
 *.npy
+**/.emb_cache/        # exp3 pref completion-embedding cache (~23 MB .pkl; regenerable)
 
 # === Model weights / training artifacts / logs ===
 *.safetensors

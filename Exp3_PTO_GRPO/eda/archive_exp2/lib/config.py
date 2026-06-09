@@ -270,34 +270,26 @@ EXPERIMENTS: List[Experiment] = [
     # LA0/LA5 arms get distinct model names + eval_scores folders. The run's _<ORACLE>
     # token (Q1Q2/WAI/CSQ8/MI_SAT/MITI) must match Experiment(oracle=...).
     # Only model_iter dirs that exist on disk are listed (partial/stopped runs):
-    #   On disk 2026-06-09: GRPO LA0 → model_iter_0..3 ; GRPO LA5 → model_iter_0 ;
-    #   PTO LA0 → model_iter_0..10 ; PTO LA5 → model_iter_0..1.
+    #   PTO LA0 → model_iter_0..3 ; GRPO LA0 → model_iter_0..1 ; GRPO LA5 → model_iter_0.
 
-    # GRPO_Exp3 LA0 (convs model_iter_0..3)
+    # GRPO_Exp3 LA0 (completed iter 1; convs model_iter_0..1)
     *[
         Experiment("Base" if n == 0 else "Q1Q2", 0, None,
                    f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
                    method="GRPO_Exp3", epoch=n)
-        for n in range(0, 4)
+        for n in range(0, 2)
     ],
-    # GRPO_Exp3 LA5 (only the base rollout exists yet)
+    # GRPO_Exp3 LA5 (only the base rollout exists yet; iter 1 never completed)
     Experiment("Base", 5, None,
                f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8/model_iter_0_TT0.9_TP0.7",
                method="GRPO_Exp3", epoch=0),
 
-    # PTO_Exp3 LA0 greedy (convs model_iter_0..10).
+    # PTO_Exp3 LA0 greedy (completed iters 1..10; convs model_iter_0..10).
     *[
         Experiment("Base" if n == 0 else "Q1Q2", 0, None,
                    f"{_PTO_EXP3_CONV}/full/PTO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_M8_PTgreedy/model_iter_{n}_TT0.9_TP0.7",
                    method="PTO_Exp3", epoch=n)
         for n in range(0, 11)
-    ],
-    # PTO_Exp3 LA5 greedy (convs model_iter_0..1)
-    *[
-        Experiment("Base" if n == 0 else "Q1Q2", 5, None,
-                   f"{_PTO_EXP3_CONV}/full/PTO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_M8_PTgreedy/model_iter_{n}_TT0.9_TP0.7",
-                   method="PTO_Exp3", epoch=n)
-        for n in range(0, 2)
     ],
 ]
 

@@ -1,4 +1,4 @@
-# PTO vs GRPO for Motivational Interviewing
+# Looking Ahead in Goal-Oriented Dialogue: Comparing Preference-Tree and Group-Relative Optimization of Small Language Models for Motivational Interviewing
 
 Master's thesis (Lior Baruch, Reichman University). We train small "therapist" LLMs
 to conduct **Motivational Interviewing (MI)** against simulated patients, using a larger

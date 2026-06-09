@@ -1,0 +1,18 @@
+- **main_results_final** — Final iteration vs base, per arm x rubric. Paired by persona (N=96): dz, Wilcoxon p (Holm), bootstrap 95% CI, trajectory Spearman rho/OLS slope.
+- **friedman_omnibus** — Friedman repeated-measures omnibus across iterations per arm x rubric (Kendall's W effect size); N personas matched.
+- **rubric_pca_pc1** — Variance explained by PC1 of the 6 rubric scores per arm (a dominant PC1 => rubrics ~ one latent factor).
+- **model_rankings** — Per-rubric rank (1=best) + average rank per model.
+- **PTO_LA0_Q1Q2_vs_base_paired** — PTO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap 95% CI.
+- **PTO_vs_GRPO_LA0_paired** — PTO_LA0 - GRPO_LA0 at matched iterations; persona-paired Wilcoxon + dz + Holm.
+- **PTO_LA0_behavior_by_iter** — PTO_LA0 mean behavior metrics per iteration (MITI counts + text metrics).
+- **PTO_LA0_pref_probe_quality** — PTO_LA0: per-iteration preference-probe accuracy (wins_correct), mean projection gap, and score margin.
+- **PTO_LA0_pref_MI_concepts** — PTO_LA0: MI-concept word-list projection onto the per-iteration preference direction.
+- **main_results_final** — Final iteration vs base, per arm x rubric. Paired by persona (N=96): dz, Wilcoxon p (Holm), bootstrap 95% CI, trajectory Spearman rho/OLS slope.
+- **friedman_omnibus** — Friedman repeated-measures omnibus across iterations per arm x rubric (Kendall's W effect size); N personas matched.
+- **rubric_pca_pc1** — Variance explained by PC1 of the 6 rubric scores per arm (a dominant PC1 => rubrics ~ one latent factor).
+- **PTO_LA0_pref_probe_quality** — PTO_LA0: per-iteration preference-probe accuracy (wins_correct), mean projection gap, and score margin.
+- **PTO_LA0_pref_MI_concepts** — PTO_LA0: MI-concept word-list projection onto the per-iteration preference direction.
+- **model_rankings** — Per-rubric rank (1=best) + average rank per model.
+- **PTO_LA0_Q1Q2_vs_base_paired** — PTO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap 95% CI.
+- **PTO_vs_GRPO_LA0_paired** — PTO_LA0 - GRPO_LA0 at matched iterations; persona-paired Wilcoxon + dz + Holm.
+- **PTO_LA0_behavior_by_iter** — PTO_LA0 mean behavior metrics per iteration (MITI counts + text metrics).

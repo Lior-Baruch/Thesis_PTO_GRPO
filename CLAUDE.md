@@ -1,4 +1,4 @@
-# Thesis — PTO vs GRPO for Motivational Interviewing
+# Thesis — Looking Ahead in Goal-Oriented Dialogue: Comparing Preference-Tree and Group-Relative Optimization of Small Language Models for Motivational Interviewing
 
 ## What this is
 Master's thesis (Lior Baruch, Reichman). Trains small therapist LLMs to do
@@ -73,7 +73,21 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Landed (2026-06-08, latest) — sub-epoch checkpointing + hardened resume (both trainers).**
+**Landed (2026-06-09, latest) — EDA rebuilt research-grade + first cross-method results.** Exp3's
+analysis EDA was rebuilt as the `eda/exp3/` package + notebooks `00_Main_Results` / `01_Outcomes_and_Stats`
+/ `02_Mechanism_and_Exploration` / `03_Preference_Analysis` (+ `Exp3_DeepDive`, `Iteration_Reward_EDA`),
+with true-persona recovery, both stat batteries + repeated-measures (Friedman), and a thesis-export
+layer (`results/` PDF+PNG figures, CSV+LaTeX+MD tables). Old Exp2 EDA frozen in `eda/archive_exp2/`.
+**First results (PTO LA0 0–10, GRPO LA0 0–3, PTO LA5 0–1 scored):** PTO LA0 Q1+Q2 3.00→4.26 (all rubrics
+large); **GRPO LA0 reaches 3.99 in 3 iters, climbs FASTER per-iter (slope 0.29 vs 0.12) and is
+significantly AHEAD of PTO at matched iter 3** → GRPO is competitive with PTO at matched budget (PTO's
+higher endpoint = more iters). PTO's affirmation drift is a late (iter-6+) phenomenon, so the
+"is GRPO hacking too?" question needs GRPO run to ~10 iters. **Immediate next: run GRPO LA0 (and the LA5
+arms) to 10 iters** for a fair endpoint + late-iter behavior comparison. See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Eval results so far" + [eda/README.md](Exp3_PTO_GRPO/eda/README.md);
+full numbers in the `project-pto-la0-eval-results` memory.
+
+**Landed (2026-06-08) — sub-epoch checkpointing + hardened resume (both trainers).**
 Epochs are long (GRPO ~50 opt-steps/epoch × ~1.5–2 min/step with K=5), so per-epoch saves risked
 losing ~an epoch on a Colab crash. Both notebooks now checkpoint **every `SAVE_STEPS=10` optimizer
 steps** (`SAVE_STRATEGY="steps"`); a new required `save_steps` field on `TrainingConfig`/`PTOConfig`
