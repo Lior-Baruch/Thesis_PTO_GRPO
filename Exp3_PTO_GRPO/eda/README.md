@@ -1,33 +1,49 @@
 # Exp3 EDA — guide + improvement roadmap
 
 Analysis for **PTO_Exp3 vs GRPO_Exp3** (Llama-3.2-1B therapist vs gpt-4o-mini patient/oracle), across
-training iterations, under matched look-ahead K and MCL. All analysis lives in the `exp3/` package
-(data + compute + stats) with **plotting inline in the notebooks** (so figures are editable); thesis
-figures/tables are exported to `results/`.
+training iterations, under matched look-ahead K and MCL. All data/compute/stats lives in the `exp3/`
+package; the recurring figures are named functions in `exp3/plots.py` (called once from multiple
+notebooks), and genuinely one-off exploration stays inline (the **hybrid** plotting split). Thesis
+figures/tables are exported to `results/` — **one format each**: figures `.pdf`, tables `.md`.
+
+The notebooks are **organized by the thesis's research questions**, not by analysis type.
 
 ## Run order
 1. **`Run_Eval.ipynb`** — async oracle scoring → `data/<method>/eval_scores/`. Registry-driven: add a
    `lib/config.py::EXPERIMENTS` entry per new run (the only place you hand-edit). Resume-safe.
-2. **`00_Main_Results.ipynb`** — regenerates the canonical thesis figures + tables into `results/`.
-3. **`01_Outcomes_and_Stats.ipynb`** — outcomes, rankings, subscales, trajectories, stats (familiar +
-   persona-paired + Friedman), PTO-vs-GRPO / K0-vs-K5, selection-sensitivity.
-4. **`02_Mechanism_and_Exploration.ipynb`** — behavior drift (MITI counts + text), reward faithfulness,
-   rubric PCA, heterogeneity by true persona, transcript sampler + persona-matched evolution.
-5. **`03_Preference_Analysis.ipynb`** (PTO) — Latent-space Mass-Mean-Probe: which words / MI-concepts
-   the policy prefers, and drift across iterations.
-6. **`Exp3_DeepDive.ipynb`** / **`Iteration_Reward_EDA.ipynb`** — per-arm training internals.
+2. **`00_Main_Results.ipynb`** — regenerates the canonical thesis figures + tables into `results/`
+   (thin: only calls shared `stats.*`/`plots.*` helpers; ends with an artifact index).
+3. **`01_Did_It_Work.ipynb`** — foundational: did **each arm** beat its own base? QC, selection toggle,
+   outcomes/ranks/subscales/trajectories, the per-arm vs-base battery (familiar + persona-paired +
+   Friedman), selection sensitivity. Symmetric over all arms.
+4. **`02_PTO_vs_GRPO.ipynb`** — research question (ii): PTO vs GRPO at matched K. Matched-iteration
+   paired contrast + stats, **training internals side-by-side** (PTO margin vs GRPO group_std, ungated),
+   per-iteration climb rate. Absorbs the old `Exp3_DeepDive`.
+5. **`03_LookAhead_K.ipynb`** — research question (i): K=0 vs K=5 within each method (paired K0−K5,
+   margin under K). Preliminary while the LA5 arms are thin.
+6. **`04_Mechanism_and_Behavior.ipynb`** — behavior drift (MITI counts + text), reward faithfulness,
+   rubric PCA, heterogeneity by true persona, session-end, persona-matched transcripts — **all arms**.
+7. **`05_Preference_LatentSpace.ipynb`** (PTO only) — Mass-Mean-Probe: which words / MI-concepts the
+   policy prefers + drift across iterations (asymmetric by design — GRPO has no pairs).
+8. **`Iteration_Reward_EDA.ipynb`** — live in-flight training health check (uses the old `lib`).
 
-Everything **auto-discovers** arms from disk via `exp3.discover_arms()` (no path literals). Notebooks
-run with the venv kernel `thesis-venv313`, cwd = `eda/`.
+Future: an oracle-comparison notebook (research question iii) once non-Q1Q2 oracles are run.
+
+Everything **auto-discovers** arms from disk via `exp3.discover_arms()` (no path literals). Every
+notebook's cell 1 is `S = exp3.notebook_setup()` → `S.ARMS / S.SCORES / S.PALETTE / S.METRICS /
+S.ORACLE_NOISE / S.RESULTS_DIR`. Notebooks run with the venv kernel `thesis-venv313`, cwd = `eda/`.
 
 ## Package (`exp3/`)
 `discovery` (arms manifest) · `personas` (TRUE-persona recovery — replays the per-iter shuffle; the old
 `lib` join is wrong for Exp3) · `scores` (`scores_long` backbone + `load_subscales` + `to_wide`) ·
 `select` (all vs best-per-experiment) · `stats` (omnibus/Mann-Whitney+FDR + persona-paired Wilcoxon/dz/
-bootstrap + **Friedman/Kendall-W** + `main_results_table`) · `behavior` (MITI counts + regex text
-metrics) · `training` (generations.jsonl proxy reward + degeneracy + pref pairs) · `pref` (preference
-embeddings + Mass-Mean-Probe) · `figures` (style/palette/grid helpers only) · `exports` (`save_fig`/
-`save_table` → `results/`).
+bootstrap + **Friedman/Kendall-W** + `main_results_table` + **`paired_method_comparison`** (PTO vs GRPO)
++ **`paired_k_comparison`** (K0 vs K5)) · `behavior` (MITI counts + regex text metrics) · `training`
+(generations.jsonl proxy reward + degeneracy + pref pairs + **`advantage_signal_by_iter`** /
+**`reward_distribution_frame`** — both methods) · `pref` (preference embeddings + Mass-Mean-Probe +
+`pref_word_ranking`) · `plots` (**named figure functions** — the hybrid core) · `figures` (style/palette/
+grid helpers only) · `notebook` (`notebook_setup`) · `exports` (`save_fig` PDF / `save_table` MD →
+`results/`).
 
 `lib/` is the OLD Exp2 package, kept only for `Run_Eval` scoring. `archive_exp2/` is the frozen Exp2 EDA.
 
@@ -44,28 +60,23 @@ interpretation lives in the `project-pto-la0-eval-results` memory.
 ## Improvement roadmap — making the EDA better & more readable
 Prioritized; none are blocking. Ordered by value-for-effort.
 
-**Readability (highest value):**
-1. **Per-figure "takeaway" lines.** After each figure/table, a one-sentence *what this shows* + *why it
-   matters* markdown cell. Currently the takeaways sections are placeholders — filling them turns the
-   notebooks into a narrative a reader (or thesis committee) can skim. Pair with the `CAPTIONS.md`
-   already generated.
-2. **Research-question headers.** Open each notebook with the explicit thesis question it answers
-   (look-ahead K? PTO vs GRPO? reward faithfulness?) and which figure/table is the answer.
-3. **Trim dense tables to the columns that matter.** The stat tables show everything; for the thesis,
-   surface a 4–5 column view (Δ, dz+label, Holm p, CI) and keep the full table in `results/` only.
-4. **A figure gallery.** A tiny `results/INDEX.md` (or a cell in `00`) that embeds every
-   `results/figures/*.png` under its caption — one page to review all deliverables.
+**Landed in the 2026-06-10 refactor** (readability + method-symmetry + research-question reorg):
+reorganized the notebooks by research question; moved the recurring figures into `exp3/plots.py`
+(hybrid plotting); added `notebook_setup()` to kill the boilerplate; made every per-arm analysis run
+for **both methods** (only the preference probe stays PTO-only by construction); lifted the buried
+cross-method/K comparisons into `stats.paired_method_comparison` / `paired_k_comparison`; added a
+symmetric `training.advantage_signal_by_iter`; trimmed exports to **one format each** (PDF figures, MD
+tables) with idempotent `CAPTIONS.md`; filled the takeaway cells; added the §6 artifact index in `00`
+(roadmap items 2, partial 1+3+4). Remaining:
 
 **Reproducibility / speed:**
 5. **Cache `scores_long` + `behavior_by_iter` to parquet.** `behavior`/`text_metrics` re-read ~2k
    conversation CSVs in every notebook (slow). A `scores.load_cached()` that writes/reads
    `results/cache/*.parquet` (keyed by arm+iter set) would make notebooks near-instant and consistent.
-6. **One config block.** A small `exp3/config.py` (or top-of-notebook `CONFIG`) for the focus arm,
-   default `SELECTION`, metric order, and `ORACLE_NOISE` — instead of `ARM="PTO_LA0"` hardcoded in
-   several places.
-7. **Discovery should skip empty `model_iter` dirs** (e.g. GRPO LA5 iter1 currently has 0 convs) so
-   partial arms never produce blank rows; and `Run_Eval`'s registry could be auto-generated from
-   `discover_arms()` to remove the last hand-maintained list.
+   `notebook_setup()` is the natural home for the toggle.
+7. **Discovery should skip empty `model_iter` dirs** (a partial arm's empty iter dir produces blank
+   rows) so partial arms never pollute the views; and `Run_Eval`'s registry could be auto-generated
+   from `discover_arms()` to remove the last hand-maintained list.
 
 **Rigor / correctness polish:**
 8. **Self-check script.** Commit the ad-hoc validation as `exp3/_selfcheck.py` (persona recovery 100%,

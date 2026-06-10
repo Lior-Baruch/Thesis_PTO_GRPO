@@ -1,32 +1,23 @@
-- **outcomes_headline** — Best iteration per arm (peak by own training oracle) across the 6 MI rubrics; mean +/- 95% CI over 96 personas.
-- **trajectory_Q1Q2** — Q1+Q2 mean across iterations per arm (mean +/- 95% CI, N=96). Grey band = oracle reproducibility (~0.10) around the PTO base: differences within it are at oracle-noise scale.
-- **faithfulness_proxy_vs_eval** — Per (arm, iteration): mean training proxy reward (oracle on short branch, K=0) vs full-conversation eval Q1Q2; dashed y=x.
+- **outcomes_headline** — Best iteration per arm (peak by own training oracle) across the MI rubrics; mean +/- 95% CI over 96 personas.
+- **trajectory_Q1Q2** — Q1+Q2 mean across iterations per arm (mean +/- 95% CI, N=96). Grey band = oracle reproducibility (~0.10) around base: differences within it are at oracle-noise scale.
+- **faithfulness_proxy_vs_eval** — Per (arm, iteration): mean training proxy reward (oracle on short branch) vs full-conversation eval Q1Q2; dashed y=x.
 - **pref_word_ranking** — PTO_LA0: top words aligned with the chosen (green) vs rejected (red) preference direction (Mass Mean Probe, pooled over iterations).
-- **outcomes_by_model** — All models, 6 rubrics; mean +/- 95% CI over 96 personas.
+- **outcomes_by_model** — All models, rubrics; mean +/- 95% CI over 96 personas.
 - **subscales_WAI_MITI** — WAI-SR (Goal/Task/Bond) + MITI global subscales by model; mean +/- 95% CI.
 - **trajectories_all_rubrics** — Per-rubric mean +/- 95% CI across iterations, arms overlaid.
-- **behavior_drift** — MITI behavior counts (B3_Q questions, B4_SR/B5_CR reflections, B6_AF affirmations, B2_Persuade) + text metrics across iterations.
-- **rubric_correlation** — Spearman correlation among the 6 rubric scores (per conversation, pooled).
+- **method_contrast_Q1Q2_LA0** — PTO vs GRPO Q1+Q2 trajectories at matched look-ahead K=0 (mean +/- 95% CI).
+- **method_contrast_Q1Q2_LA5** — PTO vs GRPO Q1+Q2 trajectories at matched look-ahead K=5 (mean +/- 95% CI).
+- **reward_distribution_by_arm** — Per-candidate training reward per iteration, one panel per arm (PTO + GRPO).
+- **advantage_signal_sidebyside** — Method-native training advantage signal: GRPO mean group_std vs PTO chosen-rejected margin, per iteration.
+- **PTO_K0_vs_K5_Q1Q2** — PTO K=0 vs K=5 Q1+Q2 trajectory (mean +/- 95% CI).
+- **GRPO_K0_vs_K5_Q1Q2** — GRPO K=0 vs K=5 Q1+Q2 trajectory (mean +/- 95% CI).
+- **behavior_drift** — MITI behavior counts (B3_Q questions, B4_SR/B5_CR reflections, B6_AF affirmations, B2_Persuade) + text metrics across iterations, all arms.
+- **rubric_correlation** — Spearman correlation among the rubric scores (per conversation, pooled).
+- **heterogeneity_cooperation_level_GRPO_LA0** — GRPO_LA0 Q1+Q2 across iterations split by true patient cooperation_level.
 - **heterogeneity_cooperation_level_PTO_LA0** — PTO_LA0 Q1+Q2 across iterations split by true patient cooperation_level.
+- **heterogeneity_cooperation_level_PTO_LA5** — PTO_LA5 Q1+Q2 across iterations split by true patient cooperation_level.
+- **heterogeneity_problem_GRPO_LA0** — GRPO_LA0 Q1+Q2 across iterations split by true patient problem.
 - **heterogeneity_problem_PTO_LA0** — PTO_LA0 Q1+Q2 across iterations split by true patient problem.
-- **PTO_LA0_pref_probe** — PTO_LA0: probe accuracy + score margin per training iteration.
-- **pref_word_ranking** — PTO_LA0: top words aligned with chosen (green) vs rejected (red) preference direction (pooled over iters).
-- **PTO_LA0_pref_MI_concepts** — PTO_LA0: MI-concept projection onto the preference direction across iterations.
-- **PTO_LA0_train_reward_dist** — PTO_LA0: distribution of per-candidate training reward per iteration.
-- **PTO_LA0_pref_margin** — PTO_LA0: PTO chosen-rejected oracle-score margin per iteration.
-- **outcomes_headline** — Best iteration per arm (peak by own training oracle) across the 6 MI rubrics; mean +/- 95% CI over 96 personas.
-- **trajectory_Q1Q2** — Q1+Q2 mean across iterations per arm (mean +/- 95% CI, N=96). Grey band = oracle reproducibility (~0.10) around the PTO base: differences within it are at oracle-noise scale.
-- **faithfulness_proxy_vs_eval** — Per (arm, iteration): mean training proxy reward (oracle on short branch, K=0) vs full-conversation eval Q1Q2; dashed y=x.
-- **pref_word_ranking** — PTO_LA0: top words aligned with the chosen (green) vs rejected (red) preference direction (Mass Mean Probe, pooled over iterations).
-- **PTO_LA0_pref_probe** — PTO_LA0: probe accuracy + score margin per training iteration.
-- **pref_word_ranking** — PTO_LA0: top words aligned with chosen (green) vs rejected (red) preference direction (pooled over iters).
-- **PTO_LA0_pref_MI_concepts** — PTO_LA0: MI-concept projection onto the preference direction across iterations.
-- **outcomes_by_model** — All models, 6 rubrics; mean +/- 95% CI over 96 personas.
-- **subscales_WAI_MITI** — WAI-SR (Goal/Task/Bond) + MITI global subscales by model; mean +/- 95% CI.
-- **trajectories_all_rubrics** — Per-rubric mean +/- 95% CI across iterations, arms overlaid.
-- **behavior_drift** — MITI behavior counts (B3_Q questions, B4_SR/B5_CR reflections, B6_AF affirmations, B2_Persuade) + text metrics across iterations.
-- **rubric_correlation** — Spearman correlation among the 6 rubric scores (per conversation, pooled).
-- **heterogeneity_cooperation_level_PTO_LA0** — PTO_LA0 Q1+Q2 across iterations split by true patient cooperation_level.
-- **heterogeneity_problem_PTO_LA0** — PTO_LA0 Q1+Q2 across iterations split by true patient problem.
-- **PTO_LA0_train_reward_dist** — PTO_LA0: distribution of per-candidate training reward per iteration.
-- **PTO_LA0_pref_margin** — PTO_LA0: PTO chosen-rejected oracle-score margin per iteration.
+- **heterogeneity_problem_PTO_LA5** — PTO_LA5 Q1+Q2 across iterations split by true patient problem.
+- **PTO_LA0_pref_word_ranking** — PTO_LA0 top chosen/rejected-aligned words (Mass Mean Probe, pooled over iters).
+- **PTO_LA5_pref_word_ranking** — PTO_LA5 top chosen/rejected-aligned words (Mass Mean Probe, pooled over iters).

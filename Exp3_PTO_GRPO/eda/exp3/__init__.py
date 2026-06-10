@@ -82,6 +82,13 @@ from .scores import load_scores_long, load_subscales, to_wide, MEAN_COLS  # noqa
 from .select import all_models, best_per_experiment  # noqa: E402
 from .exports import save_fig, save_table, RESULTS_DIR, FIGURES_DIR, TABLES_DIR  # noqa: E402
 
+# One-call notebook setup + the new cross-method / training-internal / plotting helpers.
+from .notebook import notebook_setup, Setup  # noqa: E402
+from .stats import paired_method_comparison, paired_k_comparison  # noqa: E402
+from .training import advantage_signal_by_iter, reward_distribution_frame  # noqa: E402
+from .pref import pref_word_ranking  # noqa: E402
+from . import figures, plots, stats, behavior, training, pref  # noqa: E402,F401
+
 __all__ = [
     "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
     "Arm", "discover_arms", "parse_experiment_name",
@@ -90,4 +97,8 @@ __all__ = [
     "load_scores_long", "load_subscales", "to_wide", "MEAN_COLS",
     "all_models", "best_per_experiment",
     "save_fig", "save_table", "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
+    "notebook_setup", "Setup",
+    "paired_method_comparison", "paired_k_comparison",
+    "advantage_signal_by_iter", "reward_distribution_frame", "pref_word_ranking",
+    "figures", "plots", "stats", "behavior", "training", "pref",
 ]

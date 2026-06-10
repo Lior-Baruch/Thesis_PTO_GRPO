@@ -136,3 +136,59 @@ def _iter_from(path: str) -> Optional[int]:
     import re
     m = re.search(r"iteration_(\d+)", path.replace("\\", "/"))
     return int(m.group(1)) if m else None
+
+
+# ── Symmetric training-internals (both methods, one frame) ───────────────────────
+def reward_distribution_frame(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per-candidate training reward with ``(arm, method, train_iter, score)`` for ALL arms.
+
+    The tidy backbone for a side-by-side PTO-vs-GRPO reward-distribution plot — both methods
+    log every candidate's score in ``generations.jsonl``, so this just selects those columns.
+    """
+    g = load_generations(arms)
+    if g.empty:
+        return pd.DataFrame(columns=["arm", "method", "train_iter", "score"])
+    return g[["arm", "method", "train_iter", "score"]].dropna(subset=["score"])
+
+
+def advantage_signal_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
+    """Unified per-(arm, train_iter) training advantage signal for BOTH methods.
+
+    One tidy frame so a single plot can render both methods without an ``if`` — the two
+    methods populate different (method-native) columns, NaN elsewhere:
+
+    - **GRPO** (from ``generations.jsonl``, one group per branch): ``group_std`` (mean within-
+      group reward spread = the implicit advantage signal) + ``frac_zero_std`` (fraction of
+      near-collapsed groups, a degeneracy red flag).
+    - **PTO** (from ``pref_pairs/pairs.csv``): ``margin`` (mean chosen−rejected oracle-score
+      gap = how decisive the τ-filtered pairs are), ``margin_median``, ``n_pairs``.
+
+    Columns: ``arm, method, train_iter, group_std, frac_zero_std, margin, margin_median, n_pairs``.
+    Empty for arms with no training capture on disk (e.g. GRPO_LA5 has no generations.jsonl).
+    """
+    rows = []
+    gens = load_generations(arms)
+    if not gens.empty:
+        grp = gens[gens["method"] == "GRPO"]
+        if not grp.empty:
+            # one group_std per branch (it's repeated across the group's candidates).
+            per_branch = grp.dropna(subset=["group_std"]).drop_duplicates(
+                ["arm", "train_iter", "branch_id"])
+            for (arm, ti), g in per_branch.groupby(["arm", "train_iter"], observed=True):
+                rows.append({"arm": arm, "method": "GRPO", "train_iter": int(ti),
+                             "group_std": float(g["group_std"].mean()),
+                             "frac_zero_std": float((g["group_std"] < 1e-6).mean()),
+                             "margin": None, "margin_median": None, "n_pairs": None})
+    pairs = load_pref_pairs(arms)
+    if not pairs.empty and "margin" in pairs.columns:
+        for (arm, ti), g in pairs.groupby(["arm", "train_iter"], observed=True):
+            rows.append({"arm": arm, "method": "PTO", "train_iter": int(ti),
+                         "group_std": None, "frac_zero_std": None,
+                         "margin": float(g["margin"].mean()),
+                         "margin_median": float(g["margin"].median()),
+                         "n_pairs": int(len(g))})
+    cols = ["arm", "method", "train_iter", "group_std", "frac_zero_std",
+            "margin", "margin_median", "n_pairs"]
+    if not rows:
+        return pd.DataFrame(columns=cols)
+    return pd.DataFrame(rows)[cols].sort_values(["arm", "train_iter"]).reset_index(drop=True)
