@@ -73,7 +73,28 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Landed (2026-06-10, latest) — EDA refactored: readable, method-symmetric, by research question.**
+**Landed (2026-06-10, latest) — EDA readability + restructure-by-purpose (3 review rounds with Lior).**
+Three iterative passes on top of the research-question refactor below, driven by Lior's feedback:
+**(round 1)** fixed the four poorly-reading figures — pooled the 4 near-identical arm-bases into one
+descriptive `Base` (`scores.collapse_base`), replaced the unreadable subscale grouped-bar wall with
+subscale **trajectories**, added per-iteration **preference drift** (word heatmap + MI-concept lines),
+saturated faint tints. **(round 2)** full-name labels (no abbreviations), Okabe-Ito **colourblind
+palette** (PTO cool / GRPO warm / Base grey), base **reference line** on bars, base bar in the headline,
+evergreen **concise markdown** with an explicit **`[EVAL]` vs `[TRAINING]`** tag per section (a real
+source of confusion), removed the QC section, per-view selection (no global toggle). **(round 3)
+reorganized the notebooks BY PURPOSE** into **7**: `0_Headline` / `1_Eval_Results` /
+`2_Behavior_and_Mechanism` / `3_Training_Diagnostics` / `4_Reward_Reliability` /
+`5_Preference_LatentSpace` / `6_Detailed_Stats`; **all heavy tables moved to `6`** with the "did it
+work" shown as an **`effect_forest`** dot-plot; **thin arms filtered** (no NaN); **violins dropped**.
+New analyses: `3` surfaces the **TensorBoard training curves** (`training.tb_curves`, self-contained
+parse — no torch/trl import); `4` **rebuilds the Exp2 partial-conv reliability curve on Exp3 data** from
+the per-branch `prefix` in `generations.jsonl` (no new oracle pass) — finding: **GRPO's proxy grows MORE
+faithful with conversation length (0.86→0.94) while PTO's grows LESS (0.87→0.76)**, and LA5 ≥ LA0 (look-
+ahead helps faithfulness slightly); `5` gains **direction-drift (2D), learned/unlearned words, K0-vs-K5**.
+**Validated:** package smoke + all 7 notebooks ran top-to-bottom via nbconvert (`thesis-venv313`). See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Restructure-by-purpose pass" + [eda/README.md](Exp3_PTO_GRPO/eda/README.md).
+
+**Landed (2026-06-10) — EDA refactored: readable, method-symmetric, by research question.**
 The Exp3 analysis EDA was reorganized on top of the `eda/exp3/` package (the 2026-06-09 rebuild). The
 mess was in the notebooks: byte-identical cell-1 boilerplate, the same analysis duplicated across
 notebooks, hardcoded `PTO_LA0` everywhere (heterogeneity/behavior/transcripts/deep-dive ran for PTO

@@ -1,16 +1,14 @@
-- **outcomes_headline** — Best iteration per arm (peak by own training oracle) across the MI rubrics; mean +/- 95% CI over 96 personas.
-- **trajectory_Q1Q2** — Q1+Q2 mean across iterations per arm (mean +/- 95% CI, N=96). Grey band = oracle reproducibility (~0.10) around base: differences within it are at oracle-noise scale.
-- **faithfulness_proxy_vs_eval** — Per (arm, iteration): mean training proxy reward (oracle on short branch) vs full-conversation eval Q1Q2; dashed y=x.
 - **pref_word_ranking** — PTO_LA0: top words aligned with the chosen (green) vs rejected (red) preference direction (Mass Mean Probe, pooled over iterations).
-- **outcomes_by_model** — All models, rubrics; mean +/- 95% CI over 96 personas.
-- **subscales_WAI_MITI** — WAI-SR (Goal/Task/Bond) + MITI global subscales by model; mean +/- 95% CI.
-- **trajectories_all_rubrics** — Per-rubric mean +/- 95% CI across iterations, arms overlaid.
+- **pref_word_drift** — PTO_LA0: per-iteration projection of the top chosen-/rejected-aligned words onto the preference direction (reads out drift, e.g. affirmation words rising late while question/small-talk words fall).
+- **pref_category_drift** — PTO_LA0: MI-concept word groups projected onto the chosen-rejected preference direction across iterations (Affirmation vs OpenQuestion / SustainTalk etc.).
+- **outcomes_headline** — Pooled Base + each arm's best iteration (peak by own training oracle) across the MI rubrics; full-conversation eval, mean +/- 95% CI over 96 personas. Dotted line = base.
+- **effect_vs_base_forest** — Improvement vs base (Δ Q-mean + 95% CI) per arm x rubric, full-conversation eval; dot color = effect-size label, dz annotated. Dashed line = base.
+- **trajectory_Q1Q2** — Q1+Q2 mean across iterations per arm (mean +/- 95% CI, N=96). Grey band = oracle reproducibility (~0.10) around base.
 - **method_contrast_Q1Q2_LA0** — PTO vs GRPO Q1+Q2 trajectories at matched look-ahead K=0 (mean +/- 95% CI).
 - **method_contrast_Q1Q2_LA5** — PTO vs GRPO Q1+Q2 trajectories at matched look-ahead K=5 (mean +/- 95% CI).
-- **reward_distribution_by_arm** — Per-candidate training reward per iteration, one panel per arm (PTO + GRPO).
-- **advantage_signal_sidebyside** — Method-native training advantage signal: GRPO mean group_std vs PTO chosen-rejected margin, per iteration.
 - **PTO_K0_vs_K5_Q1Q2** — PTO K=0 vs K=5 Q1+Q2 trajectory (mean +/- 95% CI).
 - **GRPO_K0_vs_K5_Q1Q2** — GRPO K=0 vs K=5 Q1+Q2 trajectory (mean +/- 95% CI).
+- **outcomes_by_model** — Appendix: full-conversation eval, all models x rubrics; mean +/- 95% CI over 96 personas (arm-bases pooled into one Base; dotted line = base).
 - **behavior_drift** — MITI behavior counts (B3_Q questions, B4_SR/B5_CR reflections, B6_AF affirmations, B2_Persuade) + text metrics across iterations, all arms.
 - **rubric_correlation** — Spearman correlation among the rubric scores (per conversation, pooled).
 - **heterogeneity_cooperation_level_GRPO_LA0** — GRPO_LA0 Q1+Q2 across iterations split by true patient cooperation_level.
@@ -19,5 +17,20 @@
 - **heterogeneity_problem_GRPO_LA0** — GRPO_LA0 Q1+Q2 across iterations split by true patient problem.
 - **heterogeneity_problem_PTO_LA0** — PTO_LA0 Q1+Q2 across iterations split by true patient problem.
 - **heterogeneity_problem_PTO_LA5** — PTO_LA5 Q1+Q2 across iterations split by true patient problem.
+- **reward_distribution_by_arm** — Per-candidate training reward per iteration, one panel per arm (oracle on partial-conv branches, not the full-conv eval).
+- **advantage_signal_sidebyside** — Method-native training advantage: GRPO mean group_std vs PTO chosen-rejected margin, per iteration.
+- **reward_reliability_curve** — Sign-agreement between the partial-conv training reward and the full-conv eval (Q1+Q2) vs the length at which the conversation was scored; per arm. 0.5 = chance. LA0 vs LA5 tests whether look-ahead improves faithfulness.
+- **faithfulness_proxy_vs_eval** — Per (arm, iteration): mean training proxy reward (oracle on the partial branch) vs full-conversation eval Q1+Q2; dashed y=x.
 - **PTO_LA0_pref_word_ranking** — PTO_LA0 top chosen/rejected-aligned words (Mass Mean Probe, pooled over iters).
+- **PTO_LA0_pref_word_drift** — PTO_LA0 per-iteration projection of the top chosen-/rejected-aligned words (drift).
+- **PTO_LA0_pref_direction_drift** — PTO_LA0 preference direction in 2D PCA + consecutive cosine (how the preferred axis re-orients across iterations).
+- **PTO_LA0_pref_learn_unlearn** — PTO_LA0 words most newly preferred (learned) vs dropped (unlearned) across iteration transitions.
+- **PTO_LA0_pref_category_drift** — PTO_LA0 MI-concept word groups projected onto the chosen-rejected direction per iteration.
 - **PTO_LA5_pref_word_ranking** — PTO_LA5 top chosen/rejected-aligned words (Mass Mean Probe, pooled over iters).
+- **PTO_LA5_pref_word_drift** — PTO_LA5 per-iteration projection of the top chosen-/rejected-aligned words (drift).
+- **PTO_LA5_pref_direction_drift** — PTO_LA5 preference direction in 2D PCA + consecutive cosine (how the preferred axis re-orients across iterations).
+- **PTO_LA5_pref_learn_unlearn** — PTO_LA5 words most newly preferred (learned) vs dropped (unlearned) across iteration transitions.
+- **PTO_LA5_pref_category_drift** — PTO_LA5 MI-concept word groups projected onto the chosen-rejected direction per iteration.
+- **pref_category_K0_vs_K5** — PTO MI-concept preference projection across iterations, K=0 vs K=5 — does look-ahead change what the policy prefers?
+- **trajectories_all_rubrics** — Full-conversation eval: per-rubric mean +/- 95% CI across iterations, arms overlaid. The 6 rubrics load on ~one factor (PC1~91%), so a uniform rise reflects one latent axis.
+- **subscale_trajectories** — WAI-SR + MITI global subscale means across iterations; one panel per (parent, arm), arms with <3 scored iters omitted.

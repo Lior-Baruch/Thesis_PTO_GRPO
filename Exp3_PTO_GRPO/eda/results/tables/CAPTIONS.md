@@ -1,16 +1,7 @@
-- **main_results_final** — Final iteration vs base, per arm x rubric. Paired by persona (N=96): dz, Wilcoxon p (Holm), bootstrap 95% CI, trajectory Spearman rho/OLS slope.
-- **friedman_omnibus** — Friedman repeated-measures omnibus across iterations per arm x rubric (Kendall's W); N personas matched.
-- **rubric_pca_pc1** — Variance explained by PC1 of the rubric scores per arm (dominant PC1 => rubrics ~ one latent factor).
-- **model_rankings** — Per-rubric rank (1=best) + average rank per model.
-- **GRPO_LA0_Q1Q2_vs_base_paired** — GRPO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap 95% CI.
+- **PTO_LA0_pref_top_words_by_iter** — PTO_LA0 top-8 chosen- vs rejected-aligned words per training iteration.
+- **PTO_LA5_pref_top_words_by_iter** — PTO_LA5 top-8 chosen- vs rejected-aligned words per training iteration.
+- **model_rankings** — Full-conversation eval leaderboard: per-rubric rank (1=best) + average rank, over each arm's best iteration + the pooled Base.
 - **GRPO_LA5_Q1Q2_vs_base_paired** — GRPO_LA5 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap 95% CI.
-- **PTO_LA0_Q1Q2_vs_base_paired** — PTO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap 95% CI.
-- **PTO_LA5_Q1Q2_vs_base_paired** — PTO_LA5 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap 95% CI.
-- **PTO_vs_GRPO_LA0_paired** — PTO_LA0 - GRPO_LA0 at matched iterations; persona-paired Wilcoxon + dz + Holm.
-- **PTO_vs_GRPO_LA5_paired** — PTO_LA5 - GRPO_LA5 at matched iterations; persona-paired Wilcoxon + dz + Holm.
-- **Q1Q2_slope_by_arm** — Q1+Q2 per-iteration OLS slope + Spearman rho per arm (the climb rate).
-- **PTO_K0_vs_K5_paired** — PTO K0 - K5 at matched iterations; persona-paired Wilcoxon + dz + Holm.
-- **GRPO_K0_vs_K5_paired** — GRPO K0 - K5 at matched iterations; persona-paired Wilcoxon + dz + Holm.
 - **GRPO_LA0_behavior_by_iter** — GRPO_LA0 mean behavior metrics per iteration (MITI counts + text metrics).
 - **GRPO_LA5_behavior_by_iter** — GRPO_LA5 mean behavior metrics per iteration (MITI counts + text metrics).
 - **PTO_LA0_behavior_by_iter** — PTO_LA0 mean behavior metrics per iteration (MITI counts + text metrics).
@@ -19,3 +10,15 @@
 - **PTO_LA0_pref_MI_concepts** — PTO_LA0 MI-concept projection onto the preference direction per iteration.
 - **PTO_LA5_pref_probe_quality** — PTO_LA5 preference-probe quality per iteration (wins_correct, gap, margin).
 - **PTO_LA5_pref_MI_concepts** — PTO_LA5 MI-concept projection onto the preference direction per iteration.
+- **main_results_final** — Final iteration vs base, per arm x rubric, persona-paired (N=96): dz, Wilcoxon p (Holm), bootstrap CI, trajectory rho/slope. Thin arms dropped.
+- **main_results_best** — As main_results_final but vs each arm's BEST iteration (selection-sensitivity companion).
+- **friedman_omnibus** — Friedman repeated-measures omnibus across iterations per arm x rubric (Kendall's W). Thin arms dropped.
+- **GRPO_LA0_Q1Q2_vs_base_paired** — GRPO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap CI.
+- **PTO_LA0_Q1Q2_vs_base_paired** — PTO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap CI.
+- **PTO_LA5_Q1Q2_vs_base_paired** — PTO_LA5 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap CI.
+- **PTO_vs_GRPO_LA0_paired** — PTO_LA0 - GRPO_LA0 at matched iterations; persona-paired Wilcoxon + dz + Holm.
+- **PTO_vs_GRPO_LA5_paired** — PTO_LA5 - GRPO_LA5 at matched iterations; persona-paired Wilcoxon + dz + Holm.
+- **PTO_K0_vs_K5_paired** — PTO K0 - K5 at matched iterations; persona-paired Wilcoxon + dz + Holm.
+- **GRPO_K0_vs_K5_paired** — GRPO K0 - K5 at matched iterations; persona-paired Wilcoxon + dz + Holm.
+- **Q1Q2_slope_by_arm** — Q1+Q2 per-iteration OLS slope + Spearman rho per arm (climb rate). Thin arms dropped.
+- **rubric_pca_pc1** — Variance explained by PC1 of the rubric scores per arm (dominant PC1 => rubrics ~ one latent factor).

@@ -129,6 +129,33 @@ def load_subscales(arms: Optional[List] = None) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def collapse_base(scores_long: pd.DataFrame, *, label: str = "Base") -> pd.DataFrame:
+    """Pool every arm's iter-0 base into ONE descriptive model row block.
+
+    All arms share the same base policy (frozen Llama-3.2-1B) on the same iter-0 persona
+    order (shuffle ``seed+1`` for every arm), so the per-arm ``*_Base`` rows are near-replicates.
+    For cross-model *descriptive* views (bars / subscales / violins) this relabels them to a
+    single pooled model — decluttering the axis and giving a higher-N base reference.
+
+    Relabel: ``model=label``, ``arm=label``, ``method="Base"``, ``K=-1`` (so
+    :func:`figures.model_order` sorts it first). Non-base rows pass through untouched.
+
+    NOTE: descriptive only — do **not** feed this to the persona-paired / vs-base ``stats.*``
+    helpers, which must keep pairing each arm against its OWN base.
+    """
+    if scores_long.empty or "is_base" not in scores_long.columns:
+        return scores_long
+    out = scores_long.copy()
+    base = out["is_base"]
+    out.loc[base, "model"] = label
+    out.loc[base, "arm"] = label
+    if "method" in out.columns:
+        out.loc[base, "method"] = "Base"
+    if "K" in out.columns:
+        out.loc[base, "K"] = -1
+    return out
+
+
 def to_wide(scores_long: pd.DataFrame, value: str = "score") -> pd.DataFrame:
     """Pivot to one row per (arm, iteration, persona) with a column per questionnaire.
 

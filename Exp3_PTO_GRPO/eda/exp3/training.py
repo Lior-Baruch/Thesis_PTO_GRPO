@@ -14,13 +14,16 @@ So ``eval_iter = train_iter - 1`` joins proxy reward to full-conversation eval.
 import glob
 import json
 import os
+import re
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
 
 REWARD_FLOOR = 0.0  # GRPO floors degenerate completions here (mirror reward.py)
 _LEAK = "<|im_start|>"
 _END = "<|im_end|>"
+_ROLE_RE = re.compile(r"\[(?:THERAPIST|PATIENT)\]:")  # oracle-transcript turn markers
 
 
 def _arm_runs(arms):
@@ -86,6 +89,51 @@ def _num(x):
         return float(x)
     except (TypeError, ValueError):
         return None
+
+
+def load_branch_reliability(arms: Optional[List] = None, *, which: str = "chosen") -> pd.DataFrame:
+    """Per-branch proxy score + partial-conversation length — the data ``load_generations`` drops.
+
+    Re-reads ``generations.jsonl`` keeping each branch's ``prefix`` (the oracle-format transcript of
+    the conversation-so-far) and counts its turns (``[THERAPIST]:`` / ``[PATIENT]:`` markers). This
+    is what lets us rebuild the Exp2 partial-conv reliability curve for Exp3 — **no new oracle calls**.
+
+    ``which`` selects the per-branch proxy: ``"chosen"`` (the candidate the policy kept; the trajectory
+    it actually took), ``"max"``, or ``"mean"`` over candidates.
+    Columns: ``arm, method, K, train_iter, eval_iter, conversation_id, n_turns, proxy_score``.
+    """
+    rows = []
+    for arm in _arm_runs(arms):
+        for fp in sorted(glob.glob(os.path.join(arm.runs_dir, "iteration_*", "eda", "generations.jsonl"))):
+            with open(fp, encoding="utf-8") as f:
+                for line in f:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        rec = json.loads(line)
+                    except Exception:
+                        continue
+                    prefix = rec.get("prefix") or ""
+                    n_turns = len(_ROLE_RE.findall(prefix))
+                    cands = rec.get("candidates", []) or []
+                    scored = [(c.get("idx"), _num(c.get("score"))) for c in cands]
+                    scored = [(i, s) for i, s in scored if s is not None]
+                    if not scored or n_turns == 0:
+                        continue
+                    if which == "chosen":
+                        ci = rec.get("chosen_idx")
+                        proxy = next((s for i, s in scored if i == ci), max(s for _, s in scored))
+                    elif which == "max":
+                        proxy = max(s for _, s in scored)
+                    else:
+                        proxy = float(np.mean([s for _, s in scored]))
+                    ti = rec.get("iteration")
+                    rows.append({"arm": arm.label, "method": arm.method, "K": arm.K,
+                                 "train_iter": ti, "eval_iter": (ti - 1) if ti is not None else None,
+                                 "conversation_id": rec.get("conversation_id"),
+                                 "n_turns": int(n_turns), "proxy_score": float(proxy)})
+    return pd.DataFrame(rows)
 
 
 def scan_degeneracy(gens: pd.DataFrame) -> pd.DataFrame:
@@ -192,3 +240,89 @@ def advantage_signal_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     if not rows:
         return pd.DataFrame(columns=cols)
     return pd.DataFrame(rows)[cols].sort_values(["arm", "train_iter"]).reset_index(drop=True)
+
+
+# ── TensorBoard training curves (the wandb-style graphs) ─────────────────────────
+# Self-contained tensorboard parse (no torch/trl/wandb import) so the EDA stays
+# host-agnostic and dodges the local trl-before-torch segfault that importing the
+# trainers' _shared.tb_plots would trigger.
+_ITER_PATH_RE = re.compile(r"iteration_(\d+)")
+_TB_PRIORITY = [   # plotted if present, in this order (GRPO + DPO tags)
+    "train/loss", "train/reward", "train/reward_std", "train/rewards/margins",
+    "train/rewards/accuracies", "train/kl", "train/entropy",
+    "train/completions/mean_length", "train/learning_rate",
+]
+
+
+def parse_run_tb(run_dir: str):
+    """Parse a run's per-iteration TB event files → ``({tag: DataFrame[step,value]}, boundaries)``.
+
+    Steps are chained across iterations (each trainer restarts at step 0) so curves are continuous;
+    ``boundaries`` = ``[(iter, cumulative_step_end), ...]`` for drawing iteration separators.
+    Returns ``({}, [])`` if tensorboard isn't installed or no event files are found.
+    """
+    try:
+        from tensorboard.backend.event_processing import event_accumulator as ea
+    except Exception as e:
+        print(f"  [tb] tensorboard not available ({e}) — skipping training curves")
+        return {}, []
+    files = glob.glob(os.path.join(run_dir, "iteration_*", "**", "events.out.tfevents.*"), recursive=True)
+    by_iter = {}
+    for fp in files:
+        m = _ITER_PATH_RE.search(fp.replace("\\", "/"))
+        if m:
+            by_iter.setdefault(int(m.group(1)), []).append(fp)
+    series, boundaries, offset = {}, [], 0
+    for it in sorted(by_iter):
+        it_max = 0
+        for fp in sorted(by_iter[it]):
+            acc = ea.EventAccumulator(fp, size_guidance={ea.SCALARS: 0})
+            try:
+                acc.Reload()
+            except Exception:
+                continue
+            for tag in acc.Tags().get("scalars", []):
+                for e in acc.Scalars(tag):
+                    series.setdefault(tag, []).append((e.step + offset, e.value))
+                    it_max = max(it_max, e.step)
+        offset += it_max
+        boundaries.append((it, offset))
+    out = {}
+    for tag, pts in series.items():
+        d = dict(pts)  # last value wins per (chained) step
+        xs = sorted(d)
+        out[tag] = pd.DataFrame({"step": xs, "value": [d[x] for x in xs]})
+    return out, boundaries
+
+
+def tb_curves(arm, *, tags: Optional[List[str]] = None, smooth: int = 1):
+    """Plot one arm's TensorBoard training curves (the graphs seen on wandb/TB), chained across iters.
+
+    Curated salient tags by default (loss, reward/reward_std or rewards/margins+accuracies, KL,
+    entropy, completion length, lr — whichever the method emitted). Dotted vlines = iteration
+    boundaries. Returns a fig, or ``None`` if no logs/tensorboard (degrades cleanly).
+    """
+    import matplotlib.pyplot as plt
+    series, bounds = parse_run_tb(arm.runs_dir)
+    if not series:
+        print(f"  [tb] no event files for {arm.label} under {arm.runs_dir}")
+        return None
+    want = [t for t in (tags or _TB_PRIORITY) if t in series] or sorted(series)[:9]
+    ncols = 3
+    nrows = int(np.ceil(len(want) / ncols))
+    fig, axes = plt.subplots(nrows, ncols, figsize=(5.0 * ncols, 3.0 * nrows), squeeze=False)
+    axflat = list(axes.flat)
+    vlines = [b for (_it, b) in bounds[:-1]]
+    for ax, tag in zip(axflat, want):
+        df = series[tag]
+        y = df["value"].rolling(smooth, min_periods=1).mean() if smooth > 1 else df["value"]
+        ax.plot(df["step"], y, lw=1.3)
+        for b in vlines:
+            ax.axvline(b, color="grey", lw=0.5, ls=":")
+        ax.set_title(tag, fontsize=9)
+        ax.set_xlabel("step (chained across iters)")
+    for ax in axflat[len(want):]:
+        ax.set_visible(False)
+    fig.suptitle(f"{arm.label} — training curves (TensorBoard)", y=1.0, fontweight="bold")
+    fig.tight_layout()
+    return fig

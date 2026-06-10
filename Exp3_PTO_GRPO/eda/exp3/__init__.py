@@ -78,15 +78,24 @@ from .personas import (  # noqa: E402
     canonical_personas, persona_order, file_to_persona,
     attach_personas, validate_recovery,
 )
-from .scores import load_scores_long, load_subscales, to_wide, MEAN_COLS  # noqa: E402
+from .scores import load_scores_long, load_subscales, to_wide, collapse_base, MEAN_COLS  # noqa: E402
 from .select import all_models, best_per_experiment  # noqa: E402
 from .exports import save_fig, save_table, RESULTS_DIR, FIGURES_DIR, TABLES_DIR  # noqa: E402
 
 # One-call notebook setup + the new cross-method / training-internal / plotting helpers.
 from .notebook import notebook_setup, Setup  # noqa: E402
-from .stats import paired_method_comparison, paired_k_comparison  # noqa: E402
-from .training import advantage_signal_by_iter, reward_distribution_frame  # noqa: E402
-from .pref import pref_word_ranking  # noqa: E402
+from .stats import (  # noqa: E402
+    paired_method_comparison, paired_k_comparison,
+    rank_agreement_by_nturns, filter_thin_arms, thin_arms,
+)
+from .training import (  # noqa: E402
+    advantage_signal_by_iter, reward_distribution_frame,
+    load_branch_reliability, tb_curves, parse_run_tb,
+)
+from .pref import (  # noqa: E402
+    pref_word_ranking, pref_word_drift_heatmap, plot_category_drift, top_words_by_iter,
+    preference_direction_drift, plot_direction_drift, learn_unlearn_words, plot_learn_unlearn,
+)
 from . import figures, plots, stats, behavior, training, pref  # noqa: E402,F401
 
 __all__ = [
@@ -94,11 +103,15 @@ __all__ = [
     "Arm", "discover_arms", "parse_experiment_name",
     "canonical_personas", "persona_order", "file_to_persona",
     "attach_personas", "validate_recovery",
-    "load_scores_long", "load_subscales", "to_wide", "MEAN_COLS",
+    "load_scores_long", "load_subscales", "to_wide", "collapse_base", "MEAN_COLS",
     "all_models", "best_per_experiment",
     "save_fig", "save_table", "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
     "notebook_setup", "Setup",
     "paired_method_comparison", "paired_k_comparison",
-    "advantage_signal_by_iter", "reward_distribution_frame", "pref_word_ranking",
+    "rank_agreement_by_nturns", "filter_thin_arms", "thin_arms",
+    "advantage_signal_by_iter", "reward_distribution_frame",
+    "load_branch_reliability", "tb_curves", "parse_run_tb",
+    "pref_word_ranking", "pref_word_drift_heatmap", "plot_category_drift", "top_words_by_iter",
+    "preference_direction_drift", "plot_direction_drift", "learn_unlearn_words", "plot_learn_unlearn",
     "figures", "plots", "stats", "behavior", "training", "pref",
 ]

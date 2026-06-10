@@ -250,12 +250,13 @@ Exp3_PTO_GRPO/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
 │   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses lib/, registry-driven)
-│   ├── 00_Main_Results.ipynb           THESIS-ARTIFACT entry point (thin): main-results table + Friedman omnibus + headline figures + artifact index; exports canonical set to results/
-│   ├── 01_Did_It_Work.ipynb            foundational: QC + all-vs-best toggle + outcomes/ranks/subscales + trajectories + per-arm vs-base battery (familiar + persona-paired + Friedman) + selection-sensitivity — ALL arms
-│   ├── 02_PTO_vs_GRPO.ipynb            RQ(ii): matched-K paired contrast + stats + training-internals SIDE-BY-SIDE (PTO margin vs GRPO group_std, ungated) + climb-rate (absorbs the old Exp3_DeepDive)
-│   ├── 03_LookAhead_K.ipynb            RQ(i): K0-vs-K5 overlay + paired stats + margin-under-K (preliminary while LA5 arms thin)
-│   ├── 04_Mechanism_and_Behavior.ipynb  behavior drift + faithfulness + rubric PCA + heterogeneity by true persona + session-end + persona-matched transcripts — ALL arms
-│   ├── 05_Preference_LatentSpace.ipynb  PTO latent-space preference (Mass-Mean-Probe: word + MI-concept projection, drift) — pref_emb successor; loops PTO arms (PTO-only by construction)
+│   ├── 0_Headline.ipynb               [EVAL] thin: 3 canonical thesis figures (headline outcomes vs pooled Base, vs-base effect FOREST, Q1+Q2 curve) + artifact index
+│   ├── 1_Eval_Results.ipynb           [EVAL] full-conv outcomes: trajectories + subscale trajectories + effect forest + PTO-vs-GRPO & K0-vs-K5 contrast FIGURES + leaderboard + appendix bars (heavy tables -> 6)
+│   ├── 2_Behavior_and_Mechanism.ipynb [EVAL] MITI behaviour drift + text metrics + rubric factor structure (PC1+corr) + heterogeneity by true persona + session-end + transcripts — ALL arms (no violins)
+│   ├── 3_Training_Diagnostics.ipynb   [TRAINING] TensorBoard training curves (tb_curves) + per-candidate reward dist + advantage signal (group_std/margin) + degeneration scan
+│   ├── 4_Reward_Reliability.ipynb     [TRAINING↔EVAL] rank-agreement-vs-n_turns curve (rebuilt on Exp3 from generations.jsonl prefix; LA0 vs LA5) + proxy-vs-eval scatter + PTO margin-by-branch-depth
+│   ├── 5_Preference_LatentSpace.ipynb [TRAINING] PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
+│   ├── 6_Detailed_Stats.ipynb         [EVAL] ALL heavy tables: main results + Friedman + paired method/K + per-arm vs-base + slopes + rankings + PCA (thin arms filtered)
 │   ├── Iteration_Reward_EDA.ipynb       extra: live in-flight training-reward trajectory from generations.jsonl (no oracle; uses lib)
 │   ├── exp3/                            NEW Exp3 analysis package (disk-discovery, read-only; data+compute+stats+plots layer)
 │   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/PERSONA_COLS
@@ -279,7 +280,7 @@ Exp3_PTO_GRPO/
 
 **Thesis artifacts.** `results/figures/` (`.pdf`) and `results/tables/` (`.md`) are **generated** by
 `exp3.save_fig`/`save_table` — **one format each** (the `formats=` kwarg can request extras for a
-one-off). Run `00_Main_Results.ipynb` to regenerate the canonical set (others export their own too).
+one-off). Run `0_Headline.ipynb` to regenerate the canonical set (others export their own too).
 They're reproducible from code, so tracking them in git is optional (Lior's call).
 
 **Single canonical copies.** `system_prompts_builder.py` and `questionnaires.py`
@@ -307,14 +308,41 @@ scoring). ⚠ The old `lib` patient-characteristic join is **wrong for Exp3** (p
 `exp3/personas.py`. **Validated 2026-06-10:** all six notebooks ran top-to-bottom via nbconvert
 (`thesis-venv313`) on the current disk state. See "New EDA workflow" below.
 
+**Figure-readability pass (2026-06-10, later).** Fixed the four figures that read poorly: (1) the 4
+near-identical arm-bases now pool into one descriptive `Base` via `scores.collapse_base` (cross-model
+bar/rank views only — paired vs-base stats still use each arm's own base); (2) the unreadable
+26-model × 3–4-subscale grouped-bar wall (`subscales_WAI_MITI.pdf`, retired) → `plots.subscale_trajectory_grid`
+(subscale lines across iterations, one panel per parent×arm → `subscale_trajectories.pdf`);
+(3) preference drift across iterations via `pref.pref_word_drift_heatmap` (top words × iteration) +
+`pref.plot_category_drift` (MI-concept lines), beside the pooled `pref_word_ranking`; (4) polish —
+saturated LA5 tints, short x-labels (`figures.short_label`), shared legends above grids, and the
+PC1≈91% shared-factor caveat printed under the trajectory grid. `01` now leads with the trajectory grid
+and demotes the per-model bars to an Appendix. The old `plots.subscales_by_model` was removed.
+**Validated:** package smoke + `00`/`01`/`05` via nbconvert (`thesis-venv313`).
+
+**Restructure-by-purpose pass (2026-06-10, latest).** The notebooks were **reorganized by purpose**
+(was by research question) into the **7** above (`0_Headline` … `6_Detailed_Stats`), every section
+tagged **`[EVAL]`** vs **`[TRAINING]`**, **markdown trimmed concise**, **all heavy tables moved to
+`6_Detailed_Stats`** with the headline "did it work" shown as an **`effect_forest`** dot-plot instead,
+**thin arms (<3 iters) filtered** (no NaN rows), **violins dropped**. New first-class analyses:
+`3_Training_Diagnostics` surfaces the **TensorBoard training curves** (`training.tb_curves` —
+self-contained TB parse, no torch/trl import so the EDA stays host-agnostic); `4_Reward_Reliability`
+**rebuilds the Exp2 partial-conv reliability curve on Exp3 data** (`training.load_branch_reliability` +
+`stats.rank_agreement_by_nturns`, from the per-branch `prefix` already in `generations.jsonl` — no new
+oracle pass) and contrasts **LA0 vs LA5** (does look-ahead make the short reward more faithful?);
+`5_Preference_LatentSpace` gains **direction-drift (2D PCA + cosine)**, **learned/unlearned words**, and
+a **K0-vs-K5** preference contrast. **Validated:** package smoke + all 7 notebooks via nbconvert
+(`thesis-venv313`). The 2026-06-09/-10 notes above are kept as history.
+
 ### New EDA workflow (replaces "add registry entry → Conv_EDA")
 1. **Score** a new run: `Run_Eval.ipynb` still needs a `lib/config.py::EXPERIMENTS` entry to know what
    to grade (this one coupling remains by design). Run it → writes `eval_scores/`.
-2. **Analyze:** open `00_Main_Results` (regenerates the canonical thesis figures+tables into `results/`),
-   then `01`–`05` for the deeper analyses (they export their own key artifacts too). Every notebook's
-   cell 1 is `S = exp3.notebook_setup()`. All **auto-discover** every arm on disk via
-   `exp3.discover_arms()` — no registry edit, no path literals. `01` has the
-   `SELECTION = "all" | "best_per_exp"` toggle. Thesis figures/tables land in `eda/results/` (PDF / MD).
+2. **Analyze:** open `0_Headline` (regenerates the 3 canonical thesis figures into `results/`), then
+   `1`–`6` for the deeper analyses by purpose (each exports its own artifacts; `6_Detailed_Stats` holds
+   all the heavy tables). Every notebook's cell 1 is `S = exp3.notebook_setup()`. All **auto-discover**
+   every arm on disk via `exp3.discover_arms()` — no registry edit, no path literals. Selection (all vs
+   best-per-arm) is now decided per-view in code (no global toggle). Thesis figures/tables land in
+   `eda/results/` (PDF / MD).
 3. Re-run is cheap; arms not yet scored are skipped gracefully (the cross-method/K cells degrade to a
    "not scored yet" banner; thin arms < 3 iters are skipped in the per-arm batteries).
 
@@ -388,7 +416,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
 2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
-4. **Score + EDA.** Add a `lib/config.py::EXPERIMENTS` entry for the run (Run_Eval scoring only), run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → then open [eda/00_Main_Results.ipynb](eda/00_Main_Results.ipynb) (and `01`–`05`), which **auto-discover** the run (no further registry edits). See "New EDA workflow".
+4. **Score + EDA.** Add a `lib/config.py::EXPERIMENTS` entry for the run (Run_Eval scoring only), run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → then open [eda/0_Headline.ipynb](eda/0_Headline.ipynb) (and `1`–`6`), which **auto-discover** the run (no further registry edits). See "New EDA workflow".
 
 ## Running PTO_Exp3
 
