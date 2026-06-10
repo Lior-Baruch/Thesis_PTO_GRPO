@@ -273,6 +273,180 @@ def pref_word_ranking(word_projection: pd.DataFrame, *, top_n: int = 15,
     return fig
 
 
+def top_words_by_iter(word_projection: pd.DataFrame, *, k: int = 8) -> pd.DataFrame:
+    """Per-iteration read-out: the top-``k`` chosen-aligned and rejected-aligned words each iter.
+
+    Returns one row per training iteration with two string columns (``chosen_top`` / ``rejected_top``)
+    — the literal "what the policy was being pushed toward vs away from at iteration N" story, so the
+    drift heatmap can be read in words. Sorted by iteration.
+    """
+    if word_projection is None or word_projection.empty:
+        return pd.DataFrame()
+    iter_cols = sorted(c for c in word_projection.columns if c != "mean")
+    rows = []
+    for it in iter_cols:
+        s = word_projection[it].sort_values(ascending=False)
+        chosen = ", ".join(s.head(k).index)
+        rejected = ", ".join(s.tail(k).index[::-1])
+        rows.append({"train_iter": it, "chosen_top": chosen, "rejected_top": rejected})
+    return pd.DataFrame(rows)
+
+
+def pref_word_drift_heatmap(word_projection: pd.DataFrame, *, top_n: int = 12,
+                            title: Optional[str] = None):
+    """Per-iteration drift of the top preferred/rejected words — rows=word, cols=iteration.
+
+    Complements the pooled :func:`pref_word_ranking` (which collapses iterations via ``mean``):
+    here each of the ``top_n`` most chosen-aligned + ``top_n`` most rejected-aligned words is a
+    row and every training iteration a column, colored by its projection onto the chosen−rejected
+    direction (green=chosen, red=rejected, diverging at 0). Reads out drift like "affirmation
+    words rise late while question/small-talk words fall". No new compute — the
+    :func:`word_projection` frame already carries the per-iteration columns.
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    if word_projection is None or word_projection.empty or "mean" not in word_projection.columns:
+        return None
+    iter_cols = sorted(c for c in word_projection.columns if c != "mean")
+    if not iter_cols:
+        return None
+    rows = (word_projection.sort_values("mean", ascending=False).head(top_n).index.tolist()
+            + word_projection.sort_values("mean").head(top_n).index.tolist())
+    # de-dup (a word can't be both halves unless top_n is huge) keeping chosen→rejected order
+    seen, ordered = set(), []
+    for w in rows:
+        if w not in seen:
+            seen.add(w); ordered.append(w)
+    sub = word_projection.loc[ordered, iter_cols]
+    vmax = float(np.nanmax(np.abs(sub.values))) or 1.0
+    fig, ax = plt.subplots(figsize=(max(6.0, 0.5 * len(iter_cols) + 2), max(5.0, 0.3 * len(sub))))
+    sns.heatmap(sub, cmap="RdYlGn", center=0, vmin=-vmax, vmax=vmax, linewidths=0.4,
+                linecolor="white", cbar_kws={"label": "projection onto chosen − rejected"}, ax=ax)
+    ax.set_title(title or "Preferred-word drift across iterations (green=chosen, red=rejected)")
+    ax.set_xlabel("training iteration"); ax.set_ylabel("")
+    fig.tight_layout()
+    return fig
+
+
+def plot_category_drift(category_long: pd.DataFrame, *, palette=None):
+    """MI-concept preference drift: each :data:`MI_CATEGORIES` group's projection across iterations.
+
+    Takes the :func:`category_projection` long frame (``category, train_iter, score``) and draws
+    one line per MI concept — the direct visual test of the affirmation-rising / question-falling
+    hypothesis (Affirmation climbing above 0 over training, OpenQuestion / SustainTalk falling).
+    """
+    import matplotlib.pyplot as plt
+    import seaborn as sns
+    if category_long is None or category_long.empty:
+        return None
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    sns.lineplot(category_long, x="train_iter", y="score", hue="category", marker="o",
+                 palette=palette, ax=ax)
+    ax.axhline(0, color="grey", lw=0.6, ls="--")
+    ax.set_title("MI-concept preference drift (projection onto chosen − rejected)")
+    ax.set_xlabel("training iteration"); ax.set_ylabel("mean projection")
+    sns.move_legend(ax, "upper left", bbox_to_anchor=(1.01, 1.0), title="MI concept", frameon=False)
+    fig.tight_layout()
+    return fig
+
+
+def preference_direction_drift(directions: dict) -> pd.DataFrame:
+    """How the preference DIRECTION itself moves across iterations.
+
+    Takes ``{iter: unit direction}`` (:func:`preference_direction_by_iter`). Returns per iteration:
+    a 2D PCA embedding of the direction vectors (``pc1``/``pc2`` — so the drift is a path you can
+    plot) + ``cos_prev`` (cosine similarity to the previous iteration's direction; ~1 = stable,
+    lower = the policy's preference is re-orienting).
+    """
+    if not directions:
+        return pd.DataFrame(columns=["train_iter", "pc1", "pc2", "cos_prev"])
+    its = sorted(directions)
+    M = np.vstack([directions[i] for i in its])
+    if len(its) >= 2:
+        from sklearn.decomposition import PCA
+        xy = PCA(n_components=2).fit_transform(M)
+    else:
+        xy = np.zeros((1, 2))
+    rows = []
+    for n, it in enumerate(its):
+        cos_prev = float(M[n] @ M[n - 1]) if n > 0 else np.nan
+        rows.append({"train_iter": int(it), "pc1": float(xy[n, 0]), "pc2": float(xy[n, 1]),
+                     "cos_prev": cos_prev})
+    return pd.DataFrame(rows)
+
+
+def plot_direction_drift(drift_df: pd.DataFrame, *, title: Optional[str] = None):
+    """Path of the per-iteration preference direction in 2D PCA + the consecutive-cosine line."""
+    import matplotlib.pyplot as plt
+    if drift_df is None or drift_df.empty:
+        return None
+    fig, (axp, axc) = plt.subplots(1, 2, figsize=(11, 4.2),
+                                   gridspec_kw={"width_ratios": [1.3, 1]})
+    its = drift_df["train_iter"].to_numpy()
+    axp.plot(drift_df["pc1"], drift_df["pc2"], "-", color="#999999", lw=1, zorder=1)
+    sc = axp.scatter(drift_df["pc1"], drift_df["pc2"], c=its, cmap="viridis", s=70, zorder=2)
+    for _, r in drift_df.iterrows():
+        axp.annotate(int(r["train_iter"]), (r["pc1"], r["pc2"]), fontsize=7, va="bottom")
+    axp.set_title("Preference direction drift (2D PCA; arrow = iterations)")
+    axp.set_xlabel("PC1"); axp.set_ylabel("PC2")
+    fig.colorbar(sc, ax=axp, label="iteration", fraction=0.046)
+    axc.plot(drift_df["train_iter"], drift_df["cos_prev"], marker="o", color="#7b4fb0")
+    axc.set_ylim(0, 1.02); axc.axhline(1.0, color="grey", lw=0.6, ls="--")
+    axc.set_title("Stability: cos(dir_t, dir_{t-1})"); axc.set_xlabel("iteration")
+    axc.set_ylabel("cosine to previous")
+    fig.suptitle(title or "What the policy prefers — how the direction moves", y=1.02, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def learn_unlearn_words(word_projection: pd.DataFrame, *, k: int = 10) -> pd.DataFrame:
+    """Per consecutive-iteration transition, the words whose preference rose/fell the most.
+
+    Δ = projection(it+1) − projection(it) for each word over each transition; keeps the top-``k``
+    gainers (newly preferred = "learned") and top-``k`` losers ("unlearned"). Long frame:
+    ``from_iter, to_iter, transition, word, delta, direction``.
+    """
+    if word_projection is None or word_projection.empty:
+        return pd.DataFrame()
+    iters = sorted(c for c in word_projection.columns if c != "mean")
+    rows = []
+    for a, b in zip(iters[:-1], iters[1:]):
+        delta = (word_projection[b] - word_projection[a]).sort_values()
+        picks = list(delta.head(k).items()) + list(delta.tail(k).items())
+        for w, d in picks:
+            rows.append({"from_iter": a, "to_iter": b, "transition": f"{a}→{b}",
+                         "word": w, "delta": float(d),
+                         "direction": "learned" if d > 0 else "unlearned"})
+    return pd.DataFrame(rows)
+
+
+def plot_learn_unlearn(luw_df: pd.DataFrame, *, transitions: Optional[List] = None,
+                       max_panels: int = 4, k: int = 10):
+    """Small-multiples of the biggest 'learned' (green) vs 'unlearned' (red) words per transition."""
+    import matplotlib.pyplot as plt
+    if luw_df is None or luw_df.empty:
+        return None
+    allt = list(dict.fromkeys(luw_df["transition"]))
+    if transitions is None:
+        # evenly sample up to max_panels transitions across training
+        if len(allt) > max_panels:
+            idx = np.linspace(0, len(allt) - 1, max_panels).round().astype(int)
+            transitions = [allt[i] for i in idx]
+        else:
+            transitions = allt
+    fig, axes = plt.subplots(1, len(transitions), figsize=(3.6 * len(transitions), 4.4), squeeze=False)
+    for ax, t in zip(axes.flat, transitions):
+        d = luw_df[luw_df["transition"] == t].sort_values("delta")
+        d = pd.concat([d.head(k), d.tail(k)]).drop_duplicates("word").sort_values("delta")
+        ax.barh(d["word"], d["delta"], color=(d["delta"] > 0).map({True: "#2ca02c", False: "#d62728"}))
+        ax.axvline(0, color="grey", lw=0.6)
+        ax.set_title(f"iter {t}", fontsize=9); ax.tick_params(axis="y", labelsize=6)
+    fig.suptitle("Learned (green, +) vs unlearned (red, −) words across iterations",
+                 y=1.02, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
 def category_projection(directions: dict, categories: dict = None,
                         model_name: str = _DEFAULT_MODEL) -> pd.DataFrame:
     """Per (MI category, iter): mean projection of the category's words onto the preference direction.

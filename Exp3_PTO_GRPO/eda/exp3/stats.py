@@ -319,6 +319,65 @@ def effect_label(d: float) -> str:
     return "negligible" if a < 0.2 else "small" if a < 0.5 else "medium" if a < 0.8 else "large"
 
 
+# ── Thin-arm hygiene (kills NaN rows from under-scored arms) ─────────────────────
+def thin_arms(scores_long: pd.DataFrame, min_iters: int = 3) -> List[str]:
+    """Arms with fewer than ``min_iters`` scored iterations (their Friedman/slope rows are NaN)."""
+    n = scores_long.groupby("arm")["iteration"].nunique()
+    return sorted(n[n < min_iters].index)
+
+
+def filter_thin_arms(df: pd.DataFrame, scores_long: pd.DataFrame, *, min_iters: int = 3,
+                     arm_col: str = "arm", verbose: bool = True) -> pd.DataFrame:
+    """Drop rows of *df* belonging to thin arms (so stat tables don't carry NaN rows)."""
+    thin = set(thin_arms(scores_long, min_iters))
+    if not thin or arm_col not in df.columns:
+        return df
+    if verbose:
+        print(f"  [stats] dropping thin arms (<{min_iters} scored iters): {sorted(thin)}")
+    return df[~df[arm_col].isin(thin)].reset_index(drop=True)
+
+
+# ── Partial-conversation reward reliability (Exp3, from generations.jsonl) ───────
+def rank_agreement_by_nturns(branch_reliability: pd.DataFrame, scores_long: pd.DataFrame, *,
+                             metric: str = "Q1Q2", min_pairs: int = 20) -> pd.DataFrame:
+    """Does the partial-conv training reward rank conversations like the full-conv eval does?
+
+    The Exp2 ``Partial_Conv_Oracle_EDA`` statistic rebuilt on Exp3 data: join each branch's proxy
+    score (:func:`training.load_branch_reliability`) to the full-conversation eval of the same
+    conversation (``eval_iter`` ↔ ``scores_long.iteration``, ``conversation_id`` ↔ ``file_index``),
+    then per ``n_turns`` measure the fraction of conversation pairs whose proxy-difference sign
+    matches the eval-difference sign. 0.5 = chance; rises toward 1 as the cut lengthens. Pairs are
+    formed WITHIN (arm, eval_iter, n_turns) so both scores share a model state, then pooled per
+    (arm, n_turns). Returns ``(arm, n_turns, agreement, n_pairs)`` (bins with < ``min_pairs`` dropped).
+    """
+    from itertools import combinations
+    if branch_reliability is None or branch_reliability.empty:
+        return pd.DataFrame(columns=["arm", "n_turns", "agreement", "n_pairs"])
+    ev = (scores_long[scores_long["questionnaire"] == metric]
+          .rename(columns={"iteration": "eval_iter", "file_index": "conversation_id"})
+          .groupby(["arm", "eval_iter", "conversation_id"])["score"].mean()
+          .rename("eval_score").reset_index())
+    df = branch_reliability.merge(ev, on=["arm", "eval_iter", "conversation_id"], how="inner")
+    if df.empty:
+        return pd.DataFrame(columns=["arm", "n_turns", "agreement", "n_pairs"])
+    agg = {}  # (arm, n_turns) -> [n_correct, n_total]
+    for (arm, _ei, nt), g in df.groupby(["arm", "eval_iter", "n_turns"], observed=True):
+        gg = g.groupby("conversation_id").agg(proxy=("proxy_score", "mean"),
+                                              evl=("eval_score", "first"))
+        if len(gg) < 2:
+            continue
+        p = gg["proxy"].to_numpy(); e = gg["evl"].to_numpy()
+        for i, j in combinations(range(len(gg)), 2):
+            dp, de = p[i] - p[j], e[i] - e[j]
+            if dp == 0 or de == 0:
+                continue
+            c, t = agg.get((arm, int(nt)), (0, 0))
+            agg[(arm, int(nt))] = (c + int((dp > 0) == (de > 0)), t + 1)
+    rows = [{"arm": a, "n_turns": nt, "agreement": c / t, "n_pairs": t}
+            for (a, nt), (c, t) in agg.items() if t >= min_pairs]
+    return pd.DataFrame(rows).sort_values(["arm", "n_turns"]).reset_index(drop=True)
+
+
 def friedman_trajectory(scores_long: pd.DataFrame, arm: str, metric: str) -> dict:
     """Repeated-measures omnibus across iterations (the matched-persona-correct test).
 
