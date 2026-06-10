@@ -73,11 +73,28 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Landed (2026-06-09, latest) — EDA rebuilt research-grade + first cross-method results.** Exp3's
-analysis EDA was rebuilt as the `eda/exp3/` package + notebooks `00_Main_Results` / `01_Outcomes_and_Stats`
-/ `02_Mechanism_and_Exploration` / `03_Preference_Analysis` (+ `Exp3_DeepDive`, `Iteration_Reward_EDA`),
-with true-persona recovery, both stat batteries + repeated-measures (Friedman), and a thesis-export
-layer (`results/` PDF+PNG figures, CSV+LaTeX+MD tables). Old Exp2 EDA frozen in `eda/archive_exp2/`.
+**Landed (2026-06-10, latest) — EDA refactored: readable, method-symmetric, by research question.**
+The Exp3 analysis EDA was reorganized on top of the `eda/exp3/` package (the 2026-06-09 rebuild). The
+mess was in the notebooks: byte-identical cell-1 boilerplate, the same analysis duplicated across
+notebooks, hardcoded `PTO_LA0` everywhere (heterogeneity/behavior/transcripts/deep-dive ran for PTO
+only), a method-gated `if GRPO…else…` advantage cell, and buried cross-method comparisons. Fixes:
+(1) **hybrid plotting** — the recurring figures are now named functions in `exp3/plots.py` (defined
+once, called from multiple notebooks); (2) **`exp3.notebook_setup()`** collapses the boilerplate to
+`S = exp3.notebook_setup()`; (3) **notebooks reorganized by research question** — `00_Main_Results`
+(thin) / `01_Did_It_Work` / `02_PTO_vs_GRPO` (absorbs `Exp3_DeepDive`) / `03_LookAhead_K` /
+`04_Mechanism_and_Behavior` / `05_Preference_LatentSpace`; (4) **full method-symmetry** — every per-arm
+analysis runs for both methods + training internals shown side-by-side (only the preference probe stays
+PTO-only, by construction); (5) new first-class helpers `stats.paired_method_comparison` /
+`paired_k_comparison`, `training.advantage_signal_by_iter` / `reward_distribution_frame`,
+`pref.pref_word_ranking`; (6) **exports trimmed to one format each** — PDF figures + Markdown tables,
+idempotent `CAPTIONS.md`. **Validated:** package smoke test + all six notebooks ran top-to-bottom via
+nbconvert (`thesis-venv313`) on the current disk state. See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "EDA refactor (2026-06-10)" + [eda/README.md](Exp3_PTO_GRPO/eda/README.md).
+
+**Landed (2026-06-09) — EDA rebuilt research-grade + first cross-method results.** Exp3's
+analysis EDA was rebuilt as the `eda/exp3/` package + notebooks (since reorganized — see the 2026-06-10
+entry above), with true-persona recovery, both stat batteries + repeated-measures (Friedman), and a
+thesis-export layer (`results/` figures + tables). Old Exp2 EDA frozen in `eda/archive_exp2/`.
 **First results (PTO LA0 0–10, GRPO LA0 0–3, PTO LA5 0–1 scored):** PTO LA0 Q1+Q2 3.00→4.26 (all rubrics
 large); **GRPO LA0 reaches 3.99 in 3 iters, climbs FASTER per-iter (slope 0.29 vs 0.12) and is
 significantly AHEAD of PTO at matched iter 3** → GRPO is competitive with PTO at matched budget (PTO's

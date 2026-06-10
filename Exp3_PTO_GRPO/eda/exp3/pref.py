@@ -249,6 +249,30 @@ def word_projection(words: list, word_mat: np.ndarray, directions: dict) -> pd.D
     return df
 
 
+def pref_word_ranking(word_projection: pd.DataFrame, *, top_n: int = 15,
+                      title: Optional[str] = None):
+    """Horizontal bar of the ``top_n`` most chosen- (green) vs rejected- (red) aligned words.
+
+    Takes the :func:`word_projection` frame (index = word, a ``mean`` column = pooled projection
+    onto the chosen−rejected preference direction). Pools over iterations via ``mean``. Returns a
+    ``fig`` (the notebook saves/shows it) — lives here (not ``plots.py``) so all PTO-preference
+    code stays in the one PTO-only module. Shared by ``00`` (headline) and ``05`` (detail).
+    """
+    import matplotlib.pyplot as plt
+    if word_projection.empty or "mean" not in word_projection.columns:
+        return None
+    top = (word_projection.sort_values("mean", ascending=False).head(top_n).index.tolist()
+           + word_projection.sort_values("mean").head(top_n).index.tolist())
+    s = word_projection.loc[top, "mean"].sort_values()
+    fig, ax = plt.subplots(figsize=(7, max(5, 0.22 * len(s))))
+    s.plot.barh(ax=ax, color=(s > 0).map({True: "#2ca02c", False: "#d62728"}))
+    ax.set_title(title or "Words by preference projection (green=chosen, red=rejected)")
+    ax.set_xlabel("projection onto chosen − rejected direction")
+    ax.axvline(0, color="grey", lw=0.6)
+    fig.tight_layout()
+    return fig
+
+
 def category_projection(directions: dict, categories: dict = None,
                         model_name: str = _DEFAULT_MODEL) -> pd.DataFrame:
     """Per (MI category, iter): mean projection of the category's words onto the preference direction.

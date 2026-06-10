@@ -119,6 +119,65 @@ def compare_two_models(scores_long: pd.DataFrame, model_a: str, model_b: str,
     return out
 
 
+# ── Controlled cross-arm comparisons (matched iteration, paired by persona) ──────
+def _common_iters(scores_long: pd.DataFrame, arm_a: str, arm_b: str) -> List[int]:
+    """Iterations scored for BOTH arms (the matched-budget comparison points)."""
+    ia = set(scores_long.loc[scores_long["arm"] == arm_a, "iteration"])
+    ib = set(scores_long.loc[scores_long["arm"] == arm_b, "iteration"])
+    return sorted(int(i) for i in (ia & ib))
+
+
+def _model_at(scores_long: pd.DataFrame, arm: str, it: int) -> Optional[str]:
+    s = scores_long[(scores_long["arm"] == arm) & (scores_long["iteration"] == it)]
+    return s["model"].iloc[0] if len(s) else None
+
+
+def _paired_arm_comparison(scores_long: pd.DataFrame, arm_a: str, arm_b: str,
+                           metrics: Optional[Sequence[str]] = None, **assign) -> pd.DataFrame:
+    """arm_a − arm_b at every common iteration, paired by persona across rubrics.
+
+    Reuses :func:`compare_two_models` per iteration. Returns an EMPTY frame when the two
+    arms share no scored iteration (graceful for thin/unscored arms). ``+ => arm_a higher``.
+    Extra ``assign`` kwargs are added as constant columns (e.g. ``K=0`` / ``method="PTO"``).
+    """
+    rows = []
+    for it in _common_iters(scores_long, arm_a, arm_b):
+        ma, mb = _model_at(scores_long, arm_a, it), _model_at(scores_long, arm_b, it)
+        if ma and mb:
+            rows.append(compare_two_models(scores_long, ma, mb, metrics).assign(iteration=it))
+    if not rows:
+        return pd.DataFrame()
+    out = pd.concat(rows, ignore_index=True)
+    for k, v in assign.items():
+        out[k] = v
+    return out
+
+
+def paired_method_comparison(scores_long: pd.DataFrame, method_a: str = "PTO",
+                             method_b: str = "GRPO", K: int = 0,
+                             metrics: Optional[Sequence[str]] = None) -> pd.DataFrame:
+    """PTO vs GRPO at MATCHED look-ahead K, paired by persona at every common iteration.
+
+    The thesis's core method comparison as a first-class tidy frame (columns: iteration,
+    metric, n, mean_delta, dz, p, p_holm, K). ``+ => method_a higher``. Empty if the two
+    arms (``{method}_LA{K}``) share no scored iteration.
+    """
+    return _paired_arm_comparison(scores_long, f"{method_a}_LA{K}", f"{method_b}_LA{K}",
+                                  metrics, K=K)
+
+
+def paired_k_comparison(scores_long: pd.DataFrame, method: str = "PTO",
+                        K_lo: int = 0, K_hi: int = 5,
+                        metrics: Optional[Sequence[str]] = None) -> pd.DataFrame:
+    """K_lo vs K_hi within ONE method (the look-ahead lever), paired by persona.
+
+    ``+ => K_lo higher``. Empty if the two arms (``{method}_LA{K}``) share no scored iteration
+    (the LA5 arms are thin → expect empty/short until the K=5 sweep lands).
+    """
+    return _paired_arm_comparison(scores_long, f"{method}_LA{K_lo}", f"{method}_LA{K_hi}",
+                                  metrics, method=method)
+
+
 # ── Trajectory ───────────────────────────────────────────────────────────────
 def trajectory_test(scores_long: pd.DataFrame, arm: str, metric: str) -> dict:
     """Is *metric* climbing over iterations for *arm*? Spearman + OLS slope on raw rows."""

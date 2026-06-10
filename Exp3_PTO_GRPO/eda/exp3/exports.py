@@ -1,10 +1,12 @@
 """
-exports.py — save publication figures + result tables for the thesis (portable formats).
+exports.py — save publication figures + result tables for the thesis (one format each).
 
-The thesis platform is undecided, so everything is written in formats that work for either
-LaTeX/Overleaf or Word:
-- figures → ``results/figures/<name>.pdf`` (vector, for LaTeX) **and** ``.png`` (200 dpi, for Word/preview)
-- tables  → ``results/tables/<name>.csv`` + ``.tex`` (booktabs-ready) + ``.md`` (paste-able)
+One artifact, one file — no duplicate formats cluttering ``results/``:
+- figures → ``results/figures/<name>.pdf`` (vector, for LaTeX/Overleaf)
+- tables  → ``results/tables/<name>.md`` (paste-able / readable)
+
+The ``formats=`` kwarg still lets a one-off call request extra formats explicitly (e.g.
+``save_fig(fig, name, formats=("pdf", "png"))``), but the defaults are a single format apiece.
 
 Notebooks keep showing plots inline AND call :func:`save_fig` / :func:`save_table` on their key
 artifacts with stable, thesis-ready names, so re-running a notebook regenerates its deliverables.
@@ -22,18 +24,31 @@ TABLES_DIR = os.path.join(RESULTS_DIR, "tables")
 
 
 def _append_caption(dir_path: str, name: str, caption: Optional[str]):
+    """Record (or refresh) the caption line for *name* in CAPTIONS.md — idempotent.
+
+    Re-running a notebook overwrites the existing line for that artifact instead of appending
+    a duplicate, so CAPTIONS.md stays one-line-per-artifact across reruns.
+    """
     if not caption:
         return
-    with open(os.path.join(dir_path, "CAPTIONS.md"), "a", encoding="utf-8") as f:
-        f.write(f"- **{name}** — {caption}\n")
+    path = os.path.join(dir_path, "CAPTIONS.md")
+    line = f"- **{name}** — {caption}\n"
+    lines = []
+    if os.path.exists(path):
+        with open(path, encoding="utf-8") as f:
+            lines = [l for l in f if not l.startswith(f"- **{name}** —")]
+    lines.append(line)
+    with open(path, "w", encoding="utf-8") as f:
+        f.writelines(lines)
 
 
-def save_fig(fig, name: str, *, formats: Sequence[str] = ("pdf", "png"),
+def save_fig(fig, name: str, *, formats: Sequence[str] = ("pdf",),
              dpi: int = 200, caption: Optional[str] = None) -> str:
     """Save *fig* to ``results/figures/<name>.<fmt>`` for each format; log the caption.
 
-    Vector ``pdf`` for LaTeX, 200-dpi ``png`` for Word/preview. Returns the figures dir.
-    Call right before/after ``plt.show()`` — the inline display is unaffected.
+    Defaults to vector ``pdf`` only (LaTeX/Overleaf). Pass ``formats=("pdf","png")`` for a
+    one-off extra. Returns the figures dir. Call right before/after ``plt.show()`` — the
+    inline display is unaffected.
     """
     os.makedirs(FIGURES_DIR, exist_ok=True)
     for fmt in formats:
@@ -42,13 +57,14 @@ def save_fig(fig, name: str, *, formats: Sequence[str] = ("pdf", "png"),
     return FIGURES_DIR
 
 
-def save_table(df: pd.DataFrame, name: str, *, formats: Sequence[str] = ("csv", "tex", "md"),
+def save_table(df: pd.DataFrame, name: str, *, formats: Sequence[str] = ("md",),
                float_format: str = "%.3f", index: bool = False,
                caption: Optional[str] = None) -> str:
-    """Save *df* to ``results/tables/<name>.{csv,tex,md}``; log the caption. Returns the tables dir.
+    """Save *df* to ``results/tables/<name>.<fmt>``; log the caption. Returns the tables dir.
 
-    ``.tex`` is booktabs-ready (``\\usepackage{booktabs}``); ``.md`` falls back to a manual writer if
-    ``tabulate`` isn't installed.
+    Defaults to ``.md`` only (paste-able / readable); pass ``formats=("md","csv","tex")`` for a
+    one-off extra. ``.tex`` is booktabs-ready (``\\usepackage{booktabs}``); ``.md`` falls back to a
+    manual writer if ``tabulate`` isn't installed.
     """
     os.makedirs(TABLES_DIR, exist_ok=True)
     base = os.path.join(TABLES_DIR, name)
