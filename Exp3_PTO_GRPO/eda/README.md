@@ -68,7 +68,7 @@ Train → it writes `conversations/full/<EXP>/model_iter_*` → add an `EXPERIME
 the notebooks pick it up automatically. (Only register `model_iter` dirs that actually contain convs.)
 
 ## Latest results
-Not hardcoded here (arms are still training). Run `00_Main_Results.ipynb`; the current snapshot +
+Not hardcoded here (arms are still training). Run `0_Headline.ipynb`; the current snapshot +
 interpretation lives in the `project-pto-la0-eval-results` memory.
 
 ---
@@ -76,46 +76,15 @@ interpretation lives in the `project-pto-la0-eval-results` memory.
 ## Improvement roadmap — making the EDA better & more readable
 Prioritized; none are blocking. Ordered by value-for-effort.
 
-**Landed in the 2026-06-10 (restructure) pass** (Lior's round-3 notes): notebooks **reorganized by
-purpose** into the 7 above (was 6 by research question); **concise evergreen markdown** with the
-`[EVAL]`/`[TRAINING]` tag per section; **all heavy tables moved to `6_Detailed_Stats`** and the headline
-"did it work" shown as an **`effect_forest`** dot-plot instead; **thin arms filtered** (no NaN rows);
-**violins dropped**. New analyses: `3_Training_Diagnostics` surfaces the **TensorBoard training curves**
-(`training.tb_curves`, self-contained parse); `4_Reward_Reliability` **rebuilds the Exp2 partial-conv
-reliability curve on Exp3 data** from the per-branch `prefix` in `generations.jsonl` (no new oracle pass)
-and contrasts LA0 vs LA5; `5_Preference_LatentSpace` gains **direction-drift (2D)**, **learned/unlearned
-words**, and a **K0-vs-K5** contrast. Remaining:
-
-**Landed in the 2026-06-10 (later) figure-readability pass** (roadmap items 1/3/4/10 + the four
-figures Lior flagged): (a) **pooled Base** — `scores.collapse_base` merges the 4 near-identical
-arm-bases into one descriptive `Base` for the cross-model bar/rank views (paired vs-base stats keep
-each arm's own base); (b) **subscales** — the unreadable 26-model × 3–4-subscale grouped-bar wall
-(`subscales_WAI_MITI.pdf`, retired) is replaced by `plots.subscale_trajectory_grid` (subscale lines
-across iterations, one panel per parent×arm → `subscale_trajectories.pdf`); (c) **preference drift** —
-`pref.pref_word_drift_heatmap` (top words × iteration) + `pref.plot_category_drift` (MI-concept lines)
-now show how the preference shifts over training, alongside the pooled `pref_word_ranking` snapshot;
-(d) **polish** — Okabe-Ito colourblind palette (PTO = cool, GRPO = warm, Base = grey), full
-no-abbreviation labels (`figures.clean_label`), single shared legends above grids, a dotted base line on
-bar figures, and the PC1≈91% **shared-factor caveat** printed under the trajectory grid; (e)
-**restructure** — `01` leads with the trajectory grid (headline) and demotes the per-model bars to an
-Appendix. Validated: package smoke + `00`/`01`/`05` ran top-to-bottom via nbconvert (`thesis-venv313`).
-
-**Landed in the 2026-06-10 (notebook-narrative) pass** (Lior's second round of notes): every notebook's
-markdown is now **evergreen + audience-framed** (what / for whom / what the output is — no numbers that
-go stale) with an explicit **[EVAL]** (full-conversation oracle scores) vs **[TRAINING]** (partial-conv
-branch rewards / preference pairs) tag per section, because the two were easy to confuse; the global
-all-vs-best **selection toggle was removed** in favour of a per-view choice (learning curves = all iters,
-leaderboard = best + Base, appendix = all); the redundant **QC section was dropped** from `01`; `05` now
-prints a **per-iteration top-words table + first→last MI-concept read-out**. Remaining:
-
-**Landed in the 2026-06-10 refactor** (readability + method-symmetry + research-question reorg):
-reorganized the notebooks by research question; moved the recurring figures into `exp3/plots.py`
-(hybrid plotting); added `notebook_setup()` to kill the boilerplate; made every per-arm analysis run
-for **both methods** (only the preference probe stays PTO-only by construction); lifted the buried
-cross-method/K comparisons into `stats.paired_method_comparison` / `paired_k_comparison`; added a
-symmetric `training.advantage_signal_by_iter`; trimmed exports to **one format each** (PDF figures, MD
-tables) with idempotent `CAPTIONS.md`; filled the takeaway cells; added the §6 artifact index in `00`
-(roadmap items 2, partial 1+3+4). Remaining:
+**Landed (2026-06-09 → 2026-06-10).** The `exp3/` package + disk-discovery + true-persona recovery +
+both stat batteries (2026-06-09 rebuild), then four passes of readability/restructure: hybrid plotting
+(recurring figures as `plots.py` functions) + `notebook_setup()`; **method-symmetry** (every per-arm
+view runs for both methods); the **7 by-purpose notebooks** above; concise evergreen markdown with the
+**`[EVAL]`/`[TRAINING]`** tag; pooled descriptive **Base** (`scores.collapse_base`); subscale
+**trajectories** (was a bar wall) + **`effect_forest`** (was the wide table) + reliability curve +
+TB curves + richer preference latent space; Okabe-Ito **colourblind palette**, full labels, base lines,
+**no violins**; heavy tables only in `6`, **thin arms filtered**. Full blow-by-blow lives in the Exp3
+`CLAUDE.md` log. **Remaining roadmap:**
 
 **Reproducibility / speed:**
 5. **Cache `scores_long` + `behavior_by_iter` to parquet.** `behavior`/`text_metrics` re-read ~2k
@@ -131,8 +100,6 @@ tables) with idempotent `CAPTIONS.md`; filled the takeaway cells; added the §6 
    known means reproduce, probe `wins_correct`>0.5) — a 10-second regression test after any change.
 9. **Unify styling.** `lib.set_plot_style` and `figures.set_style` both exist; the live EDA should use
    only `figures.set_style` (publication rcParams).
-10. **Annotate the oracle-noise band consistently** (~0.10) on trajectories so readers see which
-    differences are above the reproducibility floor (already in `00`; extend to `01`).
 
-**Recommended first pass:** 1 + 2 + 5 (narrative + caching) — biggest readability and speed gains for
-the least churn.
+**Recommended next:** 5 (parquet caching — biggest speed win now that the structure is settled) then 8
+(commit the self-check as a regression guard).

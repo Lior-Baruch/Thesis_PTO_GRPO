@@ -1,10 +1,10 @@
 """
 figures.py — small, reusable plotting *helpers* (not full plots).
 
-By design (v2) the actual seaborn/matplotlib code lives **inline in the notebooks** so every figure is
-visible and editable. This module only holds the bits worth sharing: a consistent style, a stable arm
-palette, the left-to-right model order, and a subplot-grid scaffold. Compose your plots in the
-notebook on top of the tidy `scores_long` / `behavior_by_iter` frames.
+Hybrid plotting: recurring figures are named functions in `plots.py`; one-off exploration stays inline
+in the notebooks. This module only holds the shared bits both rely on — a consistent style, the
+colourblind arm palette, the left-to-right model order, clean labels, a shared-legend helper, a dotted
+base-line helper, and a subplot-grid scaffold.
 """
 
 import re
