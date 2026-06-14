@@ -213,7 +213,8 @@ def rubric_pca(scores_long_or_wide, metrics: Optional[Sequence[str]] = None) -> 
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import StandardScaler
     wide = scores_long_or_wide if "Q1Q2" in scores_long_or_wide.columns else to_wide(scores_long_or_wide)
-    metrics = [m for m in (metrics or ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI"]) if m in wide.columns]
+    default = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "R:Q", "%CR", "%MICO"]
+    metrics = [m for m in (metrics or default) if m in wide.columns]
     X = wide[metrics].dropna()
     if len(X) < 3 or len(metrics) < 2:
         return {"metrics": metrics, "explained_variance_ratio": [], "pc1_loadings": {}}
@@ -222,6 +223,30 @@ def rubric_pca(scores_long_or_wide, metrics: Optional[Sequence[str]] = None) -> 
     return {"metrics": metrics,
             "explained_variance_ratio": pca.explained_variance_ratio_.tolist(),
             "pc1_loadings": dict(zip(metrics, pca.components_[0].round(3).tolist()))}
+
+
+def rubric_factor_space(scores_long_or_wide, metrics: Optional[Sequence[str]] = None) -> Optional[dict]:
+    """2-component PCA for the PC1×PC2 factor-space scatter (the halo-breaking figure).
+
+    Returns ``{points (n×2), loadings {metric:(x,y)}, explained (2,), metrics}`` or ``None`` if a
+    2-component PCA can't be fit. ``points`` are the standardized rows projected onto PC1/PC2;
+    ``loadings`` are the per-metric component weights (the arrow directions).
+    """
+    from sklearn.decomposition import PCA
+    from sklearn.preprocessing import StandardScaler
+    wide = scores_long_or_wide if "Q1Q2" in scores_long_or_wide.columns else to_wide(scores_long_or_wide)
+    default = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "R:Q", "%CR", "%MICO"]
+    metrics = [m for m in (metrics or default) if m in wide.columns]
+    X = wide[metrics].dropna()
+    if len(X) < 3 or len(metrics) < 2:
+        return None
+    Z = StandardScaler().fit_transform(X)
+    pca = PCA(n_components=2).fit(Z)
+    pts = pca.transform(Z)
+    comps = pca.components_
+    return {"points": pts, "metrics": metrics,
+            "explained": pca.explained_variance_ratio_[:2].tolist(),
+            "loadings": {m: (float(comps[0, i]), float(comps[1, i])) for i, m in enumerate(metrics)}}
 
 
 # ── Multiplicity ─────────────────────────────────────────────────────────────

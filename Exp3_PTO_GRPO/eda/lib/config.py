@@ -115,10 +115,12 @@ METHOD_DATA_DIR = {
 EVAL_QUESTIONNAIRE_DIRS = {
     "CSQ-8":  "CSQ8",
     "WAI-SR": "WAI_SR",
-    "MI-SAT": "MI_SAT",
     "MITI":   "MITI",
+    "MI-SAT": "MI_SAT",
     "Q1":     "Q1",
     "Q2":     "Q2",
+    "PCT":    "PCT",     # Patient Change Talk (orthogonal MI mechanism/outcome)
+    "MICI":   "MICI",    # MI-Inconsistent therapist behaviors (negative-valence)
 }
 
 
@@ -228,39 +230,39 @@ _GRPO_CONV = "data/grpo_Exp3/conversations"
 _PTO_EXP3_CONV = "data/pto_Exp3/conversations"
 
 EXPERIMENTS: List[Experiment] = [
-    # Base
-    Experiment("Base", None, None, f"{_PTO_CONV}/Base/Good_50_TT0.9_TP0.7_TE0.1"),
+    # # Base
+    # Experiment("Base", None, None, f"{_PTO_CONV}/Base/Good_50_TT0.9_TP0.7_TE0.1"),
 
-    # L0 WAI
-    *[
-        Experiment("WAI", 0, v, f"{_PTO_CONV}/WAI/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-        for v in range(1, 6)
-    ],
-    # L0 CSQ8
-    *[
-        Experiment("CSQ8", 0, v, f"{_PTO_CONV}/CSQ-8/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-        for v in range(1, 6)
-    ],
-    # L0 Q1Q2
-    *[
-        Experiment("Q1Q2", 0, v, f"{_PTO_CONV}/Q1Q2/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.2_V{v}")
-        for v in range(1, 6)
-    ],
-    # L5 WAI
-    *[
-        Experiment("WAI", 5, v, f"{_PTO_CONV}/WAI/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-        for v in range(1, 6)
-    ],
-    # L5 CSQ8
-    *[
-        Experiment("CSQ8", 5, v, f"{_PTO_CONV}/CSQ-8/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-        for v in range(1, 6)
-    ],
-    # L5 Q1Q2
-    *[
-        Experiment("Q1Q2", 5, v, f"{_PTO_CONV}/Q1Q2/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.2_V{v}")
-        for v in range(1, 11)
-    ],
+    # # L0 WAI
+    # *[
+    #     Experiment("WAI", 0, v, f"{_PTO_CONV}/WAI/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
+    #     for v in range(1, 6)
+    # ],
+    # # L0 CSQ8
+    # *[
+    #     Experiment("CSQ8", 0, v, f"{_PTO_CONV}/CSQ-8/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
+    #     for v in range(1, 6)
+    # ],
+    # # L0 Q1Q2
+    # *[
+    #     Experiment("Q1Q2", 0, v, f"{_PTO_CONV}/Q1Q2/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.2_V{v}")
+    #     for v in range(1, 6)
+    # ],
+    # # L5 WAI
+    # *[
+    #     Experiment("WAI", 5, v, f"{_PTO_CONV}/WAI/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
+    #     for v in range(1, 6)
+    # ],
+    # # L5 CSQ8
+    # *[
+    #     Experiment("CSQ8", 5, v, f"{_PTO_CONV}/CSQ-8/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
+    #     for v in range(1, 6)
+    # ],
+    # # L5 Q1Q2
+    # *[
+    #     Experiment("Q1Q2", 5, v, f"{_PTO_CONV}/Q1Q2/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.2_V{v}")
+    #     for v in range(1, 11)
+    # ],
 
     # ── Exp3 iterative runs (one entry per saved model_iter_N) ──────────────────
     # Pattern per run: the run's EXPERIMENT_NAME folder + per-iter conv subdir
@@ -275,12 +277,12 @@ EXPERIMENTS: List[Experiment] = [
     #   PTO LA0 → model_iter_0..10 ; PTO LA5 → model_iter_0..4
     #   (PTO LA5 model_iter_5 dir exists but is empty — iteration in flight).
 
-    # GRPO_Exp3 LA0 (convs model_iter_0..5)
+    # GRPO_Exp3 LA0 (convs model_iter_0..6)
     *[
         Experiment("Base" if n == 0 else "Q1Q2", 0, None,
                    f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
                    method="GRPO_Exp3", epoch=n)
-        for n in range(0, 6)
+        for n in range(0, 9)
     ],
     # GRPO_Exp3 LA5 (convs model_iter_0..1)
     *[

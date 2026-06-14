@@ -63,9 +63,29 @@ QUESTIONNAIRES = {
     "CSQ-8":  ("CSQ8",   "CSQ8_Mean"),
     "MI-SAT": ("MI_SAT", "MI_Mean"),
     "MITI":   ("MITI",   "MITI_GlobalMean"),
+    # Orthogonal axes (added 2026-06-14 to break the PC1≈91% warmth halo):
+    "PCT":    ("PCT",    "PCT_ChangeProp"),   # patient change-talk proportion CT/(CT+ST); higher = better
+    "MICI":   ("MICI",   "MICI_Rate"),        # MI-inconsistent behaviors per therapist turn; LOWER = better
 }
-# Left-to-right plot order for the 6 headline rubrics (+ Q1/Q2 components).
-QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "Q1", "Q2"]
+# Left-to-right plot order for the warmth rubrics (+ Q1/Q2 components) then the orthogonal axes.
+QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "Q1", "Q2"]
+
+# The 5 warmth/satisfaction rubrics that share the dominant PC1 factor (the redundancy set).
+WARMTH_RUBRICS = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI"]
+# Orthogonal axes intended to load OFF PC1 (incl. the free derived MITI-proficiency ratios).
+ORTHOGONAL_METRICS = ["PCT", "MICI", "R:Q", "%CR", "%MICO"]
+# Metrics where a LOWER value is better (must not be pooled into warmth composites / collapse_base).
+LOWER_IS_BETTER = {"MICI"}
+
+
+def display_label(metric: str) -> str:
+    """Human label for a metric, flagging lower-is-better with a trailing '↓'.
+
+    Used by leaderboards / forest plots so e.g. ``MICI`` reads ``MICI ↓`` and is never mistaken
+    for a higher-is-better rubric.
+    """
+    return f"{metric} ↓" if metric in LOWER_IS_BETTER else metric
+
 
 # Patient-characteristic columns recovered per persona.
 PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
@@ -73,14 +93,21 @@ PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
 
 
 # ── Public API re-exports (submodules import `from . import WORKSPACE_ROOT, ...`) ──
-from .discovery import Arm, discover_arms, parse_experiment_name  # noqa: E402
+from .config import EdaConfig  # noqa: E402
+from .discovery import Arm, discover_arms, parse_experiment_name, filter_arms  # noqa: E402
 from .personas import (  # noqa: E402
     canonical_personas, persona_order, file_to_persona,
     attach_personas, validate_recovery,
 )
-from .scores import load_scores_long, load_subscales, to_wide, collapse_base, MEAN_COLS  # noqa: E402
+from .scores import (  # noqa: E402
+    load_scores_long, load_subscales, to_wide, collapse_base, MEAN_COLS,
+    add_derived_mitiprof_rows, select_scores,
+)
 from .select import all_models, best_per_experiment  # noqa: E402
-from .exports import save_fig, save_table, RESULTS_DIR, FIGURES_DIR, TABLES_DIR  # noqa: E402
+from .exports import (  # noqa: E402
+    save_fig, save_table, save_provenance, build_index, reset_results, set_export_group,
+    RESULTS_DIR, FIGURES_DIR, TABLES_DIR,
+)
 
 # One-call notebook setup + the new cross-method / training-internal / plotting helpers.
 from .notebook import notebook_setup, Setup  # noqa: E402
@@ -100,12 +127,16 @@ from . import figures, plots, stats, behavior, training, pref  # noqa: E402,F401
 
 __all__ = [
     "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
-    "Arm", "discover_arms", "parse_experiment_name",
+    "WARMTH_RUBRICS", "ORTHOGONAL_METRICS", "LOWER_IS_BETTER", "display_label",
+    "EdaConfig",
+    "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "file_to_persona",
     "attach_personas", "validate_recovery",
     "load_scores_long", "load_subscales", "to_wide", "collapse_base", "MEAN_COLS",
+    "add_derived_mitiprof_rows", "select_scores",
     "all_models", "best_per_experiment",
-    "save_fig", "save_table", "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
+    "save_fig", "save_table", "save_provenance", "build_index", "reset_results", "set_export_group",
+    "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
     "notebook_setup", "Setup",
     "paired_method_comparison", "paired_k_comparison",
     "rank_agreement_by_nturns", "filter_thin_arms", "thin_arms",

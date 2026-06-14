@@ -125,6 +125,26 @@ def discover_arms(data_dir: str = DATA_DIR, *, include_archived: bool = False) -
     return arms
 
 
+def filter_arms(arms: List[Arm], *, methods=None, ks=None, modes=None,
+                arm_labels=None) -> List[Arm]:
+    """Filter a discovered arm list by method / K / mode / explicit label (each None = no filter).
+
+    Used by ``notebook_setup`` to honour ``EdaConfig`` arm selection. ``arm_labels`` is an explicit
+    whitelist on ``Arm.label`` (e.g. ``["PTO_LA0"]``), applied alongside the field filters.
+    """
+    def keep(a: Arm) -> bool:
+        if methods and a.method not in set(methods):
+            return False
+        if ks is not None and a.K not in set(ks):
+            return False
+        if modes and a.mode not in set(modes):
+            return False
+        if arm_labels and a.label not in set(arm_labels):
+            return False
+        return True
+    return [a for a in arms if keep(a)]
+
+
 def _read_seed_config(runs_dir: str):
     """Return ``(seed, config_dict)`` from ``run_metadata.json`` (defaults if absent)."""
     meta = os.path.join(runs_dir, "run_metadata.json")

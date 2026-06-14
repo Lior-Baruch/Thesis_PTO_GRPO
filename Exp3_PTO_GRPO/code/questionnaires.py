@@ -27,6 +27,8 @@ class QuestionnaireID(Enum):
     CSQ8 = 4
     MI_SAT = 6
     MITI = 7
+    PCT = 8   # Patient Change Talk (patient-perspective; change/sustain talk + readiness)
+    MICI = 9  # MI-Inconsistent therapist behaviors (negative-valence; higher = worse)
 
 
 class Questionnaire:
@@ -130,6 +132,76 @@ def make_miti_schema(questionnaire_id: Union[QuestionnaireID, int] = Questionnai
                     "MITI_B5_CR",
                     "MITI_B6_AF",
                     "MITI_B7_Seek"
+                ],
+                "additionalProperties": False,
+            },
+        },
+        "required": ["questionnaire_id", "globals", "behaviors"],
+        "additionalProperties": False,
+    }
+
+
+def make_pct_schema(questionnaire_id: Union[QuestionnaireID, int] = QuestionnaireID.PCT) -> dict:
+    """JSON Schema for PCT (Patient Change Talk): 3 globals (1-5) + 3 patient-utterance counts."""
+    qid = questionnaire_id.value if isinstance(questionnaire_id, QuestionnaireID) else questionnaire_id
+    return {
+        "type": "object",
+        "properties": {
+            "questionnaire_id": {"type": "integer", "enum": [int(qid)]},
+            "globals": {
+                "type": "object",
+                "properties": {
+                    "PCT_Importance": {"type": "integer", "minimum": 1, "maximum": 5},
+                    "PCT_Confidence": {"type": "integer", "minimum": 1, "maximum": 5},
+                    "PCT_Readiness": {"type": "integer", "minimum": 1, "maximum": 5},
+                },
+                "required": ["PCT_Importance", "PCT_Confidence", "PCT_Readiness"],
+                "additionalProperties": False,
+            },
+            "behaviors": {
+                "type": "object",
+                "properties": {
+                    "PCT_ChangeTalk": {"type": "integer", "minimum": 0},
+                    "PCT_SustainTalk": {"type": "integer", "minimum": 0},
+                    "PCT_Neutral": {"type": "integer", "minimum": 0},
+                },
+                "required": ["PCT_ChangeTalk", "PCT_SustainTalk", "PCT_Neutral"],
+                "additionalProperties": False,
+            },
+        },
+        "required": ["questionnaire_id", "globals", "behaviors"],
+        "additionalProperties": False,
+    }
+
+
+def make_mici_schema(questionnaire_id: Union[QuestionnaireID, int] = QuestionnaireID.MICI) -> dict:
+    """JSON Schema for MICI (MI-Inconsistent behaviors): 1 global (1-5) + 6 therapist-utterance counts."""
+    qid = questionnaire_id.value if isinstance(questionnaire_id, QuestionnaireID) else questionnaire_id
+    return {
+        "type": "object",
+        "properties": {
+            "questionnaire_id": {"type": "integer", "enum": [int(qid)]},
+            "globals": {
+                "type": "object",
+                "properties": {
+                    "MICI_Severity": {"type": "integer", "minimum": 1, "maximum": 5},
+                },
+                "required": ["MICI_Severity"],
+                "additionalProperties": False,
+            },
+            "behaviors": {
+                "type": "object",
+                "properties": {
+                    "MICI_Confront": {"type": "integer", "minimum": 0},
+                    "MICI_AdviseNoPermission": {"type": "integer", "minimum": 0},
+                    "MICI_Warn": {"type": "integer", "minimum": 0},
+                    "MICI_Direct": {"type": "integer", "minimum": 0},
+                    "MICI_Judge": {"type": "integer", "minimum": 0},
+                    "MICI_OverPraise": {"type": "integer", "minimum": 0},
+                },
+                "required": [
+                    "MICI_Confront", "MICI_AdviseNoPermission", "MICI_Warn",
+                    "MICI_Direct", "MICI_Judge", "MICI_OverPraise",
                 ],
                 "additionalProperties": False,
             },
@@ -632,6 +704,203 @@ def get_questionnaire_miti(conversation_text: str = "", change_goal: Optional[st
 
 
 # =============================================================================
+# PCT (Patient Change Talk) — patient-perspective MI mechanism/outcome
+# =============================================================================
+
+PCT_GLOBAL_LABELS = ["PCT_Importance", "PCT_Confidence", "PCT_Readiness"]
+PCT_BEHAVIOR_LABELS = ["PCT_ChangeTalk", "PCT_SustainTalk", "PCT_Neutral"]
+PCT_ALL_LABELS = PCT_GLOBAL_LABELS + PCT_BEHAVIOR_LABELS
+
+PCT_GLOBAL_ITEMS = {
+    "PCT_Importance": (
+        "How important does the CLIENT express that changing the target behavior is to them?",
+        [
+            "1 = Sees no importance in changing",
+            "2 = Slight importance",
+            "3 = Moderate importance",
+            "4 = High importance",
+            "5 = Change is extremely important to them",
+        ],
+    ),
+    "PCT_Confidence": (
+        "How confident does the CLIENT express they are in their ability to change?",
+        [
+            "1 = No confidence they can change",
+            "2 = Slight confidence",
+            "3 = Moderate confidence",
+            "4 = High confidence",
+            "5 = Fully confident they can change",
+        ],
+    ),
+    "PCT_Readiness": (
+        "How ready/committed does the CLIENT express they are to take action toward change?",
+        [
+            "1 = Not ready; resists/defends the status quo",
+            "2 = Slightly ready; ambivalent leaning away",
+            "3 = Contemplating; genuinely ambivalent",
+            "4 = Mostly ready; leaning toward action",
+            "5 = Committed; states intention/plan to change",
+        ],
+    ),
+}
+
+PCT_BEHAVIOR_ITEMS = {
+    "PCT_ChangeTalk": "Change Talk - client statements favoring change (desire, ability, reasons, need, commitment, activation, or taking steps toward the target behavior).",
+    "PCT_SustainTalk": "Sustain Talk - client statements favoring the status quo (reasons not to change, inability, or arguments to keep the current behavior).",
+    "PCT_Neutral": "Neutral - client utterances that are neither change talk nor sustain talk (small talk, factual answers, off-topic).",
+}
+
+
+def _count_patient_utterances(conversation_text: str) -> int:
+    """Count patient utterances in the transcript (turns prefixed with '[PATIENT]')."""
+    return len(re.findall(r"(?m)^\s*\[PATIENT\]", conversation_text or ""))
+
+
+def _build_pct_prompt(patient_utterance_count: int, change_goal: Optional[str] = None) -> str:
+    globals_block = []
+    for k, (question, anchors) in PCT_GLOBAL_ITEMS.items():
+        anchors_inline = " | ".join(anchors)
+        globals_block.append(f"{k}: {question}\nScale: {anchors_inline}\nRespond ONLY with 1-5.")
+    globals_block_str = "\n\n".join(globals_block)
+
+    behaviors_block = []
+    for k, desc in PCT_BEHAVIOR_ITEMS.items():
+        behaviors_block.append(f"{k}: {desc}\nRespond ONLY with a non-negative integer.")
+    behaviors_block_str = "\n\n".join(behaviors_block)
+
+    cg = change_goal or (
+        "Use the main behavior change goal implied by the conversation. "
+        "If unclear, infer the most reasonable behavioral target from context."
+    )
+
+    return f"""You are a certified Motivational Interviewing coder. Evaluate ONLY the CLIENT/PATIENT's language (not the therapist). Code the client's expressed motivation toward the change goal.
+
+Change Goal (target behavior):
+- {cg}
+
+Strict Instructions:
+1. Fill in ALL three global ratings (1-5) from the client's overall expressed perspective.
+2. Classify EACH [PATIENT] utterance into exactly one of Change Talk / Sustain Talk / Neutral.
+3. The three behavior counts must sum to patient_utterance_count = {patient_utterance_count}.
+4. Do NOT add commentary outside the JSON output.
+
+---
+### GLOBAL DIMENSIONS (client motivation)
+{globals_block_str}
+
+---
+### UTTERANCE COUNTS (classify every client turn)
+{behaviors_block_str}
+
+**Output your response as a JSON object:**
+{{"questionnaire_id": 8, "globals": {{"PCT_Importance": <1-5>, "PCT_Confidence": <1-5>, "PCT_Readiness": <1-5>}}, "behaviors": {{"PCT_ChangeTalk": <int>, "PCT_SustainTalk": <int>, "PCT_Neutral": <int>}}}}"""
+
+
+def get_questionnaire_pct(conversation_text: str = "", change_goal: Optional[str] = None) -> Questionnaire:
+    """Questionnaire 8: Patient Change Talk (3 global ratings + 3 patient-utterance counts = 6 outputs)."""
+    p_count = _count_patient_utterances(conversation_text)
+    return Questionnaire(
+        questionnaire_id=8,
+        questions_count=6,
+        questionnaire_prompt=_build_pct_prompt(p_count, change_goal=change_goal),
+        labels=PCT_ALL_LABELS,
+        scale_min=1,
+        scale_max=5,
+    )
+
+
+# =============================================================================
+# MICI (MI-Inconsistent therapist behaviors) — negative-valence (higher = worse)
+# =============================================================================
+
+MICI_GLOBAL_LABELS = ["MICI_Severity"]
+MICI_BEHAVIOR_LABELS = [
+    "MICI_Confront",
+    "MICI_AdviseNoPermission",
+    "MICI_Warn",
+    "MICI_Direct",
+    "MICI_Judge",
+    "MICI_OverPraise",
+]
+MICI_ALL_LABELS = MICI_GLOBAL_LABELS + MICI_BEHAVIOR_LABELS
+
+MICI_GLOBAL_ITEMS = {
+    "MICI_Severity": (
+        "Overall, how severe and frequent were the therapist's MI-INCONSISTENT behaviors (behaviors that work against the spirit of MI)?",
+        [
+            "1 = None; fully MI-consistent throughout",
+            "2 = Rare/minor lapses",
+            "3 = Occasional MI-inconsistent moves",
+            "4 = Frequent MI-inconsistent moves",
+            "5 = Pervasive; dominated by MI-inconsistent behavior",
+        ],
+    ),
+}
+
+MICI_BEHAVIOR_ITEMS = {
+    "MICI_Confront": "Confront - directly disagreeing, arguing, correcting, shaming, or warning in a way that opposes/criticizes the client.",
+    "MICI_AdviseNoPermission": "Advise without permission (righting reflex) - giving unsolicited advice, suggestions, or solutions without first asking permission.",
+    "MICI_Warn": "Warn - threatening or implying negative consequences if the client does not change.",
+    "MICI_Direct": "Direct - giving orders/commands or using imperative language to control the client ('you need to...', 'you have to...').",
+    "MICI_Judge": "Judge/Label - judging, blaming, labeling, or moralizing about the client.",
+    "MICI_OverPraise": "Over-praise (sycophancy) - effusive, generic, or excessive praise NOT tied to a specific client strength/effort ('you're amazing', 'I'm so proud of you'). A genuine, specific MI affirmation does NOT count here.",
+}
+
+
+def _build_mici_prompt(therapist_utterance_count: int, change_goal: Optional[str] = None) -> str:
+    globals_block = []
+    for k, (question, anchors) in MICI_GLOBAL_ITEMS.items():
+        anchors_inline = " | ".join(anchors)
+        globals_block.append(f"{k}: {question}\nScale: {anchors_inline}\nRespond ONLY with 1-5.")
+    globals_block_str = "\n\n".join(globals_block)
+
+    behaviors_block = []
+    for k, desc in MICI_BEHAVIOR_ITEMS.items():
+        behaviors_block.append(f"{k}: {desc}\nRespond ONLY with a non-negative integer.")
+    behaviors_block_str = "\n\n".join(behaviors_block)
+
+    cg = change_goal or (
+        "Use the main behavior change goal implied by the conversation. "
+        "If unclear, infer the most reasonable behavioral target from context."
+    )
+
+    return f"""You are a certified Motivational Interviewing Treatment Integrity coder. Evaluate ONLY the THERAPIST, and ONLY for MI-INCONSISTENT behavior (behavior that works against the spirit of MI). Do NOT count MI-consistent behavior here.
+
+Change Goal (target behavior):
+- {cg}
+
+Strict Instructions:
+1. Fill in the global severity rating (1-5) from the overall impression.
+2. Count each MI-inconsistent behavior across the therapist's turns. Use integers >= 0.
+3. A single therapist utterance may contain more than one MI-inconsistent behavior; an utterance with none contributes to no count. Counts therefore need NOT sum to the number of therapist turns (therapist_utterance_count = {therapist_utterance_count} is given only for rate context).
+4. Do NOT add commentary outside the JSON output.
+
+---
+### GLOBAL DIMENSION
+{globals_block_str}
+
+---
+### MI-INCONSISTENT BEHAVIOR COUNTS
+{behaviors_block_str}
+
+**Output your response as a JSON object:**
+{{"questionnaire_id": 9, "globals": {{"MICI_Severity": <1-5>}}, "behaviors": {{"MICI_Confront": <int>, "MICI_AdviseNoPermission": <int>, "MICI_Warn": <int>, "MICI_Direct": <int>, "MICI_Judge": <int>, "MICI_OverPraise": <int>}}}}"""
+
+
+def get_questionnaire_mici(conversation_text: str = "", change_goal: Optional[str] = None) -> Questionnaire:
+    """Questionnaire 9: MI-Inconsistent behaviors (1 global rating + 6 behavior counts = 7 outputs)."""
+    t_count = _count_therapist_utterances(conversation_text)
+    return Questionnaire(
+        questionnaire_id=9,
+        questions_count=7,
+        questionnaire_prompt=_build_mici_prompt(t_count, change_goal=change_goal),
+        labels=MICI_ALL_LABELS,
+        scale_min=1,
+        scale_max=5,
+    )
+
+
+# =============================================================================
 # MAIN API FUNCTIONS
 # =============================================================================
 
@@ -641,8 +910,18 @@ QUESTIONNAIRE_BUILDERS = {
     QuestionnaireID.WAI_SR.value: get_questionnaire_wai_sr,
     QuestionnaireID.CSQ8.value: get_questionnaire_csq8,
     QuestionnaireID.MI_SAT.value: get_questionnaire_mi_satisfaction,
-    # MITI is handled separately since it needs conversation_text
+    # MITI, PCT, MICI are handled separately since they need conversation_text
 }
+
+# Questionnaires whose builders require conversation_text (nested globals+behaviors schema).
+_CONV_TEXT_QUESTIONNAIRE_BUILDERS = {
+    QuestionnaireID.MITI.value: get_questionnaire_miti,
+    QuestionnaireID.PCT.value: get_questionnaire_pct,
+    QuestionnaireID.MICI.value: get_questionnaire_mici,
+}
+
+# Questionnaires using the nested {globals, behaviors} schema + parse branch.
+_NESTED_QUESTIONNAIRE_IDS = set(_CONV_TEXT_QUESTIONNAIRE_BUILDERS)
 
 def get_questionnaire(questionnaire_id: Union[QuestionnaireID, int], **kwargs) -> Questionnaire:
     """
@@ -657,8 +936,9 @@ def get_questionnaire(questionnaire_id: Union[QuestionnaireID, int], **kwargs) -
     """
     qid = questionnaire_id.value if isinstance(questionnaire_id, QuestionnaireID) else questionnaire_id
 
-    if qid == QuestionnaireID.MITI.value:
-        return get_questionnaire_miti(
+    conv_builder = _CONV_TEXT_QUESTIONNAIRE_BUILDERS.get(qid)
+    if conv_builder is not None:
+        return conv_builder(
             conversation_text=kwargs.get('conversation_text', ''),
             change_goal=kwargs.get('change_goal', None),
         )
@@ -728,6 +1008,10 @@ def get_prompt_eval_questionnaire(
     # Build schema
     if qid == QuestionnaireID.MITI.value:
         schema = make_miti_schema(questionnaire)
+    elif qid == QuestionnaireID.PCT.value:
+        schema = make_pct_schema(questionnaire)
+    elif qid == QuestionnaireID.MICI.value:
+        schema = make_mici_schema(questionnaire)
     else:
         schema = make_eval_schema(questionnaire, q.questions_count, q.scale_min, q.scale_max)
     
@@ -816,7 +1100,52 @@ def parse_json_response(response_content: Union[str, Dict[str, Any]], questionna
             'behavior_total': sum(behavior_scores),
             'questionnaire_id': questionnaire_id,
         }
-    
+
+    # PCT (Patient Change Talk): globals + patient-utterance counts
+    if qid == QuestionnaireID.PCT.value:
+        globals_dict = data.get("globals", {})
+        behaviors_dict = data.get("behaviors", {})
+        if len(globals_dict) != len(PCT_GLOBAL_LABELS):
+            raise ValueError(f"Expected {len(PCT_GLOBAL_LABELS)} globals, got {len(globals_dict)}")
+        if len(behaviors_dict) != len(PCT_BEHAVIOR_LABELS):
+            raise ValueError(f"Expected {len(PCT_BEHAVIOR_LABELS)} behaviors, got {len(behaviors_dict)}")
+        global_scores = [globals_dict[label] for label in PCT_GLOBAL_LABELS]
+        behavior_scores = [behaviors_dict[label] for label in PCT_BEHAVIOR_LABELS]
+        ct = behaviors_dict["PCT_ChangeTalk"]
+        st = behaviors_dict["PCT_SustainTalk"]
+        scores_dict = {**globals_dict, **behaviors_dict}
+        return {
+            'scores_dict': scores_dict,
+            'scores_list': global_scores + behavior_scores,
+            'globals': globals_dict,
+            'behaviors': behaviors_dict,
+            'mean_score': sum(global_scores) / len(global_scores),
+            'behavior_total': sum(behavior_scores),
+            'change_prop': (ct / (ct + st)) if (ct + st) > 0 else None,
+            'questionnaire_id': questionnaire_id,
+        }
+
+    # MICI (MI-Inconsistent behaviors): severity global + harmful-behavior counts
+    if qid == QuestionnaireID.MICI.value:
+        globals_dict = data.get("globals", {})
+        behaviors_dict = data.get("behaviors", {})
+        if len(globals_dict) != len(MICI_GLOBAL_LABELS):
+            raise ValueError(f"Expected {len(MICI_GLOBAL_LABELS)} globals, got {len(globals_dict)}")
+        if len(behaviors_dict) != len(MICI_BEHAVIOR_LABELS):
+            raise ValueError(f"Expected {len(MICI_BEHAVIOR_LABELS)} behaviors, got {len(behaviors_dict)}")
+        global_scores = [globals_dict[label] for label in MICI_GLOBAL_LABELS]
+        behavior_scores = [behaviors_dict[label] for label in MICI_BEHAVIOR_LABELS]
+        scores_dict = {**globals_dict, **behaviors_dict}
+        return {
+            'scores_dict': scores_dict,
+            'scores_list': global_scores + behavior_scores,
+            'globals': globals_dict,
+            'behaviors': behaviors_dict,
+            'mean_score': sum(global_scores) / len(global_scores),
+            'behavior_total': sum(behavior_scores),
+            'questionnaire_id': questionnaire_id,
+        }
+
     # Standard questionnaires with scores array
     scores = data.get("scores", [])
     if len(scores) != len(labels):

@@ -26,29 +26,67 @@ _ARM_COLORS = {
 }
 
 
-def set_style():
+# Plot-scale defaults read by grid() / plot functions when their args are omitted. Updated by
+# set_style(cfg) so an EdaConfig's panel/ncols/score_ylim/share_y propagate everywhere. Defaults
+# match the pre-refactor behaviour (grid ncols=3, panel=(5.0,3.2), no y-limit).
+_SCALE = {"panel": (5.0, 3.2), "ncols": 3, "score_ylim": None, "share_y": False,
+          "palette_overrides": {}}
+
+
+def set_style(cfg=None):
     """Consistent, publication-grade global style for every Exp3 figure.
 
     Whitegrid theme + tight, vector-friendly save defaults so `exports.save_fig` produces clean
-    PDF (editable text via fonttype 42) and 200-dpi PNG with no manual tweaking.
+    PDF (editable text via fonttype 42). When an ``EdaConfig`` is passed, its ``context``,
+    ``font_scale``, ``dpi``, ``savefig_dpi`` are applied and its ``panel``/``ncols``/``score_ylim``/
+    ``share_y``/``palette_overrides`` become the module-level defaults used by :func:`grid`,
+    :func:`apply_score_axis`, and :func:`arm_palette`.
     """
-    sns.set_theme(style="whitegrid", context="notebook")
+    context = getattr(cfg, "context", "notebook") or "notebook"
+    font_scale = getattr(cfg, "font_scale", 1.0) or 1.0
+    dpi = getattr(cfg, "dpi", 110) or 110
+    savefig_dpi = getattr(cfg, "savefig_dpi", 200) or 200
+    sns.set_theme(style="whitegrid", context=context, font_scale=font_scale)
     plt.rcParams.update({
-        "figure.dpi": 110, "savefig.dpi": 200,
+        "figure.dpi": dpi, "savefig.dpi": savefig_dpi,
         "savefig.bbox": "tight", "savefig.pad_inches": 0.03,
         "axes.titlesize": 12, "axes.titleweight": "bold",
         "pdf.fonttype": 42, "ps.fonttype": 42,   # editable/embeddable text in vector output
         "figure.autolayout": False,
     })
+    if cfg is not None:
+        # Only override when the cfg sets a value (None = inherit the pre-refactor default).
+        if getattr(cfg, "panel", None) is not None:
+            _SCALE["panel"] = tuple(cfg.panel)
+        if getattr(cfg, "ncols", None) is not None:
+            _SCALE["ncols"] = int(cfg.ncols)
+        _SCALE["score_ylim"] = getattr(cfg, "score_ylim", None)
+        _SCALE["share_y"] = bool(getattr(cfg, "share_y", False))
+        _SCALE["palette_overrides"] = dict(getattr(cfg, "palette_overrides", {}) or {})
 
 
 def arm_palette(labels: Sequence[str]) -> dict:
-    """Stable ``{arm_label: color}`` (unknown arms get tab10 fallbacks)."""
+    """Stable ``{arm_label: color}`` (cfg overrides > known Okabe-Ito > tab10 fallback)."""
     pal = {l: _ARM_COLORS.get(l) for l in labels}
     missing = [l for l in labels if pal[l] is None]
     for l, c in zip(missing, sns.color_palette("tab10", len(missing)).as_hex()):
         pal[l] = c
+    pal.update({l: c for l, c in _SCALE["palette_overrides"].items() if l in pal})
     return pal
+
+
+def apply_score_axis(ax, *, ylim=None, metric: str = ""):
+    """Apply the configured score y-limits to ``ax`` (no-op if neither cfg nor arg sets them).
+
+    ``ylim`` (arg) wins over the module default from ``set_style(cfg)``. Skipped for proportion /
+    rate metrics whose natural range differs from the 1–5 rubric scale.
+    """
+    lim = ylim if ylim is not None else _SCALE.get("score_ylim")
+    if lim is None:
+        return
+    if metric in {"PCT", "MICI", "R:Q", "%CR", "%MICO"}:   # different natural scale
+        return
+    ax.set_ylim(*lim)
 
 
 def model_order(scores_long) -> List[str]:
@@ -125,14 +163,19 @@ def figure_legend_from(ax, fig, *, title="arm", ncol: int = 4):
                    bbox_to_anchor=(0.5, 1.04), ncol=ncol, frameon=False, fontsize=8)
 
 
-def grid(n: int, ncols: int = 3, panel=(5.0, 3.2)):
+def grid(n: int, ncols: int = None, panel=None):
     """A ready (fig, axes_flat) grid sized for *n* panels; trailing axes hidden.
 
+    ``ncols``/``panel`` default to the values set by ``set_style(cfg)`` (the EdaConfig scales),
+    so a notebook that sets ``ncols=3, panel=(6,4)`` in cell 1 gets it everywhere.
+
     Usage in a notebook:
-        fig, axes = figures.grid(len(METRICS), ncols=3)
+        fig, axes = figures.grid(len(METRICS))
         for ax, m in zip(axes, METRICS):
             sns.lineplot(..., ax=ax)
     """
+    ncols = _SCALE["ncols"] if ncols is None else ncols
+    panel = _SCALE["panel"] if panel is None else panel
     nrows = int(np.ceil(n / ncols))
     fig, axes = plt.subplots(nrows, ncols, figsize=(panel[0] * ncols, panel[1] * nrows),
                              squeeze=False)

@@ -1,0 +1,2 @@
+- **reward_distribution_by_arm** — Per-candidate training reward per iteration, one panel per arm (oracle on partial-conv branches, not the full-conv eval).
+- **advantage_signal_sidebyside** — Method-native training advantage: GRPO mean group_std vs PTO chosen-rejected margin, per iteration.

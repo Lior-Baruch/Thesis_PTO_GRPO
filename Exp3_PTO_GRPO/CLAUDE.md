@@ -250,28 +250,27 @@ Exp3_PTO_GRPO/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
 │   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses lib/, registry-driven)
-│   ├── 0_Headline.ipynb               [EVAL] thin: 3 canonical thesis figures (headline outcomes vs pooled Base, vs-base effect FOREST, Q1+Q2 curve) + artifact index
-│   ├── 1_Eval_Results.ipynb           [EVAL] full-conv outcomes: trajectories + subscale trajectories + effect forest + PTO-vs-GRPO & K0-vs-K5 contrast FIGURES + leaderboard + appendix bars (heavy tables -> 6)
-│   ├── 2_Behavior_and_Mechanism.ipynb [EVAL] MITI behaviour drift + text metrics + rubric factor structure (PC1+corr) + heterogeneity by true persona + session-end + transcripts — ALL arms (no violins)
-│   ├── 3_Training_Diagnostics.ipynb   [TRAINING] TensorBoard training curves (tb_curves) + per-candidate reward dist + advantage signal (group_std/margin) + degeneration scan
-│   ├── 4_Reward_Reliability.ipynb     [TRAINING↔EVAL] rank-agreement-vs-n_turns curve (rebuilt on Exp3 from generations.jsonl prefix; LA0 vs LA5) + proxy-vs-eval scatter + PTO margin-by-branch-depth
-│   ├── 5_Preference_LatentSpace.ipynb [TRAINING] PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
-│   ├── 6_Detailed_Stats.ipynb         [EVAL] ALL heavy tables: main results + Friedman + paired method/K + per-arm vs-base + slopes + rankings + PCA (thin arms filtered)
-│   ├── Iteration_Reward_EDA.ipynb       extra: live in-flight training-reward trajectory from generations.jsonl (no oracle; uses lib)
+│   ├── 0_Headline.ipynb               [EVAL] group=headline — THIN: 3 canonical figs (best-vs-base bars, effect FOREST, Q1+Q2 curve) + master artifact index
+│   ├── 1_Eval_and_Behavior.ipynb      [EVAL] group=eval — MERGED eval+behaviour. A: all-rubric & subscale trajectories + ONE configurable overlay_trajectory contrast + SCORECARD (warmth + orthogonal axes) + appendix bars. B: MITI drift + factor structure (DIVERGING corr + factor-LOADINGS bars) + over-praise cross-check + ONE heterogeneity_grid/trait + session-end + transcripts
+│   ├── 2_Training_Diagnostics.ipynb   [TRAINING] group=training — TensorBoard curves (tb_curves) + per-candidate reward dist + advantage signal (group_std/margin) + degeneration scan
+│   ├── 3_Reward_Reliability.ipynb     [TRAINING↔EVAL] group=reliability — rank-agreement-vs-n_turns curve (LA0 vs LA5) + proxy-vs-eval scatter + PTO margin-by-branch-depth
+│   ├── 4_Preference_LatentSpace.ipynb [TRAINING] group=preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
+│   ├── 5_Detailed_Stats.ipynb         [EVAL] group=stats — ALL heavy tables: main results + Friedman + paired method/K + per-arm vs-base + slopes + rankings + PCA (thin arms filtered)
 │   ├── exp3/                            NEW Exp3 analysis package (disk-discovery, read-only; data+compute+stats+plots layer)
-│   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/PERSONA_COLS
-│   │   ├── notebook.py                  notebook_setup() → Setup(ARMS, SCORES, PALETTE, METRICS, ORACLE_NOISE, RESULTS_DIR) — kills the cell-1 boilerplate
-│   │   ├── discovery.py                 glob runs → Arm manifest (replaces the hand-maintained registry for analysis)
+│   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label
+│   │   ├── config.py                    EdaConfig — the single flat-globals control surface (arms/metrics/selection/scales/exports)
+│   │   ├── notebook.py                  notebook_setup(cfg) → Setup(ARMS, SCORES, PALETTE, METRICS, ORACLE_NOISE, RESULTS_DIR, CFG); filters arms, adds derived ratios, writes provenance
+│   │   ├── discovery.py                 glob runs → Arm manifest + filter_arms (by method/K/mode/label)
 │   │   ├── personas.py                  TRUE-persona recovery (replay seeded shuffle); fixes the old file-index join bug
-│   │   ├── scores.py                    tidy scores_long backbone + Q1Q2 composite + load_subscales + to_wide
+│   │   ├── scores.py                    tidy scores_long backbone + Q1Q2 composite + load_subscales + to_wide + add_derived_mitiprof_rows (R:Q/%CR/%MICO, idempotent)
 │   │   ├── select.py                    all-models vs best-per-experiment-by-own-oracle toggle
-│   │   ├── stats.py                     BOTH batteries + rigor: familiar (omnibus/Kruskal, mannwhitney_vs_base+FDR, rank_table); persona-paired (Wilcoxon/dz/bootstrap); Friedman+Kendall-W; main_results_table; paired_method_comparison (PTO-vs-GRPO) + paired_k_comparison (K0-vs-K5); rubric PCA/corr
-│   │   ├── behavior.py                  MITI behavior counts (eval) + regex text metrics (convs)
+│   │   ├── stats.py                     BOTH batteries + Friedman/Kendall-W + main_results_table + paired_method/k_comparison + rubric PCA/corr + rubric_factor_space (PC1×PC2)
+│   │   ├── behavior.py                  MITI behavior counts (eval) + MICI loader + over-praise cross-check + structural text metrics (semantic regex demoted to lex_* sanity-check)
 │   │   ├── training.py                  generations.jsonl proxy reward + degeneracy scan + pref_pairs + advantage_signal_by_iter / reward_distribution_frame (both methods)
 │   │   ├── pref.py                      PTO pref: margins + embeddings + Mass-Mean-Probe (preference_direction/word_projection/MI category_projection) + pref_word_ranking
-│   │   ├── plots.py                     NAMED figure functions (the hybrid core) — the recurring figures, defined once, called from multiple notebooks; return a fig
-│   │   ├── figures.py                   small SHARED helpers only (set_style publication rcParams, arm_palette, model_order, grid)
-│   │   └── exports.py                   save_fig (pdf only) / save_table (md only) → results/ ; idempotent CAPTIONS.md
+│   │   ├── plots.py                     NAMED figure functions (hybrid core) incl. overlay_trajectory (configurable contrast) + heterogeneity_grid + factor_loadings_bars + leaderboard_scorecard + diverging rubric_correlation_heatmap; trajectories take arms=/iters=
+│   │   ├── figures.py                   shared helpers: set_style(cfg) (cfg-aware scales) + arm_palette(+overrides) + model_order + grid + apply_score_axis
+│   │   └── exports.py                   save_fig (PNG default) / save_table (md+xlsx default) → results/<group>/ ; set_export_group + set_formats + save_provenance + build_index + reset_results
 │   ├── results/                         GENERATED thesis artifacts: figures/ (pdf) + tables/ (md) — re-created by running the notebooks
 │   ├── lib/                             OLD Exp2-era package — kept ONLY for Run_Eval scoring (NOT the new analysis)
 │   └── archive_exp2/                    FROZEN Exp2 EDA: Conv_EDA + Partial_Conv_Oracle_EDA + pref_emb + a frozen lib/ copy (see its README)
@@ -334,37 +333,90 @@ oracle pass) and contrasts **LA0 vs LA5** (does look-ahead make the short reward
 a **K0-vs-K5** preference contrast. **Validated:** package smoke + all 7 notebooks via nbconvert
 (`thesis-venv313`). The 2026-06-09/-10 notes above are kept as history.
 
+**Control + organization pass (2026-06-14, latest).** Added a single flat-globals control surface and
+reorganized exports + notebooks. **(1) `EdaConfig`** (new [exp3/config.py](code/../eda/exp3/config.py))
+bundles every knob — arm filter (`methods`/`ks`/`modes`/`arm_labels`), metric subset + `warmth_only` +
+`add_derived_mitiprof`, `selection` (all/best), plot scales (`context`/`font_scale`/`dpi`/`panel`/
+`ncols`/`score_ylim`/`share_y`/`palette_overrides`), and exports (`export_group`/`fig_formats`/
+`table_formats`). Cell 1 is now `cfg = exp3.EdaConfig(export_group=…)` → `S = notebook_setup(cfg)`
+(defaults reproduce old behaviour; `notebook_setup(cfg, k=v)` overrides on the fly). `notebook_setup`
+filters arms (`discovery.filter_arms`), applies scales (`figures.set_style(cfg)` + `_SCALE` defaults
+read by `grid`/`apply_score_axis`), appends the derived ratios (idempotent), and writes a **provenance
+banner**. **(2) Organized exports:** `save_fig`/`save_table` route into `results/<figures|tables>/
+<group>/` (`set_export_group`), per-group `CAPTIONS.md`, `build_index()`→`results/INDEX.md`,
+`save_provenance`, `reset_results`. The old flat dump was **wiped + regenerated** into the 6 group
+subfolders. **(3) Notebooks 7→6:** merged `0_Headline`+`1_Eval_Results` → **`0_Eval_Results`** (headline
+trio computed once — no duplicate forest — + full outcomes + contrasts + scorecard + appendix);
+renumbered `2…6 → 1…5`. **(4) Extras:** `plots.factor_space_scatter` (PC1×PC2 — warmth clusters on PC1,
+orthogonal axes load PC2; first read: PC1 59%, PC2 16% pooled), **diverging** `[-1,1]`
+`rubric_correlation_heatmap`, `plots.leaderboard_scorecard` (warmth + PCT/MICI↓/R:Q/%CR/%MICO),
+`display_label` (lower-is-better ↓). **Note:** PCT + MICI are now scored on disk — first read:
+GRPO_LA0 is more reflective (**R:Q 1.04** vs PTO 0.75) while PTO is slightly *less* MI-inconsistent
+(**MICI 0.49** vs GRPO 0.54). [pass-2 below superseded the biplot with `factor_loadings_bars`.]
+**Validated:** package smoke + all 6 notebooks via nbconvert (`thesis-venv313`).
+
+**Pass-2 polish (2026-06-14, latest) — formats + merge boundary + readable factor + per-figure control.**
+Addressed Lior's notes on the pass above. **(1) Outputs:** figures default to **PNG** images
+(`cfg.fig_formats=("png","pdf")` to also emit vector); tables default to **`.md` + `.xlsx`** (a per-group
+Excel workbook, one sheet per table — `exports._write_xlsx_sheet`, needs `openpyxl`). `save_fig`/
+`save_table` fall back to the cfg-set module defaults (`set_formats`). **(2) Merge boundary fixed:** the
+intended merge was eval+behaviour, not headline+eval — split back into a thin **`0_Headline`** (3 figs +
+index) and merged eval-results+behaviour into **`1_Eval_and_Behavior`**; `2…5` keep their numbers (titles
+renumbered to match). **(3) Factor figure made readable:** replaced the confusing PC1×PC2 biplot with
+**`plots.factor_loadings_bars`** (each metric's PC1/PC2 loading as bars — warmth rubrics ~0.44 on PC1,
+orthogonal axes ~0) + a plain-language caption. **(4) Control over repetition:** new
+`EdaConfig.focus_arms`/`focus_metric`; `exp3.select_scores(...)`; `arms=`/`iters=` on
+`single_metric_trajectory`/`trajectory_grid`; **`plots.overlay_trajectory(arms=[…])`** collapses the
+per-K + per-method contrast loops into ONE configurable cell; **`plots.heterogeneity_grid`** collapses
+the `char×arm` PNG explosion into one figure (panel per arm); the preference probe loops over
+`focus_arms ∩ PTO`. **Validated:** package smoke (PNG + xlsx sheet + select/overlay/heterogeneity/
+loadings) + all 6 notebooks via nbconvert (`thesis-venv313`); old flat `results/` wiped + regenerated.
+
 ### New EDA workflow (replaces "add registry entry → Conv_EDA")
 1. **Score** a new run: `Run_Eval.ipynb` still needs a `lib/config.py::EXPERIMENTS` entry to know what
    to grade (this one coupling remains by design). Run it → writes `eval_scores/`.
-2. **Analyze:** open `0_Headline` (regenerates the 3 canonical thesis figures into `results/`), then
-   `1`–`6` for the deeper analyses by purpose (each exports its own artifacts; `6_Detailed_Stats` holds
-   all the heavy tables). Every notebook's cell 1 is `S = exp3.notebook_setup()`. All **auto-discover**
-   every arm on disk via `exp3.discover_arms()` — no registry edit, no path literals. Selection (all vs
-   best-per-arm) is now decided per-view in code (no global toggle). Thesis figures/tables land in
-   `eda/results/` (PDF / MD).
+2. **Analyze:** open `0_Headline` (3 canonical figures + index), then `1_Eval_and_Behavior` (eval
+   outcomes + behaviour) and `2`–`5` for the deeper analyses (each exports its own artifacts;
+   `5_Detailed_Stats` holds all the heavy tables). Every notebook's cell 1 is
+   `cfg = exp3.EdaConfig(export_group=…, focus_arms=…)` → `S = exp3.notebook_setup(cfg)` — one
+   flat-globals config controls arms / metrics / selection / **focus_arms** / plot scales / exports
+   (figs **PNG**, tables **md+xlsx**). All **auto-discover** every arm via `exp3.discover_arms()` — no
+   registry edit. Artifacts land in **`eda/results/<figures|tables>/<group>/`** (`exp3.build_index()`
+   writes `results/INDEX.md`). Point any figure at a subset with `arms=`/`exp3.select_scores(...)`.
 3. Re-run is cheap; arms not yet scored are skipped gracefully (the cross-method/K cells degrade to a
    "not scored yet" banner; thin arms < 3 iters are skipped in the per-arm batteries).
 
 See [eda/README.md](eda/README.md) for the full notebook guide + an improvement roadmap.
 
-### Eval results so far (2026-06-09)
-Scored: **PTO LA0** iters 0–10, **GRPO LA0** iters 0–3, **PTO LA5** iters 0–1 (GRPO LA5 base only).
-Numbers in the EDA's `Q1Q2 = mean(Q1,Q2)` convention (full table: `results/tables/main_results_final.*`).
-- **PTO LA0:** Q1+Q2 3.00→4.26 over 10 iters; all 6 rubrics **large** effect vs base (paired dz 0.81–1.43,
-  Holm p<1e-10). Friedman W=0.45.
-- **GRPO LA0:** Q1+Q2 3.07→3.99 in just 3 iters; all rubrics **medium–large** (dz 0.61–1.15). OLS slope
-  **0.29/iter ≫ PTO's 0.12/iter** — climbs faster per iteration. Friedman W=0.36 (k=4).
-- **PTO vs GRPO @ matched K=0, matched iteration (paired):** tie at iters 1–2; **GRPO significantly AHEAD
-  at iter 3** (Q1Q2 Holm p=0.010, MITI p=0.003). ⇒ early read on the thesis's core question: **GRPO is
-  competitive with PTO — ahead at matched budget.** PTO's higher endpoint reflects 10 iters vs 3, not
-  per-iter superiority — needs GRPO run to ~10 iters for a fair endpoint.
-- **K0 vs K5 (PTO, iter 1 only):** no significant difference yet (too early).
-- **Behavior:** PTO's affirmation drift (B6_AF 0.42→1.64, turn_len 301→686, B3_Q 6.45→3.84) is a **LATE**
-  iter-6+ phenomenon; **GRPO LA0 (≤iter3) shows no drift yet** — so whether GRPO hacks the same way is
-  still open (run GRPO to ~10 iters to compare at matched late iters). Both kill degeneration loops
-  (loop%→0); 0% ChatML leak everywhere. The 6 rubrics share one factor (PC1≈91%), so "all up" is weak
-  multi-skill evidence. See the `project-pto-la0-eval-results` memory.
+### Eval results so far (updated 2026-06-14)
+Scored: **PTO LA0** iters 0–10, **GRPO LA0** iters 0–8, **PTO LA5** iters 0–4, GRPO LA5 base only.
+**All four arms now scored on the full battery incl. the new orthogonal axes** (PCT, MICI, and the
+derived R:Q/%CR/%MICO). Numbers in the EDA's `Q1Q2 = mean(Q1,Q2)` convention (full table:
+`results/tables/stats/main_results_final.md`; one-glance `results/tables/eval/leaderboard_scorecard.md`).
+- **Each arm vs base — large warmth gains.** PTO LA0 Q1+Q2 3.00→**4.26** (dz 1.43, Friedman W=0.45);
+  GRPO LA0 3.07→**4.08** at iter 8 (dz 1.22, W=0.40); PTO LA5 3.00→3.89 in 4 iters (dz 0.88). All warmth
+  rubrics **large** effect, Holm p≈0 everywhere.
+- **PTO vs GRPO (RQ-ii) — now a near-tie at matched budget.** With GRPO extended to iter 8, the earlier
+  "GRPO climbs 2.4× faster" was a 3-iter artifact: per-iter **slopes are now ~equal** (GRPO 0.128 ≈ PTO
+  0.120/iter). Paired @ matched iter: tie at 1–2, **GRPO ahead at iter 3** (Q1Q2 dz −0.33 p=0.014, MITI
+  p=0.003), **PTO ahead at iter 8** (Q1Q2 dz +0.31 p=0.028). Endpoints PTO 4.26 (10 iters) ≈ GRPO 4.08
+  (8 iters). ⇒ **GRPO is competitive with PTO** — the thesis's core answer, now on firmer footing.
+- **Reward-hacking / multi-skill — the orthogonal axes pay off.** As warmth rises, **MI-INCONSISTENT
+  behavior rises ~2.3–2.5×** (MICI base 0.21 → 0.49 PTO / 0.54 GRPO; dz 0.78/0.89) — the warmth gains
+  come *with* more over-praise/advice, in BOTH methods. **Affirmation drift is now confirmed in GRPO
+  too** (B6_AF 0.52→1.21, questions B3_Q 6.4→4.1, q/turn 0.83→0.23 by iter 8) — answers the 2026-06-09
+  open question. Style split: **GRPO is more reflective** (R:Q 1.04 > PTO 0.75, exceeds the MITI
+  proficiency threshold) and drops questions harder; **PTO over-praises slightly more** (B6_AF 1.64 vs
+  1.21). Patient **change-talk rises modestly**, more for PTO (PCT 0.49→0.63 medium vs GRPO 0.49→0.57
+  small). Both kill degeneration loops (loop% 0.49→0). **Adding the orthogonal axes drops PC1 from ≈91%
+  → ≈56%** (PC2 ≈16%): warmth is one factor; technique (R:Q/%CR/%MICO) + MICI form a second — so "all
+  rubrics up" is genuinely *not* multi-skill. (PCT partly loads on PC1 ≈0.39 — change-talk co-moves with
+  warmth.)
+- **PTO preference probe is real:** wins_correct 0.65→0.71 over iters (>0.5 = the chosen−rejected
+  direction separates the pairs), strengthening late.
+- **K0 vs K5 (RQ-i):** still preliminary — PTO LA5 only 4 iters, GRPO LA5 base only; no significant
+  K0-vs-K5 difference yet. **Both LA5 arms paused for cost.** See the `project-pto-la0-eval-results`
+  memory.
 
 ## Diagnostic: partial-conversation oracle (Partial_Conv_Oracle_EDA)
 
@@ -726,7 +778,18 @@ convs role-correct, `group_std` 0.013–2.04 (mean 0.28), floor reached training
 GRPO iter-2 then hit the local Blackwell save-time crash (hardware — training completed, save path
 untouched; see Gotchas / the local-crash memory). Full K∈{0,5} sweep runs on Colab regardless.
 
-## Sweep priority (updated 2026-06-07)
+## Sweep priority (updated 2026-06-11)
+
+**Run status + cost (2026-06-11).** PTO LA0 = 10 iters done; **GRPO LA0 running (iter 6)** (the
+fair-endpoint comparison vs PTO is in progress); **both LA5 arms PAUSED for cost** — OpenAI spend
+across the Exp3 runs + quicktests hit **~$300** and is now a binding constraint, so RQ-i (K0 vs K5) is
+on hold. The bill is dominated by oracle scoring + K=5 look-ahead patient calls (both ∝ candidate
+count × iterations); **caching is already maxed** (~50% off the oracle's rubric-first prefix — don't
+trim it), so reduce **call COUNT**: cap `NUM_ITERATIONS` ~5–6 (gains plateau by iter ~4 → ~40–50%
+saving, still a matched-iter comparison), `M`/`G` 8→4, PTO `GREEDY_TRUNK_TARGET_LEN`↓; keep **K** (the
+science) + the **gpt-4o-mini oracle** (comparability with already-scored data) fixed. Patient-model
+swap is possible but a science change — avoid. Estimate cost/arm from cell-1 config before launching +
+set an OpenAI hard usage limit. See the `project-openai-cost-constraint` memory.
 
 0. **Quicktest (both methods) — ✅ DONE 2026-06-07, validated LOCALLY end-to-end** (not Colab; the
    full notebooks ran via nbconvert, `RUN_MODE="quicktest"`, `WANDB_MODE=offline`, venv kernel
