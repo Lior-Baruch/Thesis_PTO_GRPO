@@ -129,6 +129,23 @@ def load_subscales(arms: Optional[List] = None) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def select_scores(scores_long: pd.DataFrame, *, arms: Optional[List] = None,
+                  iters: Optional[List] = None, metrics: Optional[List] = None) -> pd.DataFrame:
+    """Slice ``scores_long`` to chosen arms / iterations / metrics (each None = keep all).
+
+    The one selection helper every figure cell uses, so a notebook can point a plot at a subset
+    (e.g. ``select_scores(S.SCORES, arms=["PTO_LA0","GRPO_LA0"])``) instead of looping per arm.
+    """
+    d = scores_long
+    if arms is not None:
+        d = d[d["arm"].isin(list(arms))]
+    if iters is not None:
+        d = d[d["iteration"].isin(list(iters))]
+    if metrics is not None:
+        d = d[d["questionnaire"].isin(list(metrics))]
+    return d
+
+
 def collapse_base(scores_long: pd.DataFrame, *, label: str = "Base") -> pd.DataFrame:
     """Pool every arm's iter-0 base into ONE descriptive model row block.
 
@@ -154,6 +171,59 @@ def collapse_base(scores_long: pd.DataFrame, *, label: str = "Base") -> pd.DataF
     if "K" in out.columns:
         out.loc[base, "K"] = -1
     return out
+
+
+def add_derived_mitiprof_rows(scores_long: pd.DataFrame,
+                              arms: Optional[List] = None) -> pd.DataFrame:
+    """Append the **objective MITI-proficiency ratios** as extra ``questionnaire`` rows.
+
+    Derived for FREE from the already-scored MITI behavior counts (no oracle re-run):
+
+    - ``R:Q``   = (SR + CR) / Q                      — reflection-to-question ratio
+    - ``%CR``   = CR / (SR + CR)                      — proportion complex reflections
+    - ``%MICO`` = (SR+CR+AF+Seek) / (SR+CR+AF+Seek+Persuade)  — MI-consistent proportion
+
+    These ratios are technique metrics (not warmth halos), so they belong in the inter-rubric
+    correlation/PCA as candidate *orthogonal* axes. Rows are aligned to the existing
+    ``scores_long`` conversation identities by (arm, iteration, file_index), inheriting the full
+    key + persona columns, so they pivot onto the same rows in :func:`to_wide`.
+    Returns ``scores_long`` unchanged if MITI behavior data is unavailable.
+    """
+    from .behavior import load_miti_behavior
+    if scores_long.empty:
+        return scores_long
+    # Idempotent: notebook_setup already appends these, so a notebook re-calling is a no-op.
+    if "R:Q" in set(scores_long["questionnaire"].unique()):
+        return scores_long
+    miti = load_miti_behavior(arms, attach_persona=False)
+    if miti.empty:
+        return scores_long
+
+    def _ratio(num, den):
+        return num / den if (den is not None and den > 0) else None
+
+    recs = []
+    for _, r in miti.iterrows():
+        sr, cr = r.get("B4_SR") or 0, r.get("B5_CR") or 0
+        q, af, seek = r.get("B3_Q") or 0, r.get("B6_AF") or 0, r.get("B7_Seek") or 0
+        pers = r.get("B2_Persuade") or 0
+        mico = sr + cr + af + seek
+        recs.append({"arm": r["arm"], "iteration": r["iteration"], "file_index": r["file_index"],
+                     "R:Q": _ratio(sr + cr, q), "%CR": _ratio(cr, sr + cr),
+                     "%MICO": _ratio(mico, mico + pers)})
+    deriv = pd.DataFrame(recs)
+    if deriv.empty:
+        return scores_long
+
+    # Skeleton of conversation identities (full key + persona) from scores_long.
+    id_cols = [c for c in scores_long.columns if c not in ("questionnaire", "score")]
+    skel = scores_long[id_cols].drop_duplicates(["arm", "iteration", "file_index"])
+    merged = skel.merge(deriv, on=["arm", "iteration", "file_index"], how="inner")
+    if merged.empty:
+        return scores_long
+    long_new = merged.melt(id_vars=id_cols, value_vars=["R:Q", "%CR", "%MICO"],
+                           var_name="questionnaire", value_name="score").dropna(subset=["score"])
+    return pd.concat([scores_long, long_new], ignore_index=True)
 
 
 def to_wide(scores_long: pd.DataFrame, value: str = "score") -> pd.DataFrame:

@@ -13,7 +13,7 @@ Three controlled comparisons, all live in Exp3:
 ## Experiments (chronological)
 | | [Exp1_ICLR2025/](Exp1_ICLR2025/) | [Exp2_PTO/](Exp2_PTO/) | [Exp3_PTO_GRPO/](Exp3_PTO_GRPO/) |
 |---|---|---|---|
-| **Status** | Frozen — published | Complete — EDA verified | **Active — refactored; both trainers pending real runs** |
+| **Status** | Frozen — published | Complete — EDA verified | **Active — PTO LA0 (10 iters) + GRPO LA0 (8 iters) scored; LA5 arms thin/paused** |
 | **Therapist** | Llama-2-7B | Llama-3.2-1B (4-bit NF4) | Llama-3.2-1B (bf16) |
 | **Patient + oracle** | GPT-3.5 | gpt-4o-mini-2024-07-18 | gpt-4o-mini-2024-07-18 |
 | **Patient prompts** | V1 (cooperative) | V3 (less cooperative) | V3 |
@@ -73,6 +73,38 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
+**Run status + cost constraint (updated 2026-06-14).** PTO LA0 = 10 iters; **GRPO LA0 = 8 iters (done)**
+— the fair-endpoint PTO-vs-GRPO comparison is now in hand (near-tie; see results below). **Both LA5 arms
+remain PAUSED/thin** (PTO LA5 4 iters, GRPO LA5 base only) — OpenAI API spend hit **~$300** and is a
+binding constraint, so RQ-i (K0 vs K5) is on hold. Cost is dominated by oracle scoring + (at K=5)
+look-ahead patient calls, both ∝ candidate count (`prompts×G` / `branch-points×M`) × iterations;
+prompt caching is already maxed (~50% off the oracle's fixed prefix), so the only lever is call
+**COUNT**, not per-call price. Cheapest-science-cost cuts: cap `NUM_ITERATIONS` ~5–6 (our own curves
+plateau by iter ~4 → ~40–50% saving, compare at matched iter), drop `M`/`G` 8→4, and (PTO) lower
+`GREEDY_TRUNK_TARGET_LEN` — keep **K** (the RQ-i variable) and the **gpt-4o-mini oracle** (the
+measurement instrument) fixed. A supervisor-meeting deck (10 slides, editable PPTX + regenerator) is
+in [Exp3_PTO_GRPO/meetings/](Exp3_PTO_GRPO/meetings/). See the `project-openai-cost-constraint` memory.
+
+**Landed (2026-06-14, latest) — orthogonal eval axes + EDA control/exports overhaul + updated results.**
+Two threads. **(A) Eval made multi-dimensional.** The 6 rubrics correlated at PC1≈91% (all subjective
+warmth halos), so two **orthogonal questionnaires** were added to [questionnaires.py](Exp3_PTO_GRPO/code/questionnaires.py):
+**PCT** (patient change-talk vs sustain-talk + readiness, ID 8) and **MICI** (MI-inconsistent therapist
+behaviors incl. over-praise/sycophancy, ID 9, lower=better), plus the *free* derived MITI-proficiency
+ratios **R:Q / %CR / %MICO** promoted to first-class outcomes. Scored for all arms via `Run_Eval`.
+**Result: PC1 drops 91%→≈56%** — warmth is one factor; technique + MI-inconsistency form a second. The
+`text_metrics` semantic regexes were demoted to a lexical sanity-check (affirmation now = oracle MITI_B6_AF
+/ MICI over-praise). **(B) EDA refactored for control + organization (2 passes).** A single flat-globals
+**`EdaConfig`** (cell 1) now controls arms / metrics / selection / **focus_arms** / plot scales / exports;
+figures save as **PNG**, tables as **md + xlsx** (per-group Excel workbook); artifacts route into
+per-notebook `results/<figures|tables>/<group>/` + a master `INDEX.md` + provenance banners. Notebooks
+**7→6**: thin **`0_Headline`** + merged **`1_Eval_and_Behavior`** + `2_Training` / `3_Reward_Reliability`
+/ `4_Preference_LatentSpace` / `5_Detailed_Stats`. Repeated per-arm/K figure loops collapsed into ONE
+configurable cell each (`overlay_trajectory`, `heterogeneity_grid`, `arms=`/`select_scores`); the
+confusing PC1×PC2 biplot replaced by a readable **`factor_loadings_bars`**. **Updated results** below.
+Validated: package smoke + all 6 notebooks via nbconvert (`thesis-venv313`). See
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Eval results so far" + the `project-orthogonal-eval-axes`
+memory.
+
 **Landed (2026-06-10, latest) — EDA readability + restructure-by-purpose (3 review rounds with Lior).**
 Three iterative passes on top of the research-question refactor below, driven by Lior's feedback:
 **(round 1)** fixed the four poorly-reading figures — pooled the 4 near-identical arm-bases into one
@@ -116,14 +148,13 @@ nbconvert (`thesis-venv313`) on the current disk state. See
 analysis EDA was rebuilt as the `eda/exp3/` package + notebooks (since reorganized — see the 2026-06-10
 entry above), with true-persona recovery, both stat batteries + repeated-measures (Friedman), and a
 thesis-export layer (`results/` figures + tables). Old Exp2 EDA frozen in `eda/archive_exp2/`.
-**First results (PTO LA0 0–10, GRPO LA0 0–3, PTO LA5 0–1 scored):** PTO LA0 Q1+Q2 3.00→4.26 (all rubrics
-large); **GRPO LA0 reaches 3.99 in 3 iters, climbs FASTER per-iter (slope 0.29 vs 0.12) and is
-significantly AHEAD of PTO at matched iter 3** → GRPO is competitive with PTO at matched budget (PTO's
-higher endpoint = more iters). PTO's affirmation drift is a late (iter-6+) phenomenon, so the
-"is GRPO hacking too?" question needs GRPO run to ~10 iters. **Immediate next: run GRPO LA0 (and the LA5
-arms) to 10 iters** for a fair endpoint + late-iter behavior comparison. See
-[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Eval results so far" + [eda/README.md](Exp3_PTO_GRPO/eda/README.md);
-full numbers in the `project-pto-la0-eval-results` memory.
+**First results (this was the 0–3 GRPO snapshot; superseded by the 2026-06-14 entry above — kept as
+history).** PTO LA0 3.00→4.26; GRPO LA0 reached 3.99 in 3 iters and *looked* to climb 2.4× faster
+(slope 0.29 vs 0.12). **With GRPO since extended to iter 8 that fast-slope read normalized to a near-tie**
+(slopes ~0.12–0.13 both; alternating tiny edges), and the "is GRPO hacking too?" question is now
+**answered yes** (GRPO also affirmation-drifts late). Current numbers:
+[Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Eval results so far" +
+the `project-pto-la0-eval-results` memory.
 
 **Landed (2026-06-08) — sub-epoch checkpointing + hardened resume (both trainers).**
 Epochs are long (GRPO ~50 opt-steps/epoch × ~1.5–2 min/step with K=5), so per-epoch saves risked

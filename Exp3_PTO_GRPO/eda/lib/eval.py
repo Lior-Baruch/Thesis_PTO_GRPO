@@ -24,6 +24,9 @@ try:
         Q1_LABELS, Q2_LABELS, WAI_SR_LABELS, WAI_SR_SUBSCALES,
         CSQ8_LABELS, MI_SAT_LABELS,
         MITI_GLOBAL_LABELS, MITI_BEHAVIOR_LABELS,
+        PCT_GLOBAL_LABELS, PCT_BEHAVIOR_LABELS,
+        MICI_GLOBAL_LABELS, MICI_BEHAVIOR_LABELS,
+        _count_therapist_utterances,
     )
     EVAL_CODE_AVAILABLE = True
 except ImportError:
@@ -119,11 +122,40 @@ if EVAL_CODE_AVAILABLE:
         row["MITI_BehaviorTotal"] = float(np.nansum(bvals)) if bvals else np.nan
         return pd.DataFrame([row])
 
-    def _build_row(qid_enum, scores: dict) -> pd.DataFrame:
+    def _build_pct_row(scores: dict) -> dict:
+        # PCT (Patient Change Talk): 3 globals get a mean; 3 patient-utterance
+        # counts get a total + the orthogonal ChangeProp = CT / (CT + ST).
+        row = {k: scores.get(k, np.nan) for k in PCT_GLOBAL_LABELS}
+        row["PCT_GlobalMean"] = float(np.nanmean([row[k] for k in PCT_GLOBAL_LABELS]))
+        for k in PCT_BEHAVIOR_LABELS:
+            row[k] = scores.get(k, np.nan)
+        bvals = [row[k] for k in PCT_BEHAVIOR_LABELS if not pd.isna(row.get(k, np.nan))]
+        row["PCT_BehaviorTotal"] = float(np.nansum(bvals)) if bvals else np.nan
+        ct, st = row.get("PCT_ChangeTalk", np.nan), row.get("PCT_SustainTalk", np.nan)
+        denom = (0 if pd.isna(ct) else ct) + (0 if pd.isna(st) else st)
+        row["PCT_ChangeProp"] = float(ct / denom) if denom > 0 else np.nan
+        return row
+
+    def _build_mici_row(scores: dict, n_th_turns: int) -> dict:
+        # MICI (MI-Inconsistent): severity global + harmful-behavior counts.
+        # Higher = worse. Rate = total inconsistent behaviors per therapist turn.
+        row = {k: scores.get(k, np.nan) for k in MICI_GLOBAL_LABELS}
+        for k in MICI_BEHAVIOR_LABELS:
+            row[k] = scores.get(k, np.nan)
+        bvals = [row[k] for k in MICI_BEHAVIOR_LABELS if not pd.isna(row.get(k, np.nan))]
+        total = float(np.nansum(bvals)) if bvals else np.nan
+        row["MICI_BehaviorTotal"] = total
+        row["MICI_Rate"] = float(total / n_th_turns) if n_th_turns else np.nan
+        op = row.get("MICI_OverPraise", np.nan)
+        row["MICI_OverPraiseRate"] = float(op / n_th_turns) if (n_th_turns and not pd.isna(op)) else np.nan
+        return row
+
+    def _build_row(qid_enum, scores: dict, conv_str: str = "") -> pd.DataFrame:
         """Dispatch to the right row builder based on questionnaire id.
 
         Returns a single-row DataFrame for any questionnaire (MITI's builder
         already returns a DataFrame; simple/WAI return dicts wrapped here).
+        ``conv_str`` is used only by MICI to compute per-therapist-turn rates.
         """
         if qid_enum in _SIMPLE_ROW_SPECS:
             labels, mean_col, total_col = _SIMPLE_ROW_SPECS[qid_enum]
@@ -132,6 +164,10 @@ if EVAL_CODE_AVAILABLE:
             return pd.DataFrame([_build_wai_sr_row(scores)])
         if qid_enum == QuestionnaireID.MITI:
             return _build_miti_row(scores)
+        if qid_enum == QuestionnaireID.PCT:
+            return pd.DataFrame([_build_pct_row(scores)])
+        if qid_enum == QuestionnaireID.MICI:
+            return pd.DataFrame([_build_mici_row(scores, _count_therapist_utterances(conv_str))])
         # Unknown questionnaire — return raw scores dict as a single row.
         return pd.DataFrame([scores])
 
@@ -164,7 +200,7 @@ if EVAL_CODE_AVAILABLE:
             result = parse_json_response(
                 response_content=resp, questionnaire_id=questionnaire_id, labels=ed["labels"]
             )
-            return _build_row(qid_enum, result["scores_dict"])
+            return _build_row(qid_enum, result["scores_dict"], conv_str)
         except Exception as e:
             print(f"Error evaluating with questionnaire {qid_enum.value}: {e}")
             return None
@@ -184,6 +220,8 @@ if EVAL_CODE_AVAILABLE:
             ("MITI", QuestionnaireID.MITI),
             ("Q1", QuestionnaireID.Q1),
             ("Q2", QuestionnaireID.Q2),
+            ("PCT", QuestionnaireID.PCT),
+            ("MICI", QuestionnaireID.MICI),
         ]
         return [
             {

@@ -21,6 +21,12 @@ Three controlled comparisons (all live in **Exp3**):
 - **GRPO** = current policy simulates conversations → per-turn prompts (MCL filter) →
   GRPO update with optional `K`-turn look-ahead. The same conversations double as the eval set.
 
+The held-out **evaluation** scores each conversation on a battery of validated MI questionnaires.
+Because the warmth/satisfaction rubrics turned out highly collinear (one latent factor), the battery
+now also includes **orthogonal axes** — patient change-talk, MI-inconsistent behavior, and objective
+MITI technique ratios (reflection-to-question, %complex-reflection) — so a uniform "everything went up"
+can be distinguished from genuine multi-skill MI improvement.
+
 ## Repository layout
 
 | Dir | Status | Therapist | Patient + oracle |
@@ -73,8 +79,10 @@ These key files are git-ignored and must never be committed.
   or [.../PTO_Exp3/train_PTO_Iterative.ipynb](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
   Each notebook shows the per-iteration orchestration loop; shared helpers live in `code/_shared/`.
 - **Evaluation & EDA** (local) — `Exp3_PTO_GRPO/eda/Run_Eval.ipynb` runs the oracle scoring
-  pipeline; the `Conv_EDA` / `Partial_Conv_Oracle_EDA` notebooks and the `eda/lib/` package
-  produce the analysis.
+  pipeline; the analysis lives in the `eda/exp3/` package + six by-purpose notebooks
+  (`0_Headline` … `5_Detailed_Stats`). Each notebook's cell 1 is one `exp3.EdaConfig(...)` →
+  `notebook_setup(cfg)` controlling arms / metrics / plot scales / exports; figures save as PNG
+  and tables as Markdown + Excel into `eda/results/<figures|tables>/<group>/`.
 
 ## Hardware
 

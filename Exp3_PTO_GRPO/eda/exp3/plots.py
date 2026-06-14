@@ -19,6 +19,7 @@ from typing import Optional, Sequence, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import seaborn as sns
 
 from . import QUESTIONNAIRE_ORDER, figures
@@ -191,13 +192,18 @@ _SHARED_FACTOR_CAVEAT = ("The 6 rubrics load on ~one factor (PC1≈91%), so a un
 
 
 def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = None,
+                    arms: Optional[Sequence[str]] = None, iters: Optional[Sequence[int]] = None,
                     ncols: int = 3, caption: Optional[str] = _SHARED_FACTOR_CAVEAT):
     """Per-rubric mean ±95% CI across iterations, arms overlaid (one panel per rubric).
 
-    A single shared arm legend sits above the grid; ``caption`` (default = the PC1≈91%
-    shared-factor caveat) is printed under it so "all rubrics up" isn't read as multi-skill
-    evidence. Pass ``caption=None`` to suppress.
+    ``arms``/``iters`` select which arms/iterations to show (None = all). A single shared arm
+    legend sits above the grid; ``caption`` (default = the PC1≈91% shared-factor caveat) is printed
+    under it so "all rubrics up" isn't read as multi-skill evidence. Pass ``caption=None`` to suppress.
     """
+    if arms is not None:
+        scores_long = scores_long[scores_long.arm.isin(list(arms))]
+    if iters is not None:
+        scores_long = scores_long[scores_long.iteration.isin(list(iters))]
     metrics = _metrics(scores_long["questionnaire"].unique(), metrics)
     fig, axes = figures.grid(len(metrics), ncols=ncols, panel=(5.2, 3.2))
     for ax, m in zip(axes, metrics):
@@ -215,13 +221,20 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
 
 
 def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
+                             arms: Optional[Sequence[str]] = None,
+                             iters: Optional[Sequence[int]] = None,
                              oracle_noise: float = 0.10, baseline_arm: Optional[str] = None):
     """One-metric learning curve (arms overlaid) with an oracle-noise band around base.
 
-    ``baseline_arm`` anchors the grey ±``oracle_noise`` band; if ``None`` the first arm that has a
-    base row for *metric* is used (so this never assumes ``PTO_LA0`` exists).
+    ``arms``/``iters`` select which arms/iterations to overlay (None = all) — the lever for
+    "show only PTO_LA0 vs GRPO_LA0" without a separate hardcoded figure. ``baseline_arm`` anchors
+    the grey ±``oracle_noise`` band; if ``None`` the first arm with a base row is used.
     """
     d = scores_long[scores_long.questionnaire == metric]
+    if arms is not None:
+        d = d[d.arm.isin(list(arms))]
+    if iters is not None:
+        d = d[d.iteration.isin(list(iters))]
     fig, ax = plt.subplots(figsize=(8, 4.5))
     sns.lineplot(d, x="iteration", y="score", hue="arm", palette=palette, marker="o",
                  errorbar=("ci", 95), ax=ax)
@@ -240,20 +253,55 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
     return fig
 
 
-def method_contrast_overlay(scores_long, metric: str = "Q1Q2", *,
-                            pair: Tuple[str, str] = ("PTO_LA0", "GRPO_LA0"), palette):
-    """Overlay two arms' trajectories on one axis (the head-to-head contrast figure).
+def overlay_trajectory(scores_long, metric: str = "Q1Q2", *, arms: Sequence[str], palette,
+                       title: Optional[str] = None):
+    """Overlay ANY chosen arms' trajectories of *metric* on one axis — the configurable contrast.
 
-    Degrades to whatever arms in *pair* are present (one line if the partner is unscored).
+    One reusable figure for "PTO vs GRPO at K=0", "PTO K0 vs K5", or any arm set you pass — replaces
+    the old per-K / per-method contrast loops. Degrades to whichever of ``arms`` are present;
+    returns ``None`` if none are.
     """
-    d = scores_long[(scores_long.arm.isin(pair)) & (scores_long.questionnaire == metric)]
+    arms = list(arms)
+    d = scores_long[(scores_long.arm.isin(arms)) & (scores_long.questionnaire == metric)]
     if d.empty:
         return None
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    sns.lineplot(d, x="iteration", y="score", hue="arm", hue_order=[p for p in pair if p in set(d.arm)],
+    sns.lineplot(d, x="iteration", y="score", hue="arm", hue_order=[a for a in arms if a in set(d.arm)],
                  palette=palette, marker="o", errorbar=("ci", 95), ax=ax)
-    ax.set_title(f"{metric}: {pair[0]} vs {pair[1]} (matched)")
+    ax.set_title(title or f"{metric}: {' vs '.join(a for a in arms if a in set(d.arm))}")
     ax.set_xlabel("iteration"); ax.set_ylabel(metric)
+    fig.tight_layout()
+    return fig
+
+
+def method_contrast_overlay(scores_long, metric: str = "Q1Q2", *,
+                            pair: Tuple[str, str] = ("PTO_LA0", "GRPO_LA0"), palette):
+    """Back-compat thin wrapper around :func:`overlay_trajectory` for a two-arm ``pair``."""
+    return overlay_trajectory(scores_long, metric, arms=list(pair), palette=palette,
+                              title=f"{metric}: {pair[0]} vs {pair[1]} (matched)")
+
+
+def heterogeneity_grid(scores_long, char: str, *, arms: Optional[Sequence[str]] = None,
+                       metric: str = "Q1Q2", palette: str = "viridis", ncols: int = 2):
+    """ONE figure: *metric* across iterations split by persona ``char``, a panel per selected arm.
+
+    Replaces the old ``2 × N`` ``heterogeneity_{char}_{arm}`` PNG explosion — pick the trait + the
+    arms and get a single small-multiples grid. Arms with <3 scored iters (or missing ``char``) are
+    skipped. Returns ``None`` if nothing is plottable.
+    """
+    if char not in scores_long.columns:
+        return None
+    d = scores_long[scores_long.questionnaire == metric]
+    arm_list = [a for a in (arms if arms is not None else sorted(d.arm.unique()))
+                if d[(d.arm == a)].iteration.nunique() >= 3 and d[d.arm == a][char].notna().any()]
+    if not arm_list:
+        return None
+    fig, axes = figures.grid(len(arm_list), ncols=ncols, panel=(6.4, 3.8))
+    for ax, arm in zip(axes, arm_list):
+        sns.lineplot(d[d.arm == arm], x="iteration", y="score", hue=char, marker="o",
+                     palette=palette, ax=ax)
+        ax.set_title(f"{arm}"); ax.set_ylabel(metric)
+    fig.suptitle(f"{metric} by {char} (true persona) — per arm", y=1.02, fontweight="bold")
     fig.tight_layout()
     return fig
 
@@ -291,19 +339,95 @@ def faithfulness_proxy_vs_eval(scores_long, generations, *, metric: str = "Q1Q2"
 
 def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] = None,
                                corr_method: str = "spearman"):
-    """Inter-rubric correlation heatmap (pooled over conversations)."""
-    from . import stats
+    """Inter-rubric correlation heatmap (pooled over conversations).
+
+    Diverging ``[-1, 1]`` colormap so a genuinely ORTHOGONAL or anti-correlated axis (e.g. the
+    lower-is-better ``MICI``) shows as white/blue instead of being clipped to 0 — the whole point
+    of adding the new axes is to see them NOT block-correlate with the warmth rubrics. Labels are
+    sign-flagged via :func:`display_label` (lower-is-better metrics get a trailing ↓).
+    """
+    from . import stats, display_label
     corr = stats.rubric_correlation(scores_long, metrics=metrics, method=corr_method)
-    fig, ax = plt.subplots(figsize=(6, 5))
-    sns.heatmap(corr, annot=True, fmt=".2f", vmin=0, vmax=1, cmap="rocket_r", square=True, ax=ax)
+    labels = [display_label(m) for m in corr.columns]
+    fig, ax = plt.subplots(figsize=(6.2, 5.2))
+    sns.heatmap(corr, annot=True, fmt=".2f", vmin=-1, vmax=1, center=0, cmap="vlag",
+                square=True, xticklabels=labels, yticklabels=labels,
+                cbar_kws={"label": f"{corr_method.title()} ρ"}, ax=ax)
     ax.set_title(f"Inter-rubric correlation ({corr_method.title()}, pooled)")
     fig.tight_layout()
     return fig
 
 
+def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None,
+                         components: Sequence[str] = ("PC1",)):
+    """How much each metric belongs to the dominant 'warmth' factor — a readable loadings bar chart.
+
+    Standardized PCA over the (expanded) metric set; plots each metric's **loading** (correlation
+    with the factor) on PC1 (and PC2 if requested) as a horizontal bar, blue for the 5 warmth rubrics
+    and orange for the orthogonal axes. Reads in one glance: the warmth rubrics all load high on PC1
+    (≈0.44 each — one shared factor), while R:Q/%CR/%MICO/PCT/MICI load ≈0 on PC1 (they are NOT on
+    the warmth factor). Replaces the hard-to-read PC1×PC2 biplot. ``None`` if PCA can't be fit.
+    """
+    from . import stats, display_label
+    fs = stats.rubric_factor_space(scores_long, metrics=metrics)
+    if fs is None:
+        return None
+    load, evr, mets = fs["loadings"], fs["explained"], fs["metrics"]
+    comp_idx = {"PC1": 0, "PC2": 1}
+    comps = [c for c in components if comp_idx.get(c, 99) < len(evr)]
+    order = sorted(mets, key=lambda m: load[m][0])   # ascending PC1 loading
+    colors = ["#0072B2" if m in {"Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI"} else "#D55E00"
+              for m in order]
+    fig, axes = plt.subplots(1, len(comps), figsize=(4.6 * len(comps), 0.42 * len(order) + 1.2),
+                             squeeze=False)
+    y = np.arange(len(order))
+    for ax, comp in zip(axes.flat, comps):
+        vals = [load[m][comp_idx[comp]] for m in order]
+        ax.barh(y, vals, color=colors)
+        ax.set_yticks(y); ax.set_yticklabels([display_label(m) for m in order], fontsize=8.5)
+        ax.axvline(0, color="#888888", lw=0.8)
+        ax.set_xlabel(f"loading on {comp} ({evr[comp_idx[comp]]:.0%} of variance)")
+        ax.set_title({"PC1": "Dominant 'warmth' factor", "PC2": "Second factor"}.get(comp, comp))
+    from matplotlib.patches import Patch
+    fig.legend(handles=[Patch(color="#0072B2", label="warmth rubrics (one factor)"),
+                        Patch(color="#D55E00", label="orthogonal axes")],
+               loc="upper center", bbox_to_anchor=(0.5, 1.06), ncol=2, frameon=False, fontsize=8)
+    fig.tight_layout()
+    return fig
+
+
+def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = None,
+                          selection: str = "best"):
+    """One-glance scorecard: each arm's headline score per metric, warmth beside orthogonal axes.
+
+    ``selection="best"`` uses each arm's best iteration (by own oracle) + its base; ``"final"`` uses
+    the last iteration. Returns a tidy DataFrame (arm × metric) with lower-is-better metrics flagged
+    ``↓`` in the column name — drop straight into ``save_table``.
+    """
+    from . import best_per_experiment, all_models, display_label, ORTHOGONAL_METRICS
+    order = [m for m in (list(QUESTIONNAIRE_ORDER) + list(ORTHOGONAL_METRICS)) if m not in ("Q1", "Q2")]
+    present = [m for m in (metrics or order) if m in set(scores_long.questionnaire.unique())]
+    # "best" already filters to base + the own-oracle peak iteration per arm; both selections then
+    # take the highest remaining non-base iteration as the headline row.
+    sel = best_per_experiment(scores_long)[0] if selection == "best" else all_models(scores_long)
+    rows = []
+    for arm, g in sel.groupby("arm", sort=False):
+        nb = g[~g.is_base]
+        if nb.empty:
+            continue
+        pick = int(nb.iteration.max())
+        gg = nb[nb.iteration == pick]
+        row = {"arm": arm, "iteration": pick}
+        for m in present:
+            v = gg[gg.questionnaire == m]["score"]
+            row[display_label(m)] = round(float(v.mean()), 3) if len(v) else None
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
 # ── Behavior ─────────────────────────────────────────────────────────────────
 _DEFAULT_BEHAVIOR_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade",
-                             "RtoQ", "Empathy", "loop", "affirm_rate"]
+                             "RtoQ", "Empathy", "loop", "q_per_turn"]
 
 
 def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
