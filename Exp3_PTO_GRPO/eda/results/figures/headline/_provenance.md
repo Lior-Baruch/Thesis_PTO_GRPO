@@ -2,7 +2,7 @@
 
 - **arms scored:** ['GRPO_LA0', 'GRPO_LA5', 'PTO_LA0', 'PTO_LA5']
 - **metrics present:** ['%CR', '%MICO', 'CSQ-8', 'MI-SAT', 'MICI', 'MITI', 'PCT', 'Q1', 'Q1Q2', 'Q2', 'R:Q', 'WAI-SR']
-- **rows:** 30554
+- **rows:** 32851
 
 ## EdaConfig
 - `methods` = None
@@ -14,7 +14,7 @@
 - `add_derived_mitiprof` = True
 - `warmth_only` = False
 - `selection` = all
-- `focus_arms` = None
+- `focus_arms` = ['PTO_LA0', 'GRPO_LA0']
 - `focus_metric` = Q1Q2
 - `context` = notebook
 - `font_scale` = 1.0

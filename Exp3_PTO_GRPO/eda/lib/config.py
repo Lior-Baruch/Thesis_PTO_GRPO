@@ -282,7 +282,7 @@ EXPERIMENTS: List[Experiment] = [
         Experiment("Base" if n == 0 else "Q1Q2", 0, None,
                    f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
                    method="GRPO_Exp3", epoch=n)
-        for n in range(0, 9)
+        for n in range(0, 11)
     ],
     # GRPO_Exp3 LA5 (convs model_iter_0..1)
     *[

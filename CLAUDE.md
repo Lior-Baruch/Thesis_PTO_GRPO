@@ -13,7 +13,7 @@ Three controlled comparisons, all live in Exp3:
 ## Experiments (chronological)
 | | [Exp1_ICLR2025/](Exp1_ICLR2025/) | [Exp2_PTO/](Exp2_PTO/) | [Exp3_PTO_GRPO/](Exp3_PTO_GRPO/) |
 |---|---|---|---|
-| **Status** | Frozen — published | Complete — EDA verified | **Active — PTO LA0 (10 iters) + GRPO LA0 (8 iters) scored; LA5 arms thin/paused** |
+| **Status** | Frozen — published | Complete — EDA verified | **Active — PTO LA0 (10) + GRPO LA0 (10, FINISHED) scored; PTO ahead at matched endpoint (GRPO peaks @8 then regresses); LA5 arms thin/paused** |
 | **Therapist** | Llama-2-7B | Llama-3.2-1B (4-bit NF4) | Llama-3.2-1B (bf16) |
 | **Patient + oracle** | GPT-3.5 | gpt-4o-mini-2024-07-18 | gpt-4o-mini-2024-07-18 |
 | **Patient prompts** | V1 (cooperative) | V3 (less cooperative) | V3 |
@@ -73,9 +73,10 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Run status + cost constraint (updated 2026-06-14).** PTO LA0 = 10 iters; **GRPO LA0 = 8 iters (done)**
-— the fair-endpoint PTO-vs-GRPO comparison is now in hand (near-tie; see results below). **Both LA5 arms
-remain PAUSED/thin** (PTO LA5 4 iters, GRPO LA5 base only) — OpenAI API spend hit **~$300** and is a
+**Run status + cost constraint (updated 2026-06-15).** PTO LA0 = 10 iters; **GRPO LA0 = 10 iters (FINISHED, re-scored)**
+— the fair-endpoint PTO-vs-GRPO comparison is now in hand: **PTO wins at the matched 10-iter endpoint
+(4.26 vs 3.75) because GRPO peaks at iter 8 (4.08) then regresses into sycophancy; see results below.**
+**Both LA5 arms remain PAUSED/thin** (PTO LA5 4 iters, GRPO LA5 base only) — OpenAI API spend hit **~$300** and is a
 binding constraint, so RQ-i (K0 vs K5) is on hold. Cost is dominated by oracle scoring + (at K=5)
 look-ahead patient calls, both ∝ candidate count (`prompts×G` / `branch-points×M`) × iterations;
 prompt caching is already maxed (~50% off the oracle's fixed prefix), so the only lever is call
