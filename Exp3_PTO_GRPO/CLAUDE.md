@@ -8,8 +8,8 @@ under matched look-ahead + oracle:
   concurrency; M (`NUM_BRANCHES_PER_TURN`)=8 mirrors GRPO's `NUM_GENERATIONS`;
   `DPO_BETA`=0.1 kept (DPO loss temp, not GRPO's KL β). bf16 `USE_4BIT` toggle + a
   zero-pairs actionable error + train/eval split fix also landed. Output dir:
-  `data/pto_Exp3/`. The Exp2-sourced `data/pto_Exp2/` artifacts are still read by the
-  EDA registry but **not regenerated here** unless you re-run PTO_Exp3.
+  `data/pto_Exp3/`. (The Exp2-sourced `data/pto_Exp2/` reference artifacts + the frozen
+  `eda/archive_exp2/` EDA were **removed 2026-06-15** — Exp3 is the only axis now; see Data lineage.)
   **Two data-gen modes via `PREF_TREE_MODE` (2026-06-03):** `greedy` (default, true PTO
   — grow ONE trunk from an MCL prefix by appending best-of-M) and `independent` (the
   earlier behavior — branch each patient turn of a pre-recorded conv, no feedback).
@@ -235,11 +235,7 @@ Exp3_PTO_GRPO/
 │       ├── train_PTO_Iterative.ipynb    visible orchestration loop (mirrors GRPO_Exp3)
 │       └── pto_trainer.py               PTOConfig + run_one_iteration + build_pref_pairs_for_conversation + …
 ├── data/                               eval scores co-locate per method, labelled metric=<M>/oracle=<O>/ (M=scoring metric, O=training oracle)
-│   ├── pto_Exp2/                        Exp2-sourced PTO artifacts + their scores (NOT regenerated here)
-│   │   ├── pref_trees/{CSQ-8,CTRL,Q1Q2,WAI}/
-│   │   ├── eval_conversations/{Base,CSQ-8,CTRL,Q1Q2,WAI}/
-│   │   └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
-│   │                                        ↳ partial_q1q2/<Model>/{id}_t{n_turns}.csv  (Partial_Conv_Oracle_EDA cache)
+│   │                                    (the Exp2-sourced pto_Exp2/ reference was removed 2026-06-15)
 │   ├── grpo_Exp3/                       produced by GRPO_Exp3 runs
 │   │   ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training}/
 │   │   ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
@@ -272,8 +268,7 @@ Exp3_PTO_GRPO/
 │   │   ├── figures.py                   shared helpers: set_style(cfg) (cfg-aware scales) + arm_palette(+overrides) + model_order + grid + apply_score_axis
 │   │   └── exports.py                   save_fig (PNG default) / save_table (md+xlsx default) → results/<group>/ ; set_export_group + set_formats + save_provenance + build_index + reset_results
 │   ├── results/                         GENERATED thesis artifacts: figures/ (pdf) + tables/ (md) — re-created by running the notebooks
-│   ├── lib/                             OLD Exp2-era package — kept ONLY for Run_Eval scoring (NOT the new analysis)
-│   └── archive_exp2/                    FROZEN Exp2 EDA: Conv_EDA + Partial_Conv_Oracle_EDA + pref_emb + a frozen lib/ copy (see its README)
+│   └── lib/                             LEGACY package — kept ONLY for Run_Eval scoring (Exp3 registry; NOT the new analysis)
 └── HF_key.txt, openai_key.txt
 ```
 
@@ -301,8 +296,10 @@ no chosen/rejected pairs). The buried cross-method/K comparisons became
 `stats.paired_method_comparison`/`paired_k_comparison`; training internals became
 `training.advantage_signal_by_iter`/`reward_distribution_frame`. **Disk-discovery-driven** (no registry),
 **true-persona** recovery, **both** stat batteries. Exports trimmed to **one format each** (PDF figs /
-MD tables, idempotent `CAPTIONS.md`). Old Exp2-shaped `Conv_EDA`/`Partial_Conv_Oracle_EDA`/`pref_emb`
-remain **frozen in `eda/archive_exp2/`**. `eda/lib/` survives ONLY for `Run_Eval.ipynb` (registry-driven
+MD tables, idempotent `CAPTIONS.md`). (The old Exp2-shaped `Conv_EDA`/`Partial_Conv_Oracle_EDA`/`pref_emb`
+notebooks were **frozen in `eda/archive_exp2/`** and then **removed 2026-06-15** with the `pto_Exp2` data —
+the partial-conv reliability diagnostic now lives, rebuilt on Exp3 data, in `3_Reward_Reliability.ipynb`.)
+`eda/lib/` survives ONLY for `Run_Eval.ipynb` (registry-driven
 scoring). ⚠ The old `lib` patient-characteristic join is **wrong for Exp3** (per-iter shuffle) — use
 `exp3/personas.py`. **Validated 2026-06-10:** all six notebooks ran top-to-bottom via nbconvert
 (`thesis-venv313`) on the current disk state. See "New EDA workflow" below.
@@ -431,15 +428,21 @@ iter; one-glance `results/tables/eval/leaderboard_scorecard.md`).
   K0-vs-K5 difference yet. **Both LA5 arms paused for cost.** See the `project-pto-la0-eval-results`
   memory.
 
-## Diagnostic: partial-conversation oracle (Partial_Conv_Oracle_EDA)
+## Diagnostic: partial-conversation oracle (reward-faithfulness)
+
+> The original Exp2 version (`Partial_Conv_Oracle_EDA.ipynb` + its `pto_Exp2` cache) was **removed
+> 2026-06-15**. The diagnostic now lives, **rebuilt on Exp3 data with no new oracle calls**, in
+> [3_Reward_Reliability.ipynb](eda/3_Reward_Reliability.ipynb) (from the per-branch `prefix` in
+> `generations.jsonl`). The Exp2 finding below is kept as the original motivation for the MCL knob.
 
 **Question.** PTO and GRPO_Exp3 score *partial* conversations (slices as short
 as 2 turns) as their training reward, but the thesis evaluates on *final*
 full conversations. Is the partial reward a faithful proxy?
 
-**Method.** Pick `Base` + best `L5_Q1Q2_V*`. Slice each of their 96 convs at
+**Method (Exp2, historical).** Pick `Base` + best `L5_Q1Q2_V*`. Slice each of their 96 convs at
 every other patient turn, score every cut with Q1+Q2, compare against the
-existing final-conv Q1+Q2 scores. All cuts cached to `data/pto_Exp2/eval_scores/partial_q1q2/`.
+existing final-conv Q1+Q2 scores. (The Exp2 cut cache under `data/pto_Exp2/` is gone; the Exp3
+rebuild reuses cuts already in `generations.jsonl`.)
 
 **Headline.** Pairwise rank agreement (sign-of-difference vs final) is
 - only **0.66 (Base) / 0.73 (L5_V10)** at `n_turns=2` — barely above chance (0.5),
@@ -453,7 +456,7 @@ strong-looking openings regardless of follow-through.
 
 ## MIN_CONV_LENGTH filter — wired in both trainers
 
-Direct response to the Partial_Conv_Oracle_EDA finding.
+Direct response to the partial-conversation reliability finding above.
 
 - **GRPO_Exp3.** Cell 1's `MIN_CONV_LENGTH` → `TrainingConfig.min_conv_length` →
   `extract_prompts_from_conversations(min_conv_length=...)` in [_shared/convs.py](code/_shared/convs.py).
@@ -461,7 +464,7 @@ Direct response to the Partial_Conv_Oracle_EDA finding.
   mode it's where the **tree starts** (prefix length, must be EVEN so the prefix ends on
   a patient turn); in `independent` mode it's the slice filter (`build_pref_pairs_for_conversation`
   skips branch points whose conv-so-far is shorter). Either way: no training context below MCL.
-- **Semantics.** Drop slices/branches where the conversation-so-far has fewer than `MIN_CONV_LENGTH` total utterances (same `n_turns` unit as Partial_Conv_Oracle_EDA — therapist + patient combined).
+- **Semantics.** Drop slices/branches where the conversation-so-far has fewer than `MIN_CONV_LENGTH` total utterances (same `n_turns` unit as the partial-conv diagnostic — therapist + patient combined).
 - **Default = 2** = no-op. Recommended exploratory values: `10` (EDA's 0.8 threshold), `30` (0.9 threshold).
 - **Encoded in `EXPERIMENT_NAME`** as `_MCL{N}` so runs at different MCL never share an output folder.
 
@@ -880,8 +883,7 @@ files appear straight inside the repo; EDA reads through the link unchanged (all
 go via `WORKSPACE_ROOT/data/...`). EDA only reads `conversations/` + `eval_scores/`
 CSVs, so streaming downloads just those on open; big artifacts (`runs/`, adapters,
 `*.safetensors`) are never read locally and also live on HF Hub + W&B.
-`data/pto_Exp2` stays a **real local dir** (2.4 GB static reference EDA reads every
-run — do NOT link it).
+(The old `data/pto_Exp2` real local dir was **removed 2026-06-15** — Exp2 reference dropped.)
 
 Re-create the links (Windows **Developer Mode** on; use `mklink`, **not** PowerShell
 `New-Item -ItemType SymbolicLink` — WinPS 5.1 ignores Dev Mode and still demands admin):
@@ -896,8 +898,7 @@ To undo: delete the **link** (`Remove-Item "$R\grpo_Exp3"`) — Drive data untou
 **Code push (local → Drive for Colab) is manual, `code/` only.** The whole `code/`
 tree was pushed to `G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code\` (2026-06-01, robocopy) —
 that's all Colab needs; open a `train_*_Iterative.ipynb` from there in Colab. Do **not**
-push `data/` (the symlink targets already live in Drive; `pto_Exp2` is a 2.4 GB local-only
-reference) or `eda/` (local-only). Keys come from **Colab Secrets** (`OPENAI_API_KEY`,
+push `data/` (the symlink targets already live in Drive) or `eda/` (local-only). Keys come from **Colab Secrets** (`OPENAI_API_KEY`,
 `huggingface`, `wandb`), not the `.txt` files. After editing code locally, push the update by **dragging the `code` folder** onto the Drive
 `Exp3_PTO_GRPO\` parent — a merge that adds/overwrites but **never deletes** (Lior's default).
 For an exact mirror that also **removes** files you renamed/deleted, robocopy `/MIR` — but it
@@ -923,7 +924,6 @@ below apply to the **old `lib/` package**, which now only powers `Run_Eval.ipynb
 ## Gotchas
 
 - **HF model-card READMEs** inside `data/grpo_Exp3/runs/.../checkpoint-*/` are auto-generated — DO NOT delete or treat as project docs.
-- **`Partial_Conv_Oracle_EDA` knobs** `MIN_TURNS=2` and `SAMPLE_EVERY_N_PATIENT_TURNS=2` are part of the cache key — changing them invalidates `data/pto_Exp2/eval_scores/partial_q1q2/`.
 - **Pref-tree audit trail = resume marker.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — it's both the DPO debug trail AND the Step-2 completion marker: its presence makes a restart **reload it and skip the ~41-min build** (see "Step-2 (pref-build) resume"). The sibling `iteration_N/pref_pairs/_progress.json` is the in-build per-step checkpoint (auto-deleted on success; safe to delete manually to force a clean rebuild).
 - **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Per-generation EDA capture") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **An archived 23 MB K=3 PTO_Exp3 smoke-test** from the V4 era lives in `../archive/pto_v2_smoke/`. Ignore for new work.

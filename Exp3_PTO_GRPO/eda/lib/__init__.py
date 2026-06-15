@@ -74,22 +74,10 @@ from .data import (  # noqa: E402
     select_best_models_by_own_oracle, filter_to_models, build_merged_metrics,
 )
 
-from .analysis import (  # noqa: E402
-    # Stats
-    format_pvalue, cohens_d, interpret_effect_size,
-    iter_metric_cases, run_full_stats_battery, fdr_correct,
-    compare_all_vs_baseline, compare_all_pairwise, compare_lookahead,
-    # Plots
-    plot_metric_by_model, plot_subscales, plot_all_metrics_grid,
-    plot_metrics_by_patient_characteristic, plot_correlation_heatmaps,
-    plot_session_ending,
-)
-
-from .iterations import (  # noqa: E402
-    # Cross-iteration training-reward EDA (reads iteration_N/eda/generations.jsonl)
-    load_generations, aggregate_reward_by_iter, scan_degeneracy,
-    plot_reward_trajectory,
-)
+# NOTE: the legacy analysis/plots + cross-iteration training-reward EDA modules
+# (lib/analysis.py, lib/iterations.py) were removed 2026-06-15 — they only served
+# the now-deleted Exp2 archive notebooks. The current Exp3 analysis lives in the
+# `exp3/` package; `lib/` survives ONLY to power Run_Eval.ipynb's oracle scoring.
 
 # Eval pipeline (oracle scoring) — re-exported behind a flag because the
 # questionnaires module needs to be reachable on sys.path. The path prepend
@@ -126,16 +114,6 @@ __all__ = [
     "compute_model_order", "apply_model_order", "build_experiment_palette",
     "load_all_eval_results", "merge_q1_q2_results", "build_test_cases",
     "select_best_models_by_own_oracle", "filter_to_models", "build_merged_metrics",
-    # analysis
-    "format_pvalue", "cohens_d", "interpret_effect_size",
-    "iter_metric_cases", "run_full_stats_battery", "fdr_correct",
-    "compare_all_vs_baseline", "compare_all_pairwise", "compare_lookahead",
-    "plot_metric_by_model", "plot_subscales", "plot_all_metrics_grid",
-    "plot_metrics_by_patient_characteristic", "plot_correlation_heatmaps",
-    "plot_session_ending",
-    # iterations (cross-iteration training-reward EDA)
-    "load_generations", "aggregate_reward_by_iter", "scan_degeneracy",
-    "plot_reward_trajectory",
     # eval (gated)
     "EVAL_CODE_AVAILABLE",
 ]
