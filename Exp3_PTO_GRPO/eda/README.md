@@ -101,20 +101,26 @@ analysis: **`plots.factor_loadings_bars`** (readable PC1/PC2 loadings — replac
 `plots.leaderboard_scorecard` (warmth + orthogonal axes), diverging `rubric_correlation_heatmap`,
 `stats.rubric_factor_space`, `display_label` (lower-is-better ↓).
 
-`lib/` is the OLD Exp2 package, kept only for `Run_Eval` scoring. `archive_exp2/` is the frozen Exp2 EDA.
+Two packages, by purpose: **`exp3/`** = the current analysis layer (notebooks `0`–`5`, disk-discovery,
+no registry) and **`lib/`** = the legacy package kept ONLY to power `Run_Eval.ipynb`'s oracle scoring
+(its `EXPERIMENTS` registry is Exp3-only). The frozen Exp2 EDA (`archive_exp2/`) and the `data/pto_Exp2/`
+reference data were removed 2026-06-15 — the Exp2 partial-conv reliability diagnostic now lives, rebuilt
+on Exp3 data, in `3_Reward_Reliability.ipynb`.
 
 ## Adding a new run
 Train → it writes `conversations/full/<EXP>/model_iter_*` → add an `EXPERIMENTS` entry → `Run_Eval` →
 the notebooks pick it up automatically. (Only register `model_iter` dirs that actually contain convs.)
 
-## Latest results (snapshot 2026-06-14)
-Scored: **PTO LA0** 0–10, **GRPO LA0** 0–8, **PTO LA5** 0–4, GRPO LA5 base — all on the full battery
-incl. the orthogonal axes (PCT, MICI, R:Q/%CR/%MICO). Headlines: large warmth gains vs base (PTO LA0
-Q1+Q2 4.26, GRPO LA0 4.08); **PTO vs GRPO is a near-tie at matched budget** (slopes ~0.12–0.13/iter);
-the orthogonal axes show the warmth gains come *with* a ~2.3× rise in **MI-inconsistent** behavior and
-**affirmation drift in both methods** (so "all rubrics up" is not multi-skill — PC1 drops 91%→≈56% once
-the new axes are included). Regenerate with `0_Headline.ipynb` + `1_Eval_and_Behavior.ipynb`; full
-numbers in `5_Detailed_Stats` and the `project-pto-la0-eval-results` memory.
+## Latest results (snapshot 2026-06-15)
+Scored: **PTO LA0** 0–10, **GRPO LA0** 0–10 (finished), **PTO LA5** 0–4, GRPO LA5 base — all on the full
+battery incl. the orthogonal axes (PCT, MICI, R:Q/%CR/%MICO). Headlines: large warmth gains vs base
+(PTO LA0 Q1+Q2 4.26; GRPO LA0 peaks 4.08 @ iter 8 then **regresses to 3.75 @ iter 10**); **PTO is ahead
+at the matched 10-iter endpoint** (4.26 vs 3.75, dz +0.73) — GRPO is competitive only up to its peak,
+then overshoots into sycophancy. The orthogonal axes show the warmth gains come *with* a ~2.3× rise in
+**MI-inconsistent** behavior and **affirmation drift in both methods** (so "all rubrics up" is not
+multi-skill — PC1 drops 91%→≈56% once the new axes are included). Regenerate with `0_Headline.ipynb` +
+`1_Eval_and_Behavior.ipynb`; full numbers in `5_Detailed_Stats` and the `project-pto-la0-eval-results`
+memory.
 
 ---
 

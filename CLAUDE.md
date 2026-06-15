@@ -23,21 +23,21 @@ Three controlled comparisons, all live in Exp3:
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | all 6 questionnaires |
-| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | + `lib/` package, `Partial_Conv_Oracle_EDA.ipynb`, per-generation `iteration_N/eda/generations.jsonl` |
+| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `exp3/` analysis package + notebooks `0`–`5`; `lib/` kept only for `Run_Eval` scoring; per-generation `iteration_N/eda/generations.jsonl` |
 | **Convs / models** | (paper figures) | 4,512 / 47 | 3,456 / 36 (PTO Exp2 data) + new GRPO/PTO_Exp3 runs pending |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
 ## Data lineage
 - **Exp1 → Exp2:** independent re-implementation. Stronger oracle, harder patients, JSON-schema rubric, more questionnaires. No data flow.
-- **Exp2 → Exp3:** PTO `pref_trees/` and `eval_conversations/` for {Base, Q1Q2, WAI, CSQ-8, CTRL} were **copied** into `Exp3_PTO_GRPO/data/pto_Exp2/`. The Exp2 PTO results stand as a reference baseline. GRPO V1 baseline from Exp2 was **dropped** (Exp3 focuses on PTO_Exp3 vs GRPO_Exp3 only).
+- **Exp2 → Exp3:** PTO `pref_trees/` and `eval_conversations/` for {Base, Q1Q2, WAI, CSQ-8, CTRL} were originally **copied** into `Exp3_PTO_GRPO/data/pto_Exp2/` as a reference baseline, but since Exp2 absolute scores aren't on the Exp3 axis (4-bit vs bf16, below) the Exp3 analysis never used them — so the `pto_Exp2/` data + the frozen `eda/archive_exp2/` EDA were **removed 2026-06-15** (the Exp2 reference still lives in `Exp2_PTO/`). GRPO V1 baseline from Exp2 was **dropped** earlier (Exp3 focuses on PTO_Exp3 vs GRPO_Exp3 only).
   - ⚠ **Exp2 and Exp3 absolute oracle scores are NOT on the same axis.** Same therapist base (Llama-3.2-1B), but Exp2 generated its convs in **4-bit NF4** and Exp3 in **bf16**. 4-bit induces ~30× more phrase-loop degeneration (≈9.5% vs 0.3% of therapist turns run to the token cap as repeated spam), which the oracle floors — so Exp2 Base ≈ 2.38 Q1+Q2 vs Exp3 Base ≈ 3.0, *even though it's the same model*. The clean (non-degenerate) Exp2 subset scores ≈ 2.93 ≈ Exp3. **Compare within Exp3 only**; to put Exp2 on the same axis, regenerate its convs in bf16.
 - **Exp3 self-loop:** GRPO_Exp3 regenerates its own training data each iter from the current policy; those same convs are the eval set (no separate generate-eval step for trained iters).
 
 ## Key methodological shift across experiments
 - **Look-ahead K** stayed central throughout (the lever from the ICLR paper).
 - **The hard part moved from "can PTO beat the baseline?" (Exp1, settled) to "is GRPO competitive with PTO under matched look-ahead?" (Exp3, open).**
-- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the `Partial_Conv_Oracle_EDA` shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
+- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in `eda/3_Reward_Reliability.ipynb`) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
 
 ## Methods (one line each)
 - **PTO V1** (Exp1) = original preference-tree exploration + K look-ahead + DPO. Published.

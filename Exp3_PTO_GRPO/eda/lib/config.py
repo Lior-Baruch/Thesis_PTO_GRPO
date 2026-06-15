@@ -106,7 +106,6 @@ DATA_DIR = os.path.join(WORKSPACE_ROOT, "data")
 
 # Training method -> the data/ subdir that owns its eval_scores/.
 METHOD_DATA_DIR = {
-    "DPO":       "pto_Exp2",   # Exp2 PTO baselines + Base (frozen reference)
     "GRPO_Exp3": "grpo_Exp3",
     "PTO_Exp3":  "pto_Exp3",
 }
@@ -127,9 +126,16 @@ EVAL_QUESTIONNAIRE_DIRS = {
 def eval_scores_root_for_method(method: str) -> str:
     """Absolute ``data/<method_dir>/eval_scores`` for a training method.
 
-    Unknown methods fall back to the Exp2 reference dir (``pto_Exp2``).
+    Raises ``KeyError`` on an unknown method (the Exp2 ``pto_Exp2`` fallback was
+    removed 2026-06-15 — see ``METHOD_DATA_DIR``).
     """
-    return os.path.join(DATA_DIR, METHOD_DATA_DIR.get(method, "pto_Exp2"), "eval_scores")
+    try:
+        return os.path.join(DATA_DIR, METHOD_DATA_DIR[method], "eval_scores")
+    except KeyError:
+        raise KeyError(
+            f"Unknown training method {method!r}; expected one of "
+            f"{sorted(METHOD_DATA_DIR)}"
+        )
 
 
 def eval_csv_dir(root: str, oracle: str, metric_subdir: str, model: str) -> str:
@@ -166,7 +172,7 @@ class EDAConfig:
     (Run_Eval / Conv_EDA) resolves each model's root + oracle via
     :func:`get_model_eval_layout` and builds paths with :func:`eval_csv_dir`.
     """
-    method: str = "DPO"
+    method: str = "GRPO_Exp3"
     eval_model: str = EVAL_MODEL
     eval_temp: float = EVAL_TEMPERATURE
     async_concurrency: int = DEFAULT_CONCURRENCY
@@ -200,7 +206,7 @@ class Experiment:
     lookahead: Optional[int]
     version: Optional[int]
     path: str
-    method: str = "DPO"
+    method: str = "GRPO_Exp3"
     epoch: Optional[int] = None
 
     @property
@@ -225,45 +231,12 @@ class Experiment:
 
 
 # Path roots are experiment-root-relative (the experiment root is the Exp3 dir).
-_PTO_CONV = "data/pto_Exp2/eval_conversations"
+# (The Exp2 ``_PTO_CONV = data/pto_Exp2/...`` root + its commented baseline entries
+# were removed 2026-06-15 along with the Exp2 archive/data — Exp3-only from here.)
 _GRPO_CONV = "data/grpo_Exp3/conversations"
 _PTO_EXP3_CONV = "data/pto_Exp3/conversations"
 
 EXPERIMENTS: List[Experiment] = [
-    # # Base
-    # Experiment("Base", None, None, f"{_PTO_CONV}/Base/Good_50_TT0.9_TP0.7_TE0.1"),
-
-    # # L0 WAI
-    # *[
-    #     Experiment("WAI", 0, v, f"{_PTO_CONV}/WAI/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-    #     for v in range(1, 6)
-    # ],
-    # # L0 CSQ8
-    # *[
-    #     Experiment("CSQ8", 0, v, f"{_PTO_CONV}/CSQ-8/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-    #     for v in range(1, 6)
-    # ],
-    # # L0 Q1Q2
-    # *[
-    #     Experiment("Q1Q2", 0, v, f"{_PTO_CONV}/Q1Q2/LookAhead_0/TTree1.2_TT0.9_TP0.7_TE0.2_V{v}")
-    #     for v in range(1, 6)
-    # ],
-    # # L5 WAI
-    # *[
-    #     Experiment("WAI", 5, v, f"{_PTO_CONV}/WAI/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-    #     for v in range(1, 6)
-    # ],
-    # # L5 CSQ8
-    # *[
-    #     Experiment("CSQ8", 5, v, f"{_PTO_CONV}/CSQ-8/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.1_V{v}")
-    #     for v in range(1, 6)
-    # ],
-    # # L5 Q1Q2
-    # *[
-    #     Experiment("Q1Q2", 5, v, f"{_PTO_CONV}/Q1Q2/LookAhead_5/TTree1.2_TT0.9_TP0.7_TE0.2_V{v}")
-    #     for v in range(1, 11)
-    # ],
-
     # ── Exp3 iterative runs (one entry per saved model_iter_N) ──────────────────
     # Pattern per run: the run's EXPERIMENT_NAME folder + per-iter conv subdir
     # ``model_iter_{N}_TT{temp_t}_TP{temp_p}``. epoch=0 = the base-model rollout
