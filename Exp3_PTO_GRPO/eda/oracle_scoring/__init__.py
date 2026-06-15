@@ -8,7 +8,7 @@ helpers ``system_prompts_builder`` and ``questionnaires`` resolve regardless of
 where the notebook was launched.
 
 After import, ``WORKSPACE_ROOT`` is the absolute path of the experiment root,
-and every name in the public API below is reachable as ``from lib import ...``.
+and every name in the public API below is reachable as ``from oracle_scoring import ...``.
 """
 
 import os
@@ -75,9 +75,9 @@ from .data import (  # noqa: E402
 )
 
 # NOTE: the legacy analysis/plots + cross-iteration training-reward EDA modules
-# (lib/analysis.py, lib/iterations.py) were removed 2026-06-15 — they only served
+# (oracle_scoring/analysis.py, oracle_scoring/iterations.py) were removed 2026-06-15 — they only served
 # the now-deleted Exp2 archive notebooks. The current Exp3 analysis lives in the
-# `exp3/` package; `lib/` survives ONLY to power Run_Eval.ipynb's oracle scoring.
+# `eda_analysis/` package; `oracle_scoring/` survives ONLY to power Run_Eval.ipynb's oracle scoring.
 
 # Eval pipeline (oracle scoring) — re-exported behind a flag because the
 # questionnaires module needs to be reachable on sys.path. The path prepend

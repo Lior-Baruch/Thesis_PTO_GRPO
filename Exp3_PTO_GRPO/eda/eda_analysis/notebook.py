@@ -1,7 +1,7 @@
 """
 notebook.py — one-call setup that every analysis notebook shares.
 
-Cell 1 of each notebook builds an :class:`exp3.EdaConfig` from flat globals and passes it here.
+Cell 1 of each notebook builds an :class:`eda_analysis.EdaConfig` from flat globals and passes it here.
 ``notebook_setup`` applies the publication style + plot scales, filters + discovers the arms,
 builds the tidy ``scores_long`` backbone (optionally with the free derived MITI-proficiency
 ratios), the stable arm palette, and the present-metric list, sets the export group, writes a
@@ -13,10 +13,10 @@ Usage (notebook cell 1)::
     import sys, os; sys.path.insert(0, os.path.abspath("."))
     import warnings; warnings.filterwarnings("ignore")
     import numpy as np, pandas as pd, matplotlib.pyplot as plt, seaborn as sns
-    import exp3
-    from exp3 import stats, behavior, training, pref, figures, plots
-    cfg = exp3.EdaConfig(export_group="eval")    # flat globals -> one config
-    S = exp3.notebook_setup(cfg)
+    import eda_analysis
+    from eda_analysis import stats, behavior, training, pref, figures, plots
+    cfg = eda_analysis.EdaConfig(export_group="eval")    # flat globals -> one config
+    S = eda_analysis.notebook_setup(cfg)
 
 ``notebook_setup()`` with no args still works (default config = all arms, all present metrics).
 """

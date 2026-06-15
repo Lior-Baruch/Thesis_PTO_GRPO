@@ -1,9 +1,9 @@
 """
-exp3 — brand-new EDA package for Exp3_PTO_GRPO (PTO_Exp3 vs GRPO_Exp3).
+eda_analysis — brand-new EDA package for Exp3_PTO_GRPO (PTO_Exp3 vs GRPO_Exp3).
 
 Designed from the data + the thesis's research questions, NOT ported from the
-Exp2-era ``lib/`` (which stays only for ``Run_Eval.ipynb`` scoring + the archived
-notebooks). Read-only, disk-discovery-driven.
+legacy ``oracle_scoring/`` package (which stays only for ``Run_Eval.ipynb`` oracle
+scoring). Read-only, disk-discovery-driven.
 
 Why this package exists / what it gets right that the old EDA didn't:
 - **Persona recovery.** Each ``model_iter_k`` is a *seeded reshuffle* of the same
@@ -16,7 +16,7 @@ Why this package exists / what it gets right that the old EDA didn't:
   persona for Exp3 runs. ``personas.py`` reconstructs the true map by replaying the
   shuffle — which also unlocks a matched-persona repeated-measures design.
 
-Public API is re-exported at the bottom so notebooks can ``from exp3 import ...``.
+Public API is re-exported at the bottom so notebooks can ``from eda_analysis import ...``.
 """
 
 import os
@@ -42,7 +42,7 @@ def _resolve_workspace_root(*starts, max_steps: int = 10):
 WORKSPACE_ROOT = _resolve_workspace_root(os.path.dirname(__file__), os.getcwd())
 if WORKSPACE_ROOT is None:
     raise RuntimeError(
-        f"exp3: could not locate experiment root containing {_KEY_FILES} by "
+        f"eda_analysis: could not locate experiment root containing {_KEY_FILES} by "
         f"walking up from {os.path.dirname(__file__)!r} or {os.getcwd()!r}"
     )
 

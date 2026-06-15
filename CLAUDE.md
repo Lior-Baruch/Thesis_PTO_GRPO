@@ -23,7 +23,7 @@ Three controlled comparisons, all live in Exp3:
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | all 6 questionnaires |
-| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `exp3/` analysis package + notebooks `0`–`5`; `lib/` kept only for `Run_Eval` scoring; per-generation `iteration_N/eda/generations.jsonl` |
+| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` analysis package + notebooks `0`–`5`; `oracle_scoring/` kept only for `Run_Eval` scoring; per-generation `iteration_N/eda/generations.jsonl` |
 | **Convs / models** | (paper figures) | 4,512 / 47 | 3,456 / 36 (PTO Exp2 data) + new GRPO/PTO_Exp3 runs pending |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
@@ -128,13 +128,13 @@ ahead helps faithfulness slightly); `5` gains **direction-drift (2D), learned/un
 [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "Restructure-by-purpose pass" + [eda/README.md](Exp3_PTO_GRPO/eda/README.md).
 
 **Landed (2026-06-10) — EDA refactored: readable, method-symmetric, by research question.**
-The Exp3 analysis EDA was reorganized on top of the `eda/exp3/` package (the 2026-06-09 rebuild). The
+The Exp3 analysis EDA was reorganized on top of the `eda/eda_analysis/` package (the 2026-06-09 rebuild). The
 mess was in the notebooks: byte-identical cell-1 boilerplate, the same analysis duplicated across
 notebooks, hardcoded `PTO_LA0` everywhere (heterogeneity/behavior/transcripts/deep-dive ran for PTO
 only), a method-gated `if GRPO…else…` advantage cell, and buried cross-method comparisons. Fixes:
-(1) **hybrid plotting** — the recurring figures are now named functions in `exp3/plots.py` (defined
-once, called from multiple notebooks); (2) **`exp3.notebook_setup()`** collapses the boilerplate to
-`S = exp3.notebook_setup()`; (3) **notebooks reorganized by research question** — `00_Main_Results`
+(1) **hybrid plotting** — the recurring figures are now named functions in `eda_analysis/plots.py` (defined
+once, called from multiple notebooks); (2) **`eda_analysis.notebook_setup()`** collapses the boilerplate to
+`S = eda_analysis.notebook_setup()`; (3) **notebooks reorganized by research question** — `00_Main_Results`
 (thin) / `01_Did_It_Work` / `02_PTO_vs_GRPO` (absorbs `Exp3_DeepDive`) / `03_LookAhead_K` /
 `04_Mechanism_and_Behavior` / `05_Preference_LatentSpace`; (4) **full method-symmetry** — every per-arm
 analysis runs for both methods + training internals shown side-by-side (only the preference probe stays
@@ -146,7 +146,7 @@ nbconvert (`thesis-venv313`) on the current disk state. See
 [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "EDA refactor (2026-06-10)" + [eda/README.md](Exp3_PTO_GRPO/eda/README.md).
 
 **Landed (2026-06-09) — EDA rebuilt research-grade + first cross-method results.** Exp3's
-analysis EDA was rebuilt as the `eda/exp3/` package + notebooks (since reorganized — see the 2026-06-10
+analysis EDA was rebuilt as the `eda/eda_analysis/` package + notebooks (since reorganized — see the 2026-06-10
 entry above), with true-persona recovery, both stat batteries + repeated-measures (Friedman), and a
 thesis-export layer (`results/` figures + tables). Old Exp2 EDA frozen in `eda/archive_exp2/`.
 **First results (this was the 0–3 GRPO snapshot; superseded by the 2026-06-14 entry above — kept as

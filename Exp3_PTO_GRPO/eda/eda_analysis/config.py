@@ -2,7 +2,7 @@
 config.py — the single EDA control surface (`EdaConfig`).
 
 Every analysis notebook's cell 1 is now flat globals bundled into one ``EdaConfig`` that is
-passed to :func:`exp3.notebook_setup`. This mirrors the trainer notebooks' "cell 1 = flat
+passed to :func:`eda_analysis.notebook_setup`. This mirrors the trainer notebooks' "cell 1 = flat
 globals" pattern: one place to choose arms, metrics, selection mode, plot scales, and where
 artifacts are saved — reproducible and git-diffable (the run's config is in the file, not in
 hand-edits scattered across cells).
@@ -12,15 +12,15 @@ All fields have safe defaults, so ``EdaConfig()`` reproduces the pre-refactor be
 
 Usage (notebook cell 1)::
 
-    import exp3
-    cfg = exp3.EdaConfig(
+    import eda_analysis
+    cfg = eda_analysis.EdaConfig(
         methods=["PTO"], ks=[0],            # arm filter (None = all)
         selection="best",                   # cross-model default view
         metrics=None, add_derived_mitiprof=True,
         panel=(6.0, 4.0), ncols=2, score_ylim=(1, 5), share_y=True,
         export_group="eval",                # results/figures/eval/ ...
     )
-    S = exp3.notebook_setup(cfg)
+    S = eda_analysis.notebook_setup(cfg)
 """
 
 from dataclasses import dataclass, field, replace

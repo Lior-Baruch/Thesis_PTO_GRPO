@@ -245,14 +245,14 @@ Exp3_PTO_GRPO/
 │       ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
-│   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses lib/, registry-driven)
+│   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses oracle_scoring/, registry-driven)
 │   ├── 0_Headline.ipynb               [EVAL] group=headline — THIN: 3 canonical figs (best-vs-base bars, effect FOREST, Q1+Q2 curve) + master artifact index
 │   ├── 1_Eval_and_Behavior.ipynb      [EVAL] group=eval — MERGED eval+behaviour. A: all-rubric & subscale trajectories + ONE configurable overlay_trajectory contrast + SCORECARD (warmth + orthogonal axes) + appendix bars. B: MITI drift + factor structure (DIVERGING corr + factor-LOADINGS bars) + over-praise cross-check + ONE heterogeneity_grid/trait + session-end + transcripts
 │   ├── 2_Training_Diagnostics.ipynb   [TRAINING] group=training — TensorBoard curves (tb_curves) + per-candidate reward dist + advantage signal (group_std/margin) + degeneration scan
 │   ├── 3_Reward_Reliability.ipynb     [TRAINING↔EVAL] group=reliability — rank-agreement-vs-n_turns curve (LA0 vs LA5) + proxy-vs-eval scatter + PTO margin-by-branch-depth
 │   ├── 4_Preference_LatentSpace.ipynb [TRAINING] group=preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
 │   ├── 5_Detailed_Stats.ipynb         [EVAL] group=stats — ALL heavy tables: main results + Friedman + paired method/K + per-arm vs-base + slopes + rankings + PCA (thin arms filtered)
-│   ├── exp3/                            NEW Exp3 analysis package (disk-discovery, read-only; data+compute+stats+plots layer)
+│   ├── eda_analysis/                            NEW Exp3 analysis package (disk-discovery, read-only; data+compute+stats+plots layer)
 │   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label
 │   │   ├── config.py                    EdaConfig — the single flat-globals control surface (arms/metrics/selection/scales/exports)
 │   │   ├── notebook.py                  notebook_setup(cfg) → Setup(ARMS, SCORES, PALETTE, METRICS, ORACLE_NOISE, RESULTS_DIR, CFG); filters arms, adds derived ratios, writes provenance
@@ -268,24 +268,24 @@ Exp3_PTO_GRPO/
 │   │   ├── figures.py                   shared helpers: set_style(cfg) (cfg-aware scales) + arm_palette(+overrides) + model_order + grid + apply_score_axis
 │   │   └── exports.py                   save_fig (PNG default) / save_table (md+xlsx default) → results/<group>/ ; set_export_group + set_formats + save_provenance + build_index + reset_results
 │   ├── results/                         GENERATED thesis artifacts: figures/ (pdf) + tables/ (md) — re-created by running the notebooks
-│   └── lib/                             LEGACY package — kept ONLY for Run_Eval scoring (Exp3 registry; NOT the new analysis)
+│   └── oracle_scoring/                  LEGACY package — kept ONLY for Run_Eval scoring (Exp3 registry; NOT the new analysis)
 └── HF_key.txt, openai_key.txt
 ```
 
 **Thesis artifacts.** `results/figures/` (`.pdf`) and `results/tables/` (`.md`) are **generated** by
-`exp3.save_fig`/`save_table` — **one format each** (the `formats=` kwarg can request extras for a
+`eda_analysis.save_fig`/`save_table` — **one format each** (the `formats=` kwarg can request extras for a
 one-off). Run `0_Headline.ipynb` to regenerate the canonical set (others export their own too).
 They're reproducible from code, so tracking them in git is optional (Lior's call).
 
 **Single canonical copies.** `system_prompts_builder.py` and `questionnaires.py`
-live ONLY at `code/` root — both `eda/lib/__init__.py` and `eda/exp3/__init__.py` prepend
+live ONLY at `code/` root — both `eda/oracle_scoring/__init__.py` and `eda/eda_analysis/__init__.py` prepend
 `code/` to `sys.path` so they import the same canonical files. No more drift.
 
 **EDA refactor (2026-06-10).** The analysis EDA was reorganized **by research question** and made
-**method-symmetric** (the prior 2026-06-09 rebuild created the `exp3/` package; this pass restructured
+**method-symmetric** (the prior 2026-06-09 rebuild created the `eda_analysis/` package; this pass restructured
 the notebooks on top of it). **Hybrid plotting:** the recurring figures now live as named functions in
-`exp3/plots.py` (defined once, called from multiple notebooks), genuinely one-off exploration stays
-inline. **One-call setup** `exp3.notebook_setup()` → `S.*` kills the byte-identical cell-1 boilerplate.
+`eda_analysis/plots.py` (defined once, called from multiple notebooks), genuinely one-off exploration stays
+inline. **One-call setup** `eda_analysis.notebook_setup()` → `S.*` kills the byte-identical cell-1 boilerplate.
 Notebook set, by thesis question: **`00_Main_Results`** (thin canonical artifacts + index),
 **`01_Did_It_Work`** (each arm vs base — all arms), **`02_PTO_vs_GRPO`** (RQ ii; absorbs the old
 `Exp3_DeepDive`; training internals shown side-by-side, never method-gated), **`03_LookAhead_K`**
@@ -299,9 +299,9 @@ no chosen/rejected pairs). The buried cross-method/K comparisons became
 MD tables, idempotent `CAPTIONS.md`). (The old Exp2-shaped `Conv_EDA`/`Partial_Conv_Oracle_EDA`/`pref_emb`
 notebooks were **frozen in `eda/archive_exp2/`** and then **removed 2026-06-15** with the `pto_Exp2` data —
 the partial-conv reliability diagnostic now lives, rebuilt on Exp3 data, in `3_Reward_Reliability.ipynb`.)
-`eda/lib/` survives ONLY for `Run_Eval.ipynb` (registry-driven
-scoring). ⚠ The old `lib` patient-characteristic join is **wrong for Exp3** (per-iter shuffle) — use
-`exp3/personas.py`. **Validated 2026-06-10:** all six notebooks ran top-to-bottom via nbconvert
+`eda/oracle_scoring/` survives ONLY for `Run_Eval.ipynb` (registry-driven
+scoring). ⚠ The old `oracle_scoring` patient-characteristic join is **wrong for Exp3** (per-iter shuffle) — use
+`eda_analysis/personas.py`. **Validated 2026-06-10:** all six notebooks ran top-to-bottom via nbconvert
 (`thesis-venv313`) on the current disk state. See "New EDA workflow" below.
 
 **Figure-readability pass (2026-06-10, later).** Fixed the four figures that read poorly: (1) the 4
@@ -331,11 +331,11 @@ a **K0-vs-K5** preference contrast. **Validated:** package smoke + all 7 noteboo
 (`thesis-venv313`). The 2026-06-09/-10 notes above are kept as history.
 
 **Control + organization pass (2026-06-14, latest).** Added a single flat-globals control surface and
-reorganized exports + notebooks. **(1) `EdaConfig`** (new [exp3/config.py](code/../eda/exp3/config.py))
+reorganized exports + notebooks. **(1) `EdaConfig`** (new [eda_analysis/config.py](code/../eda/eda_analysis/config.py))
 bundles every knob — arm filter (`methods`/`ks`/`modes`/`arm_labels`), metric subset + `warmth_only` +
 `add_derived_mitiprof`, `selection` (all/best), plot scales (`context`/`font_scale`/`dpi`/`panel`/
 `ncols`/`score_ylim`/`share_y`/`palette_overrides`), and exports (`export_group`/`fig_formats`/
-`table_formats`). Cell 1 is now `cfg = exp3.EdaConfig(export_group=…)` → `S = notebook_setup(cfg)`
+`table_formats`). Cell 1 is now `cfg = eda_analysis.EdaConfig(export_group=…)` → `S = notebook_setup(cfg)`
 (defaults reproduce old behaviour; `notebook_setup(cfg, k=v)` overrides on the fly). `notebook_setup`
 filters arms (`discovery.filter_arms`), applies scales (`figures.set_style(cfg)` + `_SCALE` defaults
 read by `grid`/`apply_score_axis`), appends the derived ratios (idempotent), and writes a **provenance
@@ -362,7 +362,7 @@ index) and merged eval-results+behaviour into **`1_Eval_and_Behavior`**; `2…5`
 renumbered to match). **(3) Factor figure made readable:** replaced the confusing PC1×PC2 biplot with
 **`plots.factor_loadings_bars`** (each metric's PC1/PC2 loading as bars — warmth rubrics ~0.44 on PC1,
 orthogonal axes ~0) + a plain-language caption. **(4) Control over repetition:** new
-`EdaConfig.focus_arms`/`focus_metric`; `exp3.select_scores(...)`; `arms=`/`iters=` on
+`EdaConfig.focus_arms`/`focus_metric`; `eda_analysis.select_scores(...)`; `arms=`/`iters=` on
 `single_metric_trajectory`/`trajectory_grid`; **`plots.overlay_trajectory(arms=[…])`** collapses the
 per-K + per-method contrast loops into ONE configurable cell; **`plots.heterogeneity_grid`** collapses
 the `char×arm` PNG explosion into one figure (panel per arm); the preference probe loops over
@@ -370,16 +370,16 @@ the `char×arm` PNG explosion into one figure (panel per arm); the preference pr
 loadings) + all 6 notebooks via nbconvert (`thesis-venv313`); old flat `results/` wiped + regenerated.
 
 ### New EDA workflow (replaces "add registry entry → Conv_EDA")
-1. **Score** a new run: `Run_Eval.ipynb` still needs a `lib/config.py::EXPERIMENTS` entry to know what
+1. **Score** a new run: `Run_Eval.ipynb` still needs a `oracle_scoring/config.py::EXPERIMENTS` entry to know what
    to grade (this one coupling remains by design). Run it → writes `eval_scores/`.
 2. **Analyze:** open `0_Headline` (3 canonical figures + index), then `1_Eval_and_Behavior` (eval
    outcomes + behaviour) and `2`–`5` for the deeper analyses (each exports its own artifacts;
    `5_Detailed_Stats` holds all the heavy tables). Every notebook's cell 1 is
-   `cfg = exp3.EdaConfig(export_group=…, focus_arms=…)` → `S = exp3.notebook_setup(cfg)` — one
+   `cfg = eda_analysis.EdaConfig(export_group=…, focus_arms=…)` → `S = eda_analysis.notebook_setup(cfg)` — one
    flat-globals config controls arms / metrics / selection / **focus_arms** / plot scales / exports
-   (figs **PNG**, tables **md+xlsx**). All **auto-discover** every arm via `exp3.discover_arms()` — no
-   registry edit. Artifacts land in **`eda/results/<figures|tables>/<group>/`** (`exp3.build_index()`
-   writes `results/INDEX.md`). Point any figure at a subset with `arms=`/`exp3.select_scores(...)`.
+   (figs **PNG**, tables **md+xlsx**). All **auto-discover** every arm via `eda_analysis.discover_arms()` — no
+   registry edit. Artifacts land in **`eda/results/<figures|tables>/<group>/`** (`eda_analysis.build_index()`
+   writes `results/INDEX.md`). Point any figure at a subset with `arms=`/`eda_analysis.select_scores(...)`.
 3. Re-run is cheap; arms not yet scored are skipped gracefully (the cross-method/K cells degrade to a
    "not scored yet" banner; thin arms < 3 iters are skipped in the per-arm batteries).
 
@@ -484,7 +484,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
 2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
-4. **Score + EDA.** Add a `lib/config.py::EXPERIMENTS` entry for the run (Run_Eval scoring only), run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → then open [eda/0_Headline.ipynb](eda/0_Headline.ipynb) (and `1`–`6`), which **auto-discover** the run (no further registry edits). See "New EDA workflow".
+4. **Score + EDA.** Add a `oracle_scoring/config.py::EXPERIMENTS` entry for the run (Run_Eval scoring only), run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → then open [eda/0_Headline.ipynb](eda/0_Headline.ipynb) (and `1`–`6`), which **auto-discover** the run (no further registry edits). See "New EDA workflow".
 
 ## Running PTO_Exp3
 
@@ -912,10 +912,10 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 
 ## EDA extension points
 
-**New analysis EDA (`exp3/`)** needs **no registry edits** — it auto-discovers arms from disk. Extend
-it in the modules: a new rubric → `exp3/__init__.py::QUESTIONNAIRES` + `scores.py`; a new arm naming
+**New analysis EDA (`eda_analysis/`)** needs **no registry edits** — it auto-discovers arms from disk. Extend
+it in the modules: a new rubric → `eda_analysis/__init__.py::QUESTIONNAIRES` + `scores.py`; a new arm naming
 scheme → `discovery.py::parse_experiment_name`; new stats/plots → `stats.py`/`figures.py`. The bullets
-below apply to the **old `lib/` package**, which now only powers `Run_Eval.ipynb` (scoring):
+below apply to the **old `oracle_scoring/` package**, which now only powers `Run_Eval.ipynb` (scoring):
 
 - **`config.ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `data._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
 - **`config.COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.

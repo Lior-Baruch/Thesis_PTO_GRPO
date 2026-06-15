@@ -1,8 +1,8 @@
 # Exp3 EDA — guide + improvement roadmap
 
 Analysis for **PTO_Exp3 vs GRPO_Exp3** (Llama-3.2-1B therapist vs gpt-4o-mini patient/oracle), across
-training iterations, under matched look-ahead K and MCL. All data/compute/stats lives in the `exp3/`
-package; the recurring figures are named functions in `exp3/plots.py` (called once from multiple
+training iterations, under matched look-ahead K and MCL. All data/compute/stats lives in the `eda_analysis/`
+package; the recurring figures are named functions in `eda_analysis/plots.py` (called once from multiple
 notebooks), and genuinely one-off exploration stays inline (the **hybrid** plotting split). Thesis
 figures/tables are exported to `results/` — **one format each**: figures `.pdf`, tables `.md`.
 
@@ -13,10 +13,10 @@ outcome) or **`[TRAINING]`** (partial-branch rewards / preference pairs — what
 on). Markdown is kept concise (≤3-line sections).
 
 ## Configuring a notebook (`EdaConfig`)
-Cell 1 of every notebook builds one **`exp3.EdaConfig`** from flat globals and passes it to
+Cell 1 of every notebook builds one **`eda_analysis.EdaConfig`** from flat globals and passes it to
 `notebook_setup` — the single place to control a run (mirrors the trainer notebooks' cell-1 pattern;
 reproducible + git-diffable). Defaults reproduce "all arms / all present metrics", so
-`exp3.EdaConfig()` is a safe no-op. Knobs:
+`eda_analysis.EdaConfig()` is a safe no-op. Knobs:
 - **Arms:** `methods` (`["PTO"]`), `ks` (`[0,5]`), `modes`, `arm_labels`, `include_archived`.
 - **Metrics:** `metrics` (explicit ordered subset), `add_derived_mitiprof` (free R:Q/%CR/%MICO),
   `warmth_only`.
@@ -30,7 +30,7 @@ reproducible + git-diffable). Defaults reproduce "all arms / all present metrics
   `("md","xlsx")`** — readable Markdown + a per-group Excel workbook, one sheet per table).
 
 **Per-figure control.** Trajectory/headline/contrast plots take `arms=`/`iters=`/`metric=`; use
-`exp3.select_scores(S.SCORES, arms=[...], iters=[...], metrics=[...])` to slice for any figure.
+`eda_analysis.select_scores(S.SCORES, arms=[...], iters=[...], metrics=[...])` to slice for any figure.
 `plots.overlay_trajectory(S.SCORES, metric, arms=[...])` is the one configurable contrast (replaces
 the per-K/per-method loops); `plots.heterogeneity_grid(S.SCORES, char, arms=[...])` is one figure
 (panel per arm) instead of the old `char × arm` PNG explosion.
@@ -43,7 +43,7 @@ are unchanged. Override on the fly: `notebook_setup(cfg, selection="best")`.
 
 ## Run order
 1. **`Run_Eval.ipynb`** — async oracle scoring → `data/<method>/eval_scores/`. Registry-driven: add a
-   `lib/config.py::EXPERIMENTS` entry per new run (the only place you hand-edit). Resume-safe.
+   `oracle_scoring/config.py::EXPERIMENTS` entry per new run (the only place you hand-edit). Resume-safe.
    Score the new **PCT** + **MICI** questionnaires with `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
 2. **`0_Headline.ipynb`** `[EVAL]` (group `headline`) — thin: the 3 canonical thesis figures (best-vs-
    base bars, vs-base **effect forest**, Q1+Q2 curve) + the master artifact index.
@@ -68,14 +68,14 @@ are unchanged. Override on the fly: `notebook_setup(cfg, selection="best")`.
 
 Future: an oracle-comparison notebook (research question iii) once non-Q1Q2 oracles are run.
 
-Everything **auto-discovers** arms from disk via `exp3.discover_arms()` (no path literals).
+Everything **auto-discovers** arms from disk via `eda_analysis.discover_arms()` (no path literals).
 Artifacts land in **per-notebook subfolders** `results/figures/<group>/` + `results/tables/<group>/`
-with a per-group `CAPTIONS.md`; `exp3.build_index()` writes the master `results/INDEX.md`. Notebooks
+with a per-group `CAPTIONS.md`; `eda_analysis.build_index()` writes the master `results/INDEX.md`. Notebooks
 run with the venv kernel `thesis-venv313`, cwd = `eda/`.
 
-## Package (`exp3/`)
+## Package (`eda_analysis/`)
 `discovery` (arms manifest) · `personas` (TRUE-persona recovery — replays the per-iter shuffle; the old
-`lib` join is wrong for Exp3) · `scores` (`scores_long` backbone + `load_subscales` + `to_wide`) ·
+`oracle_scoring` join is wrong for Exp3) · `scores` (`scores_long` backbone + `load_subscales` + `to_wide`) ·
 `select` (all vs best-per-experiment) · `stats` (omnibus/Mann-Whitney+FDR + persona-paired Wilcoxon/dz/
 bootstrap + **Friedman/Kendall-W** + `main_results_table` + `paired_method_comparison` (PTO vs GRPO) +
 `paired_k_comparison` (K0 vs K5) + **`rank_agreement_by_nturns`** (reward reliability) +
@@ -101,8 +101,8 @@ analysis: **`plots.factor_loadings_bars`** (readable PC1/PC2 loadings — replac
 `plots.leaderboard_scorecard` (warmth + orthogonal axes), diverging `rubric_correlation_heatmap`,
 `stats.rubric_factor_space`, `display_label` (lower-is-better ↓).
 
-Two packages, by purpose: **`exp3/`** = the current analysis layer (notebooks `0`–`5`, disk-discovery,
-no registry) and **`lib/`** = the legacy package kept ONLY to power `Run_Eval.ipynb`'s oracle scoring
+Two packages, by purpose: **`eda_analysis/`** = the current analysis layer (notebooks `0`–`5`, disk-discovery,
+no registry) and **`oracle_scoring/`** = the legacy package kept ONLY to power `Run_Eval.ipynb`'s oracle scoring
 (its `EXPERIMENTS` registry is Exp3-only). The frozen Exp2 EDA (`archive_exp2/`) and the `data/pto_Exp2/`
 reference data were removed 2026-06-15 — the Exp2 partial-conv reliability diagnostic now lives, rebuilt
 on Exp3 data, in `3_Reward_Reliability.ipynb`.
@@ -127,7 +127,7 @@ memory.
 ## Improvement roadmap — making the EDA better & more readable
 Prioritized; none are blocking. Ordered by value-for-effort.
 
-**Landed (2026-06-09 → 2026-06-10).** The `exp3/` package + disk-discovery + true-persona recovery +
+**Landed (2026-06-09 → 2026-06-10).** The `eda_analysis/` package + disk-discovery + true-persona recovery +
 both stat batteries (2026-06-09 rebuild), then four passes of readability/restructure: hybrid plotting
 (recurring figures as `plots.py` functions) + `notebook_setup()`; **method-symmetry** (every per-arm
 view runs for both methods); the **7 by-purpose notebooks** above; concise evergreen markdown with the
@@ -147,9 +147,9 @@ TB curves + richer preference latent space; Okabe-Ito **colourblind palette**, f
    from `discover_arms()` to remove the last hand-maintained list.
 
 **Rigor / correctness polish:**
-8. **Self-check script.** Commit the ad-hoc validation as `exp3/_selfcheck.py` (persona recovery 100%,
+8. **Self-check script.** Commit the ad-hoc validation as `eda_analysis/_selfcheck.py` (persona recovery 100%,
    known means reproduce, probe `wins_correct`>0.5) — a 10-second regression test after any change.
-9. **Unify styling.** `lib.set_plot_style` and `figures.set_style` both exist; the live EDA should use
+9. **Unify styling.** `oracle_scoring.set_plot_style` and `figures.set_style` both exist; the live EDA should use
    only `figures.set_style` (publication rcParams).
 
 **Recommended next:** 5 (parquet caching — biggest speed win now that the structure is settled) then 8
