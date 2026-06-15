@@ -388,26 +388,39 @@ loadings) + all 6 notebooks via nbconvert (`thesis-venv313`); old flat `results/
 
 See [eda/README.md](eda/README.md) for the full notebook guide + an improvement roadmap.
 
-### Eval results so far (updated 2026-06-14)
-Scored: **PTO LA0** iters 0–10, **GRPO LA0** iters 0–8, **PTO LA5** iters 0–4, GRPO LA5 base only.
-**All four arms now scored on the full battery incl. the new orthogonal axes** (PCT, MICI, and the
-derived R:Q/%CR/%MICO). Numbers in the EDA's `Q1Q2 = mean(Q1,Q2)` convention (full table:
-`results/tables/stats/main_results_final.md`; one-glance `results/tables/eval/leaderboard_scorecard.md`).
-- **Each arm vs base — large warmth gains.** PTO LA0 Q1+Q2 3.00→**4.26** (dz 1.43, Friedman W=0.45);
-  GRPO LA0 3.07→**4.08** at iter 8 (dz 1.22, W=0.40); PTO LA5 3.00→3.89 in 4 iters (dz 0.88). All warmth
-  rubrics **large** effect, Holm p≈0 everywhere.
-- **PTO vs GRPO (RQ-ii) — now a near-tie at matched budget.** With GRPO extended to iter 8, the earlier
-  "GRPO climbs 2.4× faster" was a 3-iter artifact: per-iter **slopes are now ~equal** (GRPO 0.128 ≈ PTO
-  0.120/iter). Paired @ matched iter: tie at 1–2, **GRPO ahead at iter 3** (Q1Q2 dz −0.33 p=0.014, MITI
-  p=0.003), **PTO ahead at iter 8** (Q1Q2 dz +0.31 p=0.028). Endpoints PTO 4.26 (10 iters) ≈ GRPO 4.08
-  (8 iters). ⇒ **GRPO is competitive with PTO** — the thesis's core answer, now on firmer footing.
+### Eval results so far (updated 2026-06-15)
+Scored: **PTO LA0** iters 0–10, **GRPO LA0** iters 0–10 (**now FINISHED**), **PTO LA5** iters 0–4,
+GRPO LA5 base only. **All four arms scored on the full battery incl. the orthogonal axes** (PCT, MICI,
+and the derived R:Q/%CR/%MICO). Numbers in the EDA's `Q1Q2 = mean(Q1,Q2)` convention (full tables:
+`results/tables/stats/main_results_final.md` = each arm's FINAL iter, `..._best.md` = each arm's BEST
+iter; one-glance `results/tables/eval/leaderboard_scorecard.md`).
+- **Each arm vs base — large warmth gains.** PTO LA0 Q1+Q2 3.00→**4.26** (final=best, dz 1.43, Friedman
+  W=0.45); GRPO LA0 3.07→**4.08 at its iter-8 peak**, falling to **3.75 by iter 10** (final dz 0.72,
+  best dz 1.22, W=0.33); PTO LA5 3.00→3.89 in 4 iters (dz 0.88). All warmth rubrics **large** effect,
+  Holm p≈0 everywhere.
+- **PTO vs GRPO (RQ-ii) — PTO ahead at the matched 10-iter endpoint; GRPO is less stable.** The earlier
+  "near-tie at iter 8" was a snapshot artifact: GRPO Q1Q2 **peaks at iter 8 (4.08) then REGRESSES (iter9
+  3.81, iter10 3.75)** while PTO climbs stably (4.22→4.26). At the **matched 10-iter endpoint PTO beats
+  GRPO 4.26 vs 3.75** (paired PTO−GRPO Q1Q2 +0.51, dz +0.73, Holm p<0.001; MITI/CSQ-8/MI-SAT/PCT also
+  favor PTO, and PTO is less MI-inconsistent). Overall OLS slopes: GRPO **0.072**/iter (peak iter 8) vs
+  PTO **0.120**/iter (peak iter 10). Earlier matched-iter reads still hold (tie 1–2, GRPO briefly ahead
+  @3, PTO ahead @8). ⇒ **Revised core answer: GRPO is competitive *up to its peak* but overshoots into
+  reward-hacking and degrades; PTO sustains gains across 10 iters.** With GRPO, peak-iter selection /
+  early stopping matters — its best (4.08 @ iter 8) is still below PTO's best (4.26 @ iter 10).
+- **Conversation-level mechanism (iter-10, same resistant persona for both methods).** GRPO iter-10
+  collapses into nonstop empty praise and never gives the practical advice a resistant patient demands
+  6+ times; PTO iter-10 also drifts toward affirmation but **converges to concrete steps** and the
+  patient softens. Across all 96 iter-10 convs: **GRPO 0.13 q/turn, 3.61 praise-words/turn vs PTO 0.50
+  q/turn, 1.02 praise/turn** — GRPO emits ~3.5× more praise and ~4× fewer questions. The iter-10 eval
+  regression IS the over-praise reward-hack the full-conv oracle penalizes; GRPO falls into it harder.
 - **Reward-hacking / multi-skill — the orthogonal axes pay off.** As warmth rises, **MI-INCONSISTENT
   behavior rises ~2.3–2.5×** (MICI base 0.21 → 0.49 PTO / 0.54 GRPO; dz 0.78/0.89) — the warmth gains
-  come *with* more over-praise/advice, in BOTH methods. **Affirmation drift is now confirmed in GRPO
-  too** (B6_AF 0.52→1.21, questions B3_Q 6.4→4.1, q/turn 0.83→0.23 by iter 8) — answers the 2026-06-09
-  open question. Style split: **GRPO is more reflective** (R:Q 1.04 > PTO 0.75, exceeds the MITI
-  proficiency threshold) and drops questions harder; **PTO over-praises slightly more** (B6_AF 1.64 vs
-  1.21). Patient **change-talk rises modestly**, more for PTO (PCT 0.49→0.63 medium vs GRPO 0.49→0.57
+  come *with* more over-praise/advice, in BOTH methods. **Affirmation drift is confirmed in GRPO too,
+  and at iter 10 it is the WORSE offender** (B6_AF 0.52→**1.98**, questions B3_Q 6.4→**4.1**, q/turn
+  0.83→**0.15**, R:Q→**1.44** by iter 10) — i.e. GRPO's late regression is exactly this drift running
+  away. Mid-run (≤iter 8) GRPO looked *more* reflective (R:Q 1.04 > PTO 0.75); by iter 10 it has dropped
+  questions almost entirely. **PTO's drift is milder and plateaus** (iter-10 B6_AF 1.64, q/turn 0.55).
+  Patient **change-talk rises modestly**, more for PTO (PCT 0.49→0.63 medium vs GRPO 0.49→0.57
   small). Both kill degeneration loops (loop% 0.49→0). **Adding the orthogonal axes drops PC1 from ≈91%
   → ≈56%** (PC2 ≈16%): warmth is one factor; technique (R:Q/%CR/%MICO) + MICI form a second — so "all
   rubrics up" is genuinely *not* multi-skill. (PCT partly loads on PC1 ≈0.39 — change-talk co-moves with
