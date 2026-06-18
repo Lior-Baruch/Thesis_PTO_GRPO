@@ -1,39 +1,50 @@
 """
-config.py — the single EDA control surface (`EdaConfig`).
+config.py — the single EDA control surface: ``EdaConfig`` + ``notebook_setup`` (the "cell 1" kernel).
 
-Every analysis notebook's cell 1 is now flat globals bundled into one ``EdaConfig`` that is
-passed to :func:`eda_analysis.notebook_setup`. This mirrors the trainer notebooks' "cell 1 = flat
-globals" pattern: one place to choose arms, metrics, selection mode, plot scales, and where
-artifacts are saved — reproducible and git-diffable (the run's config is in the file, not in
-hand-edits scattered across cells).
+Every analysis notebook's cell 1 is flat globals bundled into one ``EdaConfig`` that is passed to
+:func:`notebook_setup`. One place to choose the **VIEW** (which look-ahead arms + which results
+subfolder), the metrics, the selection mode, plot scales, and where artifacts are saved —
+reproducible and git-diffable (the run's config is in the file, not in scattered cell hand-edits).
 
-All fields have safe defaults, so ``EdaConfig()`` reproduces the pre-refactor behaviour
-(all arms, all present metrics, all-models selection, the old plot style, flat-ish exports).
+**The VIEW knob (new).** ``view`` is the one control that matters day-to-day. It sets BOTH:
+  - the arm filter — ``"all"`` = every arm, ``"L0"`` = K=0 arms (PTO_LA0/GRPO_LA0),
+    ``"L5"`` = K=5 arms (PTO_LA5/GRPO_LA5); and
+  - the results root — artifacts land under ``results/<view>/figures|tables/<group>/``.
+So ``results/`` ends up with three parallel trees (``all/``, ``L0/``, ``L5/``). An explicit
+``ks=[...]`` still overrides the view's arm filter (the view is a convenience default).
+
+All fields have safe defaults, so ``EdaConfig()`` = the ``all`` view, all present metrics,
+all-models selection, the old plot style.
 
 Usage (notebook cell 1)::
 
     import eda_analysis
-    cfg = eda_analysis.EdaConfig(
-        methods=["PTO"], ks=[0],            # arm filter (None = all)
-        selection="best",                   # cross-model default view
-        metrics=None, add_derived_mitiprof=True,
-        panel=(6.0, 4.0), ncols=2, score_ylim=(1, 5), share_y=True,
-        export_group="eval",                # results/figures/eval/ ...
-    )
+    cfg = eda_analysis.EdaConfig(view="L0", export_group="eval")   # K=0 arms -> results/L0/.../eval/
     S = eda_analysis.notebook_setup(cfg)
 """
 
+import os
 from dataclasses import dataclass, field, replace
 from typing import Dict, List, Optional, Sequence, Tuple
+
+import pandas as pd
+
+# VIEW -> ks arm filter. ``all`` = no K filter; ``L0`` = K=0 only; ``L5`` = K=5 only.
+_VIEW_KS: Dict[str, Optional[List[int]]] = {"all": None, "L0": [0], "L5": [5]}
+# Case-insensitive input -> canonical view name (so "l0"/"L0" both work; folder stays "L0").
+_VIEW_ALIASES: Dict[str, str] = {"all": "all", "l0": "L0", "l5": "L5"}
 
 
 @dataclass
 class EdaConfig:
     """All user-facing EDA knobs in one object (see module docstring)."""
 
-    # ── Arm selection (None = no filter on that axis) ────────────────────────
+    # ── THE knob: view = which arms + which results subfolder ─────────────────
+    view: str = "all"                              # "all" | "L0" | "L5" (arm filter + results/<view>/)
+
+    # ── Arm selection (None = no filter on that axis; ks overrides the view) ───
     methods: Optional[Sequence[str]] = None        # e.g. ["PTO"] | ["PTO","GRPO"]
-    ks: Optional[Sequence[int]] = None             # e.g. [0] | [0, 5]
+    ks: Optional[Sequence[int]] = None             # e.g. [0] | [0, 5]  — set = overrides view's K filter
     modes: Optional[Sequence[str]] = None          # e.g. ["greedy"] (PTO) / ["group"] (GRPO)
     arm_labels: Optional[Sequence[str]] = None     # explicit whitelist, e.g. ["PTO_LA0"]
     include_archived: bool = False
@@ -60,7 +71,7 @@ class EdaConfig:
     palette_overrides: Dict[str, str] = field(default_factory=dict)
 
     # ── Exports ──────────────────────────────────────────────────────────────
-    export_group: str = ""                         # results/<figures|tables>/<group>/ ; "" = flat
+    export_group: str = ""                         # results/<view>/<figures|tables>/<group>/ ; "" = flat
     fig_formats: Tuple[str, ...] = ("png",)         # PNG images by default; ("png","pdf") for vector too
     table_formats: Tuple[str, ...] = ("md", "xlsx") # readable Markdown + sortable Excel workbook
     results_subdirs: bool = True                   # route into per-group subfolders
@@ -78,6 +89,7 @@ class EdaConfig:
     def as_dict(self) -> dict:
         """Plain dict for the provenance banner / logging."""
         return {
+            "view": self.view,
             "methods": list(self.methods) if self.methods else None,
             "ks": list(self.ks) if self.ks else None,
             "modes": list(self.modes) if self.modes else None,
@@ -101,3 +113,89 @@ class EdaConfig:
             "oracle_noise": self.oracle_noise, "attach_persona": self.attach_persona,
             "note": self.note,
         }
+
+
+@dataclass
+class Setup:
+    """The shared notebook context (built by :func:`notebook_setup`)."""
+    ARMS: list
+    SCORES: pd.DataFrame
+    PALETTE: dict
+    METRICS: List[str]
+    ORACLE_NOISE: float
+    RESULTS_DIR: str        # the VIEW-specific results dir (results/<view>/)
+    VIEW: str
+    CFG: EdaConfig
+
+
+def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
+    """Discover+filter arms (by the VIEW), build ``scores_long`` + palette + metrics, set the
+    view-aware export root, write a provenance banner, and return a :class:`Setup`.
+
+    ``cfg`` is an :class:`EdaConfig` (default = the ``all`` view / all present metrics).
+    ``**overrides`` patch individual fields for a quick tweak, e.g.
+    ``notebook_setup(cfg, view="L0")`` or ``notebook_setup(cfg, selection="best")``.
+    """
+    from . import (discover_arms, load_scores_long, add_derived_mitiprof_rows,
+                   QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, plotting, exports)
+    from .data import filter_arms
+
+    cfg = cfg or EdaConfig()
+    if overrides:
+        cfg = cfg.with_(**overrides)
+
+    # ── Resolve the VIEW: arm filter (ks) + results root ──────────────────────
+    view = _VIEW_ALIASES.get((cfg.view or "all").strip().lower())
+    if view is None:
+        raise ValueError(f"unknown view {cfg.view!r} (expected one of {list(_VIEW_KS)})")
+    if cfg.ks is not None:
+        effective_ks = cfg.ks                      # explicit ks wins over the view default
+        if view != "all" and set(cfg.ks) != set(_VIEW_KS[view] or []):
+            print(f"  [notebook_setup] NOTE: explicit ks={list(cfg.ks)} overrides view={view!r} "
+                  f"(arms filtered by ks, results still under results/{view}/).")
+    else:
+        effective_ks = _VIEW_KS[view]
+
+    plotting.set_style(cfg)
+    exports.set_view(view)                                                   # results/<view>/...
+    exports.set_export_group(cfg.export_group if cfg.results_subdirs else "")
+    exports.set_formats(cfg.fig_formats, cfg.table_formats)
+
+    arms = discover_arms(include_archived=cfg.include_archived)
+    arms = filter_arms(arms, methods=cfg.methods, ks=effective_ks, modes=cfg.modes,
+                       arm_labels=cfg.arm_labels)
+
+    scores = load_scores_long(arms, attach_persona=cfg.attach_persona)
+    if cfg.add_derived_mitiprof and not scores.empty:
+        scores = add_derived_mitiprof_rows(scores, arms)
+
+    if scores.empty:
+        palette, metrics = {}, []
+    else:
+        palette = plotting.arm_palette(sorted(scores.arm.unique()))
+        present = set(scores.questionnaire.unique())
+        if cfg.metrics:
+            metrics = [m for m in cfg.metrics if m in present]
+        else:
+            base = WARMTH_RUBRICS if cfg.warmth_only else QUESTIONNAIRE_ORDER
+            metrics = [m for m in base if m in present]
+
+    # Provenance banner (printed + exported) so every regenerated figure set is traceable.
+    if not scores.empty:
+        exports.save_provenance(cfg, scores)
+
+    results_dir = os.path.join(exports.RESULTS_DIR, view)
+
+    if cfg.verbose:
+        print(f"VIEW = {view}  (ks={effective_ks if effective_ks is not None else 'all'})")
+        print("arms on disk (after view filter):", [(a.label, len(a.iters)) for a in arms])
+        if scores.empty:
+            print("scores_long: EMPTY — no eval scores found on disk for this view yet.")
+        else:
+            print("scores_long:", scores.shape, "| arms scored:", sorted(scores.arm.unique()))
+            print("metrics:", metrics, "| selection:", cfg.selection)
+        grp = cfg.export_group or "(flat)"
+        print(f"exports -> {results_dir}  [group: {grp}]")
+
+    return Setup(ARMS=arms, SCORES=scores, PALETTE=palette, METRICS=metrics,
+                 ORACLE_NOISE=cfg.oracle_noise, RESULTS_DIR=results_dir, VIEW=view, CFG=cfg)

@@ -252,22 +252,18 @@ Exp3_PTO_GRPO/
 │   ├── 3_Reward_Reliability.ipynb     [TRAINING↔EVAL] group=reliability — rank-agreement-vs-n_turns curve (LA0 vs LA5) + proxy-vs-eval scatter + PTO margin-by-branch-depth
 │   ├── 4_Preference_LatentSpace.ipynb [TRAINING] group=preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
 │   ├── 5_Detailed_Stats.ipynb         [EVAL] group=stats — ALL heavy tables: main results + Friedman + paired method/K + per-arm vs-base + slopes + rankings + PCA (thin arms filtered)
-│   ├── eda_analysis/                            NEW Exp3 analysis package (disk-discovery, read-only; data+compute+stats+plots layer)
-│   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label
-│   │   ├── config.py                    EdaConfig — the single flat-globals control surface (arms/metrics/selection/scales/exports)
-│   │   ├── notebook.py                  notebook_setup(cfg) → Setup(ARMS, SCORES, PALETTE, METRICS, ORACLE_NOISE, RESULTS_DIR, CFG); filters arms, adds derived ratios, writes provenance
-│   │   ├── discovery.py                 glob runs → Arm manifest + filter_arms (by method/K/mode/label)
-│   │   ├── personas.py                  TRUE-persona recovery (replay seeded shuffle); fixes the old file-index join bug
-│   │   ├── scores.py                    tidy scores_long backbone + Q1Q2 composite + load_subscales + to_wide + add_derived_mitiprof_rows (R:Q/%CR/%MICO, idempotent)
-│   │   ├── select.py                    all-models vs best-per-experiment-by-own-oracle toggle
-│   │   ├── stats.py                     BOTH batteries + Friedman/Kendall-W + main_results_table + paired_method/k_comparison + rubric PCA/corr + rubric_factor_space (PC1×PC2)
+│   ├── render_views.py                         DRIVER: regenerate results/{all,L0,L5}/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp)
+│   ├── eda_analysis/                            Exp3 analysis package (disk-discovery, read-only). 9 modules: plumbing merged 14→9 (2026-06-18); old submodule names aliased
+│   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label + submodule aliases (figures/plots→plotting; discovery/personas/scores/select→data)
+│   │   ├── config.py                    CONTROL SURFACE: EdaConfig (incl. the VIEW knob) + notebook_setup(cfg)→Setup(ARMS,SCORES,PALETTE,METRICS,ORACLE_NOISE,RESULTS_DIR,VIEW,CFG). view→ks filter + results/<view>/ root. (absorbed notebook.py)
+│   │   ├── data.py                      LOAD+SHAPE: discovery (Arm/discover_arms/filter_arms) + TRUE-persona recovery + scores_long backbone (+Q1Q2/subscales/to_wide/collapse_base/add_derived_mitiprof_rows/select_scores) + all/best selection. (merged discovery+personas+scores+select)
+│   │   ├── plotting.py                  FIGURE layer: style helpers (set_style/arm_palette/grid/model_order/apply_score_axis) + named plots (effect_forest/overlay_trajectory/heterogeneity_grid/factor_loadings_bars/leaderboard_scorecard/diverging rubric_correlation_heatmap…). (merged figures+plots; self-aliases `figures`)
+│   │   ├── stats.py                     BOTH batteries + Friedman/Kendall-W + main_results_table + paired_method/k_comparison + rubric PCA/corr + rubric_factor_space
 │   │   ├── behavior.py                  MITI behavior counts (eval) + MICI loader + over-praise cross-check + structural text metrics (semantic regex demoted to lex_* sanity-check)
 │   │   ├── training.py                  generations.jsonl proxy reward + degeneracy scan + pref_pairs + advantage_signal_by_iter / reward_distribution_frame (both methods)
 │   │   ├── pref.py                      PTO pref: margins + embeddings + Mass-Mean-Probe (preference_direction/word_projection/MI category_projection) + pref_word_ranking
-│   │   ├── plots.py                     NAMED figure functions (hybrid core) incl. overlay_trajectory (configurable contrast) + heterogeneity_grid + factor_loadings_bars + leaderboard_scorecard + diverging rubric_correlation_heatmap; trajectories take arms=/iters=
-│   │   ├── figures.py                   shared helpers: set_style(cfg) (cfg-aware scales) + arm_palette(+overrides) + model_order + grid + apply_score_axis
-│   │   └── exports.py                   save_fig (PNG default) / save_table (md+xlsx default) → results/<group>/ ; set_export_group + set_formats + save_provenance + build_index + reset_results
-│   ├── results/                         GENERATED thesis artifacts: figures/ (pdf) + tables/ (md) — re-created by running the notebooks
+│   │   └── exports.py                   VIEW-aware: save_fig (PNG) / save_table (md+xlsx) → results/<view>/<group>/ ; set_view + set_export_group + set_formats + save_provenance + build_index + reset_results (PRESERVES SUMMARY.md)
+│   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures/<group>/ (png) + tables/<group>/ (md+xlsx) + INDEX.md + hand-authored SUMMARY.md
 │   └── oracle_scoring/                  LEGACY package — kept ONLY for Run_Eval scoring (Exp3 registry; NOT the new analysis)
 └── HF_key.txt, openai_key.txt
 ```
@@ -369,19 +365,41 @@ the `char×arm` PNG explosion into one figure (panel per arm); the preference pr
 `focus_arms ∩ PTO`. **Validated:** package smoke (PNG + xlsx sheet + select/overlay/heterogeneity/
 loadings) + all 6 notebooks via nbconvert (`thesis-venv313`); old flat `results/` wiped + regenerated.
 
+**VIEW system + package consolidation + narrative summaries (2026-06-18, latest).** Lior's asks: cleaner
+EDA, results split by look-ahead, fewer/easier-to-edit modules, and a written summary. **(1) The VIEW knob.**
+Cell 1 of every notebook now leads with `VIEW = os.environ.get("EDA_VIEW", "L0")` → `EdaConfig(view=VIEW, …)`.
+`view ∈ {all, L0, L5}` is ONE control that sets BOTH the arm filter (`all`=every arm, `L0`=K=0, `L5`=K=5) AND
+the results root, so `results/` now holds **3 parallel trees** `all/ · L0/ · L5/`, each
+`figures|tables/<group>/` + `INDEX.md` + a hand-authored `SUMMARY.md`. Wired via `EdaConfig.view` + `_VIEW_KS`
+(explicit `ks=` still overrides) in [config.py](eda/eda_analysis/config.py) and a view-aware root
+(`set_view`/`_results_root`/…) in [exports.py](eda/eda_analysis/exports.py); `reset_results` clears only the
+active view's figures/tables and **never deletes `SUMMARY.md`** (`PRESERVE`). **(2) Plumbing merged 14→9.**
+`config.py`+`notebook.py`→**config**; `discovery`+`personas`+`scores`+`select`→**data.py**;
+`figures`+`plots`→**plotting.py**. Kept: `stats`/`behavior`/`training`/`pref`/`exports`. The old submodule
+names are **aliased** in `__init__` (`figures=plots=plotting`, `personas=scores=discovery=select=data`, also
+registered in `sys.modules` so `from eda_analysis.personas import …` resolves), so **no notebook analysis cell
+changed** — only cell 1 got the VIEW knob. **(3) Driver** [render_views.py](eda/render_views.py) regenerates all
+3 views × 6 notebooks via nbconvert (sets `EDA_VIEW`, `--output-dir tmp` so source notebooks aren't churned).
+**(4) Narrative** `results/<view>/SUMMARY.md` (hand-authored, preserved) — L0 is the primary read.
+**Validated:** import/alias + view→ks + `target="best"` smoke PASS; 0_Headline@L0 dry-run wrote
+`results/L0/figures/headline/*` + `INDEX.md` with `SUMMARY.md` intact; full 3×6 matrix via nbconvert.
+
 ### New EDA workflow (replaces "add registry entry → Conv_EDA")
 1. **Score** a new run: `Run_Eval.ipynb` still needs a `oracle_scoring/config.py::EXPERIMENTS` entry to know what
    to grade (this one coupling remains by design). Run it → writes `eval_scores/`.
 2. **Analyze:** open `0_Headline` (3 canonical figures + index), then `1_Eval_and_Behavior` (eval
    outcomes + behaviour) and `2`–`5` for the deeper analyses (each exports its own artifacts;
-   `5_Detailed_Stats` holds all the heavy tables). Every notebook's cell 1 is
-   `cfg = eda_analysis.EdaConfig(export_group=…, focus_arms=…)` → `S = eda_analysis.notebook_setup(cfg)` — one
-   flat-globals config controls arms / metrics / selection / **focus_arms** / plot scales / exports
-   (figs **PNG**, tables **md+xlsx**). All **auto-discover** every arm via `eda_analysis.discover_arms()` — no
-   registry edit. Artifacts land in **`eda/results/<figures|tables>/<group>/`** (`eda_analysis.build_index()`
-   writes `results/INDEX.md`). Point any figure at a subset with `arms=`/`eda_analysis.select_scores(...)`.
-3. Re-run is cheap; arms not yet scored are skipped gracefully (the cross-method/K cells degrade to a
-   "not scored yet" banner; thin arms < 3 iters are skipped in the per-arm batteries).
+   `5_Detailed_Stats` holds all the heavy tables). Every notebook's cell 1 starts with the **VIEW knob**
+   `VIEW = os.environ.get("EDA_VIEW", "L0")` then `cfg = eda_analysis.EdaConfig(view=VIEW, export_group=…)`
+   → `S = eda_analysis.notebook_setup(cfg)`. **`view` ∈ {all, L0, L5}** is the one control: it sets BOTH
+   the arm filter (`all`=every arm, `L0`=K=0 arms, `L5`=K=5 arms) AND the results root, so artifacts land
+   in **`eda/results/<VIEW>/<figures|tables>/<group>/`** (per-view `INDEX.md` + a hand-authored
+   `SUMMARY.md`). All **auto-discover** every arm via `eda_analysis.discover_arms()` — no registry edit.
+   Point any figure at a subset with `arms=`/`eda_analysis.select_scores(...)`.
+3. **Regenerate all views at once:** `python render_views.py` (3 views × 6 notebooks = 18 nbconvert runs,
+   kernel `thesis-venv313`, writes the `results/` trees; `render_views.py L0` for one view,
+   `… L5 --nb 4` for one view+notebook). Re-run is cheap; arms not yet scored are skipped gracefully
+   (cross-method/K cells degrade to a "not scored yet" banner; thin arms < 3 iters are dropped).
 
 See [eda/README.md](eda/README.md) for the full notebook guide + an improvement roadmap.
 
@@ -913,9 +931,12 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 ## EDA extension points
 
 **New analysis EDA (`eda_analysis/`)** needs **no registry edits** — it auto-discovers arms from disk. Extend
-it in the modules: a new rubric → `eda_analysis/__init__.py::QUESTIONNAIRES` + `scores.py`; a new arm naming
-scheme → `discovery.py::parse_experiment_name`; new stats/plots → `stats.py`/`figures.py`. The bullets
-below apply to the **old `oracle_scoring/` package**, which now only powers `Run_Eval.ipynb` (scoring):
+it in the 9 modules: a new rubric → `eda_analysis/__init__.py::QUESTIONNAIRES` + `data.py` (the scores
+backbone); a new arm naming scheme → `data.py::parse_experiment_name`; new stats → `stats.py`; new figures →
+`plotting.py`; a new VIEW or results-layout change → `config.py` (the `view`/`_VIEW_KS` logic) + `exports.py`.
+(The old submodule names `discovery`/`personas`/`scores`/`select`/`figures`/`plots` are aliased to
+`data`/`plotting`, so existing references still resolve.) The bullets below apply to the **old
+`oracle_scoring/` package**, which now only powers `Run_Eval.ipynb` (scoring):
 
 - **`config.ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `data._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
 - **`config.COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
