@@ -1,0 +1,8 @@
+- **main_results_final** — Final iteration vs base, per arm x rubric, persona-paired (N=96): dz, Wilcoxon p (Holm), bootstrap CI, trajectory rho/slope. Thin arms dropped.
+- **main_results_best** — As main_results_final but vs each arm's BEST iteration (selection-sensitivity companion).
+- **friedman_omnibus** — Friedman repeated-measures omnibus across iterations per arm x rubric (Kendall's W). Thin arms dropped.
+- **GRPO_LA0_Q1Q2_vs_base_paired** — GRPO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap CI.
+- **PTO_LA0_Q1Q2_vs_base_paired** — PTO_LA0 each iteration vs base on Q1+Q2; persona-paired Wilcoxon, dz, Holm p, bootstrap CI.
+- **PTO_vs_GRPO_LA0_paired** — PTO_LA0 - GRPO_LA0 at matched iterations; persona-paired Wilcoxon + dz + Holm.
+- **Q1Q2_slope_by_arm** — Q1+Q2 per-iteration OLS slope + Spearman rho per arm (climb rate). Thin arms dropped.
+- **rubric_pca_pc1** — Variance explained by PC1 of the rubric scores per arm (dominant PC1 => rubrics ~ one latent factor).

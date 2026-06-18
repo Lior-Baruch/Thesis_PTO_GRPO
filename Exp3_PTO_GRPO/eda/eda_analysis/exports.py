@@ -1,21 +1,26 @@
 """
-exports.py — save publication figures + result tables for the thesis (one format each).
+exports.py — save publication figures + result tables for the thesis, organized by VIEW + group.
 
-One artifact, one file — no duplicate formats cluttering ``results/``:
-- figures → ``results/figures/<group>/<name>.pdf`` (vector, for LaTeX/Overleaf)
-- tables  → ``results/tables/<group>/<name>.md`` (paste-able / readable)
+Two-level layout::
 
-``<group>`` is the per-notebook export group (``"eval"``, ``"behavior"``, …) set once via
-:func:`set_export_group` (``notebook_setup`` does this from ``EdaConfig.export_group``). With no
-group set, artifacts fall back to the flat ``results/figures/`` / ``results/tables/`` roots.
+    results/<view>/figures/<group>/<name>.png      # view = all | L0 | L5 ; group = eval | headline | …
+    results/<view>/tables/<group>/<name>.md (+ .xlsx)
+    results/<view>/INDEX.md                        # per-view artifact map
+    results/<view>/SUMMARY.md                      # HAND-AUTHORED narrative (never auto-deleted)
 
-The ``formats=`` kwarg still lets a one-off call request extra formats explicitly (e.g.
-``save_fig(fig, name, formats=("pdf", "png"))``), but the defaults are a single format apiece.
+- ``<view>`` is set once per notebook via :func:`set_view` (``notebook_setup`` does this from
+  ``EdaConfig.view``). It splits the artifacts into the three parallel look-ahead trees the user
+  asked for. With no view set (``""``) artifacts fall back to the legacy bare ``results/`` root.
+- ``<group>`` is the per-notebook export group (``"eval"``, ``"headline"``, …) set via
+  :func:`set_export_group`. With no group set, artifacts fall back to the view's flat roots.
+
+The ``formats=`` kwarg lets a one-off call request extra formats (e.g.
+``save_fig(fig, name, formats=("pdf", "png"))``); the defaults are PNG figures + ``.md``/``.xlsx`` tables.
 
 Notebooks keep showing plots inline AND call :func:`save_fig` / :func:`save_table` on their key
-artifacts with stable, thesis-ready names, so re-running a notebook regenerates its deliverables.
-Captions accumulate in each group's ``CAPTIONS.md``; :func:`build_index` writes a top-level
-``results/INDEX.md`` listing every artifact across groups.
+artifacts with stable, thesis-ready names. Captions accumulate in each group's ``CAPTIONS.md``;
+:func:`build_index` writes the per-view ``results/<view>/INDEX.md``. :func:`reset_results` clears the
+generated figure/table subfolders of the active view but PRESERVES the hand-authored ``SUMMARY.md``.
 """
 
 import os
@@ -26,15 +31,34 @@ from typing import Optional, Sequence
 import pandas as pd
 
 RESULTS_DIR = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "results"))
-FIGURES_DIR = os.path.join(RESULTS_DIR, "figures")
+FIGURES_DIR = os.path.join(RESULTS_DIR, "figures")   # legacy bare roots (when no view is set)
 TABLES_DIR = os.path.join(RESULTS_DIR, "tables")
 
-# The active export group (per-notebook subfolder). Empty = flat roots (legacy behaviour).
+# Files at a view root that must NEVER be deleted by reset_results (hand-authored, not regenerated).
+PRESERVE = {"SUMMARY.md"}
+
+# Figure/table file extensions recognized by build_index / reset_results, per root.
+_FIG_EXTS = (".png", ".pdf", ".svg")
+_TAB_EXTS = (".md",)
+
+# The active view subfolder. Empty = legacy bare roots (results/figures/...).
+_VIEW = ""
+# The active export group (per-notebook subfolder). Empty = the view's flat roots.
 _GROUP = ""
 # Default formats used when a save_* call doesn't pass `formats=` explicitly. Set by
 # notebook_setup() from EdaConfig (figures -> PNG images, tables -> readable .md + Excel .xlsx).
 _FIG_FORMATS = ("png",)
 _TABLE_FORMATS = ("md", "xlsx")
+
+
+def set_view(view: str = "") -> None:
+    """Set the active VIEW subfolder for subsequent saves (``results/<view>/...``).
+
+    ``notebook_setup`` calls this from ``EdaConfig.view`` (``all``/``L0``/``L5``). Pass ``""`` for
+    the legacy bare ``results/`` root.
+    """
+    global _VIEW
+    _VIEW = (view or "").strip().strip("/\\")
 
 
 def set_export_group(group: str = "") -> None:
@@ -55,12 +79,25 @@ def set_formats(fig_formats=None, table_formats=None) -> None:
         _TABLE_FORMATS = tuple(table_formats)
 
 
+# ── View-aware path helpers (everything downstream routes through these) ───────
+def _results_root() -> str:
+    return os.path.join(RESULTS_DIR, _VIEW) if _VIEW else RESULTS_DIR
+
+
+def _figures_root() -> str:
+    return os.path.join(_results_root(), "figures")
+
+
+def _tables_root() -> str:
+    return os.path.join(_results_root(), "tables")
+
+
 def _fig_dir() -> str:
-    return os.path.join(FIGURES_DIR, _GROUP) if _GROUP else FIGURES_DIR
+    return os.path.join(_figures_root(), _GROUP) if _GROUP else _figures_root()
 
 
 def _tab_dir() -> str:
-    return os.path.join(TABLES_DIR, _GROUP) if _GROUP else TABLES_DIR
+    return os.path.join(_tables_root(), _GROUP) if _GROUP else _tables_root()
 
 
 def _append_caption(dir_path: str, name: str, caption: Optional[str]):
@@ -84,7 +121,7 @@ def _append_caption(dir_path: str, name: str, caption: Optional[str]):
 
 def save_fig(fig, name: str, *, formats: Optional[Sequence[str]] = None,
              dpi: int = 200, caption: Optional[str] = None) -> str:
-    """Save *fig* to ``results/figures/<group>/<name>.<fmt>`` for each format; log the caption.
+    """Save *fig* to ``results/<view>/figures/<group>/<name>.<fmt>`` for each format; log the caption.
 
     ``formats=None`` uses the notebook default (``EdaConfig.fig_formats`` → PNG images by default;
     set ``cfg.fig_formats=("png","pdf")`` to also emit vector PDF). Returns the (group) figures dir.
@@ -101,7 +138,7 @@ def save_fig(fig, name: str, *, formats: Optional[Sequence[str]] = None,
 def save_table(df: pd.DataFrame, name: str, *, formats: Optional[Sequence[str]] = None,
                float_format: str = "%.3f", index: bool = False,
                caption: Optional[str] = None) -> str:
-    """Save *df* to ``results/tables/<group>/<name>.<fmt>``; log the caption. Returns the tables dir.
+    """Save *df* to ``results/<view>/tables/<group>/<name>.<fmt>``; log the caption. Returns the dir.
 
     ``formats=None`` uses the notebook default (``EdaConfig.table_formats`` → ``.md`` + ``.xlsx``).
     ``.xlsx`` collects every table of the group into one workbook ``<group>.xlsx`` (one sheet per
@@ -178,16 +215,17 @@ def _to_markdown(df: pd.DataFrame, *, index: bool, float_format: str) -> str:
 
 
 def save_provenance(cfg, scores=None, *, group: Optional[str] = None) -> str:
-    """Write a per-run provenance banner to ``results/<figures>/<group>/_provenance.md``.
+    """Write a per-run provenance banner to ``results/<view>/figures/<group>/_provenance.md``.
 
-    Records the active ``EdaConfig`` + the arms/metrics actually present in ``scores`` so every
-    regenerated figure set is traceable to the config that produced it. Returns the file path.
+    Records the active ``EdaConfig`` (incl. the view) + the arms/metrics actually present in
+    ``scores`` so every regenerated figure set is traceable to the config that produced it.
+    Returns the file path.
     """
     g = (group if group is not None else _GROUP) or ""
-    d = os.path.join(FIGURES_DIR, g) if g else FIGURES_DIR
+    d = os.path.join(_figures_root(), g) if g else _figures_root()
     os.makedirs(d, exist_ok=True)
     cfgd = cfg.as_dict() if hasattr(cfg, "as_dict") else dict(cfg)
-    lines = [f"# Provenance — group `{g or '(flat)'}`\n"]
+    lines = [f"# Provenance — view `{_VIEW or '(flat)'}` · group `{g or '(flat)'}`\n"]
     if scores is not None and not getattr(scores, "empty", True):
         arms = sorted(scores["arm"].unique()) if "arm" in scores.columns else []
         mets = sorted(scores["questionnaire"].unique()) if "questionnaire" in scores.columns else []
@@ -204,46 +242,56 @@ def save_provenance(cfg, scores=None, *, group: Optional[str] = None) -> str:
 
 
 def build_index() -> str:
-    """Write ``results/INDEX.md`` listing every figure + table across all group subfolders.
+    """Write ``results/<view>/INDEX.md`` listing every figure + table of the active view.
 
-    A master artifact map so the reader sees, in one place, which notebook (group) produced what.
-    Returns the index path.
+    A per-view artifact map so the reader sees, in one place, which notebook (group) produced what.
+    Returns the index path. (The hand-authored ``SUMMARY.md`` is the narrative companion to this map.)
     """
-    lines = ["# Exp3 EDA artifact index\n",
-             "_Generated by `eda_analysis.build_index()` — figures (`.pdf`) + tables (`.md`) by group._\n"]
-    for kind, root in (("Figures", FIGURES_DIR), ("Tables", TABLES_DIR)):
+    view = _VIEW or "(flat)"
+    lines = [f"# Exp3 EDA artifact index — view `{view}`\n",
+             "_Generated by `eda_analysis.build_index()`. See `SUMMARY.md` for the written analysis._\n"]
+    for kind, root, exts in (("Figures", _figures_root(), _FIG_EXTS),
+                             ("Tables", _tables_root(), _TAB_EXTS)):
         lines.append(f"\n## {kind}")
         if not os.path.isdir(root):
             lines.append("_(none)_")
             continue
         # group subfolders first, then any flat artifacts at the root
         groups = sorted(d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d)))
+        any_listed = False
         for g in groups + [""]:
             gdir = os.path.join(root, g) if g else root
             if not os.path.isdir(gdir):
                 continue
             arts = sorted(f for f in os.listdir(gdir)
-                          if f.lower().endswith((".pdf", ".md")) and not f.startswith(("CAPTIONS", "_prov")))
+                          if f.lower().endswith(exts) and not f.startswith(("CAPTIONS", "_prov")))
             if not arts:
                 continue
+            any_listed = True
             lines.append(f"\n### {g or '(flat)'}")
             lines += [f"- `{a}`" for a in arts]
-    path = os.path.join(RESULTS_DIR, "INDEX.md")
-    os.makedirs(RESULTS_DIR, exist_ok=True)
+        if not any_listed:
+            lines.append("_(none)_")
+    out_dir = _results_root()
+    os.makedirs(out_dir, exist_ok=True)
+    path = os.path.join(out_dir, "INDEX.md")
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines) + "\n")
     return path
 
 
 def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False) -> None:
-    """Clear generated artifacts before a clean regenerate.
+    """Clear generated artifacts of the ACTIVE VIEW before a clean regenerate.
 
-    - ``groups`` given → remove just those ``results/{figures,tables}/<group>/`` subfolders.
+    Operates only on ``results/<view>/{figures,tables}/`` — never the view root, so the
+    hand-authored ``SUMMARY.md`` (and anything else in :data:`PRESERVE`) is always kept.
+
+    - ``groups`` given → remove just those ``figures/<group>/`` + ``tables/<group>/`` subfolders.
     - ``groups=None`` → remove ALL group subfolders under both roots.
-    - ``flat=True`` → also delete loose ``*.pdf`` / ``*.md`` sitting at the flat roots (the
-      legacy dump). Subfolders are recreated lazily on the next save.
+    - ``flat=True`` → also delete loose figure/table files sitting at the (view's) flat roots.
+      Subfolders are recreated lazily on the next save.
     """
-    for root, ext in ((FIGURES_DIR, ".pdf"), (TABLES_DIR, ".md")):
+    for root, exts in ((_figures_root(), _FIG_EXTS), (_tables_root(), _TAB_EXTS)):
         if not os.path.isdir(root):
             continue
         subs = ([os.path.join(root, g) for g in groups] if groups is not None
@@ -254,6 +302,8 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
                 shutil.rmtree(s)
         if flat:
             for f in os.listdir(root):
+                if f in PRESERVE:
+                    continue
                 fp = os.path.join(root, f)
-                if os.path.isfile(fp) and (f.lower().endswith(ext) or f == "CAPTIONS.md"):
+                if os.path.isfile(fp) and (f.lower().endswith(exts) or f == "CAPTIONS.md"):
                     os.remove(fp)

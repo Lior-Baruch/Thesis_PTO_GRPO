@@ -1,0 +1,2 @@
+- **PTO_LA5_pref_probe_quality** — PTO_LA5 preference-probe quality per iteration (wins_correct, gap, margin).
+- **PTO_LA5_pref_MI_concepts** — PTO_LA5 MI-concept projection onto the preference direction per iteration.

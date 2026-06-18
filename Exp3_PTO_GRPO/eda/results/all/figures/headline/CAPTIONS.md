@@ -1,0 +1,3 @@
+- **outcomes_headline** — Pooled Base + each arm's best iteration across the MI rubrics; full-conv eval, mean +/- 95% CI over 96 personas. Dotted line = base.
+- **effect_vs_base_forest** — Improvement vs base (Δ + 95% CI) per arm x rubric, full-conv eval; dot color = effect-size label, dz annotated.
+- **trajectory_Q1Q2** — Q1+Q2 mean across iterations per arm (mean +/- 95% CI, N=96). Grey band = oracle reproducibility (~0.10) around base.

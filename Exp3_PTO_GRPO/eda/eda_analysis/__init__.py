@@ -93,24 +93,20 @@ PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
 
 
 # ── Public API re-exports (submodules import `from . import WORKSPACE_ROOT, ...`) ──
-from .config import EdaConfig  # noqa: E402
-from .discovery import Arm, discover_arms, parse_experiment_name, filter_arms  # noqa: E402
-from .personas import (  # noqa: E402
-    canonical_personas, persona_order, file_to_persona,
-    attach_personas, validate_recovery,
-)
-from .scores import (  # noqa: E402
+# Control surface (EdaConfig + the one-call notebook_setup) — config.py absorbed the old notebook.py.
+from .config import EdaConfig, notebook_setup, Setup  # noqa: E402
+# Data layer (discovery + personas + scores + select all merged into data.py).
+from .data import (  # noqa: E402
+    Arm, discover_arms, parse_experiment_name, filter_arms,
+    canonical_personas, persona_order, file_to_persona, attach_personas, validate_recovery,
     load_scores_long, load_subscales, to_wide, collapse_base, MEAN_COLS,
     add_derived_mitiprof_rows, select_scores,
+    all_models, best_per_experiment,
 )
-from .select import all_models, best_per_experiment  # noqa: E402
 from .exports import (  # noqa: E402
-    save_fig, save_table, save_provenance, build_index, reset_results, set_export_group,
-    RESULTS_DIR, FIGURES_DIR, TABLES_DIR,
+    save_fig, save_table, save_provenance, build_index, reset_results,
+    set_export_group, set_view, RESULTS_DIR, FIGURES_DIR, TABLES_DIR,
 )
-
-# One-call notebook setup + the new cross-method / training-internal / plotting helpers.
-from .notebook import notebook_setup, Setup  # noqa: E402
 from .stats import (  # noqa: E402
     paired_method_comparison, paired_k_comparison,
     rank_agreement_by_nturns, filter_thin_arms, thin_arms,
@@ -123,26 +119,35 @@ from .pref import (  # noqa: E402
     pref_word_ranking, pref_word_drift_heatmap, plot_category_drift, top_words_by_iter,
     preference_direction_drift, plot_direction_drift, learn_unlearn_words, plot_learn_unlearn,
 )
-from . import figures, plots, stats, behavior, training, pref  # noqa: E402,F401
+
+# Submodules + backward-compat ALIASES so every submodule-qualified notebook call keeps resolving
+# after the plumbing merge: figures/plots -> plotting; discovery/personas/scores/select -> data.
+from . import plotting, data, stats, behavior, training, pref, exports  # noqa: E402,F401
+figures = plots = plotting              # notebooks: figures.set_style / plots.overlay_trajectory
+personas = scores = discovery = select = data   # notebooks: eda_analysis.personas.canonical_personas
+# Register the aliases as importable submodules too, so `from eda_analysis.personas import X`
+# (the form used in 1_Eval_and_Behavior) resolves — not only attribute access.
+for _alias, _mod in (("figures", plotting), ("plots", plotting), ("personas", data),
+                     ("scores", data), ("discovery", data), ("select", data)):
+    sys.modules[f"{__name__}.{_alias}"] = _mod
 
 __all__ = [
     "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
     "WARMTH_RUBRICS", "ORTHOGONAL_METRICS", "LOWER_IS_BETTER", "display_label",
-    "EdaConfig",
+    "EdaConfig", "notebook_setup", "Setup",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "file_to_persona",
     "attach_personas", "validate_recovery",
     "load_scores_long", "load_subscales", "to_wide", "collapse_base", "MEAN_COLS",
     "add_derived_mitiprof_rows", "select_scores",
     "all_models", "best_per_experiment",
-    "save_fig", "save_table", "save_provenance", "build_index", "reset_results", "set_export_group",
-    "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
-    "notebook_setup", "Setup",
+    "save_fig", "save_table", "save_provenance", "build_index", "reset_results",
+    "set_export_group", "set_view", "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
     "paired_method_comparison", "paired_k_comparison",
     "rank_agreement_by_nturns", "filter_thin_arms", "thin_arms",
     "advantage_signal_by_iter", "reward_distribution_frame",
     "load_branch_reliability", "tb_curves", "parse_run_tb",
     "pref_word_ranking", "pref_word_drift_heatmap", "plot_category_drift", "top_words_by_iter",
     "preference_direction_drift", "plot_direction_drift", "learn_unlearn_words", "plot_learn_unlearn",
-    "figures", "plots", "stats", "behavior", "training", "pref",
+    "plotting", "data", "figures", "plots", "stats", "behavior", "training", "pref",
 ]

@@ -27,7 +27,7 @@ from typing import List, Optional
 
 import pandas as pd
 
-from .personas import attach_personas
+from .data import attach_personas  # personas merged into data.py
 
 _MITI_COLS = {
     "MITI_B1_GI": "B1_GI", "MITI_B3_Q": "B3_Q", "MITI_B4_SR": "B4_SR", "MITI_B5_CR": "B5_CR",

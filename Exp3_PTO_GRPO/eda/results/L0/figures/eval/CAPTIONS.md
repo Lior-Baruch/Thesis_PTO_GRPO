@@ -1,0 +1,10 @@
+- **trajectories_all_rubrics** — Full-conv eval: per-rubric mean +/- 95% CI across iterations, arms overlaid.
+- **subscale_trajectories** — WAI-SR + MITI global subscale means across iterations; one panel per (parent, arm), arms with <3 scored iters omitted.
+- **contrast_overlay** — Q1Q2 trajectories overlaid for ['GRPO_LA0', 'PTO_LA0'] (mean +/- 95% CI).
+- **outcomes_by_model** — Appendix: all models x rubrics; mean +/- 95% CI over 96 personas (arm-bases pooled into Base; dotted line = base).
+- **behavior_drift** — MITI behavior counts (B3_Q questions, B4_SR/B5_CR reflections, B6_AF affirmations, B2_Persuade) + text metrics across iterations, all arms.
+- **rubric_correlation** — Spearman correlation among rubric + orthogonal-axis scores (per conversation, pooled). The warmth rubrics block together; R:Q/%CR/%MICO/PCT/MICI should sit apart.
+- **factor_loadings** — Each metric's PCA loading: the 5 warmth rubrics load high on PC1 (one shared factor); the orthogonal axes load ~0 on PC1 and define PC2.
+- **overpraise_crosscheck** — Per-(arm,iteration) deterministic lexical over-praise marker rate vs the oracle-coded MICI over-praise rate — a directional sanity-check on the demoted regex.
+- **heterogeneity_cooperation_level** — Q1Q2 across iterations split by true patient cooperation_level; one panel per arm.
+- **heterogeneity_problem** — Q1Q2 across iterations split by true patient problem; one panel per arm.

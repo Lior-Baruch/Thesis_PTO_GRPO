@@ -449,7 +449,7 @@ def main_results_table(scores_long: pd.DataFrame, target: str = "final",
     # resolve the target model per arm
     target_model = {}
     if target == "best":
-        from .select import best_per_experiment
+        from .data import best_per_experiment  # select merged into data.py
         _, summ = best_per_experiment(scores_long)
         target_model = dict(zip(summ.get("arm", []), summ.get("best_model", [])))
     rows = []

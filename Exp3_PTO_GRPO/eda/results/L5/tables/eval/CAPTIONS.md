@@ -1,0 +1,3 @@
+- **leaderboard_scorecard** — Best iteration per arm: warmth rubrics beside the orthogonal axes (MICI lower-is-better, flagged ↓).
+- **GRPO_LA5_behavior_by_iter** — GRPO_LA5 mean behavior metrics per iteration (MITI counts + text metrics).
+- **PTO_LA5_behavior_by_iter** — PTO_LA5 mean behavior metrics per iteration (MITI counts + text metrics).
