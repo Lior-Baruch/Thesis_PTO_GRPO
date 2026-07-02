@@ -279,6 +279,25 @@ EXPERIMENTS: List[Experiment] = [
                    method="PTO_Exp3", epoch=n)
         for n in range(0, 5)
     ],
+
+    # ── K=2 look-ahead arms (RQ-i; launched 2026-06-18) — PRE-STAGED, COMMENTED ──
+    # The LA2 runs are not on disk yet. Per the on-disk-only convention above, keep
+    # these commented until the Colab runs land, then UNCOMMENT and set range(0, N+1)
+    # to the model_iter dirs actually present (target N=10 for both, matching LA0).
+    # GRPO_Exp3 LA2:
+    # *[
+    #     Experiment("Base" if n == 0 else "Q1Q2", 2, None,
+    #                f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA2_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
+    #                method="GRPO_Exp3", epoch=n)
+    #     for n in range(0, 11)
+    # ],
+    # PTO_Exp3 LA2 greedy:
+    # *[
+    #     Experiment("Base" if n == 0 else "Q1Q2", 2, None,
+    #                f"{_PTO_EXP3_CONV}/full/PTO_Iterative_Q1Q2_Llama32-1B_LA2_MCL12_M8_PTgreedy/model_iter_{n}_TT0.9_TP0.7",
+    #                method="PTO_Exp3", epoch=n)
+    #     for n in range(0, 11)
+    # ],
 ]
 
 

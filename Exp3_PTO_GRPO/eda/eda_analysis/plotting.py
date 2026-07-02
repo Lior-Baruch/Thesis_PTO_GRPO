@@ -133,10 +133,11 @@ _MODEL_RE = re.compile(r"^(PTO|GRPO)Exp3_LA(\d+)_(Base|I\d+)$")
 
 
 def clean_label(model: str) -> str:
-    """Tidy (full, no-abbreviation) axis label: ``PTOExp3_LA0_I3`` -> ``PTO_LA0_I3``.
+    """Tidy, readable axis label: ``PTOExp3_LA0_I3`` -> ``PTO K=0 I3``.
 
-    Only drops the redundant constant ``Exp3`` (every model is Exp3); keeps method, look-ahead K,
-    and iteration spelled out. Pooled ``Base`` -> ``Base``. Unknown strings pass through unchanged.
+    Drops the redundant constant ``Exp3`` (every model is Exp3) and spells the look-ahead as
+    ``K=<k>``; keeps the iteration tag (``I3`` / ``Base``). Pooled ``Base`` -> ``Base``. Unknown
+    strings pass through unchanged.
     """
     if model == "Base":
         return "Base"
@@ -144,7 +145,7 @@ def clean_label(model: str) -> str:
     if not m:
         return model
     method, k, tail = m.groups()
-    return f"{method}_LA{k}_{tail}"
+    return f"{method} K={k} {tail}"
 
 
 def relabel_xticks(ax, *, rotation: int = 90, fontsize: int = 7):
@@ -157,6 +158,21 @@ def relabel_xticks(ax, *, rotation: int = 90, fontsize: int = 7):
     labels = [clean_label(t.get_text()) for t in ax.get_xticklabels()]
     ax.set_xticks(ticks)
     ax.set_xticklabels(labels, rotation=rotation, fontsize=fontsize)
+
+
+def relabel_legend(ax, mapping=None):
+    """Rewrite an axis legend's entry TEXTS (default: readable :func:`arm_label`).
+
+    Label layer only: the hue column keeps its canonical values (so the palette mapping stays
+    intact); only the visible legend text is swapped. No-op if ``ax`` has no legend.
+    """
+    from . import arm_label
+    leg = ax.get_legend()
+    if leg is None:
+        return
+    fn = (lambda t: mapping.get(t, t)) if mapping is not None else arm_label
+    for txt in leg.get_texts():
+        txt.set_text(fn(txt.get_text()))
 
 
 def add_base_line(ax, base_value, *, annotate: bool = True):
@@ -180,7 +196,9 @@ def figure_legend_from(ax, fig, *, title="arm", ncol: int = 4):
     shared legend so multi-panel figures don't repeat a key inside a data area. No-op if ``ax``
     has nothing to key.
     """
+    from . import arm_label
     handles, labels = ax.get_legend_handles_labels()
+    labels = [arm_label(l) for l in labels]   # readable arm names (canonical keys unchanged)
     for a in fig.axes:
         if a.get_legend() is not None:
             a.legend_.remove()
@@ -225,6 +243,7 @@ def _metrics(frame_metrics, metrics: Optional[Sequence[str]]) -> list:
 def outcomes_by_model(scores_long, *, palette, metrics: Optional[Sequence[str]] = None,
                       order: Optional[Sequence[str]] = None, ncols: int = 2):
     """Grouped outcome bars per rubric over every model (left-to-right by method/K/iter)."""
+    from . import display_label
     metrics = _metrics(scores_long["questionnaire"].unique(), metrics)
     order = list(order) if order is not None else figures.model_order(scores_long)
     fig, axes = figures.grid(len(metrics), ncols=ncols, panel=(7.6, 3.4))
@@ -232,7 +251,7 @@ def outcomes_by_model(scores_long, *, palette, metrics: Optional[Sequence[str]] 
         dm = scores_long[scores_long.questionnaire == m]
         sns.barplot(dm, x="model", y="score", hue="arm",
                     order=order, palette=palette, errorbar=("ci", 95), dodge=False, ax=ax)
-        ax.set_title(m); ax.set_xlabel("")
+        ax.set_title(display_label(m)); ax.set_xlabel("")
         figures.relabel_xticks(ax)
         figures.add_base_line(ax, float(dm[dm.is_base].score.mean()) if dm.is_base.any() else None)
     figures.figure_legend_from(axes[0], fig, title="arm")
@@ -250,6 +269,7 @@ def outcomes_headline_by_arm(sel_scores_long, *, palette, metrics: Optional[Sequ
     pool into a single ``Base`` column and each arm column is its peak iteration). A dotted base
     reference line is drawn per panel so above/below-base reads instantly.
     """
+    from . import display_label, arm_label
     metrics = _metrics(sel_scores_long["questionnaire"].unique(), metrics)
     arms = sorted(sel_scores_long.arm.unique())
     arm_order = (["Base"] if "Base" in arms else []) + [a for a in arms if a != "Base"]
@@ -258,7 +278,9 @@ def outcomes_headline_by_arm(sel_scores_long, *, palette, metrics: Optional[Sequ
         dm = sel_scores_long[sel_scores_long.questionnaire == m]
         sns.barplot(dm, x="arm", y="score", hue="arm", order=arm_order, palette=palette,
                     errorbar=("ci", 95), ax=ax)
-        ax.set_title(m); ax.set_xlabel(""); ax.tick_params(axis="x", rotation=30, labelsize=8)
+        ax.set_title(display_label(m)); ax.set_xlabel("")
+        ax.set_xticks(range(len(arm_order)))
+        ax.set_xticklabels([arm_label(a) for a in arm_order], rotation=30, ha="right", fontsize=8)
         figures.add_base_line(ax, float(dm[dm.is_base].score.mean()) if dm.is_base.any() else None)
         if ax.get_legend():
             ax.legend_.remove()
@@ -273,16 +295,25 @@ _EFFECT_COLOR = {"negligible": "#bdbdbd", "small": "#9ecae1", "medium": "#4292c6
 
 
 def effect_forest(main_results_df, *, arms: Optional[Sequence[str]] = None,
-                  metric_order: Optional[Sequence[str]] = None):
-    """Forest/dot plot of each arm×rubric improvement vs base — the readable stand-in for the
+                  metric_order: Optional[Sequence[str]] = None,
+                  lower_is_better: Optional[Sequence[str]] = None,
+                  caption: Optional[str] = None):
+    """Forest/dot plot of each arm×rubric change vs base — the readable stand-in for the
     28-row main-results table.
 
     Takes :func:`stats.main_results_table` output. One row per (arm, rubric): the mean Δ vs base
-    (dot) with its 95% bootstrap CI (whisker), colored by effect-size label, dz annotated; dashed
-    line at 0 = base (no change). Arms are blocked together, rubrics in canonical order.
+    (dot) with its 95% bootstrap CI (whisker), dz annotated; dashed line at 0 = base (no change).
+    Arms are blocked together, rubrics in canonical order.
+
+    Coloring: higher-is-better rubrics use the effect-size ramp (darker = larger effect). Rubrics in
+    ``lower_is_better`` (default = the package ``LOWER_IS_BETTER`` set, i.e. MICI) invert valence, so
+    a positive Δ is *bad*; those rows are colored by DIRECTION (red = moved the wrong way, green =
+    improved) and their label carries a ``↓``. ``caption`` prints an italic note under the axis.
     """
+    from . import display_label, arm_label, LOWER_IS_BETTER
     if main_results_df is None or main_results_df.empty:
         return None
+    lower = set(LOWER_IS_BETTER if lower_is_better is None else lower_is_better)
     df = main_results_df
     if arms is not None:
         df = df[df["arm"].isin(arms)]
@@ -292,21 +323,31 @@ def effect_forest(main_results_df, *, arms: Optional[Sequence[str]] = None,
             for a in arm_order for m in metric_order
             if len(df[(df.arm == a) & (df.rubric == m)])]
     rows = rows[::-1]  # first arm/rubric at the top (matplotlib y grows upward)
-    fig, ax = plt.subplots(figsize=(7.6, max(4.0, 0.34 * len(rows))))
-    yticks, ylabels = [], []
+    fig, ax = plt.subplots(figsize=(7.8, max(4.0, 0.34 * len(rows))))
+    yticks, ylabels, has_lower = [], [], False
     for i, r in enumerate(rows):
-        color = _EFFECT_COLOR.get(r["effect"], "#999999")
+        if r["rubric"] in lower:                       # valence-inverted (positive Δ = worse)
+            has_lower = True
+            color = "#D55E00" if r["delta"] > 0 else "#2ca02c"
+        else:
+            color = _EFFECT_COLOR.get(r["effect"], "#999999")
         ax.plot([r["ci_low"], r["ci_high"]], [i, i], color=color, lw=2.4, solid_capstyle="round", zorder=2)
         ax.scatter([r["delta"]], [i], color=color, s=42, zorder=3)
         ax.text(r["ci_high"], i, f"  dz={r['dz']:.2f}", va="center", fontsize=6.5, color="#333333")
-        yticks.append(i); ylabels.append(f"{r['arm']} · {r['rubric']}")
+        yticks.append(i); ylabels.append(f"{arm_label(r['arm'])} · {display_label(r['rubric'])}")
     ax.axvline(0, color="#555555", lw=1.0, ls="--")
     ax.set_yticks(yticks); ax.set_yticklabels(ylabels, fontsize=7)
-    ax.set_xlabel("improvement vs base (Δ mean score, 95% CI)")
+    ax.set_xlabel("change vs base (Δ mean score, 95% CI)")
     ax.set_title("Effect on full-conversation eval vs base (dashed = base; dz labelled)")
     from matplotlib.patches import Patch
-    ax.legend(handles=[Patch(color=c, label=l) for l, c in _EFFECT_COLOR.items()],
-              title="effect size", fontsize=7, loc="lower right", framealpha=0.9)
+    handles = [Patch(color=c, label=l) for l, c in _EFFECT_COLOR.items()]
+    if has_lower:
+        handles += [Patch(color="#D55E00", label="↓metric: worse"),
+                    Patch(color="#2ca02c", label="↓metric: better")]
+    ax.legend(handles=handles, title="effect size", fontsize=7, loc="lower right", framealpha=0.9)
+    if caption:
+        fig.text(0.5, -0.02, caption, ha="center", va="top", fontsize=7.5,
+                 style="italic", color="#444444", wrap=True)
     fig.tight_layout()
     return fig
 
@@ -345,6 +386,7 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
     own iter-0 base. Arms with fewer than ``min_iters`` scored iterations are omitted (keeps a
     one-point arm like GRPO_LA5 out of the grid).
     """
+    from . import display_label, arm_label
     if subscales_long is None or subscales_long.empty:
         return None
     df = subscales_long
@@ -363,7 +405,7 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
             d = df[(df.parent == parent) & (df.arm == arm)]
             sns.lineplot(d, x="iteration", y="score", hue="subscale", marker="o",
                          errorbar=("ci", 95), ax=ax)
-            ax.set_title(f"{parent} — {arm}")
+            ax.set_title(f"{display_label(parent)} — {arm_label(arm)}")
             ax.set_xlabel("iteration" if r == nrows - 1 else "")
             ax.set_ylabel("score" if c == 0 else "")
             # keep one legend per parent (its subscale set) on the left-most panel
@@ -391,6 +433,7 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
     legend sits above the grid; ``caption`` (default = the PC1≈91% shared-factor caveat) is printed
     under it so "all rubrics up" isn't read as multi-skill evidence. Pass ``caption=None`` to suppress.
     """
+    from . import display_label
     if arms is not None:
         scores_long = scores_long[scores_long.arm.isin(list(arms))]
     if iters is not None:
@@ -400,7 +443,7 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
     for ax, m in zip(axes, metrics):
         sns.lineplot(scores_long[scores_long.questionnaire == m], x="iteration", y="score",
                      hue="arm", palette=palette, marker="o", errorbar=("ci", 95), ax=ax)
-        ax.set_title(m)
+        ax.set_title(display_label(m))
     figures.figure_legend_from(axes[0], fig, title="arm")
     fig.suptitle("Outcome trajectories across iterations — full-conversation eval",
                  y=1.12, fontweight="bold")
@@ -414,13 +457,19 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
 def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
                              arms: Optional[Sequence[str]] = None,
                              iters: Optional[Sequence[int]] = None,
-                             oracle_noise: float = 0.10, baseline_arm: Optional[str] = None):
+                             oracle_noise: float = 0.10, baseline_arm: Optional[str] = None,
+                             mark_peaks: bool = False):
     """One-metric learning curve (arms overlaid) with an oracle-noise band around base.
 
     ``arms``/``iters`` select which arms/iterations to overlay (None = all) — the lever for
     "show only PTO_LA0 vs GRPO_LA0" without a separate hardcoded figure. ``baseline_arm`` anchors
     the grey ±``oracle_noise`` band; if ``None`` the first arm with a base row is used.
+
+    ``mark_peaks=True`` draws a dotted vline + label at each arm's peak iteration **only where the
+    peak precedes the final iteration** (i.e. the arm regressed afterwards) — auto-surfacing e.g.
+    GRPO's iter-8 peak-then-decline without hardcoding any arm/iteration.
     """
+    from . import display_label, arm_label
     d = scores_long[scores_long.questionnaire == metric]
     if arms is not None:
         d = d[d.arm.isin(list(arms))]
@@ -437,9 +486,22 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
         ax.axhspan(b0 - oracle_noise, b0 + oracle_noise, color="grey", alpha=0.15)
         ax.text(0.02, b0 + oracle_noise, " ~oracle-noise band around base", fontsize=7,
                 va="bottom", color="grey")
-    ax.set_title(f"{metric} across iterations — full-conversation eval")
-    ax.set_xlabel("training iteration (model state)"); ax.set_ylabel(f"{metric} (eval)")
+    if mark_peaks:
+        for arm, g in d.groupby("arm"):
+            per_iter = g.groupby("iteration")["score"].mean()
+            if per_iter.empty:
+                continue
+            peak_it, final_it = int(per_iter.idxmax()), int(per_iter.index.max())
+            if peak_it < final_it:   # regressed after the peak — worth flagging
+                col = palette.get(arm, "#555555") if isinstance(palette, dict) else "#555555"
+                ax.axvline(peak_it, color=col, lw=1.0, ls=":", alpha=0.85, zorder=1)
+                ax.annotate(f"{arm_label(arm)} peak (it {peak_it}) → regresses",
+                            xy=(peak_it, float(per_iter.max())), xytext=(4, 6),
+                            textcoords="offset points", fontsize=7, color=col, va="bottom")
+    ax.set_title(f"{display_label(metric)} across iterations — full-conversation eval")
+    ax.set_xlabel("training iteration (model state)"); ax.set_ylabel(f"{display_label(metric)} (eval)")
     sns.move_legend(ax, "upper left", bbox_to_anchor=(1.01, 1.0), title="arm", frameon=False)
+    figures.relabel_legend(ax)
     fig.tight_layout()
     return fig
 
@@ -452,15 +514,18 @@ def overlay_trajectory(scores_long, metric: str = "Q1Q2", *, arms: Sequence[str]
     the old per-K / per-method contrast loops. Degrades to whichever of ``arms`` are present;
     returns ``None`` if none are.
     """
+    from . import display_label, arm_label
     arms = list(arms)
     d = scores_long[(scores_long.arm.isin(arms)) & (scores_long.questionnaire == metric)]
     if d.empty:
         return None
+    present = [a for a in arms if a in set(d.arm)]
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    sns.lineplot(d, x="iteration", y="score", hue="arm", hue_order=[a for a in arms if a in set(d.arm)],
+    sns.lineplot(d, x="iteration", y="score", hue="arm", hue_order=present,
                  palette=palette, marker="o", errorbar=("ci", 95), ax=ax)
-    ax.set_title(title or f"{metric}: {' vs '.join(a for a in arms if a in set(d.arm))}")
-    ax.set_xlabel("iteration"); ax.set_ylabel(metric)
+    ax.set_title(title or f"{display_label(metric)}: {' vs '.join(arm_label(a) for a in present)}")
+    ax.set_xlabel("iteration"); ax.set_ylabel(display_label(metric))
+    figures.relabel_legend(ax)
     fig.tight_layout()
     return fig
 
@@ -468,18 +533,86 @@ def overlay_trajectory(scores_long, metric: str = "Q1Q2", *, arms: Sequence[str]
 def method_contrast_overlay(scores_long, metric: str = "Q1Q2", *,
                             pair: Tuple[str, str] = ("PTO_LA0", "GRPO_LA0"), palette):
     """Back-compat thin wrapper around :func:`overlay_trajectory` for a two-arm ``pair``."""
+    from . import display_label, arm_label
     return overlay_trajectory(scores_long, metric, arms=list(pair), palette=palette,
-                              title=f"{metric}: {pair[0]} vs {pair[1]} (matched)")
+                              title=f"{display_label(metric)}: {arm_label(pair[0])} vs "
+                                    f"{arm_label(pair[1])} (matched)")
+
+
+def reward_hack_panel(scores_long, *, arms: Sequence[str], palette=None,
+                      warmth_metric: str = "Q1Q2",
+                      right_metrics: Sequence[str] = ("MICI", "PCT")):
+    """The reward-hack in ONE frame: warmth climbs while the orthogonal axes reveal the cost.
+
+    One panel per arm with twin y-axes. LEFT (1–5): the warmth reward proxy (``warmth_metric``,
+    solid grey). RIGHT (0–1): each of ``right_metrics`` — ``MICI`` (MI-inconsistency, dashed, red =
+    worse) and ``PCT`` (patient change-talk, dotted, green = the real MI goal). Reads at a glance:
+    warmth **and** MI-inconsistency rise together while patient change-talk barely moves — so "all
+    rubrics up" is NOT multi-skill. Per-iteration means (no CI band, to keep the twin axis legible).
+    Returns ``None`` if no requested arm is present.
+    """
+    from . import display_label, arm_label
+    arms = [a for a in arms if a in set(scores_long.arm.unique())]
+    rights = [m for m in right_metrics if m in set(scores_long.questionnaire.unique())]
+    if not arms:
+        return None
+    warm_color = "#333333"
+    right_style = {"MICI": ("--", "#D55E00", "s"), "PCT": (":", "#009E73", "^")}
+    fig, axes = figures.grid(len(arms), ncols=min(2, len(arms)), panel=(6.2, 4.0))
+    for ax, arm in zip(axes, arms):
+        dw = (scores_long[(scores_long.arm == arm) & (scores_long.questionnaire == warmth_metric)]
+              .groupby("iteration")["score"].mean())
+        ax.plot(dw.index, dw.values, marker="o", color=warm_color, lw=2.0,
+                label=display_label(warmth_metric))
+        ax.set_ylabel(f"{display_label(warmth_metric)} (1–5)", color=warm_color)
+        ax.tick_params(axis="y", labelcolor=warm_color)
+        ax.set_xlabel("training iteration"); ax.set_title(arm_label(arm))
+        axr = ax.twinx()
+        for m in rights:
+            ls, col, mk = right_style.get(m, ("-.", "#777777", "d"))
+            dm = (scores_long[(scores_long.arm == arm) & (scores_long.questionnaire == m)]
+                  .groupby("iteration")["score"].mean())
+            axr.plot(dm.index, dm.values, marker=mk, ms=4, ls=ls, color=col, label=display_label(m))
+        axr.set_ylabel("rate / proportion (0–1)")
+        axr.set_ylim(0, None)
+        h1, l1 = ax.get_legend_handles_labels()
+        h2, l2 = axr.get_legend_handles_labels()
+        ax.legend(h1 + h2, l1 + l2, fontsize=7, loc="upper left", framealpha=0.9)
+    fig.suptitle("Reward-hacking: warmth ↑ and MI-inconsistency ↑ together, "
+                 "patient change-talk ~flat", y=1.03, fontweight="bold")
+    fig.text(0.5, -0.02, "Left axis = warmth reward proxy (higher = better). Right axis: "
+             "MI-Inconsistency (red, higher = worse) · Patient Change-Talk (green, higher = better "
+             "— the actual MI goal).", ha="center", va="top", fontsize=7.5, style="italic",
+             color="#444444", wrap=True)
+    fig.tight_layout()
+    return fig
+
+
+# Okabe-Ito qualitative colors for nominal persona-trait categories (not the arm palette).
+_QUAL_COLORS = ["#0072B2", "#D55E00", "#009E73", "#CC79A7", "#E69F00", "#56B4E9"]
+# Readable persona-trait category names (label layer; enum .name -> plain English).
+_PERSONA_VALUE_LABELS = {
+    "cooperation_level": {"Low": "Resistant", "High": "Cooperative",
+                          "StartLowAndChangesToHigh": "Warms up"},
+}
+
+
+def _persona_cats(series, char):
+    """Sorted distinct trait values + a {raw: readable} map for ``char``."""
+    cats = sorted(x for x in series.dropna().unique())
+    return cats, _PERSONA_VALUE_LABELS.get(char, {})
 
 
 def heterogeneity_grid(scores_long, char: str, *, arms: Optional[Sequence[str]] = None,
-                       metric: str = "Q1Q2", palette: str = "viridis", ncols: int = 2):
+                       metric: str = "Q1Q2", palette=None, ncols: int = 2):
     """ONE figure: *metric* across iterations split by persona ``char``, a panel per selected arm.
 
     Replaces the old ``2 × N`` ``heterogeneity_{char}_{arm}`` PNG explosion — pick the trait + the
-    arms and get a single small-multiples grid. Arms with <3 scored iters (or missing ``char``) are
-    skipped. Returns ``None`` if nothing is plottable.
+    arms and get a single small-multiples grid. Trait categories use a colourblind qualitative
+    palette + readable names (e.g. cooperation ``Low → Resistant``); one shared legend. Arms with <3
+    scored iters (or missing ``char``) are skipped. Returns ``None`` if nothing is plottable.
     """
+    from . import display_label, arm_label
     if char not in scores_long.columns:
         return None
     d = scores_long[scores_long.questionnaire == metric]
@@ -487,12 +620,65 @@ def heterogeneity_grid(scores_long, char: str, *, arms: Optional[Sequence[str]] 
                 if d[(d.arm == a)].iteration.nunique() >= 3 and d[d.arm == a][char].notna().any()]
     if not arm_list:
         return None
+    cats, valmap = _persona_cats(d[char], char)
+    hue_pal = {c: _QUAL_COLORS[i % len(_QUAL_COLORS)] for i, c in enumerate(cats)}
     fig, axes = figures.grid(len(arm_list), ncols=ncols, panel=(6.4, 3.8))
     for ax, arm in zip(axes, arm_list):
-        sns.lineplot(d[d.arm == arm], x="iteration", y="score", hue=char, marker="o",
-                     palette=palette, ax=ax)
-        ax.set_title(f"{arm}"); ax.set_ylabel(metric)
-    fig.suptitle(f"{metric} by {char} (true persona) — per arm", y=1.02, fontweight="bold")
+        sns.lineplot(d[d.arm == arm], x="iteration", y="score", hue=char, hue_order=cats,
+                     marker="o", palette=hue_pal, ax=ax)
+        ax.set_title(arm_label(arm)); ax.set_ylabel(display_label(metric)); ax.set_xlabel("iteration")
+        if ax is axes[0]:
+            figures.relabel_legend(ax, valmap)      # readable category names; palette keyed on raw
+            if ax.get_legend():
+                ax.legend_.set_title(char.replace("_", " "))
+        elif ax.get_legend():
+            ax.legend_.remove()
+    fig.suptitle(f"{display_label(metric)} by {char.replace('_', ' ')} (true persona) — per arm",
+                 y=1.02, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def subgroup_endpoint_bars(scores_long, char: str, *, arms: Optional[Sequence[str]] = None,
+                           metric: str = "Q1Q2", palette=None):
+    """Final-iteration *metric* per (persona ``char`` × arm) — 'where does an arm win / regress?'
+
+    Grouped bars: x = persona category (readable), hue = arm, y = mean **final-iteration** score over
+    that subgroup (95% CI), with a dotted pooled-base reference. The single-glance companion to
+    :func:`heterogeneity_grid` — e.g. GRPO's late regression concentrated on the *Resistant*
+    (Low-cooperation) personas. ``None`` if nothing is plottable.
+    """
+    from . import display_label, arm_label
+    if char not in scores_long.columns:
+        return None
+    d = scores_long[scores_long.questionnaire == metric]
+    arm_list = [a for a in (arms if arms is not None else sorted(d.arm.unique()))
+                if d[(d.arm == a)].iteration.nunique() >= 3 and d[d.arm == a][char].notna().any()]
+    if not arm_list:
+        return None
+    parts = []
+    for a in arm_list:
+        da = d[d.arm == a]
+        parts.append(da[da.iteration == int(da.iteration.max())])
+    fin = pd.concat(parts, ignore_index=True)
+    fin = fin[fin[char].notna()].copy()
+    if fin.empty:
+        return None
+    cats, valmap = _persona_cats(d[char], char)
+    fin["cat"] = fin[char].map(lambda v: valmap.get(v, v))
+    fin["arm_disp"] = fin["arm"].map(arm_label)
+    cat_order = [valmap.get(c, c) for c in cats]
+    pal = palette or figures.arm_palette(arm_list)
+    pal_disp = {arm_label(a): pal.get(a, "#777777") for a in arm_list}
+    fig, ax = plt.subplots(figsize=(1.7 * max(3, len(cat_order)) + 2, 4.4))
+    sns.barplot(fin, x="cat", y="score", hue="arm_disp", order=cat_order,
+                hue_order=[arm_label(a) for a in arm_list], palette=pal_disp,
+                errorbar=("ci", 95), ax=ax)
+    figures.add_base_line(ax, float(d[d.is_base].score.mean()) if d.is_base.any() else None)
+    ax.set_title(f"Final-iteration {display_label(metric)} by {char.replace('_', ' ')} "
+                 f"(per arm; dotted = base)")
+    ax.set_xlabel(""); ax.set_ylabel(display_label(metric))
+    ax.legend(title="arm", fontsize=8)
     fig.tight_layout()
     return fig
 
@@ -595,7 +781,7 @@ def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = Non
     the last iteration. Returns a tidy DataFrame (arm × metric) with lower-is-better metrics flagged
     ``↓`` in the column name — drop straight into ``save_table``.
     """
-    from . import best_per_experiment, all_models, display_label, ORTHOGONAL_METRICS
+    from . import best_per_experiment, all_models, display_label, arm_label, ORTHOGONAL_METRICS
     order = [m for m in (list(QUESTIONNAIRE_ORDER) + list(ORTHOGONAL_METRICS)) if m not in ("Q1", "Q2")]
     present = [m for m in (metrics or order) if m in set(scores_long.questionnaire.unique())]
     # "best" already filters to base + the own-oracle peak iteration per arm; both selections then
@@ -608,7 +794,7 @@ def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = Non
             continue
         pick = int(nb.iteration.max())
         gg = nb[nb.iteration == pick]
-        row = {"arm": arm, "iteration": pick}
+        row = {"arm": arm_label(arm), "iteration": pick}
         for m in present:
             v = gg[gg.questionnaire == m]["score"]
             row[display_label(m)] = round(float(v.mean()), 3) if len(v) else None
@@ -624,6 +810,7 @@ _DEFAULT_BEHAVIOR_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade",
 def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
                              metrics: Optional[Sequence[str]] = None, ncols: int = 3):
     """Behavior metric trajectories (MITI counts + text metrics) across iterations, all arms."""
+    from . import display_label
     bm = [m for m in (metrics or _DEFAULT_BEHAVIOR_METRICS) if m in behavior_by_iter.columns]
     if not bm:
         return None
@@ -631,10 +818,39 @@ def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
     fig, axes = figures.grid(len(bm), ncols=ncols)
     for ax, m in zip(axes, bm):
         sns.lineplot(behavior_by_iter, x="iteration", y=m, hue="arm", palette=pal, marker="o", ax=ax)
-        ax.set_title(m)
-        if ax is not axes[0] and ax.get_legend():
+        ax.set_title(display_label(m)); ax.set_ylabel(display_label(m))
+        if ax is axes[0]:
+            figures.relabel_legend(ax)
+        elif ax.get_legend():
             ax.legend_.remove()
     fig.suptitle("Behavior trajectories (MITI counts + text metrics)", y=1.02, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def question_rate_crosscheck(cross_df, *, palette=None):
+    """Question rate: deterministic ``?``/turn (solid) vs oracle MITI ``B3_Q``/turn (dashed), per arm.
+
+    Takes :func:`behavior.question_rate_crosscheck` (both columns already unit-harmonized to
+    questions-per-therapist-turn). Overlays both measures per arm on ONE axis so the reader sees
+    they track each other (cross-validation) and where they diverge (e.g. GRPO late). ``None`` if
+    unscored/empty.
+    """
+    from . import arm_label
+    if cross_df is None or cross_df.empty:
+        return None
+    pal = palette or figures.arm_palette(sorted(cross_df.arm.unique()))
+    fig, ax = plt.subplots(figsize=(8, 4.6))
+    for arm, g in cross_df.groupby("arm"):
+        g = g.sort_values("iteration")
+        col = pal.get(arm, "#777777")
+        ax.plot(g.iteration, g.q_per_turn, marker="o", color=col, ls="-",
+                label=f"{arm_label(arm)} — regex ?/turn")
+        ax.plot(g.iteration, g.q_per_turn_miti, marker="s", ms=4, color=col, ls="--",
+                label=f"{arm_label(arm)} — oracle Q/turn")
+    ax.set_title("Question rate: deterministic ?-count vs oracle MITI count (unit-harmonized cross-check)")
+    ax.set_xlabel("training iteration"); ax.set_ylabel("questions per therapist turn")
+    ax.legend(fontsize=7, ncol=2, frameon=True)
     fig.tight_layout()
     return fig
 

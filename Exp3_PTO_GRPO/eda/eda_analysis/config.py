@@ -8,9 +8,9 @@ reproducible and git-diffable (the run's config is in the file, not in scattered
 
 **The VIEW knob (new).** ``view`` is the one control that matters day-to-day. It sets BOTH:
   - the arm filter — ``"all"`` = every arm, ``"L0"`` = K=0 arms (PTO_LA0/GRPO_LA0),
-    ``"L5"`` = K=5 arms (PTO_LA5/GRPO_LA5); and
+    ``"L2"`` = K=2 arms (PTO_LA2/GRPO_LA2), ``"L5"`` = K=5 arms (PTO_LA5/GRPO_LA5); and
   - the results root — artifacts land under ``results/<view>/figures|tables/<group>/``.
-So ``results/`` ends up with three parallel trees (``all/``, ``L0/``, ``L5/``). An explicit
+So ``results/`` ends up with four parallel trees (``all/``, ``L0/``, ``L2/``, ``L5/``). An explicit
 ``ks=[...]`` still overrides the view's arm filter (the view is a convenience default).
 
 All fields have safe defaults, so ``EdaConfig()`` = the ``all`` view, all present metrics,
@@ -29,10 +29,10 @@ from typing import Dict, List, Optional, Sequence, Tuple
 
 import pandas as pd
 
-# VIEW -> ks arm filter. ``all`` = no K filter; ``L0`` = K=0 only; ``L5`` = K=5 only.
-_VIEW_KS: Dict[str, Optional[List[int]]] = {"all": None, "L0": [0], "L5": [5]}
+# VIEW -> ks arm filter. ``all`` = no K filter; ``L0`` = K=0 only; ``L2`` = K=2 only; ``L5`` = K=5 only.
+_VIEW_KS: Dict[str, Optional[List[int]]] = {"all": None, "L0": [0], "L2": [2], "L5": [5]}
 # Case-insensitive input -> canonical view name (so "l0"/"L0" both work; folder stays "L0").
-_VIEW_ALIASES: Dict[str, str] = {"all": "all", "l0": "L0", "l5": "L5"}
+_VIEW_ALIASES: Dict[str, str] = {"all": "all", "l0": "L0", "l2": "L2", "l5": "L5"}
 
 
 @dataclass
