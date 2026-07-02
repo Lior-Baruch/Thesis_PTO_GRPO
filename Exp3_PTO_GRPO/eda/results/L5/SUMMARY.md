@@ -20,9 +20,9 @@ So in practice this view shows the **PTO_LA5** trajectory and very little for GR
 at K=5 is **not yet comparable** (GRPO has only its base).
 
 ## 2. What we can say so far
-See [`figures/headline/`](figures/headline/),
-[`tables/stats/main_results_final.md`](tables/stats/main_results_final.md), and
-[`tables/stats/Q1Q2_slope_by_arm.md`](tables/stats/Q1Q2_slope_by_arm.md).
+See [`figures/1_outcomes/`](figures/1_outcomes/),
+[`tables/6_stats/main_results.md`](tables/6_stats/main_results.md), and
+[`tables/6_stats/slope_by_arm.md`](tables/6_stats/slope_by_arm.md).
 
 - **PTO_LA5 improves over base:** Q1+Q2 **3.00 → 3.89 in 4 iterations** (dz 0.88, *large*, Holm
   p≈0). Per-iteration slope is steep (0.226/iter) but over a short horizon — not directly
@@ -33,11 +33,11 @@ See [`figures/headline/`](figures/headline/),
 
 ## 3. The look-ahead question (RQ-i) is on hold
 The K0-vs-K5 contrast needs both K arms, so it lives in the `all` view
-([`../all/tables/stats/PTO_K0_vs_K5_paired.md`](../all/tables/stats/PTO_K0_vs_K5_paired.md)): it shows
+([`../all/tables/6_stats/k_paired_by_method.md`](../all/tables/6_stats/k_paired_by_method.md)): it shows
 **no significant K0-vs-K5 difference at matched early iterations** for PTO; GRPO can't be compared
 (LA5 base only). The one suggestive signal is on **reward faithfulness** — look-ahead
 appears to make the short training reward slightly more faithful (LA5 ≥ LA0) in the reliability
-curve ([`figures/reliability/`](figures/reliability/)) — but this needs the full K=5 runs to
+curve ([`figures/4_training/`](figures/4_training/)) — but this needs the full K=5 runs to
 confirm.
 
 ## 4. To complete this view

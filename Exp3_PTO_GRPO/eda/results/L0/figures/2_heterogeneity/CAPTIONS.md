@@ -1,0 +1,2 @@
+- **subgroup_endpoint_cooperation_level** — Final-iteration Q1+Q2 by true patient cooperation_level, per arm (dotted = base) — where the endpoint gap concentrates.
+- **subgroup_endpoint_problem** — Final-iteration Q1+Q2 by true patient problem, per arm (dotted = base) — where the endpoint gap concentrates.

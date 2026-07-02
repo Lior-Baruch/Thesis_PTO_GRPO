@@ -1,0 +1,7 @@
+- **behavior_drift** — MITI behavior counts (B3_Q questions, B4_SR/B5_CR reflections, B6_AF affirmations, B2_Persuade) + text metrics across iterations, all arms.
+- **subscale_trajectories** — WAI-SR + MITI global subscale means across iterations; one panel per (parent, arm), arms with <3 scored iters omitted.
+- **rubric_correlation** — Spearman correlation among rubric + orthogonal-axis scores (per conversation, pooled). The warmth rubrics block together; R:Q/%CR/%MICO/PCT/MICI should sit apart.
+- **factor_loadings** — Each metric's PCA loading: the 5 warmth rubrics load high on PC1 (one shared factor); the orthogonal axes load ~0 on PC1 and define PC2.
+- **reward_hack_panel** — Twin-axis per arm: the warmth reward proxy Q1+Q2 (left, 1-5) rises while MI-Inconsistency (right, higher=worse) rises with it and Patient Change-Talk (right, the actual MI goal) stays ~flat — 'all rubrics up' is not multi-skill.
+- **question_rate_crosscheck** — Questions per therapist turn measured two ways (regex '?' vs oracle MITI B3_Q) per arm; they track each other and both fall as the model drifts to affirmations.
+- **overpraise_crosscheck** — Per-(arm,iteration) deterministic lexical over-praise marker rate vs the oracle-coded MICI over-praise rate — a directional sanity-check on the demoted regex.
