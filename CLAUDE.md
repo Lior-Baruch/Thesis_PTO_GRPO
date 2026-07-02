@@ -86,7 +86,26 @@ plateau by iter ~4 → ~40–50% saving, compare at matched iter), drop `M`/`G` 
 measurement instrument) fixed. A supervisor-meeting deck (10 slides, editable PPTX + regenerator) is
 in [Exp3_PTO_GRPO/meetings/](Exp3_PTO_GRPO/meetings/). See the `project-openai-cost-constraint` memory.
 
-**Landed (2026-06-14, latest) — orthogonal eval axes + EDA control/exports overhaul + updated results.**
+**Landed (2026-07-02, latest) — EDA reorg-by-topic + reward-hacking figures + readable labels.** Two
+sessions on the Exp3 analysis EDA. **(A) Reward-hacking figures + labels (committed `a3b3adb`).** Added
+`reward_hack_panel` (twin-axis warmth↑ + MICI↑ + PCT-flat), auto peak-marking on the Q1+Q2 curve
+(GRPO's iter-8 peak-then-regress), an orthogonal effect forest with lower-is-better handling,
+per-metric heterogeneity + `subgroup_endpoint_bars` (GRPO's late regression concentrates on *Resistant*
+personas), a `question_rate_crosscheck`, and a central **readable-labels** layer
+(`DISPLAY_NAMES`/`arm_label`, applied at draw time only — never renames data keys). **(B) Full reorg
+(commits `17b16bd`+`9696cca`).** The EDA is now **topic notebooks ↔ numbered result families, 1:1**
+(notebook number == `results/<view>/{figures,tables}/<N_family>/` number): `1_Outcomes`/`2_Heterogeneity`/
+`3_Mechanism`/`4_Training_and_Reliability`/`5_Preference`/`6_Stats`. Dropped 4 duplicate figures ONLY;
+per-metric trajectory + heterogeneity catalogs added; stats tables merged (main_results final+best;
+vs-base/method/K paired) + a new `grpo_iter9_check`; labels `Q1Q2→"Q1+Q2"`; exports gained per-call
+`group=` (nested) + a walk-based `build_index()` in every notebook. Validated: package smoke + full
+3-view render (all/L0/L5) no failures. **A 7-item backlog for the next EDA session** (grid+subfolder
+style elsewhere, GRPO preference-margin analog, resolve Questions-vs-Questions/turn, original-acronym
+labels, warmth-vs-orthogonal explainer, refine stats, general review — START by asking clarifying
+questions) is in [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) → "NEXT EDA SESSION — backlog". Data
+state: **full L0 + partial L5, no L2**. See the `project-exp3-new-eda` memory.
+
+**Landed (2026-06-14) — orthogonal eval axes + EDA control/exports overhaul + updated results.**
 Two threads. **(A) Eval made multi-dimensional.** The 6 rubrics correlated at PC1≈91% (all subjective
 warmth halos), so two **orthogonal questionnaires** were added to [questionnaires.py](Exp3_PTO_GRPO/code/questionnaires.py):
 **PCT** (patient change-talk vs sustain-talk + readiness, ID 8) and **MICI** (MI-inconsistent therapist

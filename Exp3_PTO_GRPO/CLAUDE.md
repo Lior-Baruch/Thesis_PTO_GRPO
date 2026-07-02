@@ -285,6 +285,35 @@ figures ONLY (contrast_overlay, outcomes_headline, unannotated trajectory_Q1Q2, 
 silently omitted) now the final cell of EVERY notebook; `single_metric_trajectory(oracle_noise=None)`
 suppresses the band; stale "PC1≈91%/6 rubrics" caveat → 9-metric PC1≈55% text.
 
+**NEXT EDA SESSION — backlog (2026-07-02, Lior's notes; START by asking clarifying questions).**
+Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, GRPO_LA5 base)**; no L2 data yet.
+1. **Propagate the `1_Outcomes` style everywhere it fits** — a MAIN combined grid (`trajectories_all_metrics`)
+   + a per-metric SUBFOLDER (`trajectories/`). Apply to other families where sensible: `2_Heterogeneity`
+   should get a combined "all-metrics" overview per trait alongside its per-metric subfolder; consider the
+   same grid+subfolder pattern for behavior / other multi-panel figures. (CLARIFY which families.)
+2. **`4_Training`: add a GRPO "preference-margin" analog.** GRPO has no chosen/rejected pairs, but a natural
+   analog to PTO's chosen−rejected `margin` is the within-group reward **spread = max−min** (or plot group
+   min & max) per iteration — add it beside/into `advantage_signal_sidebyside` so both methods show a
+   comparable decisiveness signal. Data is in `generations.jsonl` group rows (group_mean/std already there;
+   need per-group min/max). (CLARIFY: max−min range, or min+max lines, or best−worst margin.)
+3. **Questions vs Questions/turn — resolve the suspected bug.** Confirm whether oracle `B3_Q` (count) and
+   regex `q_per_turn` (rate) SHOULD correspond and by what relation (`B3_Q ≈ q_per_turn × n_th_turns`?), and
+   whether the GRPO iter-10 divergence (B3_Q≈4.1 but q_per_turn≈0.15) is a real bug or a semantic gap
+   (MITI codes question-*function* utterances; regex counts literal `?`). See `3_Mechanism` §4b
+   `question_rate_crosscheck` + `behavior.py`. Add a unit/sanity check if it's a bug.
+4. **Main questionnaire labels: show the ORIGINAL acronym.** `DISPLAY_NAMES` currently maps
+   `MITI→"MI Integrity"`, `CSQ-8→"Client Satisfaction"`, `WAI-SR→"Working Alliance"`, `MI-SAT→"MI Satisfaction"`.
+   Lior wants the original names (only or ALSO) — e.g. `"MITI"` or `"MITI (MI Integrity)"`. (CLARIFY:
+   acronym-only vs acronym + descriptive.)
+5. **Better articulate warmth vs orthogonal** — the 5 warmth/alliance rubrics (one PC1 factor) vs the
+   orthogonal axes (PCT / MICI↓ / R:Q / %CR / %MICO). Improve the explanation/labels/grouping in the EDA
+   (and possibly a one-figure or one-para explainer).
+6. **Check + understand + refine `stats.py`** — review the stat batteries/tables for correctness + clarity
+   (paired tests, Holm scoping, effect sizes, the new merged tables + `grpo_iter9_check`).
+7. **General EDA review** — this is the active workstream; L0 is the primary read, L5 partial.
+Open cosmetic: tables-only `6_Stats` still writes an empty `figures/6_stats/_provenance.md` (harmless;
+INDEX ignores it) — optionally suppress provenance for tables-only notebooks.
+
 **Single canonical copies.** `system_prompts_builder.py` and `questionnaires.py`
 live ONLY at `code/` root — both `eda/oracle_scoring/__init__.py` and `eda/eda_analysis/__init__.py` prepend
 `code/` to `sys.path` so they import the same canonical files. No more drift.
