@@ -84,8 +84,9 @@ LOWER_IS_BETTER = {"MICI"}
 # `%MICO`. These NEVER rename the underlying `questionnaire` / `arm` / column KEYS (those are used
 # as join+filter keys throughout the package). Any code not in the map falls through unchanged.
 DISPLAY_NAMES = {
-    # Warmth / satisfaction / alliance rubrics
-    "Q1Q2": "Satisfaction (Q1+Q2)", "Q1": "Satisfaction Q1", "Q2": "Satisfaction Q2",
+    # Warmth / satisfaction / alliance rubrics. Q1Q2/Q1/Q2 stay as their plain codes
+    # (Lior: no "Satisfaction …" prefix) — Q1/Q2 simply fall through display_label unchanged.
+    "Q1Q2": "Q1+Q2",
     "WAI-SR": "Working Alliance", "CSQ-8": "Client Satisfaction", "MI-SAT": "MI Satisfaction",
     "MITI": "MI Integrity",
     # Orthogonal axes (added to break the warmth halo)

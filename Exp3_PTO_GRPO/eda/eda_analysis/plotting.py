@@ -268,6 +268,9 @@ def outcomes_headline_by_arm(sel_scores_long, *, palette, metrics: Optional[Sequ
     Caller passes a best-per-arm frame run through :func:`data.collapse_base` (so the arm bases
     pool into a single ``Base`` column and each arm column is its peak iteration). A dotted base
     reference line is drawn per panel so above/below-base reads instantly.
+
+    NOTE: no longer exported by any notebook (the 2026-07-02 reorg dropped ``outcomes_headline``
+    as a duplicate of :func:`outcomes_by_model`); kept as a utility.
     """
     from . import display_label, arm_label
     metrics = _metrics(sel_scores_long["questionnaire"].unique(), metrics)
@@ -420,8 +423,9 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
 
 
 # ── Trajectories ─────────────────────────────────────────────────────────────
-_SHARED_FACTOR_CAVEAT = ("The 6 rubrics load on ~one factor (PC1≈91%), so a uniform rise reflects "
-                         "one warmth/satisfaction axis, not independent multi-skill gains.")
+_SHARED_FACTOR_CAVEAT = ("The 9 metrics share one dominant warmth/satisfaction factor (PC1≈55%; "
+                         "technique + MI-inconsistency load a second factor, PC2≈16%), so a uniform "
+                         "rise partly reflects one axis, not independent multi-skill gains.")
 
 
 def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = None,
@@ -430,8 +434,9 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
     """Per-rubric mean ±95% CI across iterations, arms overlaid (one panel per rubric).
 
     ``arms``/``iters`` select which arms/iterations to show (None = all). A single shared arm
-    legend sits above the grid; ``caption`` (default = the PC1≈91% shared-factor caveat) is printed
-    under it so "all rubrics up" isn't read as multi-skill evidence. Pass ``caption=None`` to suppress.
+    legend sits above the grid; ``caption`` (default = the shared-factor caveat: PC1≈55% once the
+    orthogonal axes are included) is printed under it so "all metrics up" isn't read as multi-skill
+    evidence. Pass ``caption=None`` to suppress.
     """
     from . import display_label
     if arms is not None:
@@ -457,13 +462,16 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
 def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
                              arms: Optional[Sequence[str]] = None,
                              iters: Optional[Sequence[int]] = None,
-                             oracle_noise: float = 0.10, baseline_arm: Optional[str] = None,
+                             oracle_noise: Optional[float] = 0.10,
+                             baseline_arm: Optional[str] = None,
                              mark_peaks: bool = False):
     """One-metric learning curve (arms overlaid) with an oracle-noise band around base.
 
     ``arms``/``iters`` select which arms/iterations to overlay (None = all) — the lever for
     "show only PTO_LA0 vs GRPO_LA0" without a separate hardcoded figure. ``baseline_arm`` anchors
     the grey ±``oracle_noise`` band; if ``None`` the first arm with a base row is used.
+    ``oracle_noise=None`` suppresses the band entirely — the ~0.10 reproducibility figure was
+    measured on Q1Q2, so per-metric loops pass it only for Q1Q2.
 
     ``mark_peaks=True`` draws a dotted vline + label at each arm's peak iteration **only where the
     peak precedes the final iteration** (i.e. the arm regressed afterwards) — auto-surfacing e.g.
@@ -481,7 +489,7 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
     base = d[d.is_base]
     if baseline_arm is not None:
         base = base[base.arm == baseline_arm]
-    if not base.empty:
+    if oracle_noise is not None and not base.empty:
         b0 = float(base.score.mean())
         ax.axhspan(b0 - oracle_noise, b0 + oracle_noise, color="grey", alpha=0.15)
         ax.text(0.02, b0 + oracle_noise, " ~oracle-noise band around base", fontsize=7,
@@ -513,6 +521,9 @@ def overlay_trajectory(scores_long, metric: str = "Q1Q2", *, arms: Sequence[str]
     One reusable figure for "PTO vs GRPO at K=0", "PTO K0 vs K5", or any arm set you pass — replaces
     the old per-K / per-method contrast loops. Degrades to whichever of ``arms`` are present;
     returns ``None`` if none are.
+
+    NOTE: no longer exported by any notebook (the 2026-07-02 reorg dropped ``contrast_overlay`` —
+    :func:`single_metric_trajectory` covers it); kept as an interactive utility.
     """
     from . import display_label, arm_label
     arms = list(arms)

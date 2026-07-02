@@ -13,8 +13,12 @@ Usage (run from the ``eda/`` directory, or anywhere — it cd's itself)::
     python render_views.py                 # all 4 views x all 6 notebooks (24 runs)
     python render_views.py L0              # just the L0 view
     python render_views.py L0 all          # L0 then all
-    python render_views.py L5 --nb 0 1     # L5 view, only notebooks 0_ and 1_
+    python render_views.py L5 --nb 0 1     # L5 view, only 1_Outcomes + 2_Heterogeneity
     python render_views.py --list          # print the view + notebook lists and exit
+
+Notebook numbering == results family numbering (1_Outcomes → figures/1_outcomes/, …), so any
+artifact under ``results/<view>/`` traces straight back to its producing notebook. NOTE: ``--nb``
+takes LIST INDICES 0..5 into NOTEBOOKS (0 → 1_Outcomes), not the filename numbers.
 
 Needs the ``thesis-venv313`` Jupyter kernel (the venv with torch/trl/pandas). Register it once:
     .venv\\Scripts\\python.exe -m ipykernel install --user --name thesis-venv313
@@ -30,13 +34,14 @@ import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 VIEWS = ["all", "L0", "L2", "L5"]
+# Topic notebooks — notebook number == results family number (figures|tables/N_<family>/).
 NOTEBOOKS = [
-    "0_Headline.ipynb",
-    "1_Eval_and_Behavior.ipynb",
-    "2_Training_Diagnostics.ipynb",
-    "3_Reward_Reliability.ipynb",
-    "4_Preference_LatentSpace.ipynb",
-    "5_Detailed_Stats.ipynb",
+    "1_Outcomes.ipynb",
+    "2_Heterogeneity.ipynb",
+    "3_Mechanism.ipynb",
+    "4_Training_and_Reliability.ipynb",
+    "5_Preference.ipynb",
+    "6_Stats.ipynb",
 ]
 KERNEL = "thesis-venv313"
 TIMEOUT = 1800  # seconds per notebook (the preference embedding cell is the slow one)

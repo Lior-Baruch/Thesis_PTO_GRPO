@@ -3,16 +3,21 @@ exports.py — save publication figures + result tables for the thesis, organize
 
 Two-level layout::
 
-    results/<view>/figures/<group>/<name>.png      # view = all | L0 | L5 ; group = eval | headline | …
+    results/<view>/figures/<group>/<name>.png      # view = all | L0 | L5
     results/<view>/tables/<group>/<name>.md (+ .xlsx)
     results/<view>/INDEX.md                        # per-view artifact map
     results/<view>/SUMMARY.md                      # HAND-AUTHORED narrative (never auto-deleted)
 
 - ``<view>`` is set once per notebook via :func:`set_view` (``notebook_setup`` does this from
-  ``EdaConfig.view``). It splits the artifacts into the three parallel look-ahead trees the user
+  ``EdaConfig.view``). It splits the artifacts into the parallel look-ahead trees the user
   asked for. With no view set (``""``) artifacts fall back to the legacy bare ``results/`` root.
-- ``<group>`` is the per-notebook export group (``"eval"``, ``"headline"``, …) set via
-  :func:`set_export_group`. With no group set, artifacts fall back to the view's flat roots.
+- ``<group>`` is the notebook's topic family (``"1_outcomes"``, ``"2_heterogeneity"``,
+  ``"3_mechanism"``, ``"4_training"``, ``"5_preference"``, ``"6_stats"``) set via
+  :func:`set_export_group` — the family NUMBER matches the producing notebook's number, so any
+  artifact traces straight back to its notebook. A per-call ``group=`` on ``save_fig``/``save_table``
+  overrides it for one save and may be a NESTED subpath within the family
+  (``"1_outcomes/trajectories"``, ``"2_heterogeneity/problem"``). With no group set, artifacts fall
+  back to the view's flat roots.
 
 The ``formats=`` kwarg lets a one-off call request extra formats (e.g.
 ``save_fig(fig, name, formats=("pdf", "png"))``); the defaults are PNG figures + ``.md``/``.xlsx`` tables.
@@ -61,13 +66,18 @@ def set_view(view: str = "") -> None:
     _VIEW = (view or "").strip().strip("/\\")
 
 
+def _norm_group(group) -> str:
+    """Normalize a group (sub)path: trim whitespace + leading/trailing slashes; interior kept."""
+    return (group or "").strip().strip("/\\")
+
+
 def set_export_group(group: str = "") -> None:
     """Set the per-notebook export subfolder for subsequent ``save_fig``/``save_table`` calls.
 
     ``notebook_setup`` calls this from ``EdaConfig.export_group``. Pass ``""`` for the flat roots.
     """
     global _GROUP
-    _GROUP = (group or "").strip().strip("/\\")
+    _GROUP = _norm_group(group)
 
 
 def set_formats(fig_formats=None, table_formats=None) -> None:
@@ -92,12 +102,16 @@ def _tables_root() -> str:
     return os.path.join(_results_root(), "tables")
 
 
-def _fig_dir() -> str:
-    return os.path.join(_figures_root(), _GROUP) if _GROUP else _figures_root()
+def _fig_dir(group: Optional[str] = None) -> str:
+    """Figures dir for *group* (per-call override, may be nested) or the module default."""
+    g = _norm_group(group) if group is not None else _GROUP
+    return os.path.join(_figures_root(), g) if g else _figures_root()
 
 
-def _tab_dir() -> str:
-    return os.path.join(_tables_root(), _GROUP) if _GROUP else _tables_root()
+def _tab_dir(group: Optional[str] = None) -> str:
+    """Tables dir for *group* (per-call override, may be nested) or the module default."""
+    g = _norm_group(group) if group is not None else _GROUP
+    return os.path.join(_tables_root(), g) if g else _tables_root()
 
 
 def _append_caption(dir_path: str, name: str, caption: Optional[str]):
@@ -119,15 +133,18 @@ def _append_caption(dir_path: str, name: str, caption: Optional[str]):
         f.writelines(lines)
 
 
-def save_fig(fig, name: str, *, formats: Optional[Sequence[str]] = None,
+def save_fig(fig, name: str, *, group: Optional[str] = None,
+             formats: Optional[Sequence[str]] = None,
              dpi: int = 200, caption: Optional[str] = None) -> str:
     """Save *fig* to ``results/<view>/figures/<group>/<name>.<fmt>`` for each format; log the caption.
 
+    ``group=None`` uses the notebook's family (``set_export_group``); pass a value to override for
+    this one save — including NESTED subpaths within the family (``group="1_outcomes/trajectories"``).
     ``formats=None`` uses the notebook default (``EdaConfig.fig_formats`` → PNG images by default;
     set ``cfg.fig_formats=("png","pdf")`` to also emit vector PDF). Returns the (group) figures dir.
     Call right before/after ``plt.show()`` — the inline display is unaffected.
     """
-    d = _fig_dir()
+    d = _fig_dir(group)
     os.makedirs(d, exist_ok=True)
     for fmt in (formats or _FIG_FORMATS):
         fig.savefig(os.path.join(d, f"{name}.{fmt}"), dpi=dpi, bbox_inches="tight")
@@ -135,18 +152,21 @@ def save_fig(fig, name: str, *, formats: Optional[Sequence[str]] = None,
     return d
 
 
-def save_table(df: pd.DataFrame, name: str, *, formats: Optional[Sequence[str]] = None,
+def save_table(df: pd.DataFrame, name: str, *, group: Optional[str] = None,
+               formats: Optional[Sequence[str]] = None,
                float_format: str = "%.3f", index: bool = False,
                caption: Optional[str] = None) -> str:
     """Save *df* to ``results/<view>/tables/<group>/<name>.<fmt>``; log the caption. Returns the dir.
 
-    ``formats=None`` uses the notebook default (``EdaConfig.table_formats`` → ``.md`` + ``.xlsx``).
-    ``.xlsx`` collects every table of the group into one workbook ``<group>.xlsx`` (one sheet per
-    table — sortable/filterable in Excel). ``.md`` is paste-able/readable; ``.csv``/``.tex`` available
-    on request. ``.md`` falls back to a manual writer if ``tabulate`` isn't installed.
+    ``group=None`` uses the notebook's family (``set_export_group``); pass a value to override for
+    this one save (nested subpaths supported). ``formats=None`` uses the notebook default
+    (``EdaConfig.table_formats`` → ``.md`` + ``.xlsx``). ``.xlsx`` collects every table of the group
+    into one workbook ``<group>.xlsx`` (one sheet per table — sortable/filterable in Excel). ``.md``
+    is paste-able/readable; ``.csv``/``.tex`` available on request. ``.md`` falls back to a manual
+    writer if ``tabulate`` isn't installed.
     """
     formats = formats or _TABLE_FORMATS
-    d = _tab_dir()
+    d = _tab_dir(group)
     os.makedirs(d, exist_ok=True)
     base = os.path.join(d, name)
     if "csv" in formats:
@@ -249,21 +269,22 @@ def build_index() -> str:
     """
     view = _VIEW or "(flat)"
     lines = [f"# Exp3 EDA artifact index — view `{view}`\n",
-             "_Generated by `eda_analysis.build_index()`. See `SUMMARY.md` for the written analysis._\n"]
+             "_Generated by `eda_analysis.build_index()`. See `SUMMARY.md` for the written analysis._\n",
+             "_Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ipynb`)._\n"]
     for kind, root, exts in (("Figures", _figures_root(), _FIG_EXTS),
                              ("Tables", _tables_root(), _TAB_EXTS)):
         lines.append(f"\n## {kind}")
         if not os.path.isdir(root):
             lines.append("_(none)_")
             continue
-        # group subfolders first, then any flat artifacts at the root
-        groups = sorted(d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d)))
+        # Recursive walk so NESTED family subfolders (1_outcomes/trajectories,
+        # 2_heterogeneity/<trait>, …) are listed too; dirnames sorted for numeric-ish family order.
         any_listed = False
-        for g in groups + [""]:
-            gdir = os.path.join(root, g) if g else root
-            if not os.path.isdir(gdir):
-                continue
-            arts = sorted(f for f in os.listdir(gdir)
+        for dirpath, dirnames, filenames in os.walk(root):
+            dirnames.sort()
+            rel = os.path.relpath(dirpath, root)
+            g = "" if rel == "." else rel.replace(os.sep, "/")
+            arts = sorted(f for f in filenames
                           if f.lower().endswith(exts) and not f.startswith(("CAPTIONS", "_prov")))
             if not arts:
                 continue
@@ -286,7 +307,8 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
     Operates only on ``results/<view>/{figures,tables}/`` — never the view root, so the
     hand-authored ``SUMMARY.md`` (and anything else in :data:`PRESERVE`) is always kept.
 
-    - ``groups`` given → remove just those ``figures/<group>/`` + ``tables/<group>/`` subfolders.
+    - ``groups`` given (e.g. ``["1_outcomes", "3_mechanism"]``) → remove just those
+      ``figures/<group>/`` + ``tables/<group>/`` subfolders (nested content included).
     - ``groups=None`` → remove ALL group subfolders under both roots.
     - ``flat=True`` → also delete loose figure/table files sitting at the (view's) flat roots.
       Subfolders are recreated lazily on the next save.
