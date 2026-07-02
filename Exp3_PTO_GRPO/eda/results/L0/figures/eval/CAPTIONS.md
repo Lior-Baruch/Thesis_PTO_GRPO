@@ -6,5 +6,13 @@
 - **rubric_correlation** — Spearman correlation among rubric + orthogonal-axis scores (per conversation, pooled). The warmth rubrics block together; R:Q/%CR/%MICO/PCT/MICI should sit apart.
 - **factor_loadings** — Each metric's PCA loading: the 5 warmth rubrics load high on PC1 (one shared factor); the orthogonal axes load ~0 on PC1 and define PC2.
 - **overpraise_crosscheck** — Per-(arm,iteration) deterministic lexical over-praise marker rate vs the oracle-coded MICI over-praise rate — a directional sanity-check on the demoted regex.
+- **reward_hack_panel** — Twin-axis per arm: the warmth reward proxy Q1+Q2 (left, 1-5) rises while MI-Inconsistency (right, higher=worse) rises with it and Patient Change-Talk (right, the actual MI goal) stays ~flat — 'all rubrics up' is not multi-skill.
+- **trajectory_Q1Q2_annotated** — Q1+Q2 across iterations (mean +/- 95% CI, N=96); a dotted vline marks any arm whose peak precedes its final iteration (a regression) — surfaces GRPO's iter-8 peak-then-decline vs PTO's sustained climb.
+- **effect_vs_base_forest_orthogonal** — Change vs base on the orthogonal axes (Δ + 95% CI, dz labelled). MICI is lower-is-better (red = moved the wrong way); contrast with the warmth forest in 0_Headline.
+- **question_rate_crosscheck** — Questions per therapist turn measured two ways (regex '?' vs oracle MITI B3_Q) per arm; they track each other and both fall as the model drifts to affirmations.
 - **heterogeneity_cooperation_level** — Q1Q2 across iterations split by true patient cooperation_level; one panel per arm.
+- **heterogeneity_cooperation_level_MICI** — MI-Inconsistency (lower=better) across iterations split by true patient cooperation_level; one panel per arm.
+- **subgroup_endpoint_cooperation_level** — Final-iteration Q1Q2 by true patient cooperation_level, per arm (dotted = base) — where the endpoint gap concentrates.
 - **heterogeneity_problem** — Q1Q2 across iterations split by true patient problem; one panel per arm.
+- **heterogeneity_problem_MICI** — MI-Inconsistency (lower=better) across iterations split by true patient problem; one panel per arm.
+- **subgroup_endpoint_problem** — Final-iteration Q1Q2 by true patient problem, per arm (dotted = base) — where the endpoint gap concentrates.

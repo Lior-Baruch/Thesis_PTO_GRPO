@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-render_views.py — regenerate ``results/{all,L0,L5}/`` for the 6 Exp3 analysis notebooks.
+render_views.py — regenerate ``results/{all,L0,L2,L5}/`` for the 6 Exp3 analysis notebooks.
 
 Each notebook's cell 1 reads ``VIEW = os.environ.get("EDA_VIEW", "L0")``, so this driver simply
 sets ``EDA_VIEW`` and executes the notebook via ``nbconvert`` (no notebook-JSON mutation, no
@@ -10,7 +10,7 @@ as a side effect (figures, tables, INDEX.md, _provenance.md).
 
 Usage (run from the ``eda/`` directory, or anywhere — it cd's itself)::
 
-    python render_views.py                 # all 3 views x all 6 notebooks (18 runs)
+    python render_views.py                 # all 4 views x all 6 notebooks (24 runs)
     python render_views.py L0              # just the L0 view
     python render_views.py L0 all          # L0 then all
     python render_views.py L5 --nb 0 1     # L5 view, only notebooks 0_ and 1_
@@ -29,7 +29,7 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-VIEWS = ["all", "L0", "L5"]
+VIEWS = ["all", "L0", "L2", "L5"]
 NOTEBOOKS = [
     "0_Headline.ipynb",
     "1_Eval_and_Behavior.ipynb",

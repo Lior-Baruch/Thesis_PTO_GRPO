@@ -20,6 +20,7 @@ Public API is re-exported at the bottom so notebooks can ``from eda_analysis imp
 """
 
 import os
+import re
 import sys
 
 # ── Resolve the experiment root (the Exp3 folder: HF_key.txt + openai_key.txt) ──
@@ -78,13 +79,55 @@ ORTHOGONAL_METRICS = ["PCT", "MICI", "R:Q", "%CR", "%MICO"]
 LOWER_IS_BETTER = {"MICI"}
 
 
-def display_label(metric: str) -> str:
-    """Human label for a metric, flagging lower-is-better with a trailing '↓'.
+# ── Human-readable display names (LABEL LAYER ONLY) ──────────────────────────────
+# Applied when drawing figures / writing tables so a supervisor never has to decode `B3_Q` or
+# `%MICO`. These NEVER rename the underlying `questionnaire` / `arm` / column KEYS (those are used
+# as join+filter keys throughout the package). Any code not in the map falls through unchanged.
+DISPLAY_NAMES = {
+    # Warmth / satisfaction / alliance rubrics
+    "Q1Q2": "Satisfaction (Q1+Q2)", "Q1": "Satisfaction Q1", "Q2": "Satisfaction Q2",
+    "WAI-SR": "Working Alliance", "CSQ-8": "Client Satisfaction", "MI-SAT": "MI Satisfaction",
+    "MITI": "MI Integrity",
+    # Orthogonal axes (added to break the warmth halo)
+    "PCT": "Patient Change-Talk", "MICI": "MI-Inconsistency",
+    "R:Q": "Reflection:Question", "%CR": "% Complex Reflections", "%MICO": "% MI-Consistent",
+    # MITI behavior counts (per conversation)
+    "B3_Q": "Questions", "B6_AF": "Affirmations", "B4_SR": "Simple Reflections",
+    "B5_CR": "Complex Reflections", "B2_Persuade": "Persuasion", "B1_GI": "Giving Information",
+    "B7_Seek": "Seeking Collaboration", "RtoQ": "Reflection:Question", "Empathy": "Empathy (MITI)",
+    # Deterministic text metrics
+    "q_per_turn": "Questions / turn", "q_per_turn_miti": "Questions / turn (oracle)",
+    "mean_turn_len": "Turn length (chars)", "loop": "Degeneration %",
+    "conv_len": "Conversation length", "n_th_turns": "Therapist turns",
+}
 
-    Used by leaderboards / forest plots so e.g. ``MICI`` reads ``MICI ↓`` and is never mistaken
-    for a higher-is-better rubric.
+# Readable arm labels: canonical key -> "<method> (K=<k>)".
+ARM_LABELS = {"PTO_LA0": "PTO (K=0)", "PTO_LA5": "PTO (K=5)",
+              "GRPO_LA0": "GRPO (K=0)", "GRPO_LA5": "GRPO (K=5)", "Base": "Base"}
+_ARM_RE = re.compile(r"^(PTO|GRPO)_LA(\d+)$")
+
+
+def display_label(metric: str) -> str:
+    """Readable label for a metric / behavior code, flagging lower-is-better with a trailing '↓'.
+
+    Consults :data:`DISPLAY_NAMES` (falls through to the raw code if absent), then appends ' ↓' for
+    :data:`LOWER_IS_BETTER` metrics so e.g. ``MICI`` reads ``MI-Inconsistency ↓`` and is never
+    mistaken for a higher-is-better rubric. Label layer only — never used as a data key.
     """
-    return f"{metric} ↓" if metric in LOWER_IS_BETTER else metric
+    name = DISPLAY_NAMES.get(metric, metric)
+    return f"{name} ↓" if metric in LOWER_IS_BETTER else name
+
+
+def arm_label(arm: str) -> str:
+    """Readable arm label: ``"PTO_LA0"`` -> ``"PTO (K=0)"`` (auto-parses any ``LA<k>``).
+
+    Unknown labels pass through unchanged. Label layer only — the canonical ``arm`` key is what
+    every figure hues/filters on, so only the *displayed* text is swapped.
+    """
+    if arm in ARM_LABELS:
+        return ARM_LABELS[arm]
+    m = _ARM_RE.match(arm or "")
+    return f"{m.group(1)} (K={m.group(2)})" if m else arm
 
 
 # Patient-characteristic columns recovered per persona.
@@ -134,6 +177,7 @@ for _alias, _mod in (("figures", plotting), ("plots", plotting), ("personas", da
 __all__ = [
     "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
     "WARMTH_RUBRICS", "ORTHOGONAL_METRICS", "LOWER_IS_BETTER", "display_label",
+    "DISPLAY_NAMES", "ARM_LABELS", "arm_label",
     "EdaConfig", "notebook_setup", "Setup",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "file_to_persona",

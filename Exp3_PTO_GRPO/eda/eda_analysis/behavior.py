@@ -142,6 +142,30 @@ def overpraise_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
             .mean().reset_index().sort_values(["arm", "iteration"]))
 
 
+def question_rate_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration): the deterministic regex question rate ``q_per_turn`` (``?``-count per
+    therapist turn) beside the oracle-derived ``q_per_turn_miti`` (MITI ``B3_Q`` / therapist turns).
+
+    Unit-harmonized cross-check: both are questions-per-therapist-turn, one syntactic (literal
+    ``?``), one the professional MITI question count — so they should track each other, and their
+    late divergence (e.g. GRPO, when praise-heavy turns stop carrying a literal ``?``) is itself
+    informative. Averages per-conversation ratios (mean-of-ratios). Returns an empty frame (no rows)
+    until MITI is scored. Columns: arm, method, K, iteration, q_per_turn, q_per_turn_miti.
+    """
+    text = text_metrics(arms, attach_persona=False)
+    miti = load_miti_behavior(arms, attach_persona=False)
+    if text.empty or miti.empty:
+        return pd.DataFrame(columns=["arm", "method", "K", "iteration",
+                                     "q_per_turn", "q_per_turn_miti"])
+    keys = ["arm", "iteration", "file_index"]
+    merged = text.merge(miti[keys + ["B3_Q"]], on=keys, how="inner")
+    merged = merged[merged["n_th_turns"] > 0].copy()
+    merged["q_per_turn_miti"] = merged["B3_Q"] / merged["n_th_turns"]
+    return (merged.groupby(["arm", "method", "K", "iteration"], observed=True)
+            [["q_per_turn", "q_per_turn_miti"]]
+            .mean().reset_index().sort_values(["arm", "iteration"]))
+
+
 # ── 2. Regex text metrics from conversations ─────────────────────────────────
 def text_metrics(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:
     """Per (arm, iteration, conversation) text behavior metrics from the transcripts."""
