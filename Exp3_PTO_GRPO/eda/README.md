@@ -5,12 +5,25 @@ training iterations, under matched look-ahead K and MCL. All data/compute/stats 
 `eda_analysis/` package; the recurring figures are named functions in `eda_analysis/plotting.py`
 (called once from multiple notebooks), and genuinely one-off exploration stays inline (the **hybrid**
 plotting split). Thesis figures/tables are exported per **VIEW** into
-`results/<view>/figures|tables/<group>/` — figures `.png`, tables `.md` + `.xlsx`.
+`results/<view>/figures|tables/<family>/` — figures `.png`, tables `.md` + `.xlsx`.
 
-The notebooks are **organized by purpose**: one notebook each for eval outcomes + behaviour, the
-training signal, reward reliability, the preference latent space, and the detailed stats. Every
-section is tagged **`[EVAL]`** (full-conversation oracle scores — the held-out outcome) or
-**`[TRAINING]`** (partial-branch rewards / preference pairs — what the policy is updated on).
+**Organization = topic notebooks ↔ numbered result families, 1:1 (2026-07-02 reorg).** Every notebook
+is a topic; its NUMBER equals its results-family number, so any artifact under `results/<view>/`
+traces straight back to the notebook that produces it (browse the results, open the matching notebook
+to edit / dig deeper):
+
+| Notebook | Family (figures + tables) | Contents |
+|---|---|---|
+| `1_Outcomes.ipynb` | `1_outcomes/` | all-metric trajectory grid · per-metric learning-curve catalog (`trajectories/`, peaks auto-flagged) · effect forest · per-model bars · scorecard |
+| `2_Heterogeneity.ipynb` | `2_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + final-iteration endpoint bars |
+| `3_Mechanism.ipynb` | `3_mechanism/` | behaviour drift + merged behaviour table · subscales · factor structure · reward-hack panel · question/over-praise cross-checks · session shape · transcripts |
+| `4_Training_and_Reliability.ipynb` | `4_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
+| `5_Preference.ipynb` | `5_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
+| `6_Stats.ipynb` | `6_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · all-metric slopes · PCA · GRPO iter-9 anomaly check |
+
+Every section is tagged **`[EVAL]`** (full-conversation oracle scores — the held-out outcome) or
+**`[TRAINING]`** (partial-branch rewards / preference pairs — what the policy is updated on). Every
+notebook ends with `build_index()` so the per-view `INDEX.md` is complete whatever runs last.
 
 ## The VIEW knob (the one control)
 Cell 1 of every notebook starts with:
@@ -34,9 +47,9 @@ auto-generated **`INDEX.md`** (the artifact map).
 
 ### Regenerate every view
 ```
-python render_views.py            # 3 views × 6 notebooks (18 runs) via nbconvert
+python render_views.py            # every view × 6 notebooks via nbconvert
 python render_views.py L0         # just the L0 view
-python render_views.py L5 --nb 4  # one view, one notebook (e.g. re-render L5 when its data lands)
+python render_views.py L5 --nb 3  # one view, one notebook (--nb takes LIST indices 0..5: 0 = 1_Outcomes)
 ```
 `render_views.py` sets `EDA_VIEW` per run and executes each notebook to a throwaway `--output-dir`
 (so the committed notebooks' outputs aren't churned — only the `results/` tree is the deliverable).
@@ -55,14 +68,19 @@ the `all` view / all present metrics. Knobs beyond `view`:
   overlay/trajectory figures) + `focus_metric`.
 - **Plot scales:** `context`, `font_scale`, `dpi`, `savefig_dpi`, `panel`, `ncols`, `score_ylim`,
   `share_y`, `palette_overrides` (all default = inherit the publication style).
-- **Exports:** `export_group` (→ `results/<view>/<figures|tables>/<group>/`), `fig_formats`
-  (**default `("png",)`**; `("png","pdf")` to also emit vector), `table_formats` (**default
-  `("md","xlsx")`** — readable Markdown + a per-group Excel workbook, one sheet per table).
+- **Exports:** `export_group` (→ `results/<view>/<figures|tables>/<family>/`; set it to the
+  notebook's family, e.g. `"1_outcomes"`), `fig_formats` (**default `("png",)`**; `("png","pdf")` to
+  also emit vector), `table_formats` (**default `("md","xlsx")`** — readable Markdown + a per-family
+  Excel workbook, one sheet per table). A per-call `group=` on `save_fig`/`save_table` overrides the
+  family for one save and supports **nested subpaths** (`group="1_outcomes/trajectories"`,
+  `group="2_heterogeneity/problem"`).
 
-**Per-figure control.** Trajectory/headline/contrast plots take `arms=`/`iters=`/`metric=`; use
+**Per-figure control.** Trajectory plots take `arms=`/`iters=`/`metric=`; use
 `eda_analysis.select_scores(S.SCORES, arms=[...], iters=[...], metrics=[...])` to slice any figure.
-`plots.overlay_trajectory(S.SCORES, metric, arms=[...])` is the one configurable contrast;
-`plots.heterogeneity_grid(S.SCORES, char, arms=[...])` is one figure (panel per arm).
+`plots.single_metric_trajectory(..., mark_peaks=True)` auto-flags peak-then-regression arms
+(`oracle_noise=None` suppresses the Q1Q2-only noise band); `plots.heterogeneity_grid(S.SCORES, char,
+arms=[...])` is one figure (panel per arm); `plots.overlay_trajectory` remains as an interactive
+utility (no longer exported).
 
 `notebook_setup(cfg)` resolves the view (→ arm filter + results root), applies the style + scales,
 **filters + discovers** the arms, builds `scores_long` (with the derived ratios) + palette + present
@@ -75,27 +93,10 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
 1. **`Run_Eval.ipynb`** — async oracle scoring → `data/<method>/eval_scores/`. Registry-driven: add a
    `oracle_scoring/config.py::EXPERIMENTS` entry per new run. Resume-safe. Score **PCT** + **MICI** with
    `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
-2. **`0_Headline.ipynb`** `[EVAL]` (group `headline`) — thin: the 3 canonical thesis figures (best-vs-
-   base bars, vs-base **effect forest**, Q1+Q2 curve) + the per-view artifact index.
-3. **`1_Eval_and_Behavior.ipynb`** `[EVAL]` (group `eval`) — **eval-results + behaviour.** *Part A:*
-   all-rubric + subscale trajectories, the **one configurable contrast** cell (`overlay_trajectory`),
-   the **scorecard** (warmth beside PCT / MICI↓ / R:Q / %CR / %MICO), appendix bars. *Part B:* MITI
-   behaviour drift, rubric factor structure (diverging corr + **factor-loadings bars**), over-praise
-   cross-check, one `heterogeneity_grid` per trait, session-end/length, transcripts.
-4. **`2_Training_Diagnostics.ipynb`** `[TRAINING]` (group `training`) — TensorBoard training curves per
-   arm (`training.tb_curves`), per-candidate reward distribution, method-native advantage signal,
-   degeneration check.
-5. **`3_Reward_Reliability.ipynb`** `[TRAINING↔EVAL]` (group `reliability`) — is the partial-conv
-   training reward faithful to the full-conv eval? rank-agreement-vs-`n_turns` curve (LA0 vs LA5),
-   proxy-vs-eval scatter, PTO margin-by-branch-depth.
-6. **`4_Preference_LatentSpace.ipynb`** `[TRAINING]` (group `preference`, PTO only) — Mass-Mean-Probe:
-   word ranking + drift, direction drift in 2D, learned/unlearned words, MI-concept drift, K0-vs-K5.
-7. **`5_Detailed_Stats.ipynb`** `[EVAL]` (group `stats`) — **all heavy tables** (main results,
-   Friedman, paired method/K, per-arm vs-base, slopes, rankings, PCA), thin arms filtered.
-
-Everything **auto-discovers** arms from disk via `eda_analysis.discover_arms()` (no path literals).
-`eda_analysis.build_index()` writes the per-view `results/<view>/INDEX.md`. Notebooks run with the
-venv kernel `thesis-venv313`, cwd = `eda/`.
+2. **`1_Outcomes.ipynb`** → **`6_Stats.ipynb`** in any order (the notebook↔family table above says
+   what lives where). Every notebook auto-discovers arms from disk via `eda_analysis.discover_arms()`
+   (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
+   the venv kernel `thesis-venv313`, cwd = `eda/`.
 
 ## Package (`eda_analysis/`) — 9 modules
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
@@ -131,7 +132,7 @@ The old submodule names still resolve via aliases, so notebook code is unchanged
 - **`__init__`** — workspace-root resolution, `QUESTIONNAIRES`/`WARMTH_RUBRICS`/`ORTHOGONAL_METRICS`/
   `display_label`, public re-exports, and the backward-compat submodule aliases.
 
-Two packages, by purpose: **`eda_analysis/`** = the analysis layer (notebooks `0`–`5`, disk-discovery,
+Two packages, by purpose: **`eda_analysis/`** = the analysis layer (notebooks `1`–`6`, disk-discovery,
 no registry) and **`oracle_scoring/`** = the legacy package kept ONLY to power `Run_Eval.ipynb`'s
 scoring (its `EXPERIMENTS` registry is Exp3-only). ⚠ the old `oracle_scoring` persona join is wrong for
 Exp3 (per-iter shuffle) — use `eda_analysis` (`data.attach_personas`).
@@ -148,7 +149,7 @@ at the matched 10-iter endpoint** (4.26 vs 3.75, dz +0.73) — GRPO is competiti
 then overshoots into sycophancy. The orthogonal axes show the warmth gains come *with* a ~2.3× rise in
 **MI-inconsistent** behaviour and **affirmation drift in both methods** (PC1 drops 91%→≈55% once the new
 axes are included). Per-view narratives: `results/<view>/SUMMARY.md` (L0 is the primary read). Full
-numbers in `5_Detailed_Stats` and the `project-pto-la0-eval-results` memory.
+numbers in `6_Stats` and the `project-pto-la0-eval-results` memory.
 
 ---
 
@@ -162,14 +163,18 @@ subscale **trajectories** + **`effect_forest`** + reliability curve + TB curves 
 latent space; Okabe-Ito **colourblind palette**, base lines, **no violins**; heavy tables in `5`,
 thin arms filtered; the orthogonal eval axes (PCT/MICI/R:Q/%CR/%MICO); then (2026-06-18) the
 **VIEW system** (`all`/`L0`/`L5` result trees + `render_views.py`), the **9-module** package
-consolidation, and per-view **`SUMMARY.md`** narratives. **Remaining roadmap:**
+consolidation, and per-view **`SUMMARY.md`** narratives; then (2026-07-02) the **reorg-by-topic pass**
+— topic notebooks ↔ numbered result families 1:1, per-metric trajectory + heterogeneity catalogs,
+dedup of 4 duplicate figures, merged stats tables, readable labels, per-call `group=` exports, the
+GRPO iter-9 anomaly check, and the walk-based `build_index()` in every notebook. **Remaining roadmap:**
 
 **Reproducibility / speed:**
 5. **Cache `scores_long` + `behavior_by_iter` to parquet.** `behavior`/`text_metrics` re-read ~2k
    conversation CSVs in every notebook (slow) — and now ×3 views. A `data.load_cached()` writing
    `results/cache/*.parquet` (keyed by arm+iter set) would make notebooks near-instant.
    `notebook_setup()` is the natural home for the toggle. **Biggest speed win now that views multiply
-   the reads.**
+   the reads** (deliberately DEFERRED from the 2026-07-02 reorg — that pass was organizational; the
+   duplicated `behavior_by_iter` compute is this item's motivating case).
 7. **Discovery should skip empty `model_iter` dirs**; `Run_Eval`'s registry could be auto-generated
    from `discover_arms()` to remove the last hand-maintained list.
 

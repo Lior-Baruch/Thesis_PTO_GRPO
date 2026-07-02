@@ -246,13 +246,13 @@ Exp3_PTO_GRPO/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
 │   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses oracle_scoring/, registry-driven)
-│   ├── 0_Headline.ipynb               [EVAL] group=headline — THIN: 3 canonical figs (best-vs-base bars, effect FOREST, Q1+Q2 curve) + master artifact index
-│   ├── 1_Eval_and_Behavior.ipynb      [EVAL] group=eval — MERGED eval+behaviour. A: all-rubric & subscale trajectories + ONE configurable overlay_trajectory contrast + SCORECARD (warmth + orthogonal axes) + appendix bars. B: MITI drift + factor structure (DIVERGING corr + factor-LOADINGS bars) + over-praise cross-check + ONE heterogeneity_grid/trait + session-end + transcripts
-│   ├── 2_Training_Diagnostics.ipynb   [TRAINING] group=training — TensorBoard curves (tb_curves) + per-candidate reward dist + advantage signal (group_std/margin) + degeneration scan
-│   ├── 3_Reward_Reliability.ipynb     [TRAINING↔EVAL] group=reliability — rank-agreement-vs-n_turns curve (LA0 vs LA5) + proxy-vs-eval scatter + PTO margin-by-branch-depth
-│   ├── 4_Preference_LatentSpace.ipynb [TRAINING] group=preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
-│   ├── 5_Detailed_Stats.ipynb         [EVAL] group=stats — ALL heavy tables: main results + Friedman + paired method/K + per-arm vs-base + slopes + rankings + PCA (thin arms filtered)
-│   ├── render_views.py                         DRIVER: regenerate results/{all,L0,L5}/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp)
+│   ├── 1_Outcomes.ipynb               [EVAL] family=1_outcomes — all-metric trajectory grid + PER-METRIC learning-curve catalog (trajectories/ subfolder; peaks auto-flagged) + effect forest + per-model bars + scorecard
+│   ├── 2_Heterogeneity.ipynb          [EVAL] family=2_heterogeneity — EVERY metric split by persona trait (cooperation_level/ + problem/ subfolders) + final-iteration endpoint bars
+│   ├── 3_Mechanism.ipynb              [EVAL] family=3_mechanism — behaviour drift + merged behavior_by_iter table + subscales + factor structure (corr + loadings) + reward_hack_panel + question/over-praise cross-checks + session shape + transcripts
+│   ├── 4_Training_and_Reliability.ipynb [TRAINING↔EVAL] family=4_training — TB curves + reward dist + advantage signal + degeneration + reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth)
+│   ├── 5_Preference.ipynb             [TRAINING] family=5_preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
+│   ├── 6_Stats.ipynb                  [EVAL] family=6_stats — ALL heavy tables: merged main_results (target col) + Friedman + merged vs-base/method/K paired + all-metric slopes + PCA + GRPO iter-9 anomaly check
+│   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes LIST indices 0..5)
 │   ├── eda_analysis/                            Exp3 analysis package (disk-discovery, read-only). 9 modules: plumbing merged 14→9 (2026-06-18); old submodule names aliased
 │   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label + submodule aliases (figures/plots→plotting; discovery/personas/scores/select→data)
 │   │   ├── config.py                    CONTROL SURFACE: EdaConfig (incl. the VIEW knob) + notebook_setup(cfg)→Setup(ARMS,SCORES,PALETTE,METRICS,ORACLE_NOISE,RESULTS_DIR,VIEW,CFG). view→ks filter + results/<view>/ root. (absorbed notebook.py)
@@ -262,16 +262,28 @@ Exp3_PTO_GRPO/
 │   │   ├── behavior.py                  MITI behavior counts (eval) + MICI loader + over-praise cross-check + structural text metrics (semantic regex demoted to lex_* sanity-check)
 │   │   ├── training.py                  generations.jsonl proxy reward + degeneracy scan + pref_pairs + advantage_signal_by_iter / reward_distribution_frame (both methods)
 │   │   ├── pref.py                      PTO pref: margins + embeddings + Mass-Mean-Probe (preference_direction/word_projection/MI category_projection) + pref_word_ranking
-│   │   └── exports.py                   VIEW-aware: save_fig (PNG) / save_table (md+xlsx) → results/<view>/<group>/ ; set_view + set_export_group + set_formats + save_provenance + build_index + reset_results (PRESERVES SUMMARY.md)
-│   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures/<group>/ (png) + tables/<group>/ (md+xlsx) + INDEX.md + hand-authored SUMMARY.md
+│   │   └── exports.py                   VIEW-aware: save_fig (PNG) / save_table (md+xlsx) → results/<view>/<family>/ ; per-call group= override incl. NESTED subpaths; set_view + set_export_group + set_formats + save_provenance + walk-based build_index + reset_results (PRESERVES SUMMARY.md)
+│   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md
 │   └── oracle_scoring/                  LEGACY package — kept ONLY for Run_Eval scoring (Exp3 registry; NOT the new analysis)
 └── HF_key.txt, openai_key.txt
 ```
 
-**Thesis artifacts.** `results/figures/` (`.pdf`) and `results/tables/` (`.md`) are **generated** by
-`eda_analysis.save_fig`/`save_table` — **one format each** (the `formats=` kwarg can request extras for a
-one-off). Run `0_Headline.ipynb` to regenerate the canonical set (others export their own too).
-They're reproducible from code, so tracking them in git is optional (Lior's call).
+**Thesis artifacts.** `results/<view>/figures/` (`.png`) and `results/<view>/tables/` (`.md`+`.xlsx`)
+are **generated** by `eda_analysis.save_fig`/`save_table` (the `formats=` kwarg can request extras for
+a one-off; per-call `group=` overrides the family, incl. nested subpaths). Each notebook regenerates
+its own family; `python render_views.py` regenerates everything. Reproducible from code; tracked in git.
+
+**Reorg-by-topic pass (2026-07-02).** No special "main" notebook — **topic notebooks ↔ numbered result
+families, 1:1** (notebook number == family number, so any artifact under `results/<view>/` traces to
+its producing notebook). Per-metric catalogs added (9 trajectory curves w/ auto peak-marking under
+`1_outcomes/trajectories/`; 2 traits × 9 metrics under `2_heterogeneity/<trait>/`). Dropped 4 duplicate
+figures ONLY (contrast_overlay, outcomes_headline, unannotated trajectory_Q1Q2, orthogonal-only forest
+— `overpraise_crosscheck` + `faithfulness_proxy_vs_eval` KEPT, re-tiered). Stats tables merged 13→~11
+(main_results final+best w/ `target` col; vs_base/method/K paired tables merged with key columns; NEW
+`grpo_iter9_check` probes GRPO's all-metric simultaneous iter-9 dip). Labels: `Q1Q2→"Q1+Q2"`, Q1/Q2 raw
+(no "Satisfaction…"). exports.py: per-call `group=` + walk-based `build_index()` (nested folders were
+silently omitted) now the final cell of EVERY notebook; `single_metric_trajectory(oracle_noise=None)`
+suppresses the band; stale "PC1≈91%/6 rubrics" caveat → 9-metric PC1≈55% text.
 
 **Single canonical copies.** `system_prompts_builder.py` and `questionnaires.py`
 live ONLY at `code/` root — both `eda/oracle_scoring/__init__.py` and `eda/eda_analysis/__init__.py` prepend
@@ -387,19 +399,21 @@ changed** — only cell 1 got the VIEW knob. **(3) Driver** [render_views.py](ed
 ### New EDA workflow (replaces "add registry entry → Conv_EDA")
 1. **Score** a new run: `Run_Eval.ipynb` still needs a `oracle_scoring/config.py::EXPERIMENTS` entry to know what
    to grade (this one coupling remains by design). Run it → writes `eval_scores/`.
-2. **Analyze:** open `0_Headline` (3 canonical figures + index), then `1_Eval_and_Behavior` (eval
-   outcomes + behaviour) and `2`–`5` for the deeper analyses (each exports its own artifacts;
-   `5_Detailed_Stats` holds all the heavy tables). Every notebook's cell 1 starts with the **VIEW knob**
-   `VIEW = os.environ.get("EDA_VIEW", "L0")` then `cfg = eda_analysis.EdaConfig(view=VIEW, export_group=…)`
-   → `S = eda_analysis.notebook_setup(cfg)`. **`view` ∈ {all, L0, L5}** is the one control: it sets BOTH
-   the arm filter (`all`=every arm, `L0`=K=0 arms, `L5`=K=5 arms) AND the results root, so artifacts land
-   in **`eda/results/<VIEW>/<figures|tables>/<group>/`** (per-view `INDEX.md` + a hand-authored
+2. **Analyze:** browse `results/<view>/` and open the notebook whose NUMBER matches the family you
+   want to change — `1_Outcomes` / `2_Heterogeneity` / `3_Mechanism` / `4_Training_and_Reliability` /
+   `5_Preference` / `6_Stats` (topic notebooks ↔ result families, 1:1). Every notebook's cell 1 starts
+   with the **VIEW knob** `VIEW = os.environ.get("EDA_VIEW", "L0")` then
+   `cfg = eda_analysis.EdaConfig(view=VIEW, export_group=…)` → `S = eda_analysis.notebook_setup(cfg)`.
+   **`view` ∈ {all, L0, L5}** is the one control: it sets BOTH the arm filter (`all`=every arm,
+   `L0`=K=0 arms, `L5`=K=5 arms) AND the results root, so artifacts land in
+   **`eda/results/<VIEW>/<figures|tables>/<N_family>/`** (per-view `INDEX.md` + a hand-authored
    `SUMMARY.md`). All **auto-discover** every arm via `eda_analysis.discover_arms()` — no registry edit.
    Point any figure at a subset with `arms=`/`eda_analysis.select_scores(...)`.
-3. **Regenerate all views at once:** `python render_views.py` (3 views × 6 notebooks = 18 nbconvert runs,
+3. **Regenerate all views at once:** `python render_views.py` (views × 6 notebooks via nbconvert,
    kernel `thesis-venv313`, writes the `results/` trees; `render_views.py L0` for one view,
-   `… L5 --nb 4` for one view+notebook). Re-run is cheap; arms not yet scored are skipped gracefully
-   (cross-method/K cells degrade to a "not scored yet" banner; thin arms < 3 iters are dropped).
+   `… L5 --nb 3` for one view+notebook — `--nb` takes LIST indices 0..5, 0 = `1_Outcomes`). Re-run is
+   cheap; arms not yet scored are skipped gracefully (cross-method/K cells degrade to a "not scored
+   yet" banner; thin arms < 3 iters are dropped).
 
 See [eda/README.md](eda/README.md) for the full notebook guide + an improvement roadmap.
 
@@ -407,8 +421,8 @@ See [eda/README.md](eda/README.md) for the full notebook guide + an improvement 
 Scored: **PTO LA0** iters 0–10, **GRPO LA0** iters 0–10 (**now FINISHED**), **PTO LA5** iters 0–4,
 GRPO LA5 base only. **All four arms scored on the full battery incl. the orthogonal axes** (PCT, MICI,
 and the derived R:Q/%CR/%MICO). Numbers in the EDA's `Q1Q2 = mean(Q1,Q2)` convention (full tables:
-`results/tables/stats/main_results_final.md` = each arm's FINAL iter, `..._best.md` = each arm's BEST
-iter; one-glance `results/tables/eval/leaderboard_scorecard.md`).
+`results/<view>/tables/6_stats/main_results.md` = each arm's FINAL and BEST iter in one table
+(`target` column); one-glance `results/<view>/tables/1_outcomes/leaderboard_scorecard.md`).
 - **Each arm vs base — large warmth gains.** PTO LA0 Q1+Q2 3.00→**4.26** (final=best, dz 1.43, Friedman
   W=0.45); GRPO LA0 3.07→**4.08 at its iter-8 peak**, falling to **3.75 by iter 10** (final dz 0.72,
   best dz 1.22, W=0.33); PTO LA5 3.00→3.89 in 4 iters (dz 0.88). All warmth rubrics **large** effect,
@@ -502,7 +516,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
 2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
-4. **Score + EDA.** Add a `oracle_scoring/config.py::EXPERIMENTS` entry for the run (Run_Eval scoring only), run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → then open [eda/0_Headline.ipynb](eda/0_Headline.ipynb) (and `1`–`6`), which **auto-discover** the run (no further registry edits). See "New EDA workflow".
+4. **Score + EDA.** Add a `oracle_scoring/config.py::EXPERIMENTS` entry for the run (Run_Eval scoring only), run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`6`), which **auto-discover** the run (no further registry edits). See "New EDA workflow".
 
 ## Running PTO_Exp3
 
