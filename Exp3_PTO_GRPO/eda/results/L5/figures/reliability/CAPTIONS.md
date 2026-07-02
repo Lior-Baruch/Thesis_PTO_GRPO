@@ -1,2 +1,0 @@
-- **reward_reliability_curve** — Sign-agreement between the partial-conv training reward and the full-conv eval (Q1+Q2) vs the length at which the conversation was scored; per arm. 0.5 = chance. LA0 vs LA5 tests whether look-ahead improves faithfulness.
-- **faithfulness_proxy_vs_eval** — Per (arm, iteration): mean training proxy reward (oracle on the partial branch) vs full-conversation eval Q1+Q2; dashed y=x.

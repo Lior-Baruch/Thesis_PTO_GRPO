@@ -1,5 +1,0 @@
-- **PTO_LA0_pref_word_ranking** — PTO_LA0 top chosen/rejected-aligned words (Mass Mean Probe, pooled over iters).
-- **PTO_LA0_pref_word_drift** — PTO_LA0 per-iteration projection of the top chosen-/rejected-aligned words (drift).
-- **PTO_LA0_pref_direction_drift** — PTO_LA0 preference direction in 2D PCA + consecutive cosine (how the preferred axis re-orients across iterations).
-- **PTO_LA0_pref_learn_unlearn** — PTO_LA0 words most newly preferred (learned) vs dropped (unlearned) across iteration transitions.
-- **PTO_LA0_pref_category_drift** — PTO_LA0 MI-concept word groups projected onto the chosen-rejected direction per iteration.
