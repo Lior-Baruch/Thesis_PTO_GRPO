@@ -650,6 +650,61 @@ def heterogeneity_grid(scores_long, char: str, *, arms: Optional[Sequence[str]] 
     return fig
 
 
+def heterogeneity_overview_grid(scores_long, char: str, *, arms: Optional[Sequence[str]] = None,
+                                metrics: Optional[Sequence[str]] = None, palette=None):
+    """ALL metrics × ALL arms for ONE trait — rows = metric, cols = arm, hue = persona category.
+
+    The combined "all-metrics overview per trait" sibling of the per-metric
+    :func:`heterogeneity_grid` files (which fix a metric and panel over arms): here every rubric
+    (rows) is shown across iterations split by persona ``char``, a column per arm, so the whole
+    persona story for a trait reads at a glance — is the gap consistent across metrics, and do the
+    arms diverge the same way? Same colourblind category palette + readable names as
+    :func:`heterogeneity_grid`, one shared persona legend above the grid. ``palette`` is accepted
+    for signature symmetry but unused (colour keys on persona, not arm). Arms with <3 scored iters
+    (or missing ``char``) are dropped; returns ``None`` if nothing is plottable.
+    """
+    from . import display_label, arm_label
+    if char not in scores_long.columns:
+        return None
+    metrics = _metrics(scores_long["questionnaire"].unique(), metrics)
+    arm_list = [a for a in (arms if arms is not None else sorted(scores_long.arm.unique()))
+                if scores_long[scores_long.arm == a].iteration.nunique() >= 3
+                and scores_long[scores_long.arm == a][char].notna().any()]
+    if not arm_list or not metrics:
+        return None
+    cats, valmap = _persona_cats(scores_long[char], char)
+    hue_pal = {c: _QUAL_COLORS[i % len(_QUAL_COLORS)] for i, c in enumerate(cats)}
+    nrows, ncols = len(metrics), len(arm_list)
+    fig, axes = plt.subplots(nrows, ncols, figsize=(4.2 * ncols, 2.7 * nrows),
+                             squeeze=False, sharex=True)
+    leg_ax = None
+    for r, m in enumerate(metrics):
+        dm = scores_long[scores_long.questionnaire == m]
+        for c, arm in enumerate(arm_list):
+            ax = axes[r][c]
+            sns.lineplot(dm[dm.arm == arm], x="iteration", y="score", hue=char, hue_order=cats,
+                         marker="o", palette=hue_pal, ax=ax)
+            if r == 0:
+                ax.set_title(arm_label(arm))
+            ax.set_ylabel(display_label(m) if c == 0 else "")
+            ax.set_xlabel("iteration" if r == nrows - 1 else "")
+            if ax.get_legend():
+                if leg_ax is None:
+                    leg_ax = ax                 # keep the first to lift into a shared legend
+                else:
+                    ax.legend_.remove()
+    if leg_ax is not None and leg_ax.get_legend():
+        handles, labels = leg_ax.get_legend_handles_labels()
+        leg_ax.legend_.remove()
+        fig.legend(handles, [valmap.get(l, l) for l in labels], title=char.replace("_", " "),
+                   loc="upper center", bbox_to_anchor=(0.5, 1.02), ncol=max(1, len(cats)),
+                   frameon=False, fontsize=8)
+    fig.suptitle(f"All metrics by {char.replace('_', ' ')} (true persona) — rows = metric, cols = arm",
+                 y=1.05, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
 def subgroup_endpoint_bars(scores_long, char: str, *, arms: Optional[Sequence[str]] = None,
                            metric: str = "Q1Q2", palette=None):
     """Final-iteration *metric* per (persona ``char`` × arm) — 'where does an arm win / regress?'
@@ -835,6 +890,27 @@ def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
         elif ax.get_legend():
             ax.legend_.remove()
     fig.suptitle("Behavior trajectories (MITI counts + text metrics)", y=1.02, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def single_behavior_trajectory(behavior_by_iter, metric: str, *, palette=None):
+    """One behavior metric across iterations, arms overlaid — the per-metric zoom of
+    :func:`behavior_trajectory_grid` (for the ``3_mechanism/behavior/`` subfolder).
+
+    Same data + palette as the combined grid; a full-size single panel so a reader can read one
+    signal (e.g. B6_AF affirmations, or q_per_turn) closely. ``None`` if ``metric`` is absent.
+    """
+    from . import display_label
+    if metric not in behavior_by_iter.columns:
+        return None
+    pal = palette or figures.arm_palette(sorted(behavior_by_iter.arm.unique()))
+    fig, ax = plt.subplots(figsize=(8, 4.5))
+    sns.lineplot(behavior_by_iter, x="iteration", y=metric, hue="arm", palette=pal, marker="o", ax=ax)
+    ax.set_title(f"{display_label(metric)} across iterations")
+    ax.set_xlabel("training iteration"); ax.set_ylabel(display_label(metric))
+    sns.move_legend(ax, "upper left", bbox_to_anchor=(1.01, 1.0), title="arm", frameon=False)
+    figures.relabel_legend(ax)
     fig.tight_layout()
     return fig
 
