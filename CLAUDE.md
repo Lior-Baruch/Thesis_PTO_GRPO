@@ -86,7 +86,28 @@ plateau by iter ~4 → ~40–50% saving, compare at matched iter), drop `M`/`G` 
 measurement instrument) fixed. A supervisor-meeting deck (10 slides, editable PPTX + regenerator) is
 in [Exp3_PTO_GRPO/meetings/](Exp3_PTO_GRPO/meetings/). See the `project-openai-cost-constraint` memory.
 
-**Landed (2026-07-02, latest) — EDA reorg-by-topic + reward-hacking figures + readable labels.** Two
+**Landed (2026-07-03, latest) — Exp3 EDA backlog CLEARED (all 6 concrete items #1–#6; only #7 general
+review remains).** One session, six commits (`d446f31` `4246a22` `e492a25` `338efb2` + two stray-folder
+cleanups); every change re-rendered across the 3 views (all/L0/L5) via `render_views.py`, no failures.
+**#1 grid+subfolder everywhere** — the `1_Outcomes` combined-grid + per-metric-subfolder pattern now spans
+all multi-panel families: `2_heterogeneity/<trait>_all_metrics.png` (new `plots.heterogeneity_overview_grid`,
+metric×arm persona grid), `3_mechanism/behavior/<metric>.png` (new `single_behavior_trajectory`),
+`3_mechanism/subscales/<parent>.png`, `4_training/reward_distribution/<arm>.png`. **#2 GRPO margin analog** —
+`advantage_signal_by_iter` emits GRPO `group_range` (per-group best−worst reward), plotted beside PTO's
+chosen−rejected margin on a SHARED oracle-score-gap axis. **#3 question-rate "bug" = NOT a bug** — B3_Q(count)
+vs q_per_turn(rate) was count-vs-rate confusion; harmonized, the merge is conv-aligned 96/96 and the real
+divergence is question *syntax* (regex `?`, collapses ~7×) vs *function* (oracle B3_Q, drops ~1.6×). Shipped an
+alignment guard + disambiguated labels + fixed an overstated §4b caption. **#4 labels** — validated-instrument
+acronym kept up-front (`MITI (MI Integrity)` …) + new `short_label()` for dense figures. **#5 warmth-vs-
+orthogonal** — heatmap block divider + labels, loadings coloring, §3 two-family explainer. **#6 stats.py audit —
+NO correctness bugs** (Holm/BH-FDR verified identical to statsmodels; tables reproduce the known headline);
+documented Holm family-scope + `trajectory_test` non-independence. **Three write-up-worthy findings surfaced:**
+PCT empirically loads WITH warmth (ρ≈0.79–0.94, not as orthogonal as intended); the question syntax-vs-function
+divergence is itself the affirmation-drift signature; and PTO's preference margin is LARGER at K=5 than K=0
+(look-ahead → more decisive oracle separation). See [Exp3_PTO_GRPO/CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md) →
+backlog (#1–#6 marked done) + the `project-exp3-new-eda` memory. Data state unchanged: full L0, partial L5, no L2.
+
+**Landed (2026-07-02) — EDA reorg-by-topic + reward-hacking figures + readable labels.** Two
 sessions on the Exp3 analysis EDA. **(A) Reward-hacking figures + labels (committed `a3b3adb`).** Added
 `reward_hack_panel` (twin-axis warmth↑ + MICI↑ + PCT-flat), auto peak-marking on the Q1+Q2 curve
 (GRPO's iter-8 peak-then-regress), an orthogonal effect forest with lower-is-better handling,
