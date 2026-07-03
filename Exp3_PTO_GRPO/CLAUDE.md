@@ -305,11 +305,13 @@ Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, 
 1. ✅ **DONE (2026-07-03)** — see the Landed note above. Combined all-metrics overview per trait added to
    `2_Heterogeneity` (metric×arm trajectory grid); per-metric/-parent/-arm subfolders added to `3_Mechanism`
    (behavior, subscales) and `4_Training` (reward distribution). Scope chosen: **all** multi-panel families.
-2. **`4_Training`: add a GRPO "preference-margin" analog.** GRPO has no chosen/rejected pairs, but a natural
-   analog to PTO's chosen−rejected `margin` is the within-group reward **spread = max−min** (or plot group
-   min & max) per iteration — add it beside/into `advantage_signal_sidebyside` so both methods show a
-   comparable decisiveness signal. Data is in `generations.jsonl` group rows (group_mean/std already there;
-   need per-group min/max). (CLARIFY: max−min range, or min+max lines, or best−worst margin.)
+2. ✅ **DONE (2026-07-03) — best−worst range.** `training.advantage_signal_by_iter` now also emits GRPO
+   `group_range` = per-group **best − worst** candidate reward (computed from the group's own candidate
+   scores in `generations.jsonl`), the direct analog to PTO's chosen−rejected `margin` — both are 0–5
+   oracle-score gaps, so `advantage_signal_sidebyside` now plots them on ONE **shared y-axis** (GRPO range
+   solid + `group_std` faint; PTO margin solid + median faint). Findings: PTO K=0 margin declines steadily
+   (~0.32→0.27); GRPO K=0 range dips then **rebounds late** (0.38→0.23→0.34, echoing the iter-8 hack);
+   **PTO K=5 margin (~0.41–0.47) > K=0** — look-ahead makes the oracle discriminate candidates more decisively.
 3. ✅ **DONE (2026-07-03) — NOT a bug; semantic gap.** The "4.1 vs 0.15" was count-vs-rate confusion (B3_Q is
    a per-conv COUNT, q_per_turn a RATE). Harmonized (both /turn, SAME denominator), the merge is conv-aligned
    96/96, so no computation error. The real divergence: regex literal-`?` collapses ~7× for GRPO (12.4→1.7/conv)
@@ -337,7 +339,7 @@ Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, 
    the captions + §4 markdown + `stats._paired_arm_comparison` docstring; noted `trajectory_test` p-values are
    descriptive (non-independent rows → use Friedman for RM inference) in the docstring + §5 markdown.
 7. **General EDA review** — this is the active workstream; L0 is the primary read, L5 partial.
-Remaining open items: **#2** (GRPO preference-margin analog in `4_Training`) and **#7** (general review).
+Remaining open item: **#7** (general EDA review — ongoing). All concrete backlog items (#1–#6) are done.
 Open cosmetic: tables-only `6_Stats` still writes an empty `figures/6_stats/_provenance.md` (harmless;
 INDEX ignores it) — optionally suppress provenance for tables-only notebooks.
 

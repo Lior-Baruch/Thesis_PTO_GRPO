@@ -1,4 +1,4 @@
 - **reward_distribution_by_arm** — Per-candidate training reward per iteration, one panel per arm (oracle on partial-conv branches, not the full-conv eval).
-- **advantage_signal_sidebyside** — Method-native training advantage: GRPO mean group_std vs PTO chosen-rejected margin, per iteration.
+- **advantage_signal_sidebyside** — Training decisiveness on ONE comparable scale (oracle-score gap): GRPO per-group best−worst reward range (within-group std faint) vs PTO chosen−rejected margin (median faint), per iteration. PTO's margin declines steadily; GRPO's range dips mid-training then rebounds late, echoing the iter-8 reward-hack regression.
 - **reward_reliability_curve** — Sign-agreement between the partial-conv training reward and the full-conv eval (Q1+Q2) vs the length at which the conversation was scored; per arm. 0.5 = chance. LA0 vs LA5 tests whether look-ahead improves faithfulness.
 - **faithfulness_proxy_vs_eval** — Per (arm, iteration): mean training proxy reward (oracle on the partial branch) vs full-conversation eval Q1+Q2; dashed y=x.
