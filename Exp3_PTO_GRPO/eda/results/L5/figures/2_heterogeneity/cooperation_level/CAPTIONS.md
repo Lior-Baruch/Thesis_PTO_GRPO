@@ -1,9 +1,9 @@
 - **Q1Q2** — Q1+Q2 across iterations split by true patient cooperation_level; one panel per arm.
-- **WAI-SR** — Working Alliance across iterations split by true patient cooperation_level; one panel per arm.
-- **CSQ-8** — Client Satisfaction across iterations split by true patient cooperation_level; one panel per arm.
-- **MI-SAT** — MI Satisfaction across iterations split by true patient cooperation_level; one panel per arm.
-- **MITI** — MI Integrity across iterations split by true patient cooperation_level; one panel per arm.
-- **PCT** — Patient Change-Talk across iterations split by true patient cooperation_level; one panel per arm.
-- **MICI** — MI-Inconsistency ↓ across iterations split by true patient cooperation_level; one panel per arm.
+- **WAI-SR** — WAI-SR (Working Alliance) across iterations split by true patient cooperation_level; one panel per arm.
+- **CSQ-8** — CSQ-8 (Client Satisfaction) across iterations split by true patient cooperation_level; one panel per arm.
+- **MI-SAT** — MI-SAT (MI Satisfaction) across iterations split by true patient cooperation_level; one panel per arm.
+- **MITI** — MITI (MI Integrity) across iterations split by true patient cooperation_level; one panel per arm.
+- **PCT** — PCT (Patient Change-Talk) across iterations split by true patient cooperation_level; one panel per arm.
+- **MICI** — MICI (MI-Inconsistency) ↓ across iterations split by true patient cooperation_level; one panel per arm.
 - **Q1** — Q1 across iterations split by true patient cooperation_level; one panel per arm.
 - **Q2** — Q2 across iterations split by true patient cooperation_level; one panel per arm.

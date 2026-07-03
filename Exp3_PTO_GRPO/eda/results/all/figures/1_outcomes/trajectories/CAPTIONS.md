@@ -1,9 +1,9 @@
 - **trajectory_Q1Q2** — Q1+Q2 across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression). Grey band = oracle reproducibility (~0.10) around base.
-- **trajectory_WAI-SR** — Working Alliance across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
-- **trajectory_CSQ-8** — Client Satisfaction across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
-- **trajectory_MI-SAT** — MI Satisfaction across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
-- **trajectory_MITI** — MI Integrity across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
-- **trajectory_PCT** — Patient Change-Talk across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
-- **trajectory_MICI** — MI-Inconsistency ↓ across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
+- **trajectory_WAI-SR** — WAI-SR (Working Alliance) across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
+- **trajectory_CSQ-8** — CSQ-8 (Client Satisfaction) across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
+- **trajectory_MI-SAT** — MI-SAT (MI Satisfaction) across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
+- **trajectory_MITI** — MITI (MI Integrity) across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
+- **trajectory_PCT** — PCT (Patient Change-Talk) across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
+- **trajectory_MICI** — MICI (MI-Inconsistency) ↓ across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
 - **trajectory_Q1** — Q1 across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).
 - **trajectory_Q2** — Q2 across iterations per arm (mean +/- 95% CI, N=96); dotted vline flags a peak that precedes the final iteration (regression).

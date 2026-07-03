@@ -87,10 +87,11 @@ DISPLAY_NAMES = {
     # Warmth / satisfaction / alliance rubrics. Q1Q2/Q1/Q2 stay as their plain codes
     # (Lior: no "Satisfaction …" prefix) — Q1/Q2 simply fall through display_label unchanged.
     "Q1Q2": "Q1+Q2",
-    "WAI-SR": "Working Alliance", "CSQ-8": "Client Satisfaction", "MI-SAT": "MI Satisfaction",
-    "MITI": "MI Integrity",
+    # Original validated-instrument acronym KEPT up-front (Lior), descriptive gloss in parens.
+    "WAI-SR": "WAI-SR (Working Alliance)", "CSQ-8": "CSQ-8 (Client Satisfaction)",
+    "MI-SAT": "MI-SAT (MI Satisfaction)", "MITI": "MITI (MI Integrity)",
     # Orthogonal axes (added to break the warmth halo)
-    "PCT": "Patient Change-Talk", "MICI": "MI-Inconsistency",
+    "PCT": "PCT (Patient Change-Talk)", "MICI": "MICI (MI-Inconsistency)",
     "R:Q": "Reflection:Question", "%CR": "% Complex Reflections", "%MICO": "% MI-Consistent",
     # MITI behavior counts (per conversation). "Questions" is a per-conv COUNT of question-FUNCTION
     # utterances (oracle) — kept distinct from the regex "? / turn" RATE below to avoid misreading a
@@ -119,6 +120,21 @@ def display_label(metric: str) -> str:
     """
     name = DISPLAY_NAMES.get(metric, metric)
     return f"{name} ↓" if metric in LOWER_IS_BETTER else name
+
+
+_SHORT_LABEL = {"Q1Q2": "Q1+Q2"}   # the rest of the keys already ARE their acronym (WAI-SR, CSQ-8, R:Q…)
+
+
+def short_label(metric: str) -> str:
+    """Compact acronym-only label for DENSE figures (correlation matrices, packed axes).
+
+    The full :func:`display_label` is ``"ACRONYM (descriptive gloss)"`` — great for panel titles and
+    tables, but it overflows a 10×10 heatmap tick. This returns just the acronym (the metric key, which
+    already is the instrument acronym; ``Q1Q2→"Q1+Q2"``), still ↓-flagged for lower-is-better. The
+    descriptive gloss lives in the surrounding caption/legend instead.
+    """
+    base = _SHORT_LABEL.get(metric, metric)
+    return f"{base} ↓" if metric in LOWER_IS_BETTER else base
 
 
 def arm_label(arm: str) -> str:
@@ -179,7 +195,7 @@ for _alias, _mod in (("figures", plotting), ("plots", plotting), ("personas", da
 
 __all__ = [
     "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
-    "WARMTH_RUBRICS", "ORTHOGONAL_METRICS", "LOWER_IS_BETTER", "display_label",
+    "WARMTH_RUBRICS", "ORTHOGONAL_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label",
     "EdaConfig", "notebook_setup", "Setup",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",

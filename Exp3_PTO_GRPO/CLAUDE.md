@@ -318,13 +318,17 @@ Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, 
    (warns if the inner-join drops >10% of convs — catches a future persona-shuffle mis-join); (b) disambiguated
    labels (`B3_Q`→"Questions / conv (MITI)", `q_per_turn`→"Questions / turn (regex ?)"); (c) fixed the §4b
    caption/markdown that OVERSTATED agreement (they diverge — the widening gap IS the drift signature).
-4. **Main questionnaire labels: show the ORIGINAL acronym.** `DISPLAY_NAMES` currently maps
-   `MITI→"MI Integrity"`, `CSQ-8→"Client Satisfaction"`, `WAI-SR→"Working Alliance"`, `MI-SAT→"MI Satisfaction"`.
-   Lior wants the original names (only or ALSO) — e.g. `"MITI"` or `"MITI (MI Integrity)"`. (CLARIFY:
-   acronym-only vs acronym + descriptive.)
-5. **Better articulate warmth vs orthogonal** — the 5 warmth/alliance rubrics (one PC1 factor) vs the
-   orthogonal axes (PCT / MICI↓ / R:Q / %CR / %MICO). Improve the explanation/labels/grouping in the EDA
-   (and possibly a one-figure or one-para explainer).
+4. ✅ **DONE (2026-07-03) — acronym + descriptive.** `DISPLAY_NAMES` now keeps the validated-instrument
+   acronym up-front with the gloss in parens: `MITI (MI Integrity)`, `CSQ-8 (Client Satisfaction)`,
+   `WAI-SR (Working Alliance)`, `MI-SAT (MI Satisfaction)`, `PCT (Patient Change-Talk)`,
+   `MICI (MI-Inconsistency)`; `Q1+Q2` unchanged (Lior); R:Q/%CR/%MICO keep their descriptive (keys already are
+   acronyms). New `short_label()` (acronym-only, ↓-flagged) for DENSE figures where the gloss overflows.
+5. ✅ **DONE (2026-07-03) — grouping + labels + paragraph.** The two families are now explicit: the
+   `rubric_correlation` heatmap uses `short_label` ticks + a heavy divider at the warmth/orthogonal boundary
+   + blue/orange block labels; `factor_loadings_bars` keeps the blue(warmth)/orange(orthogonal) coding (now via
+   the `WARMTH_RUBRICS` constant); `3_Mechanism` §3 markdown rewritten as a two-family explainer (Warmth = one
+   PC1≈91% factor; Orthogonal = PCT/MICI↓/R:Q/%CR/%MICO define PC2). Surfaced finding: **PCT empirically loads
+   WITH warmth** (ρ≈0.79–0.94; high PC1 loading) despite being nominally orthogonal — now visible in both figures.
 6. ✅ **DONE (2026-07-03) — audited, NO correctness bugs.** Holm + BH-FDR verified identical to `statsmodels`;
    dz / Cliff's δ / Friedman+Kendall-W / epsilon² all standard; tables reproduce the known headline (PTO 4.26 vs
    GRPO 3.75 @ iter10; PTO−GRPO Q1+Q2 +0.51 dz0.73; MICI −0.35 favouring PTO); merge alignment sound. Fixes were
@@ -333,8 +337,7 @@ Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, 
    the captions + §4 markdown + `stats._paired_arm_comparison` docstring; noted `trajectory_test` p-values are
    descriptive (non-independent rows → use Friedman for RM inference) in the docstring + §5 markdown.
 7. **General EDA review** — this is the active workstream; L0 is the primary read, L5 partial.
-Remaining open items: **#2** (GRPO preference-margin analog in `4_Training`), **#4** (original-acronym
-questionnaire labels), **#5** (warmth-vs-orthogonal explainer), **#7** (general review).
+Remaining open items: **#2** (GRPO preference-margin analog in `4_Training`) and **#7** (general review).
 Open cosmetic: tables-only `6_Stats` still writes an empty `figures/6_stats/_provenance.md` (harmless;
 INDEX ignores it) — optionally suppress provenance for tables-only notebooks.
 
