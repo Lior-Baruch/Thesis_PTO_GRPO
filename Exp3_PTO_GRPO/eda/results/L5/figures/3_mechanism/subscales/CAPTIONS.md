@@ -1,0 +1,2 @@
+- **WAI-SR** — WAI-SR subscale trajectories across iterations; one panel per arm.
+- **MITI** — MITI subscale trajectories across iterations; one panel per arm.

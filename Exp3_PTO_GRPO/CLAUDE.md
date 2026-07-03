@@ -285,12 +285,26 @@ figures ONLY (contrast_overlay, outcomes_headline, unannotated trajectory_Q1Q2, 
 silently omitted) now the final cell of EVERY notebook; `single_metric_trajectory(oracle_noise=None)`
 suppresses the band; stale "PC1≈91%/6 rubrics" caveat → 9-metric PC1≈55% text.
 
+**Landed (2026-07-03) — grid+subfolder pattern extended to all multi-panel families (backlog #1 DONE).**
+Applied the `1_Outcomes` combined-grid + per-metric-subfolder pattern across `2_Heterogeneity` /
+`3_Mechanism` / `4_Training`, adding whichever half each family lacked. **2_Heterogeneity:** new combined
+**all-metrics overview per trait** — `2_heterogeneity/<trait>_all_metrics.png` (metric×arm trajectory grid,
+each cell split by persona category, shared legend; new `plots.heterogeneity_overview_grid`) alongside the
+existing per-metric `<trait>/<metric>.png` subfolder; became §1 (overview→detail), later sections renumbered.
+**3_Mechanism:** per-metric behavior **subfolder** `3_mechanism/behavior/<metric>.png` (new
+`plots.single_behavior_trajectory`) beside the combined `behavior_drift`; per-parent subscale **subfolder**
+`3_mechanism/subscales/<parent>.png` (reuse `subscale_trajectory_grid(parents=(p,))`). **4_Training:**
+per-arm reward-distribution **subfolder** `4_training/reward_distribution/<arm>.png` (reuse
+`reward_distribution` on a one-arm slice) beside the combined `reward_distribution_by_arm`. Thin arms
+auto-dropped (GRPO_LA5, base-only, correctly absent from the L5 overview → single-column PTO grid).
+Validated: 3 views × 3 edited notebooks via `render_views.py` (`thesis-venv313`), no failures; all new PNGs
+present in all/L0/L5.
+
 **NEXT EDA SESSION — backlog (2026-07-02, Lior's notes; START by asking clarifying questions).**
 Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, GRPO_LA5 base)**; no L2 data yet.
-1. **Propagate the `1_Outcomes` style everywhere it fits** — a MAIN combined grid (`trajectories_all_metrics`)
-   + a per-metric SUBFOLDER (`trajectories/`). Apply to other families where sensible: `2_Heterogeneity`
-   should get a combined "all-metrics" overview per trait alongside its per-metric subfolder; consider the
-   same grid+subfolder pattern for behavior / other multi-panel figures. (CLARIFY which families.)
+1. ✅ **DONE (2026-07-03)** — see the Landed note above. Combined all-metrics overview per trait added to
+   `2_Heterogeneity` (metric×arm trajectory grid); per-metric/-parent/-arm subfolders added to `3_Mechanism`
+   (behavior, subscales) and `4_Training` (reward distribution). Scope chosen: **all** multi-panel families.
 2. **`4_Training`: add a GRPO "preference-margin" analog.** GRPO has no chosen/rejected pairs, but a natural
    analog to PTO's chosen−rejected `margin` is the within-group reward **spread = max−min** (or plot group
    min & max) per iteration — add it beside/into `advantage_signal_sidebyside` so both methods show a

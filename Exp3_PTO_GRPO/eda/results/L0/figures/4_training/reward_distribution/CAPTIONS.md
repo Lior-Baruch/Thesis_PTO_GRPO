@@ -1,0 +1,2 @@
+- **GRPO_LA0** — GRPO_LA0: per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
+- **PTO_LA0** — PTO_LA0: per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).

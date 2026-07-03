@@ -24,6 +24,8 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 - `trajectory_WAI-SR.png`
 
 ### 2_heterogeneity
+- `cooperation_level_all_metrics.png`
+- `problem_all_metrics.png`
 - `subgroup_endpoint_cooperation_level.png`
 - `subgroup_endpoint_problem.png`
 
@@ -58,11 +60,30 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 - `rubric_correlation.png`
 - `subscale_trajectories.png`
 
+### 3_mechanism/behavior
+- `B2_Persuade.png`
+- `B3_Q.png`
+- `B4_SR.png`
+- `B5_CR.png`
+- `B6_AF.png`
+- `Empathy.png`
+- `RtoQ.png`
+- `loop.png`
+- `q_per_turn.png`
+
+### 3_mechanism/subscales
+- `MITI.png`
+- `WAI-SR.png`
+
 ### 4_training
 - `advantage_signal_sidebyside.png`
 - `faithfulness_proxy_vs_eval.png`
 - `reward_distribution_by_arm.png`
 - `reward_reliability_curve.png`
+
+### 4_training/reward_distribution
+- `GRPO_LA5.png`
+- `PTO_LA5.png`
 
 ### 5_preference
 - `PTO_LA5_pref_category_drift.png`

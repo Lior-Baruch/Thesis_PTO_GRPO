@@ -1,2 +1,4 @@
+- **cooperation_level_all_metrics** — All metrics by true patient cooperation_level (rows=metric, cols=arm), each cell split by persona category — the combined overview companion to the per-metric cooperation_level/ subfolder.
+- **problem_all_metrics** — All metrics by true patient problem (rows=metric, cols=arm), each cell split by persona category — the combined overview companion to the per-metric problem/ subfolder.
 - **subgroup_endpoint_cooperation_level** — Final-iteration Q1+Q2 by true patient cooperation_level, per arm (dotted = base) — where the endpoint gap concentrates.
 - **subgroup_endpoint_problem** — Final-iteration Q1+Q2 by true patient problem, per arm (dotted = base) — where the endpoint gap concentrates.
