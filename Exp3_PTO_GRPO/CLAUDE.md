@@ -310,11 +310,14 @@ Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, 
    min & max) per iteration — add it beside/into `advantage_signal_sidebyside` so both methods show a
    comparable decisiveness signal. Data is in `generations.jsonl` group rows (group_mean/std already there;
    need per-group min/max). (CLARIFY: max−min range, or min+max lines, or best−worst margin.)
-3. **Questions vs Questions/turn — resolve the suspected bug.** Confirm whether oracle `B3_Q` (count) and
-   regex `q_per_turn` (rate) SHOULD correspond and by what relation (`B3_Q ≈ q_per_turn × n_th_turns`?), and
-   whether the GRPO iter-10 divergence (B3_Q≈4.1 but q_per_turn≈0.15) is a real bug or a semantic gap
-   (MITI codes question-*function* utterances; regex counts literal `?`). See `3_Mechanism` §4b
-   `question_rate_crosscheck` + `behavior.py`. Add a unit/sanity check if it's a bug.
+3. ✅ **DONE (2026-07-03) — NOT a bug; semantic gap.** The "4.1 vs 0.15" was count-vs-rate confusion (B3_Q is
+   a per-conv COUNT, q_per_turn a RATE). Harmonized (both /turn, SAME denominator), the merge is conv-aligned
+   96/96, so no computation error. The real divergence: regex literal-`?` collapses ~7× for GRPO (12.4→1.7/conv)
+   while oracle B3_Q drops only ~1.6× (6.4→4.1) — question **syntax** vs **function** (late affirmation/advice
+   turns carry question-function without a `?`). Shipped: (a) alignment guard in `behavior.question_rate_crosscheck`
+   (warns if the inner-join drops >10% of convs — catches a future persona-shuffle mis-join); (b) disambiguated
+   labels (`B3_Q`→"Questions / conv (MITI)", `q_per_turn`→"Questions / turn (regex ?)"); (c) fixed the §4b
+   caption/markdown that OVERSTATED agreement (they diverge — the widening gap IS the drift signature).
 4. **Main questionnaire labels: show the ORIGINAL acronym.** `DISPLAY_NAMES` currently maps
    `MITI→"MI Integrity"`, `CSQ-8→"Client Satisfaction"`, `WAI-SR→"Working Alliance"`, `MI-SAT→"MI Satisfaction"`.
    Lior wants the original names (only or ALSO) — e.g. `"MITI"` or `"MITI (MI Integrity)"`. (CLARIFY:
@@ -322,9 +325,16 @@ Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, 
 5. **Better articulate warmth vs orthogonal** — the 5 warmth/alliance rubrics (one PC1 factor) vs the
    orthogonal axes (PCT / MICI↓ / R:Q / %CR / %MICO). Improve the explanation/labels/grouping in the EDA
    (and possibly a one-figure or one-para explainer).
-6. **Check + understand + refine `stats.py`** — review the stat batteries/tables for correctness + clarity
-   (paired tests, Holm scoping, effect sizes, the new merged tables + `grpo_iter9_check`).
+6. ✅ **DONE (2026-07-03) — audited, NO correctness bugs.** Holm + BH-FDR verified identical to `statsmodels`;
+   dz / Cliff's δ / Friedman+Kendall-W / epsilon² all standard; tables reproduce the known headline (PTO 4.26 vs
+   GRPO 3.75 @ iter10; PTO−GRPO Q1+Q2 +0.51 dz0.73; MICI −0.35 favouring PTO); merge alignment sound. Fixes were
+   REPORTING clarity: documented the Holm **family scope** (the cross-arm `method_paired_by_K`/`k_paired_by_method`
+   `p_holm` is corrected across rubrics WITHIN each matched (K/method, iteration) — NOT pooled across iterations) in
+   the captions + §4 markdown + `stats._paired_arm_comparison` docstring; noted `trajectory_test` p-values are
+   descriptive (non-independent rows → use Friedman for RM inference) in the docstring + §5 markdown.
 7. **General EDA review** — this is the active workstream; L0 is the primary read, L5 partial.
+Remaining open items: **#2** (GRPO preference-margin analog in `4_Training`), **#4** (original-acronym
+questionnaire labels), **#5** (warmth-vs-orthogonal explainer), **#7** (general review).
 Open cosmetic: tables-only `6_Stats` still writes an empty `figures/6_stats/_provenance.md` (harmless;
 INDEX ignores it) — optionally suppress provenance for tables-only notebooks.
 

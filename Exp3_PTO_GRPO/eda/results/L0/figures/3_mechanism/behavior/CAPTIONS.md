@@ -1,4 +1,4 @@
-- **B3_Q** — Questions across iterations, all arms — per-metric zoom of behavior_drift.
+- **B3_Q** — Questions / conv (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
 - **B4_SR** — Simple Reflections across iterations, all arms — per-metric zoom of behavior_drift.
 - **B5_CR** — Complex Reflections across iterations, all arms — per-metric zoom of behavior_drift.
 - **B6_AF** — Affirmations across iterations, all arms — per-metric zoom of behavior_drift.
@@ -6,4 +6,4 @@
 - **RtoQ** — Reflection:Question across iterations, all arms — per-metric zoom of behavior_drift.
 - **Empathy** — Empathy (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
 - **loop** — Degeneration % across iterations, all arms — per-metric zoom of behavior_drift.
-- **q_per_turn** — Questions / turn across iterations, all arms — per-metric zoom of behavior_drift.
+- **q_per_turn** — Questions / turn (regex ?) across iterations, all arms — per-metric zoom of behavior_drift.

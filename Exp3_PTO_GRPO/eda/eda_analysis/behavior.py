@@ -159,7 +159,21 @@ def question_rate_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
                                      "q_per_turn", "q_per_turn_miti"])
     keys = ["arm", "iteration", "file_index"]
     merged = text.merge(miti[keys + ["B3_Q"]], on=keys, how="inner")
+    # Sanity guard: the two rates MUST be built on the same per-conversation rows, else we would be
+    # dividing an oracle count (B3_Q) by an unrelated conversation's turn count. The inner merge on
+    # (arm, iteration, file_index) should keep ~every conversation that both sources scored; a large
+    # drop means the MITI-eval index no longer aligns with the conversation index (e.g. a persona-
+    # shuffle regression — see project-exp3-persona-shuffle-recovery). NOT a hard raise (thin/partial
+    # arms legitimately shrink the join), just a visible warning.
+    n_joinable = min(len(text[keys].drop_duplicates()), len(miti[keys].drop_duplicates()))
+    if n_joinable and len(merged) < 0.9 * n_joinable:
+        import warnings as _w
+        _w.warn(f"question_rate_crosscheck: inner-join kept {len(merged)}/{n_joinable} conv rows "
+                f"(<90%) — check MITI-eval vs conversation file_index alignment.", stacklevel=2)
     merged = merged[merged["n_th_turns"] > 0].copy()
+    # Same denominator (n_th_turns) for both → the only difference is the numerator: literal '?' count
+    # (q_per_turn) vs oracle question-function count (B3_Q). A widening gap (regex << MITI) is the
+    # real affirmation/advice drift signature (declarative prompts carry no '?'), NOT a unit error.
     merged["q_per_turn_miti"] = merged["B3_Q"] / merged["n_th_turns"]
     return (merged.groupby(["arm", "method", "K", "iteration"], observed=True)
             [["q_per_turn", "q_per_turn_miti"]]

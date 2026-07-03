@@ -139,6 +139,11 @@ def _paired_arm_comparison(scores_long: pd.DataFrame, arm_a: str, arm_b: str,
     Reuses :func:`compare_two_models` per iteration. Returns an EMPTY frame when the two
     arms share no scored iteration (graceful for thin/unscored arms). ``+ => arm_a higher``.
     Extra ``assign`` kwargs are added as constant columns (e.g. ``K=0`` / ``method="PTO"``).
+
+    ⚠ Holm SCOPE: each iteration's ``p_holm`` is corrected across the RUBRICS at that one
+    matched-budget point (the family = the rubric set within a single iteration). Concatenating
+    iterations does NOT re-pool the correction — ``p_holm`` is per-(iteration) across rubrics, not
+    a whole-table correction over iteration×rubric. State this wherever the merged frame is shown.
     """
     rows = []
     for it in _common_iters(scores_long, arm_a, arm_b):
@@ -180,7 +185,13 @@ def paired_k_comparison(scores_long: pd.DataFrame, method: str = "PTO",
 
 # ── Trajectory ───────────────────────────────────────────────────────────────
 def trajectory_test(scores_long: pd.DataFrame, arm: str, metric: str) -> dict:
-    """Is *metric* climbing over iterations for *arm*? Spearman + OLS slope on raw rows."""
+    """Is *metric* climbing over iterations for *arm*? Spearman + OLS slope on raw rows.
+
+    ⚠ The ``p`` (Spearman) and ``ols_slope`` pool every persona×iteration row and treat them as
+    independent — but personas repeat across iterations, so the p-value is DESCRIPTIVE only. Use
+    :func:`friedman_trajectory` for the repeated-measures-correct omnibus (that is why the thesis
+    ``slope_by_arm`` table reports ρ/slope but NOT this p).
+    """
     g = scores_long[(scores_long["arm"] == arm) & (scores_long["questionnaire"] == metric)]
     if g["iteration"].nunique() < 3:
         return {"arm": arm, "metric": metric, "spearman_rho": np.nan, "p": np.nan,
