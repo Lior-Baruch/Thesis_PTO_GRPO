@@ -205,37 +205,45 @@ def advantage_signal_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     One tidy frame so a single plot can render both methods without an ``if`` — the two
     methods populate different (method-native) columns, NaN elsewhere:
 
-    - **GRPO** (from ``generations.jsonl``, one group per branch): ``group_std`` (mean within-
-      group reward spread = the implicit advantage signal) + ``frac_zero_std`` (fraction of
-      near-collapsed groups, a degeneracy red flag).
+    - **GRPO** (from ``generations.jsonl``, one group per branch): ``group_range`` (mean per-group
+      **best − worst** reward = the direct analog to PTO's chosen−rejected margin, on the SAME 0–5
+      oracle-score scale), ``group_std`` (mean within-group spread = the implicit advantage magnitude),
+      and ``frac_zero_std`` (fraction of near-collapsed groups, a degeneracy red flag).
     - **PTO** (from ``pref_pairs/pairs.csv``): ``margin`` (mean chosen−rejected oracle-score
       gap = how decisive the τ-filtered pairs are), ``margin_median``, ``n_pairs``.
 
-    Columns: ``arm, method, train_iter, group_std, frac_zero_std, margin, margin_median, n_pairs``.
-    Empty for arms with no training capture on disk (e.g. GRPO_LA5 has no generations.jsonl).
+    ``group_range`` (GRPO best−worst) and ``margin`` (PTO chosen−rejected) are both oracle-score gaps,
+    so they give the two methods a COMPARABLE decisiveness signal (unlike ``group_std``, a different
+    scale). Columns: ``arm, method, train_iter, group_std, group_range, frac_zero_std, margin,
+    margin_median, n_pairs``. Empty for arms with no training capture on disk (e.g. GRPO_LA5).
     """
     rows = []
     gens = load_generations(arms)
     if not gens.empty:
-        grp = gens[gens["method"] == "GRPO"]
+        grp = gens[gens["method"] == "GRPO"].dropna(subset=["score"])
         if not grp.empty:
-            # one group_std per branch (it's repeated across the group's candidates).
-            per_branch = grp.dropna(subset=["group_std"]).drop_duplicates(
-                ["arm", "train_iter", "branch_id"])
+            # Per branch: the recorded group_std (repeated across candidates → first) AND the
+            # best−worst reward RANGE computed from the group's own candidate scores (the margin analog).
+            per_branch = grp.groupby(["arm", "train_iter", "branch_id"], observed=True).agg(
+                group_std=("group_std", "first"),
+                group_range=("score", lambda s: float(s.max() - s.min())),
+            ).reset_index()
             for (arm, ti), g in per_branch.groupby(["arm", "train_iter"], observed=True):
+                std = g["group_std"].dropna()
                 rows.append({"arm": arm, "method": "GRPO", "train_iter": int(ti),
-                             "group_std": float(g["group_std"].mean()),
-                             "frac_zero_std": float((g["group_std"] < 1e-6).mean()),
+                             "group_std": float(std.mean()) if len(std) else None,
+                             "group_range": float(g["group_range"].mean()),
+                             "frac_zero_std": float((std < 1e-6).mean()) if len(std) else None,
                              "margin": None, "margin_median": None, "n_pairs": None})
     pairs = load_pref_pairs(arms)
     if not pairs.empty and "margin" in pairs.columns:
         for (arm, ti), g in pairs.groupby(["arm", "train_iter"], observed=True):
             rows.append({"arm": arm, "method": "PTO", "train_iter": int(ti),
-                         "group_std": None, "frac_zero_std": None,
+                         "group_std": None, "group_range": None, "frac_zero_std": None,
                          "margin": float(g["margin"].mean()),
                          "margin_median": float(g["margin"].median()),
                          "n_pairs": int(len(g))})
-    cols = ["arm", "method", "train_iter", "group_std", "frac_zero_std",
+    cols = ["arm", "method", "train_iter", "group_std", "group_range", "frac_zero_std",
             "margin", "margin_median", "n_pairs"]
     if not rows:
         return pd.DataFrame(columns=cols)
