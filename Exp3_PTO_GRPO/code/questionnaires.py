@@ -1178,4 +1178,5 @@ if __name__ == '__main__':
         print(f"Scale: {result['scale_min']}-{result['scale_max']}")
         print(f"Questions: {result['questions_count']}")
         print(f"Schema: {json.dumps(result['schema'], indent=2)[:200]}...")
-        print(f"\nPrompt preview:\n{result['prompt'][:500]}...")
+        print(f"\nPrompt preview:\n{result['prompt']}...\n")
+

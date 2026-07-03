@@ -92,12 +92,14 @@ DISPLAY_NAMES = {
     # Orthogonal axes (added to break the warmth halo)
     "PCT": "Patient Change-Talk", "MICI": "MI-Inconsistency",
     "R:Q": "Reflection:Question", "%CR": "% Complex Reflections", "%MICO": "% MI-Consistent",
-    # MITI behavior counts (per conversation)
-    "B3_Q": "Questions", "B6_AF": "Affirmations", "B4_SR": "Simple Reflections",
+    # MITI behavior counts (per conversation). "Questions" is a per-conv COUNT of question-FUNCTION
+    # utterances (oracle) — kept distinct from the regex "? / turn" RATE below to avoid misreading a
+    # count against a rate (they are different constructs: function vs literal-? syntax).
+    "B3_Q": "Questions / conv (MITI)", "B6_AF": "Affirmations", "B4_SR": "Simple Reflections",
     "B5_CR": "Complex Reflections", "B2_Persuade": "Persuasion", "B1_GI": "Giving Information",
     "B7_Seek": "Seeking Collaboration", "RtoQ": "Reflection:Question", "Empathy": "Empathy (MITI)",
     # Deterministic text metrics
-    "q_per_turn": "Questions / turn", "q_per_turn_miti": "Questions / turn (oracle)",
+    "q_per_turn": "Questions / turn (regex ?)", "q_per_turn_miti": "Questions / turn (MITI)",
     "mean_turn_len": "Turn length (chars)", "loop": "Degeneration %",
     "conv_len": "Conversation length", "n_th_turns": "Therapist turns",
 }
