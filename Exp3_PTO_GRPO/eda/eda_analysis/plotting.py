@@ -789,14 +789,26 @@ def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] 
     of adding the new axes is to see them NOT block-correlate with the warmth rubrics. Labels are
     sign-flagged via :func:`display_label` (lower-is-better metrics get a trailing ↓).
     """
-    from . import stats, display_label
+    from . import stats, short_label, WARMTH_RUBRICS
     corr = stats.rubric_correlation(scores_long, metrics=metrics, method=corr_method)
-    labels = [display_label(m) for m in corr.columns]
-    fig, ax = plt.subplots(figsize=(6.2, 5.2))
+    cols = list(corr.columns)
+    labels = [short_label(m) for m in cols]   # acronym-only ticks (a 10x10 matrix can't fit the gloss)
+    fig, ax = plt.subplots(figsize=(6.8, 6.0))
     sns.heatmap(corr, annot=True, fmt=".2f", vmin=-1, vmax=1, center=0, cmap="vlag",
                 square=True, xticklabels=labels, yticklabels=labels,
                 cbar_kws={"label": f"{corr_method.title()} ρ"}, ax=ax)
-    ax.set_title(f"Inter-rubric correlation ({corr_method.title()}, pooled)")
+    # Family divider: the warmth rubrics (top-left block) should intercorrelate while the orthogonal
+    # axes sit apart — draw a heavy separator where warmth ends + name the two blocks so the
+    # two-factor structure reads at a glance (metrics arrive warmth-first, see WARMTH+ORTHOGONAL order).
+    n_warm = sum(1 for m in cols if m in set(WARMTH_RUBRICS))
+    if 0 < n_warm < len(cols):
+        for line in (ax.axhline, ax.axvline):
+            line(n_warm, color="#222222", lw=2.0)
+        ax.text(n_warm / 2, -0.35, "Warmth (one factor)", ha="center", va="bottom",
+                fontsize=8.5, fontweight="bold", color="#0072B2", clip_on=False)
+        ax.text((n_warm + len(cols)) / 2, -0.35, "Orthogonal axes", ha="center", va="bottom",
+                fontsize=8.5, fontweight="bold", color="#D55E00", clip_on=False)
+    ax.set_title(f"Inter-rubric correlation ({corr_method.title()}, pooled)", pad=34)
     fig.tight_layout()
     return fig
 
@@ -811,7 +823,7 @@ def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None
     (≈0.44 each — one shared factor), while R:Q/%CR/%MICO/PCT/MICI load ≈0 on PC1 (they are NOT on
     the warmth factor). Replaces the hard-to-read PC1×PC2 biplot. ``None`` if PCA can't be fit.
     """
-    from . import stats, display_label
+    from . import stats, display_label, WARMTH_RUBRICS
     fs = stats.rubric_factor_space(scores_long, metrics=metrics)
     if fs is None:
         return None
@@ -819,8 +831,8 @@ def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None
     comp_idx = {"PC1": 0, "PC2": 1}
     comps = [c for c in components if comp_idx.get(c, 99) < len(evr)]
     order = sorted(mets, key=lambda m: load[m][0])   # ascending PC1 loading
-    colors = ["#0072B2" if m in {"Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI"} else "#D55E00"
-              for m in order]
+    warm = set(WARMTH_RUBRICS)
+    colors = ["#0072B2" if m in warm else "#D55E00" for m in order]
     fig, axes = plt.subplots(1, len(comps), figsize=(4.6 * len(comps), 0.42 * len(order) + 1.2),
                              squeeze=False)
     y = np.arange(len(order))
