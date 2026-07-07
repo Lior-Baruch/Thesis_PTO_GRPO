@@ -141,7 +141,10 @@ Exp3 (per-iter shuffle) — use `eda_analysis` (`data.attach_personas`).
 Train → it writes `conversations/full/<EXP>/model_iter_*` → add an `EXPERIMENTS` entry → `Run_Eval` →
 the notebooks pick it up automatically (re-run `python render_views.py`).
 
-## Latest results (snapshot 2026-06-18)
+## Latest results (snapshot 2026-06-18; MI-SAT re-scored 2026-07-07)
+> MI-SAT was re-scored 2026-07-07 under corrected goal-agnostic wording (was hard-coded to "diabetes"); its
+> means rose uniformly ~+0.14 but no headline below changes (it is a redundant warmth rubric).
+
 Scored: **PTO LA0** 0–10, **GRPO LA0** 0–10 (finished), **PTO LA5** 0–4, GRPO LA5 base — all on the full
 battery incl. the orthogonal axes (PCT, MICI, R:Q/%CR/%MICO). Headlines: large warmth gains vs base
 (PTO LA0 Q1+Q2 4.26; GRPO LA0 peaks 4.08 @ iter 8 then **regresses to 3.75 @ iter 10**); **PTO is ahead
@@ -166,7 +169,13 @@ thin arms filtered; the orthogonal eval axes (PCT/MICI/R:Q/%CR/%MICO); then (202
 consolidation, and per-view **`SUMMARY.md`** narratives; then (2026-07-02) the **reorg-by-topic pass**
 — topic notebooks ↔ numbered result families 1:1, per-metric trajectory + heterogeneity catalogs,
 dedup of 4 duplicate figures, merged stats tables, readable labels, per-call `group=` exports, the
-GRPO iter-9 anomaly check, and the walk-based `build_index()` in every notebook. **Remaining roadmap:**
+GRPO iter-9 anomaly check, and the walk-based `build_index()` in every notebook; then (2026-07-07) the
+**#7 general-review batch** — MITI behaviour counts **per therapist turn** (`B*_per_turn`, drift figure);
+an honest **unfiltered PTO `group_range`** beside GRPO's in the advantage signal (keyed on
+`(conversation_id, branch_id)` — PTO's `branch_id` is trunk depth and collides across conversations);
+confirmatory-vs-exploratory split (`6_Stats` §0); reward=outcome + shared-oracle confounds + PCT-loads-
+WITH-warmth reframes (`3_Mechanism` §3/§4); K-descriptive banners; `LIMITATIONS.md`; palette-keyed colors;
+dead `rank_table` removed; `render_views` `DEFAULT_VIEWS`. **Remaining roadmap:**
 
 **Reproducibility / speed:**
 5. **Cache `scores_long` + `behavior_by_iter` to parquet.** `behavior`/`text_metrics` re-read ~2k
