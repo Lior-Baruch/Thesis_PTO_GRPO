@@ -1,0 +1,7 @@
+- **PCT_Importance** — Importance (PCT) across iterations, all arms — per-signal zoom of pct_patient_detail.
+- **PCT_Confidence** — Confidence (PCT) across iterations, all arms — per-signal zoom of pct_patient_detail.
+- **PCT_Readiness** — Readiness (PCT) across iterations, all arms — per-signal zoom of pct_patient_detail.
+- **PCT_ChangeProp** — Change-Talk proportion (PCT) across iterations, all arms — per-signal zoom of pct_patient_detail.
+- **PCT_ChangeTalk_prop** — % Change Talk (PCT) across iterations, all arms — per-signal zoom of pct_patient_detail.
+- **PCT_SustainTalk_prop** — % Sustain Talk (PCT) ↓ across iterations, all arms — per-signal zoom of pct_patient_detail.
+- **PCT_Neutral_prop** — % Neutral (PCT) across iterations, all arms — per-signal zoom of pct_patient_detail.

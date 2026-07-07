@@ -1,1 +1,3 @@
-- **behavior_by_iter** — Mean behavior metrics per (arm, iteration): MITI counts per therapist turn + text metrics — one merged table, all arms.
+- **behavior_by_iter** — Mean behavior metrics per (arm, iteration): all 7 MITI behavior counts per therapist turn + text metrics — one merged table, all arms.
+- **mici_behavior_by_iter** — Mean MICI severity + total and per-behaviour MI-inconsistent rates per therapist turn, per (arm, iteration), all arms.
+- **pct_patient_by_iter** — Mean PCT globals + patient-utterance proportions per (arm, iteration), all arms.

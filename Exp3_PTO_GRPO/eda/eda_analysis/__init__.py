@@ -76,7 +76,13 @@ WARMTH_RUBRICS = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI"]
 # Orthogonal axes intended to load OFF PC1 (incl. the free derived MITI-proficiency ratios).
 ORTHOGONAL_METRICS = ["PCT", "MICI", "R:Q", "%CR", "%MICO"]
 # Metrics where a LOWER value is better (must not be pooled into warmth composites / collapse_base).
-LOWER_IS_BETTER = {"MICI"}
+# The "MICI" questionnaire aggregate + every per-item MICI detail column (severity, per-turn rates)
+# are higher = worse, as is patient sustain-talk. Display layer only (drives the trailing ' ↓').
+LOWER_IS_BETTER = {
+    "MICI", "MICI_Severity", "MICI_Rate", "MICI_Confront_rate", "MICI_AdviseNoPermission_rate",
+    "MICI_Warn_rate", "MICI_Direct_rate", "MICI_Judge_rate", "MICI_OverPraise_rate",
+    "PCT_SustainTalk_prop",
+}
 
 
 # ── Human-readable display names (LABEL LAYER ONLY) ──────────────────────────────
@@ -114,6 +120,18 @@ DISPLAY_NAMES = {
     "B3_Q_per_turn": "Questions / turn (MITI)", "B6_AF_per_turn": "Affirmations / turn (MITI)",
     "B4_SR_per_turn": "Simple Reflections / turn (MITI)", "B5_CR_per_turn": "Complex Reflections / turn (MITI)",
     "B2_Persuade_per_turn": "Persuasion / turn (MITI)",
+    "B1_GI_per_turn": "Giving Information / turn (MITI)", "B7_Seek_per_turn": "Seeking Collaboration / turn (MITI)",
+    # MICI (MI-INCONSISTENT) detail — severity global (1-5) + per-therapist-turn behavior rates.
+    # Every MICI column is higher = worse (↓-flagged via LOWER_IS_BETTER).
+    "MICI_Severity": "MI-Incon. Severity (MICI)", "MICI_Rate": "MI-Incon. total / turn (MICI)",
+    "MICI_Confront_rate": "Confront / turn (MICI)", "MICI_AdviseNoPermission_rate": "Advise w/o permission / turn (MICI)",
+    "MICI_Warn_rate": "Warn / turn (MICI)", "MICI_Direct_rate": "Direct/order / turn (MICI)",
+    "MICI_Judge_rate": "Judge/label / turn (MICI)", "MICI_OverPraise_rate": "Over-praise / turn (MICI)",
+    # PCT (PATIENT change-talk) detail — patient-perspective globals (1-5) + utterance proportions.
+    "PCT_Importance": "Importance (PCT)", "PCT_Confidence": "Confidence (PCT)",
+    "PCT_Readiness": "Readiness (PCT)", "PCT_GlobalMean": "PCT global mean",
+    "PCT_ChangeProp": "Change-Talk proportion (PCT)", "PCT_ChangeTalk_prop": "% Change Talk (PCT)",
+    "PCT_SustainTalk_prop": "% Sustain Talk (PCT)", "PCT_Neutral_prop": "% Neutral (PCT)",
     # Deterministic text metrics — NOT MITI; each carries its own source tag.
     "q_per_turn": "Questions / turn (regex ?)", "q_per_turn_miti": "Questions / turn (MITI)",
     "mean_turn_len": "Turn length (chars)", "loop": "Degeneration %",
