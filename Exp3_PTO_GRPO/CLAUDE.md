@@ -285,6 +285,33 @@ figures ONLY (contrast_overlay, outcomes_headline, unannotated trajectory_Q1Q2, 
 silently omitted) now the final cell of EVERY notebook; `single_metric_trajectory(oracle_noise=None)`
 suppresses the band; stale "PC1≈91%/6 rubrics" caveat → 9-metric PC1≈55% text.
 
+**Landed (2026-07-07) — backlog #7 (general review) DONE + judge-prompt fixes + honest advantage signal.**
+Two commits (`f5e5d63` framing/EDA batch; MI-SAT re-score results follow). Driven by a 3-reviewer sweep +
+Lior's handoff (verdict: methodology sound, remaining risk is *write-up framing*, not code; excluded:
+no CoT judge fields, no Q1/Q2 edits). **(A) Judge/oracle.** MI-SAT items were hard-coded to "diabetes"
+(personas are smoking/obesity) → reworded goal-agnostic in [questionnaires.py](code/questionnaires.py) and
+**re-scored all 2,784 convs** (0 errors); means rose **uniformly ~+0.14** (old diabetes wording rated an
+intervention that never happened) — every relative conclusion preserved (PTO_LA0 still leads). **(B) Honest
+advantage signal.** Added an UNFILTERED PTO `group_range` (best−worst over a branch's M candidates) beside
+GRPO's as the true like-for-like analog to the τ-filtered `margin`. **Caught a grouping bug mid-work**
+(PTO `branch_id` is the trunk *depth* and collides across conversations — verified in
+[pto_trainer.py](code/PTO_Exp3/pto_trainer.py); the naive key pooled cross-conversation spread) → fixed by
+keying on `conversation_id` too. Corrected finding: per-branch spread is modest+comparable (~0.23 PTO vs
+~0.29 GRPO); the τ-filter mildly *inflated* PTO's apparent decisiveness (so the old "comparable ~0.3" read
+was margin-vs-range, not like-for-like). K=5>K=0 holds on both. **(C) Rate-normalization.** MITI behavior
+counts now shown per therapist turn (`B*_per_turn` in `behavior.py`; drift figure switched) so length
+doesn't inflate them. **(D) Framing (notebook markdown, no data change):** confirmatory-vs-exploratory split
+(`6_Stats` §0; confirmatory = PTO>GRPO on Q1+Q2 at **final AND best** iter + vs-base + reward-hack orthogonal
+contrasts); reward=outcome + shared-oracle confounds named (`3_Mechanism` §4, anchored on reward-independent
+deterministic text metrics); **PCT loads WITH warmth** (ρ≈0.79–0.94, NOT orthogonal — fixed contradicting
+loadings captions, `3_Mechanism` §3); K0-vs-K5 descriptive-only banners (`4_Training` §4, `5_Preference` §2);
+PCA-mechanical + bootstrap-seed caveats (`6_Stats` §5); new [eda/LIMITATIONS.md](eda/LIMITATIONS.md).
+**(E) Hardening/cosmetic:** deleted dead buggy `rank_table`; `omnibus` eps_sq→eta_sq (η²_H mislabel);
+`behavior_by_iter` orphan-row warn; advantage/reward-distribution colors keyed to arm palette (PTO cool/GRPO
+warm) + `arm_label` titles; `render_views` split VIEWS (allowed) vs DEFAULT_VIEWS (bare run = all/L0/L5,
+explicit L2 still valid). Re-rendered all 3 views twice (no failures); 15 stale raw-count behavior figures
+removed. Data state unchanged (full L0, partial L5, no L2).
+
 **Landed (2026-07-03) — grid+subfolder pattern extended to all multi-panel families (backlog #1 DONE).**
 Applied the `1_Outcomes` combined-grid + per-metric-subfolder pattern across `2_Heterogeneity` /
 `3_Mechanism` / `4_Training`, adding whichever half each family lacked. **2_Heterogeneity:** new combined
@@ -338,8 +365,11 @@ Data state: **full L0 (PTO_LA0 + GRPO_LA0, 0–10) + partial L5 (PTO_LA5 0–4, 
    `p_holm` is corrected across rubrics WITHIN each matched (K/method, iteration) — NOT pooled across iterations) in
    the captions + §4 markdown + `stats._paired_arm_comparison` docstring; noted `trajectory_test` p-values are
    descriptive (non-independent rows → use Friedman for RM inference) in the docstring + §5 markdown.
-7. **General EDA review** — this is the active workstream; L0 is the primary read, L5 partial.
-Remaining open item: **#7** (general EDA review — ongoing). All concrete backlog items (#1–#6) are done.
+7. ✅ **DONE (2026-07-07)** — see the Landed note above. General review surfaced + fixed: the MI-SAT
+   "diabetes" domain bug (re-scored), an honest PTO range-vs-range advantage signal (+ a grouping-bug catch),
+   MITI rate-normalization, and a batch of write-up-framing edits (confirmatory/exploratory split, reward=
+   outcome + shared-oracle confounds, PCT-loads-with-warmth, K-descriptive banners, LIMITATIONS.md).
+All backlog items (#1–#7) are now done.
 Open cosmetic: tables-only `6_Stats` still writes an empty `figures/6_stats/_provenance.md` (harmless;
 INDEX ignores it) — optionally suppress provenance for tables-only notebooks.
 
