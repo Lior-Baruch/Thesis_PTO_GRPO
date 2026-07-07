@@ -63,6 +63,11 @@ technique** metrics (not warmth), so they're treated as candidate orthogonal axe
 (`SR`=simple reflections, `CR`=complex reflections, `Q`=questions, `AF`=affirmations, `Seek`=seeking
 collaboration, `Persuade`=persuasion — all from §3.)
 
+**Per-therapist-turn rates (2026-07-07).** `behavior_by_iter` also emits each length-scaling MITI count as
+a rate — `B3_Q_per_turn`, `B4_SR_per_turn`, `B5_CR_per_turn`, `B6_AF_per_turn`, `B2_Persuade_per_turn`
+(= count ÷ therapist turns, mean-of-ratios) — and the behaviour-drift figure plots the **rates**, not the
+raw counts, so a longer late-iteration conversation doesn't mechanically inflate them.
+
 ---
 
 ## 3 · Behavior metrics (what the therapist actually does)

@@ -86,7 +86,27 @@ plateau by iter ~4 → ~40–50% saving, compare at matched iter), drop `M`/`G` 
 measurement instrument) fixed. A supervisor-meeting deck (10 slides, editable PPTX + regenerator) is
 in [Exp3_PTO_GRPO/meetings/](Exp3_PTO_GRPO/meetings/). See the `project-openai-cost-constraint` memory.
 
-**Landed (2026-07-03, latest) — Exp3 EDA backlog CLEARED (all 6 concrete items #1–#6; only #7 general
+**Landed (2026-07-07, latest) — Exp3 EDA backlog #7 (general review) DONE + judge-prompt fix + honest
+advantage signal.** Two commits (`f5e5d63`, `266ceaf`), driven by a 3-reviewer sweep + Lior's handoff
+(verdict: methodology sound, remaining risk is write-up *framing*, not code; excluded: no CoT judge fields,
+no Q1/Q2 edits). **MI-SAT domain bug** — items were hard-coded to "diabetes" but personas are only
+smoking/obesity → reworded goal-agnostic in [questionnaires.py](Exp3_PTO_GRPO/code/questionnaires.py) and
+**re-scored all 2,784 convs** (0 errors); means rose **uniformly ~+0.14** (old wording rated an intervention
+that never happened), no relative conclusion changed. **Honest advantage signal** — added an unfiltered PTO
+`group_range` beside GRPO's as the true like-for-like to the τ-filtered `margin`; **caught a grouping bug
+mid-work** (PTO `branch_id` is the trunk *depth* and collides across conversations — must key on
+`conversation_id` too; the naive key gave a spurious "PTO 8× more decisive"). Corrected: per-branch spread
+modest+comparable (~0.23 PTO vs ~0.29 GRPO), and the τ-filter mildly *inflated* PTO's apparent decisiveness.
+**MITI rate-normalization** (behaviour counts now per therapist turn). **Framing** (notebook markdown):
+confirmatory-vs-exploratory split (PTO>GRPO on Q1+Q2 at **final AND best** iter), reward=outcome +
+shared-oracle confounds named + anchored on reward-independent text metrics, **PCT loads WITH warmth**
+(ρ≈0.79–0.94, not orthogonal), K0-vs-K5 descriptive-only banners, new
+[eda/LIMITATIONS.md](Exp3_PTO_GRPO/eda/LIMITATIONS.md). **Hardening**: dead buggy `rank_table` deleted,
+`omnibus` eps_sq→eta_sq relabel, palette-keyed colors (PTO cool/GRPO warm), `render_views` split VIEWS vs
+DEFAULT_VIEWS (bare run = all/L0/L5). Re-rendered all 3 views (no failures). See the
+`project-pto-branch-id-depth` + `project-orthogonal-eval-axes` memories + [Exp3 CLAUDE.md](Exp3_PTO_GRPO/CLAUDE.md).
+
+**Landed (2026-07-03) — Exp3 EDA backlog CLEARED (all 6 concrete items #1–#6; only #7 general
 review remains).** One session, six commits (`d446f31` `4246a22` `e492a25` `338efb2` + two stray-folder
 cleanups); every change re-rendered across the 3 views (all/L0/L5) via `render_views.py`, no failures.
 **#1 grid+subfolder everywhere** — the `1_Outcomes` combined-grid + per-metric-subfolder pattern now spans
