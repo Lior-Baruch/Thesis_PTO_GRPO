@@ -1,14 +1,9 @@
-- **B3_Q** — Questions / conv (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
-- **B4_SR** — Simple Reflections across iterations, all arms — per-metric zoom of behavior_drift.
-- **B5_CR** — Complex Reflections across iterations, all arms — per-metric zoom of behavior_drift.
-- **B6_AF** — Affirmations across iterations, all arms — per-metric zoom of behavior_drift.
-- **B2_Persuade** — Persuasion across iterations, all arms — per-metric zoom of behavior_drift.
 - **B3_Q_per_turn** — Questions / turn (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
-- **B4_SR_per_turn** — Simple Reflections / turn across iterations, all arms — per-metric zoom of behavior_drift.
-- **B5_CR_per_turn** — Complex Reflections / turn across iterations, all arms — per-metric zoom of behavior_drift.
-- **B6_AF_per_turn** — Affirmations / turn across iterations, all arms — per-metric zoom of behavior_drift.
-- **B2_Persuade_per_turn** — Persuasion / turn across iterations, all arms — per-metric zoom of behavior_drift.
-- **RtoQ** — Reflection:Question across iterations, all arms — per-metric zoom of behavior_drift.
+- **B4_SR_per_turn** — Simple Reflections / turn (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
+- **B5_CR_per_turn** — Complex Reflections / turn (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
+- **B6_AF_per_turn** — Affirmations / turn (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
+- **B2_Persuade_per_turn** — Persuasion / turn (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
+- **RtoQ** — Reflection:Question (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
 - **Empathy** — Empathy (MITI) across iterations, all arms — per-metric zoom of behavior_drift.
 - **loop** — Degeneration % across iterations, all arms — per-metric zoom of behavior_drift.
 - **q_per_turn** — Questions / turn (regex ?) across iterations, all arms — per-metric zoom of behavior_drift.
