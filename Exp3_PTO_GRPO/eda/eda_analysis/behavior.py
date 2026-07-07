@@ -73,6 +73,9 @@ def load_miti_behavior(arms: Optional[List] = None, *, attach_persona: bool = Tr
                 for src, dst in _MITI_COLS.items():
                     row[dst] = float(r[src]) if src in r.index and pd.notna(r[src]) else None
                 refl = (row.get("B4_SR") or 0) + (row.get("B5_CR") or 0)
+                # R:Q is undefined when B3_Q is missing (not scored) OR a genuine 0 questions —
+                # both correctly map to None (you can't form a reflection:question ratio with zero
+                # questions); the falsy check covers both without a ZeroDivisionError.
                 row["RtoQ"] = refl / row["B3_Q"] if row.get("B3_Q") else None
                 rows.append(row)
     df = pd.DataFrame(rows)

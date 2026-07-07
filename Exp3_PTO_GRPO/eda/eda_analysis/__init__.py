@@ -84,26 +84,37 @@ LOWER_IS_BETTER = {"MICI"}
 # `%MICO`. These NEVER rename the underlying `questionnaire` / `arm` / column KEYS (those are used
 # as join+filter keys throughout the package). Any code not in the map falls through unchanged.
 DISPLAY_NAMES = {
+    # LABEL CONVENTION (keeps figures consistent — enforce this when adding a metric):
+    #   • Every oracle-MITI-coded metric carries a trailing "(MITI)" so the source instrument is
+    #     unambiguous and identical across panels (fixes the old behavior_drift asymmetry where only
+    #     Questions/Empathy were tagged while Reflections/Affirmations/Persuasion read bare).
+    #   • Deterministic (non-LLM) text metrics carry their OWN source tag instead ("regex ?",
+    #     "Degeneration %") — never "(MITI)".
+    #   • Standalone questionnaires keep their validated-instrument acronym up-front + a gloss.
+    # Display layer only — these NEVER rename the underlying data keys.
+    #
     # Warmth / satisfaction / alliance rubrics. Q1Q2/Q1/Q2 stay as their plain codes
     # (Lior: no "Satisfaction …" prefix) — Q1/Q2 simply fall through display_label unchanged.
     "Q1Q2": "Q1+Q2",
     # Original validated-instrument acronym KEPT up-front (Lior), descriptive gloss in parens.
     "WAI-SR": "WAI-SR (Working Alliance)", "CSQ-8": "CSQ-8 (Client Satisfaction)",
     "MI-SAT": "MI-SAT (MI Satisfaction)", "MITI": "MITI (MI Integrity)",
-    # Orthogonal axes (added to break the warmth halo)
+    # Standalone orthogonal questionnaires (their own instruments, NOT MITI-derived).
     "PCT": "PCT (Patient Change-Talk)", "MICI": "MICI (MI-Inconsistency)",
-    "R:Q": "Reflection:Question", "%CR": "% Complex Reflections", "%MICO": "% MI-Consistent",
+    # Derived MITI-proficiency ratios (computed FROM the MITI behavior counts → tagged "(MITI)").
+    "R:Q": "Reflection:Question (MITI)", "%CR": "% Complex Reflections (MITI)",
+    "%MICO": "% MI-Consistent (MITI)",
     # MITI behavior counts (per conversation). "Questions" is a per-conv COUNT of question-FUNCTION
     # utterances (oracle) — kept distinct from the regex "? / turn" RATE below to avoid misreading a
     # count against a rate (they are different constructs: function vs literal-? syntax).
-    "B3_Q": "Questions / conv (MITI)", "B6_AF": "Affirmations", "B4_SR": "Simple Reflections",
-    "B5_CR": "Complex Reflections", "B2_Persuade": "Persuasion", "B1_GI": "Giving Information",
-    "B7_Seek": "Seeking Collaboration", "RtoQ": "Reflection:Question", "Empathy": "Empathy (MITI)",
+    "B3_Q": "Questions / conv (MITI)", "B6_AF": "Affirmations (MITI)", "B4_SR": "Simple Reflections (MITI)",
+    "B5_CR": "Complex Reflections (MITI)", "B2_Persuade": "Persuasion (MITI)", "B1_GI": "Giving Information (MITI)",
+    "B7_Seek": "Seeking Collaboration (MITI)", "RtoQ": "Reflection:Question (MITI)", "Empathy": "Empathy (MITI)",
     # Per-therapist-turn rate versions of the MITI counts (length-normalized; the drift figure plots these).
-    "B3_Q_per_turn": "Questions / turn (MITI)", "B6_AF_per_turn": "Affirmations / turn",
-    "B4_SR_per_turn": "Simple Reflections / turn", "B5_CR_per_turn": "Complex Reflections / turn",
-    "B2_Persuade_per_turn": "Persuasion / turn",
-    # Deterministic text metrics
+    "B3_Q_per_turn": "Questions / turn (MITI)", "B6_AF_per_turn": "Affirmations / turn (MITI)",
+    "B4_SR_per_turn": "Simple Reflections / turn (MITI)", "B5_CR_per_turn": "Complex Reflections / turn (MITI)",
+    "B2_Persuade_per_turn": "Persuasion / turn (MITI)",
+    # Deterministic text metrics — NOT MITI; each carries its own source tag.
     "q_per_turn": "Questions / turn (regex ?)", "q_per_turn_miti": "Questions / turn (MITI)",
     "mean_turn_len": "Turn length (chars)", "loop": "Degeneration %",
     "conv_len": "Conversation length", "n_th_turns": "Therapist turns",

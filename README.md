@@ -79,10 +79,13 @@ These key files are git-ignored and must never be committed.
   or [.../PTO_Exp3/train_PTO_Iterative.ipynb](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
   Each notebook shows the per-iteration orchestration loop; shared helpers live in `code/_shared/`.
 - **Evaluation & EDA** (local) — `Exp3_PTO_GRPO/eda/Run_Eval.ipynb` runs the oracle scoring
-  pipeline; the analysis lives in the `eda/exp3/` package + six by-purpose notebooks
-  (`0_Headline` … `5_Detailed_Stats`). Each notebook's cell 1 is one `exp3.EdaConfig(...)` →
-  `notebook_setup(cfg)` controlling arms / metrics / plot scales / exports; figures save as PNG
-  and tables as Markdown + Excel into `eda/results/<figures|tables>/<group>/`.
+  pipeline; the analysis lives in the `eda/eda_analysis/` package + six topic notebooks
+  (`1_Outcomes` … `6_Stats`, where the notebook number == its result-family number). Each
+  notebook's cell 1 leads with a `VIEW` knob → `eda_analysis.EdaConfig(view=VIEW, …)` →
+  `notebook_setup(cfg)` (controls arms / metrics / plot scales / exports); figures save as PNG and
+  tables as Markdown + Excel into `eda/results/<view>/<figures|tables>/<N_family>/`. Regenerate the
+  L0 + L5 views (in parallel) with `python eda/render_views.py` (`render_views.py all` for the merged
+  superset view; `render_views.py L0 --nb 2` for a single view + notebook).
 
 ## Hardware
 
