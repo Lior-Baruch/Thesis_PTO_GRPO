@@ -125,6 +125,48 @@ def load_mici_behavior(arms: Optional[List] = None, *, attach_persona: bool = Tr
     return df
 
 
+# Oracle PCT columns (patient change-talk; 1-5 globals + patient-utterance counts). The 3 counts
+# sum to PCT_BehaviorTotal (= patient-utterance count), so proportions are self-contained.
+_PCT_COLS = {
+    "PCT_Importance": "PCT_Importance", "PCT_Confidence": "PCT_Confidence",
+    "PCT_Readiness": "PCT_Readiness", "PCT_GlobalMean": "PCT_GlobalMean",
+    "PCT_ChangeTalk": "PCT_ChangeTalk", "PCT_SustainTalk": "PCT_SustainTalk",
+    "PCT_Neutral": "PCT_Neutral", "PCT_BehaviorTotal": "PCT_BehaviorTotal",
+    "PCT_ChangeProp": "PCT_ChangeProp",
+}
+
+
+def load_pct_behavior(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:
+    """Per (arm, iteration, conversation) PCT globals + patient-utterance counts + ChangeProp.
+
+    Empty (no rows) until the PCT questionnaire is scored via ``Run_Eval``.
+    """
+    rows = []
+    for arm in _arms(arms):
+        for k in arm.iters:
+            ddir = arm.eval_dir(k, "PCT")
+            if not os.path.isdir(ddir):
+                continue
+            for fn in os.listdir(ddir):
+                stem, ext = os.path.splitext(fn)
+                if ext != ".csv" or not stem.isdigit():
+                    continue
+                try:
+                    r = pd.read_csv(os.path.join(ddir, fn)).iloc[0]
+                except Exception:
+                    continue
+                row = {"arm": arm.label, "method": arm.method, "K": arm.K,
+                       "model": arm.model_name(k), "iteration": k, "is_base": (k == 0),
+                       "file_index": int(stem)}
+                for src, dst in _PCT_COLS.items():
+                    row[dst] = float(r[src]) if src in r.index and pd.notna(r[src]) else None
+                rows.append(row)
+    df = pd.DataFrame(rows)
+    if not df.empty and attach_persona:
+        df = _attach_by_arm(df, arms)
+    return df
+
+
 def overpraise_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
     """Per (arm, iteration): the deterministic lexical over-praise marker rate beside the
     oracle's MICI_OverPraiseRate, so the regex's *direction* can be validated against the
@@ -234,14 +276,15 @@ def _turn_metrics(th: List[str]) -> dict:
 # ── Combined per-iteration trajectory ────────────────────────────────────────
 # Headline behavior trajectory metrics. The semantic affirmation/over-praise signal is
 # carried by the oracle-coded B6_AF (and MICI_OverPraiseRate once MICI is scored), NOT by the
-# brittle lex_* marker rates, which stay out of this list (sanity-check only).
-_BEHAVIOR_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade", "RtoQ",
+# brittle lex_* marker rates, which stay out of this list (sanity-check only). All 7 MITI
+# behaviors are covered (B1_GI/B7_Seek complete the set the drift grid used to omit).
+_BEHAVIOR_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade", "B1_GI", "B7_Seek", "RtoQ",
                      "Empathy", "mean_turn_len", "loop", "q_per_turn", "conv_len"]
 
 # Raw MITI behavior COUNTS that scale with conversation length. behavior_by_iter also emits a
 # per-therapist-turn rate (`<m>_per_turn` = count / n_th_turns) for each, so trajectory figures
 # aren't inflated by longer late-iteration conversations (the drift figure plots the rates).
-_RATE_COUNT_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade"]
+_RATE_COUNT_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade", "B1_GI", "B7_Seek"]
 
 
 def behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
@@ -285,6 +328,72 @@ def behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     agg = (merged.groupby(["arm", "method", "K", "iteration"], observed=True)[metrics]
            .mean().reset_index().sort_values(["arm", "iteration"]))
     return agg
+
+
+# ── MICI per-item detail (severity global + per-therapist-turn behavior rates) ────
+# The 6 MI-inconsistent behaviors are counts over therapist turns → per-turn rates (like the MITI
+# drift grid). Higher = worse for every column. Severity is a 1-5 global; MICI_Rate is the total/turn.
+_MICI_RATE_BEHAVIORS = ["MICI_Confront", "MICI_AdviseNoPermission", "MICI_Warn",
+                        "MICI_Direct", "MICI_Judge", "MICI_OverPraise"]
+
+
+def mici_behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration): MI-inconsistent severity + each harmful behavior PER THERAPIST TURN.
+
+    The MICI analogue of :func:`behavior_by_iter`: joins the per-conversation MICI counts with the
+    conversation therapist-turn count (from :func:`text_metrics`), forms a per-therapist-turn rate
+    for each of the 6 behaviors (mean-of-ratios, guarded on ``n_th_turns > 0``), and averages over
+    conversations. ``MICI_Severity`` (1-5 global) and ``MICI_Rate`` (total/turn) pass through as
+    means. Empty until MICI is scored. Higher = worse for every column.
+    """
+    mici = load_mici_behavior(arms, attach_persona=False)
+    if mici.empty:
+        return pd.DataFrame()
+    text = text_metrics(arms, attach_persona=False)
+    keys = ["arm", "iteration", "file_index"]
+    rate_cols: List[str] = []
+    if text.empty:
+        merged = mici.copy()
+    else:
+        merged = mici.merge(text[keys + ["n_th_turns"]], on=keys, how="left")
+        nt = merged["n_th_turns"].where(merged["n_th_turns"] > 0)
+        for b in _MICI_RATE_BEHAVIORS:
+            if b in merged.columns:
+                merged[f"{b}_rate"] = merged[b] / nt
+                rate_cols.append(f"{b}_rate")
+    val_cols = [c for c in ["MICI_Severity", "MICI_Rate"] if c in merged.columns] + rate_cols
+    return (merged.groupby(["arm", "method", "K", "iteration"], observed=True)[val_cols]
+            .mean().reset_index().sort_values(["arm", "iteration"]))
+
+
+# ── PCT per-item detail (patient globals + utterance-type proportions) ────────────
+# The 3 counts (ChangeTalk/SustainTalk/Neutral) sum to PCT_BehaviorTotal (= patient utterances),
+# so each becomes a proportion of patient utterances — the patient-side analogue of the per-turn
+# rate. Higher = better for every column EXCEPT PCT_SustainTalk_prop.
+_PCT_PROP_BEHAVIORS = ["PCT_ChangeTalk", "PCT_SustainTalk", "PCT_Neutral"]
+
+
+def pct_behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration): patient change-talk globals (1-5) + utterance-type PROPORTIONS.
+
+    The 3 patient globals (Importance/Confidence/Readiness) + the derived ChangeProp pass through
+    as means; each of the 3 utterance counts is turned into a proportion of patient utterances
+    (``count / PCT_BehaviorTotal``, mean-of-ratios). Empty until PCT is scored.
+    """
+    pct = load_pct_behavior(arms, attach_persona=False)
+    if pct.empty:
+        return pd.DataFrame()
+    prop_cols: List[str] = []
+    if "PCT_BehaviorTotal" in pct.columns:
+        tot = pct["PCT_BehaviorTotal"].where(pct["PCT_BehaviorTotal"] > 0)
+        for b in _PCT_PROP_BEHAVIORS:
+            if b in pct.columns:
+                pct[f"{b}_prop"] = pct[b] / tot
+                prop_cols.append(f"{b}_prop")
+    val_cols = [c for c in ["PCT_Importance", "PCT_Confidence", "PCT_Readiness",
+                            "PCT_GlobalMean", "PCT_ChangeProp"] if c in pct.columns] + prop_cols
+    return (pct.groupby(["arm", "method", "K", "iteration"], observed=True)[val_cols]
+            .mean().reset_index().sort_values(["arm", "iteration"]))
 
 
 def _attach_by_arm(df: pd.DataFrame, arms) -> pd.DataFrame:

@@ -11,7 +11,8 @@ conversation. Two data sources feed the EDA:
 
 > **Two valences.** Almost everything is *higher = better*. The one exception is **MICI** (and its
 > sub-counts): *lower = better*. The EDA flags these with a trailing `↓` (`display_label`) and the
-> package set `LOWER_IS_BETTER = {"MICI"}`.
+> package set `LOWER_IS_BETTER` = `{MICI, MICI_Severity, MICI_Rate, the 6 MICI_*_rate detail columns,
+> PCT_SustainTalk_prop}`.
 
 ---
 
@@ -47,6 +48,14 @@ whose point of view the oracle adopts.
 `MITI3_Partnership`, `MITI4_Empathy`. **PCT globals**: `PCT_Importance`, `PCT_Confidence`,
 `PCT_Readiness`. **MICI global**: `MICI_Severity`.
 
+**Per-item detail plots (2026-07-07).** Every global + behaviour of the three count-based instruments
+now has its own trajectory, so the aggregates (`MITI_GlobalMean` / `MICI_Rate` / `PCT_ChangeProp`) are no
+longer black boxes: the 4 MITI globals are the §2 subscale grid; all 7 MITI behaviours (incl. the
+previously-omitted `B1_GI`/`B7_Seek`) are the §1 drift grid; `MICI_Severity` + the 6 MI-inconsistent
+behaviours (per therapist turn) are **§4d** `mici_behavior_detail`; the 3 PCT globals + change/sustain/
+neutral proportions are **§4e** `pct_patient_detail`. Loaders: `behavior.mici_behavior_by_iter` /
+`behavior.pct_behavior_by_iter` / `behavior.load_pct_behavior`.
+
 ---
 
 ## 2 · Derived MI-proficiency ratios (free, no oracle re-run)
@@ -64,9 +73,12 @@ technique** metrics (not warmth), so they're treated as candidate orthogonal axe
 collaboration, `Persuade`=persuasion — all from §3.)
 
 **Per-therapist-turn rates (2026-07-07).** `behavior_by_iter` also emits each length-scaling MITI count as
-a rate — `B3_Q_per_turn`, `B4_SR_per_turn`, `B5_CR_per_turn`, `B6_AF_per_turn`, `B2_Persuade_per_turn`
-(= count ÷ therapist turns, mean-of-ratios) — and the behaviour-drift figure plots the **rates**, not the
-raw counts, so a longer late-iteration conversation doesn't mechanically inflate them.
+a rate — `B3_Q_per_turn`, `B4_SR_per_turn`, `B5_CR_per_turn`, `B6_AF_per_turn`, `B2_Persuade_per_turn`,
+`B1_GI_per_turn`, `B7_Seek_per_turn` (= count ÷ therapist turns, mean-of-ratios) — and the behaviour-drift
+figure plots the **rates**, not the raw counts, so a longer late-iteration conversation doesn't
+mechanically inflate them. The MICI detail (§4d) uses the same per-therapist-turn convention
+(`MICI_*_rate`); the PCT detail (§4e) uses proportions of patient utterances (`PCT_*_prop`, ÷
+`PCT_BehaviorTotal`).
 
 ---
 

@@ -885,12 +885,19 @@ def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = Non
 # figure isn't inflated by longer late-iteration conversations. RtoQ is already a ratio; q_per_turn
 # is already a rate. behavior_by_iter emits the `<m>_per_turn` columns.
 _DEFAULT_BEHAVIOR_METRICS = ["B3_Q_per_turn", "B4_SR_per_turn", "B5_CR_per_turn", "B6_AF_per_turn",
-                             "B2_Persuade_per_turn", "RtoQ", "Empathy", "loop", "q_per_turn"]
+                             "B2_Persuade_per_turn", "B1_GI_per_turn", "B7_Seek_per_turn",
+                             "RtoQ", "Empathy", "loop", "q_per_turn"]
 
 
 def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
-                             metrics: Optional[Sequence[str]] = None, ncols: int = 3):
-    """Behavior metric trajectories (MITI counts + text metrics) across iterations, all arms."""
+                             metrics: Optional[Sequence[str]] = None, ncols: int = 3,
+                             title: str = "Behavior trajectories (MITI counts + text metrics)"):
+    """Behavior metric trajectories across iterations, all arms (one panel per metric).
+
+    Generic wide-frame → grid: reused for the MITI drift set (default ``metrics``) and for the
+    MICI / PCT per-item detail frames (pass an explicit ``metrics`` list + a ``title``). Each
+    panel is one arm-hued line per metric column; ``display_label`` names the axes/titles.
+    """
     from . import display_label
     bm = [m for m in (metrics or _DEFAULT_BEHAVIOR_METRICS) if m in behavior_by_iter.columns]
     if not bm:
@@ -904,7 +911,7 @@ def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
             figures.relabel_legend(ax)
         elif ax.get_legend():
             ax.legend_.remove()
-    fig.suptitle("Behavior trajectories (MITI counts + text metrics)", y=1.02, fontweight="bold")
+    fig.suptitle(title, y=1.02, fontweight="bold")
     fig.tight_layout()
     return fig
 

@@ -246,7 +246,7 @@ Exp3_PTO_GRPO/
 │   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses oracle_scoring/, registry-driven)
 │   ├── 1_Outcomes.ipynb               [EVAL] family=1_outcomes — all-metric trajectory grid + PER-METRIC learning-curve catalog (trajectories/ subfolder; peaks auto-flagged) + effect forest + per-model bars + scorecard
 │   ├── 2_Heterogeneity.ipynb          [EVAL] family=2_heterogeneity — EVERY metric split by persona trait (cooperation_level/ + problem/ subfolders) + final-iteration endpoint bars
-│   ├── 3_Mechanism.ipynb              [EVAL] family=3_mechanism — behaviour drift + merged behavior_by_iter table + subscales + factor structure (corr + loadings) + reward_hack_panel + question/over-praise cross-checks + session shape + transcripts
+│   ├── 3_Mechanism.ipynb              [EVAL] family=3_mechanism — behaviour drift (all 7 MITI behaviours) + merged behavior_by_iter table + subscales + factor structure (corr + loadings) + reward_hack_panel + question/over-praise cross-checks + §4d MICI per-behaviour detail + §4e PCT patient-detail + session shape + transcripts
 │   ├── 4_Training_and_Reliability.ipynb [TRAINING↔EVAL] family=4_training — TB curves + reward dist + advantage signal + degeneration + reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth)
 │   ├── 5_Preference.ipynb             [TRAINING] family=5_preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
 │   ├── 6_Stats.ipynb                  [EVAL] family=6_stats — ALL heavy tables: merged main_results (target col) + Friedman + merged vs-base/method/K paired + all-metric slopes + PCA + GRPO iter-9 anomaly check

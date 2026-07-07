@@ -16,7 +16,7 @@ to edit / dig deeper):
 |---|---|---|
 | `1_Outcomes.ipynb` | `1_outcomes/` | all-metric trajectory grid · per-metric learning-curve catalog (`trajectories/`, peaks auto-flagged) · effect forest · per-model bars · scorecard |
 | `2_Heterogeneity.ipynb` | `2_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + final-iteration endpoint bars |
-| `3_Mechanism.ipynb` | `3_mechanism/` | behaviour drift + merged behaviour table · subscales · factor structure · reward-hack panel · question/over-praise cross-checks · session shape · transcripts |
+| `3_Mechanism.ipynb` | `3_mechanism/` | behaviour drift (all 7 MITI behaviours) + merged behaviour table · subscales · factor structure · reward-hack panel · question/over-praise cross-checks · **MICI per-behaviour detail (§4d)** · **PCT patient-detail (§4e)** · session shape · transcripts |
 | `4_Training_and_Reliability.ipynb` | `4_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
 | `5_Preference.ipynb` | `5_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
 | `6_Stats.ipynb` | `6_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · all-metric slopes · PCA · GRPO iter-9 anomaly check |
