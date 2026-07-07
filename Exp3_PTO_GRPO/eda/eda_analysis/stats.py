@@ -34,17 +34,6 @@ def model_means(scores_long: pd.DataFrame) -> pd.DataFrame:
     return meta.join(means)
 
 
-def rank_table(scores_long: pd.DataFrame, metrics: Optional[Sequence[str]] = None) -> pd.DataFrame:
-    """Per-questionnaire rank (1 = best) + average rank across rubrics, per model."""
-    mm = model_means(scores_long)
-    metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in mm.columns]
-    ranks = mm[metrics].rank(ascending=False, method="min")
-    ranks.columns = [f"rank_{c}" for c in metrics]
-    out = mm[["arm", "iteration", "is_base"] + metrics].join(ranks)
-    out["AvgRank"] = ranks.mean(axis=1)
-    return out.sort_values("AvgRank")
-
-
 # ── Paired comparisons (by persona) ──────────────────────────────────────────
 def _paired_deltas(wide: pd.DataFrame, metric: str, model_a: str, model_b: str,
                    key: str = "persona_id") -> np.ndarray:
@@ -299,21 +288,23 @@ def fdr(pvals: Sequence[float]) -> np.ndarray:
 
 # ── Familiar Exp2-style battery (independent-group) ──────────────────────────
 def omnibus(scores_long: pd.DataFrame, metric: str, group: str = "model") -> dict:
-    """Kruskal–Wallis across *group* for *metric* + epsilon-squared effect size.
+    """Kruskal–Wallis across *group* for *metric* + eta-squared (η²_H) effect size.
 
     The non-parametric one-way 'is anything different at all?' test (the old
-    `run_full_stats_battery` omnibus), pooled over personas.
+    `run_full_stats_battery` omnibus), pooled over personas. NOTE the effect size
+    ``eta_sq`` = (H − k + 1)/(n − k) is eta-squared-H, NOT epsilon-squared
+    (ε²_H = H/(n − 1)); both are valid, this reports η²_H.
     """
     g = scores_long[scores_long["questionnaire"] == metric]
     samples = [s["score"].to_numpy() for _, s in g.groupby(group, observed=True)]
     samples = [s for s in samples if len(s) > 0]
     k, n = len(samples), sum(len(s) for s in samples)
     if k < 2:
-        return {"metric": metric, "H": np.nan, "p": np.nan, "eps_sq": np.nan, "k": k, "n": n}
+        return {"metric": metric, "H": np.nan, "p": np.nan, "eta_sq": np.nan, "k": k, "n": n}
     H, p = stats.kruskal(*samples)
-    eps_sq = (H - k + 1) / (n - k) if n > k else np.nan       # epsilon-squared
+    eta_sq = (H - k + 1) / (n - k) if n > k else np.nan       # eta-squared-H (η²_H)
     return {"metric": metric, "H": float(H), "p": float(p),
-            "eps_sq": float(eps_sq), "k": k, "n": n}
+            "eta_sq": float(eta_sq), "k": k, "n": n}
 
 
 def mannwhitney_vs_base(scores_long: pd.DataFrame, arm: str, metric: str) -> pd.DataFrame:
