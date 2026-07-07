@@ -219,12 +219,16 @@ def advantage_signal_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     """
     rows = []
     gens = load_generations(arms)
+    pto_range: dict = {}   # (arm, train_iter) -> mean per-branch best−worst range (UNFILTERED)
     if not gens.empty:
         grp = gens[gens["method"] == "GRPO"].dropna(subset=["score"])
         if not grp.empty:
             # Per branch: the recorded group_std (repeated across candidates → first) AND the
             # best−worst reward RANGE computed from the group's own candidate scores (the margin analog).
-            per_branch = grp.groupby(["arm", "train_iter", "branch_id"], observed=True).agg(
+            # KEY includes conversation_id: GRPO's branch_id is globally unique per iteration so this is
+            # a no-op for GRPO, but it is REQUIRED for PTO below (whose branch_id is the trunk depth and
+            # collides across conversations — see pto_trainer.py grow_preference_trees_batch).
+            per_branch = grp.groupby(["arm", "train_iter", "conversation_id", "branch_id"], observed=True).agg(
                 group_std=("group_std", "first"),
                 group_range=("score", lambda s: float(s.max() - s.min())),
             ).reset_index()
@@ -235,11 +239,25 @@ def advantage_signal_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
                              "group_range": float(g["group_range"].mean()),
                              "frac_zero_std": float((std < 1e-6).mean()) if len(std) else None,
                              "margin": None, "margin_median": None, "n_pairs": None})
+        # PTO: the UNFILTERED per-branch best−worst range over the branch's own M candidate scores —
+        # the true like-for-like analog to GRPO group_range. NOTE this differs from `margin` below,
+        # which is the DPO chosen−rejected gap read off τ-filtered pairs.csv (left-truncated at τ);
+        # the range is over ALL candidates the oracle scored at that branch point, τ-free.
+        # CRITICAL: group by conversation_id TOO — PTO branch_id is the trunk depth and repeats across
+        # conversations, so omitting conversation_id would pool candidates from different conversations
+        # into one "branch" and report the cross-conversation spread (huge), not the within-branch spread.
+        pto = gens[gens["method"] == "PTO"].dropna(subset=["score"])
+        if not pto.empty:
+            pb = (pto.groupby(["arm", "train_iter", "conversation_id", "branch_id"], observed=True)["score"]
+                  .agg(lambda s: float(s.max() - s.min())).reset_index(name="rng"))
+            for (arm, ti), g in pb.groupby(["arm", "train_iter"], observed=True):
+                pto_range[(arm, int(ti))] = float(g["rng"].mean())
     pairs = load_pref_pairs(arms)
     if not pairs.empty and "margin" in pairs.columns:
         for (arm, ti), g in pairs.groupby(["arm", "train_iter"], observed=True):
             rows.append({"arm": arm, "method": "PTO", "train_iter": int(ti),
-                         "group_std": None, "group_range": None, "frac_zero_std": None,
+                         "group_std": None, "group_range": pto_range.get((arm, int(ti))),
+                         "frac_zero_std": None,
                          "margin": float(g["margin"].mean()),
                          "margin_median": float(g["margin"].median()),
                          "n_pairs": int(len(g))})

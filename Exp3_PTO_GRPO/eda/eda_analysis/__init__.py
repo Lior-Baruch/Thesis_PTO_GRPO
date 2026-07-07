@@ -99,6 +99,10 @@ DISPLAY_NAMES = {
     "B3_Q": "Questions / conv (MITI)", "B6_AF": "Affirmations", "B4_SR": "Simple Reflections",
     "B5_CR": "Complex Reflections", "B2_Persuade": "Persuasion", "B1_GI": "Giving Information",
     "B7_Seek": "Seeking Collaboration", "RtoQ": "Reflection:Question", "Empathy": "Empathy (MITI)",
+    # Per-therapist-turn rate versions of the MITI counts (length-normalized; the drift figure plots these).
+    "B3_Q_per_turn": "Questions / turn (MITI)", "B6_AF_per_turn": "Affirmations / turn",
+    "B4_SR_per_turn": "Simple Reflections / turn", "B5_CR_per_turn": "Complex Reflections / turn",
+    "B2_Persuade_per_turn": "Persuasion / turn",
     # Deterministic text metrics
     "q_per_turn": "Questions / turn (regex ?)", "q_per_turn_miti": "Questions / turn (MITI)",
     "mean_turn_len": "Turn length (chars)", "loop": "Degeneration %",

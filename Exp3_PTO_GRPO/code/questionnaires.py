@@ -511,7 +511,7 @@ MI_SAT_LABELS = [
 ]
 
 MI_SAT_ITEMS = {
-    "MI1_Helpful":      ("Has the intervention been helpful for you in managing diabetes?",
+    "MI1_Helpful":      ("Has the intervention been helpful for you in working on the health behavior you want to change?",
                          ["1 = Not at all", "2 = Not so much", "3 = Sometimes", "4 = Mostly", "5 = Very much"]),
     "MI2_Enjoyable":    ("Was the intervention enjoyable to you?",
                          ["1 = Not at all", "2 = Not so much", "3 = Sometimes", "4 = Mostly", "5 = Very much"]),
@@ -521,7 +521,7 @@ MI_SAT_ITEMS = {
                          ["1 = Not at all", "2 = Not so much", "3 = Sometimes", "4 = Mostly", "5 = Very much"]),
     "MI5_WorthTime":    ("Do you feel that the time spent doing this intervention was worthwhile to you?",
                          ["1 = Not at all", "2 = Not so much", "3 = Sometimes", "4 = Mostly", "5 = Very much"]),
-    "MI6_LikelyChange": ("Are you more likely to do something different in the management of diabetes after completing this intervention?",
+    "MI6_LikelyChange": ("Are you more likely to do something different about the health behavior you want to change after completing this intervention?",
                          ["1 = Not at all", "2 = Not so much", "3 = Sometimes", "4 = Mostly", "5 = Very much"]),
 }
 

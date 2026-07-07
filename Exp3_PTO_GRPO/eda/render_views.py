@@ -10,7 +10,7 @@ as a side effect (figures, tables, INDEX.md, _provenance.md).
 
 Usage (run from the ``eda/`` directory, or anywhere — it cd's itself)::
 
-    python render_views.py                 # all 4 views x all 6 notebooks (24 runs)
+    python render_views.py                 # the 3 default views (all/L0/L5) x 6 notebooks (18 runs)
     python render_views.py L0              # just the L0 view
     python render_views.py L0 all          # L0 then all
     python render_views.py L5 --nb 0 1     # L5 view, only 1_Outcomes + 2_Heterogeneity
@@ -33,7 +33,11 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
+# VIEWS = the views that MAY be requested (L2 stays valid so an explicit `render_views.py L2`
+# works once K=2 data lands). DEFAULT_VIEWS = what a bare run renders — L2 is excluded because
+# there is no K=2 data on disk yet, so rendering it would fail / write an empty results/L2/ tree.
 VIEWS = ["all", "L0", "L2", "L5"]
+DEFAULT_VIEWS = ["all", "L0", "L5"]
 # Topic notebooks — notebook number == results family number (figures|tables/N_<family>/).
 NOTEBOOKS = [
     "1_Outcomes.ipynb",
@@ -78,7 +82,7 @@ def main(argv=None) -> int:
         print("notebooks:", {i: nb for i, nb in enumerate(NOTEBOOKS)})
         return 0
 
-    views = args.views or VIEWS
+    views = args.views or DEFAULT_VIEWS
     bad = [v for v in views if v not in VIEWS]
     if bad:
         ap.error(f"unknown view(s) {bad}; choose from {VIEWS}")

@@ -1,4 +1,4 @@
-- **GRPO_LA0** — GRPO_LA0: per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
-- **GRPO_LA5** — GRPO_LA5: per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
-- **PTO_LA0** — PTO_LA0: per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
-- **PTO_LA5** — PTO_LA5: per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
+- **GRPO_LA0** — GRPO (K=0): per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
+- **GRPO_LA5** — GRPO (K=5): per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
+- **PTO_LA0** — PTO (K=0): per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).
+- **PTO_LA5** — PTO (K=5): per-candidate training-reward distribution per iteration (partial-conv oracle, not the full-conv eval).

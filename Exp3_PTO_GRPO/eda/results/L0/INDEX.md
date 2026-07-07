@@ -61,11 +61,11 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 - `subscale_trajectories.png`
 
 ### 3_mechanism/behavior
-- `B2_Persuade.png`
-- `B3_Q.png`
-- `B4_SR.png`
-- `B5_CR.png`
-- `B6_AF.png`
+- `B2_Persuade_per_turn.png`
+- `B3_Q_per_turn.png`
+- `B4_SR_per_turn.png`
+- `B5_CR_per_turn.png`
+- `B6_AF_per_turn.png`
 - `Empathy.png`
 - `RtoQ.png`
 - `loop.png`

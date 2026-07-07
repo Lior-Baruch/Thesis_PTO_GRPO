@@ -881,8 +881,11 @@ def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = Non
 
 
 # ── Behavior ─────────────────────────────────────────────────────────────────
-_DEFAULT_BEHAVIOR_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade",
-                             "RtoQ", "Empathy", "loop", "q_per_turn"]
+# Per-therapist-turn rates for the length-scaling MITI counts (not raw B*_ counts), so the drift
+# figure isn't inflated by longer late-iteration conversations. RtoQ is already a ratio; q_per_turn
+# is already a rate. behavior_by_iter emits the `<m>_per_turn` columns.
+_DEFAULT_BEHAVIOR_METRICS = ["B3_Q_per_turn", "B4_SR_per_turn", "B5_CR_per_turn", "B6_AF_per_turn",
+                             "B2_Persuade_per_turn", "RtoQ", "Empathy", "loop", "q_per_turn"]
 
 
 def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
@@ -964,13 +967,14 @@ def reward_distribution(reward_frame, *, ncols: int = 2):
     """
     if reward_frame.empty:
         return None
+    from . import arm_label
     arms = sorted(reward_frame.arm.unique())
+    pal = figures.arm_palette(arms)
     fig, axes = figures.grid(len(arms), ncols=ncols, panel=(6.0, 3.4))
     for ax, arm in zip(axes, arms):
         g = reward_frame[reward_frame.arm == arm]
-        method = g.method.iloc[0] if "method" in g and len(g) else ""
-        sns.boxplot(g, x="train_iter", y="score", color="#c5b0d5", ax=ax)
-        ax.set_title(f"{arm} ({method})"); ax.set_xlabel("training iteration"); ax.set_ylabel("candidate reward")
+        sns.boxplot(g, x="train_iter", y="score", color=pal.get(arm, "#c5b0d5"), ax=ax)
+        ax.set_title(arm_label(arm)); ax.set_xlabel("training iteration"); ax.set_ylabel("candidate reward")
     fig.suptitle("TRAINING signal — candidate reward distribution per iteration "
                  "(oracle on partial-conv branches, NOT the full-conv eval)", y=1.02, fontweight="bold")
     fig.tight_layout()
@@ -980,18 +984,22 @@ def reward_distribution(reward_frame, *, ncols: int = 2):
 def advantage_signal_sidebyside(advantage_df, *, ncols: int = 2):
     """The training-advantage signal for BOTH methods in one figure (never gated by method).
 
-    Takes :func:`training.advantage_signal_by_iter`. One panel per arm, with a COMPARABLE
-    decisiveness signal on the same 0–5 oracle-score-gap y-axis: GRPO panels plot the per-group
-    **best − worst reward range** (``group_range``, solid — the direct analog to a preference margin)
-    plus ``group_std`` as a faint dashed secondary; PTO panels plot the **chosen − rejected margin**
-    (solid) plus its median (dashed). So the two methods' "how decisively does the oracle separate the
-    candidates" curves sit on the same scale. Arms with no on-disk training capture don't appear.
+    Takes :func:`training.advantage_signal_by_iter`. One panel per arm on the same oracle-score-gap
+    y-axis. The PRIMARY (solid) line for BOTH methods is the UNFILTERED per-branch **best − worst
+    candidate reward range** (``group_range``) — the true like-for-like decisiveness signal. Each
+    method's native secondary is faint dashed: GRPO ``group_std`` (within-group spread); PTO the
+    **τ-filtered chosen − rejected margin** (the actual DPO signal). The PTO margin sits slightly
+    ABOVE its own range because τ keeps only large-gap branches — i.e. the filtered margin mildly
+    overstates PTO's unfiltered decisiveness, which is why margin-vs-range comparisons (not
+    range-vs-range) previously made PTO look more comparable to GRPO than it is. Colors follow the
+    arm palette (PTO cool / GRPO warm). Arms with no on-disk training capture don't appear.
     """
     if advantage_df.empty:
         return None
     from . import arm_label
     arms = sorted(advantage_df.arm.unique())
-    # Shared y-limit so the GRPO range and PTO margin are visually comparable (same units + same scale).
+    pal = figures.arm_palette(arms)
+    # Shared y-limit so every panel's range/margin is visually comparable (same units + same scale).
     gap_cols = [c for c in ("group_range", "margin") if c in advantage_df.columns]
     gmax = float(np.nanmax(advantage_df[gap_cols].to_numpy())) if gap_cols else 1.0
     ymax = (gmax * 1.15) if np.isfinite(gmax) and gmax > 0 else 1.0
@@ -999,28 +1007,25 @@ def advantage_signal_sidebyside(advantage_df, *, ncols: int = 2):
     for ax, arm in zip(axes, arms):
         g = advantage_df[advantage_df.arm == arm].sort_values("train_iter")
         method = g.method.iloc[0]
-        if method == "GRPO" and "group_range" in g and g["group_range"].notna().any():
-            ax.plot(g.train_iter, g.group_range, marker="o", color="#1f77b4",
-                    label="best − worst reward (group range)")
-            if g["group_std"].notna().any():
-                ax.plot(g.train_iter, g.group_std, marker="s", ms=4, ls="--", color="#7fb3d5",
-                        label="within-group std")
-            ax.set_ylabel("oracle-score gap")
-            ax.set_title(f"{arm_label(arm)} (GRPO group spread)")
-            ax.legend(fontsize=7, frameon=False)
-        else:
-            ax.plot(g.train_iter, g.margin, marker="o", color="#7b4fb0",
-                    label="chosen − rejected (mean)")
-            if "margin_median" in g and g["margin_median"].notna().any():
-                ax.plot(g.train_iter, g.margin_median, marker="s", ms=4, ls="--", color="#b39ddb",
-                        label="chosen − rejected (median)")
-            ax.axhline(0, color="grey", lw=0.6, ls="--")
-            ax.set_ylabel("oracle-score gap")
-            ax.set_title(f"{arm_label(arm)} (PTO preference margin)")
-            ax.legend(fontsize=7, frameon=False)
+        color = pal.get(arm, "#555555")
+        # PRIMARY (both methods): unfiltered best − worst candidate range = the like-for-like signal.
+        if "group_range" in g and g["group_range"].notna().any():
+            ax.plot(g.train_iter, g.group_range, marker="o", color=color,
+                    label="best − worst candidate reward (unfiltered range)")
+        # SECONDARY (method-native, faint dashed).
+        if method == "GRPO" and "group_std" in g and g["group_std"].notna().any():
+            ax.plot(g.train_iter, g.group_std, marker="s", ms=4, ls="--", color=color, alpha=0.5,
+                    label="within-group std")
+        elif method == "PTO" and "margin" in g and g["margin"].notna().any():
+            ax.plot(g.train_iter, g.margin, marker="s", ms=4, ls="--", color=color, alpha=0.5,
+                    label="chosen − rejected margin (τ-filtered pairs)")
+        ax.axhline(0, color="grey", lw=0.6, ls="--")
+        ax.set_ylabel("oracle-score gap")
+        ax.set_title(arm_label(arm))
+        ax.legend(fontsize=7, frameon=False)
         ax.set_xlabel("training iteration")
-        ax.set_ylim(0, ymax)   # shared across panels → the two decisiveness curves are comparable
-    fig.suptitle("Training decisiveness: GRPO best−worst range vs PTO chosen−rejected margin "
-                 "(same oracle-score-gap scale)", y=1.02, fontweight="bold")
+        ax.set_ylim(0, ymax)   # shared across panels → the decisiveness curves are comparable
+    fig.suptitle("Training decisiveness (same oracle-score-gap scale): GRPO vs PTO best−worst candidate "
+                 "range — unfiltered, like-for-like; PTO τ-filtered margin faint", y=1.02, fontweight="bold")
     fig.tight_layout()
     return fig

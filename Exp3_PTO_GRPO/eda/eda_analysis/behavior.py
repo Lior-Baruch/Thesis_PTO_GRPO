@@ -235,6 +235,11 @@ def _turn_metrics(th: List[str]) -> dict:
 _BEHAVIOR_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade", "RtoQ",
                      "Empathy", "mean_turn_len", "loop", "q_per_turn", "conv_len"]
 
+# Raw MITI behavior COUNTS that scale with conversation length. behavior_by_iter also emits a
+# per-therapist-turn rate (`<m>_per_turn` = count / n_th_turns) for each, so trajectory figures
+# aren't inflated by longer late-iteration conversations (the drift figure plots the rates).
+_RATE_COUNT_METRICS = ["B3_Q", "B4_SR", "B5_CR", "B6_AF", "B2_Persuade"]
+
 
 def behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     """Per (arm, iteration) means of every behavior metric — the trajectory backbone.
@@ -254,7 +259,26 @@ def behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     else:
         merged = text.merge(miti.drop(columns=["method", "K", "model", "is_base"]),
                             on=["arm", "iteration", "file_index"], how="outer")
+    # Per-therapist-turn rates for the length-scaling MITI counts (mean-of-ratios, guarded on
+    # n_th_turns>0 — same convention as question_rate_crosscheck). These are what the drift
+    # figure plots so longer late-iteration convs don't mechanically inflate the counts.
+    if "n_th_turns" in merged.columns:
+        nt = merged["n_th_turns"].where(merged["n_th_turns"] > 0)
+        for c in _RATE_COUNT_METRICS:
+            if c in merged.columns:
+                merged[f"{c}_per_turn"] = merged[c] / nt
+    # Guard: an outer merge leaves method/K NaN for any conv scored by MITI but missing its
+    # conversation CSV (e.g. partial Drive sync); the groupby below (dropna=True) would then drop
+    # it silently. Warn rather than quietly shrink the per-iteration means.
+    if "method" in merged.columns:
+        n_orphan = int(merged["method"].isna().sum())
+        if n_orphan:
+            import warnings as _w
+            _w.warn(f"behavior_by_iter: {n_orphan} MITI-scored conv row(s) have no matching "
+                    f"conversation CSV (method/K NaN) — dropped from the per-iteration means; "
+                    f"check conversation-file sync.", stacklevel=2)
     metrics = [m for m in _BEHAVIOR_METRICS if m in merged.columns]
+    metrics += [f"{c}_per_turn" for c in _RATE_COUNT_METRICS if f"{c}_per_turn" in merged.columns]
     agg = (merged.groupby(["arm", "method", "K", "iteration"], observed=True)[metrics]
            .mean().reset_index().sort_values(["arm", "iteration"]))
     return agg

@@ -1,1 +1,1 @@
-- **behavior_by_iter** — Mean behavior metrics per (arm, iteration): MITI counts + text metrics — one merged table, all arms.
+- **behavior_by_iter** — Mean behavior metrics per (arm, iteration): MITI counts per therapist turn + text metrics — one merged table, all arms.
