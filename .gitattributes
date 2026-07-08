@@ -2,6 +2,12 @@
 * text=auto eol=lf
 *.ipynb text eol=lf
 
+# Keep Exp3 EDA notebooks output-clean in the repo (results/ is the deliverable; notebooks are
+# throwaway drivers). The clean filter strips cell outputs on `git add` while the working tree
+# keeps them for interactive viewing. Enable locally once (no-op if unconfigured elsewhere):
+#   git config filter.nbstrip.clean ".venv/Scripts/python.exe Exp3_PTO_GRPO/eda/strip_notebook_outputs.py --filter"
+Exp3_PTO_GRPO/eda/*.ipynb filter=nbstrip
+
 # Treat common binaries as binary (no EOL/diff munging).
 *.png binary
 *.jpg binary
