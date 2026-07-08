@@ -107,12 +107,19 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
    the venv kernel `thesis-venv313`, cwd = `eda/`.
 
-## Package (`eda_analysis/`) — 9 analysis modules (+ `plotting_style` helpers, `_selfcheck` guard)
+## Package (`eda_analysis/`) — analysis modules on a `constants` leaf (+ `plotting_style` helpers, `_selfcheck` guard)
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
 `figures`/`plots` still resolve as aliases of `plotting`; the data-module aliases were retired
 (2026-07-08). `plotting` was split (2026-07-08) into the named figures + a `plotting_style` helper
-sibling (re-imported into `plotting`, so the public surface is unchanged).
+sibling (re-imported into `plotting`, so the public surface is unchanged). The Layer-0 core was
+extracted (2026-07-08) into a **`constants` leaf**, breaking the old `__init__`↔submodule import
+cycle — submodule imports are now plain top-level `from .constants import ...` (the ~20 deferred
+in-function imports are gone; only genuinely cross-module ones remain deferred).
 
+- **`constants`** — the LEAF (imports nothing from the package): workspace-root resolution +
+  `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`WARMTH_RUBRICS`/
+  `ORTHOGONAL_METRICS`/`LOWER_IS_BETTER`, `DISPLAY_NAMES`/`ARM_LABELS`,
+  `display_label`/`short_label`/`arm_label`, the shared `RE_AFFIRM` cue.
 - **`config`** — `EdaConfig` (the single control surface, incl. `view` + PNG/xlsx defaults) +
   `notebook_setup(cfg)` → `Setup` (incl. `S.VIEW`, `S.CFG`). *(absorbed the old `notebook.py`.)*
 - **`data`** — the load+shape layer: arm **discovery** (`discover_arms`/`filter_arms`/`Arm`), TRUE-
@@ -142,8 +149,8 @@ sibling (re-imported into `plotting`, so the public surface is unchanged).
 - **`exports`** — `save_fig` (PNG) / `save_table` (MD+XLSX) → `results/<view>/<group>/`;
   `set_view` / `set_export_group` / `set_formats` / `save_provenance` / `build_index` /
   `reset_results` (clears the active view's figures/tables; **preserves `SUMMARY.md`**).
-- **`__init__`** — workspace-root resolution, `QUESTIONNAIRES`/`WARMTH_RUBRICS`/`ORTHOGONAL_METRICS`/
-  `display_label`, public re-exports, and the backward-compat submodule aliases.
+- **`__init__`** — thin re-export hub: re-exports the `constants` leaf + every submodule's public
+  names, and the `figures`/`plots` → `plotting` aliases. No definitions of its own.
 
 Two packages, by purpose: **`eda_analysis/`** = the analysis layer (notebooks `1`–`6`, disk-discovery,
 no registry) and **`oracle_scoring/`** = the legacy package, **pruned (2026-07-08) to ONLY the
