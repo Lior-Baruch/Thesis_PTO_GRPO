@@ -22,7 +22,7 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
-from . import WORKSPACE_ROOT
+from .constants import WORKSPACE_ROOT
 from .training import load_pref_pairs  # re-exported convenience
 
 _RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|brave|amazing|a )", re.I)

@@ -19,7 +19,8 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from . import QUESTIONNAIRE_ORDER, to_wide
+from .constants import QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, ORTHOGONAL_METRICS
+from .data import to_wide
 
 _BOOT_SEED = 12345  # fixed for reproducibility
 
@@ -203,7 +204,7 @@ def rubric_pca(scores_long_or_wide, metrics: Optional[Sequence[str]] = None) -> 
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import StandardScaler
     wide = scores_long_or_wide if "Q1Q2" in scores_long_or_wide.columns else to_wide(scores_long_or_wide)
-    default = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "R:Q", "%CR", "%MICO"]
+    default = WARMTH_RUBRICS + ORTHOGONAL_METRICS   # the canonical 10-metric factor space
     metrics = [m for m in (metrics or default) if m in wide.columns]
     X = wide[metrics].dropna()
     if len(X) < 3 or len(metrics) < 2:
@@ -225,7 +226,7 @@ def rubric_factor_space(scores_long_or_wide, metrics: Optional[Sequence[str]] = 
     from sklearn.decomposition import PCA
     from sklearn.preprocessing import StandardScaler
     wide = scores_long_or_wide if "Q1Q2" in scores_long_or_wide.columns else to_wide(scores_long_or_wide)
-    default = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "R:Q", "%CR", "%MICO"]
+    default = WARMTH_RUBRICS + ORTHOGONAL_METRICS   # the canonical 10-metric factor space
     metrics = [m for m in (metrics or default) if m in wide.columns]
     X = wide[metrics].dropna()
     if len(X) < 3 or len(metrics) < 2:
@@ -355,7 +356,6 @@ def main_results_table(scores_long: pd.DataFrame, target: str = "final",
     label, Wilcoxon ``p`` (Holm-corrected across rubrics within arm), bootstrap CI, trajectory Spearman
     ρ + OLS slope. Paired by persona throughout.
     """
-    from . import QUESTIONNAIRE_ORDER, to_wide
     metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in set(scores_long["questionnaire"])]
     # resolve the target model per arm
     target_model = {}

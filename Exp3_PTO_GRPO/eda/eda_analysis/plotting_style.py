@@ -22,6 +22,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
+from .constants import arm_label
+
 
 # Okabe-Ito colourblind-safe palette. Grouped by TEMPERATURE so the method reads at a glance
 # (PTO = cool / blues, GRPO = warm / orange-red), while the two within-method look-ahead arms stay
@@ -149,7 +151,6 @@ def relabel_legend(ax, mapping=None):
     Label layer only: the hue column keeps its canonical values (so the palette mapping stays
     intact); only the visible legend text is swapped. No-op if ``ax`` has no legend.
     """
-    from . import arm_label
     leg = ax.get_legend()
     if leg is None:
         return
@@ -179,7 +180,6 @@ def figure_legend_from(ax, fig, *, title="arm", ncol: int = 4):
     shared legend so multi-panel figures don't repeat a key inside a data area. No-op if ``ax``
     has nothing to key.
     """
-    from . import arm_label
     handles, labels = ax.get_legend_handles_labels()
     labels = [arm_label(l) for l in labels]   # readable arm names (canonical keys unchanged)
     for a in fig.axes:
