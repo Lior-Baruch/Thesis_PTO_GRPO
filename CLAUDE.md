@@ -83,10 +83,7 @@ prompt caching is already maxed (~50% off the oracle's fixed prefix), so the onl
 **COUNT**, not per-call price. Cheapest-science-cost cuts: cap `NUM_ITERATIONS` ~5–6 (our own curves
 plateau by iter ~4 → ~40–50% saving, compare at matched iter), drop `M`/`G` 8→4, and (PTO) lower
 `GREEDY_TRUNK_TARGET_LEN` — keep **K** (the RQ-i variable) and the **gpt-4o-mini oracle** (the
-measurement instrument) fixed. A supervisor-meeting slide brief (content-brief for Claude Design;
-covers setup, methods, metrics, results, status, next steps) is in
-[Exp3_PTO_GRPO/meetings/slides_brief_L0.md](Exp3_PTO_GRPO/meetings/slides_brief_L0.md). See the
-`project-openai-cost-constraint` memory.
+measurement instrument) fixed. See the `project-openai-cost-constraint` memory.
 
 **Full change history** (the dated "Landed …" entries) — moved to [history/CHANGELOG.md](history/CHANGELOG.md).
 
