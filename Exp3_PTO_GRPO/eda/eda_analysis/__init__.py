@@ -215,15 +215,16 @@ from .pref import (  # noqa: E402
     preference_direction_drift, plot_direction_drift, learn_unlearn_words, plot_learn_unlearn,
 )
 
-# Submodules + backward-compat ALIASES so every submodule-qualified notebook call keeps resolving
-# after the plumbing merge: figures/plots -> plotting; discovery/personas/scores/select -> data.
+# Submodules + backward-compat aliases. ``figures``/``plots`` -> ``plotting`` are KEPT (heavily used
+# across the notebooks and inside plotting itself). The data-module aliases from the 14->9 merge
+# (personas/scores/discovery/select -> data) are RETIRED — their only live call sites now use the
+# canonical top-level exports (e.g. ``from eda_analysis import persona_order`` /
+# ``eda_analysis.data.best_per_experiment``).
 from . import plotting, data, stats, behavior, training, pref, exports  # noqa: E402,F401
 figures = plots = plotting              # notebooks: figures.set_style / plots.overlay_trajectory
-personas = scores = discovery = select = data   # notebooks: eda_analysis.personas.canonical_personas
-# Register the aliases as importable submodules too, so `from eda_analysis.personas import X`
-# (the form used in 1_Eval_and_Behavior) resolves — not only attribute access.
-for _alias, _mod in (("figures", plotting), ("plots", plotting), ("personas", data),
-                     ("scores", data), ("discovery", data), ("select", data)):
+# Register the plotting aliases as importable submodules too, so ``from eda_analysis.figures import X``
+# resolves — not only attribute access.
+for _alias, _mod in (("figures", plotting), ("plots", plotting)):
     sys.modules[f"{__name__}.{_alias}"] = _mod
 
 __all__ = [

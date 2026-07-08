@@ -11,9 +11,10 @@ persona is recovered, how ``scores_long`` is built, or how best-iteration select
                    MITI-proficiency ratios + the ``select_scores`` / ``collapse_base`` / ``to_wide`` helpers.
 - **selection**  — :func:`all_models` vs :func:`best_per_experiment` (peak iter by own oracle).
 
-Read-only, disk-discovery-driven. Public names are re-exported from ``eda_analysis/__init__.py``;
-the legacy submodule names (``scores``/``discovery``/``personas``/``select``) are aliased to this
-module there too, so older ``eda_analysis.personas.canonical_personas`` references still resolve.
+Read-only, disk-discovery-driven. Public names are re-exported from ``eda_analysis/__init__.py``
+(e.g. ``eda_analysis.canonical_personas``, ``eda_analysis.persona_order``,
+``eda_analysis.best_per_experiment``); the old ``scores``/``discovery``/``personas``/``select``
+submodule aliases from the 14->9 merge have been retired.
 """
 
 import glob

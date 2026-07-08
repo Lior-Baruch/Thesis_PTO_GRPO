@@ -442,7 +442,7 @@ def main_results_table(scores_long: pd.DataFrame, target: str = "final",
     """The single authoritative thesis table: per (arm × rubric), target vs base.
 
     ``target`` ∈ {"final" (max iteration), "best" (best iteration by own oracle, via
-    :func:`~eda_analysis.select.best_per_experiment`)}. Columns: base/target means, Δ, paired Cohen's ``dz`` +
+    :func:`~eda_analysis.data.best_per_experiment`)}. Columns: base/target means, Δ, paired Cohen's ``dz`` +
     label, Wilcoxon ``p`` (Holm-corrected across rubrics within arm), bootstrap CI, trajectory Spearman
     ρ + OLS slope. Paired by persona throughout.
     """
