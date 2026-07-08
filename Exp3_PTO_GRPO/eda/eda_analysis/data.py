@@ -389,6 +389,29 @@ def attach_personas(
 _KEY = ["method", "arm", "K", "mcl", "mode", "oracle", "model", "iteration", "is_base", "file_index"]
 
 
+def iter_conv_rows(ddir: str):
+    """Yield ``(file_index, first_row)`` for the digit-named per-conversation CSVs in one eval dir.
+
+    THE shared inner loop of every per-conversation eval reader (``scores_long``, subscales, and
+    the ``behavior`` MITI/MICI/PCT loaders): list ``ddir``, keep ``<digits>.csv``, read each, yield
+    ``(int(stem), df.iloc[0])``. Preserves ``os.listdir`` order (no sort) and silently skips a
+    missing dir and unreadable/empty CSVs — byte-compatible with the five loops it replaced.
+    """
+    if not os.path.isdir(ddir):
+        return
+    for fn in os.listdir(ddir):
+        stem, ext = os.path.splitext(fn)
+        if ext != ".csv" or not stem.isdigit():
+            continue
+        try:
+            df = pd.read_csv(os.path.join(ddir, fn))
+        except Exception:
+            continue
+        if len(df) == 0:
+            continue
+        yield int(stem), df.iloc[0]
+
+
 def load_scores_long(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:
     """Tidy long eval scores across all discovered arms.
 
@@ -416,21 +439,11 @@ def _load_scores_long_impl(arms: List, *, attach_persona: bool = True) -> pd.Dat
             for disp, (sub, meancol) in QUESTIONNAIRES.items():
                 if sub is None:  # composite — built after the raw load
                     continue
-                ddir = arm.eval_dir(k, sub)
-                if not os.path.isdir(ddir):
-                    continue
-                for fn in os.listdir(ddir):
-                    stem, ext = os.path.splitext(fn)
-                    if ext != ".csv" or not stem.isdigit():
+                for fi, row in iter_conv_rows(arm.eval_dir(k, sub)):
+                    if meancol not in row.index:
                         continue
-                    try:
-                        r = pd.read_csv(os.path.join(ddir, fn))
-                    except Exception:
-                        continue
-                    if len(r) == 0 or meancol not in r.columns:
-                        continue
-                    rows.append({**base_meta, "file_index": int(stem),
-                                 "questionnaire": disp, "score": float(r.iloc[0][meancol])})
+                    rows.append({**base_meta, "file_index": fi,
+                                 "questionnaire": disp, "score": float(row[meancol])})
     long = pd.DataFrame(rows)
     if long.empty:
         return long
@@ -480,22 +493,12 @@ def load_subscales(arms: Optional[List] = None) -> pd.DataFrame:
     for arm in arms:
         for k in arm.iters:
             for parent, (sub, cols) in _SUBSCALES.items():
-                ddir = arm.eval_dir(k, sub)
-                if not os.path.isdir(ddir):
-                    continue
-                for fn in os.listdir(ddir):
-                    stem, ext = os.path.splitext(fn)
-                    if ext != ".csv" or not stem.isdigit():
-                        continue
-                    try:
-                        r = pd.read_csv(os.path.join(ddir, fn)).iloc[0]
-                    except Exception:
-                        continue
+                for fi, r in iter_conv_rows(arm.eval_dir(k, sub)):
                     for src, name in cols.items():
                         if src in r.index and pd.notna(r[src]):
                             rows.append({"arm": arm.label, "method": arm.method, "K": arm.K,
                                          "model": arm.model_name(k), "iteration": k,
-                                         "is_base": (k == 0), "file_index": int(stem),
+                                         "is_base": (k == 0), "file_index": fi,
                                          "parent": parent, "subscale": name, "score": float(r[src])})
     return pd.DataFrame(rows)
 
