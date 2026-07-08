@@ -28,7 +28,7 @@ from typing import List, Optional
 import pandas as pd
 
 from .data import (attach_personas,  # personas merged into data.py
-                   load_cached, eval_input_roots, conv_input_roots)
+                   iter_conv_rows, load_cached, eval_input_roots, conv_input_roots)
 
 _MITI_COLS = {
     "MITI_B1_GI": "B1_GI", "MITI_B3_Q": "B3_Q", "MITI_B4_SR": "B4_SR", "MITI_B5_CR": "B5_CR",
@@ -57,20 +57,10 @@ def load_miti_behavior(arms: Optional[List] = None, *, attach_persona: bool = Tr
     rows = []
     for arm in _arms(arms):
         for k in arm.iters:
-            ddir = arm.eval_dir(k, "MITI")
-            if not os.path.isdir(ddir):
-                continue
-            for fn in os.listdir(ddir):
-                stem, ext = os.path.splitext(fn)
-                if ext != ".csv" or not stem.isdigit():
-                    continue
-                try:
-                    r = pd.read_csv(os.path.join(ddir, fn)).iloc[0]
-                except Exception:
-                    continue
+            for fi, r in iter_conv_rows(arm.eval_dir(k, "MITI")):
                 row = {"arm": arm.label, "method": arm.method, "K": arm.K,
                        "model": arm.model_name(k), "iteration": k, "is_base": (k == 0),
-                       "file_index": int(stem)}
+                       "file_index": fi}
                 for src, dst in _MITI_COLS.items():
                     row[dst] = float(r[src]) if src in r.index and pd.notna(r[src]) else None
                 refl = (row.get("B4_SR") or 0) + (row.get("B5_CR") or 0)
@@ -103,20 +93,10 @@ def load_mici_behavior(arms: Optional[List] = None, *, attach_persona: bool = Tr
     rows = []
     for arm in _arms(arms):
         for k in arm.iters:
-            ddir = arm.eval_dir(k, "MICI")
-            if not os.path.isdir(ddir):
-                continue
-            for fn in os.listdir(ddir):
-                stem, ext = os.path.splitext(fn)
-                if ext != ".csv" or not stem.isdigit():
-                    continue
-                try:
-                    r = pd.read_csv(os.path.join(ddir, fn)).iloc[0]
-                except Exception:
-                    continue
+            for fi, r in iter_conv_rows(arm.eval_dir(k, "MICI")):
                 row = {"arm": arm.label, "method": arm.method, "K": arm.K,
                        "model": arm.model_name(k), "iteration": k, "is_base": (k == 0),
-                       "file_index": int(stem)}
+                       "file_index": fi}
                 for src, dst in _MICI_COLS.items():
                     row[dst] = float(r[src]) if src in r.index and pd.notna(r[src]) else None
                 rows.append(row)
@@ -145,20 +125,10 @@ def load_pct_behavior(arms: Optional[List] = None, *, attach_persona: bool = Tru
     rows = []
     for arm in _arms(arms):
         for k in arm.iters:
-            ddir = arm.eval_dir(k, "PCT")
-            if not os.path.isdir(ddir):
-                continue
-            for fn in os.listdir(ddir):
-                stem, ext = os.path.splitext(fn)
-                if ext != ".csv" or not stem.isdigit():
-                    continue
-                try:
-                    r = pd.read_csv(os.path.join(ddir, fn)).iloc[0]
-                except Exception:
-                    continue
+            for fi, r in iter_conv_rows(arm.eval_dir(k, "PCT")):
                 row = {"arm": arm.label, "method": arm.method, "K": arm.K,
                        "model": arm.model_name(k), "iteration": k, "is_base": (k == 0),
-                       "file_index": int(stem)}
+                       "file_index": fi}
                 for src, dst in _PCT_COLS.items():
                     row[dst] = float(r[src]) if src in r.index and pd.notna(r[src]) else None
                 rows.append(row)
