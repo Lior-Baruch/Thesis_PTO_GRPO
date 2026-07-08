@@ -17,7 +17,7 @@ B3_Q 6.45→3.84, B6_AF 0.42→1.64, loop% 49→0 over PTO LA0 iters 0→10).
 *validates the direction of* the oracle's MITI_B6_AF (affirmation) and MICI_OverPraise
 (sycophancy) counts — they are NOT primary behavior metrics and are deliberately excluded from
 ``_BEHAVIOR_METRICS``. Use the oracle-coded ``B6_AF`` and ``MICI_OverPraiseRate`` for the real
-affirmation/over-praise story; see notebook ``2_Behavior_and_Mechanism`` for the cross-check.
+affirmation/over-praise story; see notebook ``3_Mechanism`` for the cross-check.
 """
 
 import os
