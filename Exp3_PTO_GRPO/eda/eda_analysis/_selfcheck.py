@@ -82,7 +82,7 @@ def _c_all_resolves() -> str:
 
 def _c_view_map() -> str:
     from eda_analysis import config as C
-    assert set(C._VIEW_KS) == {"all", "L0", "L2", "L5"}, C._VIEW_KS
+    assert set(C._VIEW_KS) == {"all", "L0", "L5"}, C._VIEW_KS
     # Every alias target is a real view; case-insensitive.
     for k, v in C._VIEW_ALIASES.items():
         assert v in C._VIEW_KS, f"alias {k!r} -> unknown view {v!r}"

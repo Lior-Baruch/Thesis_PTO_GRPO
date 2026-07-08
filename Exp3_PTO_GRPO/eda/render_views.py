@@ -43,11 +43,10 @@ import sys
 import tempfile
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-# VIEWS = the views that MAY be requested (L2 stays valid so an explicit `render_views.py L2` works
-# once K=2 data lands). DEFAULT_VIEWS = what a bare run renders. `all` is a merged SUPERSET of
-# L0+L5 that rarely earns its render cost, so it is opt-in (request it explicitly); L2 is excluded
-# because there is no K=2 data on disk yet (rendering it would write an empty results/L2/ tree).
-VIEWS = ["all", "L0", "L2", "L5"]
+# VIEWS = the views that MAY be requested. DEFAULT_VIEWS = what a bare run renders. `all` is a
+# merged SUPERSET of L0+L5 that rarely earns its render cost, so it is opt-in (request it
+# explicitly). A new K view (e.g. L2) is added here + in config._VIEW_KS once its data lands.
+VIEWS = ["all", "L0", "L5"]
 DEFAULT_VIEWS = ["L0", "L5"]
 # Topic notebooks — notebook number == results family number (figures|tables/N_<family>/).
 NOTEBOOKS = [
@@ -99,7 +98,7 @@ def main(argv=None) -> int:
     ap = argparse.ArgumentParser(
         description="Regenerate results/<view>/ for the Exp3 EDA notebooks (views rendered in parallel).")
     ap.add_argument("views", nargs="*", default=None,
-                    help="views to render (subset of all/L0/L2/L5); default = L0 L5 (all is opt-in)")
+                    help="views to render (subset of all/L0/L5); default = L0 L5 (all is opt-in)")
     ap.add_argument("--nb", nargs="*", type=int, default=None,
                     help="notebook indices to render (0..5); default = all six")
     ap.add_argument("--jobs", "-j", type=int, default=None,
