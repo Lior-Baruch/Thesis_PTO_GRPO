@@ -29,7 +29,7 @@ from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from . import DATA_DIR, PERSONA_COLS, QUESTIONNAIRES
+from .constants import DATA_DIR, PERSONA_COLS, QUESTIONNAIRES
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗

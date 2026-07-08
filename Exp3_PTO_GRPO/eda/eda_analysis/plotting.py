@@ -25,7 +25,10 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from . import QUESTIONNAIRE_ORDER
+from .constants import (
+    QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, ORTHOGONAL_METRICS, LOWER_IS_BETTER,
+    display_label, short_label, arm_label,
+)
 # Style/scaffold helpers now live in plotting_style; re-import them so this module (and its
 # ``figures``/``plots`` aliases) still exposes set_style/arm_palette/grid/... and the figures' own
 # ``figures.grid(...)`` self-calls resolve here.
@@ -53,7 +56,6 @@ def _metrics(frame_metrics, metrics: Optional[Sequence[str]]) -> list:
 def outcomes_by_model(scores_long, *, palette, metrics: Optional[Sequence[str]] = None,
                       order: Optional[Sequence[str]] = None, ncols: int = 2):
     """Grouped outcome bars per rubric over every model (left-to-right by method/K/iter)."""
-    from . import display_label
     metrics = _metrics(scores_long["questionnaire"].unique(), metrics)
     order = list(order) if order is not None else figures.model_order(scores_long)
     fig, axes = figures.grid(len(metrics), ncols=ncols, panel=(7.6, 3.4))
@@ -91,7 +93,6 @@ def effect_forest(main_results_df, *, arms: Optional[Sequence[str]] = None,
     a positive Δ is *bad*; those rows are colored by DIRECTION (red = moved the wrong way, green =
     improved) and their label carries a ``↓``. ``caption`` prints an italic note under the axis.
     """
-    from . import display_label, arm_label, LOWER_IS_BETTER
     if main_results_df is None or main_results_df.empty:
         return None
     lower = set(LOWER_IS_BETTER if lower_is_better is None else lower_is_better)
@@ -167,7 +168,6 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
     own iter-0 base. Arms with fewer than ``min_iters`` scored iterations are omitted (keeps a
     one-point arm like GRPO_LA5 out of the grid).
     """
-    from . import display_label, arm_label
     if subscales_long is None or subscales_long.empty:
         return None
     df = subscales_long
@@ -216,7 +216,6 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
     orthogonal axes are included) is printed under it so "all metrics up" isn't read as multi-skill
     evidence. Pass ``caption=None`` to suppress.
     """
-    from . import display_label
     if arms is not None:
         scores_long = scores_long[scores_long.arm.isin(list(arms))]
     if iters is not None:
@@ -255,7 +254,6 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
     peak precedes the final iteration** (i.e. the arm regressed afterwards) — auto-surfacing e.g.
     GRPO's iter-8 peak-then-decline without hardcoding any arm/iteration.
     """
-    from . import display_label, arm_label
     d = scores_long[scores_long.questionnaire == metric]
     if arms is not None:
         d = d[d.arm.isin(list(arms))]
@@ -304,7 +302,6 @@ def reward_hack_panel(scores_long, *, arms: Sequence[str], palette=None,
     rubrics up" is NOT multi-skill. Per-iteration means (no CI band, to keep the twin axis legible).
     Returns ``None`` if no requested arm is present.
     """
-    from . import display_label, arm_label
     arms = [a for a in arms if a in set(scores_long.arm.unique())]
     rights = [m for m in right_metrics if m in set(scores_long.questionnaire.unique())]
     if not arms:
@@ -365,7 +362,6 @@ def heterogeneity_grid(scores_long, char: str, *, arms: Optional[Sequence[str]] 
     palette + readable names (e.g. cooperation ``Low → Resistant``); one shared legend. Arms with <3
     scored iters (or missing ``char``) are skipped. Returns ``None`` if nothing is plottable.
     """
-    from . import display_label, arm_label
     if char not in scores_long.columns:
         return None
     d = scores_long[scores_long.questionnaire == metric]
@@ -405,7 +401,6 @@ def heterogeneity_overview_grid(scores_long, char: str, *, arms: Optional[Sequen
     for signature symmetry but unused (colour keys on persona, not arm). Arms with <3 scored iters
     (or missing ``char``) are dropped; returns ``None`` if nothing is plottable.
     """
-    from . import display_label, arm_label
     if char not in scores_long.columns:
         return None
     metrics = _metrics(scores_long["questionnaire"].unique(), metrics)
@@ -456,7 +451,6 @@ def subgroup_endpoint_bars(scores_long, char: str, *, arms: Optional[Sequence[st
     :func:`heterogeneity_grid` — e.g. GRPO's late regression concentrated on the *Resistant*
     (Low-cooperation) personas. ``None`` if nothing is plottable.
     """
-    from . import display_label, arm_label
     if char not in scores_long.columns:
         return None
     d = scores_long[scores_long.questionnaire == metric]
@@ -531,7 +525,7 @@ def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] 
     of adding the new axes is to see them NOT block-correlate with the warmth rubrics. Labels are
     sign-flagged via :func:`display_label` (lower-is-better metrics get a trailing ↓).
     """
-    from . import stats, short_label, WARMTH_RUBRICS
+    from . import stats
     corr = stats.rubric_correlation(scores_long, metrics=metrics, method=corr_method)
     cols = list(corr.columns)
     labels = [short_label(m) for m in cols]   # acronym-only ticks (a 10x10 matrix can't fit the gloss)
@@ -565,7 +559,7 @@ def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None
     (≈0.44 each — one shared factor), while R:Q/%CR/%MICO/PCT/MICI load ≈0 on PC1 (they are NOT on
     the warmth factor). Replaces the hard-to-read PC1×PC2 biplot. ``None`` if PCA can't be fit.
     """
-    from . import stats, display_label, WARMTH_RUBRICS
+    from . import stats
     fs = stats.rubric_factor_space(scores_long, metrics=metrics)
     if fs is None:
         return None
@@ -601,7 +595,7 @@ def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = Non
     the last iteration. Returns a tidy DataFrame (arm × metric) with lower-is-better metrics flagged
     ``↓`` in the column name — drop straight into ``save_table``.
     """
-    from . import best_per_experiment, all_models, display_label, arm_label, ORTHOGONAL_METRICS
+    from . import best_per_experiment, all_models
     order = [m for m in (list(QUESTIONNAIRE_ORDER) + list(ORTHOGONAL_METRICS)) if m not in ("Q1", "Q2")]
     present = [m for m in (metrics or order) if m in set(scores_long.questionnaire.unique())]
     # "best" already filters to base + the own-oracle peak iteration per arm; both selections then
@@ -640,7 +634,6 @@ def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
     MICI / PCT per-item detail frames (pass an explicit ``metrics`` list + a ``title``). Each
     panel is one arm-hued line per metric column; ``display_label`` names the axes/titles.
     """
-    from . import display_label
     bm = [m for m in (metrics or _DEFAULT_BEHAVIOR_METRICS) if m in behavior_by_iter.columns]
     if not bm:
         return None
@@ -665,7 +658,6 @@ def single_behavior_trajectory(behavior_by_iter, metric: str, *, palette=None):
     Same data + palette as the combined grid; a full-size single panel so a reader can read one
     signal (e.g. B6_AF affirmations, or q_per_turn) closely. ``None`` if ``metric`` is absent.
     """
-    from . import display_label
     if metric not in behavior_by_iter.columns:
         return None
     pal = palette or figures.arm_palette(sorted(behavior_by_iter.arm.unique()))
@@ -687,7 +679,6 @@ def question_rate_crosscheck(cross_df, *, palette=None):
     they track each other (cross-validation) and where they diverge (e.g. GRPO late). ``None`` if
     unscored/empty.
     """
-    from . import arm_label
     if cross_df is None or cross_df.empty:
         return None
     pal = palette or figures.arm_palette(sorted(cross_df.arm.unique()))
@@ -716,7 +707,6 @@ def reward_distribution(reward_frame, *, ncols: int = 2):
     """
     if reward_frame.empty:
         return None
-    from . import arm_label
     arms = sorted(reward_frame.arm.unique())
     pal = figures.arm_palette(arms)
     fig, axes = figures.grid(len(arms), ncols=ncols, panel=(6.0, 3.4))
@@ -745,7 +735,6 @@ def advantage_signal_sidebyside(advantage_df, *, ncols: int = 2):
     """
     if advantage_df.empty:
         return None
-    from . import arm_label
     arms = sorted(advantage_df.arm.unique())
     pal = figures.arm_palette(arms)
     # Shared y-limit so every panel's range/margin is visually comparable (same units + same scale).
