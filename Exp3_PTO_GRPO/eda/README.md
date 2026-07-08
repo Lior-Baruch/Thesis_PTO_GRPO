@@ -102,9 +102,11 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
    the venv kernel `thesis-venv313`, cwd = `eda/`.
 
-## Package (`eda_analysis/`) — 9 modules
+## Package (`eda_analysis/`) — 9 analysis modules (+ `plotting_style` helpers, `_selfcheck` guard)
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
-The old submodule names still resolve via aliases, so notebook code is unchanged.
+`figures`/`plots` still resolve as aliases of `plotting`; the data-module aliases were retired
+(2026-07-08). `plotting` was split (2026-07-08) into the named figures + a `plotting_style` helper
+sibling (re-imported into `plotting`, so the public surface is unchanged).
 
 - **`config`** — `EdaConfig` (the single control surface, incl. `view` + PNG/xlsx defaults) +
   `notebook_setup(cfg)` → `Setup` (incl. `S.VIEW`, `S.CFG`). *(absorbed the old `notebook.py`.)*
@@ -114,12 +116,14 @@ The old submodule names still resolve via aliases, so notebook code is unchanged
   `add_derived_mitiprof_rows`/`select_scores`), and **selection** (`all_models`/`best_per_experiment`).
   *(merged `discovery`+`personas`+`scores`+`select` into one module; the old submodule aliases have
   been retired — use the canonical `eda_analysis.data.*` / top-level re-exports.)*
-- **`plotting`** — style helpers (Okabe-Ito palette [PTO cool / GRPO warm / Base grey], `grid`,
-  `set_style(cfg)`, `clean_label`, `apply_score_axis`, `model_order`) **+** the named figures
-  (`effect_forest`, `reliability_curve`, `subscale_trajectory_grid`, `overlay_trajectory`,
-  `heterogeneity_grid`, `factor_loadings_bars`, `leaderboard_scorecard`, diverging
-  `rubric_correlation_heatmap`, …). *(merged `figures`+`plots`; aliased back as `eda_analysis.figures/
-  plots`.)*
+- **`plotting_style`** — the style/scaffold helpers (Okabe-Ito palette [PTO cool / GRPO warm / Base
+  grey], `grid`, `set_style(cfg)`, `clean_label`, `apply_score_axis`, `model_order`, `relabel_*`,
+  `add_base_line`, `figure_legend_from`). Re-imported into `plotting`, so `figures.set_style(...)`
+  etc. still resolve.
+- **`plotting`** — the named figures (`effect_forest`, `reliability_curve`, `subscale_trajectory_grid`,
+  `overlay_trajectory`, `heterogeneity_grid`, `factor_loadings_bars`, `leaderboard_scorecard`,
+  diverging `rubric_correlation_heatmap`, …), calling the `plotting_style` helpers. *(aliased back as
+  `eda_analysis.figures`/`plots`.)*
 - **`stats`** — persona-paired Wilcoxon/dz/bootstrap + Friedman/Kendall-W + `main_results_table` +
   `paired_method_comparison` (PTO vs GRPO) + `paired_k_comparison` (K0 vs K5) +
   `rank_agreement_by_nturns` (reward reliability) + `rubric_pca`/`rubric_factor_space` +
