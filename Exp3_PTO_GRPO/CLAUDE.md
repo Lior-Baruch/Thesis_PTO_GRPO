@@ -356,8 +356,8 @@ Numbers in the EDA's `Q1Q2 = mean(Q1,Q2)` convention (full tables:
 ## Diagnostic: partial-conversation oracle (reward-faithfulness)
 
 > This diagnostic is **rebuilt on Exp3 data with no new oracle calls**, in
-> [3_Reward_Reliability.ipynb](eda/3_Reward_Reliability.ipynb) (from the per-branch `prefix` in
-> `generations.jsonl`). The earlier ICLR/Exp2 finding below is kept as the original motivation for
+> [4_Training_and_Reliability.ipynb](eda/4_Training_and_Reliability.ipynb) (from the per-branch `prefix`
+> in `generations.jsonl`). The earlier ICLR/Exp2 finding below is kept as the original motivation for
 > the MCL knob.
 
 **Question.** PTO and GRPO_Exp3 score *partial* conversations (slices as short
