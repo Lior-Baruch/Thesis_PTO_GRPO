@@ -53,6 +53,10 @@ python render_views.py L5 --nb 3  # one view, one notebook (--nb takes LIST indi
 ```
 `render_views.py` sets `EDA_VIEW` per run and executes each notebook to a throwaway `--output-dir`
 (so the committed notebooks' outputs aren't churned — only the `results/` tree is the deliverable).
+**Committed notebooks are kept output-clean** by `strip_notebook_outputs.py` (zero-dependency): run
+it in place (`python strip_notebook_outputs.py`), as a regression guard (`--check`), or wire it as a
+git clean filter (see the `.gitattributes` note) so `git add` strips outputs automatically while the
+working tree keeps them for viewing.
 Needs the venv kernel `thesis-venv313` (register once:
 `.venv\Scripts\python.exe -m ipykernel install --user --name thesis-venv313`). The hand-authored
 `SUMMARY.md` files are never touched.
