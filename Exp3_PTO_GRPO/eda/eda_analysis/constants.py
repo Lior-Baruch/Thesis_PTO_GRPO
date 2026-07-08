@@ -174,3 +174,9 @@ def arm_label(arm: str) -> str:
 # Patient-characteristic columns recovered per persona.
 PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
                 "tried_to_solve", "cooperation_level"]
+
+
+# Lexical affirmation cue (case-insensitive, per therapist turn / completion). A DIRECTIONAL
+# sanity-check on the oracle's affirmation counts, NOT a primary metric — shared by
+# ``behavior`` (lex_affirm_marker_rate) and ``pref`` (chosen/rejected text features).
+RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|brave|amazing|a )", re.I)

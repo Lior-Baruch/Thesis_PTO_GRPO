@@ -27,6 +27,7 @@ from typing import List, Optional
 
 import pandas as pd
 
+from .constants import RE_AFFIRM
 from .data import (attach_personas,  # personas merged into data.py
                    iter_conv_rows, load_cached, eval_input_roots, conv_input_roots)
 
@@ -39,8 +40,8 @@ _MITI_COLS = {
 
 # Lexical marker cues (case-insensitive), matched per therapist turn. These are a
 # DIRECTIONAL sanity-check on the oracle's affirmation / over-praise counts, NOT primary
-# metrics — see the module docstring.
-_RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|brave|amazing|a )", re.I)
+# metrics — see the module docstring. The affirmation cue is shared with pref.py via constants.
+_RE_AFFIRM = RE_AFFIRM
 _RE_EFFUSIVE = re.compile(
     r"\bi'?m so proud|proud of you|inspiration to me|you got this|beautiful|beacon|"
     r"shining|warrior|hero of your|you are a (light|beacon)", re.I)

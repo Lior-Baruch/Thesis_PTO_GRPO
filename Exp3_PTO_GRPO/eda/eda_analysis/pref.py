@@ -22,10 +22,10 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
-from .constants import WORKSPACE_ROOT
+from .constants import WORKSPACE_ROOT, RE_AFFIRM
 from .training import load_pref_pairs  # re-exported convenience
 
-_RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|brave|amazing|a )", re.I)
+_RE_AFFIRM = RE_AFFIRM   # shared lexical affirmation cue (see constants.py)
 # Embedding cache lives beside the parquet cache at the eda/ root (NOT inside the package source).
 _EDA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # .../eda
 _CACHE_DIR = os.path.join(_EDA_DIR, ".emb_cache")
