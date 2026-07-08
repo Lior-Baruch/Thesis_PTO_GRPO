@@ -252,7 +252,7 @@ Exp3_PTO_GRPO/
 │   ├── 6_Stats.ipynb                  [EVAL] family=6_stats — ALL heavy tables: merged main_results (target col) + Friedman + merged vs-base/method/K paired + all-metric slopes + PCA + GRPO iter-9 anomaly check
 │   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes LIST indices 0..5)
 │   ├── eda_analysis/                            Exp3 analysis package (disk-discovery, read-only). 9 modules: plumbing merged 14→9 (2026-06-18); old submodule names aliased
-│   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label + submodule aliases (figures/plots→plotting; discovery/personas/scores/select→data)
+│   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label + submodule aliases (figures/plots→plotting; the data-module aliases discovery/personas/scores/select were retired)
 │   │   ├── config.py                    CONTROL SURFACE: EdaConfig (incl. the VIEW knob) + notebook_setup(cfg)→Setup(ARMS,SCORES,PALETTE,METRICS,ORACLE_NOISE,RESULTS_DIR,VIEW,CFG). view→ks filter + results/<view>/ root. (absorbed notebook.py)
 │   │   ├── data.py                      LOAD+SHAPE: discovery (Arm/discover_arms/filter_arms) + TRUE-persona recovery + scores_long backbone (+Q1Q2/subscales/to_wide/collapse_base/add_derived_mitiprof_rows/select_scores) + all/best selection. (merged discovery+personas+scores+select)
 │   │   ├── plotting.py                  FIGURE layer: style helpers (set_style/arm_palette/grid/model_order/apply_score_axis) + named plots (effect_forest/overlay_trajectory/heterogeneity_grid/factor_loadings_bars/leaderboard_scorecard/diverging rubric_correlation_heatmap…). (merged figures+plots; self-aliases `figures`)
@@ -829,8 +829,9 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 it in the 9 modules: a new rubric → `eda_analysis/__init__.py::QUESTIONNAIRES` + `data.py` (the scores
 backbone); a new arm naming scheme → `data.py::parse_experiment_name`; new stats → `stats.py`; new figures →
 `plotting.py`; a new VIEW or results-layout change → `config.py` (the `view`/`_VIEW_KS` logic) + `exports.py`.
-(The old submodule names `discovery`/`personas`/`scores`/`select`/`figures`/`plots` are aliased to
-`data`/`plotting`, so existing references still resolve.) The bullets below apply to the **old
+(`figures`/`plots` are still aliased to `plotting`; the data-module aliases
+`discovery`/`personas`/`scores`/`select` were retired — use `eda_analysis.data.*` / the top-level
+re-exports.) The bullets below apply to the **old
 `oracle_scoring/` package**, which now only powers `Run_Eval.ipynb` (scoring):
 
 - **`config.ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `data._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.

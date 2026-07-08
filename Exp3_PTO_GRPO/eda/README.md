@@ -112,8 +112,8 @@ The old submodule names still resolve via aliases, so notebook code is unchanged
   **persona** recovery (`attach_personas`/`canonical_personas` — replays the per-iter shuffle), the
   **`scores_long`** backbone (`load_scores_long`/`load_subscales`/`to_wide`/`collapse_base`/
   `add_derived_mitiprof_rows`/`select_scores`), and **selection** (`all_models`/`best_per_experiment`).
-  *(merged `discovery`+`personas`+`scores`+`select`; aliased back as `eda_analysis.discovery/personas/
-  scores/select`.)*
+  *(merged `discovery`+`personas`+`scores`+`select` into one module; the old submodule aliases have
+  been retired — use the canonical `eda_analysis.data.*` / top-level re-exports.)*
 - **`plotting`** — style helpers (Okabe-Ito palette [PTO cool / GRPO warm / Base grey], `grid`,
   `set_style(cfg)`, `clean_label`, `apply_score_axis`, `model_order`) **+** the named figures
   (`effect_forest`, `reliability_curve`, `subscale_trajectory_grid`, `overlay_trajectory`,
