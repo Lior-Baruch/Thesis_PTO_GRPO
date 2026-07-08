@@ -9,6 +9,7 @@ excluded by [.gitignore](.gitignore) because they are large and/or regenerable:
 | `archive/` | Pre-refactor snapshot of Exp3 (old `GRPO_V2`/`PTO_V2`, GRPO V1 baseline) | Kept locally as history; superseded by the live `Exp*/` dirs |
 | `.venv/` | Python virtual environment | `pip install -r requirements.txt` |
 | `**/.emb_cache/`, `**/emb_cache_words/` | Sentence-embedding caches (Exp3 preference probe + archived Exp2) | Recomputed by the preference notebook |
+| `**/eda/.eda_cache/` | Exp3 EDA parquet cache (`scores_long` / `behavior_by_iter`; content-keyed) | Rebuilt on next EDA run; `eda_analysis.reset_cache()` to clear |
 | `HF_key.txt`, `openai_key.txt` | API credentials | Provide your own (see [README.md](README.md#api-keys)) |
 
 ## How the data is regenerated

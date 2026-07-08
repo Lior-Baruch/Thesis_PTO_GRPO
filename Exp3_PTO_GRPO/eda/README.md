@@ -1,4 +1,4 @@
-# Exp3 EDA — guide + improvement roadmap
+# Exp3 EDA — guide
 
 Analysis for **PTO_Exp3 vs GRPO_Exp3** (Llama-3.2-1B therapist vs gpt-4o-mini patient/oracle), across
 training iterations, under matched look-ahead K and MCL. All data/compute/stats lives in the
@@ -147,58 +147,25 @@ sibling (re-imported into `plotting`, so the public surface is unchanged).
   `display_label`, public re-exports, and the backward-compat submodule aliases.
 
 Two packages, by purpose: **`eda_analysis/`** = the analysis layer (notebooks `1`–`6`, disk-discovery,
-no registry) and **`oracle_scoring/`** = the legacy package kept ONLY to power `Run_Eval.ipynb`'s
-scoring (its `EXPERIMENTS` registry is Exp3-only). ⚠ the old `oracle_scoring` persona join is wrong for
-Exp3 (per-iter shuffle) — use `eda_analysis` (`data.attach_personas`).
+no registry) and **`oracle_scoring/`** = the legacy package, **pruned (2026-07-08) to ONLY the
+`Run_Eval.ipynb` scoring path** (config `EXPERIMENTS` registry + eval settings, conversation loading,
+the async oracle pipeline). Its old analysis/persona-join code was removed — persona recovery lives in
+`eda_analysis` (`data.attach_personas`, which replays the per-iter shuffle correctly).
 
 ## Adding a new run
 Train → it writes `conversations/full/<EXP>/model_iter_*` → add an `EXPERIMENTS` entry → `Run_Eval` →
 the notebooks pick it up automatically (re-run `python render_views.py`).
 
-## Latest results (snapshot 2026-06-18; MI-SAT re-scored 2026-07-07)
-> MI-SAT was re-scored 2026-07-07 under corrected goal-agnostic wording (was hard-coded to "diabetes"); its
-> means rose uniformly ~+0.14 but no headline below changes (it is a redundant warmth rubric).
+## Results
+Headline: **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs GRPO 3.75)** — GRPO peaks @ iter 8
+(4.08) then regresses into sycophancy; the orthogonal axes (PCT/MICI/R:Q/%CR/%MICO) show the warmth
+gains come *with* a ~2.3× rise in MI-inconsistency in both methods (PC1 drops ≈91%→≈56%). The full
+narrative + numbers live in **`results/<view>/SUMMARY.md`** (L0 is the primary read), the Exp3
+[CLAUDE.md](../CLAUDE.md) "Eval results so far" section, and the `project-pto-la0-eval-results` memory —
+not duplicated here so they can't drift.
 
-Scored: **PTO LA0** 0–10, **GRPO LA0** 0–10 (finished), **PTO LA5** 0–4, GRPO LA5 base — all on the full
-battery incl. the orthogonal axes (PCT, MICI, R:Q/%CR/%MICO). Headlines: large warmth gains vs base
-(PTO LA0 Q1+Q2 4.26; GRPO LA0 peaks 4.08 @ iter 8 then **regresses to 3.75 @ iter 10**); **PTO is ahead
-at the matched 10-iter endpoint** (4.26 vs 3.75, dz +0.73) — GRPO is competitive only up to its peak,
-then overshoots into sycophancy. The orthogonal axes show the warmth gains come *with* a ~2.3× rise in
-**MI-inconsistent** behaviour and **affirmation drift in both methods** (PC1 drops 91%→≈55% once the new
-axes are included). Per-view narratives: `results/<view>/SUMMARY.md` (L0 is the primary read). Full
-numbers in `6_Stats` and the `project-pto-la0-eval-results` memory.
-
----
-
-## Improvement roadmap — making the EDA better & more readable
-Prioritized; none are blocking. Ordered by value-for-effort.
-
-**Landed (2026-06-09 → 2026-06-18).** The `eda_analysis/` package + disk-discovery + true-persona
-recovery + both stat batteries; hybrid plotting + `notebook_setup()`; method-symmetry; the by-purpose
-notebooks; concise evergreen markdown with the `[EVAL]`/`[TRAINING]` tag; pooled descriptive **Base**;
-subscale **trajectories** + **`effect_forest`** + reliability curve + TB curves + richer preference
-latent space; Okabe-Ito **colourblind palette**, base lines, **no violins**; heavy tables in `5`,
-thin arms filtered; the orthogonal eval axes (PCT/MICI/R:Q/%CR/%MICO); then (2026-06-18) the
-**VIEW system** (`all`/`L0`/`L5` result trees + `render_views.py`), the **9-module** package
-consolidation, and per-view **`SUMMARY.md`** narratives; then (2026-07-02) the **reorg-by-topic pass**
-— topic notebooks ↔ numbered result families 1:1, per-metric trajectory + heterogeneity catalogs,
-dedup of 4 duplicate figures, merged stats tables, readable labels, per-call `group=` exports, the
-GRPO iter-9 anomaly check, and the walk-based `build_index()` in every notebook; then (2026-07-07) the
-**#7 general-review batch** — MITI behaviour counts **per therapist turn** (`B*_per_turn`, drift figure);
-an honest **unfiltered PTO `group_range`** beside GRPO's in the advantage signal (keyed on
-`(conversation_id, branch_id)` — PTO's `branch_id` is trunk depth and collides across conversations);
-confirmatory-vs-exploratory split (`6_Stats` §0); reward=outcome + shared-oracle confounds + PCT-loads-
-WITH-warmth reframes (`3_Mechanism` §3/§4); K-descriptive banners; `LIMITATIONS.md`; palette-keyed colors;
-dead `rank_table` removed; `render_views` `DEFAULT_VIEWS`; then (2026-07-08) the **package-refinement
-batch** — **parquet caching** (item 5: `data.load_cached`, content-keyed on the input CSVs, on by
-default → `scores_long`/`behavior_by_iter` ~60/30 s → ~0.3 s, 176×/76×); the **`_selfcheck` regression
-guard** (item 8: `python -m eda_analysis._selfcheck`); `plotting` split into `plotting` + a
-`plotting_style` helper sibling; the data-module submodule aliases retired; and all committed
-notebooks stripped output-clean (`strip_notebook_outputs.py` + `filter=nbstrip`). **Remaining roadmap:**
-
-**Reproducibility / speed:**
-7. **Discovery should skip empty `model_iter` dirs**; `Run_Eval`'s registry could be auto-generated
-   from `discover_arms()` to remove the last hand-maintained list.
-
-**Recommended next:** 7 (auto-generate `Run_Eval`'s registry from `discover_arms()` — removes the last
-hand-maintained list, the main reason `oracle_scoring/` stays a separate package).
+## Roadmap
+Dated pass history (2026-06-09 → 2026-07-08) is in [history/CHANGELOG.md](../history/CHANGELOG.md). One
+item remains: **auto-generate `Run_Eval`'s `EXPERIMENTS` registry from `discover_arms()`** — removes the
+last hand-maintained list (the main reason `oracle_scoring/` stays a separate package) and could let
+scoring fold into `eda_analysis/`; `discover_arms` could also skip empty `model_iter` dirs.
