@@ -48,9 +48,9 @@ _EDA_DIR = os.path.dirname(_HERE)                       # .../eda
 _KNOWN_Q1Q2_FINAL = {"PTO_LA0": 4.26, "GRPO_LA0": 3.75}
 _KNOWN_TOL = 0.02
 
-# Submodule names a notebook may qualify a call with (live modules + back-compat aliases).
-_SUBMODULES = ("plotting", "plots", "figures", "data", "personas", "scores", "discovery",
-               "select", "stats", "behavior", "training", "pref", "exports")
+# Submodule names a notebook may qualify a call with (live modules + the figures/plots aliases).
+_SUBMODULES = ("plotting", "plots", "figures", "data",
+               "stats", "behavior", "training", "pref", "exports")
 
 
 # ── check harness ─────────────────────────────────────────────────────────────

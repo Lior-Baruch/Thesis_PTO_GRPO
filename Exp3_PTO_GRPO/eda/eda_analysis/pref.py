@@ -184,8 +184,8 @@ def pref_word_ranking(word_projection: pd.DataFrame, *, top_n: int = 15,
 
     Takes the :func:`word_projection` frame (index = word, a ``mean`` column = pooled projection
     onto the chosen−rejected preference direction). Pools over iterations via ``mean``. Returns a
-    ``fig`` (the notebook saves/shows it) — lives here (not ``plots.py``) so all PTO-preference
-    code stays in the one PTO-only module. Shared by ``00`` (headline) and ``05`` (detail).
+    ``fig`` (the notebook saves/shows it) — lives here (not ``plotting.py``) so all PTO-preference
+    code stays in the one PTO-only module. Used by ``5_Preference``.
     """
     import matplotlib.pyplot as plt
     if word_projection.empty or "mean" not in word_projection.columns:
