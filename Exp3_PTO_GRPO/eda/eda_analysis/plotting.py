@@ -71,38 +71,6 @@ def outcomes_by_model(scores_long, *, palette, metrics: Optional[Sequence[str]] 
     return fig
 
 
-def outcomes_headline_by_arm(sel_scores_long, *, palette, metrics: Optional[Sequence[str]] = None,
-                             ncols: int = 3):
-    """Headline outcome bars: a pooled ``Base`` bar + one bar per arm's best iteration.
-
-    Caller passes a best-per-arm frame run through :func:`data.collapse_base` (so the arm bases
-    pool into a single ``Base`` column and each arm column is its peak iteration). A dotted base
-    reference line is drawn per panel so above/below-base reads instantly.
-
-    NOTE: no longer exported by any notebook (the 2026-07-02 reorg dropped ``outcomes_headline``
-    as a duplicate of :func:`outcomes_by_model`); kept as a utility.
-    """
-    from . import display_label, arm_label
-    metrics = _metrics(sel_scores_long["questionnaire"].unique(), metrics)
-    arms = sorted(sel_scores_long.arm.unique())
-    arm_order = (["Base"] if "Base" in arms else []) + [a for a in arms if a != "Base"]
-    fig, axes = figures.grid(len(metrics), ncols=ncols, panel=(5.0, 3.0))
-    for ax, m in zip(axes, metrics):
-        dm = sel_scores_long[sel_scores_long.questionnaire == m]
-        sns.barplot(dm, x="arm", y="score", hue="arm", order=arm_order, palette=palette,
-                    errorbar=("ci", 95), ax=ax)
-        ax.set_title(display_label(m)); ax.set_xlabel("")
-        ax.set_xticks(range(len(arm_order)))
-        ax.set_xticklabels([arm_label(a) for a in arm_order], rotation=30, ha="right", fontsize=8)
-        figures.add_base_line(ax, float(dm[dm.is_base].score.mean()) if dm.is_base.any() else None)
-        if ax.get_legend():
-            ax.legend_.remove()
-    fig.suptitle("Best-iteration outcomes by arm vs pooled Base — full-conversation eval",
-                 y=1.02, fontweight="bold")
-    fig.tight_layout()
-    return fig
-
-
 # ── Effect forest (replaces the wide main-results table inline) ───────────────
 _EFFECT_COLOR = {"negligible": "#bdbdbd", "small": "#9ecae1", "medium": "#4292c6", "large": "#08519c"}
 
@@ -349,15 +317,6 @@ def overlay_trajectory(scores_long, metric: str = "Q1Q2", *, arms: Sequence[str]
     figures.relabel_legend(ax)
     fig.tight_layout()
     return fig
-
-
-def method_contrast_overlay(scores_long, metric: str = "Q1Q2", *,
-                            pair: Tuple[str, str] = ("PTO_LA0", "GRPO_LA0"), palette):
-    """Back-compat thin wrapper around :func:`overlay_trajectory` for a two-arm ``pair``."""
-    from . import display_label, arm_label
-    return overlay_trajectory(scores_long, metric, arms=list(pair), palette=palette,
-                              title=f"{display_label(metric)}: {arm_label(pair[0])} vs "
-                                    f"{arm_label(pair[1])} (matched)")
 
 
 def reward_hack_panel(scores_long, *, arms: Sequence[str], palette=None,
