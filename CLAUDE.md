@@ -37,7 +37,7 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 ## Key methodological shift across experiments
 - **Look-ahead K** stayed central throughout (the lever from the ICLR paper).
 - **The hard part moved from "can PTO beat the baseline?" (Exp1, settled) to "is GRPO competitive with PTO under matched look-ahead?" (Exp3, open).**
-- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in `eda/3_Reward_Reliability.ipynb`) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
+- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in `eda/4_Training_and_Reliability.ipynb`) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
 
 ## Methods (one line each)
 - **PTO V1** (Exp1) = original preference-tree exploration + K look-ahead + DPO. Published.
@@ -46,7 +46,7 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 - **PTO_Exp3** = per-turn branching (`M` candidates) → K-turn look-ahead + oracle → τ-filtered (chosen, rejected) pref pairs → DPO update. Lean sibling of GRPO_Exp3. **Two `PREF_TREE_MODE`s:** `greedy` (default, true PTO — start from an MCL-length prefix sliced off the step-1 conv and grow ONE trunk by appending the best-of-M completion at each therapist turn, so the choice feeds the next branch point) and `independent` (branch each patient turn of a pre-recorded conv, no feedback). Mode baked into `EXPERIMENT_NAME`.
 
 **Shared infrastructure (Exp3).** Both GRPO_Exp3 and PTO_Exp3 trainers import from
-`Exp3_PTO_GRPO/code/_shared/` (5 modules: runtime, model, convs, reward, tb_plots).
+`Exp3_PTO_GRPO/code/_shared/` (runtime, model, convs, reward, tb_plots, eda_recorder; + optional lookahead_check).
 Each method's trainer module (`grpo_trainer.py` / `pto_trainer.py` — named per method
 so `from <method>_trainer import …` can't collide in a shared kernel) owns just the
 method-specific bits (`TrainingConfig`/`PTOConfig`, iteration body, dataset shape, TRL
@@ -73,7 +73,7 @@ Thesis_PTO_GRPO/
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
 ## Next step
-**Run status + cost constraint (updated 2026-06-15).** PTO LA0 = 10 iters; **GRPO LA0 = 10 iters (FINISHED, re-scored)**
+**Run status + cost constraint (updated 2026-07-08).** PTO LA0 = 10 iters; **GRPO LA0 = 10 iters (FINISHED, re-scored)**
 — the fair-endpoint PTO-vs-GRPO comparison is now in hand: **PTO wins at the matched 10-iter endpoint
 (4.26 vs 3.75) because GRPO peaks at iter 8 (4.08) then regresses into sycophancy; see results below.**
 **Both LA5 arms remain PAUSED/thin** (PTO LA5 4 iters, GRPO LA5 base only) — OpenAI API spend hit **~$300** and is a
