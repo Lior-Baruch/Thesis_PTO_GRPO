@@ -930,7 +930,7 @@ def make_reward_fn(
     iteration: int = 0,
     num_generations: int = 1,
 ) -> Callable:
-    """Build the async reward function for TRL v0.28+.
+    """Build the async reward function (TRL 1.x — the pinned trl==1.4.0).
 
     Call this once per training iteration with the *current* policy. TRL
     awaits the returned coroutine natively (no sync wrapper needed).

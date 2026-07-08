@@ -24,16 +24,6 @@ from . import QUESTIONNAIRE_ORDER, to_wide
 _BOOT_SEED = 12345  # fixed for reproducibility
 
 
-# ── Ranking across rubrics ───────────────────────────────────────────────────
-def model_means(scores_long: pd.DataFrame) -> pd.DataFrame:
-    """Per-model mean per questionnaire (index = model, + arm/iteration meta)."""
-    means = (scores_long.groupby(["model", "questionnaire"], observed=True)["score"]
-             .mean().unstack())
-    meta = (scores_long[["model", "arm", "method", "K", "iteration", "is_base"]]
-            .drop_duplicates("model").set_index("model"))
-    return meta.join(means)
-
-
 # ── Paired comparisons (by persona) ──────────────────────────────────────────
 def _paired_deltas(wide: pd.DataFrame, metric: str, model_a: str, model_b: str,
                    key: str = "persona_id") -> np.ndarray:
@@ -307,36 +297,6 @@ def omnibus(scores_long: pd.DataFrame, metric: str, group: str = "model") -> dic
             "eta_sq": float(eta_sq), "k": k, "n": n}
 
 
-def mannwhitney_vs_base(scores_long: pd.DataFrame, arm: str, metric: str) -> pd.DataFrame:
-    """Each iteration of *arm* vs its own base, **independent-group** Mann–Whitney U + FDR.
-
-    The familiar Exp2 treatment (treats the 96 personas as independent samples;
-    contrast with the persona-paired :func:`paired_vs_base`). Effect size = Cliff's δ.
-    """
-    g = scores_long[(scores_long["arm"] == arm) & (scores_long["questionnaire"] == metric)]
-    base = g[g["is_base"]]["score"].to_numpy()
-    if base.size == 0:
-        return pd.DataFrame()
-    rows = []
-    for it in sorted(g.loc[~g["is_base"], "iteration"].unique()):
-        x = g[g["iteration"] == it]["score"].to_numpy()
-        if x.size == 0:
-            continue
-        try:
-            U, p = stats.mannwhitneyu(x, base, alternative="two-sided")
-            cliffs = 2 * U / (x.size * base.size) - 1
-        except ValueError:
-            U, p, cliffs = np.nan, np.nan, np.nan
-        rows.append({"arm": arm, "iteration": int(it), "n_iter": x.size, "n_base": base.size,
-                     "median_delta": float(np.median(x) - np.median(base)),
-                     "cliffs_delta": float(cliffs) if cliffs == cliffs else np.nan,
-                     "U": float(U) if U == U else np.nan, "p": float(p) if p == p else np.nan})
-    out = pd.DataFrame(rows)
-    if not out.empty:
-        out["p_fdr"] = fdr(out["p"].to_numpy())
-    return out
-
-
 # ── Research-grade rigor: repeated-measures + bootstrap + a main-results table ───
 def effect_label(d: float) -> str:
     """Cohen's-style magnitude label for |effect| (dz / Cliff's delta share thresholds)."""
@@ -423,18 +383,6 @@ def friedman_trajectory(scores_long: pd.DataFrame, arm: str, metric: str) -> dic
     chi2, p = stats.friedmanchisquare(*[piv[c].to_numpy() for c in piv.columns])
     return {"arm": arm, "metric": metric, "chi2": float(chi2), "p": float(p),
             "kendall_w": float(chi2 / (n * (k - 1))), "k_iters": int(k), "n_personas": int(n)}
-
-
-def mean_ci_by_iter(scores_long: pd.DataFrame, arm: str, metric: str, n_boot: int = 2000) -> pd.DataFrame:
-    """Per-iteration mean + bootstrap 95% CI (clean trajectory table for the thesis)."""
-    g = scores_long[(scores_long["arm"] == arm) & (scores_long["questionnaire"] == metric)]
-    rows = []
-    for it in sorted(g["iteration"].unique()):
-        v = g[g["iteration"] == it]["score"].to_numpy()
-        lo, hi = bootstrap_ci(v, n_boot=n_boot)
-        rows.append({"arm": arm, "metric": metric, "iteration": int(it), "n": v.size,
-                     "mean": float(np.mean(v)), "ci_low": lo, "ci_high": hi})
-    return pd.DataFrame(rows)
 
 
 def main_results_table(scores_long: pd.DataFrame, target: str = "final",
