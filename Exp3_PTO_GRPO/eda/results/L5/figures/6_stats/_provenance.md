@@ -32,4 +32,5 @@
 - `results_subdirs` = True
 - `oracle_noise` = 0.1
 - `attach_persona` = True
+- `cache` = True
 - `note` = 
