@@ -1,5 +1,10 @@
 """
-EDA library for ``Exp3_PTO_GRPO/eda/``.
+Oracle-scoring package for ``Exp3_PTO_GRPO/eda/`` — the pipeline behind ``Run_Eval.ipynb``.
+
+This is the LEGACY Exp1/Exp2 EDA library, pruned (2026-07-08) to only its scoring path: the
+``EXPERIMENTS`` registry + eval settings (``config``), conversation loading (``data``), and the
+async oracle pipeline (``eval``). All the old analysis/plotting helpers were removed — the current
+Exp3 analysis lives in the sibling ``eda_analysis/`` package (disk-discovery, no registry).
 
 Importing this package locates the **experiment root** (the Exp3 folder itself —
 identified by ``HF_key.txt`` + ``openai_key.txt`` at top level) and prepends
@@ -54,24 +59,17 @@ from .config import (  # noqa: E402
     DATA_DIR, METHOD_DATA_DIR, EVAL_QUESTIONNAIRE_DIRS,
     eval_scores_root_for_method, eval_csv_dir,
     # Dataclasses + helpers
-    EDAConfig, PlotContext, set_plot_style,
+    EDAConfig,
     # Experiment registry
     Experiment, EXPERIMENTS, get_data_paths, get_model_names,
     get_model_eval_layout, resolve_paths,
 )
 
 from .data import (  # noqa: E402
-    # Conversations
+    # Conversations (loaded so Run_Eval can score them)
     load_data, combine_data, reconstruct_conversation_text,
-    add_patient_characteristics,
-    # Model metadata + ordering
+    # Model metadata
     parse_model_metadata, add_model_metadata_columns,
-    compute_model_order, apply_model_order,
-    build_experiment_palette,
-    # Eval loading
-    load_all_eval_results, merge_q1_q2_results, build_test_cases,
-    # Selection / filtering
-    select_best_models_by_own_oracle, filter_to_models, build_merged_metrics,
 )
 
 # NOTE: the legacy analysis/plots + cross-iteration training-reward EDA modules
@@ -104,16 +102,12 @@ __all__ = [
     "EVAL_MODEL", "EVAL_TEMPERATURE", "MAX_RETRIES", "DEFAULT_CONCURRENCY",
     "DATA_DIR", "METHOD_DATA_DIR", "EVAL_QUESTIONNAIRE_DIRS",
     "eval_scores_root_for_method", "eval_csv_dir",
-    "EDAConfig", "PlotContext", "set_plot_style",
+    "EDAConfig",
     "Experiment", "EXPERIMENTS", "get_data_paths", "get_model_names",
     "get_model_eval_layout", "resolve_paths",
     # data
     "load_data", "combine_data", "reconstruct_conversation_text",
-    "add_patient_characteristics",
     "parse_model_metadata", "add_model_metadata_columns",
-    "compute_model_order", "apply_model_order", "build_experiment_palette",
-    "load_all_eval_results", "merge_q1_q2_results", "build_test_cases",
-    "select_best_models_by_own_oracle", "filter_to_models", "build_merged_metrics",
     # eval (gated)
     "EVAL_CODE_AVAILABLE",
 ]

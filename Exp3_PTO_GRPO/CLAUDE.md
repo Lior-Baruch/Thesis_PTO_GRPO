@@ -261,7 +261,7 @@ Exp3_PTO_GRPO/
 │   │   ├── pref.py                      PTO pref: margins + embeddings + Mass-Mean-Probe (preference_direction/word_projection/MI category_projection) + pref_word_ranking
 │   │   └── exports.py                   VIEW-aware: save_fig (PNG) / save_table (md+xlsx) → results/<view>/<family>/ ; per-call group= override incl. NESTED subpaths; set_view + set_export_group + set_formats + save_provenance + walk-based build_index + reset_results (PRESERVES SUMMARY.md)
 │   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md
-│   └── oracle_scoring/                  LEGACY package — kept ONLY for Run_Eval scoring (Exp3 registry; NOT the new analysis)
+│   └── oracle_scoring/                  LEGACY package — pruned 2026-07-08 to ONLY the Run_Eval scoring path (config EXPERIMENTS registry + eval settings, data conversation-loading, eval async oracle pipeline). Analysis leftovers removed; the analysis lives in eda_analysis/.
 └── HF_key.txt, openai_key.txt
 ```
 
