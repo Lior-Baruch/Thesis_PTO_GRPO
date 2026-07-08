@@ -135,6 +135,72 @@ def _c_notebook_refs_resolve() -> str:
     return f"{total} notebook symbol refs resolve across {used}"
 
 
+def _c_cache_mechanism() -> str:
+    """Data-independent: memoize a dummy frame, assert miss->build / hit->read / bypass / invalidate.
+
+    Uses a temp input file so it needs no Drive data; cleans up its own cache entries and never
+    touches real caches (unique probe name). Guards :func:`~eda_analysis.data.load_cached`.
+    """
+    import glob as _glob
+    import tempfile
+    from eda_analysis import data
+
+    class _FakeArm:                       # minimal shape load_cached's arm-signature needs
+        exp_name = "_selfcheck_probe"
+        iters = [0]
+
+    saved = os.environ.pop("EDA_NO_CACHE", None)     # allow the cache ON for this check
+    tmp = tempfile.mkdtemp()
+    sig = os.path.join(tmp, "sig.csv")
+    probe = "_selfcheck_probe"
+    calls = {"n": 0}
+
+    def builder():
+        import pandas as pd
+        calls["n"] += 1
+        return pd.DataFrame({"x": [1, 2, 3], "y": ["a", "b", "c"]})
+
+    def _clean():
+        for fp in _glob.glob(os.path.join(data._CACHE_DIR, f"{probe}__*.parquet")):
+            try:
+                os.remove(fp)
+            except OSError:
+                pass
+
+    try:
+        open(sig, "w").write("a\n1\n")
+        data.set_cache(True)
+        _clean()
+        f1 = data.load_cached(probe, [_FakeArm()], builder, input_roots=[tmp])   # miss -> build+write
+        f2 = data.load_cached(probe, [_FakeArm()], builder, input_roots=[tmp])   # hit  -> read parquet
+        assert calls["n"] == 1, f"miss+hit should build once, built {calls['n']}"
+        assert f1.equals(f2), "cached frame != freshly built (parquet round-trip mismatch)"
+        # bypass path rebuilds
+        data.set_cache(False)
+        data.load_cached(probe, [_FakeArm()], builder, input_roots=[tmp])
+        assert calls["n"] == 2, "set_cache(False) should bypass the cache (rebuild)"
+        # content invalidation: rewrite the input (new size) -> new signature -> rebuild
+        data.set_cache(True)
+        open(sig, "w").write("a\n1\n2\n3\n")
+        data.load_cached(probe, [_FakeArm()], builder, input_roots=[tmp])
+        assert calls["n"] == 3, "changed input file should invalidate the cache (rebuild)"
+    finally:
+        _clean()
+        for f in (sig,):
+            try:
+                os.remove(f)
+            except OSError:
+                pass
+        try:
+            os.rmdir(tmp)
+        except OSError:
+            pass
+        data.set_cache(None)
+        if saved is not None:
+            os.environ["EDA_NO_CACHE"] = saved
+    return "miss->build, hit->read (parquet equal), bypass rebuilds, content-change invalidates"
+
+
 # ── data checks ───────────────────────────────────────────────────────────────
 def _discover_or_skip():
     arms = E.discover_arms()
@@ -219,6 +285,10 @@ def main(argv: List[str] | None = None) -> int:
     fast = "--fast" in argv
     probe = "--probe" in argv
 
+    # Validate GROUND TRUTH: the data checks below bypass the parquet cache so a stale cache can
+    # never mask a real data regression (the cache mechanism check manages this env var itself).
+    os.environ["EDA_NO_CACHE"] = "1"
+
     results: _Results = []
     # Structural — always.
     _run("import + __all__ resolve", _c_all_resolves, results)
@@ -226,6 +296,7 @@ def main(argv: List[str] | None = None) -> int:
     _run("EdaConfig round-trip", _c_config_roundtrip, results)
     _run("live aliases (figures/plots)", _c_live_aliases, results)
     _run("notebook symbol refs resolve", _c_notebook_refs_resolve, results)
+    _run("cache mechanism + invalidation", _c_cache_mechanism, results)
     # Data — unless --fast.
     if not fast:
         _run("discover_arms", _c_discover, results)

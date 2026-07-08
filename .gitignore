@@ -28,6 +28,8 @@ archive/
 *.npy
 # exp3 pref completion-embedding cache (~23 MB .pkl; regenerable)
 **/.emb_cache/
+# exp3 EDA parquet cache (scores_long / behavior_by_iter; regenerable, content-keyed)
+**/eda/.eda_cache/
 
 # === Model weights / training artifacts / logs ===
 *.safetensors

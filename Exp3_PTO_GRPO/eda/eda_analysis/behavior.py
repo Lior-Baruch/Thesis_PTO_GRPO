@@ -27,7 +27,8 @@ from typing import List, Optional
 
 import pandas as pd
 
-from .data import attach_personas  # personas merged into data.py
+from .data import (attach_personas,  # personas merged into data.py
+                   load_cached, eval_input_roots, conv_input_roots)
 
 _MITI_COLS = {
     "MITI_B1_GI": "B1_GI", "MITI_B3_Q": "B3_Q", "MITI_B4_SR": "B4_SR", "MITI_B5_CR": "B5_CR",
@@ -292,7 +293,14 @@ def behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
 
     Merges the oracle MITI counts and the regex text metrics (per conversation) then
     averages over conversations. ``loop`` becomes the fraction of degenerate convs.
+    Parquet-cached (content-keyed on the eval + conversation CSVs; see :func:`~eda_analysis.data.load_cached`).
     """
+    arms = _arms(arms)
+    return load_cached("behavior_by_iter", arms, lambda: _behavior_by_iter_impl(arms),
+                       input_roots=eval_input_roots(arms) + conv_input_roots(arms))
+
+
+def _behavior_by_iter_impl(arms) -> pd.DataFrame:
     miti = load_miti_behavior(arms, attach_persona=False)
     text = text_metrics(arms, attach_persona=False)
     keys = ["arm", "method", "K", "model", "iteration", "is_base", "file_index"]
@@ -344,8 +352,14 @@ def mici_behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     conversation therapist-turn count (from :func:`text_metrics`), forms a per-therapist-turn rate
     for each of the 6 behaviors (mean-of-ratios, guarded on ``n_th_turns > 0``), and averages over
     conversations. ``MICI_Severity`` (1-5 global) and ``MICI_Rate`` (total/turn) pass through as
-    means. Empty until MICI is scored. Higher = worse for every column.
+    means. Empty until MICI is scored. Higher = worse for every column. Parquet-cached.
     """
+    arms = _arms(arms)
+    return load_cached("mici_behavior_by_iter", arms, lambda: _mici_behavior_by_iter_impl(arms),
+                       input_roots=eval_input_roots(arms) + conv_input_roots(arms))
+
+
+def _mici_behavior_by_iter_impl(arms) -> pd.DataFrame:
     mici = load_mici_behavior(arms, attach_persona=False)
     if mici.empty:
         return pd.DataFrame()
@@ -378,8 +392,14 @@ def pct_behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
 
     The 3 patient globals (Importance/Confidence/Readiness) + the derived ChangeProp pass through
     as means; each of the 3 utterance counts is turned into a proportion of patient utterances
-    (``count / PCT_BehaviorTotal``, mean-of-ratios). Empty until PCT is scored.
+    (``count / PCT_BehaviorTotal``, mean-of-ratios). Empty until PCT is scored. Parquet-cached.
     """
+    arms = _arms(arms)
+    return load_cached("pct_behavior_by_iter", arms, lambda: _pct_behavior_by_iter_impl(arms),
+                       input_roots=eval_input_roots(arms) + conv_input_roots(arms))
+
+
+def _pct_behavior_by_iter_impl(arms) -> pd.DataFrame:
     pct = load_pct_behavior(arms, attach_persona=False)
     if pct.empty:
         return pd.DataFrame()

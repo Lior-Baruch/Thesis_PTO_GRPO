@@ -78,6 +78,12 @@ the `all` view / all present metrics. Knobs beyond `view`:
   Excel workbook, one sheet per table). A per-call `group=` on `save_fig`/`save_table` overrides the
   family for one save and supports **nested subpaths** (`group="1_outcomes/trajectories"`,
   `group="2_heterogeneity/problem"`).
+- **Cache:** `cache` (**default `True`**) parquet-memoizes the slow disk reads — `scores_long`
+  (~60 s cold → ~0.3 s) and the `behavior_by_iter` family (~30 s → ~0.3 s) — to `eda/.eda_cache/`
+  (gitignored). Content-keyed on the input CSVs' `(name, size, mtime)`, so a re-score / re-gen
+  auto-invalidates; it can never serve stale numbers. Bypass with `EdaConfig(cache=False)`, the
+  `EDA_NO_CACHE=1` env var, or `eda_analysis.reset_cache()`. Different arm-subsets (L0 vs L5) cache
+  independently, so `render_views.py` builds each frame once then reads it across notebooks.
 
 **Per-figure control.** Trajectory plots take `arms=`/`iters=`/`metric=`; use
 `eda_analysis.select_scores(S.SCORES, arms=[...], iters=[...], metrics=[...])` to slice any figure.
@@ -183,21 +189,16 @@ an honest **unfiltered PTO `group_range`** beside GRPO's in the advantage signal
 `(conversation_id, branch_id)` — PTO's `branch_id` is trunk depth and collides across conversations);
 confirmatory-vs-exploratory split (`6_Stats` §0); reward=outcome + shared-oracle confounds + PCT-loads-
 WITH-warmth reframes (`3_Mechanism` §3/§4); K-descriptive banners; `LIMITATIONS.md`; palette-keyed colors;
-dead `rank_table` removed; `render_views` `DEFAULT_VIEWS`. **Remaining roadmap:**
+dead `rank_table` removed; `render_views` `DEFAULT_VIEWS`; then (2026-07-08) the **package-refinement
+batch** — **parquet caching** (item 5: `data.load_cached`, content-keyed on the input CSVs, on by
+default → `scores_long`/`behavior_by_iter` ~60/30 s → ~0.3 s, 176×/76×); the **`_selfcheck` regression
+guard** (item 8: `python -m eda_analysis._selfcheck`); `plotting` split into `plotting` + a
+`plotting_style` helper sibling; the data-module submodule aliases retired; and all committed
+notebooks stripped output-clean (`strip_notebook_outputs.py` + `filter=nbstrip`). **Remaining roadmap:**
 
 **Reproducibility / speed:**
-5. **Cache `scores_long` + `behavior_by_iter` to parquet.** `behavior`/`text_metrics` re-read ~2k
-   conversation CSVs in every notebook (slow) — and now ×3 views. A `data.load_cached()` writing
-   `results/cache/*.parquet` (keyed by arm+iter set) would make notebooks near-instant.
-   `notebook_setup()` is the natural home for the toggle. **Biggest speed win now that views multiply
-   the reads** (deliberately DEFERRED from the 2026-07-02 reorg — that pass was organizational; the
-   duplicated `behavior_by_iter` compute is this item's motivating case).
 7. **Discovery should skip empty `model_iter` dirs**; `Run_Eval`'s registry could be auto-generated
    from `discover_arms()` to remove the last hand-maintained list.
 
-**Rigor / correctness polish:**
-8. **Self-check script.** Commit the ad-hoc validation as `eda_analysis/_selfcheck.py` (persona recovery
-   100%, known means reproduce, probe `wins_correct`>0.5, the view→ks + alias surface) — a fast
-   regression test after any change.
-
-**Recommended next:** 5 (parquet caching) then 8 (commit the self-check as a regression guard).
+**Recommended next:** 7 (auto-generate `Run_Eval`'s registry from `discover_arms()` — removes the last
+hand-maintained list, the main reason `oracle_scoring/` stays a separate package).

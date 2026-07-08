@@ -18,6 +18,7 @@ submodule aliases from the 14->9 merge have been retired.
 """
 
 import glob
+import hashlib
 import json
 import os
 import random
@@ -29,6 +30,128 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
 from . import DATA_DIR, PERSONA_COLS, QUESTIONNAIRES
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  PARQUET CACHE — memoize the slow disk reads (scores_long, behavior_by_iter…)   ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# ``load_scores_long`` re-reads thousands of eval CSVs (~67 s cold) and the ``behavior_by_iter``
+# family re-reads ~2k conversation CSVs (~30 s) — in EVERY notebook, now ×3 VIEWS. These frames are
+# pure functions of the on-disk CSVs, so we memoize them to ``<eda>/.eda_cache/*.parquet``.
+#
+# Invalidation is by CONTENT: the cache key hashes each input CSV's (name, size, mtime), so any
+# re-score / re-gen (which rewrites CSVs) auto-invalidates — the cache can never serve stale numbers.
+# ON by default; bypass with the ``EDA_NO_CACHE`` env var, ``EdaConfig(cache=False)`` (→ ``set_cache``),
+# or a manual ``reset_cache()``. A parquet round-trip failure degrades silently to an uncached build.
+
+_EDA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # .../eda
+_CACHE_DIR = os.path.join(_EDA_DIR, ".eda_cache")
+_CACHE_ENABLED: Optional[bool] = None            # None = default-on; set by set_cache()
+
+
+def set_cache(enabled: Optional[bool]) -> None:
+    """Enable/disable the parquet cache process-wide (``notebook_setup`` sets this from ``cfg.cache``)."""
+    global _CACHE_ENABLED
+    _CACHE_ENABLED = None if enabled is None else bool(enabled)
+
+
+def cache_enabled() -> bool:
+    """True unless the ``EDA_NO_CACHE`` env var is set or ``set_cache(False)`` was called."""
+    if os.environ.get("EDA_NO_CACHE"):
+        return False
+    return True if _CACHE_ENABLED is None else _CACHE_ENABLED
+
+
+def reset_cache() -> int:
+    """Delete every cached parquet frame (force a rebuild). Returns the number of files removed."""
+    n = 0
+    for fp in glob.glob(os.path.join(_CACHE_DIR, "*.parquet")):
+        try:
+            os.remove(fp)
+            n += 1
+        except OSError:
+            pass
+    return n
+
+
+def eval_input_roots(arms) -> List[str]:
+    """The per-model eval directories the score/behavior loaders read (for the cache signature)."""
+    subs = {sub for _disp, (sub, _mc) in QUESTIONNAIRES.items() if sub}
+    return [a.eval_dir(k, sub) for a in arms for k in a.iters for sub in subs]
+
+
+def conv_input_roots(arms) -> List[str]:
+    """The per-iter conversation directories the text/behavior loaders read (for the cache signature)."""
+    return [a.conv_dir(k) for a in arms for k in a.iters if a.conv_dir(k)]
+
+
+def _content_signature(roots) -> str:
+    """blake2b over every ``*.csv`` under ``roots`` as (name, size, mtime_ns) — content-sensitive.
+
+    On Windows ``os.scandir`` caches stat in the directory scan, so this is cheap even over the
+    ~37k eval+conv CSVs. A rewritten file changes its size/mtime → new digest → cache miss.
+    """
+    h = hashlib.blake2b(digest_size=16)
+    for root in sorted(set(r for r in roots if r)):
+        h.update(root.encode())
+        h.update(b"|")
+        if not os.path.isdir(root):
+            h.update(b"missing\n")
+            continue
+        try:
+            entries = sorted((e for e in os.scandir(root)
+                              if e.is_file() and e.name.endswith(".csv")), key=lambda e: e.name)
+        except OSError:
+            h.update(b"err\n")
+            continue
+        for e in entries:
+            try:
+                st = e.stat()
+            except OSError:
+                continue
+            h.update(f"{e.name}|{st.st_size}|{st.st_mtime_ns}\n".encode())
+    return h.hexdigest()
+
+
+def load_cached(name: str, arms, builder, *, input_roots, params: Optional[dict] = None):
+    """Return ``builder()``, memoized to ``.eda_cache/<name>__<armkey>__<contentkey>.parquet``.
+
+    ``input_roots`` = directories whose CSV ``(name, size, mtime)`` define the content signature
+    (use :func:`eval_input_roots` / :func:`conv_input_roots`). Distinct arm-subsets (e.g. L0 vs L5)
+    coexist via a separate ``armkey``; a re-score changes ``contentkey`` and the write prunes only
+    the SAME arm-subset's stale file. Bypassed when :func:`cache_enabled` is False; a parquet
+    round-trip failure degrades to an uncached build.
+    """
+    if not cache_enabled():
+        return builder()
+    arm_sig = "|".join(f"{a.exp_name}:{','.join(map(str, a.iters))}"
+                       for a in sorted(arms, key=lambda a: a.exp_name))
+    arm_sig += "||" + repr(sorted((params or {}).items()))
+    arm_key = hashlib.blake2b(arm_sig.encode(), digest_size=8).hexdigest()
+    content_key = _content_signature(input_roots)
+    path = os.path.join(_CACHE_DIR, f"{name}__{arm_key}__{content_key}.parquet")
+    if os.path.exists(path):
+        try:
+            return pd.read_parquet(path)
+        except Exception:                                   # corrupt/partial → rebuild
+            pass
+    df = builder()
+    try:
+        os.makedirs(_CACHE_DIR, exist_ok=True)
+        for old in glob.glob(os.path.join(_CACHE_DIR, f"{name}__{arm_key}__*.parquet")):
+            if old != path:                                 # prune this arm-subset's stale variants
+                try:
+                    os.remove(old)
+                except OSError:
+                    pass
+        tmp = f"{path}.{os.getpid()}.tmp"                   # atomic write: no torn/corrupt parquet
+        df.reset_index(drop=True).to_parquet(tmp, index=False)
+        os.replace(tmp, path)
+    except Exception as ex:                                 # unserializable frame → just don't cache
+        if os.environ.get("EDA_CACHE_VERBOSE"):
+            print(f"  [cache] {name}: not cached ({type(ex).__name__}: {ex})")
+    return df
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -338,9 +461,16 @@ def load_scores_long(arms: Optional[List] = None, *, attach_persona: bool = True
     Columns: ``method, arm, K, mcl, mode, oracle, model, iteration, is_base, file_index,
     questionnaire, score`` (+ ``persona_id`` & characteristics if ``attach_persona``). Includes
     the ``Q1Q2`` composite. Missing eval folders are skipped, so partially-scored arms contribute
-    whatever exists.
+    whatever exists. Result is parquet-cached (content-keyed on the eval CSVs; see :func:`load_cached`).
     """
     arms = discover_arms() if arms is None else arms
+    return load_cached("scores_long", arms,
+                       lambda: _load_scores_long_impl(arms, attach_persona=attach_persona),
+                       input_roots=eval_input_roots(arms),
+                       params={"attach_persona": attach_persona})
+
+
+def _load_scores_long_impl(arms: List, *, attach_persona: bool = True) -> pd.DataFrame:
     rows = []
     for arm in arms:
         for k in arm.iters:
