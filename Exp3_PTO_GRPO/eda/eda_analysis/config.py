@@ -79,6 +79,7 @@ class EdaConfig:
     # ── Misc ─────────────────────────────────────────────────────────────────
     oracle_noise: float = 0.10                     # reproducibility band (|Δ| from partial-conv EDA)
     attach_persona: bool = True
+    cache: bool = True                             # parquet-memoize scores_long/behavior (content-keyed)
     verbose: bool = True
     note: str = ""                                 # free-text, recorded in the provenance banner
 
@@ -111,6 +112,7 @@ class EdaConfig:
             "fig_formats": list(self.fig_formats), "table_formats": list(self.table_formats),
             "results_subdirs": self.results_subdirs,
             "oracle_noise": self.oracle_noise, "attach_persona": self.attach_persona,
+            "cache": self.cache,
             "note": self.note,
         }
 
@@ -138,11 +140,13 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
     """
     from . import (discover_arms, load_scores_long, add_derived_mitiprof_rows,
                    QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, plotting, exports)
-    from .data import filter_arms
+    from .data import filter_arms, set_cache
 
     cfg = cfg or EdaConfig()
     if overrides:
         cfg = cfg.with_(**overrides)
+
+    set_cache(cfg.cache)                            # parquet memoization on/off for this session
 
     # ── Resolve the VIEW: arm filter (ks) + results root ──────────────────────
     view = _VIEW_ALIASES.get((cfg.view or "all").strip().lower())

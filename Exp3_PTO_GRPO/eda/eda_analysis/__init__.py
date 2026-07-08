@@ -197,6 +197,7 @@ from .data import (  # noqa: E402
     load_scores_long, load_subscales, to_wide, collapse_base, MEAN_COLS,
     add_derived_mitiprof_rows, select_scores,
     all_models, best_per_experiment,
+    load_cached, set_cache, cache_enabled, reset_cache,
 )
 from .exports import (  # noqa: E402
     save_fig, save_table, save_provenance, build_index, reset_results,
@@ -238,6 +239,7 @@ __all__ = [
     "load_scores_long", "load_subscales", "to_wide", "collapse_base", "MEAN_COLS",
     "add_derived_mitiprof_rows", "select_scores",
     "all_models", "best_per_experiment",
+    "load_cached", "set_cache", "cache_enabled", "reset_cache",
     "save_fig", "save_table", "save_provenance", "build_index", "reset_results",
     "set_export_group", "set_view", "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
     "paired_method_comparison", "paired_k_comparison",
