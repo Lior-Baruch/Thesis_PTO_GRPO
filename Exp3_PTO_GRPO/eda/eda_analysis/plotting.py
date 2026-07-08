@@ -12,7 +12,7 @@ returns a matplotlib ``fig`` (no ``plt.show()`` / ``save_fig`` — the notebook 
 panel).
 
 Both ``eda_analysis.figures`` and ``eda_analysis.plots`` are aliased to THIS module in
-``__init__.py``, so existing ``figures.set_style(...)`` / ``plots.overlay_trajectory(...)`` notebook
+``__init__.py``, so existing ``figures.set_style(...)`` / ``plots.trajectory_grid(...)`` notebook
 calls keep working — the style helpers are re-imported below, so ``figures.grid(...)`` etc. resolve
 here too.
 """
@@ -287,33 +287,6 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
     ax.set_title(f"{display_label(metric)} across iterations — full-conversation eval")
     ax.set_xlabel("training iteration (model state)"); ax.set_ylabel(f"{display_label(metric)} (eval)")
     sns.move_legend(ax, "upper left", bbox_to_anchor=(1.01, 1.0), title="arm", frameon=False)
-    figures.relabel_legend(ax)
-    fig.tight_layout()
-    return fig
-
-
-def overlay_trajectory(scores_long, metric: str = "Q1Q2", *, arms: Sequence[str], palette,
-                       title: Optional[str] = None):
-    """Overlay ANY chosen arms' trajectories of *metric* on one axis — the configurable contrast.
-
-    One reusable figure for "PTO vs GRPO at K=0", "PTO K0 vs K5", or any arm set you pass — replaces
-    the old per-K / per-method contrast loops. Degrades to whichever of ``arms`` are present;
-    returns ``None`` if none are.
-
-    NOTE: no longer exported by any notebook (the 2026-07-02 reorg dropped ``contrast_overlay`` —
-    :func:`single_metric_trajectory` covers it); kept as an interactive utility.
-    """
-    from . import display_label, arm_label
-    arms = list(arms)
-    d = scores_long[(scores_long.arm.isin(arms)) & (scores_long.questionnaire == metric)]
-    if d.empty:
-        return None
-    present = [a for a in arms if a in set(d.arm)]
-    fig, ax = plt.subplots(figsize=(8, 4.5))
-    sns.lineplot(d, x="iteration", y="score", hue="arm", hue_order=present,
-                 palette=palette, marker="o", errorbar=("ci", 95), ax=ax)
-    ax.set_title(title or f"{display_label(metric)}: {' vs '.join(arm_label(a) for a in present)}")
-    ax.set_xlabel("iteration"); ax.set_ylabel(display_label(metric))
     figures.relabel_legend(ax)
     fig.tight_layout()
     return fig

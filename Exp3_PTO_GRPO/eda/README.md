@@ -85,12 +85,11 @@ the `all` view / all present metrics. Knobs beyond `view`:
   `EDA_NO_CACHE=1` env var, or `eda_analysis.reset_cache()`. Different arm-subsets (L0 vs L5) cache
   independently, so `render_views.py` builds each frame once then reads it across notebooks.
 
-**Per-figure control.** Trajectory plots take `arms=`/`iters=`/`metric=`; use
-`eda_analysis.select_scores(S.SCORES, arms=[...], iters=[...], metrics=[...])` to slice any figure.
+**Per-figure control.** Trajectory plots take `arms=`/`iters=`/`metric=`; slice `S.SCORES` with
+plain pandas (e.g. `S.SCORES[S.SCORES.arm.isin([...])]`) to point any figure at a subset.
 `plots.single_metric_trajectory(..., mark_peaks=True)` auto-flags peak-then-regression arms
 (`oracle_noise=None` suppresses the Q1Q2-only noise band); `plots.heterogeneity_grid(S.SCORES, char,
-arms=[...])` is one figure (panel per arm); `plots.overlay_trajectory` remains as an interactive
-utility (no longer exported).
+arms=[...])` is one figure (panel per arm).
 
 `notebook_setup(cfg)` resolves the view (→ arm filter + results root), applies the style + scales,
 **filters + discovers** the arms, builds `scores_long` (with the derived ratios) + palette + present
@@ -119,7 +118,7 @@ sibling (re-imported into `plotting`, so the public surface is unchanged).
 - **`data`** — the load+shape layer: arm **discovery** (`discover_arms`/`filter_arms`/`Arm`), TRUE-
   **persona** recovery (`attach_personas`/`canonical_personas` — replays the per-iter shuffle), the
   **`scores_long`** backbone (`load_scores_long`/`load_subscales`/`to_wide`/`collapse_base`/
-  `add_derived_mitiprof_rows`/`select_scores`), and **selection** (`all_models`/`best_per_experiment`).
+  `add_derived_mitiprof_rows`), and **selection** (`all_models`/`best_per_experiment`).
   *(merged `discovery`+`personas`+`scores`+`select` into one module; the old submodule aliases have
   been retired — use the canonical `eda_analysis.data.*` / top-level re-exports.)*
 - **`plotting_style`** — the style/scaffold helpers (Okabe-Ito palette [PTO cool / GRPO warm / Base
@@ -127,7 +126,7 @@ sibling (re-imported into `plotting`, so the public surface is unchanged).
   `add_base_line`, `figure_legend_from`). Re-imported into `plotting`, so `figures.set_style(...)`
   etc. still resolve.
 - **`plotting`** — the named figures (`effect_forest`, `reliability_curve`, `subscale_trajectory_grid`,
-  `overlay_trajectory`, `heterogeneity_grid`, `factor_loadings_bars`, `leaderboard_scorecard`,
+  `trajectory_grid`, `heterogeneity_grid`, `factor_loadings_bars`, `leaderboard_scorecard`,
   diverging `rubric_correlation_heatmap`, …), calling the `plotting_style` helpers. *(aliased back as
   `eda_analysis.figures`/`plots`.)*
 - **`stats`** — persona-paired Wilcoxon/dz/bootstrap + Friedman/Kendall-W + `main_results_table` +

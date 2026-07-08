@@ -21,40 +21,6 @@ from . import WORKSPACE_ROOT
 # ║                              CONSTANTS                                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-# Figure sizes
-FIG_WIDE = (16, 5)
-FIG_SINGLE = (12, 5)
-
-# Statistical thresholds
-ALPHA = 0.05
-EFFECT_SIZE_THRESHOLDS = {"small": 0.2, "medium": 0.5, "large": 0.8}
-
-# Ordering (left-to-right in every plot)
-ORACLE_ORDER = ["WAI", "CSQ8", "Q1Q2", "MI_SAT", "MITI"]
-GROUP_ORDER = {"Base": 0, "GRPO_Exp3": 4, "PTO_Exp3": 5}
-DPO_GROUP_ORDER = 1  # All DPO (L0/L5) variants share this rank
-
-EXPERIMENT_PALETTE = {
-    "Base":    "orange",
-    "L0_Q1Q2": "#1f77b4", "L5_Q1Q2": "#6baed6",
-    "L0_CSQ8": "#2ca02c", "L5_CSQ8": "#74c476",
-    "L0_WAI":  "#d62728", "L5_WAI":  "#fb6a4a",
-    "GRPO_Exp3": "#aec7e8",
-    "PTO_Exp3":  "#c5b0d5",
-}
-
-# Oracle key -> (display name for plots, DataFrame column)
-ORACLE_METRIC_MAP = {
-    "WAI":    ("WAI-SR",  "WAI_TotalMean"),
-    "CSQ8":   ("CSQ-8",   "CSQ8_Mean"),
-    "Q1Q2":   ("Q1+Q2",   "Q1Q2_Mean"),
-    "MI_SAT": ("MI-SAT",  "MI_Mean"),
-    "MITI":   ("MITI",    "MITI_GlobalMean"),
-    "Q1":     ("Q1",      "Q1_Mean"),
-    "Q2":     ("Q2",      "Q2_Mean"),
-}
-
-
 # Alias map for oracle tokens parsed from model names. ``data._normalize_oracle_token``
 # uppercases + replaces ``-`` with ``_`` before lookup, so keys must be uppercase
 # canonical forms. Add new aliases here, not in data.py. Unknown tokens fall

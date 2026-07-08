@@ -193,9 +193,9 @@ from .config import EdaConfig, notebook_setup, Setup  # noqa: E402
 # Data layer (discovery + personas + scores + select all merged into data.py).
 from .data import (  # noqa: E402
     Arm, discover_arms, parse_experiment_name, filter_arms,
-    canonical_personas, persona_order, file_to_persona, attach_personas, validate_recovery,
-    load_scores_long, load_subscales, to_wide, collapse_base, MEAN_COLS,
-    add_derived_mitiprof_rows, select_scores,
+    canonical_personas, persona_order, attach_personas,
+    load_scores_long, load_subscales, to_wide, collapse_base,
+    add_derived_mitiprof_rows,
     all_models, best_per_experiment,
     load_cached, set_cache, cache_enabled, reset_cache,
 )
@@ -222,7 +222,7 @@ from .pref import (  # noqa: E402
 # canonical top-level exports (e.g. ``from eda_analysis import persona_order`` /
 # ``eda_analysis.data.best_per_experiment``).
 from . import plotting, data, stats, behavior, training, pref, exports  # noqa: E402,F401
-figures = plots = plotting              # notebooks: figures.set_style / plots.overlay_trajectory
+figures = plots = plotting              # notebooks: figures.set_style / plots.trajectory_grid
 # Register the plotting aliases as importable submodules too, so ``from eda_analysis.figures import X``
 # resolves — not only attribute access.
 for _alias, _mod in (("figures", plotting), ("plots", plotting)):
@@ -234,10 +234,9 @@ __all__ = [
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label",
     "EdaConfig", "notebook_setup", "Setup",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
-    "canonical_personas", "persona_order", "file_to_persona",
-    "attach_personas", "validate_recovery",
-    "load_scores_long", "load_subscales", "to_wide", "collapse_base", "MEAN_COLS",
-    "add_derived_mitiprof_rows", "select_scores",
+    "canonical_personas", "persona_order", "attach_personas",
+    "load_scores_long", "load_subscales", "to_wide", "collapse_base",
+    "add_derived_mitiprof_rows",
     "all_models", "best_per_experiment",
     "load_cached", "set_cache", "cache_enabled", "reset_cache",
     "save_fig", "save_table", "save_provenance", "build_index", "reset_results",

@@ -21,11 +21,6 @@ from system_prompts_builder import get_patient_permutation_characteristics
 
 from .config import (
     COMPOSITE_METRICS,
-    DPO_GROUP_ORDER,
-    EXPERIMENT_PALETTE,
-    GROUP_ORDER,
-    ORACLE_METRIC_MAP,
-    ORACLE_ORDER,
     ORACLE_TOKEN_ALIASES,
 )
 
@@ -96,7 +91,7 @@ _PTOExp3_NAME_PATTERN  = re.compile(r"^PTOExp3_LA(?P<la>\d+)_(?:(?P<base>Base)|I
 
 
 def _normalize_oracle_token(token: str, *, strict: bool = False) -> str:
-    """Canonicalize oracle name tokens to keys used in ORACLE_METRIC_MAP.
+    """Canonicalize oracle name tokens to the canonical oracle keys (WAI/CSQ8/Q1Q2/MI_SAT/MITI).
 
     Aliases live in ``config.ORACLE_TOKEN_ALIASES``. Unknown tokens fall through
     to the original token (and downstream show up in the ``"Other"`` group);
