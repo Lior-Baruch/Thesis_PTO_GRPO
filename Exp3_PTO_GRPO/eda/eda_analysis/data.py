@@ -8,7 +8,7 @@ persona is recovered, how ``scores_long`` is built, or how best-iteration select
 - **discovery**  — glob runs on disk → :class:`Arm` manifest + :func:`filter_arms` (no registry).
 - **personas**   — recover the TRUE patient persona per conversation (replay the seeded shuffle).
 - **scores**     — the tidy long ``scores_long`` backbone + Q1Q2 composite + subscales + derived
-                   MITI-proficiency ratios + the ``select_scores`` / ``collapse_base`` / ``to_wide`` helpers.
+                   MITI-proficiency ratios + the ``collapse_base`` / ``to_wide`` helpers.
 - **selection**  — :func:`all_models` vs :func:`best_per_experiment` (peak iter by own oracle).
 
 Read-only, disk-discovery-driven. Public names are re-exported from ``eda_analysis/__init__.py``
@@ -346,11 +346,6 @@ def persona_order(seed: int, model_iter: int, n: int = 96) -> List[int]:
     return order
 
 
-def file_to_persona(seed: int, model_iter: int, n: int = 96) -> Dict[int, int]:
-    """``{file_index: canonical_persona_id}`` for ``model_iter``."""
-    return {i: pid for i, pid in enumerate(persona_order(seed, model_iter, n))}
-
-
 def attach_personas(
     df: pd.DataFrame,
     seed: int,
@@ -383,64 +378,6 @@ def attach_personas(
     return out
 
 
-def validate_recovery(
-    conv_dir_for_iter,
-    seed: int,
-    iters: List[int],
-    *,
-    n: int = 96,
-    sample_every: int = 8,
-    verbose: bool = True,
-) -> dict:
-    """Assert the replay is sound and (optionally) matches conversation content.
-
-    ``conv_dir_for_iter(k)`` -> absolute path to ``model_iter_k``'s conversation folder (so this
-    stays IO-agnostic). Checks per iter that recovered ids form a full 0..n-1 permutation, and
-    that the age stated in the patient's first turn matches the recovered persona on a sampled
-    subset. Returns a small report; raises ``AssertionError`` if the permutation check fails.
-    """
-    cano = canonical_personas(n)
-    age_ok = age_tot = 0
-    for k in iters:
-        order = persona_order(seed, k, n)
-        assert sorted(order) == list(range(n)), (
-            f"persona recovery for model_iter_{k} is not a permutation of 0..{n-1} "
-            f"(seed={seed}); the seed/order assumption is wrong."
-        )
-        cdir = conv_dir_for_iter(k)
-        if not cdir or not os.path.isdir(cdir):
-            continue
-        for fi in range(0, n, sample_every):
-            fp = os.path.join(cdir, f"conversation_{fi}.csv")
-            if not os.path.exists(fp):
-                continue
-            try:
-                cdf = pd.read_csv(fp)
-            except Exception:
-                continue
-            pt = cdf[cdf["role"] == "patient"]["conversation"]
-            if not len(pt):
-                continue
-            m = re.search(r"\b(\d{2})\b", str(pt.iloc[0])[:120])
-            if not m:
-                continue
-            age_tot += 1
-            if str(cano.loc[order[fi], "age_value"]) == m.group(1):
-                age_ok += 1
-    rep = {
-        "iters_checked": list(iters),
-        "permutation_ok": True,
-        "age_match": (age_ok, age_tot),
-        "age_match_rate": (age_ok / age_tot) if age_tot else None,
-    }
-    if verbose:
-        rate = rep["age_match_rate"]
-        print(f"persona recovery: permutation OK for iters {list(iters)}; "
-              f"age-in-intro match {age_ok}/{age_tot}"
-              + (f" ({rate:.0%})" if rate is not None else ""))
-    return rep
-
-
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║  SCORES — the tidy long backbone every analysis derives from                   ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -448,9 +385,6 @@ def validate_recovery(
 # ``load_scores_long`` reads each arm's per-conversation eval CSVs, recovers the true persona,
 # and returns one row per (arm, iteration, persona, questionnaire) -> score.
 # Composite: ``Q1Q2 = mean(Q1_Mean, Q2_Mean)`` (a [1,5] mean, matching the headline axis).
-
-# Display name -> per-conv mean column (the non-composite rubrics).
-MEAN_COLS = {disp: meancol for disp, (sub, meancol) in QUESTIONNAIRES.items() if sub is not None}
 
 _KEY = ["method", "arm", "K", "mcl", "mode", "oracle", "model", "iteration", "is_base", "file_index"]
 
@@ -564,23 +498,6 @@ def load_subscales(arms: Optional[List] = None) -> pd.DataFrame:
                                          "is_base": (k == 0), "file_index": int(stem),
                                          "parent": parent, "subscale": name, "score": float(r[src])})
     return pd.DataFrame(rows)
-
-
-def select_scores(scores_long: pd.DataFrame, *, arms: Optional[List] = None,
-                  iters: Optional[List] = None, metrics: Optional[List] = None) -> pd.DataFrame:
-    """Slice ``scores_long`` to chosen arms / iterations / metrics (each None = keep all).
-
-    The one selection helper every figure cell uses, so a notebook can point a plot at a subset
-    (e.g. ``select_scores(S.SCORES, arms=["PTO_LA0","GRPO_LA0"])``) instead of looping per arm.
-    """
-    d = scores_long
-    if arms is not None:
-        d = d[d["arm"].isin(list(arms))]
-    if iters is not None:
-        d = d[d["iteration"].isin(list(iters))]
-    if metrics is not None:
-        d = d[d["questionnaire"].isin(list(metrics))]
-    return d
 
 
 def collapse_base(scores_long: pd.DataFrame, *, label: str = "Base") -> pd.DataFrame:

@@ -258,45 +258,6 @@ def holm(pvals: Sequence[float]) -> np.ndarray:
     return out
 
 
-def fdr(pvals: Sequence[float]) -> np.ndarray:
-    """Benjamini–Hochberg FDR-adjusted p-values (NaNs preserved)."""
-    p = np.asarray(pvals, float)
-    out = np.full(p.shape, np.nan)
-    idx = np.where(~np.isnan(p))[0]
-    if idx.size == 0:
-        return out
-    order = idx[np.argsort(p[idx])]
-    m = idx.size
-    prev = 1.0
-    for rank in range(m - 1, -1, -1):          # largest p first
-        i = order[rank]
-        adj = min(prev, p[i] * m / (rank + 1))
-        prev = adj
-        out[i] = adj
-    return out
-
-
-# ── Familiar Exp2-style battery (independent-group) ──────────────────────────
-def omnibus(scores_long: pd.DataFrame, metric: str, group: str = "model") -> dict:
-    """Kruskal–Wallis across *group* for *metric* + eta-squared (η²_H) effect size.
-
-    The non-parametric one-way 'is anything different at all?' test (the old
-    `run_full_stats_battery` omnibus), pooled over personas. NOTE the effect size
-    ``eta_sq`` = (H − k + 1)/(n − k) is eta-squared-H, NOT epsilon-squared
-    (ε²_H = H/(n − 1)); both are valid, this reports η²_H.
-    """
-    g = scores_long[scores_long["questionnaire"] == metric]
-    samples = [s["score"].to_numpy() for _, s in g.groupby(group, observed=True)]
-    samples = [s for s in samples if len(s) > 0]
-    k, n = len(samples), sum(len(s) for s in samples)
-    if k < 2:
-        return {"metric": metric, "H": np.nan, "p": np.nan, "eta_sq": np.nan, "k": k, "n": n}
-    H, p = stats.kruskal(*samples)
-    eta_sq = (H - k + 1) / (n - k) if n > k else np.nan       # eta-squared-H (η²_H)
-    return {"metric": metric, "H": float(H), "p": float(p),
-            "eta_sq": float(eta_sq), "k": k, "n": n}
-
-
 # ── Research-grade rigor: repeated-measures + bootstrap + a main-results table ───
 def effect_label(d: float) -> str:
     """Cohen's-style magnitude label for |effect| (dz / Cliff's delta share thresholds)."""
@@ -369,7 +330,7 @@ def friedman_trajectory(scores_long: pd.DataFrame, arm: str, metric: str) -> dic
     """Repeated-measures omnibus across iterations (the matched-persona-correct test).
 
     Pivots persona_id × iteration (complete after persona recovery) and runs Friedman χ² + Kendall's W
-    effect size. Preferred over the independent-group :func:`omnibus` for this design.
+    effect size. Preferred over an independent-group Kruskal–Wallis omnibus for this design.
     """
     g = scores_long[(scores_long["arm"] == arm) & (scores_long["questionnaire"] == metric)]
     if "persona_id" not in g.columns:
