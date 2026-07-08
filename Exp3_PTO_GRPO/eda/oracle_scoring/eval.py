@@ -33,15 +33,6 @@ except ImportError:
     QuestionnaireID = None  # type: ignore[assignment]
 
 
-def _require_eval_code() -> None:
-    if not EVAL_CODE_AVAILABLE:
-        raise RuntimeError(
-            "questionnaires module not available — eval pipeline disabled. "
-            "Ensure Exp3_PTO_GRPO/code/questionnaires.py is reachable on sys.path "
-            "(eda/oracle_scoring/__init__.py prepends the experiment's code/ dir automatically)."
-        )
-
-
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                          ASYNC OPENAI CALL                                 ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝

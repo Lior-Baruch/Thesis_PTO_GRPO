@@ -13,8 +13,6 @@ import os
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
-import matplotlib.pyplot as plt
-import seaborn as sns
 
 from . import WORKSPACE_ROOT
 
@@ -149,14 +147,6 @@ def eval_csv_dir(root: str, oracle: str, metric_subdir: str, model: str) -> str:
     return os.path.join(root, f"metric={metric_subdir}", f"oracle={oracle}", model)
 
 
-def set_plot_style() -> None:
-    """Apply consistent global matplotlib + seaborn styling."""
-    plt.style.use("seaborn-v0_8-whitegrid")
-    sns.set_context("notebook", font_scale=1.1)
-    plt.rcParams["figure.dpi"] = 100
-    plt.rcParams["savefig.dpi"] = 150
-
-
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                             DATACLASSES                                    ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
@@ -181,17 +171,6 @@ class EDAConfig:
     def __post_init__(self):
         if self.eval_base_dir is None:
             self.eval_base_dir = eval_scores_root_for_method(self.method)
-
-
-@dataclass
-class PlotContext:
-    """Bundle of plot defaults (palette, ordering, baseline) used across cells."""
-    model_palette: dict = field(default_factory=dict)
-    experiment_palette: dict = field(default_factory=dict)
-    hue_col: str = "ExperimentGroup"
-    model_order: Optional[list] = None
-    baseline_model: str = "Base"
-    show: bool = True
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
