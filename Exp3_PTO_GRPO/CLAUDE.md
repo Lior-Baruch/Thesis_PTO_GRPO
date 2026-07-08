@@ -249,13 +249,14 @@ Exp3_PTO_GRPO/
 │   ├── 5_Preference.ipynb             [TRAINING] family=5_preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
 │   ├── 6_Stats.ipynb                  [EVAL] family=6_stats — ALL heavy tables: merged main_results (target col) + Friedman + merged vs-base/method/K paired + all-metric slopes + PCA + GRPO iter-9 anomaly check
 │   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes LIST indices 0..5)
-│   ├── eda_analysis/                            Exp3 analysis package (disk-discovery, read-only). 9 analysis modules (+plotting_style helpers, +_selfcheck guard): plumbing merged 14→9 (2026-06-18); figures/plots aliased to plotting
-│   │   ├── __init__.py                  WORKSPACE_ROOT + sys.path + re-exports + QUESTIONNAIRES/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + display_label + submodule aliases (figures/plots→plotting; the data-module aliases discovery/personas/scores/select were retired)
-│   │   ├── config.py                    CONTROL SURFACE: EdaConfig (incl. the VIEW knob) + notebook_setup(cfg)→Setup(ARMS,SCORES,PALETTE,METRICS,ORACLE_NOISE,RESULTS_DIR,VIEW,CFG). view→ks filter + results/<view>/ root. (absorbed notebook.py)
-│   │   ├── data.py                      LOAD+SHAPE: discovery (Arm/discover_arms/filter_arms) + TRUE-persona recovery + scores_long backbone (+Q1Q2/subscales/to_wide/collapse_base/add_derived_mitiprof_rows/select_scores) + all/best selection + PARQUET CACHE (load_cached/set_cache/reset_cache; content-keyed on input CSVs → eda/.eda_cache/, on by default, EDA_NO_CACHE bypass). (merged discovery+personas+scores+select)
+│   ├── eda_analysis/                            Exp3 analysis package (disk-discovery, read-only). Analysis modules on a constants LEAF (+plotting_style helpers, +_selfcheck guard); no import cycle — submodules import the leaf top-level (2026-07-08); figures/plots aliased to plotting
+│   │   ├── constants.py                 THE LEAF (imports nothing from the package): WORKSPACE_ROOT/DATA_DIR + sys.path bootstrap + QUESTIONNAIRES/QUESTIONNAIRE_ORDER/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + DISPLAY_NAMES/ARM_LABELS + display_label/short_label/arm_label + shared RE_AFFIRM
+│   │   ├── __init__.py                  thin re-export hub: constants leaf + every submodule's public names + submodule aliases (figures/plots→plotting; the data-module aliases discovery/personas/scores/select were retired)
+│   │   ├── config.py                    CONTROL SURFACE: EdaConfig (incl. the VIEW knob) + notebook_setup(cfg)→Setup(ARMS,SCORES,PALETTE,METRICS,ORACLE_NOISE,RESULTS_DIR,VIEW,CFG). view→ks filter + results/<view>/ root. view ∈ {all,L0,L5} (L2 removed; re-add is one line in _VIEW_KS). (absorbed notebook.py)
+│   │   ├── data.py                      LOAD+SHAPE: discovery (Arm/discover_arms/filter_arms) + TRUE-persona recovery + scores_long backbone (+Q1Q2/subscales/to_wide/collapse_base/add_derived_mitiprof_rows; iter_conv_rows = THE shared per-conv CSV reader, also used by behavior.py) + all/best selection + PARQUET CACHE (load_cached/set_cache/reset_cache; content-keyed on input CSVs → eda/.eda_cache/, on by default, EDA_NO_CACHE bypass). (merged discovery+personas+scores+select)
 │   │   ├── plotting_style.py            STYLE layer (split out of plotting 2026-07-08): set_style/arm_palette/grid/model_order/apply_score_axis/clean_label/relabel_*/add_base_line/figure_legend_from. Re-imported into plotting so figures.set_style(…) still resolves.
-│   │   ├── plotting.py                  FIGURE layer: named plots (effect_forest/overlay_trajectory/heterogeneity_grid/factor_loadings_bars/leaderboard_scorecard/diverging rubric_correlation_heatmap…) calling plotting_style helpers. (aliased as `figures`/`plots`; self-aliases `figures`)
-│   │   ├── stats.py                     BOTH batteries + Friedman/Kendall-W + main_results_table + paired_method/k_comparison + rubric PCA/corr + rubric_factor_space
+│   │   ├── plotting.py                  FIGURE layer: named plots (effect_forest/trajectory_grid/heterogeneity_grid/factor_loadings_bars/leaderboard_scorecard/diverging rubric_correlation_heatmap…) calling plotting_style helpers. (aliased as `figures`/`plots`; self-aliases `figures`)
+│   │   ├── stats.py                     persona-paired battery + Friedman/Kendall-W + main_results_table + paired_method/k_comparison + rubric PCA/corr + rubric_factor_space
 │   │   ├── behavior.py                  MITI behavior counts (eval) + MICI loader + over-praise cross-check + structural text metrics (semantic regex demoted to lex_* sanity-check)
 │   │   ├── training.py                  generations.jsonl proxy reward + degeneracy scan + pref_pairs + advantage_signal_by_iter / reward_distribution_frame (both methods)
 │   │   ├── pref.py                      PTO pref: margins + embeddings + Mass-Mean-Probe (preference_direction/word_projection/MI category_projection) + pref_word_ranking
@@ -290,7 +291,7 @@ live ONLY at `code/` root — both `eda/oracle_scoring/__init__.py` and `eda/eda
    `L0`=K=0 arms, `L5`=K=5 arms) AND the results root, so artifacts land in
    **`eda/results/<VIEW>/<figures|tables>/<N_family>/`** (per-view `INDEX.md` + a hand-authored
    `SUMMARY.md`). All **auto-discover** every arm via `eda_analysis.discover_arms()` — no registry edit.
-   Point any figure at a subset with `arms=`/`eda_analysis.select_scores(...)`.
+   Point any figure at a subset with `arms=` or a plain pandas slice of `S.SCORES`.
 3. **Regenerate views:** `python render_views.py` renders the **default L0 + L5 views in parallel**
    (one worker per view; `all` is a merged superset, now **opt-in** via `render_views.py all`).
    Within a view the 6 notebooks run sequentially (they share the view's `INDEX.md`/`CAPTIONS.md`).
@@ -555,7 +556,7 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 ## EDA extension points
 
 **New analysis EDA (`eda_analysis/`)** needs **no registry edits** — it auto-discovers arms from disk. Extend
-it in the 9 modules: a new rubric → `eda_analysis/__init__.py::QUESTIONNAIRES` + `data.py` (the scores
+it by concern: a new rubric → `eda_analysis/constants.py::QUESTIONNAIRES` + `data.py` (the scores
 backbone); a new arm naming scheme → `data.py::parse_experiment_name`; new stats → `stats.py`; new figures →
 `plotting.py`; a new VIEW or results-layout change → `config.py` (the `view`/`_VIEW_KS` logic) + `exports.py`.
 (`figures`/`plots` are still aliased to `plotting`; the data-module aliases
