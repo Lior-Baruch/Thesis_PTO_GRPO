@@ -39,8 +39,7 @@ Each experiment directory is **self-contained**: its own `code/`, `eda/`, `data/
 `system_prompts_builder.py` + `questionnaires.py` (versions deliberately diverge across
 experiments). In Exp3 both helpers live once at `code/` root and the EDA package imports them.
 
-Generated data (`data/`) and the pre-refactor snapshot (`archive/`) are **not** tracked in
-git — see [DATA_README.md](DATA_README.md).
+Generated data (`data/`) is **not** tracked in git — see [DATA_README.md](DATA_README.md).
 
 Each directory has its own `CLAUDE.md` with the detailed context for that experiment; the
 root [CLAUDE.md](CLAUDE.md) is the cross-experiment map.
