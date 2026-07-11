@@ -4,6 +4,26 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-08) — EDA hardening + package refactor day (20 commits; entry added retroactively 2026-07-11).**
+**Morning batch (hardening):** new `eda_analysis._selfcheck` regression guard (invariants + known
+headline means + cache round-trip; run after any EDA change); committed notebooks made output-clean
+(`strip_notebook_outputs.py` + `nbstrip` git clean-filter); dead data-module submodule aliases retired
+(`discovery`/`personas`/`scores`/`select` — `figures`/`plots` kept); `plotting.py` split into named
+figures + a `plotting_style` helper sibling (re-imported, public surface unchanged); **parquet cache**
+for `scores_long` + `behavior_by_iter` (roadmap #5 — content-keyed on input CSVs → `eda/.eda_cache/`,
+on by default, `EDA_NO_CACHE`/`EdaConfig(cache=False)` bypass); `meetings/` folder + stale references
+removed; Exp3 CLAUDE.md pruned to a lean current-state doc (851→579 lines, dated narratives moved
+HERE) + a currency pass on root + Exp3 CLAUDE.md. **Afternoon batch (the "Exp3 EDA (1/8)…(8/8)"
+series + neighbors):** dead-code sweep across `eda_analysis` + `oracle_scoring` (incl. stale TRL
+comment fix); **`oracle_scoring/` pruned to ONLY the Run_Eval scoring path** (config/data/eval;
+1279→904 lines — analysis lives in `eda_analysis/`); half-wired L2 view removed (re-add is one line
+in `_VIEW_KS`); `.emb_cache` relocated out of the package source to `eda/.emb_cache/`; **`constants.py`
+leaf extracted** — broke the `__init__`↔submodule import cycle (submodules now import the leaf
+top-level; ~20 deferred in-function imports gone); the 5× duplicated per-conversation CSV loader
+unified (`data.iter_conv_rows`, also used by `behavior.py`); `RE_AFFIRM` shared via the leaf + unused
+notebook imports trimmed; docstring-currency pass; eda README refactored to a pure guide (DRY vs
+CHANGELOG/SUMMARY); L0 + L5 result views fully re-rendered. Data state unchanged (full L0, partial L5).
+
 **Reorg-by-topic pass (2026-07-02).** No special "main" notebook — **topic notebooks ↔ numbered result
 families, 1:1** (notebook number == family number, so any artifact under `results/<view>/` traces to
 its producing notebook). Per-metric catalogs added (9 trajectory curves w/ auto peak-marking under
