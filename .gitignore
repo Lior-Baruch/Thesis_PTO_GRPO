@@ -42,6 +42,9 @@ archive/
 **/outputs/
 wandb/
 
+# === Meeting decks / local presentation artifacts ===
+*.pptx
+
 # === OS / IDE / Claude local ===
 .DS_Store
 Thumbs.db
