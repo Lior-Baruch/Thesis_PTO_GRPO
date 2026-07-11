@@ -17,7 +17,7 @@ This page is the cross-cutting overview.
 | `PTO_LA0`  | 0 | 0–10 | complete |
 | `GRPO_LA0` | 0 | 0–10 | complete (FINISHED) |
 | `PTO_LA5`  | 5 | 0–4  | partial (paused) |
-| `GRPO_LA5` | 5 | base only | thin — dropped from per-arm batteries (<3 iters) |
+| `GRPO_LA5` | 5 | 0–1 | thin — dropped from per-arm batteries (<3 iters) |
 
 Metrics: 5 warmth rubrics (Q1Q2, WAI-SR, CSQ-8, MI-SAT, MITI) + orthogonal axes (PCT, MICI↓,
 R:Q/%CR/%MICO). See [`tables/1_outcomes/leaderboard_scorecard.md`](tables/1_outcomes/leaderboard_scorecard.md)
@@ -40,15 +40,15 @@ See [`figures/1_outcomes/`](figures/1_outcomes/) and
 See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadings.png) and
 [`figures/3_mechanism/behavior_drift.png`](figures/3_mechanism/behavior_drift.png).
 
-- **MI-inconsistent behaviour rises ~2.3–2.5×** as warmth climbs (MICI base 0.21 → 0.49 PTO / 0.84
-  GRPO @ iter 10). **Affirmation drift is in BOTH methods; GRPO is worse late** (B6_AF → 1.98,
+- **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as warmth climbs (MICI base 0.21 →
+  0.49 PTO / 0.84 GRPO @ iter 10). **Affirmation drift is in BOTH methods; GRPO is worse late** (B6_AF → 1.98,
   q/turn → 0.15, R:Q → 1.44 by iter 10 vs PTO B6_AF 1.64, q/turn 0.55).
 - **Adding the orthogonal axes drops PC1 ≈91% → ≈55%** — warmth is one factor, technique + MI-
   inconsistency a second. "All rubrics up" ≠ multi-skill.
 - Patient change-talk rises modestly, more for PTO (PCT 0.49 → 0.63) than GRPO (0.49 → 0.57).
 
 ## 4. Look-ahead (RQ-i, K=0 vs K=5) — preliminary
-`PTO_LA5` reaches 3.00 → 3.89 in 4 iters (dz 0.88); `GRPO_LA5` is base only. No significant
+`PTO_LA5` reaches 3.00 → 3.89 in 4 iters (dz 0.88); `GRPO_LA5` has only 1 scored iter. No significant
 K0-vs-K5 difference yet at matched early iters
 ([`tables/6_stats/k_paired_by_method.md`](tables/6_stats/k_paired_by_method.md)). On reward
 faithfulness, look-ahead helps slightly (LA5 ≥ LA0). **Both LA5 arms are paused for OpenAI-API

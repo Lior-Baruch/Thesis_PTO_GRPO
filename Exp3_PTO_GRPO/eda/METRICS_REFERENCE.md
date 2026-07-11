@@ -41,7 +41,7 @@ whose point of view the oracle adopts.
   variance before the orthogonal axes were added). Moving them all up together is *not* proof of
   multi-skill improvement.
 - **Orthogonal axes** (`ORTHOGONAL_METRICS`) = `PCT, MICI↓, R:Q, %CR, %MICO` (§2). Added specifically
-  to break the warmth halo. Adding them drops PC1 from ≈91% → ≈56% — warmth is one factor, technique +
+  to break the warmth halo. Adding them drops PC1 from ≈91% → ≈55% — warmth is one factor, technique +
   MI-inconsistency form a genuine second.
 
 **MITI globals** (part of ID 7, each 1–5): `MITI1_CultivatingChangeTalk`, `MITI2_SofteningSustainTalk`,
@@ -138,8 +138,9 @@ Two ways to measure "how much is the therapist asking questions", intentionally 
 `plotting.question_rate_crosscheck` overlays them per arm. They should track each other
 (cross-validation). Their **late divergence is itself the finding**: in GRPO's late iterations
 `B3_Q ≈ 4.1` but `q_per_turn ≈ 0.15` — praise-heavy turns still register as "question-function"
-utterances to the coder but no longer carry a literal `?`. (Whether this is a bug or a real
-syntactic-vs-semantic gap is backlog item #3.)
+utterances to the coder but no longer carry a literal `?`. (Audited 2026-07-03: NOT a bug — the merge
+is conv-aligned 96/96 with harmonized denominators; it's a real question-**syntax** vs question-**function**
+gap: late affirmation/advice turns carry question-function without a `?`.)
 
 ---
 
@@ -154,10 +155,10 @@ than doing real MI. These figures/checks are how the EDA exposes it.
 | **Peak-then-regress marking** | `single_metric_trajectory(mark_peaks=True)`, `1_Outcomes` | Auto-draws a vline at any arm's peak iteration *only if it regressed after* — surfaces **GRPO's iter-8 peak (4.08) → iter-10 (3.75)** without hardcoding. PTO climbs stably. |
 | **Affirmation drift** | `behavior_by_iter` / behavior trajectories, `3_Mechanism` | `B6_AF` rises (PTO 0.42→1.64; GRPO 0.52→**1.98** by iter 10) while `B3_Q` falls — confirmed in **both** methods, worse in late GRPO. |
 | **`overpraise_crosscheck`** | `behavior.py` + `3_Mechanism` | Lexical over-praise marker rate beside the oracle's `MICI_OverPraiseRate` — validates the sycophancy direction. |
-| **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per turn rises ~2.3–2.5× as warmth rises (base 0.21 → 0.49 PTO / 0.54 GRPO). |
+| **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per turn rises with warmth: ~2.3× PTO / ~4× GRPO at the iter-10 endpoint (base 0.21 → 0.49 PTO / 0.84 GRPO; GRPO's iter-8 peak was 0.54). |
 | **`subgroup_endpoint_bars`** | `2_Heterogeneity` | Final-iteration score per persona × arm — shows GRPO's late regression **concentrates on Resistant (low-cooperation) personas**. |
 | **`effect_forest`** | `1_Outcomes` | Each arm×rubric Δ-vs-base with 95% CI + `dz`; MICI is direction-colored (a positive Δ is *bad*). Readable stand-in for the 28-row table. |
-| **PCA / `factor_loadings_bars`** | `3_Mechanism` / `6_Stats` | PC1 share drops ≈91% → ≈56% once orthogonal axes are added → warmth is one factor, technique+MICI a genuine second. |
+| **PCA / `factor_loadings_bars`** | `3_Mechanism` / `6_Stats` | PC1 share drops ≈91% → ≈55% once orthogonal axes are added → warmth is one factor, technique+MICI a genuine second. |
 | **`question_rate_crosscheck`** | `3_Mechanism` | (§4) — questions collapsing while warmth rises is part of the same drift. |
 
 ---

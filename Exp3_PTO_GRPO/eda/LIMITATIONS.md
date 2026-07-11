@@ -38,7 +38,7 @@ factor is `MICI ↓` + the MITI ratios (`R:Q`/`%CR`/`%MICO`). Reported as a find
 `3_Mechanism` §3 rather than hidden.
 
 ## 5 · Look-ahead (K=0 vs K=5) is descriptive only
-The LA5 arms are thin (PTO_LA5 = 4 iters, GRPO_LA5 = base only), so every K contrast
+The LA5 arms are thin (PTO_LA5 = 4 scored iters, GRPO_LA5 = 1), so every K contrast
 (`4_Training` §4, `5_Preference` §2, `6_Stats` §4) is **hypothesis-generating, not inferential**
 — banners mark these in-notebook. The confirmatory PTO-vs-GRPO result is at K=0 and is
 unaffected.

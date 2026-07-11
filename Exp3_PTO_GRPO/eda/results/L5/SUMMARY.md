@@ -14,10 +14,10 @@ map is [`INDEX.md`](INDEX.md).*
 | Arm | K | Iters scored | Usable? |
 |---|---|---|---|
 | `PTO_LA5`  | 5 | 0–4 | yes (4 iters — short trajectory) |
-| `GRPO_LA5` | 5 | base only | **no** — dropped from per-arm batteries (<3 iters) |
+| `GRPO_LA5` | 5 | 0–1 | **no** — dropped from per-arm batteries (<3 iters) |
 
 So in practice this view shows the **PTO_LA5** trajectory and very little for GRPO_LA5. PTO-vs-GRPO
-at K=5 is **not yet comparable** (GRPO has only its base).
+at K=5 is **not yet comparable** (GRPO has only base + iter 1).
 
 ## 2. What we can say so far
 See [`figures/1_outcomes/`](figures/1_outcomes/),
@@ -35,15 +35,18 @@ See [`figures/1_outcomes/`](figures/1_outcomes/),
 The K0-vs-K5 contrast needs both K arms, so it lives in the `all` view
 ([`../all/tables/6_stats/k_paired_by_method.md`](../all/tables/6_stats/k_paired_by_method.md)): it shows
 **no significant K0-vs-K5 difference at matched early iterations** for PTO; GRPO can't be compared
-(LA5 base only). The one suggestive signal is on **reward faithfulness** — look-ahead
+(LA5 has only 1 scored iter). The one suggestive signal is on **reward faithfulness** — look-ahead
 appears to make the short training reward slightly more faithful (LA5 ≥ LA0) in the reliability
 curve ([`figures/4_training/`](figures/4_training/)) — but this needs the full K=5 runs to
 confirm.
 
 ## 4. To complete this view
-Resume both K=5 arms (`PTO_LA5` to iter 10, `GRPO_LA5` from base) when budget allows, re-score via
-`Run_Eval.ipynb`, then regenerate with `python render_views.py L5`. The structure here is ready to
-fill — every figure/table will populate once the arms are scored.
+Unscored artifacts already sit on Drive (paused mid-run 2026-06-09/10): PTO_LA5 adapters through
+`iteration_6` + `model_iter_5` conversations; GRPO_LA5 an `iteration_2` adapter. Cheapest first step
+is scoring those before any new training spend. Then resume both K=5 arms (`PTO_LA5` to iter 10,
+`GRPO_LA5` from its iter-2 adapter) when budget allows, re-score via `Run_Eval.ipynb`, and regenerate
+with `python render_views.py L5`. The structure here is ready to fill — every figure/table will
+populate once the arms are scored.
 
 ## 5. Caveats
 - Everything above is over ≤4 iterations for one arm — treat as directional, not conclusive.

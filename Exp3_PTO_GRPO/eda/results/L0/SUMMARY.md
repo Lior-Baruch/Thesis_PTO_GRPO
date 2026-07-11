@@ -52,8 +52,8 @@ See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadi
 [`figures/3_mechanism/rubric_correlation.png`](figures/3_mechanism/rubric_correlation.png), and
 [`tables/1_outcomes/leaderboard_scorecard.md`](tables/1_outcomes/leaderboard_scorecard.md).
 
-- **MI-inconsistent behaviour rises ~2.3–2.5×** as warmth climbs (MICI base 0.21 → 0.49 PTO /
-  0.84 GRPO at iter 10; GRPO's MICI effect is dz 1.72, *large*). The warmth gains are partly
+- **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as warmth climbs (MICI base 0.21 →
+  0.49 PTO / 0.84 GRPO at iter 10; GRPO's MICI effect is dz 1.72, *large*). The warmth gains are partly
   over-praise/advice in **both** methods, **worse in GRPO**.
 - **Adding the orthogonal axes drops PC1 from ≈91% → ≈55%** (per-arm PC1 ≈55–56%). Warmth is one
   factor; technique (R:Q/%CR/%MICO) + MI-inconsistency form a second — so "all rubrics up" is *not*
