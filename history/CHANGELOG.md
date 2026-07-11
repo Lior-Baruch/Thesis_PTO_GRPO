@@ -4,7 +4,19 @@ Dated "Landed (date)…" change history, moved out of the root [CLAUDE.md](../CL
 
 ---
 
-**Landed (2026-07-07, latest) — Exp3 EDA backlog #7 (general review) DONE + judge-prompt fix + honest
+**Landed (2026-07-08, latest) — GRPO LA0 FINISHED + re-scored: the fair-endpoint PTO-vs-GRPO comparison
+is in hand; plus an Exp3 EDA hardening/refactor day.** GRPO LA0 reached the matched 10-iteration
+endpoint and was scored on the full battery: **PTO beats GRPO at matched iter 10 (Q1+Q2 4.26 vs 3.75;
+paired +0.51, dz 0.73, Holm p<0.001)** because GRPO peaks at iter 8 (4.08) then regresses into
+sycophancy (affirmation drift running away: MICI 0.84 at iter 10 vs PTO 0.49), while PTO climbs stably.
+Both LA5 arms remain paused for cost (~$300 OpenAI spend), so RQ-i (K0 vs K5) stays on hold. Same day:
+a 20-commit Exp3 EDA hardening + package-refactor pass (`_selfcheck` guard, parquet cache, `constants.py`
+leaf, plotting/plotting_style split, `oracle_scoring/` pruned to the Run_Eval scoring path, notebooks
+output-clean, CLAUDE.md pruned to a lean current-state doc) — full detail in
+[Exp3_PTO_GRPO/history/CHANGELOG.md](../Exp3_PTO_GRPO/history/CHANGELOG.md). *(Entry added
+retroactively 2026-07-11.)*
+
+**Landed (2026-07-07) — Exp3 EDA backlog #7 (general review) DONE + judge-prompt fix + honest
 advantage signal.** Two commits (`f5e5d63`, `266ceaf`), driven by a 3-reviewer sweep + Lior's handoff
 (verdict: methodology sound, remaining risk is write-up *framing*, not code; excluded: no CoT judge fields,
 no Q1/Q2 edits). **MI-SAT domain bug** — items were hard-coded to "diabetes" but personas are only
