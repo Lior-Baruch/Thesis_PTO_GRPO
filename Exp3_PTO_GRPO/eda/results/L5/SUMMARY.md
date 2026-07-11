@@ -41,12 +41,13 @@ curve ([`figures/4_training/`](figures/4_training/)) — but this needs the full
 confirm.
 
 ## 4. To complete this view
-Unscored artifacts already sit on Drive (paused mid-run 2026-06-09/10): PTO_LA5 adapters through
-`iteration_6` + `model_iter_5` conversations; GRPO_LA5 an `iteration_2` adapter. Cheapest first step
-is scoring those before any new training spend. Then resume both K=5 arms (`PTO_LA5` to iter 10,
-`GRPO_LA5` from its iter-2 adapter) when budget allows, re-score via `Run_Eval.ipynb`, and regenerate
-with `python render_views.py L5`. The structure here is ready to fill — every figure/table will
-populate once the arms are scored.
+The arms paused mid-run (2026-06-09/10): PTO_LA5 has a trained-but-unscored **iter-5 adapter** whose
+eval conversations were never generated (`model_iter_5` is empty; iteration_6 stopped at pref_pairs);
+GRPO_LA5's iteration_2 is incomplete (no adapter). Cheapest first step: a generate-only pass with the
+existing PTO iter-5 adapter (96 convs, no training) + `Run_Eval.ipynb` scoring — a 5th PTO_LA5 point.
+Then resume both K=5 arms (`PTO_LA5` to iter 10, `GRPO_LA5` from iter 1) when budget allows, re-score,
+and regenerate with `python render_views.py L5`. The structure here is ready to fill — every
+figure/table will populate once the arms are scored.
 
 ## 5. Caveats
 - Everything above is over ≤4 iterations for one arm — treat as directional, not conclusive.

@@ -234,7 +234,13 @@ class Arm:
 
 
 def discover_arms(data_dir: str = DATA_DIR, *, include_archived: bool = False) -> List[Arm]:
-    """Discover all Exp3 arms present on disk, newest-data-first within method."""
+    """Discover all Exp3 arms present on disk, newest-data-first within method.
+
+    Empty ``model_iter_*`` dirs (no ``conversation_*.csv``) are skipped — they are
+    in-flight/paused generation leftovers, not data points. Also the source of truth
+    for ``oracle_scoring.config.EXPERIMENTS`` (Run_Eval's scoring registry is
+    auto-generated from this discovery — see ``build_experiments_from_disk``).
+    """
     arms: List[Arm] = []
     for method, mdir in _METHOD_DIRS.items():
         conv_root = os.path.join(data_dir, mdir, "conversations", "full")
@@ -249,12 +255,16 @@ def discover_arms(data_dir: str = DATA_DIR, *, include_archived: bool = False) -
             parsed = parse_experiment_name(exp_name)
             if parsed is None:
                 continue
-            # iter dirs present
+            # iter dirs present — an iter counts only if it actually holds conversations
+            # (a paused run can leave an EMPTY model_iter dir behind, e.g. PTO_LA5 model_iter_5)
             conv_dirs: Dict[int, str] = {}
             for d in glob.glob(os.path.join(exp_path, "model_iter_*")):
                 m = _ITER_RE.search(os.path.basename(d) + "_")
-                if m and os.path.isdir(d):
-                    conv_dirs[int(m.group(1))] = d
+                if not (m and os.path.isdir(d)):
+                    continue
+                if not glob.glob(os.path.join(d, "conversation_*.csv")):
+                    continue
+                conv_dirs[int(m.group(1))] = d
             if not conv_dirs:
                 continue
             runs_dir = os.path.join(data_dir, mdir, "runs", "full", exp_name)
