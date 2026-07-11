@@ -12,8 +12,7 @@ under matched look-ahead + oracle:
   turn of a pre-recorded conv, no feedback). Baked into `EXPERIMENT_NAME`
   (`_PT{greedy|indep}`) so the arms never collide. See the algorithm section below.
 - **GRPO_Exp3** (iterative). Shares `_shared/` with PTO_Exp3. **LA0 finished 10 iters;
-  LA5 = base + iter 1 scored** (iter-2 adapter trained, unscored; paused for cost — see
-  "Run status & next step").
+  LA5 = base + iter 1 scored** (paused for cost — see "Run status & next step").
 
 Reward (training) = **Q1 + Q2 only**, matching the ICLR look-ahead paper.
 Reward (eval) = all six MI questionnaires (Q1, Q2, WAI-SR, CSQ-8, MI-SAT, MITI).
@@ -273,7 +272,7 @@ Exp3_PTO_GRPO/
 │   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md
 │   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
 │   ├── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
-│   └── oracle_scoring/                  LEGACY package — pruned 2026-07-08 to ONLY the Run_Eval scoring path (config EXPERIMENTS registry + eval settings, data conversation-loading, eval async oracle pipeline). Analysis leftovers removed; the analysis lives in eda_analysis/.
+│   └── oracle_scoring/                  LEGACY package — pruned 2026-07-08 to ONLY the Run_Eval scoring path (config EXPERIMENTS registry — AUTO-GENERATED from eda_analysis discover_arms() since 2026-07-11 — + eval settings, data conversation-loading, eval async oracle pipeline). Analysis leftovers removed; the analysis lives in eda_analysis/.
 └── HF_key.txt, openai_key.txt
 ```
 
@@ -291,8 +290,10 @@ live ONLY at `code/` root — both `eda/oracle_scoring/__init__.py` and `eda/eda
 `code/` to `sys.path` so they import the same canonical files. No more drift.
 
 ### New EDA workflow (replaces "add registry entry → Conv_EDA")
-1. **Score** a new run: `Run_Eval.ipynb` still needs a `oracle_scoring/config.py::EXPERIMENTS` entry to know what
-   to grade (this one coupling remains by design). Run it → writes `eval_scores/`.
+1. **Score** a new run: `Run_Eval.ipynb`'s `oracle_scoring/config.py::EXPERIMENTS` registry is
+   **auto-generated at import from `eda_analysis.data.discover_arms()`** (2026-07-11, roadmap #7) —
+   a run is scoreable as soon as its conversations land on disk; empty in-flight `model_iter` dirs are
+   skipped. Run it → writes `eval_scores/`.
 2. **Analyze:** browse `results/<view>/` and open the notebook whose NUMBER matches the family you
    want to change — `1_Outcomes` / `2_Heterogeneity` / `3_Mechanism` / `4_Training_and_Reliability` /
    `5_Preference` / `6_Stats` (topic notebooks ↔ result families, 1:1). Every notebook's cell 1 starts
@@ -422,7 +423,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
 2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
-4. **Score + EDA.** Add a `oracle_scoring/config.py::EXPERIMENTS` entry for the run (Run_Eval scoring only), run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`6`), which **auto-discover** the run (no further registry edits). See "New EDA workflow".
+4. **Score + EDA.** Run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe; its `EXPERIMENTS` registry auto-discovers the run from disk — no registry edit) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`6`), which likewise **auto-discover** it. See "New EDA workflow".
 
 ## Running PTO_Exp3
 
@@ -473,10 +474,12 @@ iters 0-10, **GRPO LA0** iters 0-10 (FINISHED), **PTO LA5** iters 0-4, **GRPO LA
 (see "Eval results so far" above): **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs 3.75)**
 because GRPO peaks @iter 8 (4.08) then regresses into sycophancy.
 
-**Unscored LA5 backlog on Drive** (legitimate, paused mid-run 2026-06-09/10): PTO LA5 adapters exist
-through `iteration_6` with `model_iter_5` convs generated (only I1-I4 scored); GRPO LA5 has an
-`iteration_2` adapter (only I1 scored). Resuming RQ-i can start by scoring these before any new
-training/generation spend.
+**Paused-mid-run LA5 state on Drive** (2026-06-09/10, verified 2026-07-11): PTO LA5 has trained
+adapters for iters 1–5 but only I1–I4 scored — the iter-5 eval convs were **never generated**
+(`model_iter_5` conv dir exists but is empty; `iteration_6/` got only as far as `pref_pairs`, no
+adapter). GRPO LA5 has the scored iter-1 adapter; its `iteration_2/` dir is adapter-less (incomplete).
+Cheapest RQ-i restart: one generate-only pass with the existing PTO iter-5 adapter (96 convs; GPU +
+patient calls, **no training**) + scoring — that buys a 5th PTO_LA5 point before any new training spend.
 
 **Cost is the binding constraint.** OpenAI spend hit **~$300**; **both LA5 arms are PAUSED**, so RQ-i
 (K0 vs K5) is on hold. Cost is proportional to candidate count (`prompts x G` / `branch-points x M`) x
@@ -486,9 +489,9 @@ cap `NUM_ITERATIONS` ~5-6 (curves plateau by iter ~4), drop `M`/`G` 8->4, lower 
 - but keep **K** (the RQ-i variable) and the **gpt-4o-mini oracle** (the measurement instrument) fixed.
 See the `project-openai-cost-constraint` memory.
 
-**Next steps:** (1) resume an LA5 arm to make RQ-i (K0 vs K5) conclusive once budget allows;
-(2) EDA roadmap #7 - auto-generate `Run_Eval`'s `EXPERIMENTS` registry from `discover_arms()` to drop
-the last hand-maintained list.
+**Next steps:** (1) cheapest RQ-i point — generate-only pass with the existing PTO LA5 iter-5 adapter
+(96 convs) + Run_Eval scoring; (2) resume an LA5 arm properly once budget allows. (EDA roadmap #7 —
+the auto-generated `EXPERIMENTS` registry — landed 2026-07-11; the EDA backlog is clear.)
 
 ## Dependency stack — audited 2026-06-01
 
@@ -584,7 +587,7 @@ re-exports.) The bullets below apply to the **old
 
 - **`config.ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `data._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
 - **`config.COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
-- **`config.EXPERIMENTS`** — registry of trained-model data locations. Add new entries as runs land in `data/grpo_Exp3/conversations/...` or `data/pto_Exp3/conversations/...`.
+- **`config.EXPERIMENTS`** — registry of trained-model data locations, **auto-generated at import** by `config.build_experiments_from_disk()` from `eda_analysis.data.discover_arms()` (2026-07-11). New runs are picked up automatically once their conversations land; nothing to edit. (If the Drive symlinks are offline the registry is empty and a warning prints.)
 
 ## Gotchas
 

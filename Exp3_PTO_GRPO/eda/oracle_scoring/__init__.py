@@ -57,9 +57,9 @@ from .config import (  # noqa: E402
     eval_scores_root_for_method, eval_csv_dir,
     # Dataclasses + helpers
     EDAConfig,
-    # Experiment registry
-    Experiment, EXPERIMENTS, get_data_paths, get_model_names,
-    get_model_eval_layout, resolve_paths,
+    # Experiment registry (auto-generated from eda_analysis.data.discover_arms)
+    Experiment, EXPERIMENTS, build_experiments_from_disk, get_data_paths,
+    get_model_names, get_model_eval_layout, resolve_paths,
 )
 
 from .data import (  # noqa: E402
@@ -97,8 +97,8 @@ __all__ = [
     "DATA_DIR", "METHOD_DATA_DIR", "EVAL_QUESTIONNAIRE_DIRS",
     "eval_scores_root_for_method", "eval_csv_dir",
     "EDAConfig",
-    "Experiment", "EXPERIMENTS", "get_data_paths", "get_model_names",
-    "get_model_eval_layout", "resolve_paths",
+    "Experiment", "EXPERIMENTS", "build_experiments_from_disk", "get_data_paths",
+    "get_model_names", "get_model_eval_layout", "resolve_paths",
     # data
     "load_data", "combine_data", "reconstruct_conversation_text",
     "parse_model_metadata", "add_model_metadata_columns",

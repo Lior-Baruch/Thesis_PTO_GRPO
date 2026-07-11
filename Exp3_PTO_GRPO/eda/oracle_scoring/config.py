@@ -1,12 +1,14 @@
 """
 config.py — Constants, palettes, dataclasses, and the experiment registry.
 
-Everything in here is pure data + small helpers — no I/O. Imported by every
-notebook cell that needs styling, paths, or the list of experiments.
+Constants + dataclasses are pure data; the :data:`EXPERIMENTS` registry is
+**auto-generated at import** from ``eda_analysis.data.discover_arms()`` (one disk
+scan — EDA roadmap #7, 2026-07-11), so a freshly-landed run is scoreable by
+Run_Eval with no registry edit.
 
 All paths in :data:`EXPERIMENTS` are stored **relative to the experiment root**
 (the Exp3 folder, where the API keys live). :func:`resolve_paths` joins each
-entry with :data:`lib.WORKSPACE_ROOT` to produce absolute paths.
+entry with :data:`WORKSPACE_ROOT` to produce absolute paths.
 """
 
 import os
@@ -175,75 +177,47 @@ class Experiment:
         return "none" if self.oracle in (None, "Base") else self.oracle
 
 
-# Path roots are experiment-root-relative (the experiment root is the Exp3 dir).
-# (The Exp2 ``_PTO_CONV = data/pto_Exp2/...`` root + its commented baseline entries
-# were removed 2026-06-15 along with the Exp2 archive/data — Exp3-only from here.)
-_GRPO_CONV = "data/grpo_Exp3/conversations"
-_PTO_EXP3_CONV = "data/pto_Exp3/conversations"
+def build_experiments_from_disk() -> List[Experiment]:
+    """Auto-generate the registry from ``eda_analysis.data.discover_arms()``.
 
-EXPERIMENTS: List[Experiment] = [
-    # ── Exp3 iterative runs (one entry per saved model_iter_N) ──────────────────
-    # Pattern per run: the run's EXPERIMENT_NAME folder + per-iter conv subdir
-    # ``model_iter_{N}_TT{temp_t}_TP{temp_p}``. epoch=0 = the base-model rollout
-    # (model_iter_0 → <METHOD>Exp3_LA{K}_Base), epoch=N = the iter-N policy
-    # (model_iter_N → <METHOD>Exp3_LA{K}_I{N}). ``lookahead`` MUST be the run's K so
-    # LA0/LA5 arms get distinct model names + eval_scores folders. The run's _<ORACLE>
-    # token (Q1Q2/WAI/CSQ8/MI_SAT/MITI) must match Experiment(oracle=...).
-    # Only model_iter dirs that exist on disk (with conversations) are listed
-    # (partial/stopped runs):
-    #   On disk 2026-06-10: GRPO LA0 → model_iter_0..5 ; GRPO LA5 → model_iter_0..1 ;
-    #   PTO LA0 → model_iter_0..10 ; PTO LA5 → model_iter_0..4
-    #   (PTO LA5 model_iter_5 dir exists but is empty — iteration in flight).
+    One :class:`Experiment` per ``model_iter_N`` conv dir actually on disk (with
+    conversations — empty in-flight dirs are skipped by discovery), per discovered
+    arm. epoch=0 = the base-model rollout (``model_iter_0`` → ``<METHOD>Exp3_LA{K}_Base``),
+    epoch=N = the iter-N policy (→ ``…_I{N}``). ``lookahead`` = the arm's K, so LA0/LA5
+    (and any future LA2) arms get distinct model names + eval_scores folders; the arm's
+    training-oracle token (Q1Q2/WAI/…) comes from its EXPERIMENT_NAME. Paths are stored
+    experiment-root-relative, matching :func:`resolve_paths`.
 
-    # GRPO_Exp3 LA0 (convs model_iter_0..6)
-    *[
-        Experiment("Base" if n == 0 else "Q1Q2", 0, None,
-                   f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
-                   method="GRPO_Exp3", epoch=n)
-        for n in range(0, 11)
-    ],
-    # GRPO_Exp3 LA5 (convs model_iter_0..1)
-    *[
-        Experiment("Base" if n == 0 else "Q1Q2", 5, None,
-                   f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
-                   method="GRPO_Exp3", epoch=n)
-        for n in range(0, 2)
-    ],
+    This replaced the hand-maintained list (2026-07-11, EDA roadmap #7): a new run is
+    picked up by Run_Eval as soon as its conversations land — no registry edit. If the
+    Drive symlinks are offline, discovery finds nothing and the registry is empty
+    (a warning is printed at import).
+    """
+    import sys
+    _eda_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    if _eda_dir not in sys.path:
+        sys.path.insert(0, _eda_dir)
+    from eda_analysis.data import discover_arms  # sibling package under eda/
 
-    # PTO_Exp3 LA0 greedy (convs model_iter_0..10).
-    *[
-        Experiment("Base" if n == 0 else "Q1Q2", 0, None,
-                   f"{_PTO_EXP3_CONV}/full/PTO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_M8_PTgreedy/model_iter_{n}_TT0.9_TP0.7",
-                   method="PTO_Exp3", epoch=n)
-        for n in range(0, 11)
-    ],
-    # PTO_Exp3 LA5 greedy (convs model_iter_0..4; iter_5 in flight)
-    *[
-        Experiment("Base" if n == 0 else "Q1Q2", 5, None,
-                   f"{_PTO_EXP3_CONV}/full/PTO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_M8_PTgreedy/model_iter_{n}_TT0.9_TP0.7",
-                   method="PTO_Exp3", epoch=n)
-        for n in range(0, 5)
-    ],
+    exps: List[Experiment] = []
+    for arm in sorted(discover_arms(), key=lambda a: (a.method, a.K)):
+        method = f"{arm.method}_Exp3"
+        for k in arm.iters:
+            exps.append(Experiment(
+                oracle="Base" if k == 0 else arm.oracle,
+                lookahead=arm.K,
+                version=None,
+                path=os.path.relpath(arm.conv_dirs[k], WORKSPACE_ROOT),
+                method=method,
+                epoch=k,
+            ))
+    return exps
 
-    # ── K=2 look-ahead arms (RQ-i; launched 2026-06-18) — PRE-STAGED, COMMENTED ──
-    # The LA2 runs are not on disk yet. Per the on-disk-only convention above, keep
-    # these commented until the Colab runs land, then UNCOMMENT and set range(0, N+1)
-    # to the model_iter dirs actually present (target N=10 for both, matching LA0).
-    # GRPO_Exp3 LA2:
-    # *[
-    #     Experiment("Base" if n == 0 else "Q1Q2", 2, None,
-    #                f"{_GRPO_CONV}/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA2_MCL12_G8/model_iter_{n}_TT0.9_TP0.7",
-    #                method="GRPO_Exp3", epoch=n)
-    #     for n in range(0, 11)
-    # ],
-    # PTO_Exp3 LA2 greedy:
-    # *[
-    #     Experiment("Base" if n == 0 else "Q1Q2", 2, None,
-    #                f"{_PTO_EXP3_CONV}/full/PTO_Iterative_Q1Q2_Llama32-1B_LA2_MCL12_M8_PTgreedy/model_iter_{n}_TT0.9_TP0.7",
-    #                method="PTO_Exp3", epoch=n)
-    #     for n in range(0, 11)
-    # ],
-]
+
+EXPERIMENTS: List[Experiment] = build_experiments_from_disk()
+if not EXPERIMENTS:
+    print("[oracle_scoring.config] WARNING: discover_arms() found no runs on disk — "
+          "EXPERIMENTS is empty (are the data/ Drive symlinks mounted?)")
 
 
 def get_data_paths(experiments: Optional[List[Experiment]] = None) -> List[str]:

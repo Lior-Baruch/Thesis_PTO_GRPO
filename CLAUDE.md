@@ -77,8 +77,8 @@ Thesis_PTO_GRPO/
 **Run status + cost constraint (updated 2026-07-08).** PTO LA0 = 10 iters; **GRPO LA0 = 10 iters (FINISHED, re-scored)**
 — the fair-endpoint PTO-vs-GRPO comparison is now in hand: **PTO wins at the matched 10-iter endpoint
 (4.26 vs 3.75) because GRPO peaks at iter 8 (4.08) then regresses into sycophancy; see results below.**
-**Both LA5 arms remain PAUSED/thin** (PTO LA5: I1–I4 scored, iters 5–6 trained + `model_iter_5` convs generated but unscored;
-GRPO LA5: I1 trained AND fully scored, iter-2 adapter trained but unscored) — OpenAI API spend hit **~$300** and is a
+**Both LA5 arms remain PAUSED/thin** (PTO LA5: I1–I4 scored + an unscored iter-5 adapter whose eval
+convs were never generated; GRPO LA5: I1 trained AND fully scored) — OpenAI API spend hit **~$300** and is a
 binding constraint, so RQ-i (K0 vs K5) is on hold. Cost is dominated by oracle scoring + (at K=5)
 look-ahead patient calls, both ∝ candidate count (`prompts×G` / `branch-points×M`) × iterations;
 prompt caching is already maxed (~50% off the oracle's fixed prefix), so the only lever is call

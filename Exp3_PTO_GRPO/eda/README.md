@@ -99,9 +99,10 @@ resolved view; `S.RESULTS_DIR` is the view dir; `S.ARMS / S.SCORES / S.PALETTE /
 S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="best")`.
 
 ## Run order
-1. **`Run_Eval.ipynb`** — async oracle scoring → `data/<method>/eval_scores/`. Registry-driven: add a
-   `oracle_scoring/config.py::EXPERIMENTS` entry per new run. Resume-safe. Score **PCT** + **MICI** with
-   `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
+1. **`Run_Eval.ipynb`** — async oracle scoring → `data/<method>/eval_scores/`. The
+   `oracle_scoring/config.py::EXPERIMENTS` registry is **auto-generated from `discover_arms()`**
+   (2026-07-11, roadmap #7) — a new run is scoreable as soon as its conversations land; no registry
+   edit. Resume-safe. Score **PCT** + **MICI** with `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
 2. **`1_Outcomes.ipynb`** → **`6_Stats.ipynb`** in any order (the notebook↔family table above says
    what lives where). Every notebook auto-discovers arms from disk via `eda_analysis.discover_arms()`
    (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
@@ -156,13 +157,14 @@ in-function imports are gone; only genuinely cross-module ones remain deferred).
 
 Two packages, by purpose: **`eda_analysis/`** = the analysis layer (notebooks `1`–`6`, disk-discovery,
 no registry) and **`oracle_scoring/`** = the legacy package, **pruned (2026-07-08) to ONLY the
-`Run_Eval.ipynb` scoring path** (config `EXPERIMENTS` registry + eval settings, conversation loading,
-the async oracle pipeline). Its old analysis/persona-join code was removed — persona recovery lives in
+`Run_Eval.ipynb` scoring path** (config `EXPERIMENTS` registry — since 2026-07-11 auto-generated from
+`eda_analysis.data.discover_arms()` — + eval settings, conversation loading, the async oracle
+pipeline). Its old analysis/persona-join code was removed — persona recovery lives in
 `eda_analysis` (`data.attach_personas`, which replays the per-iter shuffle correctly).
 
 ## Adding a new run
-Train → it writes `conversations/full/<EXP>/model_iter_*` → add an `EXPERIMENTS` entry → `Run_Eval` →
-the notebooks pick it up automatically (re-run `python render_views.py`).
+Train → it writes `conversations/full/<EXP>/model_iter_*` → `Run_Eval` (the registry auto-discovers
+the run) → the notebooks pick it up automatically (re-run `python render_views.py`).
 
 ## Results
 Headline: **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs GRPO 3.75)** — GRPO peaks @ iter 8
@@ -174,7 +176,8 @@ narrative + numbers live in **`results/<view>/SUMMARY.md`** (L0 is the primary r
 not duplicated here so they can't drift.
 
 ## Roadmap
-Dated pass history (2026-06-09 → 2026-07-08) is in [history/CHANGELOG.md](../history/CHANGELOG.md). One
-item remains: **auto-generate `Run_Eval`'s `EXPERIMENTS` registry from `discover_arms()`** — removes the
-last hand-maintained list (the main reason `oracle_scoring/` stays a separate package) and could let
-scoring fold into `eda_analysis/`; `discover_arms` could also skip empty `model_iter` dirs.
+Dated pass history (2026-06-09 → 2026-07-11) is in [history/CHANGELOG.md](../history/CHANGELOG.md).
+The backlog is clear — the last item (**auto-generate `Run_Eval`'s `EXPERIMENTS` registry from
+`discover_arms()`**, incl. skipping empty `model_iter` dirs) landed 2026-07-11. Optional future step:
+fold scoring into `eda_analysis/` entirely (the registry was the main reason `oracle_scoring/` stayed
+a separate package).

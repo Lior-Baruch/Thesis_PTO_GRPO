@@ -4,7 +4,19 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
-**Landed (2026-07-08) — EDA hardening + package refactor day (20 commits; entry added retroactively 2026-07-11).**
+**Landed (2026-07-11) — roadmap #7 DONE: Run_Eval's `EXPERIMENTS` registry auto-generated from
+`discover_arms()`; EDA backlog now clear.** `oracle_scoring/config.py` builds the registry at import
+via `build_experiments_from_disk()` — one entry per `model_iter_N` conv dir per discovered arm, paths
+experiment-root-relative, warning if discovery finds nothing (Drive symlinks offline). The
+hand-maintained list (and the pre-staged commented LA2 block) is gone; a new run is scoreable as soon
+as its conversations land. `discover_arms()` now also **skips empty `model_iter` dirs** (no
+`conversation_*.csv`) — in-flight/paused generation leftovers are not data points. Verified: the
+auto-registry reproduces the exact 29 known model states (and correctly EXCLUDES `PTOExp3_LA5_I5` —
+`model_iter_5` is an empty paused-mid-generation dir, which the old hand-list's "in flight" comment
+knew but 2026-07-11's doc audit initially mis-read as scoreable data); `_selfcheck` 9/9 (known means
+reproduce). Same session: docs corrected on the true LA5 pause state (PTO adapters 1–5 trained /
+I1–I4 scored / iter-5 eval convs never generated / iteration_6 stopped at pref_pairs; GRPO iteration_2
+adapter-less) — folder presence ≠ data.
 **Morning batch (hardening):** new `eda_analysis._selfcheck` regression guard (invariants + known
 headline means + cache round-trip; run after any EDA change); committed notebooks made output-clean
 (`strip_notebook_outputs.py` + `nbstrip` git clean-filter); dead data-module submodule aliases retired
