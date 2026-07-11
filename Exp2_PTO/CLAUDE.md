@@ -10,7 +10,7 @@ EDA verified end-to-end: 4,512 convs / 47 models / 9 experiment groups.
 ## Setup
 | Role | Model |
 |---|---|
-| Therapist | Llama-3.2-1B (4-bit NF4 + LoRA via DPO) — same base as Exp3, but Exp3 generates convs in bf16 |
+| Therapist | Llama-3.2-1B (4-bit NF4 + LoRA via DPO) — quantization matters for score comparability; see the root CLAUDE.md data-lineage warning |
 | Patient simulator | `gpt-4o-mini-2024-07-18` |
 | Oracle (evaluator) | `gpt-4o-mini-2024-07-18` |
 

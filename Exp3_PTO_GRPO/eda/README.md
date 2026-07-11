@@ -149,6 +149,8 @@ in-function imports are gone; only genuinely cross-module ones remain deferred).
 - **`exports`** — `save_fig` (PNG) / `save_table` (MD+XLSX) → `results/<view>/<group>/`;
   `set_view` / `set_export_group` / `set_formats` / `save_provenance` / `build_index` /
   `reset_results` (clears the active view's figures/tables; **preserves `SUMMARY.md`**).
+- **`_selfcheck`** — the guard: package invariants + known headline means + cache round-trip.
+  Run `python -m eda_analysis._selfcheck` after any EDA change.
 - **`__init__`** — thin re-export hub: re-exports the `constants` leaf + every submodule's public
   names, and the `figures`/`plots` → `plotting` aliases. No definitions of its own.
 
@@ -165,7 +167,8 @@ the notebooks pick it up automatically (re-run `python render_views.py`).
 ## Results
 Headline: **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs GRPO 3.75)** — GRPO peaks @ iter 8
 (4.08) then regresses into sycophancy; the orthogonal axes (PCT/MICI/R:Q/%CR/%MICO) show the warmth
-gains come *with* a ~2.3× rise in MI-inconsistency in both methods (PC1 drops ≈91%→≈56%). The full
+gains come *with* a rise in MI-inconsistency in both methods, ~2.3× PTO / ~4× GRPO at the endpoint
+(PC1 drops ≈91%→≈55%). The full
 narrative + numbers live in **`results/<view>/SUMMARY.md`** (L0 is the primary read), the Exp3
 [CLAUDE.md](../CLAUDE.md) "Eval results so far" section, and the `project-pto-la0-eval-results` memory —
 not duplicated here so they can't drift.

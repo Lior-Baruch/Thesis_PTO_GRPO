@@ -24,7 +24,7 @@ Three controlled comparisons, all live in Exp3:
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | all 6 questionnaires |
 | **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` analysis package + notebooks `1_Outcomes`–`6_Stats`; `oracle_scoring/` kept only for `Run_Eval` scoring; per-generation `iteration_N/eda/generations.jsonl` |
-| **Convs / models** | (paper figures) | 4,512 / 47 | 2,784 / 30 (PTO+GRPO LA0 to iter 10 + partial LA5) |
+| **Convs / models** | (paper figures) | 4,512 / 47 | 2,784 / 29 (PTO+GRPO LA0 to iter 10 + partial LA5: PTO I1–4, GRPO I1) |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
@@ -58,8 +58,9 @@ trainer wrapping).
 ```
 Thesis_PTO_GRPO/
 ├── CLAUDE.md                   (this file)
+├── README.md, DATA_README.md, LICENSE
 ├── Exp{1,2,3}_*/CLAUDE.md      per-experiment context
-├── archive/                    historical artifacts; do not extend
+├── history/CHANGELOG.md        dated "Landed …" change history (root-level)
 ├── HF_key.txt, openai_key.txt  duplicated per-experiment-dir, not at root
 ├── requirements.txt, gen_requirements.py
 └── .venv/                      Python 3.13 env
@@ -76,7 +77,8 @@ Thesis_PTO_GRPO/
 **Run status + cost constraint (updated 2026-07-08).** PTO LA0 = 10 iters; **GRPO LA0 = 10 iters (FINISHED, re-scored)**
 — the fair-endpoint PTO-vs-GRPO comparison is now in hand: **PTO wins at the matched 10-iter endpoint
 (4.26 vs 3.75) because GRPO peaks at iter 8 (4.08) then regresses into sycophancy; see results below.**
-**Both LA5 arms remain PAUSED/thin** (PTO LA5 4 iters, GRPO LA5 base only) — OpenAI API spend hit **~$300** and is a
+**Both LA5 arms remain PAUSED/thin** (PTO LA5: I1–I4 scored, iters 5–6 trained + `model_iter_5` convs generated but unscored;
+GRPO LA5: I1 trained AND fully scored, iter-2 adapter trained but unscored) — OpenAI API spend hit **~$300** and is a
 binding constraint, so RQ-i (K0 vs K5) is on hold. Cost is dominated by oracle scoring + (at K=5)
 look-ahead patient calls, both ∝ candidate count (`prompts×G` / `branch-points×M`) × iterations;
 prompt caching is already maxed (~50% off the oracle's fixed prefix), so the only lever is call
