@@ -13,10 +13,12 @@ view, which is still thin.)
 ## 1. What this view covers
 - **Arms:** `PTO_LA0` (pref-tree → DPO) and `GRPO_LA0` (group-relative), both K=0, MCL=12, oracle =
   Q1+Q2, 10 training iterations + base.
-- **Metrics:** the 5 warmth/alliance rubrics (Q1Q2, WAI-SR, CSQ-8, MI-SAT, MITI) **plus** the
-  orthogonal axes added to break the warmth halo — `PCT` (patient change-talk), `MICI` (MI-
-  inconsistent therapist behaviour, **lower = better**), and the free derived MITI-proficiency
-  ratios `R:Q` / `%CR` / `%MICO`.
+- **Metrics:** the 5 **global-evaluation rubrics** (Q1Q2, WAI-SR, CSQ-8, MI-SAT, MITI) — an
+  *empirical* halo cluster (they co-load on one PC1 factor), not one official construct; per-
+  instrument provenance incl. the CLPsych-2024 Q1/Q2 source is in
+  [`METRICS_REFERENCE.md`](../../METRICS_REFERENCE.md) §1 — **plus** the orthogonal axes added
+  to break that halo — `PCT` (patient change-talk), `MICI` (MI-inconsistent therapist behaviour,
+  **lower = better**), and the free derived MITI-proficiency ratios `R:Q` / `%CR` / `%MICO`.
 
 ## 2. Headline — both arms improve a lot, but PTO is stronger *and* more stable
 See [`figures/1_outcomes/outcomes_by_model.png`](figures/1_outcomes/outcomes_by_model.png),
@@ -24,9 +26,9 @@ See [`figures/1_outcomes/outcomes_by_model.png`](figures/1_outcomes/outcomes_by_
 [`figures/1_outcomes/trajectories/trajectory_Q1Q2.png`](figures/1_outcomes/trajectories/trajectory_Q1Q2.png), and
 [`tables/6_stats/main_results.md`](tables/6_stats/main_results.md).
 
-- **Each arm vs base — large warmth gains.** PTO_LA0 Q1+Q2 **3.00 → 4.26** (dz 1.43, *large*,
+- **Each arm vs base — large global-evaluation gains.** PTO_LA0 Q1+Q2 **3.00 → 4.26** (dz 1.43, *large*,
   Holm p≈0, Friedman W=0.45). GRPO_LA0 Q1+Q2 **3.07 → 4.08 at its iter-8 peak**, falling to **3.75
-  by iter 10** (final dz 0.72 *medium*, best dz 1.22). Every warmth rubric is a *large* effect for
+  by iter 10** (final dz 0.72 *medium*, best dz 1.22). Every global-evaluation rubric is a *large* effect for
   PTO; Holm p≈0 everywhere.
 - **PTO ahead at the matched 10-iter endpoint.** Paired PTO−GRPO at iter 10: **Q1+Q2 +0.51**
   (dz +0.73, Holm p<0.001), with MITI, MI-SAT, PCT and the Q1/Q2 components all favouring PTO — see
@@ -52,12 +54,13 @@ See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadi
 [`figures/3_mechanism/rubric_correlation.png`](figures/3_mechanism/rubric_correlation.png), and
 [`tables/1_outcomes/leaderboard_scorecard.md`](tables/1_outcomes/leaderboard_scorecard.md).
 
-- **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as warmth climbs (MICI base 0.21 →
-  0.49 PTO / 0.84 GRPO at iter 10; GRPO's MICI effect is dz 1.72, *large*). The warmth gains are partly
-  over-praise/advice in **both** methods, **worse in GRPO**.
-- **Adding the orthogonal axes drops PC1 from ≈91% → ≈55%** (per-arm PC1 ≈55–56%). Warmth is one
-  factor; technique (R:Q/%CR/%MICO) + MI-inconsistency form a second — so "all rubrics up" is *not*
-  multi-skill. PCT partly co-moves with warmth (loads ~0.39 on PC1).
+- **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as the global-evaluation scores climb
+  (MICI base 0.21 → 0.49 PTO / 0.84 GRPO at iter 10; GRPO's MICI effect is dz 1.72, *large*). The
+  gains are partly over-praise/advice in **both** methods, **worse in GRPO**.
+- **Adding the orthogonal axes drops PC1 from ≈91% → ≈55%** (per-arm PC1 ≈55–56%). Global
+  evaluation (the halo) is one factor; technique (R:Q/%CR/%MICO) + MI-inconsistency form a second —
+  so "all rubrics up" is *not* multi-skill. PCT partly co-moves with the halo factor (loads ~0.39
+  on PC1).
 - **Patient change-talk (PCT) rises modestly**, more for PTO (0.49 → 0.63, *medium*) than GRPO
   (0.49 → 0.57, *small*).
 
@@ -73,6 +76,22 @@ behaviour table [`tables/3_mechanism/behavior_by_iter.md`](tables/3_mechanism/be
   MI-inconsistent (**MICI 0.84 vs 0.49**). A lexical praise-word count (the demoted sanity-check)
   puts GRPO at **~3.5× PTO's praise rate**. The iter-10 eval regression *is* this over-praise
   reward-hack, which the full-conversation oracle penalises; GRPO falls into it harder.
+- **Absolute anchor — official MITI 4.2.1 competency thresholds**
+  ([`figures/3_mechanism/miti_proficiency_thresholds.png`](figures/3_mechanism/miti_proficiency_thresholds.png),
+  [`tables/3_mechanism/miti_threshold_verdicts.md`](tables/3_mechanism/miti_threshold_verdicts.md)):
+  training takes both arms from *below basic competence* to **fair-to-good on the global ratings**
+  (Relational crosses "good": PTO 4.61, GRPO 4.20) — but **neither arm reaches "good" on the
+  technique ratios** (%CR PTO 0.36✗ / GRPO 0.41 fair; R:Q PTO 0.75✗), and GRPO's iter-10 R:Q
+  1.43 "fair" is the *pathological* route (the question collapse shrinks the denominator).
+  Thresholds are the manual's expert opinion and defined for 20-min human sessions — an anchor,
+  not a certification.
+- **Reward composition — which Q2 items the optimizer exploits**
+  ([`figures/3_mechanism/q2_item_drivers.png`](figures/3_mechanism/q2_item_drivers.png),
+  [`tables/3_mechanism/q2_item_deltas.md`](tables/3_mechanism/q2_item_deltas.md)): the top
+  endpoint-Δ Q2 item in **both** arms is *"revealed what he was thinking"* (self-disclosure), with
+  "put himself in my shoes" and "took charge" close behind — the Q1+Q2 reward's own composition
+  (items 1/2/3/10 reward therapist self-disclosure, which MI does not prescribe) incentivizes the
+  emotive drift, i.e. the hack traces to specific reward components, not only to the optimizer.
 - Both arms kill the early degeneration loops (loop% 0.49 → 0); the leak/empty health gate stays
   clean (see [`figures/4_training/`](figures/4_training/)).
 

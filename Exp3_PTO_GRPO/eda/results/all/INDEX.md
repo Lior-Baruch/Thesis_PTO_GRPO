@@ -54,22 +54,47 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 ### 3_mechanism
 - `behavior_drift.png`
 - `factor_loadings.png`
+- `mici_behavior_detail.png`
+- `miti_proficiency_thresholds.png`
 - `overpraise_crosscheck.png`
+- `pct_patient_detail.png`
+- `q2_item_drivers.png`
+- `q2_item_group_trajectories.png`
 - `question_rate_crosscheck.png`
 - `reward_hack_panel.png`
 - `rubric_correlation.png`
 - `subscale_trajectories.png`
 
 ### 3_mechanism/behavior
+- `B1_GI_per_turn.png`
 - `B2_Persuade_per_turn.png`
 - `B3_Q_per_turn.png`
 - `B4_SR_per_turn.png`
 - `B5_CR_per_turn.png`
 - `B6_AF_per_turn.png`
+- `B7_Seek_per_turn.png`
 - `Empathy.png`
 - `RtoQ.png`
 - `loop.png`
 - `q_per_turn.png`
+
+### 3_mechanism/mici
+- `MICI_AdviseNoPermission_rate.png`
+- `MICI_Confront_rate.png`
+- `MICI_Direct_rate.png`
+- `MICI_Judge_rate.png`
+- `MICI_OverPraise_rate.png`
+- `MICI_Severity.png`
+- `MICI_Warn_rate.png`
+
+### 3_mechanism/pct
+- `PCT_ChangeProp.png`
+- `PCT_ChangeTalk_prop.png`
+- `PCT_Confidence.png`
+- `PCT_Importance.png`
+- `PCT_Neutral_prop.png`
+- `PCT_Readiness.png`
+- `PCT_SustainTalk_prop.png`
 
 ### 3_mechanism/subscales
 - `MITI.png`
@@ -107,6 +132,10 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 
 ### 3_mechanism
 - `behavior_by_iter.md`
+- `mici_behavior_by_iter.md`
+- `miti_threshold_verdicts.md`
+- `pct_patient_by_iter.md`
+- `q2_item_deltas.md`
 
 ### 5_preference
 - `PTO_LA0_pref_MI_concepts.md`

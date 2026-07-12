@@ -27,6 +27,7 @@ import seaborn as sns
 
 from .constants import (
     QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, ORTHOGONAL_METRICS, LOWER_IS_BETTER,
+    MITI_THRESHOLDS, Q2_ITEM_SHORT, Q2_ITEM_GROUP_OF, Q2_ITEM_GROUPS,
     display_label, short_label, arm_label,
 )
 # Style/scaffold helpers now live in plotting_style; re-import them so this module (and its
@@ -201,7 +202,7 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
 
 
 # ── Trajectories ─────────────────────────────────────────────────────────────
-_SHARED_FACTOR_CAVEAT = ("The 9 metrics share one dominant warmth/satisfaction factor (PC1≈55%; "
+_SHARED_FACTOR_CAVEAT = ("The 9 metrics share one dominant global-evaluation (halo) factor (PC1≈55%; "
                          "technique + MI-inconsistency load a second factor, PC2≈16%), so a uniform "
                          "rise partly reflects one axis, not independent multi-skill gains.")
 
@@ -293,13 +294,14 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
 def reward_hack_panel(scores_long, *, arms: Sequence[str], palette=None,
                       warmth_metric: str = "Q1Q2",
                       right_metrics: Sequence[str] = ("MICI", "PCT")):
-    """The reward-hack in ONE frame: warmth climbs while the orthogonal axes reveal the cost.
+    """The reward-hack in ONE frame: the reward proxy climbs while the orthogonal axes reveal the cost.
 
-    One panel per arm with twin y-axes. LEFT (1–5): the warmth reward proxy (``warmth_metric``,
-    solid grey). RIGHT (0–1): each of ``right_metrics`` — ``MICI`` (MI-inconsistency, dashed, red =
-    worse) and ``PCT`` (patient change-talk, dotted, green = the real MI goal). Reads at a glance:
-    warmth **and** MI-inconsistency rise together while patient change-talk barely moves — so "all
-    rubrics up" is NOT multi-skill. Per-iteration means (no CI band, to keep the twin axis legible).
+    One panel per arm with twin y-axes. LEFT (1–5): the global-eval reward proxy (``warmth_metric``
+    — historical param name, kept for API stability; solid grey). RIGHT (0–1): each of
+    ``right_metrics`` — ``MICI`` (MI-inconsistency, dashed, red = worse) and ``PCT`` (patient
+    change-talk, dotted, green = the real MI goal). Reads at a glance: the reward proxy **and**
+    MI-inconsistency rise together while patient change-talk barely moves — so "all rubrics up" is
+    NOT multi-skill. Per-iteration means (no CI band, to keep the twin axis legible).
     Returns ``None`` if no requested arm is present.
     """
     arms = [a for a in arms if a in set(scores_long.arm.unique())]
@@ -328,11 +330,11 @@ def reward_hack_panel(scores_long, *, arms: Sequence[str], palette=None,
         h1, l1 = ax.get_legend_handles_labels()
         h2, l2 = axr.get_legend_handles_labels()
         ax.legend(h1 + h2, l1 + l2, fontsize=7, loc="upper left", framealpha=0.9)
-    fig.suptitle("Reward-hacking: warmth ↑ and MI-inconsistency ↑ together, "
+    fig.suptitle("Reward-hacking: global-eval reward ↑ and MI-inconsistency ↑ together, "
                  "patient change-talk ~flat", y=1.03, fontweight="bold")
-    fig.text(0.5, -0.02, "Left axis = warmth reward proxy (higher = better). Right axis: "
-             "MI-Inconsistency (red, higher = worse) · Patient Change-Talk (green, higher = better "
-             "— the actual MI goal).", ha="center", va="top", fontsize=7.5, style="italic",
+    fig.text(0.5, -0.02, "Left axis = the Q1+Q2 reward proxy (global evaluation; higher = better). "
+             "Right axis: MI-Inconsistency (red, higher = worse) · Patient Change-Talk (green, higher "
+             "= better — the actual MI goal).", ha="center", va="top", fontsize=7.5, style="italic",
              color="#444444", wrap=True)
     fig.tight_layout()
     return fig
@@ -522,8 +524,8 @@ def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] 
 
     Diverging ``[-1, 1]`` colormap so a genuinely ORTHOGONAL or anti-correlated axis (e.g. the
     lower-is-better ``MICI``) shows as white/blue instead of being clipped to 0 — the whole point
-    of adding the new axes is to see them NOT block-correlate with the warmth rubrics. Labels are
-    sign-flagged via :func:`display_label` (lower-is-better metrics get a trailing ↓).
+    of adding the new axes is to see them NOT block-correlate with the global-eval (halo) rubrics.
+    Labels are sign-flagged via :func:`display_label` (lower-is-better metrics get a trailing ↓).
     """
     from . import stats
     corr = stats.rubric_correlation(scores_long, metrics=metrics, method=corr_method)
@@ -533,14 +535,15 @@ def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] 
     sns.heatmap(corr, annot=True, fmt=".2f", vmin=-1, vmax=1, center=0, cmap="vlag",
                 square=True, xticklabels=labels, yticklabels=labels,
                 cbar_kws={"label": f"{corr_method.title()} ρ"}, ax=ax)
-    # Family divider: the warmth rubrics (top-left block) should intercorrelate while the orthogonal
-    # axes sit apart — draw a heavy separator where warmth ends + name the two blocks so the
-    # two-factor structure reads at a glance (metrics arrive warmth-first, see WARMTH+ORTHOGONAL order).
+    # Family divider: the global-eval (halo) rubrics (top-left block) should intercorrelate while the
+    # orthogonal axes sit apart — draw a heavy separator where the halo block ends + name the two
+    # blocks so the two-factor structure reads at a glance (metrics arrive halo-first, see
+    # WARMTH+ORTHOGONAL order — WARMTH_RUBRICS is the historical code name for this cluster).
     n_warm = sum(1 for m in cols if m in set(WARMTH_RUBRICS))
     if 0 < n_warm < len(cols):
         for line in (ax.axhline, ax.axvline):
             line(n_warm, color="#222222", lw=2.0)
-        ax.text(n_warm / 2, -0.35, "Warmth (one factor)", ha="center", va="bottom",
+        ax.text(n_warm / 2, -0.35, "Global-eval halo (one factor)", ha="center", va="bottom",
                 fontsize=8.5, fontweight="bold", color="#0072B2", clip_on=False)
         ax.text((n_warm + len(cols)) / 2, -0.35, "Orthogonal axes", ha="center", va="bottom",
                 fontsize=8.5, fontweight="bold", color="#D55E00", clip_on=False)
@@ -551,13 +554,13 @@ def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] 
 
 def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None,
                          components: Sequence[str] = ("PC1",)):
-    """How much each metric belongs to the dominant 'warmth' factor — a readable loadings bar chart.
+    """How much each metric belongs to the dominant global-eval (halo) factor — a loadings bar chart.
 
     Standardized PCA over the (expanded) metric set; plots each metric's **loading** (correlation
-    with the factor) on PC1 (and PC2 if requested) as a horizontal bar, blue for the 5 warmth rubrics
-    and orange for the orthogonal axes. Reads in one glance: the warmth rubrics all load high on PC1
-    (≈0.44 each — one shared factor), while R:Q/%CR/%MICO/PCT/MICI load ≈0 on PC1 (they are NOT on
-    the warmth factor). Replaces the hard-to-read PC1×PC2 biplot. ``None`` if PCA can't be fit.
+    with the factor) on PC1 (and PC2 if requested) as a horizontal bar, blue for the 5 global-eval
+    rubrics and orange for the orthogonal axes. Reads in one glance: the global-eval rubrics all load
+    high on PC1 (≈0.44 each — one shared halo factor), while R:Q/%CR/%MICO/MICI load ≈0 on PC1 (they
+    are NOT on the halo factor). Replaces the hard-to-read PC1×PC2 biplot. ``None`` if PCA can't be fit.
     """
     from . import stats
     fs = stats.rubric_factor_space(scores_long, metrics=metrics)
@@ -578,9 +581,10 @@ def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None
         ax.set_yticks(y); ax.set_yticklabels([display_label(m) for m in order], fontsize=8.5)
         ax.axvline(0, color="#888888", lw=0.8)
         ax.set_xlabel(f"loading on {comp} ({evr[comp_idx[comp]]:.0%} of variance)")
-        ax.set_title({"PC1": "Dominant 'warmth' factor", "PC2": "Second factor"}.get(comp, comp))
+        ax.set_title({"PC1": "Dominant global-eval (halo) factor",
+                      "PC2": "Second factor"}.get(comp, comp))
     from matplotlib.patches import Patch
-    fig.legend(handles=[Patch(color="#0072B2", label="warmth rubrics (one factor)"),
+    fig.legend(handles=[Patch(color="#0072B2", label="global-eval rubrics (halo factor)"),
                         Patch(color="#D55E00", label="orthogonal axes")],
                loc="upper center", bbox_to_anchor=(0.5, 1.06), ncol=2, frameon=False, fontsize=8)
     fig.tight_layout()
@@ -589,7 +593,7 @@ def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None
 
 def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = None,
                           selection: str = "best"):
-    """One-glance scorecard: each arm's headline score per metric, warmth beside orthogonal axes.
+    """One-glance scorecard: each arm's headline score per metric, global-eval rubrics beside orthogonal axes.
 
     ``selection="best"`` uses each arm's best iteration (by own oracle) + its base; ``"final"`` uses
     the last iteration. Returns a tidy DataFrame (arm × metric) with lower-is-better metrics flagged
@@ -671,6 +675,85 @@ def single_behavior_trajectory(behavior_by_iter, metric: str, *, palette=None):
     return fig
 
 
+# ── MITI 4.2.1 official competency thresholds ────────────────────────────────
+_MITI_THRESHOLD_CAVEAT = (
+    "Thresholds from the MITI 4.2.1 manual (Moyers, Manuel & Ernst 2014, rev. 2015) — expert "
+    "opinion, not normatively validated, and defined for ~20-min human audio sessions (short "
+    "text-chat sessions are out-of-domain).")
+
+
+def miti_threshold_panel(prof_df, *, palette=None, ncols: int = 2,
+                         caption: Optional[str] = _MITI_THRESHOLD_CAVEAT):
+    """The 4 official MITI 4.2.1 summary scores vs the manual's competency thresholds.
+
+    Takes :func:`behavior.miti_proficiency_by_iter` (per arm, iteration: ``R:Q``, ``%CR``,
+    ``MITI_Technical``, ``MITI_Relational``). One panel per summary score, arms overlaid, with
+    the manual's **fair** (dashed amber) and **good** (dashed green) thresholds drawn as
+    reference lines — the absolute anchor for "is this therapist competent in official MITI
+    terms", not just better than base. ``caption`` (default = the manual's own expert-opinion
+    caveat + our domain caveat) prints under the grid. ``None`` if nothing is plottable.
+    """
+    if prof_df is None or prof_df.empty:
+        return None
+    mets = [m for m in MITI_THRESHOLDS if m in prof_df.columns]
+    if not mets:
+        return None
+    pal = palette or figures.arm_palette(sorted(prof_df.arm.unique()))
+    fig, axes = figures.grid(len(mets), ncols=ncols, panel=(6.0, 3.6))
+    for ax, m in zip(axes, mets):
+        sns.lineplot(prof_df, x="iteration", y=m, hue="arm", palette=pal, marker="o", ax=ax)
+        fair, good = MITI_THRESHOLDS[m]
+        ax.axhline(fair, color="#E69F00", lw=1.2, ls="--", zorder=1)
+        ax.axhline(good, color="#009E73", lw=1.2, ls="--", zorder=1)
+        x1 = ax.get_xlim()[1]
+        ax.text(x1, fair, " fair", ha="left", va="center", fontsize=7, color="#E69F00")
+        ax.text(x1, good, " good", ha="left", va="center", fontsize=7, color="#009E73")
+        ax.set_title(display_label(m)); ax.set_ylabel(display_label(m))
+        if m == "%CR":
+            ax.set_ylim(0, 1)
+        if ax is axes[0]:
+            figures.relabel_legend(ax)
+        elif ax.get_legend():
+            ax.legend_.remove()
+    fig.suptitle("MITI 4.2.1 summary scores vs the manual's competency thresholds "
+                 "(dashed: fair / good)", y=1.03, fontweight="bold")
+    if caption:
+        fig.text(0.5, -0.02, caption, ha="center", va="top", fontsize=7.5,
+                 style="italic", color="#444444", wrap=True)
+    fig.tight_layout()
+    return fig
+
+
+def miti_threshold_table(prof_df) -> Optional[pd.DataFrame]:
+    """Per (arm × {base, final iteration}): each MITI 4.2.1 summary score with its
+    threshold verdict — ``✓good`` / ``✓fair`` / ``✗`` (below basic competence).
+
+    Tidy companion to :func:`miti_threshold_panel`; drop straight into ``save_table``.
+    """
+    if prof_df is None or prof_df.empty:
+        return None
+    mets = [m for m in MITI_THRESHOLDS if m in prof_df.columns]
+
+    def verdict(m, v):
+        if v is None or pd.isna(v):
+            return "—"
+        fair, good = MITI_THRESHOLDS[m]
+        flag = "✓good" if v >= good else ("✓fair" if v >= fair else "✗")
+        return f"{v:.2f} {flag}"
+
+    rows = []
+    for arm, g in prof_df.groupby("arm", sort=True):
+        for label, it in (("base", int(g.iteration.min())), ("final", int(g.iteration.max()))):
+            gi = g[g.iteration == it]
+            if gi.empty:
+                continue
+            row = {"arm": arm_label(arm), "state": f"{label} (iter {it})"}
+            for m in mets:
+                row[display_label(m)] = verdict(m, float(gi[m].iloc[0]))
+            rows.append(row)
+    return pd.DataFrame(rows)
+
+
 def question_rate_crosscheck(cross_df, *, palette=None):
     """Question rate: deterministic ``?``/turn (solid) vs oracle MITI ``B3_Q``/turn (dashed), per arm.
 
@@ -693,6 +776,89 @@ def question_rate_crosscheck(cross_df, *, palette=None):
     ax.set_title("Question rate: deterministic ?-count vs oracle MITI count (unit-harmonized cross-check)")
     ax.set_xlabel("training iteration"); ax.set_ylabel("questions per therapist turn")
     ax.legend(fontsize=7, ncol=2, frameon=True)
+    fig.tight_layout()
+    return fig
+
+
+# ── Q2 item-level reward composition (which items does the optimizer exploit?) ──
+# Group colors reuse the Okabe-Ito qualitative set, keyed on the face-content groups.
+_Q2_GROUP_COLORS = None  # built lazily (constants import order) in _q2_group_colors()
+
+
+def _q2_group_colors() -> dict:
+    global _Q2_GROUP_COLORS
+    if _Q2_GROUP_COLORS is None:
+        _Q2_GROUP_COLORS = {g: _QUAL_COLORS[i % len(_QUAL_COLORS)]
+                            for i, g in enumerate(Q2_ITEM_GROUPS)}
+    return _Q2_GROUP_COLORS
+
+
+def q2_item_delta_bars(q2_deltas, *, ncols: int = 2):
+    """Which Q2 items drive the reward gain — endpoint Δ vs base per item, one panel per arm.
+
+    Takes :func:`stats.q2_item_endpoint_deltas` (arm, item, short, group, base, final, delta).
+    Horizontal bars (one per item, shared cross-arm order by pooled Δ so panels compare), colored
+    by the face-content item group (OUR analytical grouping, not a validated subscale — see
+    ``constants.Q2_ITEM_GROUPS``). The reward-composition view: if the self-disclosure /
+    warmth-closeness items climb hardest while non-judgment stays flat, the Q1+Q2 training reward
+    is directly incentivizing the emotive drift. ``None`` if empty.
+    """
+    if q2_deltas is None or q2_deltas.empty:
+        return None
+    colors = _q2_group_colors()
+    order = (q2_deltas.groupby("item")["delta"].mean().sort_values().index.tolist())
+    arms = sorted(q2_deltas.arm.unique())
+    # Shared x-limits so the per-arm panels are visually comparable (same Δ scale).
+    xlo = min(0.0, float(q2_deltas["delta"].min()) * 1.05)
+    xhi = float(q2_deltas["delta"].max()) * 1.05
+    fig, axes = figures.grid(len(arms), ncols=min(ncols, len(arms)), panel=(5.6, 4.6))
+    for ax, arm in zip(axes, arms):
+        d = q2_deltas[q2_deltas.arm == arm].set_index("item").reindex(order)
+        y = np.arange(len(d))
+        ax.barh(y, d["delta"].values,
+                color=[colors.get(g, "#777777") for g in d["group"]])
+        ax.set_yticks(y)
+        ax.set_yticklabels([f"{i}. {Q2_ITEM_SHORT.get(i, i)}" for i in d.index], fontsize=7.5)
+        ax.axvline(0, color="#555555", lw=0.8)
+        ax.set_xlim(xlo, xhi)
+        ax.set_title(arm_label(arm))
+        ax.set_xlabel("Δ item mean, final − base (1–5 scale)")
+    from matplotlib.patches import Patch
+    fig.legend(handles=[Patch(color=c, label=g) for g, c in colors.items()],
+               loc="upper center", bbox_to_anchor=(0.5, 1.06), ncol=3, frameon=False, fontsize=8,
+               title="face-content item group (analytical, not a validated subscale)")
+    fig.suptitle("Q2 reward composition — which alliance items drive the gain?",
+                 y=1.12, fontweight="bold")
+    fig.tight_layout()
+    return fig
+
+
+def q2_item_group_trajectory(q2_long, *, ncols: int = 2):
+    """Mean Q2 item-group score across iterations, one panel per arm (hue = item group).
+
+    The trajectory companion to :func:`q2_item_delta_bars`: maps each of the 17 items to its
+    face-content group (``constants.Q2_ITEM_GROUPS``) and plots the per-group mean (±95% CI over
+    conversations × items) per iteration. Shows *when* the exploited components take off, not just
+    the endpoint. ``None`` if empty.
+    """
+    if q2_long is None or q2_long.empty:
+        return None
+    d = q2_long.copy()
+    d["group"] = d["item"].map(Q2_ITEM_GROUP_OF)
+    colors = _q2_group_colors()
+    arms = sorted(d.arm.unique())
+    fig, axes = figures.grid(len(arms), ncols=min(ncols, len(arms)), panel=(6.0, 3.8))
+    for ax, arm in zip(axes, arms):
+        sns.lineplot(d[d.arm == arm], x="iteration", y="score", hue="group",
+                     hue_order=list(colors), palette=colors, marker="o",
+                     errorbar=("ci", 95), ax=ax)
+        ax.set_title(arm_label(arm)); ax.set_xlabel("iteration"); ax.set_ylabel("Q2 item mean (1–5)")
+        if ax is axes[0]:
+            ax.legend(fontsize=7, title="item group")
+        elif ax.get_legend():
+            ax.legend_.remove()
+    fig.suptitle("Q2 item-group trajectories (face-content groups — analytical, "
+                 "not a validated subscale)", y=1.03, fontweight="bold")
     fig.tight_layout()
     return fig
 

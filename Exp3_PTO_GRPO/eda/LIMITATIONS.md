@@ -8,10 +8,12 @@ the notebooks the reader meets it.
 Every conversation is scored **once** by the oracle, with `temperature=0.1, seed=42`. That
 setup *freezes* the judge's bias for reproducibility but does **not measure** it — there is no
 per-item variance, ICC, or human-vs-oracle κ. So the questionnaire scores should be read as a
-single consistent instrument, not as estimates with a known measurement error. A held-out
-subset re-scored 3–5× (variance/ICC) and a human MI/MITI-coder validation on a small sample
-would be the strongest future addition to the measurement-validity section; both cost oracle
-budget and are deferred (OpenAI spend is a binding constraint — see the root CLAUDE.md).
+single consistent instrument, not as estimates with a known measurement error. **The re-scoring
+pipeline is now ready to run:** `Judge_Reliability.ipynb` (Part 1) re-scores the anchor models
+3× with per-rep seeds and reports per-metric **ICC(2,1)** + mean |Δ| — a few dollars on the
+subset (cost preview in-notebook), far below the "deferred for budget" framing this item used
+to carry. A human MI/MITI-coder validation on a small sample remains the strongest further
+addition (costs Lior-time, not API budget).
 
 ## 2 · Shared-model (patient = oracle) coupling
 The simulated patient **and** the grading oracle are the **same** model
@@ -20,20 +22,26 @@ The simulated patient **and** the grading oracle are the **same** model
 inflate patient-perspective alliance/satisfaction. The reward-hacking argument in
 `3_Mechanism` §4 is built to survive this: its load-bearing evidence is the **deterministic
 text metrics** (turn length, loop %, question rate) that use no oracle at all, with the
-un-rewarded oracle axes (MICI, PCT, MITI ratios) as corroboration. A decoupled second judge
-(different family/size) on a subset would let us report two-judge agreement; deferred with #1.
+un-rewarded oracle axes (MICI, PCT, MITI ratios) as corroboration. **The decoupled-second-judge
+pipeline is now ready to run:** `Judge_Reliability.ipynb` (Part 2) scores the same subset with a
+pluggable different-family judge (Claude via the `anthropic` SDK — model chosen in cell 1 — or
+another OpenAI model) and reports per-metric agreement **plus the defense-critical contrast check**
+(does the PTO−GRPO endpoint sign survive a judge that never played the patient?). Results land in
+`data/judge_check/summary/`; update this section with the measured numbers once run.
 
 ## 3 · Training reward = outcome metric (circularity)
 Q1+Q2 is **both** the training reward **and** a headline eval metric. "Q1+Q2 improved" is
 therefore partly circular and cannot by itself demonstrate MI-skill gain. Q1+Q2 is best framed
-as a **warmth/satisfaction proxy** (a 22-item warmth halo with endpoint-only Likert anchors —
-itself a plausible *cause* of the observed reward-hacking, not only the optimiser). The honest
+as a **satisfaction/alliance proxy** (Q1 = session satisfaction, Q2 = working alliance /
+relational communication — the lab's CLPsych-2024 LLM-evaluator prompts, see
+`METRICS_REFERENCE.md` §1; 22 subjective items with endpoint-only Likert anchors — itself a
+plausible *cause* of the observed reward-hacking, not only the optimiser). The honest
 outcome axes are the ones **outside** the reward: `PCT`, `MICI`, the MITI technique ratios, and
 the deterministic text metrics. See the confirmatory/exploratory split in `6_Stats` §0.
 
 ## 4 · PCT is not the clean orthogonal axis intended
-Empirically `PCT` (patient change-talk proportion) loads **with** the warmth family
-(ρ≈0.79–0.94; high PC1 loading), so it does not isolate MI *technique*. The genuine second
+Empirically `PCT` (patient change-talk proportion) loads **with** the global-evaluation (halo)
+family (ρ≈0.79–0.94; high PC1 loading), so it does not isolate MI *technique*. The genuine second
 factor is `MICI ↓` + the MITI ratios (`R:Q`/`%CR`/`%MICO`). Reported as a finding in
 `3_Mechanism` §3 rather than hidden.
 

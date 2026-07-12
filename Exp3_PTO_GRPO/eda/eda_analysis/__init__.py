@@ -28,6 +28,7 @@ import sys
 from .constants import (  # noqa: E402,F401
     WORKSPACE_ROOT, DATA_DIR,
     QUESTIONNAIRES, QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, ORTHOGONAL_METRICS, LOWER_IS_BETTER,
+    MITI_THRESHOLDS, Q2_ITEM_SHORT, Q2_ITEM_GROUPS,
     DISPLAY_NAMES, ARM_LABELS, PERSONA_COLS,
     display_label, short_label, arm_label,
 )
@@ -40,7 +41,7 @@ from .config import EdaConfig, notebook_setup, Setup  # noqa: E402
 from .data import (  # noqa: E402
     Arm, discover_arms, parse_experiment_name, filter_arms,
     canonical_personas, persona_order, attach_personas,
-    load_scores_long, load_subscales, to_wide, collapse_base,
+    load_scores_long, load_subscales, load_q2_items, to_wide, collapse_base,
     add_derived_mitiprof_rows,
     all_models, best_per_experiment,
     load_cached, set_cache, cache_enabled, reset_cache,
@@ -77,11 +78,12 @@ for _alias, _mod in (("figures", plotting), ("plots", plotting)):
 __all__ = [
     "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
     "WARMTH_RUBRICS", "ORTHOGONAL_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
+    "MITI_THRESHOLDS", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS",
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label",
     "EdaConfig", "notebook_setup", "Setup",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "attach_personas",
-    "load_scores_long", "load_subscales", "to_wide", "collapse_base",
+    "load_scores_long", "load_subscales", "load_q2_items", "to_wide", "collapse_base",
     "add_derived_mitiprof_rows",
     "all_models", "best_per_experiment",
     "load_cached", "set_cache", "cache_enabled", "reset_cache",

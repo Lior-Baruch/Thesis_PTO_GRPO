@@ -35,6 +35,7 @@ _MITI_COLS = {
     "MITI_B1_GI": "B1_GI", "MITI_B3_Q": "B3_Q", "MITI_B4_SR": "B4_SR", "MITI_B5_CR": "B5_CR",
     "MITI_B6_AF": "B6_AF", "MITI_B7_Seek": "B7_Seek", "MITI_B2_Persuade": "B2_Persuade",
     "MITI4_Empathy": "Empathy", "MITI1_CultivatingChangeTalk": "ChangeTalk",
+    "MITI2_SofteningSustainTalk": "SoftenSustain",
     "MITI3_Partnership": "Partnership", "MITI_GlobalMean": "MITI_Global",
 }
 
@@ -69,6 +70,15 @@ def load_miti_behavior(arms: Optional[List] = None, *, attach_persona: bool = Tr
                 # both correctly map to None (you can't form a reflection:question ratio with zero
                 # questions); the falsy check covers both without a ZeroDivisionError.
                 row["RtoQ"] = refl / row["B3_Q"] if row.get("B3_Q") else None
+                # %CR per conversation (CR / all reflections), same None-on-empty convention.
+                row["%CR"] = (row.get("B5_CR") or 0) / refl if refl else None
+                # Official MITI 4.2.1 summary globals (manual §H): Technical = (CCT + SST)/2,
+                # Relational = (Partnership + Empathy)/2 — the scores the manual's competency
+                # thresholds are defined on (NOT our 4-global MITI_GlobalMean).
+                cct, sst = row.get("ChangeTalk"), row.get("SoftenSustain")
+                row["MITI_Technical"] = (cct + sst) / 2 if (cct is not None and sst is not None) else None
+                par, emp = row.get("Partnership"), row.get("Empathy")
+                row["MITI_Relational"] = (par + emp) / 2 if (par is not None and emp is not None) else None
                 rows.append(row)
     df = pd.DataFrame(rows)
     if not df.empty and attach_persona:
@@ -307,6 +317,39 @@ def _behavior_by_iter_impl(arms) -> pd.DataFrame:
     agg = (merged.groupby(["arm", "method", "K", "iteration"], observed=True)[metrics]
            .mean().reset_index().sort_values(["arm", "iteration"]))
     return agg
+
+
+# ── MITI 4.2.1 proficiency summary scores (the official-threshold view) ───────────
+# The four summary scores the MITI 4.2.1 manual defines competency thresholds on (constants
+# .MITI_THRESHOLDS): R:Q, %CR, Technical global, Relational global. Per-conversation values come
+# from load_miti_behavior (mean-of-ratios convention; ratio rows undefined on zero denominators
+# are dropped from the mean, matching RtoQ handling elsewhere).
+_PROFICIENCY_COLS = ["RtoQ", "%CR", "MITI_Technical", "MITI_Relational"]
+
+
+def miti_proficiency_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration): the 4 official MITI 4.2.1 summary scores (R:Q, %CR, Technical,
+    Relational) — the frame the competency-threshold panel/table read.
+
+    Columns: ``arm, method, K, iteration, is_base, R:Q, %CR, MITI_Technical, MITI_Relational``.
+    Thresholds live in :data:`~eda_analysis.constants.MITI_THRESHOLDS` (fair, good) — expert
+    opinion per the manual, and defined for ~20-min human sessions; caveat wherever drawn.
+    Empty until MITI is scored. Parquet-cached.
+    """
+    arms = _arms(arms)
+    return load_cached("miti_proficiency_by_iter", arms,
+                       lambda: _miti_proficiency_by_iter_impl(arms),
+                       input_roots=eval_input_roots(arms))
+
+
+def _miti_proficiency_by_iter_impl(arms) -> pd.DataFrame:
+    miti = load_miti_behavior(arms, attach_persona=False)
+    if miti.empty:
+        return pd.DataFrame()
+    cols = [c for c in _PROFICIENCY_COLS if c in miti.columns]
+    agg = (miti.groupby(["arm", "method", "K", "iteration", "is_base"], observed=True)[cols]
+           .mean().reset_index().sort_values(["arm", "iteration"]))
+    return agg.rename(columns={"RtoQ": "R:Q"})
 
 
 # ── MICI per-item detail (severity global + per-therapist-turn behavior rates) ────

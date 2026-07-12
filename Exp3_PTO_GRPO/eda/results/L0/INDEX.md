@@ -55,8 +55,11 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 - `behavior_drift.png`
 - `factor_loadings.png`
 - `mici_behavior_detail.png`
+- `miti_proficiency_thresholds.png`
 - `overpraise_crosscheck.png`
 - `pct_patient_detail.png`
+- `q2_item_drivers.png`
+- `q2_item_group_trajectories.png`
 - `question_rate_crosscheck.png`
 - `reward_hack_panel.png`
 - `rubric_correlation.png`
@@ -122,7 +125,9 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 ### 3_mechanism
 - `behavior_by_iter.md`
 - `mici_behavior_by_iter.md`
+- `miti_threshold_verdicts.md`
 - `pct_patient_by_iter.md`
+- `q2_item_deltas.md`
 
 ### 5_preference
 - `PTO_LA0_pref_MI_concepts.md`

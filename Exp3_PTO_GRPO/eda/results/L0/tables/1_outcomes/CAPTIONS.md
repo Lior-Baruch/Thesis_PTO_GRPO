@@ -1,1 +1,1 @@
-- **leaderboard_scorecard** — Best iteration per arm: warmth rubrics beside the orthogonal axes (MICI lower-is-better, flagged ↓).
+- **leaderboard_scorecard** — Best iteration per arm: global-eval (halo) rubrics beside the orthogonal axes (MICI lower-is-better, flagged ↓).

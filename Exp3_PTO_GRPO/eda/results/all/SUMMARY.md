@@ -19,8 +19,10 @@ This page is the cross-cutting overview.
 | `PTO_LA5`  | 5 | 0–4  | partial (paused) |
 | `GRPO_LA5` | 5 | 0–1 | thin — dropped from per-arm batteries (<3 iters) |
 
-Metrics: 5 warmth rubrics (Q1Q2, WAI-SR, CSQ-8, MI-SAT, MITI) + orthogonal axes (PCT, MICI↓,
-R:Q/%CR/%MICO). See [`tables/1_outcomes/leaderboard_scorecard.md`](tables/1_outcomes/leaderboard_scorecard.md)
+Metrics: 5 global-evaluation rubrics (Q1Q2, WAI-SR, CSQ-8, MI-SAT, MITI — an empirical halo
+cluster, not one official construct; provenance in [`METRICS_REFERENCE.md`](../../METRICS_REFERENCE.md) §1)
++ orthogonal axes (PCT, MICI↓, R:Q/%CR/%MICO).
+See [`tables/1_outcomes/leaderboard_scorecard.md`](tables/1_outcomes/leaderboard_scorecard.md)
 for the one-glance arm × metric scorecard.
 
 ## 2. Headline (RQ-ii, K=0) — PTO ahead at the matched endpoint
@@ -40,11 +42,11 @@ See [`figures/1_outcomes/`](figures/1_outcomes/) and
 See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadings.png) and
 [`figures/3_mechanism/behavior_drift.png`](figures/3_mechanism/behavior_drift.png).
 
-- **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as warmth climbs (MICI base 0.21 →
-  0.49 PTO / 0.84 GRPO @ iter 10). **Affirmation drift is in BOTH methods; GRPO is worse late** (B6_AF → 1.98,
+- **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as the global-evaluation scores
+  climb (MICI base 0.21 → 0.49 PTO / 0.84 GRPO @ iter 10). **Affirmation drift is in BOTH methods; GRPO is worse late** (B6_AF → 1.98,
   q/turn → 0.15, R:Q → 1.44 by iter 10 vs PTO B6_AF 1.64, q/turn 0.55).
-- **Adding the orthogonal axes drops PC1 ≈91% → ≈55%** — warmth is one factor, technique + MI-
-  inconsistency a second. "All rubrics up" ≠ multi-skill.
+- **Adding the orthogonal axes drops PC1 ≈91% → ≈55%** — global evaluation (the halo) is one
+  factor, technique + MI-inconsistency a second. "All rubrics up" ≠ multi-skill.
 - Patient change-talk rises modestly, more for PTO (PCT 0.49 → 0.63) than GRPO (0.49 → 0.57).
 
 ## 4. Look-ahead (RQ-i, K=0 vs K=5) — preliminary

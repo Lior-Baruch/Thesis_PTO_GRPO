@@ -24,8 +24,8 @@ whose point of view the oracle adopts.
 
 | Name | ID | Items | Scale | Perspective | What it measures | The per-conv number the EDA uses |
 |---|---|---|---|---|---|---|
-| **Q1** | 1 | 5 | 1–5 | Patient | Overall satisfaction, motivation, learning, real-life relevance | `Q1_Mean` (mean of 5 items) |
-| **Q2** | 2 | 17 | 1–5 | Patient | Relational qualities: warmth, empathy, understanding, non-judgment, connection | `Q2_Mean` (mean of 17 items) |
+| **Q1** | 1 | 5 | 1–5 | Patient | Session satisfaction: overall satisfaction, motivation, learning, real-life relevance | `Q1_Mean` (mean of 5 items) |
+| **Q2** | 2 | 17 | 1–5 | Patient | Working alliance / relational communication: warmth, empathy, understanding, non-judgment, connection | `Q2_Mean` (mean of 17 items) |
 | **Q1+Q2** | — | 22 | 1–5 | Patient | **The TRAINING reward** (composite, matches the ICLR paper) | `Q1Q2_Mean` = mean(`Q1_Mean`, `Q2_Mean`) |
 | **WAI-SR** | 3 | 12 | 1–5 | Patient | Working alliance = **Goal + Task + Bond** subscales | `WAI_TotalMean` |
 | **CSQ-8** | 4 | 8 | 1–4 | Patient | Client satisfaction with the "service" (quality, needs met, would-recommend) | `CSQ8_Mean` |
@@ -34,15 +34,33 @@ whose point of view the oracle adopts.
 | **PCT** | 8 | 3 globals + 3 counts | globals 1–5 | MI coder (patient) | **Patient** change-talk: did the *client* express motivation? | `PCT_ChangeProp` = CT / (CT + ST) |
 | **MICI** ↓ | 9 | 1 global + 6 counts | global 1–5 | MI coder (therapist) | **MI-INCONSISTENT** therapist moves (confront, unsolicited advice, over-praise/sycophancy). **Lower = better** | `MICI_Rate` = inconsistent behaviors / therapist turn |
 
+**Instrument provenance** (what "validated" means per instrument — cite accordingly in the thesis):
+
+- **Q1 (Session Satisfaction)** and **Q2 (Working Alliance / Relational Communication)** are the
+  published LLM-evaluator prompts from the lab's CLPsych 2024 paper: *Yosef, Zisquit, Cohen,
+  Brunstein Klomek, Bar & Friedman (2024), "Assessing Motivational Interviewing Sessions with
+  AI-Generated Patient Simulations", Proc. CLPsych @ EACL 2024*
+  ([ACL Anthology 2024.clpsych-1.1](https://aclanthology.org/2024.clpsych-1.1/)). That paper
+  validates them **as LLM evaluators** (ratings statistically reliable; distinguish three levels
+  of therapist expertise) — the relevant validation basis for this LLM-graded pipeline. Do NOT
+  present Q2 as the WAI itself.
+- **WAI-SR** (Hatcher & Gillaspy 2006) and **CSQ-8** (Larsen/Attkisson et al. 1979) are classically
+  validated human-report scales, here completed by the oracle in the patient's voice.
+- **MI-SAT** is an adapted MI-intervention satisfaction survey (validated-style, not canonical).
+- **MITI 4.2** (Moyers et al.) is the official MI treatment-integrity coding system; **PCT** and
+  **MICI** are custom MITI-style coders (change-talk / MI-inconsistent behavior) built for Exp3.
+
 **Groupings the EDA relies on** (from `eda_analysis/__init__.py`):
 
-- **Warmth rubrics** (`WARMTH_RUBRICS`) = `Q1+Q2, WAI-SR, CSQ-8, MI-SAT, MITI`. These 5 are the
-  subjective "does the patient feel good" cluster — they collapse onto **one PC1 factor** (~91% of
-  variance before the orthogonal axes were added). Moving them all up together is *not* proof of
-  multi-skill improvement.
+- **Global-evaluation / halo cluster** (`WARMTH_RUBRICS` — historical code name, kept for
+  stability) = `Q1+Q2, WAI-SR, CSQ-8, MI-SAT, MITI`. An **empirical redundancy set, not an
+  official construct**: these 5 subjective/global ratings collapse onto **one PC1 factor**
+  (~91% of variance before the orthogonal axes were added) — the single-oracle halo. Their
+  constructs even overlap by design (Q2 and WAI-SR are both alliance measures). Moving them
+  all up together is *not* proof of multi-skill improvement.
 - **Orthogonal axes** (`ORTHOGONAL_METRICS`) = `PCT, MICI↓, R:Q, %CR, %MICO` (§2). Added specifically
-  to break the warmth halo. Adding them drops PC1 from ≈91% → ≈55% — warmth is one factor, technique +
-  MI-inconsistency form a genuine second.
+  to break the halo. Adding them drops PC1 from ≈91% → ≈55% — global evaluation is one factor,
+  technique + MI-inconsistency form a genuine second.
 
 **MITI globals** (part of ID 7, each 1–5): `MITI1_CultivatingChangeTalk`, `MITI2_SofteningSustainTalk`,
 `MITI3_Partnership`, `MITI4_Empathy`. **PCT globals**: `PCT_Importance`, `PCT_Confidence`,
@@ -71,6 +89,28 @@ technique** metrics (not warmth), so they're treated as candidate orthogonal axe
 
 (`SR`=simple reflections, `CR`=complex reflections, `Q`=questions, `AF`=affirmations, `Seek`=seeking
 collaboration, `Persuade`=persuasion — all from §3.)
+
+### 2b · Official MITI 4.2.1 summary scores + competency thresholds
+
+The MITI 4.2.1 manual (Moyers, Manuel & Ernst 2014; manual rev. June 2015, §H–I) defines four
+summary scores with suggested **basic competence ("fair") / proficiency ("good")** thresholds —
+computed for free from the stored MITI globals + counts (`behavior.miti_proficiency_by_iter`;
+constants in `eda_analysis.MITI_THRESHOLDS`; figure/table in `3_Mechanism` §2b):
+
+| Summary score | Formula | Fair | Good |
+|---|---|---|---|
+| **R:Q** | total reflections / total questions | 1:1 | 2:1 |
+| **%CR** | CR / (SR + CR) | 40% | 50% |
+| **Technical global** | (CultivatingChangeTalk + SofteningSustainTalk) / 2 | 3.0 | 4.0 |
+| **Relational global** | (Partnership + Empathy) / 2 | 3.5 | 4.0 |
+
+⚠ **Caveats** (state them wherever the thresholds are drawn): the manual itself flags the
+thresholds as *expert opinion without normative validation* (MIA/MINA thresholds intentionally
+unspecified); the MITI is designed for ~20-min human audio sessions, so short text chats are
+out-of-domain — use as an anchor, not a certification. Note Technical/Relational are the manual's
+2-global splits, **not** our 4-global `MITI_GlobalMean`. Also note R:Q can improve via the
+pathological route (fewer questions shrinking the denominator — GRPO's iter 10): read it against
+`B3_Q_per_turn`.
 
 **Per-therapist-turn rates (2026-07-07).** `behavior_by_iter` also emits each length-scaling MITI count as
 a rate — `B3_Q_per_turn`, `B4_SR_per_turn`, `B5_CR_per_turn`, `B6_AF_per_turn`, `B2_Persuade_per_turn`,
@@ -162,8 +202,10 @@ here.)*
 | **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per therapist turn across iterations — does it rise with warmth? |
 | **`subgroup_endpoint_bars`** | `2_Heterogeneity` | Final-iteration score per persona × arm — where does a late regression concentrate? |
 | **`effect_forest`** | `1_Outcomes` | Each arm×rubric Δ-vs-base with 95% CI + `dz`; MICI is direction-colored (a positive Δ is *bad*). Readable stand-in for the 28-row table. |
-| **PCA / `factor_loadings_bars`** | `3_Mechanism` / `6_Stats` | PC1 share once orthogonal axes are added → is warmth one factor and technique+MICI a second? |
-| **`question_rate_crosscheck`** | `3_Mechanism` | (§4) — questions collapsing while warmth rises is part of the same drift. |
+| **PCA / `factor_loadings_bars`** | `3_Mechanism` / `6_Stats` | PC1 share once orthogonal axes are added → is the global-eval halo one factor and technique+MICI a second? |
+| **`question_rate_crosscheck`** | `3_Mechanism` | (§4) — questions collapsing while the halo scores rise is part of the same drift. |
+| **`q2_item_drivers` / `q2_item_group_trajectories`** | `3_Mechanism` §4f | The **reward-composition** view: per-item Δ vs base for Q2's 17 items (per-item scores already stored — no oracle re-run), colored by face-content group (`Q2_ITEM_GROUPS` — OUR analytical grouping, not a validated subscale). Q2 items 1/2/3/10 reward therapist *self-disclosure*, which MI does not prescribe — if those top the Δ ranking, the Q1+Q2 reward itself incentivizes the emotive drift. Loader `data.load_q2_items`; deltas `stats.q2_item_endpoint_deltas`. |
+| **`miti_proficiency_thresholds` / `miti_threshold_verdicts`** | `3_Mechanism` §2b | The absolute anchor (§2b above): official-threshold verdicts per arm — did training reach basic MI competence in the manual's own terms? |
 
 ---
 
