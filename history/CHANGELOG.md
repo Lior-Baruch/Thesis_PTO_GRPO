@@ -9,6 +9,7 @@ first — nothing was deleted.
 
 ---
 
+- **2026-07-12 (b2)** — Measurement-validity hardening: "warmth"→global-eval-halo relabel (incl. figure text; Q1/Q2 provenance = the lab's CLPsych 2024 paper, cited); official MITI 4.2.1 competency thresholds (§2b — neither arm reaches "good" on technique ratios); Q2 item-level reward composition (§4f — self-disclosure items top both arms' Δ); judge-reliability pipeline ready to run (`Judge_Reliability.ipynb`: ICC + pluggable Claude/OpenAI second judge).
 - **2026-07-12** — Docs refactor: one owner per fact (Exp3 CLAUDE.md 601→492; this file → index; eda README/METRICS numbers → pointers; root CLAUDE.md "Doc map" + consolidated "Current status").
 - **2026-07-11** — EDA roadmap #7: Run_Eval's `EXPERIMENTS` registry auto-generated from `discover_arms()`; empty `model_iter` dirs skipped; LA5 pause-state docs corrected; backlog clear.
 - **2026-07-08** — **GRPO LA0 FINISHED (10 iters) + re-scored: PTO wins the matched endpoint (Q1+Q2 4.26 vs 3.75); GRPO peaks @8 then regresses into sycophancy.** Same day: 20-commit EDA hardening/refactor (parquet cache, `_selfcheck`, constants leaf, output-clean notebooks).

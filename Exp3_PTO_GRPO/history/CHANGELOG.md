@@ -4,6 +4,42 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-12, batch 2) — measurement-validity hardening: halo relabel + official MITI
+thresholds + Q2 reward-composition + judge-reliability pipeline.** Triggered by the question "is the
+'warmth' split an official thing?" — answer: no, it's an empirical halo/redundancy set, and Q1/Q2's
+provenance is the lab's own **CLPsych 2024** paper (Yosef, Zisquit, Cohen, Brunstein Klomek, Bar &
+Friedman, *Assessing Motivational Interviewing Sessions with AI-Generated Patient Simulations*, ACL
+Anthology 2024.clpsych-1.1 — verified; validates the prompts AS LLM evaluators). Four deliverables:
+- **(A) Relabel** "warmth" → "global-evaluation (halo) cluster" everywhere thesis-facing: SUMMARY.md
+  (L0+all), METRICS_REFERENCE (new per-instrument provenance block w/ the CLPsych citation),
+  LIMITATIONS §3–4, figure-embedded text in `plotting.py` (heatmap block label, PC1 titles,
+  reward-hack panel axes/suptitle, `_SHARED_FACTOR_CAVEAT`), notebook headers + captions
+  (`1_Outcomes` §1/§5, `3_Mechanism` §3/§4a, `6_Stats` §0). `WARMTH_RUBRICS` kept as historical code
+  name (documented as such).
+- **(B) Official MITI 4.2.1 competency thresholds** (verified against the CASAA manual PDF §H–I:
+  R:Q 1:1/2:1, %CR 40%/50%, Technical 3/4, Relational 3.5/4 — expert opinion, 20-min-session
+  domain caveat): `constants.MITI_THRESHOLDS`, official Technical/Relational summary scores (the
+  2-global splits, not `MITI_GlobalMean`; MITI2 now loaded), `behavior.miti_proficiency_by_iter`
+  (cached), `plots.miti_threshold_panel` + `miti_threshold_table`, new `3_Mechanism` §2b. First
+  numbers: both L0 arms go below-competence → fair-to-good on globals (Relational crosses "good"),
+  **neither reaches "good" on the technique ratios**; GRPO's iter-10 R:Q 1.43 "fair" is the
+  pathological fewer-questions route.
+- **(C) Q2 item-level reward composition** (free — per-item `Q2_1..17` already stored):
+  `data.load_q2_items` (cached), `stats.q2_item_endpoint_deltas`, `plots.q2_item_delta_bars` +
+  `q2_item_group_trajectory`, `constants.Q2_ITEM_SHORT`/`Q2_ITEM_GROUPS` (face-content grouping,
+  explicitly NOT a validated subscale), new `3_Mechanism` §4f. First numbers: **"revealed his
+  thinking" (self-disclosure) tops BOTH arms' Δ ranking** — the Q1+Q2 reward composition itself
+  incentivizes the emotive drift (items 1/2/3/10 reward self-disclosure MI doesn't prescribe).
+- **(D-ready) Judge-reliability pipeline** (LIMITATIONS §1–2, ready to run, no spend yet):
+  `oracle_scoring/judge_check.py` + `Judge_Reliability.ipynb` — Part 1 oracle repeatability (3 reps,
+  per-rep seeds — the pipeline's pinned seed=42 would fake perfect ICC) → ICC(2,1) + mean|Δ|; Part 2
+  pluggable second judge (Claude via `anthropic` SDK [installed, 0.116.0; structured output via
+  `output_config.format`, bounds stripped] or OpenAI) → agreement + the PTO−GRPO
+  **contrast-preservation** check. Gated behind RUN_* flags; cost preview in-notebook; outputs to
+  `data/judge_check/` (never eval_scores). Model choice = Lior's (default knob claude-haiku-4-5).
+  Validated: `_selfcheck` 9/9 (68 notebook refs), offline smokes for B/C on real data + judge-check
+  synthetic ICC/agreement; L0+L5 `1_Outcomes`+`3_Mechanism` re-rendered.
+
 **Landed (2026-07-12) — docs refactor: one owner per fact.** The hand-maintained markdown set was
 deduplicated around a single-source-of-truth rule (run status + headline numbers + cost constraint →
 root CLAUDE.md "Current status & next step"; detailed eval narrative → `eda/results/<view>/SUMMARY.md`;

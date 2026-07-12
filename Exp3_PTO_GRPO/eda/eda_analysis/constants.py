@@ -60,10 +60,54 @@ QUESTIONNAIRES = {
 # Left-to-right plot order for the warmth rubrics (+ Q1/Q2 components) then the orthogonal axes.
 QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "Q1", "Q2"]
 
-# The 5 warmth/satisfaction rubrics that share the dominant PC1 factor (the redundancy set).
+# The 5 global-evaluation rubrics that share the dominant PC1 factor (the empirical halo /
+# redundancy set — NOT one official construct). "WARMTH_RUBRICS" is the historical code name,
+# kept for API stability; prose should say "global-evaluation (halo) cluster".
 WARMTH_RUBRICS = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI"]
 # Orthogonal axes intended to load OFF PC1 (incl. the free derived MITI-proficiency ratios).
 ORTHOGONAL_METRICS = ["PCT", "MICI", "R:Q", "%CR", "%MICO"]
+
+# ── Official MITI 4.2.1 clinician thresholds — (fair, good) per summary score ────
+# Source: MITI 4.2.1 manual (Moyers, Manuel & Ernst 2014; manual rev. June 2015), §I
+# "Clinician basic competence and proficiency thresholds" + §H summary-score formulas.
+# Caveats the manual itself states (repeat them wherever these lines are drawn):
+#   • thresholds are EXPERT OPINION — no normative/validity data support them yet;
+#   • Total MIA / MINA thresholds are intentionally unspecified;
+# plus ours: the MITI was designed for ~20-min human audio sessions, not short text chats.
+# Formulas: Technical = (CultivatingChangeTalk + SofteningSustainTalk)/2;
+#           Relational = (Partnership + Empathy)/2; %CR = CR/(SR+CR); R:Q = reflections/questions.
+MITI_THRESHOLDS = {
+    "R:Q":             (1.0, 2.0),
+    "%CR":             (0.40, 0.50),
+    "MITI_Technical":  (3.0, 4.0),
+    "MITI_Relational": (3.5, 4.0),
+}
+
+# ── Q2 per-item labels + face-content groups (for the item-level reward-composition EDA) ──
+# Q2 = the 17-item Working Alliance / Relational Communication LLM-evaluator prompt from the
+# lab's CLPsych 2024 paper (Yosef et al.) — see METRICS_REFERENCE.md §1. Short labels paraphrase
+# each item for axis ticks. The GROUPS are OUR face-content reading of the items (an analytical
+# grouping for attribution figures), NOT a validated subscale structure — label figures accordingly.
+# Note items 1/2/3/10 reward therapist SELF-DISCLOSURE — behavior MI does not prescribe — which is
+# why the item-level view matters: training on Q1+Q2 may directly incentivize the emotive drift.
+Q2_ITEM_SHORT = {
+    1: "sense of who he was", 2: "revealed his thinking", 3: "shared his feelings",
+    4: "knew how I was feeling", 5: "understood me", 6: "put himself in my shoes",
+    7: "comfortable talking", 8: "relaxed and secure", 9: "took charge",
+    10: "said when happy/sad", 11: "no difficulty w/ words", 12: "expressed himself",
+    13: "a 'warm' partner", 14: "did not judge me", 15: "treated me as equal",
+    16: "made me feel cared for", 17: "made me feel close",
+}
+Q2_ITEM_GROUPS = {
+    "Self-disclosure":       [1, 2, 3, 10],
+    "Empathy/understanding": [4, 5, 6],
+    "Fluency/ease":          [7, 8, 11, 12],
+    "Direction/control":     [9],
+    "Warmth/closeness":      [13, 16, 17],
+    "Non-judgment/equality": [14, 15],
+}
+# item number -> group name (the lookup figures actually use).
+Q2_ITEM_GROUP_OF = {i: g for g, items in Q2_ITEM_GROUPS.items() for i in items}
 # Metrics where a LOWER value is better (must not be pooled into warmth composites / collapse_base).
 # The "MICI" questionnaire aggregate + every per-item MICI detail column (severity, per-turn rates)
 # are higher = worse, as is patient sustain-talk. Display layer only (drives the trailing ' ↓').
@@ -88,7 +132,7 @@ DISPLAY_NAMES = {
     #   • Standalone questionnaires keep their validated-instrument acronym up-front + a gloss.
     # Display layer only — these NEVER rename the underlying data keys.
     #
-    # Warmth / satisfaction / alliance rubrics. Q1Q2/Q1/Q2 stay as their plain codes
+    # Global-evaluation (halo) rubrics. Q1Q2/Q1/Q2 stay as their plain codes
     # (Lior: no "Satisfaction …" prefix) — Q1/Q2 simply fall through display_label unchanged.
     "Q1Q2": "Q1+Q2",
     # Original validated-instrument acronym KEPT up-front (Lior), descriptive gloss in parens.
@@ -99,6 +143,9 @@ DISPLAY_NAMES = {
     # Derived MITI-proficiency ratios (computed FROM the MITI behavior counts → tagged "(MITI)").
     "R:Q": "Reflection:Question (MITI)", "%CR": "% Complex Reflections (MITI)",
     "%MICO": "% MI-Consistent (MITI)",
+    # Official MITI 4.2.1 summary globals (manual §H) — the threshold panel plots these.
+    "MITI_Technical": "Technical global (MITI)", "MITI_Relational": "Relational global (MITI)",
+    "SoftenSustain": "Softening Sustain Talk (MITI)",
     # MITI behavior counts (per conversation). "Questions" is a per-conv COUNT of question-FUNCTION
     # utterances (oracle) — kept distinct from the regex "? / turn" RATE below to avoid misreading a
     # count against a rate (they are different constructs: function vs literal-? syntax).

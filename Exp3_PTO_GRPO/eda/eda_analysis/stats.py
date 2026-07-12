@@ -327,6 +327,30 @@ def rank_agreement_by_nturns(branch_reliability: pd.DataFrame, scores_long: pd.D
     return pd.DataFrame(rows).sort_values(["arm", "n_turns"]).reset_index(drop=True)
 
 
+def q2_item_endpoint_deltas(q2_long: pd.DataFrame) -> pd.DataFrame:
+    """Per (arm, Q2 item): base mean, final-iteration mean, and Δ — the reward-composition table.
+
+    Takes :func:`~eda_analysis.data.load_q2_items`. ``short``/``group`` columns come from
+    ``constants.Q2_ITEM_SHORT`` / ``Q2_ITEM_GROUP_OF`` (face-content grouping — analytical, not a
+    validated subscale). Feeds :func:`plotting.q2_item_delta_bars`; drop into ``save_table``.
+    """
+    from .constants import Q2_ITEM_SHORT, Q2_ITEM_GROUP_OF
+    if q2_long is None or q2_long.empty:
+        return pd.DataFrame(columns=["arm", "item", "short", "group", "base", "final", "delta"])
+    rows = []
+    for arm, g in q2_long.groupby("arm", sort=True):
+        fin = int(g.iteration.max())
+        base = g[g.is_base].groupby("item")["score"].mean()
+        final = g[g.iteration == fin].groupby("item")["score"].mean()
+        for i in sorted(g.item.unique()):
+            b, f = base.get(i, np.nan), final.get(i, np.nan)
+            rows.append({"arm": arm, "item": int(i), "short": Q2_ITEM_SHORT.get(int(i), str(i)),
+                         "group": Q2_ITEM_GROUP_OF.get(int(i), "?"), "final_iter": fin,
+                         "base": round(float(b), 3), "final": round(float(f), 3),
+                         "delta": round(float(f - b), 3)})
+    return pd.DataFrame(rows)
+
+
 def friedman_trajectory(scores_long: pd.DataFrame, arm: str, metric: str) -> dict:
     """Repeated-measures omnibus across iterations (the matched-persona-correct test).
 

@@ -485,6 +485,35 @@ def _add_q1q2_composite(long: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([long, comp], ignore_index=True)
 
 
+def load_q2_items(arms: Optional[List] = None) -> pd.DataFrame:
+    """Tidy long frame of the 17 Q2 items — one row per (arm, iteration, conversation, item).
+
+    Columns: ``arm, method, K, model, iteration, is_base, file_index, item (1..17), score``.
+    Reads the per-item ``Q2_1``..``Q2_17`` columns already stored in ``eval_scores/metric=Q2``
+    (no oracle re-run). Feeds the reward-composition analysis: WHICH alliance items drive the
+    Q1+Q2 reward gain (short labels + face-content groups in
+    ``constants.Q2_ITEM_SHORT`` / ``Q2_ITEM_GROUPS``). Parquet-cached.
+    """
+    arms = discover_arms() if arms is None else arms
+    return load_cached("q2_items", arms, lambda: _load_q2_items_impl(arms),
+                       input_roots=[a.eval_dir(k, "Q2") for a in arms for k in a.iters])
+
+
+def _load_q2_items_impl(arms: List) -> pd.DataFrame:
+    rows = []
+    for arm in arms:
+        for k in arm.iters:
+            for fi, r in iter_conv_rows(arm.eval_dir(k, "Q2")):
+                for i in range(1, 18):
+                    col = f"Q2_{i}"
+                    if col in r.index and pd.notna(r[col]):
+                        rows.append({"arm": arm.label, "method": arm.method, "K": arm.K,
+                                     "model": arm.model_name(k), "iteration": k,
+                                     "is_base": (k == 0), "file_index": fi,
+                                     "item": i, "score": float(r[col])})
+    return pd.DataFrame(rows)
+
+
 _SUBSCALES = {
     "WAI-SR": ("WAI_SR", {"WAI_Goal_Mean": "Goal", "WAI_Task_Mean": "Task", "WAI_Bond_Mean": "Bond"}),
     "MITI": ("MITI", {"MITI1_CultivatingChangeTalk": "ChangeTalk", "MITI2_SofteningSustainTalk": "SoftenSustain",

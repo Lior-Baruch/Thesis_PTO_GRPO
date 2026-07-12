@@ -16,7 +16,7 @@ to edit / dig deeper):
 |---|---|---|
 | `1_Outcomes.ipynb` | `1_outcomes/` | all-metric trajectory grid · per-metric learning-curve catalog (`trajectories/`, peaks auto-flagged) · effect forest · per-model bars · scorecard |
 | `2_Heterogeneity.ipynb` | `2_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + final-iteration endpoint bars |
-| `3_Mechanism.ipynb` | `3_mechanism/` | behaviour drift (all 7 MITI behaviours) + merged behaviour table · subscales · factor structure · reward-hack panel · question/over-praise cross-checks · **MICI per-behaviour detail (§4d)** · **PCT patient-detail (§4e)** · session shape · transcripts |
+| `3_Mechanism.ipynb` | `3_mechanism/` | behaviour drift (all 7 MITI behaviours) + merged behaviour table · **official MITI 4.2.1 competency thresholds (§2b)** · subscales · factor structure · reward-hack panel · question/over-praise cross-checks · **MICI per-behaviour detail (§4d)** · **PCT patient-detail (§4e)** · **Q2 item-level reward composition (§4f)** · session shape · transcripts |
 | `4_Training_and_Reliability.ipynb` | `4_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
 | `5_Preference.ipynb` | `5_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
 | `6_Stats.ipynb` | `6_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · all-metric slopes · PCA · GRPO iter-9 anomaly check |
@@ -107,6 +107,12 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    what lives where). Every notebook auto-discovers arms from disk via `eda_analysis.discover_arms()`
    (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
    the venv kernel `thesis-venv313`, cwd = `eda/`.
+3. *(optional, costs API budget)* **`Judge_Reliability.ipynb`** — measurement-validity re-scoring on
+   a subset: oracle repeatability (ICC, per-rep seeds) + a pluggable **second judge** (Claude via the
+   `anthropic` SDK, or another OpenAI model) with the PTO−GRPO contrast-preservation check. Gated
+   behind explicit `RUN_*` flags; writes to `data/judge_check/` (never the real `eval_scores/`);
+   NOT part of `render_views.py`. Backing module: `oracle_scoring/judge_check.py`. Addresses
+   `LIMITATIONS.md` §1–§2.
 
 ## Package (`eda_analysis/`) — analysis modules on a `constants` leaf (+ `plotting_style` helpers, `_selfcheck` guard)
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
@@ -118,8 +124,10 @@ cycle — submodule imports are now plain top-level `from .constants import ...`
 in-function imports are gone; only genuinely cross-module ones remain deferred).
 
 - **`constants`** — the LEAF (imports nothing from the package): workspace-root resolution +
-  `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`WARMTH_RUBRICS`/
-  `ORTHOGONAL_METRICS`/`LOWER_IS_BETTER`, `DISPLAY_NAMES`/`ARM_LABELS`,
+  `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`WARMTH_RUBRICS` (the global-eval
+  halo cluster — historical code name)/`ORTHOGONAL_METRICS`/`LOWER_IS_BETTER`,
+  `MITI_THRESHOLDS` (official 4.2.1 fair/good), `Q2_ITEM_SHORT`/`Q2_ITEM_GROUPS` (item labels +
+  face-content groups), `DISPLAY_NAMES`/`ARM_LABELS`,
   `display_label`/`short_label`/`arm_label`, the shared `RE_AFFIRM` cue.
 - **`config`** — `EdaConfig` (the single control surface, incl. `view` + PNG/xlsx defaults) +
   `notebook_setup(cfg)` → `Setup` (incl. `S.VIEW`, `S.CFG`). *(absorbed the old `notebook.py`.)*
@@ -141,7 +149,8 @@ in-function imports are gone; only genuinely cross-module ones remain deferred).
   `paired_method_comparison` (PTO vs GRPO) + `paired_k_comparison` (K0 vs K5) +
   `rank_agreement_by_nturns` (reward reliability) + `rubric_pca`/`rubric_factor_space` +
   `filter_thin_arms`.
-- **`behavior`** — MITI counts + over-praise cross-check + structural text metrics.
+- **`behavior`** — MITI counts + over-praise cross-check + structural text metrics +
+  `miti_proficiency_by_iter` (the official-threshold summary scores).
 - **`training`** — `generations.jsonl` proxy reward + degeneracy scan + pref pairs +
   `advantage_signal_by_iter`/`reward_distribution_frame` + `load_branch_reliability` +
   `tb_curves`/`parse_run_tb` (self-contained TensorBoard parse, no torch/trl).
@@ -156,11 +165,13 @@ in-function imports are gone; only genuinely cross-module ones remain deferred).
   names, and the `figures`/`plots` → `plotting` aliases. No definitions of its own.
 
 Two packages, by purpose: **`eda_analysis/`** = the analysis layer (notebooks `1`–`6`, disk-discovery,
-no registry) and **`oracle_scoring/`** = the legacy package, **pruned (2026-07-08) to ONLY the
+no registry) and **`oracle_scoring/`** = the scoring package, **pruned (2026-07-08) to ONLY the
 `Run_Eval.ipynb` scoring path** (config `EXPERIMENTS` registry — since 2026-07-11 auto-generated from
 `eda_analysis.data.discover_arms()` — + eval settings, conversation loading, the async oracle
-pipeline). Its old analysis/persona-join code was removed — persona recovery lives in
-`eda_analysis` (`data.attach_personas`, which replays the per-iter shuffle correctly).
+pipeline) **plus `judge_check.py`** (2026-07-12: the `Judge_Reliability.ipynb` backend — pluggable
+OpenAI/Anthropic judges, ICC(2,1), agreement + contrast-preservation stats). Its old
+analysis/persona-join code was removed — persona recovery lives in `eda_analysis`
+(`data.attach_personas`, which replays the per-iter shuffle correctly).
 
 ## Adding a new run
 Train → it writes `conversations/full/<EXP>/model_iter_*` → `Run_Eval` (the registry auto-discovers
