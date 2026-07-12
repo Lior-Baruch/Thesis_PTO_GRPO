@@ -12,7 +12,7 @@ under matched look-ahead + oracle:
   turn of a pre-recorded conv, no feedback). Baked into `EXPERIMENT_NAME`
   (`_PT{greedy|indep}`) so the arms never collide. See the algorithm section below.
 - **GRPO_Exp3** (iterative). Shares `_shared/` with PTO_Exp3. **LA0 finished 10 iters;
-  LA5 = base + iter 1 scored** (paused for cost — see "Run status & next step").
+  LA5 = base + iter 1 scored** (paused for cost — see "Run status" below).
 
 Reward (training) = **Q1 + Q2 only**, matching the ICLR look-ahead paper.
 Reward (eval) = all six MI questionnaires (Q1, Q2, WAI-SR, CSQ-8, MI-SAT, MITI).
@@ -110,11 +110,9 @@ don't trample each other. See [_shared/reward.py](code/_shared/reward.py).
 **After the loop**, one generate-only pass with the final adapter produces
 `model_iter_{NUM_ITERATIONS}/` so the last policy has matched eval data.
 
-**Why look-ahead helps GRPO.** Without `K`, every sibling completion is scored
-on its immediate effect on a snapshot prefix — short prefixes have weak signal
-(see partial-conv EDA). With `K > 0`, each sibling is scored on the K-step
-trajectory the *current policy* would actually take after it, so siblings that
-"look promising but unwind badly" rank below siblings that "compound."
+**Why look-ahead helps GRPO:** the shared-subroutine motivation above, applied to
+the `G` siblings — with `K > 0`, siblings that "look promising but unwind badly"
+rank below siblings that "compound."
 
 ### PTO_Exp3 + K-turn look-ahead
 
@@ -162,12 +160,10 @@ runs **lock-step across all trunks** (mirrors the batched look-ahead).
 
 Same final-eval pass + same Hub-push pattern as GRPO_Exp3.
 
-**Why look-ahead helps PTO.** Same intuition as GRPO: the branch ranking
-inherits whatever signal-to-noise the oracle has on the snapshot being scored.
-The partial-conv EDA shows that at short prefixes (`n_turns ≤ ~10`) the
-snapshot score disagrees with the eventual full-conv score on 25-30% of
-pairwise comparisons. K-turn look-ahead reduces that disagreement by scoring
-the K-step trajectory the current policy actually takes.
+**Why look-ahead helps PTO:** same motivation (shared subroutine above) — the
+branch ranking inherits the oracle's weak signal-to-noise on short snapshots (see
+the partial-conversation diagnostic below); scoring the K-step trajectory the
+current policy actually takes reduces that disagreement.
 
 ### Where the two methods differ (concise)
 
@@ -245,30 +241,18 @@ Exp3_PTO_GRPO/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
 │   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses oracle_scoring/, registry-driven)
-│   ├── 1_Outcomes.ipynb               [EVAL] family=1_outcomes — all-metric trajectory grid + PER-METRIC learning-curve catalog (trajectories/ subfolder; peaks auto-flagged) + effect forest + per-model bars + scorecard
-│   ├── 2_Heterogeneity.ipynb          [EVAL] family=2_heterogeneity — EVERY metric split by persona trait (cooperation_level/ + problem/ subfolders) + final-iteration endpoint bars
-│   ├── 3_Mechanism.ipynb              [EVAL] family=3_mechanism — behaviour drift (all 7 MITI behaviours) + merged behavior_by_iter table + subscales + factor structure (corr + loadings) + reward_hack_panel + question/over-praise cross-checks + §4d MICI per-behaviour detail + §4e PCT patient-detail + session shape + transcripts
-│   ├── 4_Training_and_Reliability.ipynb [TRAINING↔EVAL] family=4_training — TB curves + reward dist + advantage signal + degeneration + reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth)
-│   ├── 5_Preference.ipynb             [TRAINING] family=5_preference — PTO Mass-Mean-Probe: word ranking + drift + direction-drift(2D) + learned/unlearned words + MI-concept drift + K0-vs-K5 (PTO-only)
-│   ├── 6_Stats.ipynb                  [EVAL] family=6_stats — ALL heavy tables: merged main_results (target col) + Friedman + merged vs-base/method/K paired + all-metric slopes + PCA + GRPO iter-9 anomaly check
+│   ├── 1_Outcomes.ipynb …             the 6 topic notebooks (`1_Outcomes` `2_Heterogeneity` `3_Mechanism`
+│   │     … 6_Stats.ipynb              `4_Training_and_Reliability` `5_Preference` `6_Stats`) ↔ result
+│   │                                  families 1:1, [EVAL]/[TRAINING]-tagged — contents table: eda/README.md
 │   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes LIST indices 0..5)
 │   ├── strip_notebook_outputs.py        output-clean helper (paired with the nbstrip git clean-filter)
 │   ├── README.md                        EDA guide: notebook↔family table, VIEW knob, module map, roadmap
 │   ├── LIMITATIONS.md                   documented measurement/inference limitations (for the thesis write-up)
 │   ├── METRICS_REFERENCE.md             cheat-sheet for every EDA number (questionnaires, derived ratios, hack battery)
-│   ├── eda_analysis/                            Exp3 analysis package (disk-discovery, read-only). Analysis modules on a constants LEAF (+plotting_style helpers, +_selfcheck guard); no import cycle — submodules import the leaf top-level (2026-07-08); figures/plots aliased to plotting
-│   │   ├── constants.py                 THE LEAF (imports nothing from the package): WORKSPACE_ROOT/DATA_DIR + sys.path bootstrap + QUESTIONNAIRES/QUESTIONNAIRE_ORDER/WARMTH/ORTHOGONAL/LOWER_IS_BETTER + DISPLAY_NAMES/ARM_LABELS + display_label/short_label/arm_label + shared RE_AFFIRM
-│   │   ├── __init__.py                  thin re-export hub: constants leaf + every submodule's public names + submodule aliases (figures/plots→plotting; the data-module aliases discovery/personas/scores/select were retired)
-│   │   ├── config.py                    CONTROL SURFACE: EdaConfig (incl. the VIEW knob) + notebook_setup(cfg)→Setup(ARMS,SCORES,PALETTE,METRICS,ORACLE_NOISE,RESULTS_DIR,VIEW,CFG). view→ks filter + results/<view>/ root. view ∈ {all,L0,L5} (L2 removed; re-add is one line in _VIEW_KS). (absorbed notebook.py)
-│   │   ├── data.py                      LOAD+SHAPE: discovery (Arm/discover_arms/filter_arms) + TRUE-persona recovery + scores_long backbone (+Q1Q2/subscales/to_wide/collapse_base/add_derived_mitiprof_rows; iter_conv_rows = THE shared per-conv CSV reader, also used by behavior.py) + all/best selection + PARQUET CACHE (load_cached/set_cache/reset_cache; content-keyed on input CSVs → eda/.eda_cache/, on by default, EDA_NO_CACHE bypass). (merged discovery+personas+scores+select)
-│   │   ├── plotting_style.py            STYLE layer (split out of plotting 2026-07-08): set_style/arm_palette/grid/model_order/apply_score_axis/clean_label/relabel_*/add_base_line/figure_legend_from. Re-imported into plotting so figures.set_style(…) still resolves.
-│   │   ├── plotting.py                  FIGURE layer: named plots (effect_forest/trajectory_grid/heterogeneity_grid/factor_loadings_bars/leaderboard_scorecard/diverging rubric_correlation_heatmap…) calling plotting_style helpers. (aliased as `figures`/`plots`; self-aliases `figures`)
-│   │   ├── stats.py                     persona-paired battery + Friedman/Kendall-W + main_results_table + paired_method/k_comparison + rubric PCA/corr + rubric_factor_space
-│   │   ├── behavior.py                  MITI behavior counts (eval) + MICI loader + over-praise cross-check + structural text metrics (semantic regex demoted to lex_* sanity-check)
-│   │   ├── training.py                  generations.jsonl proxy reward + degeneracy scan + pref_pairs + advantage_signal_by_iter / reward_distribution_frame (both methods)
-│   │   ├── pref.py                      PTO pref: margins + embeddings + Mass-Mean-Probe (preference_direction/word_projection/MI category_projection) + pref_word_ranking
-│   │   ├── exports.py                   VIEW-aware: save_fig (PNG) / save_table (md+xlsx) → results/<view>/<family>/ ; per-call group= override incl. NESTED subpaths; set_view + set_export_group + set_formats + save_provenance + walk-based build_index + reset_results (PRESERVES SUMMARY.md)
-│   │   └── _selfcheck.py                guard: invariants + known means + cache round-trip (`python -m eda_analysis._selfcheck` after any EDA change)
+│   ├── eda_analysis/                    Exp3 analysis package (disk-discovery, read-only): a constants LEAF
+│   │                                    + config / data / plotting_style / plotting / stats / behavior /
+│   │                                    training / pref / exports / _selfcheck (figures+plots alias plotting).
+│   │                                    Module-by-module map: eda/README.md § "Package".
 │   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md
 │   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
 │   ├── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
@@ -283,115 +267,49 @@ its own family; `python render_views.py` regenerates everything. Reproducible fr
 
 **Change history** (the dated "pass"/"Landed" entries — both the EDA passes and the trainer /
 infrastructure narratives) — moved to [history/CHANGELOG.md](history/CHANGELOG.md). The current state
-is the "New EDA workflow" + "Eval results so far" + "Training internals" + "Run status" sections.
+is the "EDA workflow" + "Training internals" + "Run status" sections.
 
 **Single canonical copies.** `system_prompts_builder.py` and `questionnaires.py`
 live ONLY at `code/` root — both `eda/oracle_scoring/__init__.py` and `eda/eda_analysis/__init__.py` prepend
 `code/` to `sys.path` so they import the same canonical files. No more drift.
 
-### New EDA workflow (replaces "add registry entry → Conv_EDA")
-1. **Score** a new run: `Run_Eval.ipynb`'s `oracle_scoring/config.py::EXPERIMENTS` registry is
-   **auto-generated at import from `eda_analysis.data.discover_arms()`** (2026-07-11, roadmap #7) —
-   a run is scoreable as soon as its conversations land on disk; empty in-flight `model_iter` dirs are
-   skipped. Run it → writes `eval_scores/`.
-2. **Analyze:** browse `results/<view>/` and open the notebook whose NUMBER matches the family you
-   want to change — `1_Outcomes` / `2_Heterogeneity` / `3_Mechanism` / `4_Training_and_Reliability` /
-   `5_Preference` / `6_Stats` (topic notebooks ↔ result families, 1:1). Every notebook's cell 1 starts
-   with the **VIEW knob** `VIEW = os.environ.get("EDA_VIEW", "L0")` then
-   `cfg = eda_analysis.EdaConfig(view=VIEW, export_group=…)` → `S = eda_analysis.notebook_setup(cfg)`.
-   **`view` ∈ {all, L0, L5}** is the one control: it sets BOTH the arm filter (`all`=every arm,
-   `L0`=K=0 arms, `L5`=K=5 arms) AND the results root, so artifacts land in
-   **`eda/results/<VIEW>/<figures|tables>/<N_family>/`** (per-view `INDEX.md` + a hand-authored
-   `SUMMARY.md`). All **auto-discover** every arm via `eda_analysis.discover_arms()` — no registry edit.
-   Point any figure at a subset with `arms=` or a plain pandas slice of `S.SCORES`.
-3. **Regenerate views:** `python render_views.py` renders the **default L0 + L5 views in parallel**
-   (one worker per view; `all` is a merged superset, now **opt-in** via `render_views.py all`).
-   Within a view the 6 notebooks run sequentially (they share the view's `INDEX.md`/`CAPTIONS.md`).
-   `render_views.py L0` for one view, `… L0 --nb 2` for one view+notebook (`--nb` = LIST indices
-   0..5, 0 = `1_Outcomes`), `--jobs 1` to force sequential (low memory). Re-run is cheap; arms not
-   yet scored are skipped gracefully (cross-method/K cells degrade to a "not scored yet" banner;
-   thin arms < 3 iters are dropped).
+### EDA workflow (short version — full guide in [eda/README.md](eda/README.md))
+1. **Score:** `Run_Eval.ipynb` — its `EXPERIMENTS` registry is auto-generated from
+   `eda_analysis.data.discover_arms()`, so a run is scoreable as soon as its conversations land on
+   disk (empty in-flight `model_iter` dirs are skipped). Writes `eval_scores/`.
+2. **Analyze:** notebooks `1_Outcomes` … `6_Stats` (topic ↔ results family, 1:1); everything
+   auto-discovers arms from disk — no registry edits anywhere. The **VIEW knob** (`all`/`L0`/`L5`)
+   sets both the arm filter and the `results/<view>/` output root.
+3. **Regenerate:** `python render_views.py` (L0+L5 default, `all` opt-in) → `results/<view>/`.
+   Run **`python -m eda_analysis._selfcheck`** after any EDA change.
 
-**Reproducibility.** `scores_long` + the `behavior_by_iter` family are **parquet-cached** (on by
-default; `eda/.eda_cache/`, content-keyed on the input CSVs so a re-score auto-invalidates; bypass via
-`EDA_NO_CACHE=1` / `EdaConfig(cache=False)` / `eda_analysis.reset_cache()`) — first render builds each
-frame once (~60/30 s), the rest are ~0.3 s. Committed notebooks are kept **output-clean**
-(`eda/strip_notebook_outputs.py` + a `filter=nbstrip` git clean-filter). Run
-**`python -m eda_analysis._selfcheck`** after any EDA change (invariants + known means + cache round-trip).
+The VIEW system, `EdaConfig`, parquet cache, output-clean policy, and the package module map are all
+documented in [eda/README.md](eda/README.md) — not here.
 
-See [eda/README.md](eda/README.md) for the full notebook guide + an improvement roadmap.
-
-### Eval results so far (updated 2026-07-08; MI-SAT re-scored 2026-07-07)
-Scored: **PTO LA0** iters 0–10, **GRPO LA0** iters 0–10 (FINISHED), **PTO LA5** iters 0–4,
-**GRPO LA5** iter 1. **All four arms scored on the full battery incl. the orthogonal axes** (PCT, MICI,
-and the derived R:Q/%CR/%MICO). (MI-SAT was re-scored 2026-07-07 under corrected goal-agnostic wording;
-its means rose uniformly ~+0.14 but no headline below changes — it's a redundant warmth rubric.)
-Numbers in the EDA's `Q1Q2 = mean(Q1,Q2)` convention (full tables:
-`results/<view>/tables/6_stats/main_results.md` = each arm's FINAL and BEST iter in one table
-(`target` column); one-glance `results/<view>/tables/1_outcomes/leaderboard_scorecard.md`).
-- **Each arm vs base — large warmth gains.** PTO LA0 Q1+Q2 3.00→**4.26** (final=best, dz 1.43, Friedman
-  W=0.45); GRPO LA0 3.07→**4.08 at its iter-8 peak**, falling to **3.75 by iter 10** (final dz 0.72,
-  best dz 1.22, W=0.33); PTO LA5 3.00→3.89 in 4 iters (dz 0.88). All warmth rubrics **large** effect,
-  Holm p≈0 everywhere.
-- **PTO vs GRPO (RQ-ii) — PTO ahead at the matched 10-iter endpoint; GRPO is less stable.** The earlier
-  "near-tie at iter 8" was a snapshot artifact: GRPO Q1Q2 **peaks at iter 8 (4.08) then REGRESSES (iter9
-  3.81, iter10 3.75)** while PTO climbs stably (4.22→4.26). At the **matched 10-iter endpoint PTO beats
-  GRPO 4.26 vs 3.75** (paired PTO−GRPO Q1Q2 +0.51, dz +0.73, Holm p<0.001; MITI/CSQ-8/MI-SAT/PCT also
-  favor PTO, and PTO is less MI-inconsistent). Overall OLS slopes: GRPO **0.072**/iter (peak iter 8) vs
-  PTO **0.120**/iter (peak iter 10). Earlier matched-iter reads still hold (tie 1–2, GRPO briefly ahead
-  @3, PTO ahead @8). ⇒ **Revised core answer: GRPO is competitive *up to its peak* but overshoots into
-  reward-hacking and degrades; PTO sustains gains across 10 iters.** With GRPO, peak-iter selection /
-  early stopping matters — its best (4.08 @ iter 8) is still below PTO's best (4.26 @ iter 10).
-- **Conversation-level mechanism (iter-10, same resistant persona for both methods).** GRPO iter-10
-  collapses into nonstop empty praise and never gives the practical advice a resistant patient demands
-  6+ times; PTO iter-10 also drifts toward affirmation but **converges to concrete steps** and the
-  patient softens. Across all 96 iter-10 convs: **GRPO 0.13 q/turn, 3.61 praise-words/turn vs PTO 0.50
-  q/turn, 1.02 praise/turn** — GRPO emits ~3.5× more praise and ~4× fewer questions. The iter-10 eval
-  regression IS the over-praise reward-hack the full-conv oracle penalizes; GRPO falls into it harder.
-- **Reward-hacking / multi-skill — the orthogonal axes pay off.** As warmth rises, **MI-INCONSISTENT
-  behavior rises ~2.3× (PTO) / ~4× (GRPO)** at the iter-10 endpoint (MICI base 0.21 → 0.49 PTO /
-  **0.84** GRPO; dz 0.78/**1.72**; GRPO's iter-8 peak was still 0.54, dz 0.89, before the late
-  regression blew it up) — the warmth gains
-  come *with* more over-praise/advice, in BOTH methods. **Affirmation drift is confirmed in GRPO too,
-  and at iter 10 it is the WORSE offender** (B6_AF 0.52→**1.98**, questions B3_Q 6.4→**4.1**, q/turn
-  0.83→**0.15**, R:Q→**1.44** by iter 10) — i.e. GRPO's late regression is exactly this drift running
-  away. Mid-run (≤iter 8) GRPO looked *more* reflective (R:Q 1.04 > PTO 0.75); by iter 10 it has dropped
-  questions almost entirely. **PTO's drift is milder and plateaus** (iter-10 B6_AF 1.64, q/turn 0.55).
-  Patient **change-talk rises modestly**, more for PTO (PCT 0.49→0.63 medium vs GRPO 0.49→0.57
-  small). Both kill degeneration loops (loop% 0.49→0). **Adding the orthogonal axes drops PC1 from ≈91%
-  → ≈55%** (PC2 ≈16%): warmth is one factor; technique (R:Q/%CR/%MICO) + MICI form a second — so "all
-  rubrics up" is genuinely *not* multi-skill. (PCT partly loads on PC1 ≈0.39 — change-talk co-moves with
-  warmth.)
-- **PTO preference probe is real:** wins_correct 0.65→0.71 over iters (>0.5 = the chosen−rejected
-  direction separates the pairs), strengthening late.
-- **K0 vs K5 (RQ-i):** still preliminary — PTO LA5 only 4 scored iters, GRPO LA5 only 1; no significant
-  K0-vs-K5 difference yet. **Both LA5 arms paused for cost.** See the `project-pto-la0-eval-results`
-  memory.
+### Eval results (pointer — numbers are NOT maintained in this file)
+Qualitative headline: **PTO wins at the matched 10-iter endpoint; GRPO peaks at iter 8 then
+regresses into sycophancy (affirmation-drift reward-hack); both LA5 arms are thin/paused.** Owners:
+- **Status + headline numbers + cost constraint:** root [CLAUDE.md](../CLAUDE.md) § "Current status
+  & next step" (the single live copy).
+- **Full narrative + numbers:** [eda/results/L0/SUMMARY.md](eda/results/L0/SUMMARY.md) (primary
+  read) · [all](eda/results/all/SUMMARY.md) · [L5](eda/results/L5/SUMMARY.md); tables under
+  `eda/results/<view>/tables/` (`6_stats/main_results.md`, `1_outcomes/leaderboard_scorecard.md`).
+- **The dated 2026-07-08 findings write-up:** [history/CHANGELOG.md](history/CHANGELOG.md) + the
+  `project-pto-la0-eval-results` memory.
 
 ## Diagnostic: partial-conversation oracle (reward-faithfulness)
 
-> This diagnostic is **rebuilt on Exp3 data with no new oracle calls**, in
-> [4_Training_and_Reliability.ipynb](eda/4_Training_and_Reliability.ipynb) (from the per-branch `prefix`
-> in `generations.jsonl`). The earlier ICLR/Exp2 finding below is kept as the original motivation for
-> the MCL knob.
+Both trainers score *partial* conversations (slices as short as 2 turns) as the training reward, but
+the thesis evaluates *full* conversations. The diagnostic — rebuilt on Exp3 data with no new oracle
+calls in [4_Training_and_Reliability.ipynb](eda/4_Training_and_Reliability.ipynb) (from the
+per-branch `prefix` in `generations.jsonl`); the original Exp2 version motivated the MCL knob —
+shows pairwise rank agreement with the final-conv score is **barely above chance at `n_turns=2` and
+only clears 0.8/0.9 at ~10/~30 turns**, a structural gap well above oracle reproducibility noise.
+Numbers + method: [eda/METRICS_REFERENCE.md](eda/METRICS_REFERENCE.md) § 6.
 
-**Question.** PTO and GRPO_Exp3 score *partial* conversations (slices as short
-as 2 turns) as their training reward, but the thesis evaluates on *final*
-full conversations. Is the partial reward a faithful proxy?
-
-**Method (historical).** Pick `Base` + best trained model. Slice each of their 96 convs at
-every other patient turn, score every cut with Q1+Q2, compare against the
-existing final-conv Q1+Q2 scores. (The Exp3 rebuild reuses cuts already in `generations.jsonl`.)
-
-**Headline.** Pairwise rank agreement (sign-of-difference vs final) is
-- only **0.66 (Base) / 0.73 (L5_V10)** at `n_turns=2` — barely above chance (0.5),
-- clears **0.8 at n_turns ≈ 10**, **0.9 at n_turns ≈ 30**, monotonically increasing,
-- oracle reproducibility noise is ~0.07–0.10 mean |Δ|, so the gap is **structural, not noise**.
-
-**Implication.** Short training cuts can't observe whether the therapist
-delivered on Q1/Q2 by session end, so the oracle scores them on "did the
-opening look promising?". Optimising that proxy biases the model toward
-strong-looking openings regardless of follow-through.
+**Implication.** Short training cuts can't observe whether the therapist delivered on Q1/Q2 by
+session end, so the oracle scores them on "did the opening look promising?" — optimizing that proxy
+biases the model toward strong-looking openings regardless of follow-through.
 
 ## MIN_CONV_LENGTH filter — wired in both trainers
 
@@ -423,7 +341,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
 2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
-4. **Score + EDA.** Run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe; its `EXPERIMENTS` registry auto-discovers the run from disk — no registry edit) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`6`), which likewise **auto-discover** it. See "New EDA workflow".
+4. **Score + EDA.** Run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe; its `EXPERIMENTS` registry auto-discovers the run from disk — no registry edit) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`6`), which likewise **auto-discover** it. See "EDA workflow".
 
 ## Running PTO_Exp3
 
@@ -467,56 +385,30 @@ EDA capture, throughput tuning, and the first-run + ChatML-leak fixes — live i
   (`TB_LIVE_LOGGING=False` default); the post-hoc matplotlib dashboard `plot_iteration_metrics` reads the
   per-iter `tb_logs/` regardless.
 
-## Run status & next step (updated 2026-07-08)
+## Run status (pointer) + durable LA5-resume facts
 
-Scored on the full battery (incl. the orthogonal axes PCT/MICI + derived R:Q/%CR/%MICO): **PTO LA0**
-iters 0-10, **GRPO LA0** iters 0-10 (FINISHED), **PTO LA5** iters 0-4, **GRPO LA5** iter 1. Headline
-(see "Eval results so far" above): **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs 3.75)**
-because GRPO peaks @iter 8 (4.08) then regresses into sycophancy.
+**Run status, headline numbers, and the OpenAI cost constraint live in ONE place:** root
+[CLAUDE.md](../CLAUDE.md) § "Current status & next step" (+ the `project-openai-cost-constraint`
+memory). Don't restate them here.
 
-**Paused-mid-run LA5 state on Drive** (2026-06-09/10, verified 2026-07-11): PTO LA5 has trained
-adapters for iters 1–5 but only I1–I4 scored — the iter-5 eval convs were **never generated**
-(`model_iter_5` conv dir exists but is empty; `iteration_6/` got only as far as `pref_pairs`, no
-adapter). GRPO LA5 has the scored iter-1 adapter; its `iteration_2/` dir is adapter-less (incomplete).
-Cheapest RQ-i restart: one generate-only pass with the existing PTO iter-5 adapter (96 convs; GPU +
-patient calls, **no training**) + scoring — that buys a 5th PTO_LA5 point before any new training spend.
+**Durable LA5-resume facts** (what's on Drive; the dated forensics are in
+[history/CHANGELOG.md](history/CHANGELOG.md), 2026-07-11 entry):
+- **PTO LA5:** trained adapters for iters 1–5, but only I1–I4 scored — the iter-5 eval convs were
+  **never generated** (`model_iter_5` conv dir exists but is EMPTY; `iteration_6/` stopped at
+  `pref_pairs`, no adapter). Cheapest restart: one generate-only pass with the iter-5 adapter
+  (96 convs; GPU + patient calls, **no training**) + `Run_Eval` scoring = a 5th PTO_LA5 point before
+  any new training spend.
+- **GRPO LA5:** iter-1 adapter trained AND scored; its `iteration_2/` dir is adapter-less
+  (incomplete). Folder presence ≠ data.
 
-**Cost is the binding constraint.** OpenAI spend hit **~$300**; **both LA5 arms are PAUSED**, so RQ-i
-(K0 vs K5) is on hold. Cost is proportional to candidate count (`prompts x G` / `branch-points x M`) x
-iterations; gpt-4o-mini oracle scoring + (at K=5) look-ahead patient calls dominate. Prompt caching is
-already maxed (~50% off the oracle's fixed prefix - don't trim it), so the only lever is call **COUNT**:
-cap `NUM_ITERATIONS` ~5-6 (curves plateau by iter ~4), drop `M`/`G` 8->4, lower `GREEDY_TRUNK_TARGET_LEN`
-- but keep **K** (the RQ-i variable) and the **gpt-4o-mini oracle** (the measurement instrument) fixed.
-See the `project-openai-cost-constraint` memory.
+## Dependency stack
 
-**Next steps:** (1) cheapest RQ-i point — generate-only pass with the existing PTO LA5 iter-5 adapter
-(96 convs) + Run_Eval scoring; (2) resume an LA5 arm properly once budget allows. (EDA roadmap #7 —
-the auto-generated `EXPERIMENTS` registry — landed 2026-07-11; the EDA backlog is clear.)
-
-## Dependency stack — audited 2026-06-01
-
-Trainers were audited against the latest docs of the pinned stack
-(`transformers==5.8.1`, `trl==1.4.0`, `peft==0.19.1`, `huggingface_hub==1.14.0`,
-`wandb==0.26.1`) and are **verified current** — despite the lingering "TRL
-v0.28" comments in the code, nothing is deprecated:
-- **`scale_rewards="group"`** ([GRPO_Exp3/grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py)) is the TRL **default** (`"group"/"batch"/"none"`), not a stale value.
-- **async reward fn** ([_shared/reward.py](code/_shared/reward.py)) is natively awaited by TRL 1.x (`inspect.iscoroutinefunction` → `asyncio.gather`); extra dataset columns forwarded as kwargs; per-sample `None` supported.
-- `processing_class=`, `eval_strategy=` already on the new transformers-5/TRL-1 API.
-- `hf_xet` is a **required transitive dep** of `huggingface_hub` 1.x — already installed, nothing to add.
-- `gpt-4o-mini-2024-07-18` (patient + oracle) has **no API retirement date** per OpenAI dev docs (the only relevant shutdown is `gpt-4o-2024-05-13`, a different model).
-
-Same-session polish (now in code): both notebooks' Colab install cell is
-**pinned to requirements.txt** (commented; `weave` dropped), `authenticate()`
-sets `WANDB_LOG_MODEL="checkpoint"` (versioned adapter artifact, third backup),
-and both configs set `run_name=current_adapter_repo`.
-
-**Update 2026-06-03.** Install cell now also (commented) `%pip uninstall -y torchao` —
-Colab pre-bakes torchao<0.16.0, which peft 0.19.1 rejects by *raising* inside
-`get_peft_model`'s `dispatch_torchao` (crashed both trainers at iter 1). A100 optimizer
-batch raised to **16 decision-points/step** (GRPO `TRAIN_BATCH_SIZE`=128, PTO DPO 16×1;
-LR held). `NUM_ITERATIONS` 8→10 both. Trainer modules renamed `trainer.py` →
-`grpo_trainer.py` / `pto_trainer.py` (avoids a `from trainer import` collision when both
-notebooks share one local kernel — sys.modules cached the first-loaded trainer).
+Pins live in [../requirements.txt](../requirements.txt); both notebooks' Colab install cells are
+pinned to it. The full 2026-06-01/03 audit (TRL 1.x / transformers 5 API currency, `hf_xet`,
+gpt-4o-mini retirement check, batch/LR notes) moved to [history/CHANGELOG.md](history/CHANGELOG.md).
+The one live install gotcha: **uninstall torchao on Colab** — peft 0.19.1 *raises* inside
+`get_peft_model`'s `dispatch_torchao` on Colab's pre-baked torchao<0.16.0 (both install cells carry
+the commented `%pip uninstall -y torchao`).
 
 ## Colab vs local
 
@@ -596,5 +488,5 @@ re-exports.) The bullets below apply to the **old
 - **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Training internals") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **Local sm_120 import order: `trl` must be imported BEFORE `torch`.** On the local Blackwell GPU, `from trl import …` *after* torch is already imported **segfaults at CUDA init** (a native init-order conflict, exit 139 — not OOM, not a bug in the trainers; Colab is unaffected, which is why the full runs ran there). The trainer modules already import `trl` first; only matters if you run something locally that imports torch/`_shared` first. Verified 2026-06-07.
 - **Local offline smoke:** [code/_local_smoke.py](code/_local_smoke.py) — `python _local_smoke.py {stopgen|dpo|grpo|all}`. Tiny, no OpenAI; validates the stop-string bind, the DPO prompt-cap + no-OOM (grad-ckpt+precompute), and a GRPO step on the local GPU (~3 GB peak). Imports `trl` first (see above). All three PASS as of 2026-06-07.
-- **Oracle prompt caching depends on the rubric-first layout.** [questionnaires.py](code/questionnaires.py) `get_prompt_eval_questionnaire` puts the fixed instructions + questionnaire rubric FIRST and the variable transcript LAST, so OpenAI's automatic prompt caching hits the ~1,084-token fixed prefix on every oracle call (≈50 % input discount + lower latency — matters for the ~$300 oracle bill even though wall-clock is GPU-bound; see next bullet). The margin over OpenAI's 1,024-token minimum is thin: **don't trim the oracle instructions/rubric or move the transcript ahead of them**, or caching silently stops (verified 2026-06-07: prefix is transcript-independent for Q1). Patient API calls auto-cache too (stable system + growing-history prefix). The therapist's local `model.generate` has **no** cross-call prefix reuse under HF — that would need vLLM (a real build here, not a flag: the look-ahead and *all* of PTO's generation use custom `model.generate`, not TRL's `use_vllm` path).
+- **Oracle prompt caching depends on the rubric-first layout.** [questionnaires.py](code/questionnaires.py) `get_prompt_eval_questionnaire` puts the fixed instructions + questionnaire rubric FIRST and the variable transcript LAST, so OpenAI's automatic prompt caching hits the ~1,084-token fixed prefix on every oracle call (≈50 % input discount + lower latency — matters for the oracle bill, the binding cost constraint per root CLAUDE.md, even though wall-clock is GPU-bound; see next bullet). The margin over OpenAI's 1,024-token minimum is thin: **don't trim the oracle instructions/rubric or move the transcript ahead of them**, or caching silently stops (verified 2026-06-07: prefix is transcript-independent for Q1). Patient API calls auto-cache too (stable system + growing-history prefix). The therapist's local `model.generate` has **no** cross-call prefix reuse under HF — that would need vLLM (a real build here, not a flag: the look-ahead and *all* of PTO's generation use custom `model.generate`, not TRL's `use_vllm` path).
 - **The run is likely GPU-bound, not API-bound (corrected 2026-06-07).** Earlier notes called the runs "API-bound" — that was inferred from GPU *memory* (17/67 GB), which does NOT measure compute. Lior observes he waits on GPU, not API. Autoregressive `model.generate` on the 1B LoRA policy (GRPO's G=8 completion sampling + K-turn look-ahead; PTO's branch sampling + look-ahead) dominates wall-clock; the `340.6 s / 8 GPU calls` look-ahead line ≈ 30–40 s per batched generate, far above the ~1–2 s of raw 1B/A100 compute → heavy per-step overhead. **Top suspect: the recently-added `STOP_STRINGS` route generation through HF `StopStringCriteria` (runs every step; known multi-× slowdown).** Before optimizing, MEASURE the split (time sampling vs look-ahead-GPU vs look-ahead-API vs backward); the K=0 arms (no look-ahead) running much faster would itself confirm generation is the cost. Faster stop than string-matching: register the two markers as single special tokens + stop on `eos_token_id`.

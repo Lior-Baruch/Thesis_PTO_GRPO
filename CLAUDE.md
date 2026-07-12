@@ -13,7 +13,7 @@ Three controlled comparisons, all live in Exp3:
 ## Experiments (chronological)
 | | [Exp1_ICLR2025/](Exp1_ICLR2025/) | [Exp2_PTO/](Exp2_PTO/) | [Exp3_PTO_GRPO/](Exp3_PTO_GRPO/) |
 |---|---|---|---|
-| **Status** | Frozen — published | Complete — EDA verified | **Active — PTO LA0 (10) + GRPO LA0 (10, FINISHED) scored; PTO ahead at matched endpoint (GRPO peaks @8 then regresses); LA5 arms thin/paused** |
+| **Status** | Frozen — published | Complete — EDA verified | **Active — main thesis chapter; see "Current status & next step" below** |
 | **Therapist** | Llama-2-7B | Llama-3.2-1B (4-bit NF4) | Llama-3.2-1B (bf16) |
 | **Patient + oracle** | GPT-3.5 | gpt-4o-mini-2024-07-18 | gpt-4o-mini-2024-07-18 |
 | **Patient prompts** | V1 (cooperative) | V3 (less cooperative) | V3 |
@@ -60,7 +60,7 @@ Thesis_PTO_GRPO/
 ├── CLAUDE.md                   (this file)
 ├── README.md, DATA_README.md, LICENSE
 ├── Exp{1,2,3}_*/CLAUDE.md      per-experiment context
-├── history/CHANGELOG.md        dated "Landed …" change history (root-level)
+├── history/CHANGELOG.md        thin dated cross-experiment index (detail lives per-experiment)
 ├── HF_key.txt, openai_key.txt  duplicated per-experiment-dir, not at root
 ├── requirements.txt, gen_requirements.py
 └── .venv/                      Python 3.13 env
@@ -73,21 +73,38 @@ Thesis_PTO_GRPO/
 - **File version suffixes (`_V3`, `_V5`)** are dropped when the file lives in an experiment dir (the dir provides version context). Method-lineage subdirs in Exp3 are named after the experiment (`GRPO_Exp3/`, `PTO_Exp3/`).
 - **Exp3 trainer pattern.** `code/<METHOD>_Exp3/{train_<METHOD>_Iterative.ipynb, <method>_trainer.py}` (e.g. `grpo_trainer.py`, `pto_trainer.py` — distinct module names to avoid `from trainer` collisions across notebooks in one kernel) with the per-iteration orchestration loop visible in the notebook. Shared helpers in `code/_shared/`.
 
-## Next step
-**Run status + cost constraint (updated 2026-07-08).** PTO LA0 = 10 iters; **GRPO LA0 = 10 iters (FINISHED, re-scored)**
-— the fair-endpoint PTO-vs-GRPO comparison is now in hand: **PTO wins at the matched 10-iter endpoint
-(4.26 vs 3.75) because GRPO peaks at iter 8 (4.08) then regresses into sycophancy; see results below.**
-**Both LA5 arms remain PAUSED/thin** (PTO LA5: I1–I4 scored + an unscored iter-5 adapter whose eval
-convs were never generated; GRPO LA5: I1 trained AND fully scored) — OpenAI API spend hit **~$300** and is a
-binding constraint, so RQ-i (K0 vs K5) is on hold. Cost is dominated by oracle scoring + (at K=5)
-look-ahead patient calls, both ∝ candidate count (`prompts×G` / `branch-points×M`) × iterations;
-prompt caching is already maxed (~50% off the oracle's fixed prefix), so the only lever is call
-**COUNT**, not per-call price. Cheapest-science-cost cuts: cap `NUM_ITERATIONS` ~5–6 (our own curves
-plateau by iter ~4 → ~40–50% saving, compare at matched iter), drop `M`/`G` 8→4, and (PTO) lower
-`GREEDY_TRUNK_TARGET_LEN` — keep **K** (the RQ-i variable) and the **gpt-4o-mini oracle** (the
-measurement instrument) fixed. See the `project-openai-cost-constraint` memory.
+## Current status & next step
+**THE single live copy of run status + headline numbers + cost constraint** (all other docs point
+here — see "Doc map"). Updated 2026-07-08.
 
-**Full change history** (the dated "Landed …" entries) — moved to [history/CHANGELOG.md](history/CHANGELOG.md).
+- **Run status:** PTO LA0 = 10 iters scored; **GRPO LA0 = 10 iters (FINISHED, re-scored)**. **Both
+  LA5 arms PAUSED/thin** (PTO LA5: I1–I4 scored + an unscored iter-5 adapter whose eval convs were
+  never generated; GRPO LA5: I1 trained AND fully scored).
+- **Headline:** **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs 3.75; paired +0.51,
+  dz 0.73)** because GRPO peaks at iter 8 (4.08) then regresses into sycophancy (MICI endpoint 0.84
+  vs PTO 0.49); PTO climbs stably. Full narrative + tables:
+  `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` (L0 = primary read).
+- **Cost constraint:** OpenAI spend hit **~$300** and is binding — RQ-i (K0 vs K5) on hold. Cost is
+  dominated by oracle scoring + (at K=5) look-ahead patient calls, both ∝ candidate count
+  (`prompts×G` / `branch-points×M`) × iterations; prompt caching is already maxed (~50% off the
+  oracle's fixed prefix), so the only lever is call **COUNT**: cap `NUM_ITERATIONS` ~5–6 (curves
+  plateau by iter ~4), drop `M`/`G` 8→4, (PTO) lower `GREEDY_TRUNK_TARGET_LEN` — keep **K** (the
+  RQ-i variable) and the **gpt-4o-mini oracle** (the measurement instrument) fixed. See the
+  `project-openai-cost-constraint` memory.
+- **Next step:** cheapest RQ-i point = one generate-only pass with the existing PTO LA5 iter-5
+  adapter (96 convs, no training) + `Run_Eval` scoring; then resume an LA5 arm when budget allows.
+
+## Doc map (one owner per fact)
+| Fact | Lives ONLY in |
+|---|---|
+| Run status + headline numbers + cost constraint | this file → "Current status & next step" |
+| Detailed eval narrative + numbers | `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` |
+| EDA how-to (VIEW knob, `EdaConfig`, package module map) | `Exp3_PTO_GRPO/eda/README.md` |
+| Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/METRICS_REFERENCE.md` |
+| Dated history | `Exp3_PTO_GRPO/history/CHANGELOG.md` (detail); root [history/CHANGELOG.md](history/CHANGELOG.md) = thin index |
+| Method mechanics, trainer internals, gotchas | `Exp3_PTO_GRPO/CLAUDE.md` |
+
+Update a fact in its owner file only; everywhere else keep a pointer.
 
 ## Hardware
 Local: Windows, RTX 5070 Ti (12 GB VRAM), CUDA 12.8, torch 2.11.0+cu128.

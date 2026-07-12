@@ -4,6 +4,19 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-12) — docs refactor: one owner per fact.** The hand-maintained markdown set was
+deduplicated around a single-source-of-truth rule (run status + headline numbers + cost constraint →
+root CLAUDE.md "Current status & next step"; detailed eval narrative → `eda/results/<view>/SUMMARY.md`;
+EDA how-to + module map → `eda/README.md`; metric definitions → `eda/METRICS_REFERENCE.md`; dated
+history → this file). Exp3 CLAUDE.md ~600→~420 lines ("Eval results so far" → pointer block, "Run
+status" → durable LA5-resume facts + pointer, the 2026-06-01/03 dependency audit moved HERE, the EDA
+workflow + module map deduped vs eda/README, look-ahead intuition stated once). The root
+`history/CHANGELOG.md` became a thin dated index into this file; its root-only details were merged in
+below first (the 2026-07-08 results entry, the 2026-06-14 orthogonal-axes thread, the 2026-06-09
+first-results snapshot, the 2026-06-04 trainer batch, the 2026-06-01/03 dependency audit).
+eda/README + METRICS_REFERENCE inline result numbers → pointers; root CLAUDE.md gained a "Doc map"
+ownership table. No content deleted — only moved or replaced by a pointer to its owner.
+
 **Landed (2026-07-11) — roadmap #7 DONE: Run_Eval's `EXPERIMENTS` registry auto-generated from
 `discover_arms()`; EDA backlog now clear.** `oracle_scoring/config.py` builds the registry at import
 via `build_experiments_from_disk()` — one entry per `model_iter_N` conv dir per discovered arm, paths
@@ -35,6 +48,42 @@ top-level; ~20 deferred in-function imports gone); the 5× duplicated per-conver
 unified (`data.iter_conv_rows`, also used by `behavior.py`); `RE_AFFIRM` shared via the leaf + unused
 notebook imports trimmed; docstring-currency pass; eda README refactored to a pure guide (DRY vs
 CHANGELOG/SUMMARY); L0 + L5 result views fully re-rendered. Data state unchanged (full L0, partial L5).
+
+**Landed (2026-07-08) — GRPO LA0 FINISHED (10 iters) + re-scored: the fair-endpoint PTO-vs-GRPO
+comparison is in hand.** *(Detailed eval narrative moved here from CLAUDE.md's "Eval results so far"
+2026-07-12; the living numbers are in `eda/results/<view>/SUMMARY.md`.)* Scored on the full battery
+incl. the orthogonal axes (PCT, MICI, derived R:Q/%CR/%MICO): PTO LA0 iters 0–10, GRPO LA0 0–10,
+PTO LA5 0–4, GRPO LA5 0–1. (MI-SAT re-scored 2026-07-07 under corrected goal-agnostic wording; means
+rose uniformly ~+0.14, no headline changed.)
+- **Each arm vs base — large warmth gains.** PTO LA0 Q1+Q2 3.00→**4.26** (final=best, dz 1.43,
+  Friedman W=0.45); GRPO LA0 3.07→**4.08 at its iter-8 peak**, falling to **3.75 by iter 10** (final
+  dz 0.72, best dz 1.22, W=0.33); PTO LA5 3.00→3.89 in 4 iters (dz 0.88). All warmth rubrics large,
+  Holm p≈0 everywhere.
+- **PTO vs GRPO (RQ-ii).** The earlier "near-tie at iter 8" was a snapshot artifact: GRPO Q1Q2 peaks
+  at iter 8 (4.08) then REGRESSES (iter9 3.81, iter10 3.75) while PTO climbs stably (4.22→4.26). At
+  the matched 10-iter endpoint **PTO beats GRPO 4.26 vs 3.75** (paired +0.51, dz +0.73, Holm p<0.001;
+  MITI/CSQ-8/MI-SAT/PCT also favor PTO, and PTO is less MI-inconsistent). Overall OLS slopes GRPO
+  0.072/iter (peak iter 8) vs PTO 0.120/iter (peak iter 10); earlier matched-iter reads still hold
+  (tie 1–2, GRPO briefly ahead @3, PTO ahead @8). ⇒ Revised core answer: GRPO is competitive *up to
+  its peak* but overshoots into reward-hacking and degrades; PTO sustains gains across 10 iters. With
+  GRPO, peak-iter selection / early stopping matters — its best (4.08 @8) is still below PTO's best
+  (4.26 @10).
+- **Conversation-level mechanism (iter-10, same resistant persona).** GRPO iter-10 collapses into
+  nonstop empty praise and never gives the practical advice the patient demands 6+ times; PTO iter-10
+  also drifts toward affirmation but converges to concrete steps and the patient softens. Across all
+  96 iter-10 convs: GRPO 0.13 q/turn, 3.61 praise-words/turn vs PTO 0.50 q/turn, 1.02 praise/turn —
+  the iter-10 eval regression IS the over-praise reward-hack the full-conv oracle penalizes.
+- **Reward-hacking / multi-skill.** MICI rises with warmth: base 0.21 → 0.49 PTO (~2.3×, dz 0.78) /
+  **0.84** GRPO (~4×, dz 1.72) at the endpoint (GRPO's iter-8 peak was still 0.54, dz 0.89, before
+  the late regression blew it up). Affirmation drift in BOTH methods, worse in late GRPO (B6_AF
+  0.52→**1.98**, B3_Q 6.4→**4.1**, q/turn 0.83→**0.15**, R:Q→**1.44** by iter 10; mid-run GRPO looked
+  *more* reflective, R:Q 1.04 > PTO 0.75); PTO's drift is milder and plateaus (B6_AF 1.64, q/turn
+  0.55). PCT rises modestly, more for PTO (0.49→0.63 medium vs GRPO →0.57 small). Both kill
+  degeneration loops (loop% 0.49→0). Adding the orthogonal axes drops PC1 ≈91%→≈55% (PC2 ≈16%; PCT
+  loads ~0.39 on PC1 — change-talk co-moves with warmth).
+- **PTO preference probe is real:** wins_correct 0.65→0.71 over iters, strengthening late. **K0 vs K5
+  (RQ-i): still preliminary** (PTO LA5 4 scored iters, GRPO LA5 1); both LA5 arms paused for cost.
+Same day: the 20-commit EDA hardening/refactor pass — see the 2026-07-11 entry above.
 
 **Reorg-by-topic pass (2026-07-02).** No special "main" notebook — **topic notebooks ↔ numbered result
 families, 1:1** (notebook number == family number, so any artifact under `results/<view>/` traces to
@@ -139,6 +188,15 @@ INDEX ignores it) — optionally suppress provenance for tables-only notebooks.
 
 ---
 
+**EDA rebuilt research-grade + first cross-method results (2026-06-09).** Exp3's analysis EDA was
+rebuilt as the `eda/eda_analysis/` package + notebooks (reorganized the next day — see the 2026-06-10
+passes below), with true-persona recovery, both stat batteries + repeated-measures (Friedman), and a
+thesis-export layer (`results/` figures + tables). Old Exp2 EDA frozen in `eda/archive_exp2/` (then
+removed 2026-06-15 with the `pto_Exp2` data). **First-results snapshot (0–3 GRPO iters; superseded by
+2026-06-14 → 2026-07-08):** PTO LA0 3.00→4.26; GRPO LA0 reached 3.99 in 3 iters and *looked* to climb
+2.4× faster (slope 0.29 vs 0.12) — with GRPO extended to iter 8 that fast-slope read normalized to a
+near-tie, and by iter 10 GRPO regressed outright (see the 2026-07-08 entry at the top).
+
 **EDA refactor (2026-06-10).** The analysis EDA was reorganized **by research question** and made
 **method-symmetric** (the prior 2026-06-09 rebuild created the `eda_analysis/` package; this pass restructured
 the notebooks on top of it). **Hybrid plotting:** the recurring figures now live as named functions in
@@ -226,6 +284,15 @@ per-K + per-method contrast loops into ONE configurable cell; **`plots.heterogen
 the `char×arm` PNG explosion into one figure (panel per arm); the preference probe loops over
 `focus_arms ∩ PTO`. **Validated:** package smoke (PNG + xlsx sheet + select/overlay/heterogeneity/
 loadings) + all 6 notebooks via nbconvert (`thesis-venv313`); old flat `results/` wiped + regenerated.
+
+**Orthogonal eval axes (2026-06-14, same day as the two passes above).** The 6 rubrics correlated at
+PC1≈91% (a subjective warmth halo), so two **orthogonal questionnaires** were added to
+[questionnaires.py](../code/questionnaires.py): **PCT** (patient change-talk vs sustain-talk +
+readiness, ID 8) and **MICI** (MI-inconsistent therapist behaviors incl. over-praise/sycophancy, ID 9,
+lower=better), plus the *free* derived MITI-proficiency ratios **R:Q / %CR / %MICO** promoted to
+first-class outcomes. Scored for all arms via `Run_Eval`. **Result: PC1 drops 91%→≈56%** — warmth is
+one factor; technique + MI-inconsistency form a second. The `text_metrics` semantic regexes were
+demoted to a lexical sanity-check (affirmation now = oracle MITI_B6_AF / MICI over-praise).
 
 **VIEW system + package consolidation + narrative summaries (2026-06-18, latest).** Lior's asks: cleaner
 EDA, results split by look-ahead, fewer/easier-to-edit modules, and a written summary. **(1) The VIEW knob.**
@@ -588,4 +655,45 @@ set an OpenAI hard usage limit. See the `project-openai-cost-constraint` memory.
    "Runtime tuning for Colab throughput".**
 2. Maybe → either method @ MCL = 2.
 3. Maybe → other training oracles (WAI-SR / CSQ-8 / MI-SAT / MITI).
+
+## PTO parity + greedy mode + oracle-in-name batch (through 2026-06-04)
+
+Alongside the batched look-ahead rollout above, the same batch landed:
+- **PTO_Exp3 brought to parity with GRPO_Exp3** — controlled hyperparameters matched, M=8, bf16
+  toggle, zero-pairs/split robustness. Trainer modules renamed `trainer.py` →
+  `grpo_trainer.py`/`pto_trainer.py` (a `from trainer import` collision when both notebooks share one
+  local kernel — sys.modules cached the first-loaded trainer).
+- **Greedy true-PTO mode committed** (`e27b9de`): `PREF_TREE_MODE=greedy` grows ONE trunk via
+  best-of-M feedback (`grow_preference_trees_batch`); the old slice-branch path kept as
+  `independent`; `_PT{greedy|indep}` baked into `EXPERIMENT_NAME`. Greedy then made to slice its
+  MCL-prefix off the step-1 conv — no separate prefix-gen pass (`420299b`).
+- **Training oracle encoded in `EXPERIMENT_NAME`** (`7cbb475`): a `{Q1Q2|WAI|CSQ8|MI_SAT|MITI}` token
+  derived from `QUESTIONNAIRE_IDS`, identical to the EDA `oracle=<O>` tokens → ready for the oracle
+  sweep.
+- **Iteration-2 local-crash fix:** `precompute_ref_log_probs=True` on the PTO DPOConfig
+  (`DPO_PRECOMPUTE_REF_LOGPS` knob) moves the TRL `"ref"`-adapter forward out of the training backward
+  step — the isolated iter-2 DPO smoke test PASSED on the local Blackwell for the first time
+  (`_iter2_dpo_smoke.py`). GRPO quicktest block trimmed for the local 12 GB GPU.
+
+## Dependency stack audit (2026-06-01; update 2026-06-03)
+
+*(Moved here from CLAUDE.md 2026-07-12.)* Trainers were audited against the latest docs of the pinned
+stack (`transformers==5.8.1`, `trl==1.4.0`, `peft==0.19.1`, `huggingface_hub==1.14.0`,
+`wandb==0.26.1`) and **verified current** — nothing deprecated (the then-lingering "TRL v0.28"
+comments in the code were cleaned up later, 2026-07-11):
+- **`scale_rewards="group"`** (grpo_trainer.py) is the TRL **default** (`"group"/"batch"/"none"`), not a stale value.
+- **async reward fn** (_shared/reward.py) is natively awaited by TRL 1.x (`inspect.iscoroutinefunction` → `asyncio.gather`); extra dataset columns forwarded as kwargs; per-sample `None` supported.
+- `processing_class=`, `eval_strategy=` already on the new transformers-5/TRL-1 API.
+- `hf_xet` is a **required transitive dep** of `huggingface_hub` 1.x — already installed, nothing to add.
+- `gpt-4o-mini-2024-07-18` (patient + oracle) has **no API retirement date** per OpenAI dev docs (the only relevant shutdown is `gpt-4o-2024-05-13`, a different model).
+
+Same-session polish: both notebooks' Colab install cell **pinned to requirements.txt** (commented;
+`weave` dropped), `authenticate()` sets `WANDB_LOG_MODEL="checkpoint"` (versioned adapter artifact,
+third backup), and both configs set `run_name=current_adapter_repo`.
+
+**Update 2026-06-03.** Install cell now also (commented) `%pip uninstall -y torchao` — Colab pre-bakes
+torchao<0.16.0, which peft 0.19.1 rejects by *raising* inside `get_peft_model`'s `dispatch_torchao`
+(crashed both trainers at iter 1). A100 optimizer batch raised to **16 decision-points/step** (GRPO
+`TRAIN_BATCH_SIZE`=128, PTO DPO 16×1 — the DPO half later reverted to 2×8, see "Runtime tuning"; LR
+held). `NUM_ITERATIONS` 8→10 both.
 
