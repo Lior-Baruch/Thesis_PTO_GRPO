@@ -167,17 +167,12 @@ Train → it writes `conversations/full/<EXP>/model_iter_*` → `Run_Eval` (the 
 the run) → the notebooks pick it up automatically (re-run `python render_views.py`).
 
 ## Results
-Headline: **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs GRPO 3.75)** — GRPO peaks @ iter 8
-(4.08) then regresses into sycophancy; the orthogonal axes (PCT/MICI/R:Q/%CR/%MICO) show the warmth
-gains come *with* a rise in MI-inconsistency in both methods, ~2.3× PTO / ~4× GRPO at the endpoint
-(PC1 drops ≈91%→≈55%). The full
-narrative + numbers live in **`results/<view>/SUMMARY.md`** (L0 is the primary read), the Exp3
-[CLAUDE.md](../CLAUDE.md) "Eval results so far" section, and the `project-pto-la0-eval-results` memory —
-not duplicated here so they can't drift.
+Not duplicated here (so they can't drift). The full narrative + numbers live in
+**`results/<view>/SUMMARY.md`** (L0 is the primary read); the live status + headline is the root
+[CLAUDE.md](../../CLAUDE.md) § "Current status & next step".
 
 ## Roadmap
-Dated pass history (2026-06-09 → 2026-07-11) is in [history/CHANGELOG.md](../history/CHANGELOG.md).
-The backlog is clear — the last item (**auto-generate `Run_Eval`'s `EXPERIMENTS` registry from
-`discover_arms()`**, incl. skipping empty `model_iter` dirs) landed 2026-07-11. Optional future step:
-fold scoring into `eda_analysis/` entirely (the registry was the main reason `oracle_scoring/` stayed
-a separate package).
+Dated pass history (2026-06-09 → 2026-07-12) is in [history/CHANGELOG.md](../history/CHANGELOG.md);
+the backlog is clear (last item landed 2026-07-11). Optional future step: fold scoring into
+`eda_analysis/` entirely (the registry was the main reason `oracle_scoring/` stayed a separate
+package).

@@ -136,11 +136,12 @@ Two ways to measure "how much is the therapist asking questions", intentionally 
 
 **`behavior.question_rate_crosscheck`** puts them side by side per (arm, iteration); the figure
 `plotting.question_rate_crosscheck` overlays them per arm. They should track each other
-(cross-validation). Their **late divergence is itself the finding**: in GRPO's late iterations
-`B3_Q ≈ 4.1` but `q_per_turn ≈ 0.15` — praise-heavy turns still register as "question-function"
-utterances to the coder but no longer carry a literal `?`. (Audited 2026-07-03: NOT a bug — the merge
-is conv-aligned 96/96 with harmonized denominators; it's a real question-**syntax** vs question-**function**
-gap: late affirmation/advice turns carry question-function without a `?`.)
+(cross-validation). Their **late divergence is itself the finding**: in an affirmation-drifted arm
+the oracle's `q_per_turn_miti` stays well above the literal-`?` rate — praise-heavy turns still
+register as "question-function" utterances to the coder but no longer carry a `?`. (Audited
+2026-07-03: NOT a bug — the merge is conv-aligned 96/96 with harmonized denominators; it's a real
+question-**syntax** vs question-**function** gap: late affirmation/advice turns carry
+question-function without a `?`.)
 
 ---
 
@@ -149,16 +150,19 @@ gap: late affirmation/advice turns carry question-function without a `?`.)
 The core RQ-ii worry: both methods can raise the warmth reward by **over-praising / sycophancy** rather
 than doing real MI. These figures/checks are how the EDA exposes it.
 
+*(Definitions + directionality only — the current values live in `results/<view>/SUMMARY.md`, not
+here.)*
+
 | Check / figure | Where | What it shows |
 |---|---|---|
 | **`reward_hack_panel`** | `3_Mechanism` | The hack in one frame: per arm, twin y-axis — warmth (`Q1+Q2`, left) **climbs** while `MICI↓` (MI-inconsistency, right) **climbs with it** and `PCT` (real patient change-talk) barely moves. "All rubrics up" ≠ multi-skill. |
-| **Peak-then-regress marking** | `single_metric_trajectory(mark_peaks=True)`, `1_Outcomes` | Auto-draws a vline at any arm's peak iteration *only if it regressed after* — surfaces **GRPO's iter-8 peak (4.08) → iter-10 (3.75)** without hardcoding. PTO climbs stably. |
-| **Affirmation drift** | `behavior_by_iter` / behavior trajectories, `3_Mechanism` | `B6_AF` rises (PTO 0.42→1.64; GRPO 0.52→**1.98** by iter 10) while `B3_Q` falls — confirmed in **both** methods, worse in late GRPO. |
+| **Peak-then-regress marking** | `single_metric_trajectory(mark_peaks=True)`, `1_Outcomes` | Auto-draws a vline at any arm's peak iteration *only if it regressed after* — surfaces a peak-then-regression arm (e.g. late GRPO) without hardcoding. |
+| **Affirmation drift** | `behavior_by_iter` / behavior trajectories, `3_Mechanism` | `B6_AF` rising while `B3_Q` falls over iterations — the over-praise drift signature. |
 | **`overpraise_crosscheck`** | `behavior.py` + `3_Mechanism` | Lexical over-praise marker rate beside the oracle's `MICI_OverPraiseRate` — validates the sycophancy direction. |
-| **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per turn rises with warmth: ~2.3× PTO / ~4× GRPO at the iter-10 endpoint (base 0.21 → 0.49 PTO / 0.84 GRPO; GRPO's iter-8 peak was 0.54). |
-| **`subgroup_endpoint_bars`** | `2_Heterogeneity` | Final-iteration score per persona × arm — shows GRPO's late regression **concentrates on Resistant (low-cooperation) personas**. |
+| **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per therapist turn across iterations — does it rise with warmth? |
+| **`subgroup_endpoint_bars`** | `2_Heterogeneity` | Final-iteration score per persona × arm — where does a late regression concentrate? |
 | **`effect_forest`** | `1_Outcomes` | Each arm×rubric Δ-vs-base with 95% CI + `dz`; MICI is direction-colored (a positive Δ is *bad*). Readable stand-in for the 28-row table. |
-| **PCA / `factor_loadings_bars`** | `3_Mechanism` / `6_Stats` | PC1 share drops ≈91% → ≈55% once orthogonal axes are added → warmth is one factor, technique+MICI a genuine second. |
+| **PCA / `factor_loadings_bars`** | `3_Mechanism` / `6_Stats` | PC1 share once orthogonal axes are added → is warmth one factor and technique+MICI a second? |
 | **`question_rate_crosscheck`** | `3_Mechanism` | (§4) — questions collapsing while warmth rises is part of the same drift. |
 
 ---

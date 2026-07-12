@@ -1,8 +1,8 @@
 # Exp3 — measurement & inference limitations (for the thesis write-up)
 
 Deliberately-scoped limitations of the Exp3 evaluation. These are **documented, not fixed**
-(see the CLAUDE.md backlog for what was fixed). Each names where in the notebooks the reader
-meets it.
+(what *was* fixed is in [../history/CHANGELOG.md](../history/CHANGELOG.md)). Each names where in
+the notebooks the reader meets it.
 
 ## 1 · Judge reliability is not measured (single scoring)
 Every conversation is scored **once** by the oracle, with `temperature=0.1, seed=42`. That
@@ -11,7 +11,7 @@ per-item variance, ICC, or human-vs-oracle κ. So the questionnaire scores shoul
 single consistent instrument, not as estimates with a known measurement error. A held-out
 subset re-scored 3–5× (variance/ICC) and a human MI/MITI-coder validation on a small sample
 would be the strongest future addition to the measurement-validity section; both cost oracle
-budget and are deferred (OpenAI spend is a binding constraint, ~$300).
+budget and are deferred (OpenAI spend is a binding constraint — see the root CLAUDE.md).
 
 ## 2 · Shared-model (patient = oracle) coupling
 The simulated patient **and** the grading oracle are the **same** model
