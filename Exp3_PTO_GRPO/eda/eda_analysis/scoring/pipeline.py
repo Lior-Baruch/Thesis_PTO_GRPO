@@ -1,5 +1,5 @@
 """
-eval.py — Async oracle pipeline used by ``Run_Eval.ipynb``.
+pipeline.py — the async oracle pipeline used by ``Run_Eval.ipynb`` (formerly ``oracle_scoring/eval.py``).
 
 The questionnaires module is imported lazily so that the rest of the EDA still
 imports cleanly even when an environment doesn't have it on ``sys.path``.
@@ -13,8 +13,11 @@ from typing import Optional
 import numpy as np
 import pandas as pd
 
-from .config import DEFAULT_CONCURRENCY, EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, eval_csv_dir
-from .data import reconstruct_conversation_text
+from .registry import (
+    DEFAULT_CONCURRENCY, EVAL_MODEL, EVAL_QUESTIONNAIRE_DIRS, EVAL_TEMPERATURE,
+    MAX_RETRIES, eval_csv_dir,
+)
+from .conversations import reconstruct_conversation_text
 
 
 EVAL_CODE_AVAILABLE = False
@@ -197,13 +200,12 @@ if EVAL_CODE_AVAILABLE:
             return None
 
     def build_default_eval_configs(config) -> list:
-        """Build the default eval-config list from an :class:`EDAConfig`.
+        """Build the default eval-config list from a :class:`registry.ScoringConfig`.
 
         Each config carries the questionnaire's folder *basename* (``q_subdir``),
         not an absolute folder — the writer joins it under each model's own
         method root (see :func:`run_all_evaluations_async`).
         """
-        from .config import EVAL_QUESTIONNAIRE_DIRS
         specs = [
             ("CSQ-8", QuestionnaireID.CSQ8),
             ("WAI-SR", QuestionnaireID.WAI_SR),
@@ -307,7 +309,7 @@ if EVAL_CODE_AVAILABLE:
         """Run ``_process_one_questionnaire`` for every config sequentially.
 
         ``model_layout`` maps each model name to ``{'root', 'oracle'}`` (use
-        :func:`config.get_model_eval_layout`), so scores land under
+        :func:`registry.get_model_eval_layout`), so scores land under
         ``<root>/metric=<M>/oracle=<O>/<model>/``.
         """
         results = {}

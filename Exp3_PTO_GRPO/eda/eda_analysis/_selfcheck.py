@@ -105,6 +105,36 @@ def _c_live_aliases() -> str:
     return "figures/plots -> plotting"
 
 
+def _c_scoring_surface() -> str:
+    """The scoring subpackage (Run_Eval + Judge_Reliability backend) keeps its public surface.
+
+    Imports ``eda_analysis.scoring`` (NOT imported by the package __init__ — it scans disk for the
+    registry) and asserts every name the two scoring notebooks reference still resolves. Works with
+    an empty registry (Drive offline): the check is structural, not data.
+    """
+    from eda_analysis import scoring
+    from eda_analysis.scoring import registry, conversations, pipeline, judge
+    missing = [n for n in scoring.__all__ if not hasattr(scoring, n)]
+    assert not missing, f"scoring.__all__ names not resolvable: {missing}"
+    for mod, attrs in {
+        registry: ("ScoringConfig", "EXPERIMENTS", "resolve_paths", "get_model_names",
+                   "get_model_eval_layout", "eval_csv_dir", "EVAL_QUESTIONNAIRE_DIRS"),
+        conversations: ("load_data", "combine_data", "reconstruct_conversation_text",
+                        "add_model_metadata_columns"),
+        pipeline: ("EVAL_CODE_AVAILABLE",),
+        judge: ("JudgeSpec", "PRIMARY_JUDGE", "JUDGE_CHECK_ROOT", "JUDGE_METRIC_COLS",
+                "run_judge_scoring", "load_judge_scores", "repeatability_table",
+                "agreement_table", "contrast_preservation", "icc_2_1"),
+    }.items():
+        bad = [a for a in attrs if not hasattr(mod, a)]
+        assert not bad, f"{mod.__name__} missing: {bad}"
+    if pipeline.EVAL_CODE_AVAILABLE:
+        for a in ("evaluate_conversation", "build_default_eval_configs", "run_all_evaluations_async"):
+            assert hasattr(pipeline, a), f"pipeline missing {a}"
+    return (f"scoring surface OK ({len(scoring.__all__)} names; registry has "
+            f"{len(registry.EXPERIMENTS)} experiments)")
+
+
 def _notebook_symbol_refs() -> dict:
     """Scan committed notebooks for ``<submodule>.<attr>(`` calls -> {submodule: {attr, ...}}."""
     pat = re.compile(r"\b(" + "|".join(_SUBMODULES) + r")\.([A-Za-z_][A-Za-z0-9_]*)")
@@ -295,6 +325,7 @@ def main(argv: List[str] | None = None) -> int:
     _run("view->ks map", _c_view_map, results)
     _run("EdaConfig round-trip", _c_config_roundtrip, results)
     _run("live aliases (figures/plots)", _c_live_aliases, results)
+    _run("scoring subpackage surface", _c_scoring_surface, results)
     _run("notebook symbol refs resolve", _c_notebook_refs_resolve, results)
     _run("cache mechanism + invalidation", _c_cache_mechanism, results)
     # Data — unless --fast.

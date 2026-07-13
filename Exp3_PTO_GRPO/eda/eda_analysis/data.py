@@ -238,7 +238,7 @@ def discover_arms(data_dir: str = DATA_DIR, *, include_archived: bool = False) -
 
     Empty ``model_iter_*`` dirs (no ``conversation_*.csv``) are skipped — they are
     in-flight/paused generation leftovers, not data points. Also the source of truth
-    for ``oracle_scoring.config.EXPERIMENTS`` (Run_Eval's scoring registry is
+    for ``eda_analysis.scoring.registry.EXPERIMENTS`` (Run_Eval's scoring registry is
     auto-generated from this discovery — see ``build_experiments_from_disk``).
     """
     arms: List[Arm] = []

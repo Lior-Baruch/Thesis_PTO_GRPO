@@ -1,31 +1,30 @@
 """
-config.py — Constants, palettes, dataclasses, and the experiment registry.
+registry.py — eval settings, the ``eval_scores/`` layout helpers, and the experiment registry.
 
 Constants + dataclasses are pure data; the :data:`EXPERIMENTS` registry is
-**auto-generated at import** from ``eda_analysis.data.discover_arms()`` (one disk
+**auto-generated at import** from :func:`eda_analysis.data.discover_arms` (one disk
 scan — EDA roadmap #7, 2026-07-11), so a freshly-landed run is scoreable by
 Run_Eval with no registry edit.
 
 All paths in :data:`EXPERIMENTS` are stored **relative to the experiment root**
 (the Exp3 folder, where the API keys live). :func:`resolve_paths` joins each
-entry with :data:`WORKSPACE_ROOT` to produce absolute paths.
+entry with ``WORKSPACE_ROOT`` to produce absolute paths.
 """
 
 import os
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-
-from . import WORKSPACE_ROOT
+from ..constants import DATA_DIR, WORKSPACE_ROOT  # noqa: F401  (DATA_DIR re-exported for callers)
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
 # ║                              CONSTANTS                                     ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-# Alias map for oracle tokens parsed from model names. ``data._normalize_oracle_token``
+# Alias map for oracle tokens parsed from model names. ``conversations._normalize_oracle_token``
 # uppercases + replaces ``-`` with ``_`` before lookup, so keys must be uppercase
-# canonical forms. Add new aliases here, not in data.py. Unknown tokens fall
+# canonical forms. Add new aliases here, not in conversations.py. Unknown tokens fall
 # through to ``"Other"`` unless ``strict=True`` is passed.
 ORACLE_TOKEN_ALIASES = {
     "CSQ":          "CSQ8",
@@ -68,7 +67,6 @@ DEFAULT_CONCURRENCY = 32
 # namespaces never collide. The score path is resolved per-model from the
 # experiment's ``method`` + training ``oracle`` (see ``eval_scores_root_for_method``,
 # ``get_model_eval_layout``, ``eval_csv_dir``).
-DATA_DIR = os.path.join(WORKSPACE_ROOT, "data")
 
 # Training method -> the data/ subdir that owns its eval_scores/.
 METHOD_DATA_DIR = {
@@ -121,13 +119,14 @@ def eval_csv_dir(root: str, oracle: str, metric_subdir: str, model: str) -> str:
 
 
 @dataclass
-class EDAConfig:
-    """Runtime knobs for eval and analysis.
+class ScoringConfig:
+    """Runtime knobs for oracle scoring (formerly ``EDAConfig`` — renamed at the
+    2026-07-13 fold to stop the near-collision with ``eda_analysis.EdaConfig``).
 
     Eval scores are co-located per method and labelled by metric + training
     oracle: ``data/<method>/eval_scores/metric=<M>/oracle=<O>/<model>/``.
     ``method`` selects the method root (``eval_base_dir``); cross-method work
-    (Run_Eval / Conv_EDA) resolves each model's root + oracle via
+    (Run_Eval) resolves each model's root + oracle via
     :func:`get_model_eval_layout` and builds paths with :func:`eval_csv_dir`.
     """
     method: str = "GRPO_Exp3"
@@ -178,7 +177,7 @@ class Experiment:
 
 
 def build_experiments_from_disk() -> List[Experiment]:
-    """Auto-generate the registry from ``eda_analysis.data.discover_arms()``.
+    """Auto-generate the registry from :func:`eda_analysis.data.discover_arms`.
 
     One :class:`Experiment` per ``model_iter_N`` conv dir actually on disk (with
     conversations — empty in-flight dirs are skipped by discovery), per discovered
@@ -193,11 +192,7 @@ def build_experiments_from_disk() -> List[Experiment]:
     Drive symlinks are offline, discovery finds nothing and the registry is empty
     (a warning is printed at import).
     """
-    import sys
-    _eda_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    if _eda_dir not in sys.path:
-        sys.path.insert(0, _eda_dir)
-    from eda_analysis.data import discover_arms  # sibling package under eda/
+    from ..data import discover_arms  # deferred: pulls in pandas
 
     exps: List[Experiment] = []
     for arm in sorted(discover_arms(), key=lambda a: (a.method, a.K)):
@@ -216,7 +211,7 @@ def build_experiments_from_disk() -> List[Experiment]:
 
 EXPERIMENTS: List[Experiment] = build_experiments_from_disk()
 if not EXPERIMENTS:
-    print("[oracle_scoring.config] WARNING: discover_arms() found no runs on disk — "
+    print("[eda_analysis.scoring.registry] WARNING: discover_arms() found no runs on disk — "
           "EXPERIMENTS is empty (are the data/ Drive symlinks mounted?)")
 
 
@@ -238,8 +233,8 @@ def get_model_eval_layout(experiments: Optional[List[Experiment]] = None) -> Dic
     The single source of truth for *where a model's gradings live* (``root``,
     per method) and *which training oracle produced it* (``oracle``). Drives the
     ``<root>/metric=<M>/oracle=<O>/<model>/`` layout — build paths with
-    :func:`eval_csv_dir`. The writer (``eval.run_all_evaluations_async``) and
-    reader (``data.load_all_eval_results``) both take this map.
+    :func:`eval_csv_dir`. The writer (``pipeline.run_all_evaluations_async``) and
+    the judge runner (``judge.run_judge_scoring``) both take this map.
     """
     experiments = experiments or EXPERIMENTS
     return {
@@ -249,9 +244,9 @@ def get_model_eval_layout(experiments: Optional[List[Experiment]] = None) -> Dic
 
 
 def resolve_paths(experiments: Optional[List[Experiment]] = None) -> List[str]:
-    """Absolute paths produced by joining each ``e.path`` with :data:`WORKSPACE_ROOT`.
+    """Absolute paths produced by joining each ``e.path`` with ``WORKSPACE_ROOT``.
 
-    Paths that don't exist on disk are returned unchanged — :func:`data.load_data`
+    Paths that don't exist on disk are returned unchanged — :func:`conversations.load_data`
     skips missing experiments so the EDA still runs on whatever IS available.
     """
     return [os.path.join(WORKSPACE_ROOT, p) for p in get_data_paths(experiments)]

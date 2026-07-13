@@ -22,12 +22,12 @@ Usage (run from the ``eda/`` directory, or anywhere — it cd's itself)::
     python render_views.py L0              # just the L0 view (the meeting view)
     python render_views.py all             # the merged superset view (opt-in)
     python render_views.py all L0 L5       # all three, in parallel
-    python render_views.py L0 --nb 2       # L0 view, only 3_Mechanism (one-figure tweak)
+    python render_views.py L0 --nb 3       # L0 view, only 3_Mechanism (one-figure tweak)
     python render_views.py --jobs 1        # force sequential (low memory)
     python render_views.py --list          # print the view + notebook lists and exit
 
-Notebook numbering == results family numbering (1_Outcomes → figures/1_outcomes/, …). NOTE: ``--nb``
-takes LIST INDICES 0..5 into NOTEBOOKS (0 → 1_Outcomes), not the filename numbers.
+Notebook numbering == results family numbering (1_Outcomes → figures/1_outcomes/, …), and ``--nb``
+takes exactly those numbers (``--nb 3`` = ``3_Mechanism.ipynb``).
 
 Needs the ``thesis-venv313`` Jupyter kernel (the venv with torch/trl/pandas). Register it once:
     .venv\\Scripts\\python.exe -m ipykernel install --user --name thesis-venv313
@@ -57,6 +57,7 @@ NOTEBOOKS = [
     "5_Preference.ipynb",
     "6_Stats.ipynb",
 ]
+NB_BY_NUMBER = {int(nb.split("_")[0]): nb for nb in NOTEBOOKS}
 KERNEL = "thesis-venv313"
 TIMEOUT = 1800  # seconds per notebook (the preference embedding cell is the slow one)
 MAX_PARALLEL_VIEWS = 4  # cap default parallelism — each concurrent view is one live nbconvert kernel
@@ -100,7 +101,8 @@ def main(argv=None) -> int:
     ap.add_argument("views", nargs="*", default=None,
                     help="views to render (subset of all/L0/L5); default = L0 L5 (all is opt-in)")
     ap.add_argument("--nb", nargs="*", type=int, default=None,
-                    help="notebook indices to render (0..5); default = all six")
+                    help="notebook NUMBERS to render (1..6 — the filename/family number, "
+                         "e.g. 3 = 3_Mechanism); default = all six")
     ap.add_argument("--jobs", "-j", type=int, default=None,
                     help=f"parallel views (default = #views, capped at {MAX_PARALLEL_VIEWS}); 1 = sequential")
     ap.add_argument("--list", action="store_true", help="print the view/notebook lists and exit")
@@ -108,14 +110,21 @@ def main(argv=None) -> int:
 
     if args.list:
         print("views:", VIEWS, "  default:", DEFAULT_VIEWS)
-        print("notebooks:", {i: nb for i, nb in enumerate(NOTEBOOKS)})
+        print("notebooks (--nb number: file):", NB_BY_NUMBER)
         return 0
 
     views = args.views or DEFAULT_VIEWS
     bad = [v for v in views if v not in VIEWS]
     if bad:
         ap.error(f"unknown view(s) {bad}; choose from {VIEWS}")
-    notebooks = [NOTEBOOKS[i] for i in args.nb] if args.nb is not None else NOTEBOOKS
+    if args.nb is not None:
+        bad_nb = [n for n in args.nb if n not in NB_BY_NUMBER]
+        if bad_nb:
+            ap.error(f"unknown notebook number(s) {bad_nb}; choose from {sorted(NB_BY_NUMBER)} "
+                     f"(the filename/family number, e.g. 3 = {NB_BY_NUMBER[3]})")
+        notebooks = [NB_BY_NUMBER[n] for n in args.nb]
+    else:
+        notebooks = NOTEBOOKS
     jobs = args.jobs if args.jobs is not None else min(len(views), MAX_PARALLEL_VIEWS)
     jobs = max(1, min(jobs, len(views)))
 

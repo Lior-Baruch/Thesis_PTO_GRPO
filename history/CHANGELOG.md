@@ -9,6 +9,7 @@ first — nothing was deleted.
 
 ---
 
+- **2026-07-13** — EDA structural refactor: `oracle_scoring/` folded into `eda_analysis/scoring/` (purpose-named modules; `EDAConfig`→`ScoringConfig`); `plotting.py` split into a topic subpackage behind an unchanged surface; `render_views.py --nb` takes notebook numbers; `_selfcheck` extended (10/10, headline means reproduce).
 - **2026-07-12 (b2)** — Measurement-validity hardening: "warmth"→global-eval-halo relabel (incl. figure text; Q1/Q2 provenance = the lab's CLPsych 2024 paper, cited); official MITI 4.2.1 competency thresholds (§2b — neither arm reaches "good" on technique ratios); Q2 item-level reward composition (§4f — self-disclosure items top both arms' Δ); judge-reliability pipeline ready to run (`Judge_Reliability.ipynb`: ICC + pluggable Claude/OpenAI second judge).
 - **2026-07-12** — Docs refactor: one owner per fact (Exp3 CLAUDE.md 601→492; this file → index; eda README/METRICS numbers → pointers; root CLAUDE.md "Doc map" + consolidated "Current status").
 - **2026-07-11** — EDA roadmap #7: Run_Eval's `EXPERIMENTS` registry auto-generated from `discover_arms()`; empty `model_iter` dirs skipped; LA5 pause-state docs corrected; backlog clear.

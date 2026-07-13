@@ -240,23 +240,26 @@ Exp3_PTO_GRPO/
 │       ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
-│   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; uses oracle_scoring/, registry-driven)
+│   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; backend: eda_analysis/scoring/, registry-driven)
 │   ├── 1_Outcomes.ipynb …             the 6 topic notebooks (`1_Outcomes` `2_Heterogeneity` `3_Mechanism`
 │   │     … 6_Stats.ipynb              `4_Training_and_Reliability` `5_Preference` `6_Stats`) ↔ result
 │   │                                  families 1:1, [EVAL]/[TRAINING]-tagged — contents table: eda/README.md
-│   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes LIST indices 0..5)
+│   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes the notebook/family NUMBER 1..6)
 │   ├── strip_notebook_outputs.py        output-clean helper (paired with the nbstrip git clean-filter)
 │   ├── README.md                        EDA guide: notebook↔family table, VIEW knob, module map, roadmap
 │   ├── LIMITATIONS.md                   documented measurement/inference limitations (for the thesis write-up)
 │   ├── METRICS_REFERENCE.md             cheat-sheet for every EDA number (questionnaires, derived ratios, hack battery)
-│   ├── eda_analysis/                    Exp3 analysis package (disk-discovery, read-only): a constants LEAF
-│   │                                    + config / data / plotting_style / plotting / stats / behavior /
-│   │                                    training / pref / exports / _selfcheck (figures+plots alias plotting).
-│   │                                    Module-by-module map: eda/README.md § "Package".
+│   ├── eda_analysis/                    THE Exp3 EDA package (one package since the 2026-07-13 fold):
+│   │                                    analysis layer (disk-discovery, read-only) = constants LEAF
+│   │                                    + config / data / plotting_style / stats / behavior / training /
+│   │                                    pref / exports / _selfcheck + plotting/ subpackage (topic-split
+│   │                                    figures; figures+plots alias it); scoring layer = scoring/
+│   │                                    subpackage (registry / conversations / pipeline / judge — the
+│   │                                    Run_Eval + Judge_Reliability backend, imported explicitly, not
+│   │                                    via __init__). Module map: eda/README.md § "Package".
 │   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md
 │   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
-│   ├── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
-│   └── oracle_scoring/                  LEGACY package — pruned 2026-07-08 to ONLY the Run_Eval scoring path (config EXPERIMENTS registry — AUTO-GENERATED from eda_analysis discover_arms() since 2026-07-11 — + eval settings, data conversation-loading, eval async oracle pipeline). Analysis leftovers removed; the analysis lives in eda_analysis/.
+│   └── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
 └── HF_key.txt, openai_key.txt
 ```
 
@@ -270,8 +273,9 @@ infrastructure narratives) — moved to [history/CHANGELOG.md](history/CHANGELOG
 is the "EDA workflow" + "Training internals" + "Run status" sections.
 
 **Single canonical copies.** `system_prompts_builder.py` and `questionnaires.py`
-live ONLY at `code/` root — both `eda/oracle_scoring/__init__.py` and `eda/eda_analysis/__init__.py` prepend
-`code/` to `sys.path` so they import the same canonical files. No more drift.
+live ONLY at `code/` root — `eda/eda_analysis/constants.py` (the package's leaf, imported by
+everything incl. `scoring/`) prepends `code/` to `sys.path` so they import the same canonical
+files. No more drift.
 
 ### EDA workflow (short version — full guide in [eda/README.md](eda/README.md))
 1. **Score:** `Run_Eval.ipynb` — its `EXPERIMENTS` registry is auto-generated from
@@ -468,18 +472,20 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 
 ## EDA extension points
 
-**New analysis EDA (`eda_analysis/`)** needs **no registry edits** — it auto-discovers arms from disk. Extend
-it by concern: a new rubric → `eda_analysis/constants.py::QUESTIONNAIRES` + `data.py` (the scores
-backbone); a new arm naming scheme → `data.py::parse_experiment_name`; new stats → `stats.py`; new figures →
-`plotting.py`; a new VIEW or results-layout change → `config.py` (the `view`/`_VIEW_KS` logic) + `exports.py`.
-(`figures`/`plots` are still aliased to `plotting`; the data-module aliases
-`discovery`/`personas`/`scores`/`select` were retired — use `eda_analysis.data.*` / the top-level
-re-exports.) The bullets below apply to the **old
-`oracle_scoring/` package**, which now only powers `Run_Eval.ipynb` (scoring):
+**Analysis layer (`eda_analysis/` top level)** needs **no registry edits** — it auto-discovers arms from
+disk. Extend it by concern: a new rubric → `eda_analysis/constants.py::QUESTIONNAIRES` + `data.py` (the
+scores backbone); a new arm naming scheme → `data.py::parse_experiment_name`; new stats → `stats.py`; new
+figures → the topic module in `plotting/` (+ its `__init__` re-export); a new VIEW or results-layout change
+→ `config.py` (the `view`/`_VIEW_KS` logic) + `exports.py`. (`figures`/`plots` are still aliased to
+`plotting`; the data-module aliases `discovery`/`personas`/`scores`/`select` were retired — use
+`eda_analysis.data.*` / the top-level re-exports.)
 
-- **`config.ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `data._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
-- **`config.COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
-- **`config.EXPERIMENTS`** — registry of trained-model data locations, **auto-generated at import** by `config.build_experiments_from_disk()` from `eda_analysis.data.discover_arms()` (2026-07-11). New runs are picked up automatically once their conversations land; nothing to edit. (If the Drive symlinks are offline the registry is empty and a warning prints.)
+**Scoring layer (`eda_analysis/scoring/` — the Run_Eval + Judge_Reliability backend):**
+
+- **`scoring/registry.py::ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `conversations._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
+- **`scoring/registry.py::COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
+- **`scoring/registry.py::EXPERIMENTS`** — registry of trained-model data locations, **auto-generated at import** by `build_experiments_from_disk()` from `eda_analysis.data.discover_arms()` (2026-07-11). New runs are picked up automatically once their conversations land; nothing to edit. (If the Drive symlinks are offline the registry is empty and a warning prints.)
+- **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs stay under `data/judge_check/`, never the real `eval_scores/`.
 
 ## Gotchas
 
