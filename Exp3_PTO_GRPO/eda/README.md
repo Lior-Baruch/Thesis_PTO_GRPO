@@ -1,11 +1,13 @@
 # Exp3 EDA — guide
 
 Analysis for **PTO_Exp3 vs GRPO_Exp3** (Llama-3.2-1B therapist vs gpt-4o-mini patient/oracle), across
-training iterations, under matched look-ahead K and MCL. All data/compute/stats lives in the
-`eda_analysis/` package; the recurring figures are named functions in `eda_analysis/plotting.py`
-(called once from multiple notebooks), and genuinely one-off exploration stays inline (the **hybrid**
-plotting split). Thesis figures/tables are exported per **VIEW** into
-`results/<view>/figures|tables/<family>/` — figures `.png`, tables `.md` + `.xlsx`.
+training iterations, under matched look-ahead K and MCL. Everything lives in ONE package,
+`eda_analysis/` (since the 2026-07-13 fold of the legacy `oracle_scoring/`): the analysis layer at
+the top level + the oracle-scoring layer in the `scoring/` subpackage. The recurring figures are
+named functions in the `eda_analysis/plotting/` subpackage (called once from multiple notebooks),
+and genuinely one-off exploration stays inline (the **hybrid** plotting split). Thesis
+figures/tables are exported per **VIEW** into `results/<view>/figures|tables/<family>/` — figures
+`.png`, tables `.md` + `.xlsx`.
 
 **Organization = topic notebooks ↔ numbered result families, 1:1 (2026-07-02 reorg).** Every notebook
 is a topic; its NUMBER equals its results-family number, so any artifact under `results/<view>/`
@@ -49,7 +51,7 @@ auto-generated **`INDEX.md`** (the artifact map).
 ```
 python render_views.py            # every view × 6 notebooks via nbconvert
 python render_views.py L0         # just the L0 view
-python render_views.py L5 --nb 3  # one view, one notebook (--nb takes LIST indices 0..5: 0 = 1_Outcomes)
+python render_views.py L5 --nb 3  # one view, one notebook (--nb takes the notebook/family NUMBER: 3 = 3_Mechanism)
 ```
 `render_views.py` sets `EDA_VIEW` per run and executes each notebook to a throwaway `--output-dir`
 (so the committed notebooks' outputs aren't churned — only the `results/` tree is the deliverable).
@@ -100,9 +102,10 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
 
 ## Run order
 1. **`Run_Eval.ipynb`** — async oracle scoring → `data/<method>/eval_scores/`. The
-   `oracle_scoring/config.py::EXPERIMENTS` registry is **auto-generated from `discover_arms()`**
-   (2026-07-11, roadmap #7) — a new run is scoreable as soon as its conversations land; no registry
-   edit. Resume-safe. Score **PCT** + **MICI** with `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
+   `eda_analysis/scoring/registry.py::EXPERIMENTS` registry is **auto-generated from
+   `discover_arms()`** (2026-07-11, roadmap #7) — a new run is scoreable as soon as its
+   conversations land; no registry edit. Resume-safe. Score **PCT** + **MICI** with
+   `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
 2. **`1_Outcomes.ipynb`** → **`6_Stats.ipynb`** in any order (the notebook↔family table above says
    what lives where). Every notebook auto-discovers arms from disk via `eda_analysis.discover_arms()`
    (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
@@ -111,17 +114,19 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    a subset: oracle repeatability (ICC, per-rep seeds) + a pluggable **second judge** (Claude via the
    `anthropic` SDK, or another OpenAI model) with the PTO−GRPO contrast-preservation check. Gated
    behind explicit `RUN_*` flags; writes to `data/judge_check/` (never the real `eval_scores/`);
-   NOT part of `render_views.py`. Backing module: `oracle_scoring/judge_check.py`. Addresses
+   NOT part of `render_views.py`. Backing module: `eda_analysis/scoring/judge.py`. Addresses
    `LIMITATIONS.md` §1–§2.
 
-## Package (`eda_analysis/`) — analysis modules on a `constants` leaf (+ `plotting_style` helpers, `_selfcheck` guard)
+## Package (`eda_analysis/`) — analysis modules on a `constants` leaf + `scoring/` and `plotting/` subpackages
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
 `figures`/`plots` still resolve as aliases of `plotting`; the data-module aliases were retired
-(2026-07-08). `plotting` was split (2026-07-08) into the named figures + a `plotting_style` helper
-sibling (re-imported into `plotting`, so the public surface is unchanged). The Layer-0 core was
-extracted (2026-07-08) into a **`constants` leaf**, breaking the old `__init__`↔submodule import
-cycle — submodule imports are now plain top-level `from .constants import ...` (the ~20 deferred
-in-function imports are gone; only genuinely cross-module ones remain deferred).
+(2026-07-08). The Layer-0 core was extracted (2026-07-08) into a **`constants` leaf**, breaking the
+old `__init__`↔submodule import cycle — submodule imports are plain top-level
+`from .constants import ...` (only genuinely cross-module imports remain deferred). On 2026-07-13
+the legacy `oracle_scoring/` package was **folded in** as the `scoring/` subpackage (one package,
+purpose-named modules — no more duplicate `config.py`/`data.py` names across two packages) and
+`plotting.py` (935 lines, 27 figures) was **split** into the `plotting/` subpackage's topic modules
+behind an unchanged public surface.
 
 - **`constants`** — the LEAF (imports nothing from the package): workspace-root resolution +
   `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`WARMTH_RUBRICS` (the global-eval
@@ -141,10 +146,13 @@ in-function imports are gone; only genuinely cross-module ones remain deferred).
   grey], `grid`, `set_style(cfg)`, `clean_label`, `apply_score_axis`, `model_order`, `relabel_*`,
   `add_base_line`, `figure_legend_from`). Re-imported into `plotting`, so `figures.set_style(...)`
   etc. still resolve.
-- **`plotting`** — the named figures (`effect_forest`, `reliability_curve`, `subscale_trajectory_grid`,
-  `trajectory_grid`, `heterogeneity_grid`, `factor_loadings_bars`, `leaderboard_scorecard`,
-  diverging `rubric_correlation_heatmap`, …), calling the `plotting_style` helpers. *(aliased back as
-  `eda_analysis.figures`/`plots`.)*
+- **`plotting/`** (subpackage) — the named figures, split by topic behind a re-exporting `__init__`
+  (the public surface is the flat module's): `outcomes` (per-model bars, `effect_forest`,
+  `leaderboard_scorecard`) · `trajectories` (`trajectory_grid`, `single_metric_trajectory`,
+  subscales, `reward_hack_panel`) · `heterogeneity` (persona splits) · `structure`
+  (`reliability_curve`, proxy-vs-eval, diverging `rubric_correlation_heatmap`,
+  `factor_loadings_bars`) · `behavior` (drift grids, MITI thresholds, Q2 items) · `training`
+  (reward distribution, advantage side-by-side). *(aliased back as `eda_analysis.figures`/`plots`.)*
 - **`stats`** — persona-paired Wilcoxon/dz/bootstrap + Friedman/Kendall-W + `main_results_table` +
   `paired_method_comparison` (PTO vs GRPO) + `paired_k_comparison` (K0 vs K5) +
   `rank_agreement_by_nturns` (reward reliability) + `rubric_pca`/`rubric_factor_space` +
@@ -159,19 +167,19 @@ in-function imports are gone; only genuinely cross-module ones remain deferred).
 - **`exports`** — `save_fig` (PNG) / `save_table` (MD+XLSX) → `results/<view>/<group>/`;
   `set_view` / `set_export_group` / `set_formats` / `save_provenance` / `build_index` /
   `reset_results` (clears the active view's figures/tables; **preserves `SUMMARY.md`**).
-- **`_selfcheck`** — the guard: package invariants + known headline means + cache round-trip.
-  Run `python -m eda_analysis._selfcheck` after any EDA change.
-- **`__init__`** — thin re-export hub: re-exports the `constants` leaf + every submodule's public
-  names, and the `figures`/`plots` → `plotting` aliases. No definitions of its own.
-
-Two packages, by purpose: **`eda_analysis/`** = the analysis layer (notebooks `1`–`6`, disk-discovery,
-no registry) and **`oracle_scoring/`** = the scoring package, **pruned (2026-07-08) to ONLY the
-`Run_Eval.ipynb` scoring path** (config `EXPERIMENTS` registry — since 2026-07-11 auto-generated from
-`eda_analysis.data.discover_arms()` — + eval settings, conversation loading, the async oracle
-pipeline) **plus `judge_check.py`** (2026-07-12: the `Judge_Reliability.ipynb` backend — pluggable
-OpenAI/Anthropic judges, ICC(2,1), agreement + contrast-preservation stats). Its old
-analysis/persona-join code was removed — persona recovery lives in `eda_analysis`
-(`data.attach_personas`, which replays the per-iter shuffle correctly).
+- **`scoring/`** (subpackage; NOT imported by `__init__` — its registry scans disk, which the
+  analysis notebooks never need; the two scoring notebooks import it explicitly) — the
+  oracle-scoring layer, folded in from the legacy `oracle_scoring/` package (2026-07-13):
+  `registry` (eval settings + the `EXPERIMENTS` registry — auto-generated from
+  `eda_analysis.data.discover_arms()` since 2026-07-11 — + the `eval_scores/` layout helpers +
+  `ScoringConfig`, formerly `EDAConfig`) · `conversations` (scoring-side conversation loading +
+  model-name metadata) · `pipeline` (the async oracle pipeline behind `Run_Eval.ipynb`; formerly
+  `eval.py`) · `judge` (the `Judge_Reliability.ipynb` backend — pluggable OpenAI/Anthropic judges,
+  ICC(2,1), agreement + contrast-preservation stats).
+- **`_selfcheck`** — the guard: package invariants + the scoring surface + known headline means +
+  cache round-trip. Run `python -m eda_analysis._selfcheck` after any EDA change.
+- **`__init__`** — thin re-export hub: re-exports the `constants` leaf + every analysis submodule's
+  public names, and the `figures`/`plots` → `plotting` aliases. No definitions of its own.
 
 ## Adding a new run
 Train → it writes `conversations/full/<EXP>/model_iter_*` → `Run_Eval` (the registry auto-discovers
@@ -183,7 +191,6 @@ Not duplicated here (so they can't drift). The full narrative + numbers live in
 [CLAUDE.md](../../CLAUDE.md) § "Current status & next step".
 
 ## Roadmap
-Dated pass history (2026-06-09 → 2026-07-12) is in [history/CHANGELOG.md](../history/CHANGELOG.md);
-the backlog is clear (last item landed 2026-07-11). Optional future step: fold scoring into
-`eda_analysis/` entirely (the registry was the main reason `oracle_scoring/` stayed a separate
-package).
+Dated pass history (2026-06-09 → 2026-07-13) is in [history/CHANGELOG.md](../history/CHANGELOG.md);
+the backlog is clear (last items — the `oracle_scoring/` fold + the `plotting/` split — landed
+2026-07-13).

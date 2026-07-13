@@ -2,8 +2,11 @@
 eda_analysis — brand-new EDA package for Exp3_PTO_GRPO (PTO_Exp3 vs GRPO_Exp3).
 
 Designed from the data + the thesis's research questions, NOT ported from the
-legacy ``oracle_scoring/`` package (which stays only for ``Run_Eval.ipynb`` oracle
-scoring). Read-only, disk-discovery-driven.
+legacy Exp1/Exp2 EDA library. The analysis layer (this package's top level) is
+read-only + disk-discovery-driven; the oracle-scoring layer lives in the
+:mod:`eda_analysis.scoring` subpackage (imported explicitly by ``Run_Eval.ipynb``
+and ``Judge_Reliability.ipynb`` — NOT re-exported here, because building its
+registry scans the data dirs, which the analysis notebooks never need).
 
 Why this package exists / what it gets right that the old EDA didn't:
 - **Persona recovery.** Each ``model_iter_k`` is a *seeded reshuffle* of the same

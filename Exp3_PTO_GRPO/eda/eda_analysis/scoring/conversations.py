@@ -1,28 +1,25 @@
 """
-data.py — Loading and shaping the EDA data.
+conversations.py — loading conversations for scoring + model-name metadata parsing.
 
-Three concerns, in order:
-1. **Conversations** — read per-model CSVs into a single DataFrame, attach
-   patient characteristics, parse model-name metadata.
-2. **Evaluation** — read per-questionnaire score CSVs, merge Q1+Q2 composite,
-   build the ``test_cases`` list that drives every downstream analysis.
-3. **Selection** — pick the best iteration per experiment group (the only
-   selection strategy the EDA exposes) and filter helpers.
+Two concerns:
+1. **Conversations** — read per-model CSVs into a single DataFrame so the oracle
+   pipeline can score them (``load_data``/``combine_data``/``reconstruct_conversation_text``).
+2. **Model metadata** — parse a registry model name into
+   ``{LookAhead, OracleGroup, Iteration, ExperimentGroup}`` columns
+   (``parse_model_metadata``/``add_model_metadata_columns``).
+
+Note this is the *scoring-side* loader (keyed on the registry's model names); the
+analysis-side backbone with persona recovery is :mod:`eda_analysis.data`.
 """
 
 import os
 import re
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 import pandas as pd
 
-from system_prompts_builder import get_patient_permutation_characteristics
-
-from .config import (
-    COMPOSITE_METRICS,
-    ORACLE_TOKEN_ALIASES,
-)
+from .registry import ORACLE_TOKEN_ALIASES
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -93,7 +90,7 @@ _PTOExp3_NAME_PATTERN  = re.compile(r"^PTOExp3_LA(?P<la>\d+)_(?:(?P<base>Base)|I
 def _normalize_oracle_token(token: str, *, strict: bool = False) -> str:
     """Canonicalize oracle name tokens to the canonical oracle keys (WAI/CSQ8/Q1Q2/MI_SAT/MITI).
 
-    Aliases live in ``config.ORACLE_TOKEN_ALIASES``. Unknown tokens fall through
+    Aliases live in ``registry.ORACLE_TOKEN_ALIASES``. Unknown tokens fall through
     to the original token (and downstream show up in the ``"Other"`` group);
     pass ``strict=True`` to raise ``ValueError`` instead — useful when adding
     new model-name conventions.
@@ -104,7 +101,7 @@ def _normalize_oracle_token(token: str, *, strict: bool = False) -> str:
     if strict:
         raise ValueError(
             f"Unknown oracle token: {token!r} (normalized={normalized!r}). "
-            f"Add it to config.ORACLE_TOKEN_ALIASES."
+            f"Add it to registry.ORACLE_TOKEN_ALIASES."
         )
     return token
 

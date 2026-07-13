@@ -4,8 +4,31 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
-**Landed (2026-07-12, batch 2) — measurement-validity hardening: halo relabel + official MITI
-thresholds + Q2 reward-composition + judge-reliability pipeline.** Triggered by the question "is the
+**Landed (2026-07-13) — EDA structural refactor: `oracle_scoring/` folded into
+`eda_analysis/scoring/` + `plotting.py` split into a topic subpackage.** Pre-writing polish pass
+(no behavior change; `_selfcheck` extended + 10/10 incl. the known headline means). Three parts:
+- **(A) One package.** The legacy `oracle_scoring/` package (the Run_Eval + Judge_Reliability
+  backend) moved into `eda_analysis/scoring/` with purpose-named modules — `config.py`→`registry.py`
+  (kills the duplicate `config.py`/`data.py` names across two packages), `data.py`→`conversations.py`,
+  `eval.py`→`pipeline.py` (stops shadowing the `eval` builtin), `judge_check.py`→`judge.py`. Renames
+  with the fold: `EDAConfig`→`ScoringConfig` (ended the near-collision with `EdaConfig`); the
+  registry's `discover_arms` import is now a clean intra-package relative import (the old
+  cross-package `sys.path` hack is gone); `DATA_DIR`/workspace-root resolution deduplicated onto the
+  `constants` leaf. `scoring/` is deliberately NOT imported by `eda_analysis/__init__` (its registry
+  scans disk; analysis notebooks never need it). Both scoring notebooks' import cells updated;
+  Run_Eval's stale header (Conv_EDA / pto_Exp2 references) fixed.
+- **(B) `plotting/` subpackage.** The 935-line, 27-figure `plotting.py` split by topic —
+  `outcomes` / `trajectories` / `heterogeneity` / `structure` / `behavior` / `training` (+ a tiny
+  `_shared` leaf for `_metrics` + the qualitative palette) — behind a re-exporting `__init__`, so
+  the public surface (incl. the `figures`/`plots` aliases and the re-exported `plotting_style`
+  helpers) is byte-for-byte compatible; the `figures = sys.modules[__name__]` self-alias hack is
+  gone (submodules import the style helpers directly).
+- **(C) Polish.** `render_views.py --nb` now takes the notebook/family NUMBER (1..6, `--nb 3` =
+  `3_Mechanism`) instead of list indices 0..5; `_selfcheck` gained a scoring-surface check (31
+  public names + everything the two scoring notebooks reference); README/CLAUDE.md maps updated
+  (roadmap's last open item — the fold — closed).
+
+ Triggered by the question "is the
 'warmth' split an official thing?" — answer: no, it's an empirical halo/redundancy set, and Q1/Q2's
 provenance is the lab's own **CLPsych 2024** paper (Yosef, Zisquit, Cohen, Brunstein Klomek, Bar &
 Friedman, *Assessing Motivational Interviewing Sessions with AI-Generated Patient Simulations*, ACL

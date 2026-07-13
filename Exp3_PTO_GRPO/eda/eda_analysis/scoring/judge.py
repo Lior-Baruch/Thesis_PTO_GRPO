@@ -1,6 +1,6 @@
 """
-judge_check.py — measurement-validity re-scoring: oracle repeatability (ICC) + second-judge
-agreement. Powers ``Judge_Reliability.ipynb``.
+judge.py — measurement-validity re-scoring: oracle repeatability (ICC) + second-judge
+agreement. Powers ``Judge_Reliability.ipynb`` (formerly ``oracle_scoring/judge_check.py``).
 
 Buys down LIMITATIONS.md §1 (judge reliability not measured) and §2 (patient = oracle coupling)
 on a SUBSET, cheaply:
@@ -35,18 +35,18 @@ import copy
 import json
 import os
 import re
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Dict, List, Optional
 
 import numpy as np
 import pandas as pd
 
-from . import WORKSPACE_ROOT
-from .config import EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, EVAL_QUESTIONNAIRE_DIRS
-from .data import reconstruct_conversation_text
+from ..constants import WORKSPACE_ROOT
+from .registry import EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, EVAL_QUESTIONNAIRE_DIRS
+from .conversations import reconstruct_conversation_text
 
 # Reuse the questionnaire prompt/parse/row machinery from the primary pipeline.
-from . import eval as _eval
+from . import pipeline as _pipeline
 
 JUDGE_CHECK_ROOT = os.path.join(WORKSPACE_ROOT, "data", "judge_check")
 
@@ -111,7 +111,7 @@ def init_judge_client(judge: JudgeSpec):
 async def call_openai_json_seeded(client, prompt: str, schema: dict, *, schema_name: str,
                                   model: str, temperature: float, seed: int,
                                   max_retries: int = MAX_RETRIES) -> dict:
-    """``eval.call_openai_json`` with a CONTROLLABLE seed (the primary pipeline pins seed=42,
+    """``pipeline.call_openai_json`` with a CONTROLLABLE seed (the primary pipeline pins seed=42,
     which would make repeatability reps identical by construction)."""
     for attempt in range(max_retries):
         try:
@@ -184,14 +184,14 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
                                            questionnaire_id, *, seed: int = 42
                                            ) -> Optional[pd.DataFrame]:
     """Score one conversation with one questionnaire under an arbitrary judge.
-    Mirrors ``eval.evaluate_conversation`` but dispatches on provider."""
-    if not _eval.EVAL_CODE_AVAILABLE:
+    Mirrors ``pipeline.evaluate_conversation`` but dispatches on provider."""
+    if not _pipeline.EVAL_CODE_AVAILABLE:
         raise RuntimeError("questionnaires module not importable — run from eda/ with code/ on sys.path")
     conv_str = reconstruct_conversation_text(conversation)
-    qid_enum = (questionnaire_id if isinstance(questionnaire_id, _eval.QuestionnaireID)
-                else _eval.QuestionnaireID(questionnaire_id))
+    qid_enum = (questionnaire_id if isinstance(questionnaire_id, _pipeline.QuestionnaireID)
+                else _pipeline.QuestionnaireID(questionnaire_id))
     try:
-        ed = _eval.get_prompt_eval_questionnaire(questionnaire=questionnaire_id, conversation=conv_str)
+        ed = _pipeline.get_prompt_eval_questionnaire(questionnaire=questionnaire_id, conversation=conv_str)
         if judge.provider == "openai":
             resp = await call_openai_json_seeded(
                 client, ed["prompt"], ed["schema"],
@@ -202,9 +202,9 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
         else:
             resp = await call_anthropic_json(client, ed["prompt"], ed["schema"],
                                              model=judge.model, max_tokens=judge.max_tokens)
-        result = _eval.parse_json_response(response_content=resp,
-                                           questionnaire_id=questionnaire_id, labels=ed["labels"])
-        return _eval._build_row(qid_enum, result["scores_dict"], conv_str)
+        result = _pipeline.parse_json_response(response_content=resp,
+                                               questionnaire_id=questionnaire_id, labels=ed["labels"])
+        return _pipeline._build_row(qid_enum, result["scores_dict"], conv_str)
     except Exception as e:
         print(f"  [judge_check] error ({judge.tag}, Q{qid_enum.value}): {e}")
         return None
@@ -228,7 +228,7 @@ async def run_judge_scoring(judge: JudgeSpec, combined_data: pd.DataFrame,
 
     - ``combined_data``: Run_Eval-style frame (``Model``, ``id``, ``conversation`` columns).
     - ``questionnaire_names``: display names, e.g. ``["Q1", "Q2", "MICI"]``.
-    - ``model_layout``: ``config.get_model_eval_layout()`` — used only for the oracle label
+    - ``model_layout``: ``registry.get_model_eval_layout()`` — used only for the oracle label
       (output root is ``data/judge_check/``, never the real eval_scores).
     - ``rep``: repetition index → its own folder + (openai) its own seed ``1000+rep``.
     - ``subset_n``: score only the first N conversations per model (cost lever).

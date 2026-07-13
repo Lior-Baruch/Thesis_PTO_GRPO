@@ -23,7 +23,7 @@ Three controlled comparisons, all live in Exp3:
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | all 6 questionnaires |
-| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` analysis package + notebooks `1_Outcomes`–`6_Stats`; `oracle_scoring/` kept only for `Run_Eval` scoring; per-generation `iteration_N/eda/generations.jsonl` |
+| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + notebooks `1_Outcomes`–`6_Stats`; per-generation `iteration_N/eda/generations.jsonl` |
 | **Convs / models** | (paper figures) | 4,512 / 47 | 2,784 / 29 (PTO+GRPO LA0 to iter 10 + partial LA5: PTO I1–4, GRPO I1) |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
