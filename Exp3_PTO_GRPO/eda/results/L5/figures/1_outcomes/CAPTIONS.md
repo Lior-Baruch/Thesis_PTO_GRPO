@@ -1,3 +1,5 @@
 - **trajectories_all_metrics** — Full-conv eval: per-metric mean +/- 95% CI across iterations, arms overlaid (all 9 metrics incl. the orthogonal axes).
-- **effect_vs_base_forest** — Improvement vs base (Δ + 95% CI) per arm x rubric, full-conv eval; dot color = effect-size label, dz annotated.
-- **outcomes_by_model** — All models x metrics; mean +/- 95% CI over 96 personas (arm-bases pooled into Base; dotted line = base).
+- **effect_vs_base_forest_final** — Improvement vs base (Δ + 95% CI) per arm x rubric at the matched FINAL iteration, full-conv eval; dot color = effect-size label, dz annotated.
+- **effect_vs_base_forest_best** — Improvement vs base (Δ + 95% CI) per arm x rubric at the each arm's BEST iteration (own oracle), full-conv eval; dot color = effect-size label, dz annotated.
+- **outcomes_by_model_final** — Each arm at its final iteration x metrics; mean +/- 95% CI over 96 personas (arm-bases pooled into Base; dotted line = base).
+- **outcomes_by_model_best** — Each arm at its best iteration (own oracle) x metrics; mean +/- 95% CI over 96 personas (arm-bases pooled into Base; dotted line = base).

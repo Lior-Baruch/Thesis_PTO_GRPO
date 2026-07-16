@@ -4,6 +4,38 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-16) — EDA reorg: 7 tier-based families + `0_headline/` + generic questionnaire
+item detail + final-vs-best everywhere.** Complete reorganization of the notebook/results layer
+around a drill-down hierarchy (Level 1 global scores → Level 2 inside-each-questionnaire → Level 3
+cross-cutting), with every endpoint artifact reported as a **final + best pair** (best = own-oracle
+peak via `best_per_experiment`; GRPO_LA0→I8). Package architecture untouched. Parts:
+- **(A) Families/notebooks renumbered 1..7** (`git mv`, 1:1 convention kept): `1_Outcomes` (main
+  grid + forest/bars/scorecard final+best) · **NEW `2_Questionnaire_Detail`** · `3_Validity_and_Hacking`
+  (ex-`3_Mechanism` minus the per-questionnaire sections; session shape now exported —
+  `session_shape.png` + `session_end_reasons`) · `4_Heterogeneity` (endpoint bars final+best) ·
+  `5_Training_and_Reliability` · `6_Preference` · `7_Stats` (+ NEW `method_paired_best`: PTO@best
+  vs GRPO@best persona-paired across different iterations — PTO wins even vs GRPO's iter-8 peak,
+  Q1Q2 +0.18 dz 0.30 p_holm .01).
+- **(B) Notebook 2 — one uniform detail section per rubric**, all in the `trajectories_all_metrics`
+  small-multiples style: per-item grids for Q1(5)/Q2(17)/WAI-SR(12+3 subscales)/CSQ-8(8)/MI-SAT(6)
+  via NEW generic `data.load_items` over `constants.ITEM_QUESTIONNAIRES` (per-item columns were
+  already on disk — no oracle re-run; `load_q2_items` now wraps it), MITI detail grid (4 globals +
+  7 per-turn rates + R:Q/%CR/%MICO via NEW `behavior.miti_detail_by_iter`; old `behavior_drift` is
+  its subset) + 4.2.1 thresholds moved here, PCT + MICI detail grids moved here. Every rubric also
+  gets "which items drive the change" delta bars at final AND best (NEW generic
+  `stats.item_endpoint_deltas` + `plots.item_trajectory_grid`/`item_delta_bars` in NEW
+  `plotting/questionnaires.py`; the Q2 figures delegate to them).
+- **(C) `0_headline/` family** — the ~7 presentation artifacts re-saved by notebooks 1–3 via
+  per-call `group="0_headline"` (main grid, forest final+best, MITI+MICI detail grids, reward-hack
+  panel, scorecard) — always in sync, no extra notebook.
+- **(D) Clean rename** — stale `results/<view>/` trees purged + re-rendered (L0/L5/all); refs
+  updated in SUMMARY.md ×3, eda/README, both CLAUDE.md, METRICS_REFERENCE, LIMITATIONS,
+  `build_supervisor_deck.py` (paths only, not re-run). New cache names only (`items_*`,
+  `miti_detail_by_iter`, `session_shape_by_iter`) — existing cached frames untouched; `%MICO` added
+  per-conv in `load_miti_behavior` (uncached path). `_selfcheck` 10/10 incl. headline-mean pins.
+
+---
+
 **Landed (2026-07-13) — EDA structural refactor: `oracle_scoring/` folded into
 `eda_analysis/scoring/` + `plotting.py` split into a topic subpackage.** Pre-writing polish pass
 (no behavior change; `_selfcheck` extended + 10/10 incl. the known headline means). Three parts:

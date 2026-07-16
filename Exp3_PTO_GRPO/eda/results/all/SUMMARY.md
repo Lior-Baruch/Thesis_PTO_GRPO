@@ -27,20 +27,20 @@ for the one-glance arm × metric scorecard.
 
 ## 2. Headline (RQ-ii, K=0) — PTO ahead at the matched endpoint
 See [`figures/1_outcomes/`](figures/1_outcomes/) and
-[`tables/6_stats/main_results.md`](tables/6_stats/main_results.md).
+[`tables/7_stats/main_results.md`](tables/7_stats/main_results.md).
 
 - **PTO_LA0 Q1+Q2 3.00 → 4.26** (dz 1.43, *large*); **GRPO_LA0 peaks 4.08 @ iter 8 then regresses
   to 3.75 @ iter 10** (final dz 0.72). At the matched 10-iter endpoint **PTO beats GRPO 4.26 vs
   3.75** (paired +0.51, dz +0.73, Holm p<0.001) —
-  [`tables/6_stats/method_paired_by_K.md`](tables/6_stats/method_paired_by_K.md).
+  [`tables/7_stats/method_paired_by_K.md`](tables/7_stats/method_paired_by_K.md).
 - OLS slope PTO 0.120/iter vs GRPO 0.072/iter
-  ([`tables/6_stats/slope_by_arm.md`](tables/6_stats/slope_by_arm.md)).
+  ([`tables/7_stats/slope_by_arm.md`](tables/7_stats/slope_by_arm.md)).
 - **Answer:** GRPO is competitive up to its peak but overshoots into reward-hacking and degrades;
   PTO sustains gains. With GRPO, early stopping matters.
 
 ## 3. Reward-hacking is real and multi-skill is not free
-See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadings.png) and
-[`figures/3_mechanism/behavior_drift.png`](figures/3_mechanism/behavior_drift.png).
+See [`figures/3_validity/factor_loadings.png`](figures/3_validity/factor_loadings.png) and
+[`figures/2_questionnaires/miti_detail_grid.png`](figures/2_questionnaires/miti_detail_grid.png).
 
 - **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as the global-evaluation scores
   climb (MICI base 0.21 → 0.49 PTO / 0.84 GRPO @ iter 10). **Affirmation drift is in BOTH methods; GRPO is worse late** (B6_AF → 1.98,
@@ -52,16 +52,16 @@ See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadi
 ## 4. Look-ahead (RQ-i, K=0 vs K=5) — preliminary
 `PTO_LA5` reaches 3.00 → 3.89 in 4 iters (dz 0.88); `GRPO_LA5` has only 1 scored iter. No significant
 K0-vs-K5 difference yet at matched early iters
-([`tables/6_stats/k_paired_by_method.md`](tables/6_stats/k_paired_by_method.md)). On reward
+([`tables/7_stats/k_paired_by_method.md`](tables/7_stats/k_paired_by_method.md)). On reward
 faithfulness, look-ahead helps slightly (LA5 ≥ LA0). **Both LA5 arms are paused for OpenAI-API
 budget** — RQ-i is on hold. Full detail: [`L5` view](../L5/SUMMARY.md).
 
 ## 5. Training health & reward faithfulness
 - Degeneration gate clean across arms (leak ≈ 0, loops eliminated) —
-  [`figures/4_training/`](figures/4_training/).
+  [`figures/5_training/`](figures/5_training/).
 - Short-reward faithfulness at MCL=12: GRPO grows more faithful with length (≈0.86 → 0.94), PTO less
-  (≈0.87 → 0.76) — [`figures/4_training/`](figures/4_training/).
-- PTO preference probe is real (`wins_correct` 0.65 → 0.71) — [`figures/5_preference/`](figures/5_preference/).
+  (≈0.87 → 0.76) — [`figures/5_training/`](figures/5_training/).
+- PTO preference probe is real (`wins_correct` 0.65 → 0.71) — [`figures/6_preference/`](figures/6_preference/).
 
 ## 6. Caveats
 - Oracle noise ≈ 0.10 mean |Δ|; thin arms (<3 iters, i.e. `GRPO_LA5`) are dropped from per-arm

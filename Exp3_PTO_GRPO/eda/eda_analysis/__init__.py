@@ -31,9 +31,9 @@ import sys
 from .constants import (  # noqa: E402,F401
     WORKSPACE_ROOT, DATA_DIR,
     QUESTIONNAIRES, QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, ORTHOGONAL_METRICS, LOWER_IS_BETTER,
-    MITI_THRESHOLDS, Q2_ITEM_SHORT, Q2_ITEM_GROUPS,
+    MITI_THRESHOLDS, Q1_ITEM_SHORT, Q2_ITEM_SHORT, Q2_ITEM_GROUPS, ITEM_QUESTIONNAIRES,
     DISPLAY_NAMES, ARM_LABELS, PERSONA_COLS,
-    display_label, short_label, arm_label,
+    display_label, short_label, arm_label, item_short_label,
 )
 
 
@@ -44,9 +44,9 @@ from .config import EdaConfig, notebook_setup, Setup  # noqa: E402
 from .data import (  # noqa: E402
     Arm, discover_arms, parse_experiment_name, filter_arms,
     canonical_personas, persona_order, attach_personas,
-    load_scores_long, load_subscales, load_q2_items, to_wide, collapse_base,
+    load_scores_long, load_subscales, load_items, load_q2_items, to_wide, collapse_base,
     add_derived_mitiprof_rows,
-    all_models, best_per_experiment,
+    all_models, best_per_experiment, final_per_experiment, best_iteration_by_arm,
     load_cached, set_cache, cache_enabled, reset_cache,
 )
 from .exports import (  # noqa: E402
@@ -54,7 +54,7 @@ from .exports import (  # noqa: E402
     set_export_group, set_view, RESULTS_DIR, FIGURES_DIR, TABLES_DIR,
 )
 from .stats import (  # noqa: E402
-    paired_method_comparison, paired_k_comparison,
+    paired_method_comparison, paired_k_comparison, paired_best_method_comparison,
     rank_agreement_by_nturns, filter_thin_arms, thin_arms,
 )
 from .training import (  # noqa: E402
@@ -81,18 +81,18 @@ for _alias, _mod in (("figures", plotting), ("plots", plotting)):
 __all__ = [
     "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
     "WARMTH_RUBRICS", "ORTHOGONAL_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
-    "MITI_THRESHOLDS", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS",
-    "DISPLAY_NAMES", "ARM_LABELS", "arm_label",
+    "MITI_THRESHOLDS", "Q1_ITEM_SHORT", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS", "ITEM_QUESTIONNAIRES",
+    "DISPLAY_NAMES", "ARM_LABELS", "arm_label", "item_short_label",
     "EdaConfig", "notebook_setup", "Setup",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "attach_personas",
-    "load_scores_long", "load_subscales", "load_q2_items", "to_wide", "collapse_base",
+    "load_scores_long", "load_subscales", "load_items", "load_q2_items", "to_wide", "collapse_base",
     "add_derived_mitiprof_rows",
-    "all_models", "best_per_experiment",
+    "all_models", "best_per_experiment", "final_per_experiment", "best_iteration_by_arm",
     "load_cached", "set_cache", "cache_enabled", "reset_cache",
     "save_fig", "save_table", "save_provenance", "build_index", "reset_results",
     "set_export_group", "set_view", "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
-    "paired_method_comparison", "paired_k_comparison",
+    "paired_method_comparison", "paired_k_comparison", "paired_best_method_comparison",
     "rank_agreement_by_nturns", "filter_thin_arms", "thin_arms",
     "advantage_signal_by_iter", "reward_distribution_frame",
     "load_branch_reliability", "tb_curves", "parse_run_tb",

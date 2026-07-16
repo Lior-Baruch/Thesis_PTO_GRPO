@@ -17,8 +17,13 @@ from ._shared import _metrics
 
 
 def outcomes_by_model(scores_long, *, palette, metrics: Optional[Sequence[str]] = None,
-                      order: Optional[Sequence[str]] = None, ncols: int = 2):
-    """Grouped outcome bars per rubric over every model (left-to-right by method/K/iter)."""
+                      order: Optional[Sequence[str]] = None, ncols: int = 2,
+                      title: Optional[str] = None):
+    """Grouped outcome bars per rubric over the models present (left-to-right by method/K/iter).
+
+    ``title`` overrides the default suptitle — the final-vs-best figure pair passes
+    "…at the FINAL iteration" / "…at each arm's BEST iteration".
+    """
     metrics = _metrics(scores_long["questionnaire"].unique(), metrics)
     order = list(order) if order is not None else model_order(scores_long)
     fig, axes = grid(len(metrics), ncols=ncols, panel=(7.6, 3.4))
@@ -30,7 +35,7 @@ def outcomes_by_model(scores_long, *, palette, metrics: Optional[Sequence[str]] 
         relabel_xticks(ax)
         add_base_line(ax, float(dm[dm.is_base].score.mean()) if dm.is_base.any() else None)
     figure_legend_from(axes[0], fig, title="arm")
-    fig.suptitle("Outcome metrics by model — full-conversation eval (dotted line = base)",
+    fig.suptitle(title or "Outcome metrics by model — full-conversation eval (dotted line = base)",
                  y=1.02, fontweight="bold")
     fig.tight_layout()
     return fig
@@ -43,7 +48,7 @@ _EFFECT_COLOR = {"negligible": "#bdbdbd", "small": "#9ecae1", "medium": "#4292c6
 def effect_forest(main_results_df, *, arms: Optional[Sequence[str]] = None,
                   metric_order: Optional[Sequence[str]] = None,
                   lower_is_better: Optional[Sequence[str]] = None,
-                  caption: Optional[str] = None):
+                  caption: Optional[str] = None, title: Optional[str] = None):
     """Forest/dot plot of each arm×rubric change vs base — the readable stand-in for the
     28-row main-results table.
 
@@ -54,7 +59,8 @@ def effect_forest(main_results_df, *, arms: Optional[Sequence[str]] = None,
     Coloring: higher-is-better rubrics use the effect-size ramp (darker = larger effect). Rubrics in
     ``lower_is_better`` (default = the package ``LOWER_IS_BETTER`` set, i.e. MICI) invert valence, so
     a positive Δ is *bad*; those rows are colored by DIRECTION (red = moved the wrong way, green =
-    improved) and their label carries a ``↓``. ``caption`` prints an italic note under the axis.
+    improved) and their label carries a ``↓``. ``caption`` prints an italic note under the axis;
+    ``title`` overrides the default axes title (the final-vs-best pair labels itself with it).
     """
     if main_results_df is None or main_results_df.empty:
         return None
@@ -83,7 +89,7 @@ def effect_forest(main_results_df, *, arms: Optional[Sequence[str]] = None,
     ax.axvline(0, color="#555555", lw=1.0, ls="--")
     ax.set_yticks(yticks); ax.set_yticklabels(ylabels, fontsize=7)
     ax.set_xlabel("change vs base (Δ mean score, 95% CI)")
-    ax.set_title("Effect on full-conversation eval vs base (dashed = base; dz labelled)")
+    ax.set_title(title or "Effect on full-conversation eval vs base (dashed = base; dz labelled)")
     from matplotlib.patches import Patch
     handles = [Patch(color=c, label=l) for l, c in _EFFECT_COLOR.items()]
     if has_lower:
@@ -101,9 +107,10 @@ def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = Non
                           selection: str = "best"):
     """One-glance scorecard: each arm's headline score per metric, global-eval rubrics beside orthogonal axes.
 
-    ``selection="best"`` uses each arm's best iteration (by own oracle) + its base; ``"final"`` uses
-    the last iteration. Returns a tidy DataFrame (arm × metric) with lower-is-better metrics flagged
-    ``↓`` in the column name — drop straight into ``save_table``.
+    ``selection`` ∈ {``"best"`` (each arm's best iteration by own oracle), ``"final"`` (each arm's
+    last iteration)}. Returns a tidy DataFrame (arm × metric) with lower-is-better metrics flagged
+    ``↓`` in the column name — drop straight into ``save_table`` (the notebook concatenates the two
+    selections with a ``target`` column).
     """
     from ..data import best_per_experiment, all_models
     order = [m for m in (list(QUESTIONNAIRE_ORDER) + list(ORTHOGONAL_METRICS)) if m not in ("Q1", "Q2")]

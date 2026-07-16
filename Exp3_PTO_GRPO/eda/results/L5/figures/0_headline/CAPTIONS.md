@@ -1,0 +1,6 @@
+- **trajectories_all_metrics** — THE main figure — headline copy; canonical: 1_outcomes/.
+- **effect_vs_base_forest_final** — Effect vs base at the matched FINAL iteration — headline copy; canonical: 1_outcomes/.
+- **effect_vs_base_forest_best** — Effect vs base at the each arm's BEST iteration (own oracle) — headline copy; canonical: 1_outcomes/.
+- **miti_detail_grid** — MITI detail grid — headline copy; canonical: 2_questionnaires/.
+- **mici_detail_grid** — MICI detail grid (sycophancy decomposition) — headline copy; canonical: 2_questionnaires/.
+- **reward_hack_panel** — The reward-hack in one frame — headline copy; canonical: 3_validity/.

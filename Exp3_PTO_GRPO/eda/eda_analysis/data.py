@@ -29,7 +29,8 @@ from typing import Dict, List, Optional, Tuple
 
 import pandas as pd
 
-from .constants import DATA_DIR, PERSONA_COLS, QUESTIONNAIRES
+from .constants import (DATA_DIR, ITEM_QUESTIONNAIRES, PERSONA_COLS, QUESTIONNAIRES,
+                        item_short_label)
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -485,33 +486,50 @@ def _add_q1q2_composite(long: pd.DataFrame) -> pd.DataFrame:
     return pd.concat([long, comp], ignore_index=True)
 
 
-def load_q2_items(arms: Optional[List] = None) -> pd.DataFrame:
-    """Tidy long frame of the 17 Q2 items — one row per (arm, iteration, conversation, item).
+def load_items(questionnaire: str, arms: Optional[List] = None) -> pd.DataFrame:
+    """Tidy long frame of one questionnaire's Likert ITEMS — one row per (arm, iter, conv, item).
 
-    Columns: ``arm, method, K, model, iteration, is_base, file_index, item (1..17), score``.
-    Reads the per-item ``Q2_1``..``Q2_17`` columns already stored in ``eval_scores/metric=Q2``
-    (no oracle re-run). Feeds the reward-composition analysis: WHICH alliance items drive the
-    Q1+Q2 reward gain (short labels + face-content groups in
-    ``constants.Q2_ITEM_SHORT`` / ``Q2_ITEM_GROUPS``). Parquet-cached.
+    Generic over :data:`constants.ITEM_QUESTIONNAIRES` (Q1, Q2, WAI-SR, CSQ-8, MI-SAT — the
+    rating-scale instruments; MITI/PCT/MICI detail lives in ``behavior.py`` as counts/rates).
+    Columns: ``arm, method, K, model, iteration, is_base, file_index, item (1..n),
+    item_key (raw column), short (axis label), score``. Reads the per-item columns already
+    stored in ``eval_scores/metric=<sub>`` (no oracle re-run). Parquet-cached per questionnaire.
     """
+    if questionnaire not in ITEM_QUESTIONNAIRES:
+        raise KeyError(f"no item layout for {questionnaire!r} "
+                       f"(have: {sorted(ITEM_QUESTIONNAIRES)})")
     arms = discover_arms() if arms is None else arms
-    return load_cached("q2_items", arms, lambda: _load_q2_items_impl(arms),
-                       input_roots=[a.eval_dir(k, "Q2") for a in arms for k in a.iters])
+    sub, _cols = ITEM_QUESTIONNAIRES[questionnaire]
+    return load_cached(f"items_{sub}", arms, lambda: _load_items_impl(questionnaire, arms),
+                       input_roots=[a.eval_dir(k, sub) for a in arms for k in a.iters])
 
 
-def _load_q2_items_impl(arms: List) -> pd.DataFrame:
+def _load_items_impl(questionnaire: str, arms: List) -> pd.DataFrame:
+    sub, cols = ITEM_QUESTIONNAIRES[questionnaire]
     rows = []
     for arm in arms:
         for k in arm.iters:
-            for fi, r in iter_conv_rows(arm.eval_dir(k, "Q2")):
-                for i in range(1, 18):
-                    col = f"Q2_{i}"
+            for fi, r in iter_conv_rows(arm.eval_dir(k, sub)):
+                for i, col in enumerate(cols, start=1):
                     if col in r.index and pd.notna(r[col]):
                         rows.append({"arm": arm.label, "method": arm.method, "K": arm.K,
                                      "model": arm.model_name(k), "iteration": k,
                                      "is_base": (k == 0), "file_index": fi,
-                                     "item": i, "score": float(r[col])})
+                                     "item": i, "item_key": col,
+                                     "short": item_short_label(questionnaire, i, col),
+                                     "score": float(r[col])})
     return pd.DataFrame(rows)
+
+
+def load_q2_items(arms: Optional[List] = None) -> pd.DataFrame:
+    """Tidy long frame of the 17 Q2 items — thin wrapper over :func:`load_items` ("Q2").
+
+    Kept as a named entry point for the reward-composition analysis: WHICH alliance items drive
+    the Q1+Q2 reward gain (short labels + face-content groups in ``constants.Q2_ITEM_SHORT`` /
+    ``Q2_ITEM_GROUPS``). Schema is a superset of the pre-2026-07-16 frame (adds ``item_key`` +
+    ``short``).
+    """
+    return load_items("Q2", arms)
 
 
 _SUBSCALES = {
@@ -697,3 +715,40 @@ def best_per_experiment(
     filtered = scores_long[scores_long["model"].isin(set(keep_models))].copy()
     summary = pd.DataFrame(summary_rows).sort_values("arm").reset_index(drop=True)
     return filtered, summary
+
+
+def final_per_experiment(scores_long: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Keep each arm's base + its FINAL (max) iteration — the endpoint twin of
+    :func:`best_per_experiment`, so final-vs-best figures use symmetric selection code.
+
+    Returns ``(filtered_scores_long, summary)`` with summary columns
+    ``arm, final_iteration, final_model``.
+    """
+    if scores_long.empty:
+        return scores_long, pd.DataFrame()
+    keep_models, summary_rows = [], []
+    for arm, g in scores_long.groupby("arm", sort=False):
+        keep_models += g.loc[g["is_base"], "model"].unique().tolist()
+        nb = g[~g["is_base"]]
+        if nb.empty:
+            continue
+        final_iter = int(nb["iteration"].max())
+        final_model = nb.loc[nb["iteration"] == final_iter, "model"].iloc[0]
+        keep_models.append(final_model)
+        summary_rows.append({"arm": arm, "final_iteration": final_iter,
+                             "final_model": final_model})
+    filtered = scores_long[scores_long["model"].isin(set(keep_models))].copy()
+    summary = pd.DataFrame(summary_rows).sort_values("arm").reset_index(drop=True)
+    return filtered, summary
+
+
+def best_iteration_by_arm(scores_long: pd.DataFrame) -> dict:
+    """``{arm: best_iteration}`` from :func:`best_per_experiment` (own-oracle selection).
+
+    The one-line map the notebooks pass to endpoint figures/stats that take a per-arm target
+    iteration (``subgroup_endpoint_bars(iter_by_arm=...)``, ``item_endpoint_deltas(...)``).
+    """
+    _, summary = best_per_experiment(scores_long)
+    if summary.empty:
+        return {}
+    return dict(zip(summary["arm"], summary["best_iteration"].astype(int)))

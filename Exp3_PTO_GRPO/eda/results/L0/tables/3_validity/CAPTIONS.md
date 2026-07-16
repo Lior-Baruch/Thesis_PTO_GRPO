@@ -1,0 +1,2 @@
+- **session_shape_by_iter** — Mean deterministic text metrics per (arm, iteration): turn length, ?/turn, loop fraction, conversation length, therapist turns.
+- **session_end_reasons** — How sessions terminate per arm (count of conversations by session_ended_by) — degeneration health-check.

@@ -66,13 +66,16 @@ whose point of view the oracle adopts.
 `MITI3_Partnership`, `MITI4_Empathy`. **PCT globals**: `PCT_Importance`, `PCT_Confidence`,
 `PCT_Readiness`. **MICI global**: `MICI_Severity`.
 
-**Per-item detail plots (2026-07-07).** Every global + behaviour of the three count-based instruments
-now has its own trajectory, so the aggregates (`MITI_GlobalMean` / `MICI_Rate` / `PCT_ChangeProp`) are no
-longer black boxes: the 4 MITI globals are the §2 subscale grid; all 7 MITI behaviours (incl. the
-previously-omitted `B1_GI`/`B7_Seek`) are the §1 drift grid; `MICI_Severity` + the 6 MI-inconsistent
-behaviours (per therapist turn) are **§4d** `mici_behavior_detail`; the 3 PCT globals + change/sustain/
-neutral proportions are **§4e** `pct_patient_detail`. Loaders: `behavior.mici_behavior_by_iter` /
-`behavior.pct_behavior_by_iter` / `behavior.load_pct_behavior`.
+**Per-item / per-component detail plots (2026-07-07; reorganized into `2_Questionnaire_Detail`
+2026-07-16).** Every rubric now has a uniform drill-down grid, so no aggregate is a black box:
+the 4 MITI globals + all 7 MITI behaviours (incl. the previously-omitted `B1_GI`/`B7_Seek`) + the
+proficiency ratios are the §6 `miti_detail_grid`; `MICI_Severity` + the 6 MI-inconsistent behaviours
+(per therapist turn) are the §8 `mici_detail_grid`; the 3 PCT globals + change/sustain/neutral
+proportions are the §7 `pct_detail_grid`; and the Likert-item rubrics (Q1/Q2/WAI-SR/CSQ-8/MI-SAT)
+get per-item grids (`<slug>_detail_grid`) + "which items drive the change" delta bars at final AND
+best (`<slug>_item_deltas_*`). Loaders: `data.load_items` (generic, over
+`constants.ITEM_QUESTIONNAIRES`) / `behavior.miti_detail_by_iter` / `behavior.mici_behavior_by_iter` /
+`behavior.pct_behavior_by_iter`; deltas: `stats.item_endpoint_deltas`.
 
 ---
 
@@ -95,7 +98,7 @@ collaboration, `Persuade`=persuasion — all from §3.)
 The MITI 4.2.1 manual (Moyers, Manuel & Ernst 2014; manual rev. June 2015, §H–I) defines four
 summary scores with suggested **basic competence ("fair") / proficiency ("good")** thresholds —
 computed for free from the stored MITI globals + counts (`behavior.miti_proficiency_by_iter`;
-constants in `eda_analysis.MITI_THRESHOLDS`; figure/table in `3_Mechanism` §2b):
+constants in `eda_analysis.MITI_THRESHOLDS`; figure/table in `2_Questionnaire_Detail` §6b):
 
 | Summary score | Formula | Fair | Good |
 |---|---|---|---|
@@ -116,9 +119,9 @@ pathological route (fewer questions shrinking the denominator — GRPO's iter 10
 a rate — `B3_Q_per_turn`, `B4_SR_per_turn`, `B5_CR_per_turn`, `B6_AF_per_turn`, `B2_Persuade_per_turn`,
 `B1_GI_per_turn`, `B7_Seek_per_turn` (= count ÷ therapist turns, mean-of-ratios) — and the behaviour-drift
 figure plots the **rates**, not the raw counts, so a longer late-iteration conversation doesn't
-mechanically inflate them. The MICI detail (§4d) uses the same per-therapist-turn convention
-(`MICI_*_rate`); the PCT detail (§4e) uses proportions of patient utterances (`PCT_*_prop`, ÷
-`PCT_BehaviorTotal`).
+mechanically inflate them. The MICI detail (`2_Questionnaire_Detail` §8) uses the same
+per-therapist-turn convention (`MICI_*_rate`); the PCT detail (§7 there) uses proportions of patient
+utterances (`PCT_*_prop`, ÷ `PCT_BehaviorTotal`).
 
 ---
 
@@ -195,24 +198,24 @@ here.)*
 
 | Check / figure | Where | What it shows |
 |---|---|---|
-| **`reward_hack_panel`** | `3_Mechanism` | The hack in one frame: per arm, twin y-axis — warmth (`Q1+Q2`, left) **climbs** while `MICI↓` (MI-inconsistency, right) **climbs with it** and `PCT` (real patient change-talk) barely moves. "All rubrics up" ≠ multi-skill. |
+| **`reward_hack_panel`** | `3_Validity_and_Hacking` | The hack in one frame: per arm, twin y-axis — warmth (`Q1+Q2`, left) **climbs** while `MICI↓` (MI-inconsistency, right) **climbs with it** and `PCT` (real patient change-talk) barely moves. "All rubrics up" ≠ multi-skill. |
 | **Peak-then-regress marking** | `single_metric_trajectory(mark_peaks=True)`, `1_Outcomes` | Auto-draws a vline at any arm's peak iteration *only if it regressed after* — surfaces a peak-then-regression arm (e.g. late GRPO) without hardcoding. |
-| **Affirmation drift** | `behavior_by_iter` / behavior trajectories, `3_Mechanism` | `B6_AF` rising while `B3_Q` falls over iterations — the over-praise drift signature. |
-| **`overpraise_crosscheck`** | `behavior.py` + `3_Mechanism` | Lexical over-praise marker rate beside the oracle's `MICI_OverPraiseRate` — validates the sycophancy direction. |
+| **Affirmation drift** | `behavior_by_iter` / behavior trajectories, `3_Validity_and_Hacking` | `B6_AF` rising while `B3_Q` falls over iterations — the over-praise drift signature. |
+| **`overpraise_crosscheck`** | `behavior.py` + `3_Validity_and_Hacking` | Lexical over-praise marker rate beside the oracle's `MICI_OverPraiseRate` — validates the sycophancy direction. |
 | **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per therapist turn across iterations — does it rise with warmth? |
-| **`subgroup_endpoint_bars`** | `2_Heterogeneity` | Final-iteration score per persona × arm — where does a late regression concentrate? |
+| **`subgroup_endpoint_bars`** | `4_Heterogeneity` | Score per persona × arm at each arm's final AND best iteration (`subgroup_endpoint_<trait>_{final,best}`) — where does a late regression concentrate? |
 | **`effect_forest`** | `1_Outcomes` | Each arm×rubric Δ-vs-base with 95% CI + `dz`; MICI is direction-colored (a positive Δ is *bad*). Readable stand-in for the 28-row table. |
-| **PCA / `factor_loadings_bars`** | `3_Mechanism` / `6_Stats` | PC1 share once orthogonal axes are added → is the global-eval halo one factor and technique+MICI a second? |
-| **`question_rate_crosscheck`** | `3_Mechanism` | (§4) — questions collapsing while the halo scores rise is part of the same drift. |
-| **`q2_item_drivers` / `q2_item_group_trajectories`** | `3_Mechanism` §4f | The **reward-composition** view: per-item Δ vs base for Q2's 17 items (per-item scores already stored — no oracle re-run), colored by face-content group (`Q2_ITEM_GROUPS` — OUR analytical grouping, not a validated subscale). Q2 items 1/2/3/10 reward therapist *self-disclosure*, which MI does not prescribe — if those top the Δ ranking, the Q1+Q2 reward itself incentivizes the emotive drift. Loader `data.load_q2_items`; deltas `stats.q2_item_endpoint_deltas`. |
-| **`miti_proficiency_thresholds` / `miti_threshold_verdicts`** | `3_Mechanism` §2b | The absolute anchor (§2b above): official-threshold verdicts per arm — did training reach basic MI competence in the manual's own terms? |
+| **PCA / `factor_loadings_bars`** | `3_Validity_and_Hacking` / `7_Stats` | PC1 share once orthogonal axes are added → is the global-eval halo one factor and technique+MICI a second? |
+| **`question_rate_crosscheck`** | `3_Validity_and_Hacking` | (§4) — questions collapsing while the halo scores rise is part of the same drift. |
+| **`q2_item_deltas_{final,best}` / `q2_item_group_trajectories`** | `2_Questionnaire_Detail` §2 | The **reward-composition** view: per-item Δ vs base for Q2's 17 items (per-item scores already stored — no oracle re-run), colored by face-content group (`Q2_ITEM_GROUPS` — OUR analytical grouping, not a validated subscale). Q2 items 1/2/3/10 reward therapist *self-disclosure*, which MI does not prescribe — if those top the Δ ranking, the Q1+Q2 reward itself incentivizes the emotive drift. Loader `data.load_q2_items`; deltas `stats.q2_item_endpoint_deltas`. |
+| **`miti_proficiency_thresholds` / `miti_threshold_verdicts`** | `2_Questionnaire_Detail` §6b | The absolute anchor (this doc §2b): official-threshold verdicts per arm — did training reach basic MI competence in the manual's own terms? |
 
 ---
 
 ## 6 · Reward-faithfulness (why MIN_CONV_LENGTH exists)
 
 Separate but related: the **training** reward scores *partial* conversations, but the thesis evaluates
-*full* ones. `4_Training_and_Reliability` rebuilds the partial-conv reliability curve on Exp3 data
+*full* ones. `5_Training_and_Reliability` rebuilds the partial-conv reliability curve on Exp3 data
 (`stats.rank_agreement_by_nturns`, from `generations.jsonl`): short cuts (`n_turns=2`) agree with the
 final-conv ranking only ~0.66–0.73 (barely above chance), clearing 0.8 at ~10 turns, 0.9 at ~30.
 Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N utterances).
@@ -220,7 +223,7 @@ Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N uttera
 ---
 
 ### Quick map: figure family → notebook
-`1_Outcomes` (trajectories, effect forest, scorecard) · `2_Heterogeneity` (persona splits, endpoint
-bars) · `3_Mechanism` (behavior drift, reward_hack_panel, question/over-praise cross-checks, factor
-structure) · `4_Training_and_Reliability` (TB curves, reward dist, reliability curve) · `5_Preference`
-(PTO preference probe) · `6_Stats` (all heavy tables + PCA).
+`1_Outcomes` (trajectories, effect forest, scorecard) · `4_Heterogeneity` (persona splits, endpoint
+bars) · `3_Validity_and_Hacking` (behavior drift, reward_hack_panel, question/over-praise cross-checks, factor
+structure) · `5_Training_and_Reliability` (TB curves, reward dist, reliability curve) · `6_Preference`
+(PTO preference probe) · `7_Stats` (all heavy tables + PCA).

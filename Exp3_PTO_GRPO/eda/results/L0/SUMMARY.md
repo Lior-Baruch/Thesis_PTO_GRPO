@@ -21,10 +21,10 @@ view, which is still thin.)
   **lower = better**), and the free derived MITI-proficiency ratios `R:Q` / `%CR` / `%MICO`.
 
 ## 2. Headline — both arms improve a lot, but PTO is stronger *and* more stable
-See [`figures/1_outcomes/outcomes_by_model.png`](figures/1_outcomes/outcomes_by_model.png),
-[`figures/1_outcomes/effect_vs_base_forest.png`](figures/1_outcomes/effect_vs_base_forest.png),
+See [`figures/1_outcomes/outcomes_by_model_final.png`](figures/1_outcomes/outcomes_by_model_final.png),
+[`figures/1_outcomes/effect_vs_base_forest_final.png`](figures/1_outcomes/effect_vs_base_forest_final.png),
 [`figures/1_outcomes/trajectories/trajectory_Q1Q2.png`](figures/1_outcomes/trajectories/trajectory_Q1Q2.png), and
-[`tables/6_stats/main_results.md`](tables/6_stats/main_results.md).
+[`tables/7_stats/main_results.md`](tables/7_stats/main_results.md).
 
 - **Each arm vs base — large global-evaluation gains.** PTO_LA0 Q1+Q2 **3.00 → 4.26** (dz 1.43, *large*,
   Holm p≈0, Friedman W=0.45). GRPO_LA0 Q1+Q2 **3.07 → 4.08 at its iter-8 peak**, falling to **3.75
@@ -32,26 +32,26 @@ See [`figures/1_outcomes/outcomes_by_model.png`](figures/1_outcomes/outcomes_by_
   PTO; Holm p≈0 everywhere.
 - **PTO ahead at the matched 10-iter endpoint.** Paired PTO−GRPO at iter 10: **Q1+Q2 +0.51**
   (dz +0.73, Holm p<0.001), with MITI, MI-SAT, PCT and the Q1/Q2 components all favouring PTO — see
-  [`tables/6_stats/method_paired_by_K.md`](tables/6_stats/method_paired_by_K.md). The earlier
+  [`tables/7_stats/method_paired_by_K.md`](tables/7_stats/method_paired_by_K.md). The earlier
   "near-tie at iter 8" was a snapshot: **GRPO peaks at iter 8 then regresses** (4.08 → 3.81 → 3.75)
   while PTO keeps climbing (4.22 → 4.26).
 - **Climb rate.** OLS Q1+Q2 slope PTO **0.120/iter** (peak = final iter 10) vs GRPO **0.072/iter**
-  (peak iter 8) — [`tables/6_stats/slope_by_arm.md`](tables/6_stats/slope_by_arm.md). With
+  (peak iter 8) — [`tables/7_stats/slope_by_arm.md`](tables/7_stats/slope_by_arm.md). With
   GRPO, peak-iter selection / early stopping matters; even so its best (4.08) is below PTO's (4.26).
 - **Per-metric learning curves** (every metric, peaks auto-flagged) live in
   [`figures/1_outcomes/trajectories/`](figures/1_outcomes/trajectories/); the persona splits
-  (every metric × cooperation/problem) in [`figures/2_heterogeneity/`](figures/2_heterogeneity/) —
+  (every metric × cooperation/problem) in [`figures/4_heterogeneity/`](figures/4_heterogeneity/) —
   GRPO's endpoint collapse concentrates on the *Resistant* personas.
 - **Iter-9 caveat:** GRPO_LA0 dips at iter 9 across most metrics simultaneously then partially
-  recovers at 10 — [`tables/6_stats/grpo_iter9_check.md`](tables/6_stats/grpo_iter9_check.md)
+  recovers at 10 — [`tables/7_stats/grpo_iter9_check.md`](tables/7_stats/grpo_iter9_check.md)
   quantifies it (a paired one-iteration dip on top of the monotonic Q1+Q2 decline).
 
 **Revised core answer (RQ-ii):** GRPO is competitive *up to its peak* but overshoots into
 reward-hacking and degrades; **PTO sustains gains across all 10 iterations.**
 
 ## 3. The gains come *with* a measurable reward-hack — that's why the orthogonal axes matter
-See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadings.png),
-[`figures/3_mechanism/rubric_correlation.png`](figures/3_mechanism/rubric_correlation.png), and
+See [`figures/3_validity/factor_loadings.png`](figures/3_validity/factor_loadings.png),
+[`figures/3_validity/rubric_correlation.png`](figures/3_validity/rubric_correlation.png), and
 [`tables/1_outcomes/leaderboard_scorecard.md`](tables/1_outcomes/leaderboard_scorecard.md).
 
 - **MI-inconsistent behaviour rises ~2.3× (PTO) / ~4× (GRPO)** as the global-evaluation scores climb
@@ -65,20 +65,20 @@ See [`figures/3_mechanism/factor_loadings.png`](figures/3_mechanism/factor_loadi
   (0.49 → 0.57, *small*).
 
 ## 4. Mechanism — what the therapist actually does
-See [`figures/3_mechanism/behavior_drift.png`](figures/3_mechanism/behavior_drift.png) and the merged
-behaviour table [`tables/3_mechanism/behavior_by_iter.md`](tables/3_mechanism/behavior_by_iter.md).
+See [`figures/2_questionnaires/miti_detail_grid.png`](figures/2_questionnaires/miti_detail_grid.png) and the merged
+behaviour table [`tables/2_questionnaires/miti_detail_by_iter.md`](tables/2_questionnaires/miti_detail_by_iter.md).
 
 - **Affirmation drift is confirmed in BOTH arms, and at iter 10 GRPO is the worse offender:**
   GRPO B6_AF 0.52 → **1.98**, questions B3_Q 6.4 → **4.1**, q/turn 0.83 → **0.15**, R:Q → **1.44**.
   PTO's drift is milder and plateaus (iter-10 B6_AF 1.64, q/turn 0.55).
-- **Across all 96 iter-10 conversations** (`tables/3_mechanism/behavior_by_iter.md`): GRPO
+- **Across all 96 iter-10 conversations** (`tables/2_questionnaires/miti_detail_by_iter.md`): GRPO
   collapses to **0.15 questions/turn** vs PTO's **0.55**, and the oracle codes GRPO as far more
   MI-inconsistent (**MICI 0.84 vs 0.49**). A lexical praise-word count (the demoted sanity-check)
   puts GRPO at **~3.5× PTO's praise rate**. The iter-10 eval regression *is* this over-praise
   reward-hack, which the full-conversation oracle penalises; GRPO falls into it harder.
 - **Absolute anchor — official MITI 4.2.1 competency thresholds**
-  ([`figures/3_mechanism/miti_proficiency_thresholds.png`](figures/3_mechanism/miti_proficiency_thresholds.png),
-  [`tables/3_mechanism/miti_threshold_verdicts.md`](tables/3_mechanism/miti_threshold_verdicts.md)):
+  ([`figures/2_questionnaires/miti_proficiency_thresholds.png`](figures/2_questionnaires/miti_proficiency_thresholds.png),
+  [`tables/2_questionnaires/miti_threshold_verdicts.md`](tables/2_questionnaires/miti_threshold_verdicts.md)):
   training takes both arms from *below basic competence* to **fair-to-good on the global ratings**
   (Relational crosses "good": PTO 4.61, GRPO 4.20) — but **neither arm reaches "good" on the
   technique ratios** (%CR PTO 0.36✗ / GRPO 0.41 fair; R:Q PTO 0.75✗), and GRPO's iter-10 R:Q
@@ -86,23 +86,23 @@ behaviour table [`tables/3_mechanism/behavior_by_iter.md`](tables/3_mechanism/be
   Thresholds are the manual's expert opinion and defined for 20-min human sessions — an anchor,
   not a certification.
 - **Reward composition — which Q2 items the optimizer exploits**
-  ([`figures/3_mechanism/q2_item_drivers.png`](figures/3_mechanism/q2_item_drivers.png),
-  [`tables/3_mechanism/q2_item_deltas.md`](tables/3_mechanism/q2_item_deltas.md)): the top
+  ([`figures/2_questionnaires/q2_item_deltas_final.png`](figures/2_questionnaires/q2_item_deltas_final.png),
+  [`tables/2_questionnaires/q2_item_deltas.md`](tables/2_questionnaires/q2_item_deltas.md)): the top
   endpoint-Δ Q2 item in **both** arms is *"revealed what he was thinking"* (self-disclosure), with
   "put himself in my shoes" and "took charge" close behind — the Q1+Q2 reward's own composition
   (items 1/2/3/10 reward therapist self-disclosure, which MI does not prescribe) incentivizes the
   emotive drift, i.e. the hack traces to specific reward components, not only to the optimizer.
 - Both arms kill the early degeneration loops (loop% 0.49 → 0); the leak/empty health gate stays
-  clean (see [`figures/4_training/`](figures/4_training/)).
+  clean (see [`figures/5_training/`](figures/5_training/)).
 
 ## 5. Is the training reward faithful?
-See [`figures/4_training/reward_reliability_curve.png`](figures/4_training/reward_reliability_curve.png).
+See [`figures/5_training/reward_reliability_curve.png`](figures/5_training/reward_reliability_curve.png).
 At MCL=12, GRPO's short proxy reward grows *more* faithful with conversation length (rank agreement
 ≈0.86 → 0.94) while PTO's grows *less* (≈0.87 → 0.76). The MCL=12 floor keeps both out of the
 unreliable short-cut regime (Exp2 saw agreement as low as 0.66 at n_turns=2).
 
 ## 6. PTO preference probe (PTO_LA0 only)
-See [`figures/5_preference/`](figures/5_preference/). The mean(chosen − rejected) direction genuinely
+See [`figures/6_preference/`](figures/6_preference/). The mean(chosen − rejected) direction genuinely
 separates the pairs (`wins_correct` 0.65 → 0.71 over iters, strengthening late) — the DPO signal is
 real, and its latent target drifts toward affirmation/achievement language over training (the
 latent-space echo of the §4 behaviour drift).

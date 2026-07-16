@@ -1,0 +1,27 @@
+- **q1_detail_grid** — Q1: per-item mean +/- 95% CI across iterations, arms overlaid — the item-level drill-down behind the Q1 global score.
+- **q1_item_deltas_final** — Δ vs base per Q1 item at each arm's final iteration (one panel per arm, shared Δ scale).
+- **q1_item_deltas_best** — Δ vs base per Q1 item at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale).
+- **q2_detail_grid** — Q2: per-item mean +/- 95% CI across iterations, arms overlaid — the item-level drill-down behind the Q2 global score.
+- **q2_item_deltas_final** — Δ vs base per Q2 item at each arm's final iteration (one panel per arm, shared Δ scale).
+- **q2_item_deltas_best** — Δ vs base per Q2 item at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale).
+- **q2_item_group_trajectories** — Mean Q2 item-group score across iterations per arm (+-95% CI; face-content groups, analytical not validated) — when each exploited reward component takes off.
+- **wai_subscales** — WAI-SR Goal/Task/Bond subscale means across iterations; one panel per arm, arms with <3 scored iters omitted.
+- **wai_detail_grid** — WAI-SR: per-item mean +/- 95% CI across iterations, arms overlaid — the item-level drill-down behind the WAI-SR global score.
+- **wai_item_deltas_final** — Δ vs base per WAI-SR item at each arm's final iteration (one panel per arm, shared Δ scale).
+- **wai_item_deltas_best** — Δ vs base per WAI-SR item at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale).
+- **csq_detail_grid** — CSQ-8: per-item mean +/- 95% CI across iterations, arms overlaid — the item-level drill-down behind the CSQ-8 global score.
+- **csq_item_deltas_final** — Δ vs base per CSQ-8 item at each arm's final iteration (one panel per arm, shared Δ scale).
+- **csq_item_deltas_best** — Δ vs base per CSQ-8 item at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale).
+- **misat_detail_grid** — MI-SAT: per-item mean +/- 95% CI across iterations, arms overlaid — the item-level drill-down behind the MI-SAT global score.
+- **misat_item_deltas_final** — Δ vs base per MI-SAT item at each arm's final iteration (one panel per arm, shared Δ scale).
+- **misat_item_deltas_best** — Δ vs base per MI-SAT item at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale).
+- **miti_detail_grid** — MITI drill-down: 4 global ratings (1-5), all 7 behaviour counts PER THERAPIST TURN (length-normalized), and the derived proficiency ratios R:Q/%CR/%MICO across iterations, all arms. B6_AF up while B3_Q down = the affirmation/advice drift.
+- **miti_item_deltas_final** — Δ vs base per MITI component at each arm's final iteration (one panel per arm, shared Δ scale; mixed units — see xlabel).
+- **miti_item_deltas_best** — Δ vs base per MITI component at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale; mixed units — see xlabel).
+- **miti_proficiency_thresholds** — The 4 official MITI 4.2.1 summary scores (R:Q, %CR, Technical global, Relational global) across iterations vs the manual's fair/good competency thresholds (dashed). Both arms cross 'good' on Relational but neither reaches 'good' on the technique ratios; GRPO's late R:Q jump is driven by the iter-10 question collapse (smaller denominator), not more reflection. Thresholds are expert opinion (MITI 4.2.1 manual) and defined for ~20-min human sessions.
+- **pct_detail_grid** — PCT patient-perspective globals (Importance/Confidence/Readiness, 1-5) + change/sustain/neutral proportions of patient utterances across iterations, all arms. The actual MI target scored from the patient side: motivation moves modestly (more for PTO), while GRPO's late-iteration regression appears as a global dip.
+- **pct_item_deltas_final** — Δ vs base per PCT component at each arm's final iteration (one panel per arm, shared Δ scale; mixed units — see xlabel).
+- **pct_item_deltas_best** — Δ vs base per PCT component at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale; mixed units — see xlabel).
+- **mici_detail_grid** — MICI severity global (1-5) + total and per-behaviour MI-inconsistent rates PER THERAPIST TURN across iterations, all arms. Higher = worse. Isolates WHICH harmful move drives the MI-inconsistency rise: over-praise dominates (~20-35x), while confront/warn/judge stay ~0 and advise-without-permission sits at a flat background.
+- **mici_item_deltas_final** — Δ vs base per MICI component at each arm's final iteration (one panel per arm, shared Δ scale; mixed units — see xlabel).
+- **mici_item_deltas_best** — Δ vs base per MICI component at each arm's best iteration (own oracle) (one panel per arm, shared Δ scale; mixed units — see xlabel).

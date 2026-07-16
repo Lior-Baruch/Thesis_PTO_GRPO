@@ -1,0 +1,12 @@
+- **q1_item_deltas** — Per (arm, Q1 item): base/target means + Δ at the final AND best iteration (target column).
+- **q2_item_deltas** — Per (arm, Q2 item): base/target means + Δ at the final AND best iteration (target column).
+- **wai_item_deltas** — Per (arm, WAI-SR item): base/target means + Δ at the final AND best iteration (target column).
+- **csq_item_deltas** — Per (arm, CSQ-8 item): base/target means + Δ at the final AND best iteration (target column).
+- **misat_item_deltas** — Per (arm, MI-SAT item): base/target means + Δ at the final AND best iteration (target column).
+- **miti_detail_by_iter** — Mean MITI globals + behaviour rates per therapist turn + proficiency ratios per (arm, iteration), all arms.
+- **miti_item_deltas** — Per (arm, MITI component): base/target values + Δ at the final AND best iteration (target column).
+- **miti_threshold_verdicts** — Base vs final MITI 4.2.1 summary scores per arm with the manual's competency verdict per score (✓good / ✓fair / ✗ below basic competence).
+- **pct_patient_by_iter** — Mean PCT globals + patient-utterance proportions per (arm, iteration), all arms.
+- **pct_item_deltas** — Per (arm, PCT component): base/target values + Δ at the final AND best iteration (target column).
+- **mici_behavior_by_iter** — Mean MICI severity + total and per-behaviour MI-inconsistent rates per therapist turn, per (arm, iteration), all arms.
+- **mici_item_deltas** — Per (arm, MICI component): base/target values + Δ at the final AND best iteration (target column).

@@ -1,0 +1,7 @@
+- **main_results** — FINAL and BEST iteration vs base per arm x metric (column `target`), persona-paired (N=96): dz, Wilcoxon p (Holm within arm x target), bootstrap CI, trajectory rho/slope. Thin arms dropped.
+- **friedman_omnibus** — Friedman repeated-measures omnibus across iterations per arm x rubric (Kendall's W). Thin arms dropped.
+- **vs_base_paired** — Each arm x iteration vs its OWN base on Q1+Q2 — one merged table (column `arm`); persona-paired Wilcoxon, dz, Holm p (within arm), bootstrap CI.
+- **method_paired_by_K** — PTO - GRPO at matched K and matched iterations — one merged table (column `K`); persona-paired Wilcoxon + dz + Holm. + => PTO higher. NOTE Holm scope: p_holm is corrected across the rubrics WITHIN each (K, iteration) contrast, NOT across iterations (each matched-budget point is its own family).
+- **method_paired_best** — PTO at its own-oracle BEST iteration vs GRPO at ITS best, per K — persona-paired Wilcoxon + dz + Holm (across rubrics within each K). + => PTO higher. The model-selection contrast: GRPO credited at its peak (iter_b), before the post-peak regression; complements the matched-endpoint table method_paired_by_K. Thin-K rows are descriptive only.
+- **slope_by_arm** — Per-iteration OLS slope + Spearman rho per arm x metric (climb rate; peak vs final iteration flags a regression). Thin arms dropped.
+- **rubric_pca_pc1** — Variance explained by PC1 of the rubric scores per arm (dominant PC1 => rubrics ~ one latent factor).

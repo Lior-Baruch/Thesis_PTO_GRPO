@@ -1,0 +1,1 @@
+- **leaderboard_scorecard** — Scorecard (final + best) — headline copy; canonical: tables/1_outcomes/.

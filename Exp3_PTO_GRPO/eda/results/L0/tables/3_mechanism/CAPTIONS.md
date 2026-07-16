@@ -1,5 +1,0 @@
-- **behavior_by_iter** — Mean behavior metrics per (arm, iteration): all 7 MITI behavior counts per therapist turn + text metrics — one merged table, all arms.
-- **miti_threshold_verdicts** — Base vs final MITI 4.2.1 summary scores per arm with the manual's competency verdict per score (✓good / ✓fair / ✗ below basic competence).
-- **mici_behavior_by_iter** — Mean MICI severity + total and per-behaviour MI-inconsistent rates per therapist turn, per (arm, iteration), all arms.
-- **pct_patient_by_iter** — Mean PCT globals + patient-utterance proportions per (arm, iteration), all arms.
-- **q2_item_deltas** — Per (arm, Q2 item): base mean, final mean and Delta, with the item's short text + face-content group — the reward-composition table behind q2_item_drivers.

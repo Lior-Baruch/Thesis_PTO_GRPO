@@ -7,9 +7,19 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 
 ## Figures
 
+### 0_headline
+- `effect_vs_base_forest_best.png`
+- `effect_vs_base_forest_final.png`
+- `mici_detail_grid.png`
+- `miti_detail_grid.png`
+- `reward_hack_panel.png`
+- `trajectories_all_metrics.png`
+
 ### 1_outcomes
-- `effect_vs_base_forest.png`
-- `outcomes_by_model.png`
+- `effect_vs_base_forest_best.png`
+- `effect_vs_base_forest_final.png`
+- `outcomes_by_model_best.png`
+- `outcomes_by_model_final.png`
 - `trajectories_all_metrics.png`
 
 ### 1_outcomes/trajectories
@@ -23,49 +33,45 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 - `trajectory_Q2.png`
 - `trajectory_WAI-SR.png`
 
-### 2_heterogeneity
-- `cooperation_level_all_metrics.png`
-- `problem_all_metrics.png`
-- `subgroup_endpoint_cooperation_level.png`
-- `subgroup_endpoint_problem.png`
-
-### 2_heterogeneity/cooperation_level
-- `CSQ-8.png`
-- `MI-SAT.png`
-- `MICI.png`
-- `MITI.png`
-- `PCT.png`
-- `Q1.png`
-- `Q1Q2.png`
-- `Q2.png`
-- `WAI-SR.png`
-
-### 2_heterogeneity/problem
-- `CSQ-8.png`
-- `MI-SAT.png`
-- `MICI.png`
-- `MITI.png`
-- `PCT.png`
-- `Q1.png`
-- `Q1Q2.png`
-- `Q2.png`
-- `WAI-SR.png`
-
-### 3_mechanism
-- `behavior_drift.png`
-- `factor_loadings.png`
-- `mici_behavior_detail.png`
+### 2_questionnaires
+- `csq_detail_grid.png`
+- `csq_item_deltas_best.png`
+- `csq_item_deltas_final.png`
+- `mici_detail_grid.png`
+- `mici_item_deltas_best.png`
+- `mici_item_deltas_final.png`
+- `misat_detail_grid.png`
+- `misat_item_deltas_best.png`
+- `misat_item_deltas_final.png`
+- `miti_detail_grid.png`
+- `miti_item_deltas_best.png`
+- `miti_item_deltas_final.png`
 - `miti_proficiency_thresholds.png`
-- `overpraise_crosscheck.png`
-- `pct_patient_detail.png`
-- `q2_item_drivers.png`
+- `pct_detail_grid.png`
+- `pct_item_deltas_best.png`
+- `pct_item_deltas_final.png`
+- `q1_detail_grid.png`
+- `q1_item_deltas_best.png`
+- `q1_item_deltas_final.png`
+- `q2_detail_grid.png`
+- `q2_item_deltas_best.png`
+- `q2_item_deltas_final.png`
 - `q2_item_group_trajectories.png`
-- `question_rate_crosscheck.png`
-- `reward_hack_panel.png`
-- `rubric_correlation.png`
-- `subscale_trajectories.png`
+- `wai_detail_grid.png`
+- `wai_item_deltas_best.png`
+- `wai_item_deltas_final.png`
+- `wai_subscales.png`
 
-### 3_mechanism/behavior
+### 2_questionnaires/mici
+- `MICI_AdviseNoPermission_rate.png`
+- `MICI_Confront_rate.png`
+- `MICI_Direct_rate.png`
+- `MICI_Judge_rate.png`
+- `MICI_OverPraise_rate.png`
+- `MICI_Severity.png`
+- `MICI_Warn_rate.png`
+
+### 2_questionnaires/miti
 - `B1_GI_per_turn.png`
 - `B2_Persuade_per_turn.png`
 - `B3_Q_per_turn.png`
@@ -75,19 +81,8 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 - `B7_Seek_per_turn.png`
 - `Empathy.png`
 - `RtoQ.png`
-- `loop.png`
-- `q_per_turn.png`
 
-### 3_mechanism/mici
-- `MICI_AdviseNoPermission_rate.png`
-- `MICI_Confront_rate.png`
-- `MICI_Direct_rate.png`
-- `MICI_Judge_rate.png`
-- `MICI_OverPraise_rate.png`
-- `MICI_Severity.png`
-- `MICI_Warn_rate.png`
-
-### 3_mechanism/pct
+### 2_questionnaires/pct
 - `PCT_ChangeProp.png`
 - `PCT_ChangeTalk_prop.png`
 - `PCT_Confidence.png`
@@ -96,21 +91,55 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 - `PCT_Readiness.png`
 - `PCT_SustainTalk_prop.png`
 
-### 3_mechanism/subscales
+### 3_validity
+- `factor_loadings.png`
+- `overpraise_crosscheck.png`
+- `question_rate_crosscheck.png`
+- `reward_hack_panel.png`
+- `rubric_correlation.png`
+- `session_shape.png`
+
+### 4_heterogeneity
+- `cooperation_level_all_metrics.png`
+- `problem_all_metrics.png`
+- `subgroup_endpoint_cooperation_level_best.png`
+- `subgroup_endpoint_cooperation_level_final.png`
+- `subgroup_endpoint_problem_best.png`
+- `subgroup_endpoint_problem_final.png`
+
+### 4_heterogeneity/cooperation_level
+- `CSQ-8.png`
+- `MI-SAT.png`
+- `MICI.png`
 - `MITI.png`
+- `PCT.png`
+- `Q1.png`
+- `Q1Q2.png`
+- `Q2.png`
 - `WAI-SR.png`
 
-### 4_training
+### 4_heterogeneity/problem
+- `CSQ-8.png`
+- `MI-SAT.png`
+- `MICI.png`
+- `MITI.png`
+- `PCT.png`
+- `Q1.png`
+- `Q1Q2.png`
+- `Q2.png`
+- `WAI-SR.png`
+
+### 5_training
 - `advantage_signal_sidebyside.png`
 - `faithfulness_proxy_vs_eval.png`
 - `reward_distribution_by_arm.png`
 - `reward_reliability_curve.png`
 
-### 4_training/reward_distribution
+### 5_training/reward_distribution
 - `GRPO_LA5.png`
 - `PTO_LA5.png`
 
-### 5_preference
+### 6_preference
 - `PTO_LA5_pref_category_drift.png`
 - `PTO_LA5_pref_direction_drift.png`
 - `PTO_LA5_pref_learn_unlearn.png`
@@ -119,23 +148,38 @@ _Family number = producing notebook number (e.g. `1_outcomes` ← `1_Outcomes.ip
 
 ## Tables
 
+### 0_headline
+- `leaderboard_scorecard.md`
+
 ### 1_outcomes
 - `leaderboard_scorecard.md`
 
-### 3_mechanism
-- `behavior_by_iter.md`
+### 2_questionnaires
+- `csq_item_deltas.md`
 - `mici_behavior_by_iter.md`
+- `mici_item_deltas.md`
+- `misat_item_deltas.md`
+- `miti_detail_by_iter.md`
+- `miti_item_deltas.md`
 - `miti_threshold_verdicts.md`
+- `pct_item_deltas.md`
 - `pct_patient_by_iter.md`
+- `q1_item_deltas.md`
 - `q2_item_deltas.md`
+- `wai_item_deltas.md`
 
-### 5_preference
+### 3_validity
+- `session_end_reasons.md`
+- `session_shape_by_iter.md`
+
+### 6_preference
 - `PTO_LA5_pref_MI_concepts.md`
 - `PTO_LA5_pref_probe_quality.md`
 
-### 6_stats
+### 7_stats
 - `friedman_omnibus.md`
 - `main_results.md`
+- `method_paired_best.md`
 - `method_paired_by_K.md`
 - `rubric_pca_pc1.md`
 - `slope_by_arm.md`

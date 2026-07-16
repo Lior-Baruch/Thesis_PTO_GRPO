@@ -1,0 +1,7 @@
+- **MICI_Severity** — MI-Incon. Severity (MICI) ↓ across iterations, all arms — per-behaviour zoom of mici_detail_grid.
+- **MICI_Confront_rate** — Confront / turn (MICI) ↓ across iterations, all arms — per-behaviour zoom of mici_detail_grid.
+- **MICI_AdviseNoPermission_rate** — Advise w/o permission / turn (MICI) ↓ across iterations, all arms — per-behaviour zoom of mici_detail_grid.
+- **MICI_Warn_rate** — Warn / turn (MICI) ↓ across iterations, all arms — per-behaviour zoom of mici_detail_grid.
+- **MICI_Direct_rate** — Direct/order / turn (MICI) ↓ across iterations, all arms — per-behaviour zoom of mici_detail_grid.
+- **MICI_Judge_rate** — Judge/label / turn (MICI) ↓ across iterations, all arms — per-behaviour zoom of mici_detail_grid.
+- **MICI_OverPraise_rate** — Over-praise / turn (MICI) ↓ across iterations, all arms — per-behaviour zoom of mici_detail_grid.

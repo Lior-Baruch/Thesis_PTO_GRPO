@@ -1,0 +1,9 @@
+- **B3_Q_per_turn** — Questions / turn (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **B4_SR_per_turn** — Simple Reflections / turn (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **B5_CR_per_turn** — Complex Reflections / turn (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **B6_AF_per_turn** — Affirmations / turn (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **B2_Persuade_per_turn** — Persuasion / turn (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **B1_GI_per_turn** — Giving Information / turn (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **B7_Seek_per_turn** — Seeking Collaboration / turn (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **RtoQ** — Reflection:Question (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.
+- **Empathy** — Empathy (MITI) across iterations, all arms — per-metric zoom of miti_detail_grid.

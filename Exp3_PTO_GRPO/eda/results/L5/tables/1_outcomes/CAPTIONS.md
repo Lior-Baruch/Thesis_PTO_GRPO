@@ -1,1 +1,1 @@
-- **leaderboard_scorecard** — Best iteration per arm: global-eval (halo) rubrics beside the orthogonal axes (MICI lower-is-better, flagged ↓).
+- **leaderboard_scorecard** — Final AND best iteration per arm (target column): global-eval (halo) rubrics beside the orthogonal axes (MICI lower-is-better, flagged ↓).

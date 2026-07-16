@@ -9,19 +9,24 @@ and genuinely one-off exploration stays inline (the **hybrid** plotting split). 
 figures/tables are exported per **VIEW** into `results/<view>/figures|tables/<family>/` — figures
 `.png`, tables `.md` + `.xlsx`.
 
-**Organization = topic notebooks ↔ numbered result families, 1:1 (2026-07-02 reorg).** Every notebook
-is a topic; its NUMBER equals its results-family number, so any artifact under `results/<view>/`
-traces straight back to the notebook that produces it (browse the results, open the matching notebook
-to edit / dig deeper):
+**Organization = tier-based drill-down, notebooks ↔ numbered result families 1:1 (2026-07-16 reorg).**
+Level 1 = global scores → Level 2 = inside each questionnaire → Level 3+ = cross-cutting analyses.
+Every notebook is a topic; its NUMBER equals its results-family number, so any artifact under
+`results/<view>/` traces straight back to the notebook that produces it (browse the results, open the
+matching notebook to edit / dig deeper). Endpoint artifacts always come as a **final + best pair**
+(best = each arm's peak iteration on its own training oracle via `best_per_experiment`; GRPO_LA0→I8):
+figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target` column.
 
 | Notebook | Family (figures + tables) | Contents |
 |---|---|---|
-| `1_Outcomes.ipynb` | `1_outcomes/` | all-metric trajectory grid · per-metric learning-curve catalog (`trajectories/`, peaks auto-flagged) · effect forest · per-model bars · scorecard |
-| `2_Heterogeneity.ipynb` | `2_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + final-iteration endpoint bars |
-| `3_Mechanism.ipynb` | `3_mechanism/` | behaviour drift (all 7 MITI behaviours) + merged behaviour table · **official MITI 4.2.1 competency thresholds (§2b)** · subscales · factor structure · reward-hack panel · question/over-praise cross-checks · **MICI per-behaviour detail (§4d)** · **PCT patient-detail (§4e)** · **Q2 item-level reward composition (§4f)** · session shape · transcripts |
-| `4_Training_and_Reliability.ipynb` | `4_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
-| `5_Preference.ipynb` | `5_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
-| `6_Stats.ipynb` | `6_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · all-metric slopes · PCA · GRPO iter-9 anomaly check |
+| *(re-saves)* | `0_headline/` | the ~7 presentation artifacts, re-saved by notebooks 1–3 via a per-call `group="0_headline"` (main grid, forest final+best, MITI + MICI detail grids, reward-hack panel, scorecard) |
+| `1_Outcomes.ipynb` | `1_outcomes/` | **Level 1 — global scores:** all-metric trajectory grid (THE main figure) · per-metric learning-curve catalog (`trajectories/`, peaks auto-flagged) · effect forest final+best · endpoint bars final+best · scorecard final+best |
+| `2_Questionnaire_Detail.ipynb` | `2_questionnaires/` | **Level 2 — one uniform detail section per rubric:** Q1/Q2/WAI-SR/CSQ-8/MI-SAT item grids (`<slug>_detail_grid`) + item-delta bars final+best (`<slug>_item_deltas_*`) · Q2 face-content groups · WAI subscales · MITI detail grid (globals + 7 behaviour rates + ratios; zooms in `miti/`) + **official MITI 4.2.1 thresholds** · PCT detail (`pct/`) · MICI detail (`mici/`) |
+| `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
+| `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
+| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
+| `6_Preference.ipynb` | `6_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
+| `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · **best-vs-best method contrast (`method_paired_best`)** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 
 Every section is tagged **`[EVAL]`** (full-conversation oracle scores — the held-out outcome) or
 **`[TRAINING]`** (partial-branch rewards / preference pairs — what the policy is updated on). Every
@@ -49,9 +54,9 @@ auto-generated **`INDEX.md`** (the artifact map).
 
 ### Regenerate every view
 ```
-python render_views.py            # every view × 6 notebooks via nbconvert
+python render_views.py            # every view × 7 notebooks via nbconvert
 python render_views.py L0         # just the L0 view
-python render_views.py L5 --nb 3  # one view, one notebook (--nb takes the notebook/family NUMBER: 3 = 3_Mechanism)
+python render_views.py L5 --nb 3  # one view, one notebook (--nb takes the notebook/family NUMBER: 3 = 3_Validity_and_Hacking)
 ```
 `render_views.py` sets `EDA_VIEW` per run and executes each notebook to a throwaway `--output-dir`
 (so the committed notebooks' outputs aren't churned — only the `results/` tree is the deliverable).
@@ -79,7 +84,7 @@ the `all` view / all present metrics. Knobs beyond `view`:
   also emit vector), `table_formats` (**default `("md","xlsx")`** — readable Markdown + a per-family
   Excel workbook, one sheet per table). A per-call `group=` on `save_fig`/`save_table` overrides the
   family for one save and supports **nested subpaths** (`group="1_outcomes/trajectories"`,
-  `group="2_heterogeneity/problem"`).
+  `group="4_heterogeneity/problem"`).
 - **Cache:** `cache` (**default `True`**) parquet-memoizes the slow disk reads — `scores_long`
   (~60 s cold → ~0.3 s) and the `behavior_by_iter` family (~30 s → ~0.3 s) — to `eda/.eda_cache/`
   (gitignored). Content-keyed on the input CSVs' `(name, size, mtime)`, so a re-score / re-gen
@@ -106,7 +111,7 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    `discover_arms()`** (2026-07-11, roadmap #7) — a new run is scoreable as soon as its
    conversations land; no registry edit. Resume-safe. Score **PCT** + **MICI** with
    `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
-2. **`1_Outcomes.ipynb`** → **`6_Stats.ipynb`** in any order (the notebook↔family table above says
+2. **`1_Outcomes.ipynb`** → **`7_Stats.ipynb`** in any order (the notebook↔family table above says
    what lives where). Every notebook auto-discovers arms from disk via `eda_analysis.discover_arms()`
    (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
    the venv kernel `thesis-venv313`, cwd = `eda/`.
@@ -131,15 +136,19 @@ behind an unchanged public surface.
 - **`constants`** — the LEAF (imports nothing from the package): workspace-root resolution +
   `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`WARMTH_RUBRICS` (the global-eval
   halo cluster — historical code name)/`ORTHOGONAL_METRICS`/`LOWER_IS_BETTER`,
-  `MITI_THRESHOLDS` (official 4.2.1 fair/good), `Q2_ITEM_SHORT`/`Q2_ITEM_GROUPS` (item labels +
-  face-content groups), `DISPLAY_NAMES`/`ARM_LABELS`,
-  `display_label`/`short_label`/`arm_label`, the shared `RE_AFFIRM` cue.
+  `MITI_THRESHOLDS` (official 4.2.1 fair/good), `Q1_ITEM_SHORT`/`Q2_ITEM_SHORT`/`Q2_ITEM_GROUPS`
+  (item labels + face-content groups), `ITEM_QUESTIONNAIRES` (per-item column layout of every
+  Likert-item rubric; item text source of truth = `code/questionnaires.py`),
+  `DISPLAY_NAMES`/`ARM_LABELS`, `display_label`/`short_label`/`arm_label`/`item_short_label`,
+  the shared `RE_AFFIRM` cue.
 - **`config`** — `EdaConfig` (the single control surface, incl. `view` + PNG/xlsx defaults) +
   `notebook_setup(cfg)` → `Setup` (incl. `S.VIEW`, `S.CFG`). *(absorbed the old `notebook.py`.)*
 - **`data`** — the load+shape layer: arm **discovery** (`discover_arms`/`filter_arms`/`Arm`), TRUE-
   **persona** recovery (`attach_personas`/`canonical_personas` — replays the per-iter shuffle), the
-  **`scores_long`** backbone (`load_scores_long`/`load_subscales`/`to_wide`/`collapse_base`/
-  `add_derived_mitiprof_rows`), and **selection** (`all_models`/`best_per_experiment`).
+  **`scores_long`** backbone (`load_scores_long`/`load_subscales`/`load_items` [generic per-item
+  loader over `ITEM_QUESTIONNAIRES`; `load_q2_items` wraps it]/`to_wide`/`collapse_base`/
+  `add_derived_mitiprof_rows`), and **selection** (`all_models`/`best_per_experiment`/
+  `final_per_experiment`/`best_iteration_by_arm` — the final-vs-best machinery).
   *(merged `discovery`+`personas`+`scores`+`select` into one module; the old submodule aliases have
   been retired — use the canonical `eda_analysis.data.*` / top-level re-exports.)*
 - **`plotting_style`** — the style/scaffold helpers (Okabe-Ito palette [PTO cool / GRPO warm / Base
@@ -148,17 +157,24 @@ behind an unchanged public surface.
   etc. still resolve.
 - **`plotting/`** (subpackage) — the named figures, split by topic behind a re-exporting `__init__`
   (the public surface is the flat module's): `outcomes` (per-model bars, `effect_forest`,
-  `leaderboard_scorecard`) · `trajectories` (`trajectory_grid`, `single_metric_trajectory`,
-  subscales, `reward_hack_panel`) · `heterogeneity` (persona splits) · `structure`
-  (`reliability_curve`, proxy-vs-eval, diverging `rubric_correlation_heatmap`,
-  `factor_loadings_bars`) · `behavior` (drift grids, MITI thresholds, Q2 items) · `training`
-  (reward distribution, advantage side-by-side). *(aliased back as `eda_analysis.figures`/`plots`.)*
+  `leaderboard_scorecard` — endpoint figures take `title=`/`selection=` for the final-vs-best
+  pairs) · `trajectories` (`trajectory_grid`, `single_metric_trajectory`, subscales,
+  `reward_hack_panel`) · `heterogeneity` (persona splits; `subgroup_endpoint_bars(iter_by_arm=)`
+  for best-iteration bars) · `structure` (`reliability_curve`, proxy-vs-eval, diverging
+  `rubric_correlation_heatmap`, `factor_loadings_bars`) · `behavior` (the generic wide-frame
+  detail grid reused by MITI/MICI/PCT + session shape, MITI thresholds, cross-checks) ·
+  `questionnaires` (`item_trajectory_grid` + `item_delta_bars` — the uniform per-rubric item
+  figures — + the Q2 specializations) · `training` (reward distribution, advantage side-by-side).
+  *(aliased back as `eda_analysis.figures`/`plots`.)*
 - **`stats`** — persona-paired Wilcoxon/dz/bootstrap + Friedman/Kendall-W + `main_results_table` +
-  `paired_method_comparison` (PTO vs GRPO) + `paired_k_comparison` (K0 vs K5) +
-  `rank_agreement_by_nturns` (reward reliability) + `rubric_pca`/`rubric_factor_space` +
-  `filter_thin_arms`.
-- **`behavior`** — MITI counts + over-praise cross-check + structural text metrics +
-  `miti_proficiency_by_iter` (the official-threshold summary scores).
+  `paired_method_comparison` (PTO vs GRPO) + `paired_best_method_comparison` (best-vs-best model
+  selection) + `paired_k_comparison` (K0 vs K5) + `item_endpoint_deltas` (generic "which items
+  drive the change"; `q2_item_endpoint_deltas` wraps it) + `rank_agreement_by_nturns` (reward
+  reliability) + `rubric_pca`/`rubric_factor_space` + `filter_thin_arms`.
+- **`behavior`** — MITI counts (+ per-conv `%MICO`) + over-praise cross-check + structural text
+  metrics + `miti_detail_by_iter` (the MITI drill-down frame behind `miti_detail_grid`) +
+  `session_shape_by_iter` (exported text metrics) + `miti_proficiency_by_iter` (the
+  official-threshold summary scores).
 - **`training`** — `generations.jsonl` proxy reward + degeneracy scan + pref pairs +
   `advantage_signal_by_iter`/`reward_distribution_frame` + `load_branch_reliability` +
   `tb_curves`/`parse_run_tb` (self-contained TensorBoard parse, no torch/trl).
@@ -191,6 +207,6 @@ Not duplicated here (so they can't drift). The full narrative + numbers live in
 [CLAUDE.md](../../CLAUDE.md) § "Current status & next step".
 
 ## Roadmap
-Dated pass history (2026-06-09 → 2026-07-13) is in [history/CHANGELOG.md](../history/CHANGELOG.md);
-the backlog is clear (last items — the `oracle_scoring/` fold + the `plotting/` split — landed
-2026-07-13).
+Dated pass history (2026-06-09 → 2026-07-16) is in [history/CHANGELOG.md](../history/CHANGELOG.md);
+the backlog is clear (last item — the tier-based 7-family reorg + `0_headline/` + generic
+questionnaire item detail + final-vs-best everywhere — landed 2026-07-16).
