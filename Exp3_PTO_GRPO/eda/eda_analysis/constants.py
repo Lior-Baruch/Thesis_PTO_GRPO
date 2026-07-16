@@ -108,6 +108,57 @@ Q2_ITEM_GROUPS = {
 }
 # item number -> group name (the lookup figures actually use).
 Q2_ITEM_GROUP_OF = {i: g for g, items in Q2_ITEM_GROUPS.items() for i in items}
+
+# ── Q1 per-item labels (same convention as Q2_ITEM_SHORT) ────────────────────────
+# Q1 = the 5-item Session Satisfaction LLM-evaluator prompt (CLPsych 2024; see
+# METRICS_REFERENCE.md §1). Short labels paraphrase code/questionnaires.py::get_questionnaire_1.
+Q1_ITEM_SHORT = {
+    1: "overall chat satisfaction", 2: "content satisfaction", 3: "facilitated motivation",
+    4: "learned something new", 5: "learning relevant to daily life",
+}
+
+# ── Per-item column layout of every Likert-item questionnaire in eval_scores/ ────
+# Display name -> (eval_scores metric subdir, ordered per-item column list). Source of truth for
+# the item TEXT is code/questionnaires.py (single canonical copy) — hardcoded here so this module
+# stays a leaf (imports nothing). MITI/PCT/MICI are NOT here: their detail is behavior counts /
+# rates (see behavior.py), not rating-scale items.
+ITEM_QUESTIONNAIRES = {
+    "Q1": ("Q1", [f"Q1_{i}" for i in range(1, 6)]),
+    "Q2": ("Q2", [f"Q2_{i}" for i in range(1, 18)]),
+    "WAI-SR": ("WAI_SR", [
+        "WAI1_ClearChange", "WAI2_NewWays", "WAI3_TherapistLikesMe", "WAI4_CollaborateGoals",
+        "WAI5_MutualRespect", "WAI6_WorkingTowardGoals", "WAI7_AppreciatesMe",
+        "WAI8_AgreeImportantWork", "WAI9_CaresDespiteDisapproval", "WAI10_TasksHelpChange",
+        "WAI11_UnderstandGoodChanges", "WAI12_WayOfWorkingCorrect",
+    ]),
+    "CSQ-8": ("CSQ8", [
+        "CSQ1_Quality", "CSQ2_ServiceFit", "CSQ3_NeedsMet", "CSQ4_Recommend",
+        "CSQ5_AmountOfHelp", "CSQ6_Effectiveness", "CSQ7_OverallSatisfaction",
+        "CSQ8_ReturnIntention",
+    ]),
+    "MI-SAT": ("MI_SAT", [
+        "MI1_Helpful", "MI2_Enjoyable", "MI3_Interesting", "MI4_EasyToUse",
+        "MI5_WorthTime", "MI6_LikelyChange",
+    ]),
+}
+
+_CAMEL_RE = re.compile(r"(?<=[a-z0-9])(?=[A-Z])")
+_ITEM_PREFIX_RE = re.compile(r"^[A-Za-z]+\d+_")
+
+
+def item_short_label(questionnaire: str, item, item_key: str = "") -> str:
+    """Short per-item label for axis ticks: Q1/Q2 via the explicit maps, the rest parsed
+    from the semantic column-name tail (``WAI9_CaresDespiteDisapproval`` -> ``"Cares despite
+    disapproval"``). ``item`` is the 1-based item number; ``item_key`` the raw column name."""
+    if questionnaire == "Q1":
+        return Q1_ITEM_SHORT.get(int(item), str(item))
+    if questionnaire == "Q2":
+        return Q2_ITEM_SHORT.get(int(item), str(item))
+    tail = _ITEM_PREFIX_RE.sub("", item_key or "")
+    if not tail:
+        return str(item)
+    words = _CAMEL_RE.sub(" ", tail).split()
+    return " ".join([words[0]] + [w.lower() for w in words[1:]]) if words else str(item)
 # Metrics where a LOWER value is better (must not be pooled into warmth composites / collapse_base).
 # The "MICI" questionnaire aggregate + every per-item MICI detail column (severity, per-turn rates)
 # are higher = worse, as is patient sustain-talk. Display layer only (drives the trailing ' ↓').
@@ -146,6 +197,8 @@ DISPLAY_NAMES = {
     # Official MITI 4.2.1 summary globals (manual §H) — the threshold panel plots these.
     "MITI_Technical": "Technical global (MITI)", "MITI_Relational": "Relational global (MITI)",
     "SoftenSustain": "Softening Sustain Talk (MITI)",
+    # MITI global ratings (1-5) as they appear in the behavior/detail frames.
+    "ChangeTalk": "Cultivating Change Talk (MITI)", "Partnership": "Partnership (MITI)",
     # MITI behavior counts (per conversation). "Questions" is a per-conv COUNT of question-FUNCTION
     # utterances (oracle) — kept distinct from the regex "? / turn" RATE below to avoid misreading a
     # count against a rate (they are different constructs: function vs literal-? syntax).

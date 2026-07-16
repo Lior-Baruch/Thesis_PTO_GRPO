@@ -1,20 +1,17 @@
-"""behavior.py — behaviour-drift figures: MITI count/text-metric trajectories, the official
-MITI 4.2.1 threshold panel/table, the question-rate cross-check, and the Q2 item-level
-reward-composition figures. (Data-side counterparts live in :mod:`eda_analysis.behavior`.)"""
+"""behavior.py — behaviour-count trajectory figures: the generic wide-frame detail grid (reused
+by the MITI / MICI / PCT detail sections and the session-shape view), the per-metric zoom, the
+official MITI 4.2.1 threshold panel/table, and the question-rate cross-check. (Data-side
+counterparts live in :mod:`eda_analysis.behavior`; the Likert-item figures live in
+:mod:`.questionnaires`.)"""
 
 from typing import Optional, Sequence
 
 import matplotlib.pyplot as plt
-import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from ..constants import (
-    MITI_THRESHOLDS, Q2_ITEM_SHORT, Q2_ITEM_GROUP_OF, Q2_ITEM_GROUPS,
-    display_label, arm_label,
-)
+from ..constants import MITI_THRESHOLDS, display_label, arm_label
 from ..plotting_style import grid, arm_palette, relabel_legend
-from ._shared import _QUAL_COLORS
 
 # Per-therapist-turn rates for the length-scaling MITI counts (not raw B*_ counts), so the drift
 # figure isn't inflated by longer late-iteration conversations. RtoQ is already a ratio; q_per_turn
@@ -52,7 +49,7 @@ def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
 
 def single_behavior_trajectory(behavior_by_iter, metric: str, *, palette=None):
     """One behavior metric across iterations, arms overlaid — the per-metric zoom of
-    :func:`behavior_trajectory_grid` (for the ``3_mechanism/behavior/`` subfolder).
+    :func:`behavior_trajectory_grid` (for the ``2_questionnaires/{miti,mici,pct}/`` subfolders).
 
     Same data + palette as the combined grid; a full-size single panel so a reader can read one
     signal (e.g. B6_AF affirmations, or q_per_turn) closely. ``None`` if ``metric`` is absent.
@@ -171,88 +168,5 @@ def question_rate_crosscheck(cross_df, *, palette=None):
     ax.set_title("Question rate: deterministic ?-count vs oracle MITI count (unit-harmonized cross-check)")
     ax.set_xlabel("training iteration"); ax.set_ylabel("questions per therapist turn")
     ax.legend(fontsize=7, ncol=2, frameon=True)
-    fig.tight_layout()
-    return fig
-
-
-# ── Q2 item-level reward composition (which items does the optimizer exploit?) ──
-# Group colors reuse the Okabe-Ito qualitative set, keyed on the face-content groups.
-_Q2_GROUP_COLORS = None  # built lazily (constants import order) in _q2_group_colors()
-
-
-def _q2_group_colors() -> dict:
-    global _Q2_GROUP_COLORS
-    if _Q2_GROUP_COLORS is None:
-        _Q2_GROUP_COLORS = {g: _QUAL_COLORS[i % len(_QUAL_COLORS)]
-                            for i, g in enumerate(Q2_ITEM_GROUPS)}
-    return _Q2_GROUP_COLORS
-
-
-def q2_item_delta_bars(q2_deltas, *, ncols: int = 2):
-    """Which Q2 items drive the reward gain — endpoint Δ vs base per item, one panel per arm.
-
-    Takes :func:`stats.q2_item_endpoint_deltas` (arm, item, short, group, base, final, delta).
-    Horizontal bars (one per item, shared cross-arm order by pooled Δ so panels compare), colored
-    by the face-content item group (OUR analytical grouping, not a validated subscale — see
-    ``constants.Q2_ITEM_GROUPS``). The reward-composition view: if the self-disclosure /
-    warmth-closeness items climb hardest while non-judgment stays flat, the Q1+Q2 training reward
-    is directly incentivizing the emotive drift. ``None`` if empty.
-    """
-    if q2_deltas is None or q2_deltas.empty:
-        return None
-    colors = _q2_group_colors()
-    order = (q2_deltas.groupby("item")["delta"].mean().sort_values().index.tolist())
-    arms = sorted(q2_deltas.arm.unique())
-    # Shared x-limits so the per-arm panels are visually comparable (same Δ scale).
-    xlo = min(0.0, float(q2_deltas["delta"].min()) * 1.05)
-    xhi = float(q2_deltas["delta"].max()) * 1.05
-    fig, axes = grid(len(arms), ncols=min(ncols, len(arms)), panel=(5.6, 4.6))
-    for ax, arm in zip(axes, arms):
-        d = q2_deltas[q2_deltas.arm == arm].set_index("item").reindex(order)
-        y = np.arange(len(d))
-        ax.barh(y, d["delta"].values,
-                color=[colors.get(g, "#777777") for g in d["group"]])
-        ax.set_yticks(y)
-        ax.set_yticklabels([f"{i}. {Q2_ITEM_SHORT.get(i, i)}" for i in d.index], fontsize=7.5)
-        ax.axvline(0, color="#555555", lw=0.8)
-        ax.set_xlim(xlo, xhi)
-        ax.set_title(arm_label(arm))
-        ax.set_xlabel("Δ item mean, final − base (1–5 scale)")
-    from matplotlib.patches import Patch
-    fig.legend(handles=[Patch(color=c, label=g) for g, c in colors.items()],
-               loc="upper center", bbox_to_anchor=(0.5, 1.06), ncol=3, frameon=False, fontsize=8,
-               title="face-content item group (analytical, not a validated subscale)")
-    fig.suptitle("Q2 reward composition — which alliance items drive the gain?",
-                 y=1.12, fontweight="bold")
-    fig.tight_layout()
-    return fig
-
-
-def q2_item_group_trajectory(q2_long, *, ncols: int = 2):
-    """Mean Q2 item-group score across iterations, one panel per arm (hue = item group).
-
-    The trajectory companion to :func:`q2_item_delta_bars`: maps each of the 17 items to its
-    face-content group (``constants.Q2_ITEM_GROUPS``) and plots the per-group mean (±95% CI over
-    conversations × items) per iteration. Shows *when* the exploited components take off, not just
-    the endpoint. ``None`` if empty.
-    """
-    if q2_long is None or q2_long.empty:
-        return None
-    d = q2_long.copy()
-    d["group"] = d["item"].map(Q2_ITEM_GROUP_OF)
-    colors = _q2_group_colors()
-    arms = sorted(d.arm.unique())
-    fig, axes = grid(len(arms), ncols=min(ncols, len(arms)), panel=(6.0, 3.8))
-    for ax, arm in zip(axes, arms):
-        sns.lineplot(d[d.arm == arm], x="iteration", y="score", hue="group",
-                     hue_order=list(colors), palette=colors, marker="o",
-                     errorbar=("ci", 95), ax=ax)
-        ax.set_title(arm_label(arm)); ax.set_xlabel("iteration"); ax.set_ylabel("Q2 item mean (1–5)")
-        if ax is axes[0]:
-            ax.legend(fontsize=7, title="item group")
-        elif ax.get_legend():
-            ax.legend_.remove()
-    fig.suptitle("Q2 item-group trajectories (face-content groups — analytical, "
-                 "not a validated subscale)", y=1.03, fontweight="bold")
     fig.tight_layout()
     return fig

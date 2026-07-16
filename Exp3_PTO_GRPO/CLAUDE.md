@@ -241,10 +241,12 @@ Exp3_PTO_GRPO/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
 ├── eda/                                 verified runnable end-to-end
 │   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; backend: eda_analysis/scoring/, registry-driven)
-│   ├── 1_Outcomes.ipynb …             the 6 topic notebooks (`1_Outcomes` `2_Heterogeneity` `3_Mechanism`
-│   │     … 6_Stats.ipynb              `4_Training_and_Reliability` `5_Preference` `6_Stats`) ↔ result
-│   │                                  families 1:1, [EVAL]/[TRAINING]-tagged — contents table: eda/README.md
-│   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 6 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes the notebook/family NUMBER 1..6)
+│   ├── 1_Outcomes.ipynb …             the 7 tier-based topic notebooks (`1_Outcomes` `2_Questionnaire_Detail`
+│   │     … 7_Stats.ipynb              `3_Validity_and_Hacking` `4_Heterogeneity` `5_Training_and_Reliability`
+│   │                                  `6_Preference` `7_Stats`) ↔ result families 1:1 (+ a `0_headline/` family
+│   │                                  of re-saved presentation figures), [EVAL]/[TRAINING]-tagged,
+│   │                                  endpoint artifacts as final+best pairs — contents table: eda/README.md
+│   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 7 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes the notebook/family NUMBER 1..7)
 │   ├── strip_notebook_outputs.py        output-clean helper (paired with the nbstrip git clean-filter)
 │   ├── README.md                        EDA guide: notebook↔family table, VIEW knob, module map, roadmap
 │   ├── LIMITATIONS.md                   documented measurement/inference limitations (for the thesis write-up)
@@ -281,9 +283,10 @@ files. No more drift.
 1. **Score:** `Run_Eval.ipynb` — its `EXPERIMENTS` registry is auto-generated from
    `eda_analysis.data.discover_arms()`, so a run is scoreable as soon as its conversations land on
    disk (empty in-flight `model_iter` dirs are skipped). Writes `eval_scores/`.
-2. **Analyze:** notebooks `1_Outcomes` … `6_Stats` (topic ↔ results family, 1:1); everything
-   auto-discovers arms from disk — no registry edits anywhere. The **VIEW knob** (`all`/`L0`/`L5`)
-   sets both the arm filter and the `results/<view>/` output root.
+2. **Analyze:** notebooks `1_Outcomes` … `7_Stats` (topic ↔ results family, 1:1; tier-based
+   drill-down: global scores → per-questionnaire detail → validity/heterogeneity/training/stats);
+   everything auto-discovers arms from disk — no registry edits anywhere. The **VIEW knob**
+   (`all`/`L0`/`L5`) sets both the arm filter and the `results/<view>/` output root.
 3. **Regenerate:** `python render_views.py` (L0+L5 default, `all` opt-in) → `results/<view>/`.
    Run **`python -m eda_analysis._selfcheck`** after any EDA change.
 
@@ -297,7 +300,7 @@ regresses into sycophancy (affirmation-drift reward-hack); both LA5 arms are thi
   & next step" (the single live copy).
 - **Full narrative + numbers:** [eda/results/L0/SUMMARY.md](eda/results/L0/SUMMARY.md) (primary
   read) · [all](eda/results/all/SUMMARY.md) · [L5](eda/results/L5/SUMMARY.md); tables under
-  `eda/results/<view>/tables/` (`6_stats/main_results.md`, `1_outcomes/leaderboard_scorecard.md`).
+  `eda/results/<view>/tables/` (`7_stats/main_results.md`, `1_outcomes/leaderboard_scorecard.md`).
 - **The dated 2026-07-08 findings write-up:** [history/CHANGELOG.md](history/CHANGELOG.md) + the
   `project-pto-la0-eval-results` memory.
 
@@ -305,7 +308,7 @@ regresses into sycophancy (affirmation-drift reward-hack); both LA5 arms are thi
 
 Both trainers score *partial* conversations (slices as short as 2 turns) as the training reward, but
 the thesis evaluates *full* conversations. The diagnostic — rebuilt on Exp3 data with no new oracle
-calls in [4_Training_and_Reliability.ipynb](eda/4_Training_and_Reliability.ipynb) (from the
+calls in [5_Training_and_Reliability.ipynb](eda/5_Training_and_Reliability.ipynb) (from the
 per-branch `prefix` in `generations.jsonl`); the original Exp2 version motivated the MCL knob —
 shows pairwise rank agreement with the final-conv score is **barely above chance at `n_turns=2` and
 only clears 0.8/0.9 at ~10/~30 turns**, a structural gap well above oracle reproducibility noise.
@@ -345,7 +348,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
 2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
-4. **Score + EDA.** Run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe; its `EXPERIMENTS` registry auto-discovers the run from disk — no registry edit) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`6`), which likewise **auto-discover** it. See "EDA workflow".
+4. **Score + EDA.** Run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe; its `EXPERIMENTS` registry auto-discovers the run from disk — no registry edit) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`7`), which likewise **auto-discover** it. See "EDA workflow".
 
 ## Running PTO_Exp3
 

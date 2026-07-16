@@ -11,8 +11,10 @@ Split into topic submodules (2026-07-13; formerly one 935-line ``plotting.py``) 
 - :mod:`.heterogeneity` — persona-trait splits (per-arm grid, all-metric overview, endpoint bars).
 - :mod:`.structure`     — reward-faithfulness (reliability curve, proxy-vs-eval) + rubric
   structure (correlation heatmap, factor-loadings bars).
-- :mod:`.behavior`      — behaviour drift, MITI 4.2.1 thresholds, question-rate cross-check,
-  Q2 item-level reward composition.
+- :mod:`.behavior`      — the generic behaviour-count detail grid (MITI/MICI/PCT + session shape),
+  MITI 4.2.1 thresholds, question-rate cross-check.
+- :mod:`.questionnaires` — per-questionnaire item drill-down: the uniform item trajectory grid +
+  the "which items drive the change" delta bars (+ the Q2 face-content specializations).
 - :mod:`.training`      — TRAINING-signal figures (reward distributions, advantage side-by-side).
 
 The style/scaffold helpers live in :mod:`eda_analysis.plotting_style` and are re-imported here so
@@ -47,7 +49,9 @@ from .structure import (  # noqa: F401
 from .behavior import (  # noqa: F401
     behavior_trajectory_grid, single_behavior_trajectory,
     miti_threshold_panel, miti_threshold_table, question_rate_crosscheck,
-    q2_item_delta_bars, q2_item_group_trajectory,
+)
+from .questionnaires import (  # noqa: F401
+    item_trajectory_grid, item_delta_bars, q2_item_delta_bars, q2_item_group_trajectory,
 )
 from .training import (  # noqa: F401
     reward_distribution, advantage_signal_sidebyside,
@@ -69,7 +73,8 @@ __all__ = [
     # behavior
     "behavior_trajectory_grid", "single_behavior_trajectory",
     "miti_threshold_panel", "miti_threshold_table", "question_rate_crosscheck",
-    "q2_item_delta_bars", "q2_item_group_trajectory",
+    # questionnaires
+    "item_trajectory_grid", "item_delta_bars", "q2_item_delta_bars", "q2_item_group_trajectory",
     # training
     "reward_distribution", "advantage_signal_sidebyside",
 ]

@@ -23,7 +23,7 @@ Three controlled comparisons, all live in Exp3:
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | all 6 questionnaires |
-| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + notebooks `1_Outcomes`–`6_Stats`; per-generation `iteration_N/eda/generations.jsonl` |
+| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + tier-based notebooks `1_Outcomes`–`7_Stats` (+ `0_headline/` family; final-vs-best endpoint pairs); per-generation `iteration_N/eda/generations.jsonl` |
 | **Convs / models** | (paper figures) | 4,512 / 47 | 2,784 / 29 (PTO+GRPO LA0 to iter 10 + partial LA5: PTO I1–4, GRPO I1) |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
@@ -37,7 +37,7 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 ## Key methodological shift across experiments
 - **Look-ahead K** stayed central throughout (the lever from the ICLR paper).
 - **The hard part moved from "can PTO beat the baseline?" (Exp1, settled) to "is GRPO competitive with PTO under matched look-ahead?" (Exp3, open).**
-- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in `eda/4_Training_and_Reliability.ipynb`) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
+- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in `eda/5_Training_and_Reliability.ipynb`) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
 
 ## Methods (one line each)
 - **PTO V1** (Exp1) = original preference-tree exploration + K look-ahead + DPO. Published.

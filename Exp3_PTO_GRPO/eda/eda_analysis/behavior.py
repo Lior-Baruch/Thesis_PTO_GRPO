@@ -17,7 +17,7 @@ B3_Q 6.45→3.84, B6_AF 0.42→1.64, loop% 49→0 over PTO LA0 iters 0→10).
 *validates the direction of* the oracle's MITI_B6_AF (affirmation) and MICI_OverPraise
 (sycophancy) counts — they are NOT primary behavior metrics and are deliberately excluded from
 ``_BEHAVIOR_METRICS``. Use the oracle-coded ``B6_AF`` and ``MICI_OverPraiseRate`` for the real
-affirmation/over-praise story; see notebook ``3_Mechanism`` for the cross-check.
+affirmation/over-praise story; see notebook ``3_Validity_and_Hacking`` for the cross-check.
 """
 
 import os
@@ -72,6 +72,11 @@ def load_miti_behavior(arms: Optional[List] = None, *, attach_persona: bool = Tr
                 row["RtoQ"] = refl / row["B3_Q"] if row.get("B3_Q") else None
                 # %CR per conversation (CR / all reflections), same None-on-empty convention.
                 row["%CR"] = (row.get("B5_CR") or 0) / refl if refl else None
+                # %MICO per conversation — same formula as data.add_derived_mitiprof_rows:
+                # (SR+CR+AF+Seek) / (SR+CR+AF+Seek+Persuade), None on zero denominator.
+                mico = refl + (row.get("B6_AF") or 0) + (row.get("B7_Seek") or 0)
+                mico_den = mico + (row.get("B2_Persuade") or 0)
+                row["%MICO"] = mico / mico_den if mico_den > 0 else None
                 # Official MITI 4.2.1 summary globals (manual §H): Technical = (CCT + SST)/2,
                 # Relational = (Partnership + Empathy)/2 — the scores the manual's competency
                 # thresholds are defined on (NOT our 4-global MITI_GlobalMean).
@@ -317,6 +322,83 @@ def _behavior_by_iter_impl(arms) -> pd.DataFrame:
     agg = (merged.groupby(["arm", "method", "K", "iteration"], observed=True)[metrics]
            .mean().reset_index().sort_values(["arm", "iteration"]))
     return agg
+
+
+# ── MITI drill-down detail (the per-questionnaire view: globals + rates + ratios) ─
+# The MITI section of 2_Questionnaire_Detail: everything the MITI oracle annotation yields, in one
+# frame — 4 global ratings (1-5), the 7 behavior counts as per-therapist-turn rates, and the derived
+# proficiency ratios. The by-iter version feeds the uniform detail grid; the per-conv version feeds
+# the item-delta bars (final/best vs base).
+_MITI_DETAIL_GLOBALS = ["ChangeTalk", "SoftenSustain", "Partnership", "Empathy"]
+_MITI_DETAIL_METRICS = (_MITI_DETAIL_GLOBALS
+                        + [f"{c}_per_turn" for c in _RATE_COUNT_METRICS]
+                        + ["RtoQ", "%CR", "%MICO", "MITI_Technical", "MITI_Relational"])
+
+
+def miti_detail_per_conv(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration, conversation) MITI drill-down: 4 globals + 7 per-turn rates + ratios.
+
+    Joins :func:`load_miti_behavior` with the conversation therapist-turn count (for the per-turn
+    rates, mean-of-ratios convention). Columns: the id keys + :data:`_MITI_DETAIL_METRICS`.
+    Empty until MITI is scored. Not cached (feeds the cached by-iter builder + ad-hoc deltas).
+    """
+    arms = _arms(arms)
+    miti = load_miti_behavior(arms, attach_persona=False)
+    if miti.empty:
+        return pd.DataFrame()
+    text = text_metrics(arms, attach_persona=False)
+    keys = ["arm", "iteration", "file_index"]
+    if text.empty:
+        merged = miti.copy()
+    else:
+        merged = miti.merge(text[keys + ["n_th_turns"]], on=keys, how="left")
+        nt = merged["n_th_turns"].where(merged["n_th_turns"] > 0)
+        for c in _RATE_COUNT_METRICS:
+            if c in merged.columns:
+                merged[f"{c}_per_turn"] = merged[c] / nt
+    id_cols = ["arm", "method", "K", "model", "iteration", "is_base", "file_index"]
+    keep = [c for c in id_cols if c in merged.columns] + \
+           [m for m in _MITI_DETAIL_METRICS if m in merged.columns]
+    return merged[keep]
+
+
+def miti_detail_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration) means of the MITI drill-down metrics — the frame behind the
+    ``miti_detail_grid`` figure (2_Questionnaire_Detail §MITI). Parquet-cached."""
+    arms = _arms(arms)
+    return load_cached("miti_detail_by_iter", arms, lambda: _miti_detail_by_iter_impl(arms),
+                       input_roots=eval_input_roots(arms) + conv_input_roots(arms))
+
+
+def _miti_detail_by_iter_impl(arms) -> pd.DataFrame:
+    det = miti_detail_per_conv(arms)
+    if det.empty:
+        return pd.DataFrame()
+    cols = [m for m in _MITI_DETAIL_METRICS if m in det.columns]
+    return (det.groupby(["arm", "method", "K", "iteration"], observed=True)[cols]
+            .mean().reset_index().sort_values(["arm", "iteration"]))
+
+
+# ── Session shape (deterministic text metrics, per iteration) ─────────────────────
+_SESSION_SHAPE_METRICS = ["mean_turn_len", "q_per_turn", "loop", "conv_len", "n_th_turns"]
+
+
+def session_shape_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration) means of the deterministic text metrics (turn length, regex ``?``/turn,
+    degeneration fraction, conversation length, therapist turns) — the exported session-shape
+    view (3_Validity_and_Hacking). Parquet-cached (content-keyed on the conversation CSVs)."""
+    arms = _arms(arms)
+    return load_cached("session_shape_by_iter", arms, lambda: _session_shape_by_iter_impl(arms),
+                       input_roots=conv_input_roots(arms))
+
+
+def _session_shape_by_iter_impl(arms) -> pd.DataFrame:
+    text = text_metrics(arms, attach_persona=False)
+    if text.empty:
+        return pd.DataFrame()
+    cols = [c for c in _SESSION_SHAPE_METRICS if c in text.columns]
+    return (text.groupby(["arm", "method", "K", "iteration"], observed=True)[cols]
+            .mean().reset_index().sort_values(["arm", "iteration"]))
 
 
 # ── MITI 4.2.1 proficiency summary scores (the official-threshold view) ───────────

@@ -79,7 +79,7 @@ These key files are git-ignored and must never be committed.
   Each notebook shows the per-iteration orchestration loop; shared helpers live in `code/_shared/`.
 - **Evaluation & EDA** (local) — `Exp3_PTO_GRPO/eda/Run_Eval.ipynb` runs the oracle scoring
   pipeline; the analysis lives in the `eda/eda_analysis/` package + six topic notebooks
-  (`1_Outcomes` … `6_Stats`, where the notebook number == its result-family number). Each
+  (`1_Outcomes` … `7_Stats`, where the notebook number == its result-family number). Each
   notebook's cell 1 leads with a `VIEW` knob → `eda_analysis.EdaConfig(view=VIEW, …)` →
   `notebook_setup(cfg)` (controls arms / metrics / plot scales / exports); figures save as PNG and
   tables as Markdown + Excel into `eda/results/<view>/<figures|tables>/<N_family>/`. Regenerate the

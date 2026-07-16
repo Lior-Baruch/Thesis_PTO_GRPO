@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-render_views.py — regenerate ``results/{L0,L5,all}/`` for the 6 Exp3 analysis notebooks.
+render_views.py — regenerate ``results/{L0,L5,all}/`` for the 7 Exp3 analysis notebooks.
 
 Each notebook's cell 1 reads ``VIEW = os.environ.get("EDA_VIEW", "L0")``, so this driver simply
 sets ``EDA_VIEW`` and executes the notebook via ``nbconvert`` (no notebook-JSON mutation, no
@@ -11,7 +11,7 @@ as a side effect (figures, tables, INDEX.md, _provenance.md).
 **Speed.** Views are rendered **in parallel** — one worker per view (``--jobs`` to tune) — and a
 bare run renders only **L0 + L5**, the two views that hold distinct data. ``all`` is a merged
 SUPERSET of L0+L5 that rarely earns its render cost, so it is now **opt-in** (``render_views.py
-all``). Within a view the 6 notebooks run **sequentially**: they share that view's ``INDEX.md`` +
+all``). Within a view the 7 notebooks run **sequentially**: they share that view's ``INDEX.md`` +
 per-family ``CAPTIONS.md`` (``build_index`` rewrites them), so parallelism is ACROSS views, never
 within one. For a one-figure tweak, render just the affected notebook of the view you need
 (``render_views.py L0 --nb 2``) — far cheaper than a full sweep.
@@ -22,12 +22,12 @@ Usage (run from the ``eda/`` directory, or anywhere — it cd's itself)::
     python render_views.py L0              # just the L0 view (the meeting view)
     python render_views.py all             # the merged superset view (opt-in)
     python render_views.py all L0 L5       # all three, in parallel
-    python render_views.py L0 --nb 3       # L0 view, only 3_Mechanism (one-figure tweak)
+    python render_views.py L0 --nb 3       # L0 view, only 3_Validity_and_Hacking (one-figure tweak)
     python render_views.py --jobs 1        # force sequential (low memory)
     python render_views.py --list          # print the view + notebook lists and exit
 
 Notebook numbering == results family numbering (1_Outcomes → figures/1_outcomes/, …), and ``--nb``
-takes exactly those numbers (``--nb 3`` = ``3_Mechanism.ipynb``).
+takes exactly those numbers (``--nb 3`` = ``3_Validity_and_Hacking.ipynb``).
 
 Needs the ``thesis-venv313`` Jupyter kernel (the venv with torch/trl/pandas). Register it once:
     .venv\\Scripts\\python.exe -m ipykernel install --user --name thesis-venv313
@@ -51,11 +51,12 @@ DEFAULT_VIEWS = ["L0", "L5"]
 # Topic notebooks — notebook number == results family number (figures|tables/N_<family>/).
 NOTEBOOKS = [
     "1_Outcomes.ipynb",
-    "2_Heterogeneity.ipynb",
-    "3_Mechanism.ipynb",
-    "4_Training_and_Reliability.ipynb",
-    "5_Preference.ipynb",
-    "6_Stats.ipynb",
+    "2_Questionnaire_Detail.ipynb",
+    "3_Validity_and_Hacking.ipynb",
+    "4_Heterogeneity.ipynb",
+    "5_Training_and_Reliability.ipynb",
+    "6_Preference.ipynb",
+    "7_Stats.ipynb",
 ]
 NB_BY_NUMBER = {int(nb.split("_")[0]): nb for nb in NOTEBOOKS}
 KERNEL = "thesis-venv313"
@@ -101,8 +102,8 @@ def main(argv=None) -> int:
     ap.add_argument("views", nargs="*", default=None,
                     help="views to render (subset of all/L0/L5); default = L0 L5 (all is opt-in)")
     ap.add_argument("--nb", nargs="*", type=int, default=None,
-                    help="notebook NUMBERS to render (1..6 — the filename/family number, "
-                         "e.g. 3 = 3_Mechanism); default = all six")
+                    help="notebook NUMBERS to render (1..7 — the filename/family number, "
+                         "e.g. 3 = 3_Validity_and_Hacking); default = all seven")
     ap.add_argument("--jobs", "-j", type=int, default=None,
                     help=f"parallel views (default = #views, capped at {MAX_PARALLEL_VIEWS}); 1 = sequential")
     ap.add_argument("--list", action="store_true", help="print the view/notebook lists and exit")

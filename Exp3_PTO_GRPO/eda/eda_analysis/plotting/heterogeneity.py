@@ -113,13 +113,17 @@ def heterogeneity_overview_grid(scores_long, char: str, *, arms: Optional[Sequen
 
 
 def subgroup_endpoint_bars(scores_long, char: str, *, arms: Optional[Sequence[str]] = None,
-                           metric: str = "Q1Q2", palette=None):
-    """Final-iteration *metric* per (persona ``char`` × arm) — 'where does an arm win / regress?'
+                           metric: str = "Q1Q2", palette=None,
+                           iter_by_arm: Optional[dict] = None, target_label: str = "final"):
+    """Endpoint *metric* per (persona ``char`` × arm) — 'where does an arm win / regress?'
 
-    Grouped bars: x = persona category (readable), hue = arm, y = mean **final-iteration** score over
-    that subgroup (95% CI), with a dotted pooled-base reference. The single-glance companion to
-    :func:`heterogeneity_grid` — e.g. GRPO's late regression concentrated on the *Resistant*
-    (Low-cooperation) personas. ``None`` if nothing is plottable.
+    Grouped bars: x = persona category (readable), hue = arm, y = mean score at each arm's
+    TARGET iteration over that subgroup (95% CI), with a dotted pooled-base reference. The target
+    defaults to each arm's final iteration; pass ``iter_by_arm`` (e.g. the
+    :func:`~eda_analysis.data.best_iteration_by_arm` map, with ``target_label="best"``) to bar
+    each arm at its selected checkpoint instead — arms missing from the map fall back to final.
+    The single-glance companion to :func:`heterogeneity_grid` — e.g. GRPO's late regression
+    concentrated on the *Resistant* (Low-cooperation) personas. ``None`` if nothing is plottable.
     """
     if char not in scores_long.columns:
         return None
@@ -131,7 +135,9 @@ def subgroup_endpoint_bars(scores_long, char: str, *, arms: Optional[Sequence[st
     parts = []
     for a in arm_list:
         da = d[d.arm == a]
-        parts.append(da[da.iteration == int(da.iteration.max())])
+        tgt = (iter_by_arm or {}).get(a)
+        tgt = int(tgt) if tgt is not None else int(da.iteration.max())
+        parts.append(da[da.iteration == tgt])
     fin = pd.concat(parts, ignore_index=True)
     fin = fin[fin[char].notna()].copy()
     if fin.empty:
@@ -147,8 +153,8 @@ def subgroup_endpoint_bars(scores_long, char: str, *, arms: Optional[Sequence[st
                 hue_order=[arm_label(a) for a in arm_list], palette=pal_disp,
                 errorbar=("ci", 95), ax=ax)
     add_base_line(ax, float(d[d.is_base].score.mean()) if d.is_base.any() else None)
-    ax.set_title(f"Final-iteration {display_label(metric)} by {char.replace('_', ' ')} "
-                 f"(per arm; dotted = base)")
+    ax.set_title(f"{target_label.capitalize()}-iteration {display_label(metric)} by "
+                 f"{char.replace('_', ' ')} (per arm; dotted = base)")
     ax.set_xlabel(""); ax.set_ylabel(display_label(metric))
     ax.legend(title="arm", fontsize=8)
     fig.tight_layout()

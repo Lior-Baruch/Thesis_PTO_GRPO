@@ -163,6 +163,37 @@ def paired_k_comparison(scores_long: pd.DataFrame, method: str = "PTO",
                                   metrics, method=method)
 
 
+def paired_best_method_comparison(scores_long: pd.DataFrame, method_a: str = "PTO",
+                                  method_b: str = "GRPO", K: int = 0,
+                                  metrics: Optional[Sequence[str]] = None) -> pd.DataFrame:
+    """method_a at its own-oracle BEST iteration vs method_b at ITS best, paired by persona.
+
+    The model-selection twin of :func:`paired_method_comparison` (which walks matched
+    iterations): each arm's best checkpoint comes from
+    :func:`~eda_analysis.data.best_per_experiment`, so the two sides may sit at DIFFERENT
+    iterations (e.g. PTO@10 vs GRPO@8). Persona pairing stays valid across iterations — every
+    iteration reshuffles the SAME 96 personas. Columns: metric, n, mean_delta, dz, p, p_holm,
+    iter_a, iter_b, K. ``+ => method_a higher``. Empty if either arm has no non-base iteration.
+    """
+    from .data import best_per_experiment  # deferred: data imports stats-free modules only
+    arm_a, arm_b = f"{method_a}_LA{K}", f"{method_b}_LA{K}"
+    sub = scores_long[scores_long["arm"].isin([arm_a, arm_b])]
+    if sub.empty:
+        return pd.DataFrame()
+    _, summ = best_per_experiment(sub)
+    info = {r["arm"]: r for _, r in summ.iterrows()} if not summ.empty else {}
+    if arm_a not in info or arm_b not in info:
+        return pd.DataFrame()
+    out = compare_two_models(scores_long, info[arm_a]["best_model"],
+                             info[arm_b]["best_model"], metrics)
+    if out.empty:
+        return out
+    out["iter_a"] = int(info[arm_a]["best_iteration"])
+    out["iter_b"] = int(info[arm_b]["best_iteration"])
+    out["K"] = K
+    return out
+
+
 # ── Trajectory ───────────────────────────────────────────────────────────────
 def trajectory_test(scores_long: pd.DataFrame, arm: str, metric: str) -> dict:
     """Is *metric* climbing over iterations for *arm*? Spearman + OLS slope on raw rows.
@@ -327,28 +358,70 @@ def rank_agreement_by_nturns(branch_reliability: pd.DataFrame, scores_long: pd.D
     return pd.DataFrame(rows).sort_values(["arm", "n_turns"]).reset_index(drop=True)
 
 
-def q2_item_endpoint_deltas(q2_long: pd.DataFrame) -> pd.DataFrame:
-    """Per (arm, Q2 item): base mean, final-iteration mean, and Δ — the reward-composition table.
+def item_endpoint_deltas(items_long: pd.DataFrame, *,
+                         target_iter_by_arm: Optional[dict] = None,
+                         short=None, group_of=None) -> pd.DataFrame:
+    """Per (arm, item): base mean, target-iteration mean, and Δ — the generic
+    "which items drive the change" table behind every questionnaire's delta bars.
 
-    Takes :func:`~eda_analysis.data.load_q2_items`. ``short``/``group`` columns come from
+    ``items_long`` is any long frame with ``(arm, iteration, is_base, item, score)`` — the
+    per-conversation item frames from :func:`~eda_analysis.data.load_items` OR a melted per-iter
+    detail frame (MITI/PCT/MICI; a mean over one row is the value itself, so the same groupby
+    serves both). Target iteration per arm = ``target_iter_by_arm[arm]`` (e.g. the
+    :func:`~eda_analysis.data.best_iteration_by_arm` map) with fallback to that arm's FINAL
+    iteration when the map is ``None``/missing the arm.
+
+    ``short`` labels items: a mapping (``Q2_ITEM_SHORT``), a callable (``display_label``), or
+    ``None`` (use the frame's ``short`` column if present, else ``str(item)``). ``group_of``
+    optionally maps item -> face-content group (colored bars). Output columns:
+    ``arm, item, short, group, target_iter, base, target, delta``.
+    """
+    if items_long is None or items_long.empty:
+        return pd.DataFrame(columns=["arm", "item", "short", "group",
+                                     "target_iter", "base", "target", "delta"])
+
+    frame_short = ("short" in items_long.columns)
+
+    def _short(i, g):
+        if callable(short):
+            return short(i)
+        if short is not None:
+            return short.get(i, str(i))
+        if frame_short:
+            s = g.loc[g["item"] == i, "short"]
+            if len(s):
+                return s.iloc[0]
+        return str(i)
+
+    rows = []
+    for arm, g in items_long.groupby("arm", sort=True):
+        nb = g[~g["is_base"]]
+        if nb.empty:
+            continue
+        tgt = (target_iter_by_arm or {}).get(arm)
+        tgt = int(tgt) if tgt is not None else int(nb["iteration"].max())
+        base = g[g["is_base"]].groupby("item")["score"].mean()
+        target = g[g["iteration"] == tgt].groupby("item")["score"].mean()
+        for i in pd.unique(g["item"]):                     # preserve item order (1..n / metric order)
+            b, t = base.get(i, np.nan), target.get(i, np.nan)
+            rows.append({"arm": arm, "item": i, "short": _short(i, g),
+                         "group": (group_of or {}).get(i, ""), "target_iter": tgt,
+                         "base": round(float(b), 3), "target": round(float(t), 3),
+                         "delta": round(float(t - b), 3)})
+    return pd.DataFrame(rows)
+
+
+def q2_item_endpoint_deltas(q2_long: pd.DataFrame,
+                            target_iter_by_arm: Optional[dict] = None) -> pd.DataFrame:
+    """Per (arm, Q2 item): base/target means + Δ — the Q2 reward-composition table.
+
+    Thin wrapper over :func:`item_endpoint_deltas` with the Q2 labels/groups from
     ``constants.Q2_ITEM_SHORT`` / ``Q2_ITEM_GROUP_OF`` (face-content grouping — analytical, not a
     validated subscale). Feeds :func:`plotting.q2_item_delta_bars`; drop into ``save_table``.
     """
     from .constants import Q2_ITEM_SHORT, Q2_ITEM_GROUP_OF
-    if q2_long is None or q2_long.empty:
-        return pd.DataFrame(columns=["arm", "item", "short", "group", "base", "final", "delta"])
-    rows = []
-    for arm, g in q2_long.groupby("arm", sort=True):
-        fin = int(g.iteration.max())
-        base = g[g.is_base].groupby("item")["score"].mean()
-        final = g[g.iteration == fin].groupby("item")["score"].mean()
-        for i in sorted(g.item.unique()):
-            b, f = base.get(i, np.nan), final.get(i, np.nan)
-            rows.append({"arm": arm, "item": int(i), "short": Q2_ITEM_SHORT.get(int(i), str(i)),
-                         "group": Q2_ITEM_GROUP_OF.get(int(i), "?"), "final_iter": fin,
-                         "base": round(float(b), 3), "final": round(float(f), 3),
-                         "delta": round(float(f - b), 3)})
-    return pd.DataFrame(rows)
+    return item_endpoint_deltas(q2_long, target_iter_by_arm=target_iter_by_arm,
+                                short=Q2_ITEM_SHORT, group_of=Q2_ITEM_GROUP_OF)
 
 
 def friedman_trajectory(scores_long: pd.DataFrame, arm: str, metric: str) -> dict:

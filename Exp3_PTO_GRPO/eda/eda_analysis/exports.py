@@ -11,12 +11,12 @@ Two-level layout::
 - ``<view>`` is set once per notebook via :func:`set_view` (``notebook_setup`` does this from
   ``EdaConfig.view``). It splits the artifacts into the parallel look-ahead trees the user
   asked for. With no view set (``""``) artifacts fall back to the legacy bare ``results/`` root.
-- ``<group>`` is the notebook's topic family (``"1_outcomes"``, ``"2_heterogeneity"``,
-  ``"3_mechanism"``, ``"4_training"``, ``"5_preference"``, ``"6_stats"``) set via
+- ``<group>`` is the notebook's topic family (``"1_outcomes"``, ``"2_questionnaires"``,
+  ``"3_validity"``, ``"4_heterogeneity"``, ``"5_training"``, ``"6_preference"``, ``"7_stats"``) set via
   :func:`set_export_group` — the family NUMBER matches the producing notebook's number, so any
   artifact traces straight back to its notebook. A per-call ``group=`` on ``save_fig``/``save_table``
   overrides it for one save and may be a NESTED subpath within the family
-  (``"1_outcomes/trajectories"``, ``"2_heterogeneity/problem"``). With no group set, artifacts fall
+  (``"1_outcomes/trajectories"``, ``"4_heterogeneity/problem"``, ``"0_headline"``). With no group set, artifacts fall
   back to the view's flat roots.
 
 The ``formats=`` kwarg lets a one-off call request extra formats (e.g.
@@ -313,7 +313,7 @@ def build_index() -> str:
             lines.append("_(none)_")
             continue
         # Recursive walk so NESTED family subfolders (1_outcomes/trajectories,
-        # 2_heterogeneity/<trait>, …) are listed too; dirnames sorted for numeric-ish family order.
+        # 4_heterogeneity/<trait>, …) are listed too; dirnames sorted for numeric-ish family order.
         any_listed = False
         for dirpath, dirnames, filenames in os.walk(root):
             dirnames.sort()
@@ -342,7 +342,7 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
     Operates only on ``results/<view>/{figures,tables}/`` — never the view root, so the
     hand-authored ``SUMMARY.md`` (and anything else in :data:`PRESERVE`) is always kept.
 
-    - ``groups`` given (e.g. ``["1_outcomes", "3_mechanism"]``) → remove just those
+    - ``groups`` given (e.g. ``["1_outcomes", "2_questionnaires"]``) → remove just those
       ``figures/<group>/`` + ``tables/<group>/`` subfolders (nested content included).
     - ``groups=None`` → remove ALL group subfolders under both roots.
     - ``flat=True`` → also delete loose figure/table files sitting at the (view's) flat roots.
