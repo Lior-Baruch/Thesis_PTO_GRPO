@@ -21,7 +21,7 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
 
     ``arms``/``iters`` select which arms/iterations to show (None = all). A single shared arm
     legend sits above the grid; ``caption`` (default = the shared-factor caveat: PC1≈55% once the
-    orthogonal axes are included) is printed under it so "all metrics up" isn't read as multi-skill
+    added metrics are included) is printed under it so "all metrics up" isn't read as multi-skill
     evidence. Pass ``caption=None`` to suppress.
     """
     if arms is not None:
@@ -144,7 +144,7 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
 def reward_hack_panel(scores_long, *, arms: Sequence[str], palette=None,
                       warmth_metric: str = "Q1Q2",
                       right_metrics: Sequence[str] = ("MICI", "PCT")):
-    """The reward-hack in ONE frame: the reward proxy climbs while the orthogonal axes reveal the cost.
+    """The reward-hack in ONE frame: the reward proxy climbs while MI-inconsistency reveals the cost.
 
     One panel per arm with twin y-axes. LEFT (1–5): the global-eval reward proxy (``warmth_metric``
     — historical param name, kept for API stability; solid grey). RIGHT (0–1): each of

@@ -53,19 +53,23 @@ QUESTIONNAIRES = {
     "CSQ-8":  ("CSQ8",   "CSQ8_Mean"),
     "MI-SAT": ("MI_SAT", "MI_Mean"),
     "MITI":   ("MITI",   "MITI_GlobalMean"),
-    # Orthogonal axes (added 2026-06-14 to break the PC1≈91% warmth halo):
+    # Added 2026-06-14 alongside the 5 global-eval rubrics (see EXTRA_METRICS below):
     "PCT":    ("PCT",    "PCT_ChangeProp"),   # patient change-talk proportion CT/(CT+ST); higher = better
     "MICI":   ("MICI",   "MICI_Rate"),        # MI-inconsistent behaviors per therapist turn; LOWER = better
 }
-# Left-to-right plot order for the warmth rubrics (+ Q1/Q2 components) then the orthogonal axes.
+# Left-to-right plot order: the global-eval rubrics (+ Q1/Q2 components) then the added metrics.
 QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "Q1", "Q2"]
 
 # The 5 global-evaluation rubrics that share the dominant PC1 factor (the empirical halo /
 # redundancy set — NOT one official construct). "WARMTH_RUBRICS" is the historical code name,
 # kept for API stability; prose should say "global-evaluation (halo) cluster".
 WARMTH_RUBRICS = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI"]
-# Orthogonal axes intended to load OFF PC1 (incl. the free derived MITI-proficiency ratios).
-ORTHOGONAL_METRICS = ["PCT", "MICI", "R:Q", "%CR", "%MICO"]
+# The metrics added on top of the 5 global-eval rubrics (incl. the free derived MITI-proficiency
+# ratios). Membership list only — plot order + the factor space. It makes NO independence claim:
+# empirically PCT loads WITH the global-eval rubrics (Spearman ~0.79–0.94), and only MICI + the
+# MITI ratios sit off PC1. Do NOT call these "orthogonal axes" in code or prose — they are simply
+# additional evaluation metrics, reported flat alongside the rubrics (MICI is lower-is-better).
+EXTRA_METRICS = ["PCT", "MICI", "R:Q", "%CR", "%MICO"]
 
 # ── Official MITI 4.2.1 clinician thresholds — (fair, good) per summary score ────
 # Source: MITI 4.2.1 manual (Moyers, Manuel & Ernst 2014; manual rev. June 2015), §I
@@ -189,7 +193,7 @@ DISPLAY_NAMES = {
     # Original validated-instrument acronym KEPT up-front (Lior), descriptive gloss in parens.
     "WAI-SR": "WAI-SR (Working Alliance)", "CSQ-8": "CSQ-8 (Client Satisfaction)",
     "MI-SAT": "MI-SAT (MI Satisfaction)", "MITI": "MITI (MI Integrity)",
-    # Standalone orthogonal questionnaires (their own instruments, NOT MITI-derived).
+    # Standalone questionnaires of their own (NOT MITI-derived).
     "PCT": "PCT (Patient Change-Talk)", "MICI": "MICI (MI-Inconsistency)",
     # Derived MITI-proficiency ratios (computed FROM the MITI behavior counts → tagged "(MITI)").
     "R:Q": "Reflection:Question (MITI)", "%CR": "% Complex Reflections (MITI)",

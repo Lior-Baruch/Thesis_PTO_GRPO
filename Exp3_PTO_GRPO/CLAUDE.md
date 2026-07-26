@@ -262,6 +262,12 @@ Exp3_PTO_GRPO/
 │   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md
 │   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
 │   └── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
+├── meetings/                            supervisor-facing output ONLY — never imported by code/ or eda/
+│   ├── README.md                        which deck is which + rebuild/export commands
+│   ├── build/                           build_supervisor_deck.py (full) · build_results_snapshot.py (lean)
+│   │                                    · export_pdf.ps1 (pptx→pdf via PowerPoint COM). Paths resolve
+│   │                                    off __file__; each script's OUT names its dated folder.
+│   └── <YYYY-MM-DD>/                    one folder per meeting: deck (.pptx gitignored, .pdf tracked) + email draft
 └── HF_key.txt, openai_key.txt
 ```
 

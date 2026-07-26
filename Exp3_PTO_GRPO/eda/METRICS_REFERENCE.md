@@ -55,12 +55,15 @@ whose point of view the oracle adopts.
 - **Global-evaluation / halo cluster** (`WARMTH_RUBRICS` — historical code name, kept for
   stability) = `Q1+Q2, WAI-SR, CSQ-8, MI-SAT, MITI`. An **empirical redundancy set, not an
   official construct**: these 5 subjective/global ratings collapse onto **one PC1 factor**
-  (~91% of variance before the orthogonal axes were added) — the single-oracle halo. Their
+  (~91% of variance before the further metrics were added) — the single-oracle halo. Their
   constructs even overlap by design (Q2 and WAI-SR are both alliance measures). Moving them
   all up together is *not* proof of multi-skill improvement.
-- **Orthogonal axes** (`ORTHOGONAL_METRICS`) = `PCT, MICI↓, R:Q, %CR, %MICO` (§2). Added specifically
-  to break the halo. Adding them drops PC1 from ≈91% → ≈55% — global evaluation is one factor,
-  technique + MI-inconsistency form a genuine second.
+- **Added metrics** (`EXTRA_METRICS` — a membership list for plot order + the factor space, **no
+  independence implied**) = `PCT, MICI↓, R:Q, %CR, %MICO` (§2). Added to test whether anything
+  measures outside the halo. Adding them drops PC1 from ≈91% → ≈55%, but the split is **not** the
+  one intended: `PCT` loads WITH the 5 rubrics (ρ≈0.79–0.94); only `MICI↓` + the MITI ratios define
+  the second factor. Report all of them flat as evaluation metrics — do **not** call them
+  "orthogonal axes" (see [LIMITATIONS.md](LIMITATIONS.md) §4).
 
 **MITI globals** (part of ID 7, each 1–5): `MITI1_CultivatingChangeTalk`, `MITI2_SofteningSustainTalk`,
 `MITI3_Partnership`, `MITI4_Empathy`. **PCT globals**: `PCT_Importance`, `PCT_Confidence`,
@@ -82,7 +85,7 @@ best (`<slug>_item_deltas_*`). Loaders: `data.load_items` (generic, over
 ## 2 · Derived MI-proficiency ratios (free, no oracle re-run)
 
 Computed from the MITI behavior counts in `data.py::add_derived_mitiprof_rows`. These are **objective
-technique** metrics (not warmth), so they're treated as candidate orthogonal axes. All *higher = better*.
+technique** metrics (not warmth), so they are reported alongside the questionnaire rubrics. All *higher = better*.
 
 | Metric | Formula | Reads as |
 |---|---|---|
@@ -205,7 +208,7 @@ here.)*
 | **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per therapist turn across iterations — does it rise with warmth? |
 | **`subgroup_endpoint_bars`** | `4_Heterogeneity` | Score per persona × arm at each arm's final AND best iteration (`subgroup_endpoint_<trait>_{final,best}`) — where does a late regression concentrate? |
 | **`effect_forest`** | `1_Outcomes` | Each arm×rubric Δ-vs-base with 95% CI + `dz`; MICI is direction-colored (a positive Δ is *bad*). Readable stand-in for the 28-row table. |
-| **PCA / `factor_loadings_bars`** | `3_Validity_and_Hacking` / `7_Stats` | PC1 share once orthogonal axes are added → is the global-eval halo one factor and technique+MICI a second? |
+| **PCA / `factor_loadings_bars`** | `3_Validity_and_Hacking` / `7_Stats` | PC1 share once the further metrics are added → is the global-eval halo one factor and technique+MICI a second? |
 | **`question_rate_crosscheck`** | `3_Validity_and_Hacking` | (§4) — questions collapsing while the halo scores rise is part of the same drift. |
 | **`q2_item_deltas_{final,best}` / `q2_item_group_trajectories`** | `2_Questionnaire_Detail` §2 | The **reward-composition** view: per-item Δ vs base for Q2's 17 items (per-item scores already stored — no oracle re-run), colored by face-content group (`Q2_ITEM_GROUPS` — OUR analytical grouping, not a validated subscale). Q2 items 1/2/3/10 reward therapist *self-disclosure*, which MI does not prescribe — if those top the Δ ranking, the Q1+Q2 reward itself incentivizes the emotive drift. Loader `data.load_q2_items`; deltas `stats.q2_item_endpoint_deltas`. |
 | **`miti_proficiency_thresholds` / `miti_threshold_verdicts`** | `2_Questionnaire_Detail` §6b | The absolute anchor (this doc §2b): official-threshold verdicts per arm — did training reach basic MI competence in the manual's own terms? |

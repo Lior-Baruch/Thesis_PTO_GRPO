@@ -23,7 +23,7 @@ Three controlled comparisons (all live in **Exp3**):
 
 The held-out **evaluation** scores each conversation on a battery of validated MI questionnaires.
 Because the warmth/satisfaction rubrics turned out highly collinear (one latent factor), the battery
-now also includes **orthogonal axes** — patient change-talk, MI-inconsistent behavior, and objective
+now also includes **further metrics** — patient change-talk, MI-inconsistent behavior, and objective
 MITI technique ratios (reflection-to-question, %complex-reflection) — so a uniform "everything went up"
 can be distinguished from genuine multi-skill MI improvement.
 

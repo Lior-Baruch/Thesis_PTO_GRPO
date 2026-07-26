@@ -135,7 +135,7 @@ behind an unchanged public surface.
 
 - **`constants`** — the LEAF (imports nothing from the package): workspace-root resolution +
   `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`WARMTH_RUBRICS` (the global-eval
-  halo cluster — historical code name)/`ORTHOGONAL_METRICS`/`LOWER_IS_BETTER`,
+  halo cluster — historical code name)/`EXTRA_METRICS`/`LOWER_IS_BETTER`,
   `MITI_THRESHOLDS` (official 4.2.1 fair/good), `Q1_ITEM_SHORT`/`Q2_ITEM_SHORT`/`Q2_ITEM_GROUPS`
   (item labels + face-content groups), `ITEM_QUESTIONNAIRES` (per-item column layout of every
   Likert-item rubric; item text source of truth = `code/questionnaires.py`),

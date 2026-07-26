@@ -7,7 +7,7 @@ import pandas as pd
 import seaborn as sns
 
 from ..constants import (
-    QUESTIONNAIRE_ORDER, ORTHOGONAL_METRICS, LOWER_IS_BETTER,
+    QUESTIONNAIRE_ORDER, EXTRA_METRICS, LOWER_IS_BETTER,
     display_label, arm_label,
 )
 from ..plotting_style import (
@@ -105,7 +105,7 @@ def effect_forest(main_results_df, *, arms: Optional[Sequence[str]] = None,
 
 def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = None,
                           selection: str = "best"):
-    """One-glance scorecard: each arm's headline score per metric, global-eval rubrics beside orthogonal axes.
+    """One-glance scorecard: each arm's headline score on every evaluation metric, rubrics first.
 
     ``selection`` ∈ {``"best"`` (each arm's best iteration by own oracle), ``"final"`` (each arm's
     last iteration)}. Returns a tidy DataFrame (arm × metric) with lower-is-better metrics flagged
@@ -113,7 +113,7 @@ def leaderboard_scorecard(scores_long, *, metrics: Optional[Sequence[str]] = Non
     selections with a ``target`` column).
     """
     from ..data import best_per_experiment, all_models
-    order = [m for m in (list(QUESTIONNAIRE_ORDER) + list(ORTHOGONAL_METRICS)) if m not in ("Q1", "Q2")]
+    order = [m for m in (list(QUESTIONNAIRE_ORDER) + list(EXTRA_METRICS)) if m not in ("Q1", "Q2")]
     present = [m for m in (metrics or order) if m in set(scores_long.questionnaire.unique())]
     # "best" already filters to base + the own-oracle peak iteration per arm; both selections then
     # take the highest remaining non-base iteration as the headline row.

@@ -4,6 +4,44 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-26) — the "orthogonal axes" framing is retired; PCT/MICI/ratios are just more
+evaluation metrics.** Lior's call: the group was never orthogonal — `PCT` correlates with the five
+global-eval rubrics at ρ≈0.79–0.94 (the EDA had already recorded this in the §1 captions of
+`3_Validity_and_Hacking`, but the *label* stayed), and `MICI` is lower-is-better rather than
+independent. **Decision: no collective name at all** — report all eight instruments flat, with MICI
+flagged ↓. Parts:
+- **Code.** `constants.ORTHOGONAL_METRICS` → **`EXTRA_METRICS`** (same 5 members: PCT, MICI, R:Q,
+  %CR, %MICO) + a docstring stating it is a *membership list only* — plot order and the factor
+  space — asserting nothing about independence. Renamed at all call sites (`stats.py` ×2,
+  `plotting/outcomes.py`, `__init__.py` export + `__all__`, `3_Validity_and_Hacking` cell).
+- **Figure text.** `rubric_correlation_heatmap`'s right-hand block label "Orthogonal axes" →
+  **"PCT · MICI · MITI ratios"** (name the block by content, not by a claim); same for the
+  `factor_loadings_bars` legend patch. Docstrings in `structure.py` / `trajectories.py` /
+  `outcomes.py` / `data.py` / `scoring/{pipeline,registry}.py` reworded.
+- **Prose.** Notebooks 1/3/7 markdown + `save_fig`/`save_table` captions, `eda/README.md`,
+  `METRICS_REFERENCE.md` §1 (the `EXTRA_METRICS` bullet now states the PCT finding inline),
+  `LIMITATIONS.md` §4 heading, root `README.md`, and all three hand-authored
+  `results/<view>/SUMMARY.md` (L0 §1/§3, L5 §2, all §1/§3) — each now says the second factor is
+  **MICI + the MITI ratios, not PCT**. The only surviving occurrences of the word are the two
+  "do NOT call these orthogonal" guard comments.
+- **Re-rendered** notebooks 1/3/7 × views all/L0/L5 (`render_views.py`); `_selfcheck` 10/10 incl.
+  the headline-mean pins (PTO@10 4.26 / GRPO@10 3.75). Dated changelog entries left untouched —
+  they record what was believed at the time.
+- **Also this day (not EDA) — new `meetings/` tree.** The supervisor-facing files had accumulated
+  loose in the Exp3 root (2 builder scripts + 4 decks + an email draft); they now live under
+  `meetings/` = `build/` (the generators + NEW `export_pdf.ps1`, pptx→pdf via PowerPoint COM,
+  `-Png` for layout checks) + one **dated folder per meeting** holding that meeting's deck and
+  anything sent with it, described in NEW `meetings/README.md`. Both builders now resolve `ROOT`
+  off `__file__` instead of a hard-coded absolute path, and each `OUT` names its dated folder.
+  `build_supervisor_deck.py` was path-updated but **not re-run** (re-running would overwrite the
+  historical 2026-07-16 deck with today's re-rendered figures).
+  The new deck itself: NEW `build_results_snapshot.py` — a lean 11-slide results-only deck for the
+  publication-meeting email (results only, minimum interpretation; opens with an ICLR reminder
+  slide + an Exp1/Exp2/Exp3 lineage slide carrying the 4-bit-vs-bf16 score-axis caveat), plus
+  `email_draft_2026-07-26.md`. Layout tree in [../CLAUDE.md](../CLAUDE.md) updated.
+
+---
+
 **Landed (2026-07-16) — EDA reorg: 7 tier-based families + `0_headline/` + generic questionnaire
 item detail + final-vs-best everywhere.** Complete reorganization of the notebook/results layer
 around a drill-down hierarchy (Level 1 global scores → Level 2 inside-each-questionnaire → Level 3
@@ -30,7 +68,7 @@ peak via `best_per_experiment`; GRPO_LA0→I8). Package architecture untouched. 
   panel, scorecard) — always in sync, no extra notebook.
 - **(D) Clean rename** — stale `results/<view>/` trees purged + re-rendered (L0/L5/all); refs
   updated in SUMMARY.md ×3, eda/README, both CLAUDE.md, METRICS_REFERENCE, LIMITATIONS,
-  `build_supervisor_deck.py` (paths only, not re-run). New cache names only (`items_*`,
+  `build_supervisor_deck.py` (paths only, not re-run; now at `meetings/build/`). New cache names only (`items_*`,
   `miti_detail_by_iter`, `session_shape_by_iter`) — existing cached frames untouched; `%MICO` added
   per-conv in `load_miti_behavior` (uncached path). `_selfcheck` 10/10 incl. headline-mean pins.
 

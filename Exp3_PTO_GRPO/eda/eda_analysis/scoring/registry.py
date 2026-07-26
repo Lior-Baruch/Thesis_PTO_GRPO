@@ -82,7 +82,7 @@ EVAL_QUESTIONNAIRE_DIRS = {
     "MI-SAT": "MI_SAT",
     "Q1":     "Q1",
     "Q2":     "Q2",
-    "PCT":    "PCT",     # Patient Change Talk (orthogonal MI mechanism/outcome)
+    "PCT":    "PCT",     # Patient Change Talk (MI mechanism/outcome)
     "MICI":   "MICI",    # MI-Inconsistent therapist behaviors (negative-valence)
 }
 

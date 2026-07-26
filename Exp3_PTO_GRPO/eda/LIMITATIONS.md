@@ -39,7 +39,7 @@ plausible *cause* of the observed reward-hacking, not only the optimiser). The h
 outcome axes are the ones **outside** the reward: `PCT`, `MICI`, the MITI technique ratios, and
 the deterministic text metrics. See the confirmatory/exploratory split in `7_Stats` §0.
 
-## 4 · PCT is not the clean orthogonal axis intended
+## 4 · PCT is not independent of the global-eval rubrics
 Empirically `PCT` (patient change-talk proportion) loads **with** the global-evaluation (halo)
 family (ρ≈0.79–0.94; high PC1 loading), so it does not isolate MI *technique*. The genuine second
 factor is `MICI ↓` + the MITI ratios (`R:Q`/`%CR`/`%MICO`). Reported as a finding in

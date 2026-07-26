@@ -598,7 +598,7 @@ def add_derived_mitiprof_rows(scores_long: pd.DataFrame,
     - ``%MICO`` = (SR+CR+AF+Seek) / (SR+CR+AF+Seek+Persuade)  — MI-consistent proportion
 
     These ratios are technique metrics (not warmth halos), so they belong in the inter-rubric
-    correlation/PCA as candidate *orthogonal* axes. Rows are aligned to the existing
+    correlation/PCA alongside the questionnaire rubrics. Rows are aligned to the existing
     ``scores_long`` conversation identities by (arm, iteration, file_index), inheriting the full
     key + persona columns, so they pivot onto the same rows in :func:`to_wide`.
     Returns ``scores_long`` unchanged if MITI behavior data is unavailable.

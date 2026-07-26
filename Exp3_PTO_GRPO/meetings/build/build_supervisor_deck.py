@@ -22,10 +22,11 @@ from pptx.enum.text import PP_ALIGN
 from pptx.enum.shapes import MSO_SHAPE
 from PIL import Image
 
-ROOT = r"c:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO\Exp3_PTO_GRPO"
+HERE = os.path.dirname(os.path.abspath(__file__))       # meetings/build/
+ROOT = os.path.dirname(os.path.dirname(HERE))           # Exp3_PTO_GRPO/
 FIG  = os.path.join(ROOT, "eda", "results", "L0", "figures")
 TBL  = os.path.join(ROOT, "eda", "results", "L0", "tables")
-OUT  = os.path.join(ROOT, "supervisor_meeting_2026-07-16.pptx")
+OUT  = os.path.join(ROOT, "meetings", "2026-07-16", "supervisor_meeting_2026-07-16.pptx")
 
 def f(p):  return os.path.join(FIG, *p.split("/"))
 def t(p):  return os.path.join(TBL, *p.split("/"))

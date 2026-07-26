@@ -68,9 +68,10 @@ def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] 
                                corr_method: str = "spearman"):
     """Inter-rubric correlation heatmap (pooled over conversations).
 
-    Diverging ``[-1, 1]`` colormap so a genuinely ORTHOGONAL or anti-correlated axis (e.g. the
-    lower-is-better ``MICI``) shows as white/blue instead of being clipped to 0 — the whole point
-    of adding the new axes is to see them NOT block-correlate with the global-eval (halo) rubrics.
+    Diverging ``[-1, 1]`` colormap so an uncorrelated or anti-correlated metric (e.g. the
+    lower-is-better ``MICI``) shows as white/blue instead of being clipped to 0 — the point of
+    plotting the added metrics beside the rubrics is to see WHICH of them block-correlate with the
+    global-eval (halo) rubrics and which don't. (Empirically PCT does; MICI + the ratios don't.)
     Labels are sign-flagged via :func:`display_label` (lower-is-better metrics get a trailing ↓).
     """
     from .. import stats
@@ -81,17 +82,18 @@ def rubric_correlation_heatmap(scores_long, *, metrics: Optional[Sequence[str]] 
     sns.heatmap(corr, annot=True, fmt=".2f", vmin=-1, vmax=1, center=0, cmap="vlag",
                 square=True, xticklabels=labels, yticklabels=labels,
                 cbar_kws={"label": f"{corr_method.title()} ρ"}, ax=ax)
-    # Family divider: the global-eval (halo) rubrics (top-left block) should intercorrelate while the
-    # orthogonal axes sit apart — draw a heavy separator where the halo block ends + name the two
-    # blocks so the two-factor structure reads at a glance (metrics arrive halo-first, see
-    # WARMTH+ORTHOGONAL order — WARMTH_RUBRICS is the historical code name for this cluster).
+    # Family divider: the global-eval (halo) rubrics (top-left block) intercorrelate; the added
+    # metrics are the question — draw a heavy separator where the halo block ends + name the two
+    # blocks by CONTENT (no collective label that would imply independence: PCT in fact lands with
+    # the halo). Metrics arrive halo-first — see the WARMTH_RUBRICS + EXTRA_METRICS order
+    # (WARMTH_RUBRICS is the historical code name for the global-eval cluster).
     n_warm = sum(1 for m in cols if m in set(WARMTH_RUBRICS))
     if 0 < n_warm < len(cols):
         for line in (ax.axhline, ax.axvline):
             line(n_warm, color="#222222", lw=2.0)
         ax.text(n_warm / 2, -0.35, "Global-eval halo (one factor)", ha="center", va="bottom",
                 fontsize=8.5, fontweight="bold", color="#0072B2", clip_on=False)
-        ax.text((n_warm + len(cols)) / 2, -0.35, "Orthogonal axes", ha="center", va="bottom",
+        ax.text((n_warm + len(cols)) / 2, -0.35, "PCT · MICI · MITI ratios", ha="center", va="bottom",
                 fontsize=8.5, fontweight="bold", color="#D55E00", clip_on=False)
     ax.set_title(f"Inter-rubric correlation ({corr_method.title()}, pooled)", pad=34)
     fig.tight_layout()
@@ -104,9 +106,10 @@ def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None
 
     Standardized PCA over the (expanded) metric set; plots each metric's **loading** (correlation
     with the factor) on PC1 (and PC2 if requested) as a horizontal bar, blue for the 5 global-eval
-    rubrics and orange for the orthogonal axes. Reads in one glance: the global-eval rubrics all load
-    high on PC1 (≈0.44 each — one shared halo factor), while R:Q/%CR/%MICO/MICI load ≈0 on PC1 (they
-    are NOT on the halo factor). Replaces the hard-to-read PC1×PC2 biplot. ``None`` if PCA can't be fit.
+    rubrics and orange for the added metrics. Reads in one glance: the global-eval rubrics all load
+    high on PC1 (≈0.44 each — one shared halo factor) and so does PCT, while R:Q/%CR/%MICO/MICI load
+    ≈0 on PC1 (they are NOT on the halo factor). Replaces the hard-to-read PC1×PC2 biplot.
+    ``None`` if PCA can't be fit.
     """
     from .. import stats
     fs = stats.rubric_factor_space(scores_long, metrics=metrics)
@@ -131,7 +134,7 @@ def factor_loadings_bars(scores_long, *, metrics: Optional[Sequence[str]] = None
                       "PC2": "Second factor"}.get(comp, comp))
     from matplotlib.patches import Patch
     fig.legend(handles=[Patch(color="#0072B2", label="global-eval rubrics (halo factor)"),
-                        Patch(color="#D55E00", label="orthogonal axes")],
+                        Patch(color="#D55E00", label="PCT · MICI · MITI ratios")],
                loc="upper center", bbox_to_anchor=(0.5, 1.06), ncol=2, frameon=False, fontsize=8)
     fig.tight_layout()
     return fig

@@ -118,7 +118,7 @@ if EVAL_CODE_AVAILABLE:
 
     def _build_pct_row(scores: dict) -> dict:
         # PCT (Patient Change Talk): 3 globals get a mean; 3 patient-utterance
-        # counts get a total + the orthogonal ChangeProp = CT / (CT + ST).
+        # counts get a total + the derived ChangeProp = CT / (CT + ST).
         row = {k: scores.get(k, np.nan) for k in PCT_GLOBAL_LABELS}
         row["PCT_GlobalMean"] = float(np.nanmean([row[k] for k in PCT_GLOBAL_LABELS]))
         for k in PCT_BEHAVIOR_LABELS:
