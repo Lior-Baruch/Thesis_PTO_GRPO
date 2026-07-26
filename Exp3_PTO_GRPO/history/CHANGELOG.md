@@ -4,6 +4,39 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-26) — judge reliability MEASURED: oracle ICC + a decoupled Claude second judge;
+LIMITATIONS §1–§2 bought down.** `Judge_Reliability.ipynb` had been ready-but-never-run since
+2026-07-16 (blocked on a missing Anthropic key). Ran it end-to-end on the anchor subset (4 models ×
+{Q1, Q2, MICI} × 96 convs = 4,608 calls, ~$5.30, 0 errors).
+- **Results.** Oracle ICC(2,1) **0.90–0.99** (mean |Δ| 0.03–0.09 — confirms the "≈0.10 oracle
+  noise" folklore as a conservative bound). **Claude Haiku 4.5** as the decoupled second judge:
+  **6/6 endpoint contrasts keep their sign**, and it *widens* the headline PTO−GRPO Q1 gap (+0.77
+  vs the primary's +0.53). Q1/Q2 cross-judge r 0.80–0.88 against a ~0.98 attenuation ceiling.
+  Haiku is systematically harsher (Q1 −1.25…−1.74) — a LEVEL shift that cancels in contrasts.
+  **MICI is the weak spot**: r 0.20–0.55 across families despite the primary oracle's own
+  ICC 0.90–0.96, so the sycophancy claim is now stated at the contrast level, not as a rate.
+- **Two real bugs found before spending.** (a) `_strip_unsupported_constraints` dropped
+  `minItems`/`maxItems` for Claude's `json_schema`, which for the ARRAY-shaped rubrics (Q1/Q2/WAI/
+  CSQ8/MI-SAT) removed the only guarantee of one score per item — a wrong-length array fails
+  `parse_json_response`, gets swallowed, and silently drops the conversation. Now folded into
+  `description` instead of deleted (verified: 24/24 smoke, then 1,152/1,152 clean). (b) `JudgeSpec`
+  gained a `thinking` passthrough: Sonnet 5 / Opus 4.8+ run ADAPTIVE thinking when `thinking` is
+  omitted, billing against the same `max_tokens=1024` → truncated JSON. Haiku 4.5 needs no config;
+  the notebook now carries the warning inline.
+- **New split: paid scorer vs free presenter.** `Judge_Reliability.ipynb` only *scores*;
+  the new **`eda_analysis/reliability.py`** (+ **`plotting/reliability.py`**: `oracle_repeatability_bars`,
+  `judge_agreement_scatter`, `judge_contrast_bars`) *reads* `data/judge_check/` with no API calls,
+  and **`5_Training_and_Reliability` §7** renders it — so this lands inside `render_views.py` and
+  `results/<view>/` like everything else, instead of only in gitignored `data/judge_check/summary/`.
+  Mirrors the `Run_Eval` → notebooks 1–7 split. Section self-skips in the L5 view (subset is all K=0).
+- **Also.** `anthropic==0.116.0` + `tabulate` added (`gen_requirements.py`); `anthropic_key.txt`
+  added to `.gitignore` (it matched NO existing pattern — `*.key` doesn't cover `*_key.txt`);
+  `LIMITATIONS.md` §1/§2 rewritten with measured numbers + what's still uncovered (no human coder;
+  sampling-noise-only ICC; 3 of 8 rubrics; generator still coupled); `METRICS_REFERENCE.md` §7 new.
+  `_selfcheck` 10/10; notebook 5 re-rendered for L0 + L5.
+
+---
+
 **Landed (2026-07-26) — the "orthogonal axes" framing is retired; PCT/MICI/ratios are just more
 evaluation metrics.** Lior's call: the group was never orthogonal — `PCT` correlates with the five
 global-eval rubrics at ρ≈0.79–0.94 (the EDA had already recorded this in the §1 captions of

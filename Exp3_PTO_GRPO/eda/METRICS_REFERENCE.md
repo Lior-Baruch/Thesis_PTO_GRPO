@@ -223,6 +223,26 @@ Separate but related: the **training** reward scores *partial* conversations, bu
 final-conv ranking only ~0.66–0.73 (barely above chance), clearing 0.8 at ~10 turns, 0.9 at ~30.
 Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N utterances).
 
+## 7 · Judge reliability (is the measuring instrument trustworthy?)
+
+§6 asks whether the *training* reward predicts the *eval* score. This asks whether the eval score
+itself is reproducible and grader-independent. Both come from `data/judge_check/`, written by
+`Judge_Reliability.ipynb` (paid, manual) and read by `5_Training_and_Reliability` §7 through
+`eda_analysis.reliability` (free, disk-only). Subset: 4 anchor models × {Q1, Q2, MICI} × 96 convs.
+
+| Metric | Definition | Read |
+|---|---|---|
+| `icc_2_1` | ICC(2,1) — two-way random effects, absolute agreement, single rater (Shrout & Fleiss), computed across N re-scorings of the SAME conversations by the SAME oracle with only the API `seed` differing | Share of per-conversation variance that is signal rather than re-scoring noise. Koo & Li (2016): ≥0.75 good, ≥0.90 excellent |
+| `mean_abs_diff` | Mean \|Δ\| between two reps of the same conversation | The citable "oracle noise" figure, in rubric points |
+| `pearson_r` / `spearman_rho` | Second judge vs primary oracle, per conversation, within (metric, model) | Rank agreement across grader families. **Compare to `ceiling`, never to 1.0** |
+| `ceiling` | Attenuation ceiling = `sqrt(ICC_primary × ICC_judge)`; the second judge is scored once, so `ICC_judge` is assumed equal to the primary's, collapsing this to `icc_primary` | Upper bound on achievable r. If the second judge is noisier, the true ceiling is lower and observed agreement is better than it looks |
+| `bias_judge_minus_primary` | Mean level offset between judges | Expected and harmless — a harsher grader shifts every score. The thesis reports *contrasts*, which cancel it |
+| `same_sign` | Whether an endpoint contrast (paired Δ over the 96 matched personas) has the same sign under both judges | **The load-bearing number.** Answers `LIMITATIONS.md` §2: is the result an artifact of the patient simulator and the grader being the same model? |
+
+Measured (2026-07-26, Haiku 4.5 as the second judge): oracle ICC 0.90–0.99 (mean \|Δ\| 0.03–0.09);
+Q1/Q2 cross-judge r 0.80–0.88 against a ~0.98 ceiling; MICI r 0.20–0.55 (see the caveat in
+`LIMITATIONS.md` §1); 6/6 contrasts preserved.
+
 ---
 
 ### Quick map: figure family → notebook

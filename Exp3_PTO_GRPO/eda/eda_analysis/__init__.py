@@ -71,7 +71,7 @@ from .pref import (  # noqa: E402
 # (personas/scores/discovery/select -> data) are RETIRED — their only live call sites now use the
 # canonical top-level exports (e.g. ``from eda_analysis import persona_order`` /
 # ``eda_analysis.data.best_per_experiment``).
-from . import plotting, data, stats, behavior, training, pref, exports  # noqa: E402,F401
+from . import plotting, data, stats, behavior, training, pref, exports, reliability  # noqa: E402,F401
 figures = plots = plotting              # notebooks: figures.set_style / plots.trajectory_grid
 # Register the plotting aliases as importable submodules too, so ``from eda_analysis.figures import X``
 # resolves — not only attribute access.
@@ -99,4 +99,5 @@ __all__ = [
     "pref_word_ranking", "pref_word_drift_heatmap", "plot_category_drift", "top_words_by_iter",
     "preference_direction_drift", "plot_direction_drift", "learn_unlearn_words", "plot_learn_unlearn",
     "plotting", "data", "figures", "plots", "stats", "behavior", "training", "pref",
+    "reliability",
 ]

@@ -16,6 +16,8 @@ Split into topic submodules (2026-07-13; formerly one 935-line ``plotting.py``) 
 - :mod:`.questionnaires` — per-questionnaire item drill-down: the uniform item trajectory grid +
   the "which items drive the change" delta bars (+ the Q2 face-content specializations).
 - :mod:`.training`      — TRAINING-signal figures (reward distributions, advantage side-by-side).
+- :mod:`.reliability`   — MEASUREMENT-validity figures (oracle ICC, second-judge agreement +
+  contrast preservation), from the ``data/judge_check/`` re-scoring tree.
 
 The style/scaffold helpers live in :mod:`eda_analysis.plotting_style` and are re-imported here so
 ``figures.set_style(...)`` / ``figures.grid(...)`` etc. still resolve on this package.
@@ -56,6 +58,9 @@ from .questionnaires import (  # noqa: F401
 from .training import (  # noqa: F401
     reward_distribution, advantage_signal_sidebyside,
 )
+from .reliability import (  # noqa: F401
+    oracle_repeatability_bars, judge_agreement_scatter, judge_contrast_bars,
+)
 
 __all__ = [
     # style helpers (from plotting_style)
@@ -77,4 +82,6 @@ __all__ = [
     "item_trajectory_grid", "item_delta_bars", "q2_item_delta_bars", "q2_item_group_trajectory",
     # training
     "reward_distribution", "advantage_signal_sidebyside",
+    # reliability (measurement validity)
+    "oracle_repeatability_bars", "judge_agreement_scatter", "judge_contrast_bars",
 ]

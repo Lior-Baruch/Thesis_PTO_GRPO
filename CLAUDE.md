@@ -84,6 +84,13 @@ here — see "Doc map"). Updated 2026-07-08.
   dz 0.73)** because GRPO peaks at iter 8 (4.08) then regresses into sycophancy (MICI endpoint 0.84
   vs PTO 0.49); PTO climbs stably. Full narrative + tables:
   `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` (L0 = primary read).
+- **Judge validity (NEW 2026-07-26):** the measurement instrument is now measured, not assumed —
+  oracle **ICC(2,1) 0.90–0.99** (mean |Δ| 0.03–0.09, confirming the "≈0.10 noise" folklore), and a
+  decoupled second judge (**Claude Haiku 4.5**, different family, never played the patient)
+  reproduces **6/6 endpoint contrasts with the same sign** (it *widens* the PTO−GRPO Q1 gap to
+  +0.77 vs the primary's +0.53). Q1/Q2 cross-judge r 0.80–0.88 vs a ~0.98 ceiling; MICI agrees
+  weakly (r 0.20–0.55) so the sycophancy claim holds at the contrast level, not as a precise rate.
+  Buys down LIMITATIONS §1–§2. Cost ~$5.30. See `eda/5_Training_and_Reliability` §7.
 - **Cost constraint:** OpenAI spend hit **~$300** and is binding — RQ-i (K0 vs K5) on hold. Cost is
   dominated by oracle scoring + (at K=5) look-ahead patient calls, both ∝ candidate count
   (`prompts×G` / `branch-points×M`) × iterations; prompt caching is already maxed (~50% off the

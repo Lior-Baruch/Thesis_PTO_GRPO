@@ -23,9 +23,13 @@ Anthropic judge notes (per the Claude API docs, 2026-06):
 - Structured output via ``output_config.format`` (json_schema) — the response's first text block
   is guaranteed valid JSON. No assistant prefill, no tool-choice gymnastics.
 - Numeric bounds (minimum/maximum) and array length constraints (minItems/maxItems) are NOT
-  supported in Claude json_schema — stripped before sending; ``parse_json_response`` still
-  length-validates client-side.
+  supported in Claude json_schema — stripped before sending, but FOLDED INTO ``description``
+  so the array-shaped rubrics still come back with one score per item (see
+  ``_strip_unsupported_constraints``); ``parse_json_response`` still length-validates client-side.
 - ``temperature`` is rejected on the newest models (Opus 4.7+/Sonnet 5) — omitted for Claude.
+- ``thinking`` must be set to ``{"type": "disabled"}`` for Sonnet 5 / Opus 4.8+ (they run
+  ADAPTIVE thinking when the parameter is omitted, which eats ``max_tokens``); Haiku 4.5 needs
+  no thinking config. See :class:`JudgeSpec.thinking`.
 - Requires the ``anthropic`` package + a key in env ``ANTHROPIC_API_KEY`` or
   ``anthropic_key.txt`` at the experiment root (beside openai_key.txt).
 """
@@ -63,6 +67,13 @@ class JudgeSpec:
     model: str                         # e.g. "gpt-4o-mini-2024-07-18" | "claude-haiku-4-5"
     temperature: Optional[float] = None  # None = omit (required for newest Claude models)
     max_tokens: int = 1024
+    # Anthropic only. None = omit the parameter (correct for Haiku 4.5, where thinking is off
+    # unless explicitly enabled). REQUIRED for Sonnet 5 / Opus 4.8+, where OMITTING `thinking`
+    # runs ADAPTIVE thinking by default: those tokens bill against the same `max_tokens`, so a
+    # 1024-token budget truncates the JSON and the cost stops being predictable. Pass
+    # ``thinking={"type": "disabled"}`` for those models — a judge filling a fixed rubric has
+    # nothing to think about.
+    thinking: Optional[dict] = None
 
     @property
     def tag(self) -> str:
@@ -136,12 +147,31 @@ async def call_openai_json_seeded(client, prompt: str, schema: dict, *, schema_n
 
 def _strip_unsupported_constraints(schema: dict) -> dict:
     """Claude json_schema structured outputs reject numeric bounds + array length constraints —
-    strip ``minimum``/``maximum``/``minItems``/``maxItems`` recursively (validation of counts is
-    re-done client-side by ``parse_json_response``)."""
+    strip ``minimum``/``maximum``/``minItems``/``maxItems`` recursively.
+
+    The dropped constraint is FOLDED INTO ``description`` rather than just deleted. This matters
+    for the array-shaped questionnaires (Q1/Q2/WAI/CSQ8/MI-SAT), whose only guarantee that the
+    model returns one score per item is ``minItems == maxItems == n_questions``: unconstrained,
+    a wrong-length ``scores`` array fails ``parse_json_response``, the exception is swallowed by
+    ``evaluate_conversation_with_judge``, and that conversation is silently dropped — biased
+    missingness on exactly the headline metric. (MITI/PCT/MICI use named-key objects and are
+    unaffected either way.) Counts are still re-validated client-side by ``parse_json_response``.
+    """
     s = copy.deepcopy(schema)
 
     def walk(node):
         if isinstance(node, dict):
+            notes = []
+            n_items = node.get("minItems")
+            if node.get("type") == "array" and n_items is not None and n_items == node.get("maxItems"):
+                notes.append(f"Return EXACTLY {int(n_items)} values, in item order.")
+            lo, hi = node.get("minimum"), node.get("maximum")
+            if lo is not None and hi is not None:
+                notes.append(f"Integer from {lo} to {hi} inclusive.")
+            elif lo is not None:
+                notes.append(f"Integer >= {lo}.")
+            if notes:
+                node["description"] = " ".join([node.get("description", "").strip(), *notes]).strip()
             for k in ("minimum", "maximum", "minItems", "maxItems", "multipleOf"):
                 node.pop(k, None)
             for v in node.values():
@@ -154,11 +184,13 @@ def _strip_unsupported_constraints(schema: dict) -> dict:
 
 
 async def call_anthropic_json(client, prompt: str, schema: dict, *, model: str,
-                              max_tokens: int = 1024,
+                              max_tokens: int = 1024, thinking: Optional[dict] = None,
                               max_retries: int = MAX_RETRIES) -> dict:
     """Claude structured output: ``output_config.format`` json_schema → first text block is
     guaranteed valid JSON. No ``temperature`` (rejected on Opus 4.7+/Sonnet 5); determinism is
-    not required — cross-judge agreement is measured over 96-conv means."""
+    not required — cross-judge agreement is measured over 96-conv means. ``thinking`` is passed
+    through only when set (see :class:`JudgeSpec` — needed for Sonnet 5+)."""
+    extra = {"thinking": thinking} if thinking is not None else {}
     for attempt in range(max_retries):
         try:
             response = await client.messages.create(
@@ -167,6 +199,7 @@ async def call_anthropic_json(client, prompt: str, schema: dict, *, model: str,
                 output_config={"format": {"type": "json_schema",
                                           "schema": _strip_unsupported_constraints(schema)}},
                 messages=[{"role": "user", "content": prompt}],
+                **extra,
             )
             if response.stop_reason == "refusal":
                 raise ValueError("Claude refused the request (stop_reason=refusal)")
@@ -201,7 +234,8 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
                 seed=seed)
         else:
             resp = await call_anthropic_json(client, ed["prompt"], ed["schema"],
-                                             model=judge.model, max_tokens=judge.max_tokens)
+                                             model=judge.model, max_tokens=judge.max_tokens,
+                                             thinking=judge.thinking)
         result = _pipeline.parse_json_response(response_content=resp,
                                                questionnaire_id=questionnaire_id, labels=ed["labels"])
         return _pipeline._build_row(qid_enum, result["scores_dict"], conv_str)

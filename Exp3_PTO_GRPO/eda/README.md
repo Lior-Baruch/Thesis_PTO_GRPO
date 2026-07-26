@@ -24,7 +24,7 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `2_Questionnaire_Detail.ipynb` | `2_questionnaires/` | **Level 2 — one uniform detail section per rubric:** Q1/Q2/WAI-SR/CSQ-8/MI-SAT item grids (`<slug>_detail_grid`) + item-delta bars final+best (`<slug>_item_deltas_*`) · Q2 face-content groups · WAI subscales · MITI detail grid (globals + 7 behaviour rates + ratios; zooms in `miti/`) + **official MITI 4.2.1 thresholds** · PCT detail (`pct/`) · MICI detail (`mici/`) |
 | `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
-| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
+| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation, read from `data/judge_check/`) |
 | `6_Preference.ipynb` | `6_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
 | `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · **best-vs-best method contrast (`method_paired_best`)** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 
@@ -120,7 +120,11 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    `anthropic` SDK, or another OpenAI model) with the PTO−GRPO contrast-preservation check. Gated
    behind explicit `RUN_*` flags; writes to `data/judge_check/` (never the real `eval_scores/`);
    NOT part of `render_views.py`. Backing module: `eda_analysis/scoring/judge.py`. Addresses
-   `LIMITATIONS.md` §1–§2.
+   `LIMITATIONS.md` §1–§2 (measured 2026-07-26 with Claude Haiku 4.5 as the second judge).
+   **Presentation is split off deliberately:** this notebook only *scores*;
+   `5_Training_and_Reliability` §7 *reads* the same tree via `eda_analysis/reliability.py` (no API
+   calls) and exports the tracked tables + figures — same paid-pipeline/free-notebook split as
+   `Run_Eval` → notebooks 1–7, which keeps `render_views.py` fully reproducible without spending.
 
 ## Package (`eda_analysis/`) — analysis modules on a `constants` leaf + `scoring/` and `plotting/` subpackages
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
@@ -164,7 +168,8 @@ behind an unchanged public surface.
   `rubric_correlation_heatmap`, `factor_loadings_bars`) · `behavior` (the generic wide-frame
   detail grid reused by MITI/MICI/PCT + session shape, MITI thresholds, cross-checks) ·
   `questionnaires` (`item_trajectory_grid` + `item_delta_bars` — the uniform per-rubric item
-  figures — + the Q2 specializations) · `training` (reward distribution, advantage side-by-side).
+  figures — + the Q2 specializations) · `training` (reward distribution, advantage side-by-side) ·
+  `reliability` (`oracle_repeatability_bars`, `judge_agreement_scatter`, `judge_contrast_bars`).
   *(aliased back as `eda_analysis.figures`/`plots`.)*
 - **`stats`** — persona-paired Wilcoxon/dz/bootstrap + Friedman/Kendall-W + `main_results_table` +
   `paired_method_comparison` (PTO vs GRPO) + `paired_best_method_comparison` (best-vs-best model
@@ -180,6 +185,11 @@ behind an unchanged public surface.
   `tb_curves`/`parse_run_tb` (self-contained TensorBoard parse, no torch/trl).
 - **`pref`** — PTO Mass-Mean-Probe (word ranking/drift, `preference_direction_drift`,
   `learn_unlearn_words`, MI-concept projection).
+- **`reliability`** — MEASUREMENT-validity tables from the `data/judge_check/` re-scoring tree:
+  `repeatability` (ICC(2,1) + mean |Δ|), `agreement` (second judge vs primary + attenuation
+  ceiling), `contrasts` (does each endpoint contrast keep its sign?), `arm_means_by_judge`,
+  `summary_line`. Disk-only — the paid scoring lives in `scoring/judge.py`; this is the free
+  read side that `5_Training_and_Reliability` §7 renders.
 - **`exports`** — `save_fig` (PNG) / `save_table` (MD+XLSX) → `results/<view>/<group>/`;
   `set_view` / `set_export_group` / `set_formats` / `save_provenance` / `build_index` /
   `reset_results` (clears the active view's figures/tables; **preserves `SUMMARY.md`**).

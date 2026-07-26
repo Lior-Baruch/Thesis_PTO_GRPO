@@ -494,7 +494,8 @@ figures → the topic module in `plotting/` (+ its `__init__` re-export); a new 
 - **`scoring/registry.py::ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `conversations._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
 - **`scoring/registry.py::COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
 - **`scoring/registry.py::EXPERIMENTS`** — registry of trained-model data locations, **auto-generated at import** by `build_experiments_from_disk()` from `eda_analysis.data.discover_arms()` (2026-07-11). New runs are picked up automatically once their conversations land; nothing to edit. (If the Drive symlinks are offline the registry is empty and a warning prints.)
-- **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs stay under `data/judge_check/`, never the real `eval_scores/`.
+- **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs stay under `data/judge_check/`, never the real `eval_scores/`. **Claude judges:** `json_schema` rejects `minimum`/`maximum`/`minItems`/`maxItems` (folded into `description` instead — do NOT just drop them, or the array-shaped rubrics lose their one-score-per-item guarantee), and Sonnet 5 / Opus 4.8+ need `thinking={"type":"disabled"}` or adaptive thinking eats `max_tokens`.
+- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/judge_check/`: ICC/agreement/contrast tables for `5_Training_and_Reliability` §7, with figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge.py` and the presentation here, so judge results render inside `render_views.py`.
 
 ## Gotchas
 

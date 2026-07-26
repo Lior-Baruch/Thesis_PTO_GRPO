@@ -36,6 +36,9 @@ GROUPS: Dict[str, List[str]] = {
     "OpenAI client (oracle scoring + patient simulator)": [
         "openai",
     ],
+    "Anthropic client (second-judge reliability check only — eda/Judge_Reliability)": [
+        "anthropic",
+    ],
     "Hugging Face training stack — Exp3 GRPO V2 (GPU)": [
         # torch is intentionally omitted: it must be installed from the CUDA
         # wheel index, not PyPI. See the header note in requirements.txt.

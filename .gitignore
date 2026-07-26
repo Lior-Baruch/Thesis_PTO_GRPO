@@ -1,8 +1,10 @@
 # === Secrets — NEVER commit ===
 HF_key.txt
 openai_key.txt
+anthropic_key.txt
 **/HF_key.txt
 **/openai_key.txt
+**/anthropic_key.txt
 .env
 .env.*
 *.key
