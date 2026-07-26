@@ -10,13 +10,15 @@
 
 Hi Doron, Moshe and Kfir,
 
-The main comparison in the current experiment is finished. Both methods — PTO (preference-tree +
-DPO) and GRPO — have now run 10 training iterations under matched settings and are fully scored on
-the whole evaluation battery, on 96 fixed patient personas. I've attached a short results snapshot:
-numbers and figures, with the interpretation deliberately left out so we can do that part together.
-It opens with a one-slide reminder of the ICLR paper and a slide on what changed between that
-experiment, the follow-up, and this one — I've also attached the paper itself, mainly for Kfir's
-convenience.
+The main comparison in the current experiment is finished, so this feels like the right point to
+decide where it goes before I start writing, both toward a publication and toward the thesis itself.
+
+Both methods, PTO (preference-tree + DPO) and GRPO, have now run 10 training iterations under
+matched settings and are fully scored on the whole evaluation battery, on 96 fixed patient personas.
+The attached snapshot is numbers and figures, with the interpretation deliberately left out so we
+can do that part together. It opens with a one-slide reminder of the ICLR paper and a slide on what
+changed between that experiment, the follow-up, and this one. I've also attached the paper itself,
+mainly for convenience.
 
 The three factual takeaways, so the attachment isn't a cold read: both methods improve a lot over
 the untrained 1B model; PTO ends higher than GRPO at the matched final iteration, and also higher
@@ -24,22 +26,18 @@ than GRPO's own best iteration; and in both methods the score gains come togethe
 rise in MI-inconsistent therapist behaviour, which is why the evaluation now reports several metrics
 the reward never saw.
 
-Before I start writing toward a publication, I'd like to get the three of you in one room. Doron and
-Moshe — I know we speak weekly, but I'd really value having Kfir's view on the direction in the same
-conversation rather than relayed.
-
 What I'd like us to decide:
 
 **1. How to tell the story.** There are a few framings and I don't want to pick one alone:
 
-- an MI-oriented story — what it takes to train a small model toward genuine MI quality, and what
+- an MI-oriented story: what it takes to train a small model toward genuine MI quality, and what
   the questionnaires do and don't capture;
-- a method-oriented story — preference-tree vs group-relative optimization when the reward is an
+- a method-oriented story: preference-tree vs group-relative optimization when the reward is an
   expensive LLM judge, with the stability difference as the finding;
-- a look-ahead story — the lever from the earlier paper, extended to both methods;
+- a look-ahead story: the lever from the earlier paper, extended to both methods;
 
-and combinations of these. The choice also determines what kind of venue we're aiming at, so it
-probably comes first.
+and combinations of these. The choice sets both the venue we aim at and the shape of the thesis
+chapter, so it probably comes first.
 
 **2. Whether to run more experiments, and which.** Options on the table, in no particular order:
 
@@ -54,10 +52,12 @@ probably comes first.
   headroom either method has.
 - **Anything you'd add.** I'd genuinely rather hear your suggestions than defend my own list.
 
-**3. Scope.** What goes into a paper versus what stays in the thesis.
+**3. Scope.** What goes into a paper and what stays in the thesis, and whether the two are written
+in parallel or one after the other.
 
-Could you each send me the slots that work for you over the next two or three weeks? I'll fit around
-Kfir's availability. I'd budget 60–90 minutes; in person or on Zoom, whichever is easier.
+When would suit you? I'll arrange my schedule around you; I'm free any day except August 4th and
+5th. In person or on Zoom, whichever is easier. It would be best to have all four of us, but if we
+can't find a time that works for everyone, I'd rather go ahead whenever Kfir is available.
 
 Thanks,
 Lior
@@ -75,3 +75,9 @@ Lior
 - The K=5 slide states the tension with the ICLR result plainly (there K=5 won; here nothing yet on
   4 iterations of one method). Expect that to be the main question — the honest answer is that the
   current K comparison is underpowered, not negative.
+- Doron and Moshe are already briefed (weekly meeting); Doron asked for the email. So the opening
+  line is context for them and an entry point for Kfir — the real audience for the background
+  slides is Kfir.
+- Priority if scheduling gets hard: **meet whenever Kfir can**, even without Doron/Moshe. Stated in
+  the email, so nobody has to guess.
+- Only blocked dates: **August 4–5**.
