@@ -100,6 +100,12 @@ here — see "Doc map"). Updated 2026-07-08.
   `project-openai-cost-constraint` memory.
 - **Next step:** cheapest RQ-i point = one generate-only pass with the existing PTO LA5 iter-5
   adapter (96 convs, no training) + `Run_Eval` scoring; then resume an LA5 arm when budget allows.
+- **Also queued (EDA, 2026-07-26):** a **multi-judge** view now that two judges have scored the same
+  conversations — visualise scores across judges/models + measure **pairwise ordering agreement**
+  ("if gpt ranks conv1 > conv2, does Claude?" = Kendall-style concordance, a better fit than r/ρ
+  given the large level bias). Reuse the `stats.rank_agreement_by_nturns` shape. Scope limit: the
+  second judge covers only 4 anchor models × {Q1, Q2, MICI}; a two-judge *trajectory* (does GRPO's
+  iter-8 peak exist for Claude too?) needs ~$1/model-metric more. To brainstorm with Lior first.
 
 ## Doc map (one owner per fact)
 | Fact | Lives ONLY in |
