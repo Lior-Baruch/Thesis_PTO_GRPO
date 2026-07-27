@@ -37,7 +37,7 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 ## Key methodological shift across experiments
 - **Look-ahead K** stayed central throughout (the lever from the ICLR paper).
 - **The hard part moved from "can PTO beat the baseline?" (Exp1, settled) to "is GRPO competitive with PTO under matched look-ahead?" (Exp3, open).**
-- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in `eda/5_Training_and_Reliability.ipynb`) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
+- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in `eda/notebooks/analysis/5_Training_and_Reliability.ipynb`) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
 
 ## Methods (one line each)
 - **PTO V1** (Exp1) = original preference-tree exploration + K look-ahead + DPO. Published.
@@ -90,7 +90,7 @@ here — see "Doc map"). Updated 2026-07-08.
   reproduces **6/6 endpoint contrasts with the same sign** (it *widens* the PTO−GRPO Q1 gap to
   +0.77 vs the primary's +0.53). Q1/Q2 cross-judge r 0.80–0.88 vs a ~0.98 ceiling; MICI agrees
   weakly (r 0.20–0.55) so the sycophancy claim holds at the contrast level, not as a precise rate.
-  Buys down LIMITATIONS §1–§2. Cost ~$5.30. See `eda/5_Training_and_Reliability` §7.
+  Buys down LIMITATIONS §1–§2. Cost ~$5.30. See `eda/notebooks/analysis/5_Training_and_Reliability` §7.
 - **Cost constraint:** OpenAI spend hit **~$300** and is binding — RQ-i (K0 vs K5) on hold. Cost is
   dominated by oracle scoring + (at K=5) look-ahead patient calls, both ∝ candidate count
   (`prompts×G` / `branch-points×M`) × iterations; prompt caching is already maxed (~50% off the
@@ -100,12 +100,49 @@ here — see "Doc map"). Updated 2026-07-08.
   `project-openai-cost-constraint` memory.
 - **Next step:** cheapest RQ-i point = one generate-only pass with the existing PTO LA5 iter-5
   adapter (96 convs, no training) + `Run_Eval` scoring; then resume an LA5 arm when budget allows.
-- **Also queued (EDA, 2026-07-26):** a **multi-judge** view now that two judges have scored the same
-  conversations — visualise scores across judges/models + measure **pairwise ordering agreement**
-  ("if gpt ranks conv1 > conv2, does Claude?" = Kendall-style concordance, a better fit than r/ρ
-  given the large level bias). Reuse the `stats.rank_agreement_by_nturns` shape. Scope limit: the
-  second judge covers only 4 anchor models × {Q1, Q2, MICI}; a two-judge *trajectory* (does GRPO's
-  iter-8 peak exist for Claude too?) needs ~$1/model-metric more. To brainstorm with Lior first.
+- **SECOND JUDGE IS NOW CO-PRIMARY — full sweep COMPLETE 2026-07-27.** Claude Haiku 4.5 has scored
+  **22,272 / 22,272** cells (29 model states × 8 rubrics × 96 convs; 232/232 cells at full n=96),
+  matching the primary oracle's grid exactly. Cost **$42** via Message Batches (50% off; measured
+  3,621 input + 71 output tokens/call). The whole EDA now runs under either grader:
+  `python tools/render_views.py --judge anthropic_claude-haiku-4-5` → artifacts nest at
+  `results/<view>/figures/<family>/<judge>/` (primary stays flat). Notebooks 5+6 **refuse** a
+  second judge — they read the training side, which cannot be re-graded after the fact.
+- **Multi-judge EDA — BUILT 2026-07-27** (was queued 2026-07-26). Lands as
+  `5_Training_and_Reliability` **§8** (free, in `tools/render_views.py`) + `Judge_Reliability.ipynb` **§3**
+  (the paid full sweep). Headline results, now on the FULL 29-arm grid:
+  - **18/18 pairwise contrasts keep their sign** (was 6/6 — only two hand-picked pairs were ever
+    checked). The two newly covered are the ones the thesis leans on hardest: the best-vs-best
+    steelman (PTO@10 − GRPO@8) and the regression claim (GRPO@8 − GRPO@10). Bootstrap CIs exclude
+    zero on all but MICI GRPO@8 − PTO@10.
+  - **Variance decomposition** (29 arms × 2 judges): arm-mean variance is 5–73% arm, 22–93% judge
+    *level*, and only **1.1–6.5% arm×judge** — the judges disagree about level, not about arm
+    ordering. Dependability of an arm mean off ONE judge = 0.87–0.95 on seven rubrics.
+    ⚠ **MITI is the exception: 4.7% arm / 93.0% judge / dependability 0.68.** Almost all of MITI's
+    arm-mean spread is grader level, so a single-judge MITI ranking is materially less trustworthy
+    than the others — averaging both judges lifts it to 0.81. Treat MITI arm differences as
+    provisional unless both judges agree. (Q1 12.7% arm, dep 0.92; Q2 15.9%, 0.92.)
+  - **Gain retention (the reward-hacking test)**: Q1 retention PTO@10 **0.80** [0.68, 0.94] vs
+    GRPO@10 **0.28** [0.07, 0.43] — non-overlapping — while every Q2 interval overlaps (0.80–0.85).
+    Confirmed unchanged on the full grid (was measured on 4 anchors).
+    Under a held-out judge GRPO's net 10-iter Q1 gain is ≈0.19, not the primary's ≈0.68. Stronger
+    evidence for sycophancy than the MICI rate. Buys down LIMITATIONS §3 (circularity).
+  - **Concordance vs effect size** replaces a scalar r/ρ (level bias dominates Pearson; ranks
+    discard magnitude). Per *conversation pair*, so it is NOT a confidence in an arm-level claim.
+  - **Sweep history (for the record).** First submission (9 batches, 21,120 requests) landed 43% —
+    12,090 failed on `invalid_request_error: "Your credit balance is too low"`; those were never
+    billed. After a top-up the remainder was resubmitted (5 batches) and completed, plus 13
+    stragglers filled via the live path (`Grammar compilation timed out`, transient). Coverage is
+    now 100%, so `reliability.filter_complete_cells` drops nothing and `multijudge_coverage.md`
+    reports 232/232.
+  - **Cost, measured**: 3,621 input + 71 output tokens/call (`judge_batch.probe_usage`); full sweep
+    **$42 batched / $84 direct**; the free char-based estimator lands within 12%. Parity gate 8/8.
+    Deliberately **1 rep, not 3** — oracle noise adds ≈0.01 to a 96-conv arm mean vs ≈0.09 from
+    persona sampling, so breadth beats depth at equal cost.
+    ⚠ **Haiku 4.5 caches nothing on this prompt** — confirmed empirically
+    (`cached_input_tokens = 0`): its cacheable-prefix minimum is 4,096 and only Q1/Q2 come close.
+  - Cheapest remaining validity buy: **2 extra Haiku reps on the anchor subset (~$1–2)** to measure
+    the second judge's own ICC — currently assumed equal to the primary's, which is what makes
+    MICI's weak agreement unattributable between "Haiku is noisy" and "the judges disagree".
 
 ## Doc map (one owner per fact)
 | Fact | Lives ONLY in |
@@ -113,7 +150,7 @@ here — see "Doc map"). Updated 2026-07-08.
 | Run status + headline numbers + cost constraint | this file → "Current status & next step" |
 | Detailed eval narrative + numbers | `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` |
 | EDA how-to (VIEW knob, `EdaConfig`, package module map) | `Exp3_PTO_GRPO/eda/README.md` |
-| Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/METRICS_REFERENCE.md` |
+| Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/docs/METRICS_REFERENCE.md` |
 | Dated history | `Exp3_PTO_GRPO/history/CHANGELOG.md` (detail); root [history/CHANGELOG.md](history/CHANGELOG.md) = thin index |
 | Method mechanics, trainer internals, gotchas | `Exp3_PTO_GRPO/CLAUDE.md` |
 

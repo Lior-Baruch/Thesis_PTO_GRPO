@@ -30,7 +30,7 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
 from .constants import (DATA_DIR, ITEM_QUESTIONNAIRES, PERSONA_COLS, QUESTIONNAIRES,
-                        item_short_label)
+                        active_judge, active_judge_rep, item_short_label, judge_partition_dir)
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -128,6 +128,10 @@ def load_cached(name: str, arms, builder, *, input_roots, params: Optional[dict]
         return builder()
     arm_sig = "|".join(f"{a.exp_name}:{','.join(map(str, a.iters))}"
                        for a in sorted(arms, key=lambda a: a.exp_name))
+    # The ACTIVE JUDGE is folded into every cache key here rather than at each call site, so a new
+    # cached loader can never accidentally serve one grader's frame for another. Both trees hold
+    # same-named CSVs for the same models, so the content signature alone is not a safe separator.
+    arm_sig += f"||judge={active_judge()}:{active_judge_rep()}"
     arm_sig += "||" + repr(sorted((params or {}).items()))
     arm_key = hashlib.blake2b(arm_sig.encode(), digest_size=8).hexdigest()
     content_key = _content_signature(input_roots)
@@ -225,6 +229,20 @@ class Arm:
         return "none" if k == 0 else self.oracle
 
     def eval_dir(self, k: int, metric_subdir: str) -> str:
+        """Per-(iteration, metric) score directory for THIS arm, under the ACTIVE JUDGE.
+
+        With no judge set this is the production ``eval_scores/`` tree. With one set it is that
+        judge's ``eval_scores_by_judge/judge=<tag>/rep=<r>/`` tree, which ``scoring/judge*.py`` writes in the
+        identical ``metric=/oracle=/<Model>/<file_index>.csv`` layout with identical column names —
+        which is exactly what lets every downstream loader swap graders for free.
+        """
+        judge = active_judge()
+        if judge:
+            return os.path.join(
+                judge_partition_dir(judge), f"rep={active_judge_rep()}",
+                f"metric={metric_subdir}", f"oracle={self.eval_oracle_label(k)}",
+                self.model_name(k),
+            )
         return os.path.join(
             self.eval_root, f"metric={metric_subdir}",
             f"oracle={self.eval_oracle_label(k)}", self.model_name(k),
@@ -432,10 +450,14 @@ def load_scores_long(arms: Optional[List] = None, *, attach_persona: bool = True
     whatever exists. Result is parquet-cached (content-keyed on the eval CSVs; see :func:`load_cached`).
     """
     arms = discover_arms() if arms is None else arms
+    # `judge` MUST be in the cache key. The content signature alone would not separate the two
+    # graders reliably: both trees hold same-named CSVs for the same models, so a judge swap could
+    # otherwise be served a cached frame built from the other grader's scores.
     return load_cached("scores_long", arms,
                        lambda: _load_scores_long_impl(arms, attach_persona=attach_persona),
                        input_roots=eval_input_roots(arms),
-                       params={"attach_persona": attach_persona})
+                       params={"attach_persona": attach_persona,
+                               "judge": active_judge(), "judge_rep": active_judge_rep()})
 
 
 def _load_scores_long_impl(arms: List, *, attach_persona: bool = True) -> pd.DataFrame:

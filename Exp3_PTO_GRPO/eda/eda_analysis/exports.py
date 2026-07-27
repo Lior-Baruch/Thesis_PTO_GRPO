@@ -89,9 +89,22 @@ def set_formats(fig_formats=None, table_formats=None) -> None:
         _TABLE_FORMATS = tuple(table_formats)
 
 
-# ── View-aware path helpers (everything downstream routes through these) ───────
+# ── View/judge-aware path helpers (everything downstream routes through these) ─
+#
+# Layout:  results/<view>/{figures,tables}/<group>/[<judge>/]<name>.<ext>
+#
+# The JUDGE is the DEEPEST level, so a family's outputs from every grader sit side by side and are
+# trivially comparable (`1_outcomes/` next to `1_outcomes/anthropic_claude-haiku-4-5/`). The
+# primary oracle stays FLAT at `<group>/` — it is the tree the thesis already cites, and adding a
+# second grader must not churn a single existing path.
 def _results_root() -> str:
     return os.path.join(RESULTS_DIR, _VIEW) if _VIEW else RESULTS_DIR
+
+
+def _judge_sub() -> str:
+    """Deepest path segment for the active judge (``""`` for the primary oracle)."""
+    from .constants import active_judge
+    return active_judge()
 
 
 def _figures_root() -> str:
@@ -102,16 +115,26 @@ def _tables_root() -> str:
     return os.path.join(_results_root(), "tables")
 
 
-def _fig_dir(group: Optional[str] = None) -> str:
-    """Figures dir for *group* (per-call override, may be nested) or the module default."""
+def _leaf(root: str, group: Optional[str]) -> str:
+    """``<root>/<group>/[<judge>]`` — the single place group + judge are composed."""
     g = _norm_group(group) if group is not None else _GROUP
-    return os.path.join(_figures_root(), g) if g else _figures_root()
+    parts = [root]
+    if g:
+        parts.append(g)
+    j = _judge_sub()
+    if j:
+        parts.append(j)
+    return os.path.join(*parts)
+
+
+def _fig_dir(group: Optional[str] = None) -> str:
+    """Figures dir for *group* (per-call override, may be nested), under the active judge."""
+    return _leaf(_figures_root(), group)
 
 
 def _tab_dir(group: Optional[str] = None) -> str:
-    """Tables dir for *group* (per-call override, may be nested) or the module default."""
-    g = _norm_group(group) if group is not None else _GROUP
-    return os.path.join(_tables_root(), g) if g else _tables_root()
+    """Tables dir for *group* (per-call override, may be nested), under the active judge."""
+    return _leaf(_tables_root(), group)
 
 
 def _append_caption(dir_path: str, name: str, caption: Optional[str]):
@@ -347,20 +370,32 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
     - ``groups=None`` → remove ALL group subfolders under both roots.
     - ``flat=True`` → also delete loose figure/table files sitting at the (view's) flat roots.
       Subfolders are recreated lazily on the next save.
+
+    **Judge-scoped.** With a second judge active this clears only that judge's leaf
+    (``<group>/<judge>/``) and never the group folder itself — the group holds the PRIMARY
+    oracle's artifacts, i.e. the figures the thesis cites. Without this scoping a routine
+    ``--judge`` regenerate would delete the primary tree as a side effect.
     """
+    judge = _judge_sub()
     for root, exts in ((_figures_root(), _FIG_EXTS), (_tables_root(), _TAB_EXTS)):
         if not os.path.isdir(root):
             continue
-        subs = ([os.path.join(root, g) for g in groups] if groups is not None
-                else [os.path.join(root, d) for d in os.listdir(root)
-                      if os.path.isdir(os.path.join(root, d))])
+        group_dirs = ([os.path.join(root, g) for g in groups] if groups is not None
+                      else [os.path.join(root, d) for d in os.listdir(root)
+                            if os.path.isdir(os.path.join(root, d)) and d != judge])
+        # Under a judge, descend one more level: delete <group>/<judge>, keep <group>.
+        subs = [os.path.join(d, judge) for d in group_dirs] if judge else group_dirs
         for s in subs:
             if os.path.isdir(s):
                 shutil.rmtree(s)
         if flat:
-            for f in os.listdir(root):
-                if f in PRESERVE:
-                    continue
-                fp = os.path.join(root, f)
-                if os.path.isfile(fp) and (f.lower().endswith(exts) or f == "CAPTIONS.md"):
-                    os.remove(fp)
+            flat_root = os.path.join(root, judge) if judge else root
+            if judge and os.path.isdir(flat_root):
+                shutil.rmtree(flat_root)
+            elif not judge:
+                for f in os.listdir(root):
+                    if f in PRESERVE:
+                        continue
+                    fp = os.path.join(root, f)
+                    if os.path.isfile(fp) and (f.lower().endswith(exts) or f == "CAPTIONS.md"):
+                        os.remove(fp)

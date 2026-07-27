@@ -17,7 +17,7 @@ Split into topic submodules (2026-07-13; formerly one 935-line ``plotting.py``) 
   the "which items drive the change" delta bars (+ the Q2 face-content specializations).
 - :mod:`.training`      — TRAINING-signal figures (reward distributions, advantage side-by-side).
 - :mod:`.reliability`   — MEASUREMENT-validity figures (oracle ICC, second-judge agreement +
-  contrast preservation), from the ``data/judge_check/`` re-scoring tree.
+  contrast preservation), from the ``data/eval_scores_by_judge/`` re-scoring tree.
 
 The style/scaffold helpers live in :mod:`eda_analysis.plotting_style` and are re-imported here so
 ``figures.set_style(...)`` / ``figures.grid(...)`` etc. still resolve on this package.
@@ -60,6 +60,8 @@ from .training import (  # noqa: F401
 )
 from .reliability import (  # noqa: F401
     oracle_repeatability_bars, judge_agreement_scatter, judge_contrast_bars,
+    judge_dumbbell, variance_decomposition_bars, gain_retention_bars, concordance_curve,
+    retention_trajectory,
 )
 
 __all__ = [
@@ -84,4 +86,6 @@ __all__ = [
     "reward_distribution", "advantage_signal_sidebyside",
     # reliability (measurement validity)
     "oracle_repeatability_bars", "judge_agreement_scatter", "judge_contrast_bars",
+    "judge_dumbbell", "variance_decomposition_bars", "gain_retention_bars", "concordance_curve",
+    "retention_trajectory",
 ]

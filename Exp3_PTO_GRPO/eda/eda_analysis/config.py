@@ -44,6 +44,15 @@ class EdaConfig:
     # ── THE knob: view = which arms + which results subfolder ─────────────────
     view: str = "all"                              # "all" | "L0" | "L5" (arm filter + results/<view>/)
 
+    # ── The OTHER axis: judge = which grader's scores to read ─────────────────
+    # "" = the primary oracle's eval_scores/ tree. A judge tag (e.g.
+    # "anthropic_claude-haiku-4-5") reads that judge's eval_scores_by_judge/ tree instead and routes
+    # exports to results/judges/<tag>/<view>/. Orthogonal to `view`: view filters ARMS, judge
+    # selects the SCORE SOURCE. Training-side analyses are NOT judge-swappable — see the note in
+    # constants.py and the warning notebook_setup emits.
+    judge: str = ""
+    judge_rep: int = 0                             # which rep of that judge's tree to read
+
     # ── Arm selection (None = no filter on that axis; ks overrides the view) ───
     methods: Optional[Sequence[str]] = None        # e.g. ["PTO"] | ["PTO","GRPO"]
     ks: Optional[Sequence[int]] = None             # e.g. [0] | [0, 5]  — set = overrides view's K filter
@@ -132,6 +141,28 @@ class Setup:
     CFG: EdaConfig
 
 
+def _warn_partial_judge_coverage(scores, judge: str, n_expected: int = 96) -> None:
+    """Loud warning when a second judge has NOT scored every conversation of every arm.
+
+    A partially-landed sweep is the dangerous case: the loader silently returns whatever exists, so
+    an arm scored on 41 of 96 conversations produces a mean that LOOKS like the primary judge's but
+    rests on a different (smaller, noisier) sample — and persona-paired contrasts between two such
+    arms overlap on only a fraction of personas. Better to shout than to publish quietly.
+    """
+    cov = (scores.groupby(["model", "questionnaire"])["file_index"].nunique()
+           .rename("n").reset_index())
+    partial = cov[cov.n < n_expected]
+    if partial.empty:
+        print(f"  [notebook_setup] judge coverage COMPLETE: every (model, metric) cell has "
+              f"{n_expected} conversations.")
+        return
+    print(f"  [notebook_setup] ⚠ JUDGE COVERAGE INCOMPLETE for {judge}: "
+          f"{len(partial)}/{len(cov)} (model, metric) cells below {n_expected} conversations "
+          f"(n {int(partial.n.min())}–{int(partial.n.max())}). Arm means rest on unequal samples "
+          f"and persona-paired contrasts lose power — finish the sweep "
+          f"(Judge_Reliability.ipynb §3) before citing these numbers.")
+
+
 def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
     """Discover+filter arms (by the VIEW), build ``scores_long`` + palette + metrics, set the
     view-aware export root, write a provenance banner, and return a :class:`Setup`.
@@ -162,6 +193,20 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
     else:
         effective_ks = _VIEW_KS[view]
 
+    # ── Resolve the JUDGE: score source + results/judges/<tag>/ prefix ────────
+    from .constants import set_active_judge, judge_label
+    from . import reliability as _rel
+    judge = (cfg.judge or "").strip().strip("/\\")
+    if judge:
+        known = _rel.judge_tags()
+        if judge not in known:
+            raise ValueError(f"unknown judge {judge!r}; scored judges on disk: {known or '(none)'}")
+    set_active_judge(judge, cfg.judge_rep)
+    if judge:
+        print(f"  [notebook_setup] JUDGE={judge_label(judge)} — reading "
+              f"eval_scores_by_judge/judge={judge}/rep={cfg.judge_rep}/, exporting to "
+              f"results/judges/{judge}/{view}/")
+
     plotting.set_style(cfg)
     exports.set_view(view)                                                   # results/<view>/...
     exports.set_export_group(cfg.export_group if cfg.results_subdirs else "")
@@ -172,6 +217,8 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
                        arm_labels=cfg.arm_labels)
 
     scores = load_scores_long(arms, attach_persona=cfg.attach_persona)
+    if judge and not scores.empty:
+        _warn_partial_judge_coverage(scores, judge)
     if cfg.add_derived_mitiprof and not scores.empty:
         scores = add_derived_mitiprof_rows(scores, arms)
 
@@ -190,7 +237,11 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
     if not scores.empty:
         exports.save_provenance(cfg, scores)
 
-    results_dir = os.path.join(exports.RESULTS_DIR, view)
+    # Ask the exports router rather than re-deriving the path: it is the single place that knows
+    # about BOTH the view and the active judge (results/judges/<tag>/<view>/). String-joining
+    # RESULTS_DIR + view here silently pointed Setup.RESULTS_DIR (and anything using it, e.g.
+    # build_index) at the primary tree while the actual saves went to the judge's.
+    results_dir = exports._results_root()
 
     if cfg.verbose:
         print(f"VIEW = {view}  (ks={effective_ks if effective_ks is not None else 'all'})")

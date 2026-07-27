@@ -53,3 +53,10 @@ Thumbs.db
 .idea/
 .vscode/
 .claude/
+
+# The merged `all` view was retired 2026-07-27: its purpose was comparing L0 vs L5, and a future
+# look-ahead comparison will get its own dedicated view rather than a pooled one. `all` stays
+# RENDERABLE (`tools/render_views.py all`) as an ad-hoc scratch view, but its output is no longer a
+# tracked deliverable. The retired hand-authored narrative is recoverable:
+#   git show HEAD:Exp3_PTO_GRPO/eda/results/all/SUMMARY.md
+Exp3_PTO_GRPO/eda/results/all/

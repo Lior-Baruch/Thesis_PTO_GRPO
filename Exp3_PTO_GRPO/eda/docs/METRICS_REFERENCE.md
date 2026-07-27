@@ -5,7 +5,7 @@ computed**. Everything is scored on the same object: a therapist(Llama-3.2-1B)�
 conversation. Two data sources feed the EDA:
 
 - **Oracle (gpt-4o-mini, JSON-schema output)** — grades a full transcript against MI questionnaires.
-  Defined in [code/questionnaires.py](../code/questionnaires.py); scored by [Run_Eval.ipynb](Run_Eval.ipynb) → `data/<method>_Exp3/eval_scores/`.
+  Defined in [code/questionnaires.py](../code/questionnaires.py); scored by [Run_Eval.ipynb](notebooks/scoring/Run_Eval.ipynb) → `data/<method>_Exp3/eval_scores/`.
 - **Deterministic text metrics** — cheap regex/counting over the raw transcript, no LLM. Defined in
   [eda_analysis/behavior.py](eda_analysis/behavior.py). These cross-check the oracle.
 
@@ -63,7 +63,7 @@ whose point of view the oracle adopts.
   measures outside the halo. Adding them drops PC1 from ≈91% → ≈55%, but the split is **not** the
   one intended: `PCT` loads WITH the 5 rubrics (ρ≈0.79–0.94); only `MICI↓` + the MITI ratios define
   the second factor. Report all of them flat as evaluation metrics — do **not** call them
-  "orthogonal axes" (see [LIMITATIONS.md](LIMITATIONS.md) §4).
+  "orthogonal axes" (see [LIMITATIONS.md](docs/LIMITATIONS.md) §4).
 
 **MITI globals** (part of ID 7, each 1–5): `MITI1_CultivatingChangeTalk`, `MITI2_SofteningSustainTalk`,
 `MITI3_Partnership`, `MITI4_Empathy`. **PCT globals**: `PCT_Importance`, `PCT_Confidence`,
@@ -242,6 +242,31 @@ itself is reproducible and grader-independent. Both come from `data/judge_check/
 Measured (2026-07-26, Haiku 4.5 as the second judge): oracle ICC 0.90–0.99 (mean \|Δ\| 0.03–0.09);
 Q1/Q2 cross-judge r 0.80–0.88 against a ~0.98 ceiling; MICI r 0.20–0.55 (see the caveat in
 `LIMITATIONS.md` §1); 6/6 contrasts preserved.
+
+## 7b · Multi-judge (what to do once two judges have scored the same conversations)
+
+Read by `5_Training_and_Reliability` §8 from the same tree. **The two judges are not
+interchangeable raters.** The primary oracle *was the training reward*; the second judge never
+touched training. That makes every comparison below an **optimization-target vs held-out-test**
+comparison, so nothing here averages raw scores across judges — level bias is 1.2–1.7 points and is
+*model-dependent*, i.e. comparable in size to the headline effect.
+
+| Metric | Definition | Read |
+|---|---|---|
+| `var_arm` / `var_judge` / `var_arm_x_judge` | Two-way random-effects variance components on the ARM MEANS (targets = model states, raters = judges), via expected mean squares; negative estimates clamped to 0 | `var_judge` is the level offset — large and **harmless**, it cancels in every contrast. `var_arm_x_judge` is the only component that threatens a claim: arm ordering that depends on who is grading |
+| `var_arm_x_judge_adj` | The same, minus the sampling error implied by the conversation-level decomposition (`var_resid / n_convs`) | At one observation per cell, interaction and error are confounded; this subtracts the part 96-conversation sampling alone would produce |
+| `dependability_k1` / `k2` | `G(k) = var_arm / (var_arm + var_arm_x_judge/k + var_resid/(n_convs·k))` | Generalizability of an arm mean read off **one** judge vs **both** averaged. The k1→k2 gain is the honest answer to "would a second judge make my ranking more trustworthy?" |
+| `retention` = `delta_judge / delta_primary` | Each arm's gain over a reference (default `PTOExp3_LA0_Base`), as seen by the held-out judge, relative to the trained-against judge. Persona-bootstrap CI | **The reward-hacking test.** ~1.0 = a real behaviour change both judges see; ~0 = a gain that existed only in the optimized grader. Uniform retention across arms is scale compression; retention that *differs by arm on one metric while flat on another* is the hacking signature |
+| `concordance` (by `|Δ|` bin) | P(second judge agrees on the direction) as a function of the gap the primary judge reports, over conversation PAIRS. Exact primary-judge ties excluded | "Is a gap of *this size* trustworthy?" — which a scalar r cannot answer (level bias dominates Pearson; rank statistics discard magnitude). ⚠ **Per conversation pair, not per arm.** Arm means over 96 conversations resolve ~10× better; do not read a bin height as confidence in an arm-level claim |
+| `same_sign` (all pairs) | As §7, but over **every** model pair, paired on the recovered `persona_id` rather than `file_index` | `file_index` is reshuffled every iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive that; `dz` and CIs do not |
+
+Measured (2026-07-27, 4 anchor models × {Q1, Q2, MICI}): **18/18** pairwise contrasts preserve
+their sign, including the two never previously checked — the best-vs-best steelman (PTO@10 vs
+GRPO@8) and the regression claim (GRPO@8 vs GRPO@10). Arm-mean variance is 16–65% arm, 31–83%
+judge level, and only **0.5–4.6% arm×judge**; `dependability_k1` 0.91–0.98. Q1 gain retention
+separates cleanly — PTO@10 **0.80** [0.68, 0.93] vs GRPO@10 **0.28** [0.05, 0.43], non-overlapping
+— while every Q2 interval overlaps (0.80–0.85), i.e. the transfer failure is Q1-specific and
+arm-specific, not scale compression.
 
 ---
 

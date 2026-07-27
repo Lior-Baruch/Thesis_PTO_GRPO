@@ -15,7 +15,7 @@ on a SUBSET, cheaply:
    preserved under the second judge.
 
 Outputs are kept OUT of the real ``eval_scores/`` tree:
-    ``data/judge_check/<judge_tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv``
+    ``data/eval_scores_by_judge/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv``
 (same per-conversation CSV shape as Run_Eval, so loaders are shared). Resume-safe: existing
 CSVs are skipped, like Run_Eval.
 
@@ -45,14 +45,14 @@ from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from ..constants import WORKSPACE_ROOT
+from ..constants import WORKSPACE_ROOT, EVAL_SCORES_BY_JUDGE, judge_partition_dir
 from .registry import EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, EVAL_QUESTIONNAIRE_DIRS
 from .conversations import reconstruct_conversation_text
 
 # Reuse the questionnaire prompt/parse/row machinery from the primary pipeline.
 from . import pipeline as _pipeline
 
-JUDGE_CHECK_ROOT = os.path.join(WORKSPACE_ROOT, "data", "judge_check")
+JUDGE_CHECK_ROOT = EVAL_SCORES_BY_JUDGE   # data/eval_scores_by_judge/ (see constants.py)
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -240,7 +240,7 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
                                                questionnaire_id=questionnaire_id, labels=ed["labels"])
         return _pipeline._build_row(qid_enum, result["scores_dict"], conv_str)
     except Exception as e:
-        print(f"  [judge_check] error ({judge.tag}, Q{qid_enum.value}): {e}")
+        print(f"  [judge_scoring] error ({judge.tag}, Q{qid_enum.value}): {e}")
         return None
 
 
@@ -250,7 +250,12 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
 
 
 def judge_out_dir(judge_tag: str, rep: int, metric_subdir: str, oracle: str, model: str) -> str:
-    return os.path.join(JUDGE_CHECK_ROOT, judge_tag, f"rep={rep}",
+    """``data/eval_scores_by_judge/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/``.
+
+    Every level is a ``key=value`` partition except the model, matching the primary
+    ``eval_scores/`` tree so both are browsable and parseable the same way.
+    """
+    return os.path.join(judge_partition_dir(judge_tag), f"rep={rep}",
                         f"metric={metric_subdir}", f"oracle={oracle}", model)
 
 
@@ -263,7 +268,7 @@ async def run_judge_scoring(judge: JudgeSpec, combined_data: pd.DataFrame,
     - ``combined_data``: Run_Eval-style frame (``Model``, ``id``, ``conversation`` columns).
     - ``questionnaire_names``: display names, e.g. ``["Q1", "Q2", "MICI"]``.
     - ``model_layout``: ``registry.get_model_eval_layout()`` — used only for the oracle label
-      (output root is ``data/judge_check/``, never the real eval_scores).
+      (output root is ``data/eval_scores_by_judge/``, never the real eval_scores).
     - ``rep``: repetition index → its own folder + (openai) its own seed ``1000+rep``.
     - ``subset_n``: score only the first N conversations per model (cost lever).
     Resume-safe (skips existing CSVs). Returns a stats dict.
@@ -311,7 +316,7 @@ async def run_judge_scoring(judge: JudgeSpec, combined_data: pd.DataFrame,
                 tasks.append(asyncio.create_task(_one(row, qname, out_dir)))
     if tasks:
         await asyncio.gather(*tasks)
-    print(f"[judge_check] {judge.tag} rep={rep}: {stats['completed']} new, "
+    print(f"[judge_scoring] {judge.tag} rep={rep}: {stats['completed']} new, "
           f"{stats['skipped_existing']} existing, {stats['errors']} errors")
     return stats
 
@@ -332,7 +337,7 @@ JUDGE_METRIC_COLS = {
 def load_judge_scores(judge_tag: str, *, reps: Optional[List[int]] = None) -> pd.DataFrame:
     """Tidy long frame of everything a judge has scored: one row per
     (rep, metric, model, conversation) -> value. Discovers reps/metrics/models from disk."""
-    root = os.path.join(JUDGE_CHECK_ROOT, judge_tag)
+    root = judge_partition_dir(judge_tag)
     rows = []
     if not os.path.isdir(root):
         return pd.DataFrame(columns=["judge", "rep", "metric", "oracle", "model", "file_index", "value"])

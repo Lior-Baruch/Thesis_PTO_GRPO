@@ -139,7 +139,7 @@ def _notebook_symbol_refs() -> dict:
     """Scan committed notebooks for ``<submodule>.<attr>(`` calls -> {submodule: {attr, ...}}."""
     pat = re.compile(r"\b(" + "|".join(_SUBMODULES) + r")\.([A-Za-z_][A-Za-z0-9_]*)")
     refs: dict = {m: set() for m in _SUBMODULES}
-    for nb in glob(os.path.join(_EDA_DIR, "*.ipynb")):
+    for nb in glob(os.path.join(_EDA_DIR, "notebooks", "**", "*.ipynb"), recursive=True):
         d = json.load(open(nb, encoding="utf-8"))
         for cell in d.get("cells", []):
             if cell.get("cell_type") != "code":
@@ -281,6 +281,105 @@ def _c_persona_permutation() -> str:
     return f"persona order is an exact permutation for {n_ok} (arm,iter) pairs"
 
 
+def _c_rubric_parity() -> str:
+    """The gate that must hold before ANY second-judge spend: the Claude-encoded schema must ask
+    the same rubric as the OpenAI one. Structural + free, so it runs on every self-check rather
+    than only when someone remembers to look."""
+    from eda_analysis.scoring import judge_plan as jp
+    tab = jp.check_rubric_parity()
+    bad = tab[~tab.parity_ok]
+    assert bad.empty, ("rubric parity FAILED — a second-judge sweep would measure a different "
+                       "rubric: " + "; ".join(f"{r.metric}: {r.problems}" for r in bad.itertuples()))
+    return (f"{len(tab)} rubrics parity-clean "
+            f"({int(tab.arrays_pinned.sum())} pinned arrays, "
+            f"{int(tab.numeric_bounded.sum())} bounded fields restated in prose)")
+
+
+def _c_judge_dimension() -> str:
+    """The JUDGE axis routes BOTH reads and writes, and always restores the primary.
+
+    Guards the two ways this can go wrong silently: a score read that still points at the primary
+    ``eval_scores/`` tree (so a 'Claude' figure is really gpt's numbers), and an export that lands
+    in the primary results root (overwriting the thesis artifacts with another grader's).
+    """
+    from eda_analysis import constants as K, exports as E
+    from eda_analysis.data import discover_arms
+    from eda_analysis import reliability as rel
+    tags = rel.judge_tags()
+    second = [t for t in tags if t != "openai_gpt-4o-mini-2024-07-18"]
+    if not second:
+        raise _Skip("no second judge on disk")
+    arms = _discover_or_skip()
+    arm = arms[0]
+    k = sorted(arm.iters)[-1]
+    try:
+        assert K.active_judge() == "", "a previous test leaked an active judge"
+        E.set_view("L0")
+        E.set_export_group("1_outcomes")
+        primary_dir = arm.eval_dir(k, "Q1")
+        primary_fig = E._fig_dir()
+
+        K.set_active_judge(second[0], 0)
+        judge_dir = arm.eval_dir(k, "Q1")
+        judge_fig = E._fig_dir()
+
+        from eda_analysis.constants import EVAL_SCORES_BY_JUDGE, judge_partition_dir
+        assert judge_dir.startswith(judge_partition_dir(second[0])), \
+            f"judge score dir did not route to the judge= partition: {judge_dir}"
+        assert not primary_dir.startswith(EVAL_SCORES_BY_JUDGE), \
+            f"primary leaked into the by-judge tree: {primary_dir}"
+        assert "eval_scores" in primary_dir, \
+            f"primary should read the per-method eval_scores tree: {primary_dir}"
+        # layout: results/<view>/figures/<group>/<judge>/ — judge is the DEEPEST level, and the
+        # primary stays flat at <group>/ so no existing thesis artifact path moves.
+        assert judge_fig == os.path.join(primary_fig, second[0]), \
+            f"judge figures must nest inside the group dir: {judge_fig} vs {primary_fig}"
+        assert second[0] not in primary_fig, f"primary export path polluted: {primary_fig}"
+    finally:
+        K.set_active_judge("")
+        E.set_export_group("")
+    assert K.active_judge() == "", "active judge not restored"
+    return (f"reads -> eval_scores_by_judge/judge={second[0]}; writes -> <group>/{second[0]}/ "
+            f"(primary stays flat at <group>/)")
+
+
+def _c_multi_judge() -> str:
+    """Multi-judge analysis runs end-to-end on whatever is on disk, and the variance components
+    stay in-range. Guards the arithmetic in reliability.variance_components_* / gain_retention."""
+    from eda_analysis import reliability as rel
+    tags = rel.second_judge_tags()
+    if not tags:
+        raise _Skip("no second-judge scores on disk")
+    jl = rel.load_judge_long(tags[0])
+    if jl.empty:
+        raise _Skip("second-judge tree is empty")
+    metrics = sorted(jl.metric.unique())
+    models = sorted(jl.model.unique())
+    pl = rel.load_primary_long(models, metrics)
+    if pl.empty:
+        raise _Skip("no matching primary scores")
+    # Match the notebook: analyse only fully-scored cells, so a partially-landed sweep can never
+    # make this check pass on a grid the published tables would refuse.
+    n_cells = len(rel.coverage_table(jl))
+    jl, pl = rel.filter_complete_cells(jl, pl, verbose=False)
+    if jl.empty:
+        raise _Skip("no fully-scored second-judge cells")
+    metrics = sorted(jl.metric.unique())
+    cc = rel.variance_components_conversation(jl, pl)
+    va = rel.variance_components_arm(jl, pl, conv_components=cc)
+    assert not va.empty, "variance_components_arm returned nothing"
+    shares = va[["pct_arm", "pct_judge", "pct_arm_x_judge"]].sum(axis=1)
+    assert ((shares - 100).abs() < 0.5).all(), f"variance shares do not sum to 100%: {list(shares)}"
+    for col in ("dependability_k1", "dependability_k2"):
+        assert va[col].between(0, 1).all(), f"{col} outside [0,1]: {list(va[col])}"
+    assert (va.dependability_k2 >= va.dependability_k1 - 1e-9).all(), \
+        "averaging two judges cannot LOWER dependability — check the G-coefficient formula"
+    pairs = rel.all_pairs_contrasts(jl, pl, n_boot=200)
+    n_complete = len(rel.coverage_table(jl))
+    return (f"{n_complete}/{n_cells} cells complete; {len(metrics)} metrics; variance shares sum "
+            f"to 100%; {int(pairs.same_sign.sum())}/{len(pairs)} pairwise contrasts keep their sign")
+
+
 # ── probe (opt-in, heavy) ─────────────────────────────────────────────────────
 def _c_probe() -> str:
     arms = _discover_or_skip()
@@ -328,11 +427,14 @@ def main(argv: List[str] | None = None) -> int:
     _run("scoring subpackage surface", _c_scoring_surface, results)
     _run("notebook symbol refs resolve", _c_notebook_refs_resolve, results)
     _run("cache mechanism + invalidation", _c_cache_mechanism, results)
+    _run("rubric parity (2nd judge gate)", _c_rubric_parity, results)
     # Data — unless --fast.
     if not fast:
         _run("discover_arms", _c_discover, results)
         _run("scores_long + known means", _c_scores_and_means, results)
         _run("persona permutation", _c_persona_permutation, results)
+        _run("judge dimension routing", _c_judge_dimension, results)
+        _run("multi-judge analysis", _c_multi_judge, results)
     if probe:
         _run("PTO preference probe", _c_probe, results)
 

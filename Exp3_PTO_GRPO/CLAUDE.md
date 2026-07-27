@@ -231,6 +231,15 @@ Exp3_PTO_GRPO/
 │       └── pto_trainer.py               PTOConfig + run_one_iteration + build_pref_pairs_for_conversation + …
 ├── data/                               eval scores co-locate per method, labelled metric=<M>/oracle=<O>/ (M=scoring metric, O=training oracle)
 │   ├── eval_coverage.csv                scoring-coverage snapshot: per model × metric done/todo counts
+│   ├── eval_scores_by_judge/            LOCAL — every judge OTHER than the primary oracle (renamed
+│   │   │                                from judge_check/ 2026-07-27: a second grader is a
+│   │   │                                first-class measurement, not a spot check)
+│   │   ├── judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+│   │   ├── _batches/<tag>/rep=<r>/*.json   Message Batches manifests (submit → collect state)
+│   │   └── summary/                     convenience CSV snapshots from Judge_Reliability
+│   │   ⚠ The PRIMARY oracle stays co-located per method (below) because those dirs are Google
+│   │     Drive symlinks — backed up + reachable from Colab. The asymmetry is about STORAGE, not
+│   │     status: `Arm.eval_dir()` hides it, and the EDA reads either via `EdaConfig.judge`.
 │   ├── grpo_Exp3/                       produced by GRPO_Exp3 runs
 │   │   ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training}/
 │   │   ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
@@ -239,18 +248,25 @@ Exp3_PTO_GRPO/
 │       ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training, pref_pairs/}
 │       ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
 │       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
-├── eda/                                 verified runnable end-to-end
-│   ├── Run_Eval.ipynb                   async oracle pipeline → eval_scores/ (resume-safe; backend: eda_analysis/scoring/, registry-driven)
-│   ├── 1_Outcomes.ipynb …             the 7 tier-based topic notebooks (`1_Outcomes` `2_Questionnaire_Detail`
-│   │     … 7_Stats.ipynb              `3_Validity_and_Hacking` `4_Heterogeneity` `5_Training_and_Reliability`
-│   │                                  `6_Preference` `7_Stats`) ↔ result families 1:1 (+ a `0_headline/` family
-│   │                                  of re-saved presentation figures), [EVAL]/[TRAINING]-tagged,
-│   │                                  endpoint artifacts as final+best pairs — contents table: eda/README.md
-│   ├── render_views.py                         DRIVER: regenerate results/<view>/ for all 7 notebooks via nbconvert (sets EDA_VIEW; --output-dir tmp; --nb takes the notebook/family NUMBER 1..7)
-│   ├── strip_notebook_outputs.py        output-clean helper (paired with the nbstrip git clean-filter)
-│   ├── README.md                        EDA guide: notebook↔family table, VIEW knob, module map, roadmap
-│   ├── LIMITATIONS.md                   documented measurement/inference limitations (for the thesis write-up)
-│   ├── METRICS_REFERENCE.md             cheat-sheet for every EDA number (questionnaires, derived ratios, hack battery)
+├── eda/                                 verified runnable end-to-end (2026-07-27 reorg: notebooks/ docs/ tools/)
+│   ├── README.md                        EDA guide: notebook↔family table, VIEW + JUDGE knobs, module map
+│   ├── notebooks/
+│   │   ├── analysis/                    FREE + reproducible — the 7 tier-based topic notebooks
+│   │   │                                (`1_Outcomes` `2_Questionnaire_Detail` `3_Validity_and_Hacking`
+│   │   │                                `4_Heterogeneity` `5_Training_and_Reliability` `6_Preference`
+│   │   │                                `7_Stats`) ↔ result families 1:1 (+ a `0_headline/` family of
+│   │   │                                re-saved presentation figures), [EVAL]/[TRAINING]-tagged,
+│   │   │                                endpoint artifacts as final+best pairs. Driven by tools/render_views.py
+│   │   └── scoring/                     **$$ PAID + manual** (RUN_* switches; never in render_views):
+│   │                                    `Run_Eval.ipynb` (async oracle pipeline → eval_scores/, resume-safe)
+│   │                                    `Judge_Reliability.ipynb` (ICC + second judge + §3 full sweep)
+│   ├── docs/
+│   │   ├── LIMITATIONS.md               documented measurement/inference limitations (for the thesis write-up)
+│   │   └── METRICS_REFERENCE.md         cheat-sheet for every EDA number (questionnaires, derived ratios, hack battery)
+│   ├── tools/
+│   │   ├── render_views.py              DRIVER: regenerate results/<view>/ via nbconvert (sets EDA_VIEW/EDA_JUDGE;
+│   │   │                                --output-dir tmp; --nb takes the notebook/family NUMBER 1..7; --judge <tag>)
+│   │   └── strip_notebook_outputs.py    output-clean helper (paired with the nbstrip git clean-filter)
 │   ├── eda_analysis/                    THE Exp3 EDA package (one package since the 2026-07-13 fold):
 │   │                                    analysis layer (disk-discovery, read-only) = constants LEAF
 │   │                                    + config / data / plotting_style / stats / behavior / training /
@@ -259,7 +275,7 @@ Exp3_PTO_GRPO/
 │   │                                    subpackage (registry / conversations / pipeline / judge — the
 │   │                                    Run_Eval + Judge_Reliability backend, imported explicitly, not
 │   │                                    via __init__). Module map: eda/README.md § "Package".
-│   ├── results/                         GENERATED thesis artifacts in 3 VIEW trees: all/ · L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md
+│   ├── results/                         GENERATED thesis artifacts in 2 tracked VIEW trees: L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md. A second judge's figures nest one level deeper: <N_family>/<judge_tag>/. (The pooled all/ view was retired 2026-07-27 — renderable, gitignored, not a deliverable.)
 │   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
 │   └── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
 ├── meetings/                            supervisor-facing output ONLY — never imported by code/ or eda/
@@ -274,7 +290,7 @@ Exp3_PTO_GRPO/
 **Thesis artifacts.** `results/<view>/figures/` (`.png`) and `results/<view>/tables/` (`.md`+`.xlsx`)
 are **generated** by `eda_analysis.save_fig`/`save_table` (the `formats=` kwarg can request extras for
 a one-off; per-call `group=` overrides the family, incl. nested subpaths). Each notebook regenerates
-its own family; `python render_views.py` regenerates everything. Reproducible from code; tracked in git.
+its own family; `python tools/render_views.py` regenerates everything. Reproducible from code; tracked in git.
 
 **Change history** (the dated "pass"/"Landed" entries — both the EDA passes and the trainer /
 infrastructure narratives) — moved to [history/CHANGELOG.md](history/CHANGELOG.md). The current state
@@ -293,7 +309,8 @@ files. No more drift.
    drill-down: global scores → per-questionnaire detail → validity/heterogeneity/training/stats);
    everything auto-discovers arms from disk — no registry edits anywhere. The **VIEW knob**
    (`all`/`L0`/`L5`) sets both the arm filter and the `results/<view>/` output root.
-3. **Regenerate:** `python render_views.py` (L0+L5 default, `all` opt-in) → `results/<view>/`.
+3. **Regenerate:** `python tools/render_views.py` (renders the two tracked views, L0+L5) → `results/<view>/`.
+   The pooled `all` view was RETIRED 2026-07-27 — still renderable, but gitignored scratch, not a deliverable.
    Run **`python -m eda_analysis._selfcheck`** after any EDA change.
 
 The VIEW system, `EdaConfig`, parquet cache, output-clean policy, and the package module map are all
@@ -305,7 +322,7 @@ regresses into sycophancy (affirmation-drift reward-hack); both LA5 arms are thi
 - **Status + headline numbers + cost constraint:** root [CLAUDE.md](../CLAUDE.md) § "Current status
   & next step" (the single live copy).
 - **Full narrative + numbers:** [eda/results/L0/SUMMARY.md](eda/results/L0/SUMMARY.md) (primary
-  read) · [all](eda/results/all/SUMMARY.md) · [L5](eda/results/L5/SUMMARY.md); tables under
+  read) · [L5](eda/results/L5/SUMMARY.md); tables under
   `eda/results/<view>/tables/` (`7_stats/main_results.md`, `1_outcomes/leaderboard_scorecard.md`).
 - **The dated 2026-07-08 findings write-up:** [history/CHANGELOG.md](history/CHANGELOG.md) + the
   `project-pto-la0-eval-results` memory.
@@ -314,11 +331,11 @@ regresses into sycophancy (affirmation-drift reward-hack); both LA5 arms are thi
 
 Both trainers score *partial* conversations (slices as short as 2 turns) as the training reward, but
 the thesis evaluates *full* conversations. The diagnostic — rebuilt on Exp3 data with no new oracle
-calls in [5_Training_and_Reliability.ipynb](eda/5_Training_and_Reliability.ipynb) (from the
+calls in [5_Training_and_Reliability.ipynb](eda/notebooks/analysis/5_Training_and_Reliability.ipynb) (from the
 per-branch `prefix` in `generations.jsonl`); the original Exp2 version motivated the MCL knob —
 shows pairwise rank agreement with the final-conv score is **barely above chance at `n_turns=2` and
 only clears 0.8/0.9 at ~10/~30 turns**, a structural gap well above oracle reproducibility noise.
-Numbers + method: [eda/METRICS_REFERENCE.md](eda/METRICS_REFERENCE.md) § 6.
+Numbers + method: [eda/docs/METRICS_REFERENCE.md](eda/docs/METRICS_REFERENCE.md) § 6.
 
 **Implication.** Short training cuts can't observe whether the therapist delivered on Q1/Q2 by
 session end, so the oracle scores them on "did the opening look promising?" — optimizing that proxy
@@ -354,7 +371,7 @@ Different sweep arms write to disjoint dirs — runs never collide.
 1. **Configure.** [code/GRPO_Exp3/train_GRPO_Iterative.ipynb](code/GRPO_Exp3/train_GRPO_Iterative.ipynb) cell 1 = flat globals.
 2. **Train.** Run top-to-bottom. The orchestration loop is in the notebook (cells after `cfg = TrainingConfig(...)`), composed from `run_one_iteration` / `run_final_eval` in [grpo_trainer.py](code/GRPO_Exp3/grpo_trainer.py). Resumes from latest completed iter via [_shared.resolve_start_state](code/_shared/model.py). Outputs under `data/grpo_Exp3/runs/<MODE_TAG>/<EXPERIMENT_NAME>/`; per-run `run_metadata.json` at the run root.
 3. **Inspect.** Last cell: `scan_scalar_tags` + `plot_iteration_metrics` + inline TensorBoard. `plot_iteration_metrics` applies per-iteration step offsets so cross-iter curves chain end-to-end (dotted vlines mark iter boundaries).
-4. **Score + EDA.** Run [eda/Run_Eval.ipynb](eda/Run_Eval.ipynb) (resume-safe; its `EXPERIMENTS` registry auto-discovers the run from disk — no registry edit) → then open [eda/1_Outcomes.ipynb](eda/1_Outcomes.ipynb) (and `2`–`7`), which likewise **auto-discover** it. See "EDA workflow".
+4. **Score + EDA.** Run [eda/notebooks/scoring/Run_Eval.ipynb](eda/notebooks/scoring/Run_Eval.ipynb) (resume-safe; its `EXPERIMENTS` registry auto-discovers the run from disk — no registry edit) → then open [eda/notebooks/analysis/1_Outcomes.ipynb](eda/notebooks/analysis/1_Outcomes.ipynb) (and `2`–`7`), which likewise **auto-discover** it. See "EDA workflow".
 
 ## Running PTO_Exp3
 
@@ -495,7 +512,12 @@ figures → the topic module in `plotting/` (+ its `__init__` re-export); a new 
 - **`scoring/registry.py::COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
 - **`scoring/registry.py::EXPERIMENTS`** — registry of trained-model data locations, **auto-generated at import** by `build_experiments_from_disk()` from `eda_analysis.data.discover_arms()` (2026-07-11). New runs are picked up automatically once their conversations land; nothing to edit. (If the Drive symlinks are offline the registry is empty and a warning prints.)
 - **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs stay under `data/judge_check/`, never the real `eval_scores/`. **Claude judges:** `json_schema` rejects `minimum`/`maximum`/`minItems`/`maxItems` (folded into `description` instead — do NOT just drop them, or the array-shaped rubrics lose their one-score-per-item guarantee), and Sonnet 5 / Opus 4.8+ need `thinking={"type":"disabled"}` or adaptive thinking eats `max_tokens`.
-- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/judge_check/`: ICC/agreement/contrast tables for `5_Training_and_Reliability` §7, with figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge.py` and the presentation here, so judge results render inside `render_views.py`.
+- **`scoring/judge_plan.py`** (FREE pre-flight, no API) — `check_rubric_parity()` is **the gate before any second-judge spend**: it verifies every constraint stripped for Claude was restated in `description` and the encodings are otherwise structurally identical. Runs automatically in `_selfcheck`. Also `prefix_report()` (which rubrics actually prompt-cache), `plan_sweep()` (coverage-aware call count, skips existing CSVs), `estimate_cost`/`sweep_report`. **Pricing lives in `JUDGE_PRICING` — verify against the billing dashboard before quoting a number.**
+- **`scoring/judge_batch.py`** (PAID) — the full-sweep path via **Anthropic Message Batches (50% off)**: `submit_sweep` → `poll_batches` → `collect_batches`, three separate phases with manifests persisted under `data/judge_check/_batches/` so collection works from a fresh kernel. `custom_id` is an opaque index into that manifest, never an encoded path (model+metric+oracle overflows the 64-char limit and a truncation collision would write a score to the wrong model's folder). Anthropic-only by design — the primary judge already has a full rep, and extra reps are cheap enough for the live path.
+- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/judge_check/`: ICC/agreement/contrast tables for `5_Training_and_Reliability` §7, plus the **multi-judge** layer for §8 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_views.py`.
+  - ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the second judge is held out — that is train-vs-test, not two raters. The level offset is 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to every effect. Combine only contrasts or standardized quantities.
+  - ⚠ **Pair on `persona_id`, not `file_index`** (`attach_persona`). The 96 personas are reshuffled each iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it; `dz` and CIs do not.
+- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with all 22,272 conversations already scored.
 
 ## Gotchas
 

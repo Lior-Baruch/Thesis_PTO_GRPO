@@ -24,7 +24,7 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `2_Questionnaire_Detail.ipynb` | `2_questionnaires/` | **Level 2 — one uniform detail section per rubric:** Q1/Q2/WAI-SR/CSQ-8/MI-SAT item grids (`<slug>_detail_grid`) + item-delta bars final+best (`<slug>_item_deltas_*`) · Q2 face-content groups · WAI subscales · MITI detail grid (globals + 7 behaviour rates + ratios; zooms in `miti/`) + **official MITI 4.2.1 thresholds** · PCT detail (`pct/`) · MICI detail (`mici/`) |
 | `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
-| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation, read from `data/judge_check/`) |
+| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation) · **multi-judge §8** (variance decomposition, gain retention, all-pairs contrasts, concordance-vs-effect-size) — both read from `data/eval_scores_by_judge/` |
 | `6_Preference.ipynb` | `6_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
 | `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · **best-vs-best method contrast (`method_paired_best`)** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 
@@ -43,25 +43,33 @@ S    = eda_analysis.notebook_setup(cfg)
 
 | `view` | arms kept | writes to |
 |---|---|---|
-| `all` | every arm (PTO/GRPO × LA0/LA5) | `results/all/…` |
+| `all` | every arm (PTO/GRPO × LA0/LA5) | `results/all/…` — **RETIRED as a deliverable (2026-07-27)**: gitignored scratch, still renderable |
 | `L0`  | K=0 arms (`PTO_LA0`, `GRPO_LA0`) | `results/L0/…` |
 | `L5`  | K=5 arms (`PTO_LA5`, `GRPO_LA5`, thin) | `results/L5/…` |
 
-So `results/` holds three parallel trees. Edit the `VIEW` default for interactive use, or set the
-`EDA_VIEW` env var. An explicit `ks=[...]` overrides the view's arm filter (the view is a convenience
+So `results/` holds **two** tracked trees, `L0` and `L5`.
+
+> **`all` was retired on 2026-07-27.** It existed to compare L0 against L5, but with the K=5 arms
+> thin and paused that comparison isn't live, and a future look-ahead comparison will get its own
+> dedicated view rather than a pooled one. `all` still *renders*
+> (`python tools/render_views.py all`) as ad-hoc scratch, but `results/all/` is gitignored and is
+> no longer a tracked deliverable. Its hand-authored narrative is recoverable with
+> `git show HEAD:Exp3_PTO_GRPO/eda/results/all/SUMMARY.md`.
+
+Edit the `VIEW` default for interactive use, or set the `EDA_VIEW` env var. An explicit `ks=[...]` overrides the view's arm filter (the view is a convenience
 default). Each view root also has a hand-authored **`SUMMARY.md`** (the written analysis) and an
 auto-generated **`INDEX.md`** (the artifact map).
 
 ### Regenerate every view
 ```
-python render_views.py            # every view × 7 notebooks via nbconvert
-python render_views.py L0         # just the L0 view
-python render_views.py L5 --nb 3  # one view, one notebook (--nb takes the notebook/family NUMBER: 3 = 3_Validity_and_Hacking)
+python tools/render_views.py            # the tracked views (L0 + L5) × 7 notebooks
+python tools/render_views.py L0         # just the L0 view
+python tools/render_views.py L5 --nb 3  # one view, one notebook (--nb takes the notebook/family NUMBER: 3 = 3_Validity_and_Hacking)
 ```
-`render_views.py` sets `EDA_VIEW` per run and executes each notebook to a throwaway `--output-dir`
+`tools/render_views.py` sets `EDA_VIEW` per run and executes each notebook to a throwaway `--output-dir`
 (so the committed notebooks' outputs aren't churned — only the `results/` tree is the deliverable).
 **Committed notebooks are kept output-clean** by `strip_notebook_outputs.py` (zero-dependency): run
-it in place (`python strip_notebook_outputs.py`), as a regression guard (`--check`), or wire it as a
+it in place (`python tools/strip_notebook_outputs.py`), as a regression guard (`--check`), or wire it as a
 git clean filter (see the `.gitattributes` note) so `git add` strips outputs automatically while the
 working tree keeps them for viewing.
 Needs the venv kernel `thesis-venv313` (register once:
@@ -70,7 +78,7 @@ Needs the venv kernel `thesis-venv313` (register once:
 
 ## Configuring a notebook (`EdaConfig`)
 `EdaConfig` is the single flat-globals control surface (`eda_analysis/config.py`). `EdaConfig()` =
-the `all` view / all present metrics. Knobs beyond `view`:
+the `all` arm filter (every arm) / all present metrics; notebooks set `view=VIEW` explicitly. Knobs beyond `view`:
 - **Arms:** `methods` (`["PTO"]`), `ks` (overrides the view's K filter), `modes`, `arm_labels`,
   `include_archived`.
 - **Metrics:** `metrics` (explicit ordered subset), `add_derived_mitiprof` (free R:Q/%CR/%MICO),
@@ -90,7 +98,7 @@ the `all` view / all present metrics. Knobs beyond `view`:
   (gitignored). Content-keyed on the input CSVs' `(name, size, mtime)`, so a re-score / re-gen
   auto-invalidates; it can never serve stale numbers. Bypass with `EdaConfig(cache=False)`, the
   `EDA_NO_CACHE=1` env var, or `eda_analysis.reset_cache()`. Different arm-subsets (L0 vs L5) cache
-  independently, so `render_views.py` builds each frame once then reads it across notebooks.
+  independently, so `tools/render_views.py` builds each frame once then reads it across notebooks.
 
 **Per-figure control.** Trajectory plots take `arms=`/`iters=`/`metric=`; slice `S.SCORES` with
 plain pandas (e.g. `S.SCORES[S.SCORES.arm.isin([...])]`) to point any figure at a subset.
@@ -119,12 +127,97 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    a subset: oracle repeatability (ICC, per-rep seeds) + a pluggable **second judge** (Claude via the
    `anthropic` SDK, or another OpenAI model) with the PTO−GRPO contrast-preservation check. Gated
    behind explicit `RUN_*` flags; writes to `data/judge_check/` (never the real `eval_scores/`);
-   NOT part of `render_views.py`. Backing module: `eda_analysis/scoring/judge.py`. Addresses
+   NOT part of `tools/render_views.py`. Backing module: `eda_analysis/scoring/judge.py`. Addresses
    `LIMITATIONS.md` §1–§2 (measured 2026-07-26 with Claude Haiku 4.5 as the second judge).
+   Its **§3 promotes the second judge to a full sweep** — all 29 model states × all 8 rubrics —
+   through `scoring/judge_plan.py` (free pre-flight: rubric-parity gate, coverage plan, cost model)
+   and `scoring/judge_batch.py` (Anthropic Message Batches, 50% off, submit/poll/collect).
    **Presentation is split off deliberately:** this notebook only *scores*;
-   `5_Training_and_Reliability` §7 *reads* the same tree via `eda_analysis/reliability.py` (no API
-   calls) and exports the tracked tables + figures — same paid-pipeline/free-notebook split as
-   `Run_Eval` → notebooks 1–7, which keeps `render_views.py` fully reproducible without spending.
+   `5_Training_and_Reliability` §7–§8 *read* the same tree via `eda_analysis/reliability.py` (no API
+   calls) and export the tracked tables + figures — same paid-pipeline/free-notebook split as
+   `Run_Eval` → notebooks 1–7, which keeps `tools/render_views.py` fully reproducible without spending.
+
+   > **Run the parity gate before any second-judge spend.** Claude's `json_schema` rejects
+   > `minimum`/`maxItems`/…, so those are folded into `description`; `check_rubric_parity()`
+   > verifies each dropped constraint was restated and that the encodings are otherwise identical.
+   > It runs automatically in `python -m eda_analysis._selfcheck`.
+   >
+   > **Prompt caching, measured not assumed:** only **Q1 (~1.1k tok) and Q2 (~2.2k tok)** clear
+   > OpenAI's 1,024-token cacheable-prefix minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too
+   > short (403–507 tok); MITI/PCT/MICI interpolate a *per-conversation* utterance count into the
+   > instructions **ahead of** the rubric, truncating their prefix to 138–206 tok. Haiku 4.5's
+   > minimum is 4,096, so a Claude judge never caches — confirmed empirically
+   > (`cached_input_tokens = 0` on every probe call). **This is documented, not fixed** — those
+   > counts are the rate metrics' denominators, and changing the prompt would break comparability
+   > with every conversation already scored, for a discount that still would not materialize.
+   >
+   > **Two quantities that are easy to confuse when costing a sweep** (`prefix_report` returns
+   > both): `prefix_tokens_approx` is the *cacheable* prefix and drives the **discount**;
+   > `fixed_prompt_tokens_approx` is the whole instruction+rubric block and drives the **input
+   > cost**. They diverge sharply on MITI/PCT/MICI (138–206 vs ~1,000 tok) because of the
+   > utterance-count invalidator above, so costing off the cacheable prefix underestimates input by
+   > ~25%. Likewise `judge_batch.probe_usage` samples at quantile **midpoints**: spreading
+   > endpoint-to-endpoint puts the shortest *and* longest transcript in the sample, which at
+   > `n=2` is `(min + max) / 2` — 2.1× the true mean on this right-skewed data.
+
+## Judge dimension — running the EDA under a second grader
+
+`VIEW` and `JUDGE` are **orthogonal knobs**: `VIEW` filters which *arms* are analysed, `JUDGE`
+selects which *grader's scores* are read.
+
+| `JUDGE` | Reads | Writes |
+|---|---|---|
+| `""` (default) | `data/<method>_Exp3/eval_scores/` — the primary oracle, the numbers the thesis reports | `results/<view>/figures/<family>/` (**unchanged**) |
+| `anthropic_claude-haiku-4-5` | `data/eval_scores_by_judge/judge=<tag>/rep=<r>/` | `results/<view>/figures/<family>/<tag>/` |
+
+> **Why the two score trees differ in location.** The primary oracle's scores sit *inside each
+> method's run directory* (`data/{grpo,pto}_Exp3/eval_scores/`) because those are **Google Drive
+> symlinks** — backed up and reachable from Colab. Other judges score into a **local**
+> `data/eval_scores_by_judge/` tree. The split is about **storage**, not status: both use the same
+> `metric=/oracle=/<Model>/<id>.csv` layout, and `Arm.eval_dir()` hides the difference so no
+> analysis ever needs to know. (Renamed from `judge_check/` on 2026-07-27 — that name framed a
+> second grader as a validation aside, but a judge here has now scored the same full grid as the
+> primary.)
+
+```
+results/L0/figures/1_outcomes/
+├── outcomes_by_model.png                    ← primary oracle (flat)
+├── effect_forest.png
+└── anthropic_claude-haiku-4-5/              ← same family, second judge
+    ├── outcomes_by_model.png
+    └── effect_forest.png
+```
+
+The **judge is the deepest level**, so a family's output from every grader sits side by side and
+compares in one glance. The primary stays **flat** so every existing artifact, `SUMMARY.md` link
+and cross-reference keeps working — adding a grader must not move a path the thesis already cites.
+This works at all because `scoring/judge*.py` writes its CSVs in the *identical*
+`metric=/oracle=/<Model>/<file_index>.csv` layout with identical column names, so `Arm.eval_dir()`
+only has to swap a root.
+
+`reset_results()` is **judge-scoped**: with a judge active it clears only `<family>/<judge>/`, never
+the family folder itself. Otherwise a routine `--judge` regenerate would delete the primary tree.
+
+```bash
+python tools/render_views.py                                       # primary oracle (unchanged)
+python tools/render_views.py --judge anthropic_claude-haiku-4-5    # the same EDA, Claude's scores
+python tools/render_views.py --judge anthropic_claude-haiku-4-5 --nb 1 7   # just outcomes + stats
+```
+
+> ⚠ **Only eval-score-derived notebooks are judge-swappable.** Notebooks **1, 2, 3, 4, 7** read
+> `scores_long` / the oracle behaviour counts and re-grade cleanly. Notebooks **5 and 6** are
+> **training-side** — candidate rewards in `generations.jsonl`, PTO preference pairs, TensorBoard
+> curves — all produced by the *training* oracle during the run and impossible to re-grade after
+> the fact. Re-rendering them under a second judge would emit byte-identical figures into that
+> judge's folder, implying a measurement that never happened, so both the notebook (a `SystemExit`
+> guard in cell 1) and `render_views.py --judge` (skips them, with a printed reason) refuse.
+> The genuinely multi-judge work lives in `5_Training_and_Reliability` §7–§8, which reads
+> `data/judge_check/` directly and puts **both** graders in the same figure.
+
+**Coverage is checked, not assumed.** `notebook_setup` warns loudly when a judge has not scored
+every conversation of every arm — a partially-landed sweep otherwise yields arm means that look
+like the primary's but rest on smaller, unequal samples, and persona-paired contrasts between two
+such arms overlap on only a fraction of personas.
 
 ## Package (`eda_analysis/`) — analysis modules on a `constants` leaf + `scoring/` and `plotting/` subpackages
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
@@ -185,11 +278,18 @@ behind an unchanged public surface.
   `tb_curves`/`parse_run_tb` (self-contained TensorBoard parse, no torch/trl).
 - **`pref`** — PTO Mass-Mean-Probe (word ranking/drift, `preference_direction_drift`,
   `learn_unlearn_words`, MI-concept projection).
-- **`reliability`** — MEASUREMENT-validity tables from the `data/judge_check/` re-scoring tree:
-  `repeatability` (ICC(2,1) + mean |Δ|), `agreement` (second judge vs primary + attenuation
-  ceiling), `contrasts` (does each endpoint contrast keep its sign?), `arm_means_by_judge`,
-  `summary_line`. Disk-only — the paid scoring lives in `scoring/judge.py`; this is the free
-  read side that `5_Training_and_Reliability` §7 renders.
+- **`reliability`** — MEASUREMENT-validity tables from the `data/judge_check/` re-scoring tree.
+  Disk-only — the paid scoring lives in `scoring/judge*.py`; this is the free read side.
+  - *§7 (single-judge validity):* `repeatability` (ICC(2,1) + mean |Δ|), `agreement` (second judge
+    vs primary + attenuation ceiling), `contrasts` (does each endpoint contrast keep its sign?),
+    `arm_means_by_judge`, `summary_line`.
+  - *§8 (multi-judge):* `variance_components_conversation` / `variance_components_arm` (two-way
+    random-effects decomposition → arm vs judge-level vs **arm×judge**, plus `dependability_k1/k2`),
+    `gain_retention` (the reward-hacking transfer test, persona-bootstrap CI), `all_pairs_contrasts`
+    (every model pair, paired on the recovered `persona_id` — see `attach_persona`, since
+    `file_index` is reshuffled per iteration), `concordance_by_effect_size`,
+    `multi_judge_summary_line`. **Never averages raw scores across judges** — the primary judge was
+    the training reward and the second is held out, so this is train-vs-test, not two raters.
 - **`exports`** — `save_fig` (PNG) / `save_table` (MD+XLSX) → `results/<view>/<group>/`;
   `set_view` / `set_export_group` / `set_formats` / `save_provenance` / `build_index` /
   `reset_results` (clears the active view's figures/tables; **preserves `SUMMARY.md`**).
@@ -201,7 +301,12 @@ behind an unchanged public surface.
   `ScoringConfig`, formerly `EDAConfig`) · `conversations` (scoring-side conversation loading +
   model-name metadata) · `pipeline` (the async oracle pipeline behind `Run_Eval.ipynb`; formerly
   `eval.py`) · `judge` (the `Judge_Reliability.ipynb` backend — pluggable OpenAI/Anthropic judges,
-  ICC(2,1), agreement + contrast-preservation stats).
+  ICC(2,1), agreement + contrast-preservation stats) · `judge_plan` (**free pre-flight** for a full
+  sweep: `check_rubric_parity` — the gate that both judges receive the same rubric —
+  `prefix_report` (which rubrics actually prompt-cache), `plan_sweep` (coverage-aware call count),
+  `estimate_cost` / `sweep_report`) · `judge_batch` (the **Anthropic Message Batches** path, 50% off:
+  `submit_sweep` → `poll_batches` → `collect_batches`, three phases with disk-persisted manifests so
+  a fresh kernel can collect; plus `probe_usage` for a measured token profile).
 - **`_selfcheck`** — the guard: package invariants + the scoring surface + known headline means +
   cache round-trip. Run `python -m eda_analysis._selfcheck` after any EDA change.
 - **`__init__`** — thin re-export hub: re-exports the `constants` leaf + every analysis submodule's
@@ -209,7 +314,7 @@ behind an unchanged public surface.
 
 ## Adding a new run
 Train → it writes `conversations/full/<EXP>/model_iter_*` → `Run_Eval` (the registry auto-discovers
-the run) → the notebooks pick it up automatically (re-run `python render_views.py`).
+the run) → the notebooks pick it up automatically (re-run `python tools/render_views.py`).
 
 ## Results
 Not duplicated here (so they can't drift). The full narrative + numbers live in

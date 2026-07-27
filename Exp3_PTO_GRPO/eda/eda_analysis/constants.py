@@ -284,3 +284,68 @@ PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
 # sanity-check on the oracle's affirmation counts, NOT a primary metric — shared by
 # ``behavior`` (lex_affirm_marker_rate) and ``pref`` (chosen/rejected text features).
 RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|brave|amazing|a )", re.I)
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  ACTIVE JUDGE — which grader's scores the whole EDA reads                     ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# Orthogonal to the VIEW (which filters ARMS). The judge selects the SCORE SOURCE:
+#   ""                              -> the production eval_scores/ tree (primary oracle, default)
+#   "anthropic_claude-haiku-4-5"    -> data/eval_scores_by_judge/judge=<tag>/rep=<r>/ (a second judge)
+#
+# State lives here, in the leaf, so BOTH `data` (which resolves per-metric score directories) and
+# `exports` (which routes results/) can read it without an import cycle. Set it once per session
+# via `EdaConfig.judge` -> `notebook_setup`; never poke these globals directly from a notebook.
+#
+# ⚠ ONLY EVAL-SCORE-DERIVED ANALYSES ARE JUDGE-SWAPPABLE. Anything reading the training side —
+# `generations.jsonl` candidate rewards, PTO preference pairs, TensorBoard curves — was produced by
+# the TRAINING oracle during the run and cannot be re-graded after the fact. Re-rendering those
+# under a second judge would emit byte-identical figures into that judge's folder, implying a
+# measurement that never happened. `notebook_setup` warns when a training-side notebook runs with a
+# non-primary judge; see eda/README.md § "Judge dimension".
+
+# Every judge OTHER than the primary oracle scores into this tree. Named for what it holds
+# (eval scores, partitioned by judge) rather than "judge_check" — that framed a second grader as a
+# spot check, but a judge here has now scored the same full grid as the primary and is a
+# first-class measurement, not a validation aside.
+#
+# The primary oracle deliberately stays co-located with the run that produced it
+# (data/<method>_Exp3/eval_scores/), because that tree is a Google Drive symlink and therefore
+# backed up + reachable from Colab. This tree is local-only. The asymmetry is about STORAGE, not
+# status; `Arm.eval_dir()` hides it from every analysis.
+EVAL_SCORES_BY_JUDGE = os.path.join(DATA_DIR, "eval_scores_by_judge")
+JUDGE_PARTITION = "judge="            # key=value partition level, matching metric=/oracle=/rep=
+
+# Back-compat alias (the old name is still referenced by scoring/judge.py's public surface).
+JUDGE_CHECK_ROOT = EVAL_SCORES_BY_JUDGE
+
+
+def judge_partition_dir(tag: str) -> str:
+    """``<EVAL_SCORES_BY_JUDGE>/judge=<tag>`` — the root of one judge's scores."""
+    return os.path.join(EVAL_SCORES_BY_JUDGE, f"{JUDGE_PARTITION}{tag}")
+
+_ACTIVE_JUDGE = ""
+_ACTIVE_JUDGE_REP = 0
+
+
+def set_active_judge(tag: str = "", rep: int = 0) -> None:
+    """Select the score source for every subsequent load. ``""`` = the primary eval_scores tree."""
+    global _ACTIVE_JUDGE, _ACTIVE_JUDGE_REP
+    _ACTIVE_JUDGE = (tag or "").strip().strip("/\\")
+    _ACTIVE_JUDGE_REP = int(rep)
+
+
+def active_judge() -> str:
+    """Active judge tag, or ``""`` for the primary oracle's ``eval_scores/`` tree."""
+    return _ACTIVE_JUDGE
+
+
+def active_judge_rep() -> int:
+    return _ACTIVE_JUDGE_REP
+
+
+def judge_label(tag: str = None) -> str:
+    """Short human label for figure titles / folder names (``""`` -> ``primary``)."""
+    t = active_judge() if tag is None else tag
+    return t.split("_", 1)[-1] if t else "primary"

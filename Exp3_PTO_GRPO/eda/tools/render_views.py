@@ -42,7 +42,15 @@ import subprocess
 import sys
 import tempfile
 
-HERE = os.path.dirname(os.path.abspath(__file__))
+HERE = os.path.dirname(os.path.abspath(__file__))          # .../eda/tools
+EDA_DIR = os.path.dirname(HERE)                            # .../eda
+NB_DIR = os.path.join(EDA_DIR, "notebooks", "analysis")    # the seven free analysis notebooks
+
+# This script lives in eda/tools/, so Python puts TOOLS on sys.path — not eda/. Anything here
+# that imports the package (the --judge validation) needs eda/ added explicitly; without it the
+# import fails only on that one branch, which is exactly the kind of gap a smoke test misses.
+if EDA_DIR not in sys.path:
+    sys.path.insert(0, EDA_DIR)
 # VIEWS = the views that MAY be requested. DEFAULT_VIEWS = what a bare run renders. `all` is a
 # merged SUPERSET of L0+L5 that rarely earns its render cost, so it is opt-in (request it
 # explicitly). A new K view (e.g. L2) is added here + in config._VIEW_KS once its data lands.
@@ -64,24 +72,32 @@ TIMEOUT = 1800  # seconds per notebook (the preference embedding cell is the slo
 MAX_PARALLEL_VIEWS = 4  # cap default parallelism — each concurrent view is one live nbconvert kernel
 
 
-def run_one(view: str, nb: str, outdir: str) -> bool:
-    """Execute one notebook under EDA_VIEW=<view>; return True on success."""
+# Notebooks that read the TRAINING side (candidate rewards, preference pairs, TB curves). Those
+# scores were produced by the training oracle during the run and cannot be re-graded, so a
+# --judge render skips them rather than emitting byte-identical figures under another grader's name.
+TRAINING_SIDE_NOTEBOOKS = {"5_Training_and_Reliability.ipynb", "6_Preference.ipynb"}
+
+
+def run_one(view: str, nb: str, outdir: str, judge: str = "") -> bool:
+    """Execute one notebook under EDA_VIEW=<view> (+ EDA_JUDGE=<judge>); True on success."""
     env = {**os.environ, "EDA_VIEW": view, "WANDB_MODE": "offline"}
+    if judge:
+        env["EDA_JUDGE"] = judge
     cmd = [
         sys.executable, "-m", "jupyter", "nbconvert", "--to", "notebook", "--execute",
         f"--ExecutePreprocessor.kernel_name={KERNEL}",
         f"--ExecutePreprocessor.timeout={TIMEOUT}",
         "--output-dir", outdir,
-        os.path.join(HERE, nb),
+        os.path.join(NB_DIR, nb),
     ]
-    print(f"[render] view={view:<3} nb={nb}", flush=True)
-    res = subprocess.run(cmd, env=env, cwd=HERE)
+    print(f"[render] view={view:<3} judge={judge or 'primary':<28} nb={nb}", flush=True)
+    res = subprocess.run(cmd, env=env, cwd=NB_DIR)
     if res.returncode != 0:
         print(f"[render] FAILED view={view} nb={nb} (exit {res.returncode})", flush=True)
     return res.returncode == 0
 
 
-def run_view(view: str, notebooks, tmp_root: str):
+def run_view(view: str, notebooks, tmp_root: str, judge: str = ""):
     """Render every notebook of ONE view, sequentially; return the list of (view, nb) failures.
 
     Sequential within a view is REQUIRED: the notebooks share that view's ``INDEX.md`` + per-family
@@ -93,7 +109,7 @@ def run_view(view: str, notebooks, tmp_root: str):
     """
     outdir = os.path.join(tmp_root, view)
     os.makedirs(outdir, exist_ok=True)
-    return [(view, nb) for nb in notebooks if not run_one(view, nb, outdir)]
+    return [(view, nb) for nb in notebooks if not run_one(view, nb, outdir, judge)]
 
 
 def main(argv=None) -> int:
@@ -106,6 +122,10 @@ def main(argv=None) -> int:
                          "e.g. 3 = 3_Validity_and_Hacking); default = all seven")
     ap.add_argument("--jobs", "-j", type=int, default=None,
                     help=f"parallel views (default = #views, capped at {MAX_PARALLEL_VIEWS}); 1 = sequential")
+    ap.add_argument("--judge", default="",
+                    help="score source: '' = the primary oracle (default), or a judge tag such as "
+                         "anthropic_claude-haiku-4-5 -> results/judges/<tag>/<view>/. Training-side "
+                         "notebooks (5, 6) are skipped for a non-primary judge.")
     ap.add_argument("--list", action="store_true", help="print the view/notebook lists and exit")
     args = ap.parse_args(argv)
 
@@ -126,6 +146,20 @@ def main(argv=None) -> int:
         notebooks = [NB_BY_NUMBER[n] for n in args.nb]
     else:
         notebooks = NOTEBOOKS
+    if args.judge:
+        from eda_analysis import reliability as _rel
+        known = _rel.judge_tags()
+        if args.judge not in known:
+            ap.error(f"unknown judge {args.judge!r}; scored judges on disk: {known or '(none)'}")
+        skipped = [n for n in notebooks if n in TRAINING_SIDE_NOTEBOOKS]
+        notebooks = [n for n in notebooks if n not in TRAINING_SIDE_NOTEBOOKS]
+        if skipped:
+            print(f"[render] judge={args.judge}: skipping training-side notebook(s) "
+                  f"{', '.join(skipped)} — their scores come from the training oracle and "
+                  f"cannot be re-graded.", flush=True)
+        if not notebooks:
+            print("[render] nothing to render for this judge.")
+            return 0
     jobs = args.jobs if args.jobs is not None else min(len(views), MAX_PARALLEL_VIEWS)
     jobs = max(1, min(jobs, len(views)))
 
@@ -133,12 +167,12 @@ def main(argv=None) -> int:
     with tempfile.TemporaryDirectory(prefix="eda_render_") as tmp:
         if jobs == 1:
             for view in views:
-                failures += run_view(view, notebooks, tmp)
+                failures += run_view(view, notebooks, tmp, args.judge)
         else:
             print(f"[render] {len(views)} view(s) x {len(notebooks)} notebook(s), "
                   f"{jobs} views in parallel", flush=True)
             with cf.ThreadPoolExecutor(max_workers=jobs) as ex:
-                for fails in ex.map(lambda v: run_view(v, notebooks, tmp), views):
+                for fails in ex.map(lambda v: run_view(v, notebooks, tmp, args.judge), views):
                     failures += fails
 
     print("\n" + "=" * 60)

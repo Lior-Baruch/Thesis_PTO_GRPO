@@ -40,7 +40,9 @@ import sys
 from glob import glob
 from typing import List, Tuple
 
-_HERE = os.path.dirname(os.path.abspath(__file__))
+_HERE = os.path.dirname(os.path.abspath(__file__))         # .../eda/tools
+_EDA_DIR = os.path.dirname(_HERE)                          # .../eda
+_NB_ROOT = os.path.join(_EDA_DIR, "notebooks")
 # Per-cell metadata keys that only record a specific execution — safe to drop.
 _EXEC_META_KEYS = ("execution", "collapsed", "scrolled")
 
@@ -77,8 +79,8 @@ def _dump(nb: dict) -> str:
 def _targets(args: List[str]) -> List[str]:
     paths = [a for a in args if not a.startswith("-")]
     if paths:
-        return [p if os.path.isabs(p) else os.path.join(_HERE, p) for p in paths]
-    return sorted(glob(os.path.join(_HERE, "*.ipynb")))
+        return [p if os.path.isabs(p) else os.path.join(_EDA_DIR, p) for p in paths]
+    return sorted(glob(os.path.join(_NB_ROOT, "**", "*.ipynb"), recursive=True))
 
 
 def main(argv: List[str] | None = None) -> int:
