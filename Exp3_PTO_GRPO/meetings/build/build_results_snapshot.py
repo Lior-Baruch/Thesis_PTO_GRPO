@@ -25,9 +25,19 @@ L0T  = os.path.join(ROOT, "eda", "results", "L0", "tables")
 L5F  = os.path.join(ROOT, "eda", "results", "L5", "figures")
 OUT  = os.path.join(ROOT, "meetings", "2026-07-26", "results_snapshot_2026-07-26.pptx")
 
-def f0(p): return os.path.join(L0F, *p.split("/"))
-def t0(p): return os.path.join(L0T, *p.split("/"))
-def f5(p): return os.path.join(L5F, *p.split("/"))
+# Since 2026-07-28 every grader has its own leaf: results/<view>/figures/<family>/<judge>/<name>.
+# The decks show the PRIMARY grader's figures, so the judge segment is injected here rather than
+# spelled out at ~40 call sites. Point JUDGE at another grader to rebuild the same deck off it.
+JUDGE = "gpt-4o-mini"
+
+def _jp(base, p):
+    """``<base>/<family>[/<sub>]/<JUDGE>/<name>`` — judge goes ahead of the FILENAME, not the family."""
+    *parts, name = p.split("/")
+    return os.path.join(base, *parts, JUDGE, name)
+
+def f0(p): return _jp(L0F, p)
+def t0(p): return _jp(L0T, p)
+def f5(p): return _jp(L5F, p)
 
 NAVY  = RGBColor(0x1F,0x3A,0x5F); PTO = RGBColor(0x00,0x72,0xB2)
 GRPO  = RGBColor(0xE6,0x9F,0x00); GREY= RGBColor(0x5A,0x5A,0x5A)

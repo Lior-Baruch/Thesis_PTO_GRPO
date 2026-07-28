@@ -105,27 +105,44 @@ here — see "Doc map"). Updated 2026-07-08.
   matching the primary oracle's grid exactly. Cost **$42** via Message Batches (50% off; measured
   3,621 input + 71 output tokens/call). The whole EDA now runs under either grader:
   `python tools/render_views.py --judge anthropic_claude-haiku-4-5` → artifacts nest at
-  `results/<view>/figures/<family>/<judge>/` (primary stays flat). Notebooks 5+6 **refuse** a
+  `results/<view>/figures/<family>/<judge>/` — **every** grader nests under its short label
+  (`gpt-4o-mini/`, `claude-haiku-4-5/`) since 2026-07-28; the primary is no longer flat, so a figure
+  path always names the grader that produced it. Notebooks 5+6 **refuse** a
   second judge — they read the training side, which cannot be re-graded after the fact.
 - **Multi-judge EDA — BUILT 2026-07-27** (was queued 2026-07-26). Lands as
   `5_Training_and_Reliability` **§8** (free, in `tools/render_views.py`) + `Judge_Reliability.ipynb` **§3**
   (the paid full sweep). Headline results, now on the FULL 29-arm grid:
-  - **18/18 pairwise contrasts keep their sign** (was 6/6 — only two hand-picked pairs were ever
-    checked). The two newly covered are the ones the thesis leans on hardest: the best-vs-best
+  ⚠ **Numbers below are the `L0` view (22 arms), the tracked deliverable.** Pre-2026-07-28 versions
+  of this block quoted the pooled 29-arm `all` view, which is now gitignored scratch and therefore
+  not reproducible from a tracked artifact. Same story, ±1–2 percentage points.
+  - **18/18 pairwise contrasts keep their sign** on the six the thesis leans on hardest (was 6/6 —
+    only two hand-picked pairs were ever checked); the two newly covered are the best-vs-best
     steelman (PTO@10 − GRPO@8) and the regression claim (GRPO@8 − GRPO@10). Bootstrap CIs exclude
     zero on all but MICI GRPO@8 − PTO@10.
-  - **Variance decomposition** (29 arms × 2 judges): arm-mean variance is 5–73% arm, 22–93% judge
-    *level*, and only **1.1–6.5% arm×judge** — the judges disagree about level, not about arm
-    ordering. Dependability of an arm mean off ONE judge = 0.87–0.95 on seven rubrics.
-    ⚠ **MITI is the exception: 4.7% arm / 93.0% judge / dependability 0.68.** Almost all of MITI's
+    **On the FULL enumeration — all 1,848 arm×metric contrasts in L0 — 88.3% keep their sign,
+    rising to 94.1% at |Δ|≥0.10, 97.0% at ≥0.25, 98.9% at ≥0.50** (94.7% among the 1,299 whose
+    judge-side CI excludes zero). The judges disagree only about differences too small to claim. Per
+    rubric, MITI is worst (77.5%) and Q1 is 86.6%, vs PCT 93.5% / MICI 92.2%. New tracked tables
+    `multijudge_sign_preservation{,_by_metric}.md` (`reliability.sign_preservation`, added
+    2026-07-28 — the ladder was previously computed nowhere).
+  - **Variance decomposition** (22 arms × 2 judges): arm-mean variance is 3.6–72% arm, 22–95% judge
+    *level*, and only **1.2–6.9% arm×judge** — the judges disagree about level, not about arm
+    ordering. Dependability of an arm mean off ONE judge = 0.88–0.95 on seven rubrics.
+    ⚠ **MITI is the exception: 3.6% arm / 94.5% judge / dependability 0.65.** Almost all of MITI's
     arm-mean spread is grader level, so a single-judge MITI ranking is materially less trustworthy
-    than the others — averaging both judges lifts it to 0.81. Treat MITI arm differences as
-    provisional unless both judges agree. (Q1 12.7% arm, dep 0.92; Q2 15.9%, 0.92.)
-  - **Gain retention (the reward-hacking test)**: Q1 retention PTO@10 **0.80** [0.68, 0.94] vs
-    GRPO@10 **0.28** [0.07, 0.43] — non-overlapping — while every Q2 interval overlaps (0.80–0.85).
+    than the others — averaging both judges lifts it to 0.79. Treat MITI arm differences as
+    provisional unless both judges agree. Corroborated independently by its 77.5% sign preservation
+    above. (Q1 10.9% arm, dep 0.90; Q2 13.2%, 0.91.)
+  - **Gain retention (the reward-hacking test)**: Q1 retention PTO@10 **0.80** [0.68, 0.93] vs
+    GRPO@10 **0.28** [0.06, 0.43] — non-overlapping — while every Q2 interval overlaps (0.80–0.85).
     Confirmed unchanged on the full grid (was measured on 4 anchors).
     Under a held-out judge GRPO's net 10-iter Q1 gain is ≈0.19, not the primary's ≈0.68. Stronger
     evidence for sycophancy than the MICI rate. Buys down LIMITATIONS §3 (circularity).
+    **NEW 2026-07-28 — it is an *onset* curve, not an endpoint fact.** Per-iteration Q1 retention:
+    PTO holds 0.80–0.98 across all 10 iters; GRPO decays monotonically in trend
+    (I3 0.89 → I6 0.57 → I9 0.03 → I10 0.28), the two arms being indistinguishable for the first
+    three. The held-out grader stops crediting GRPO's gains *progressively*.
+    Figure: `multijudge_retention_trajectory.png` (existed, was never written up).
   - **Concordance vs effect size** replaces a scalar r/ρ (level bias dominates Pearson; ranks
     discard magnitude). Per *conversation pair*, so it is NOT a confidence in an arm-level claim.
   - **Sweep history (for the record).** First submission (9 batches, 21,120 requests) landed 43% —

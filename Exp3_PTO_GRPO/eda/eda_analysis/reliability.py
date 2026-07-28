@@ -615,6 +615,57 @@ def all_pairs_contrasts(judge_long: pd.DataFrame, primary_long: pd.DataFrame,
     return pd.DataFrame(rows)
 
 
+def sign_preservation(pairs: pd.DataFrame,
+                      *, thresholds: Sequence[float] = (0.10, 0.25, 0.50),
+                      by: Optional[Sequence[str]] = None) -> pd.DataFrame:
+    """How often the held-out judge agrees on DIRECTION, as a function of the gap being claimed.
+
+    :func:`all_pairs_contrasts` returns one row per contrast; the headline the thesis actually
+    quotes is the *rate* over that table, and it is only meaningful against an effect size. A
+    pooled "88% of contrasts agree" reads as a poor result until you see that the disagreements
+    sit entirely in gaps too small to claim — hence the ladder rather than a single number.
+
+    ``by=["metric"]`` gives the same ladder per rubric, which is how MITI's weakness shows up
+    independently of the variance decomposition in :func:`variance_components_arm`.
+
+    ⚠ ``thresholds`` are **absolute**, so a per-rubric ladder is comparable DOWN its own rubric and
+    never ACROSS rubrics: ``PCT``/``MICI`` live on a 0-1 scale and never reach 0.25 at all, while
+    Q1/Q2/WAI-SR/MITI are 1-5 or 1-7. The ``all contrasts`` row is the cross-rubric comparison.
+
+    The last row of each ladder restricts to contrasts whose judge-side bootstrap CI excludes
+    zero — i.e. the ones the second judge itself calls non-null. Omitted when ``pairs`` carries no
+    CI columns (``n_boot=0``).
+    """
+    if pairs is None or pairs.empty:
+        return pd.DataFrame(columns=["subset", "n_contrasts", "n_same_sign", "pct_same_sign"])
+
+    df = pairs.dropna(subset=["judge_delta", "primary_delta"]).copy()
+    has_ci = {"judge_ci_lo", "judge_ci_hi"}.issubset(df.columns)
+
+    subsets: List[tuple] = [("all contrasts", df)]
+    for t in thresholds:
+        subsets.append((f"|Δ primary| ≥ {t:.2f}", df[df.primary_delta.abs() >= t]))
+    if has_ci:
+        ci = df[(df.judge_ci_lo > 0) | (df.judge_ci_hi < 0)]
+        subsets.append(("judge CI excludes 0", ci))
+
+    groups = [(None, df)] if not by else list(df.groupby(list(by), sort=False))
+    rows = []
+    for key, _ in groups:
+        keys = dict(zip(by, key if isinstance(key, tuple) else (key,))) if by else {}
+        for label, sub in subsets:
+            if by:  # re-slice this subset down to the current group
+                mask = pd.Series(True, index=sub.index)
+                for col, val in keys.items():
+                    mask &= sub[col] == val
+                sub = sub[mask]
+            n = len(sub)
+            rows.append({**keys, "subset": label, "n_contrasts": n,
+                         "n_same_sign": int(sub.same_sign.sum()) if n else 0,
+                         "pct_same_sign": round(100 * sub.same_sign.mean(), 1) if n else np.nan})
+    return pd.DataFrame(rows)
+
+
 # ── 3. concordance as a function of effect size ───────────────────────────────
 
 def concordance_by_effect_size(judge_long: pd.DataFrame, primary_long: pd.DataFrame,

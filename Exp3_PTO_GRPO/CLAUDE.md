@@ -275,7 +275,7 @@ Exp3_PTO_GRPO/
 │   │                                    subpackage (registry / conversations / pipeline / judge — the
 │   │                                    Run_Eval + Judge_Reliability backend, imported explicitly, not
 │   │                                    via __init__). Module map: eda/README.md § "Package".
-│   ├── results/                         GENERATED thesis artifacts in 2 tracked VIEW trees: L0/ · L5/, each with figures|tables/<N_family>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md. A second judge's figures nest one level deeper: <N_family>/<judge_tag>/. (The pooled all/ view was retired 2026-07-27 — renderable, gitignored, not a deliverable.)
+│   ├── results/                         GENERATED thesis artifacts in 2 tracked VIEW trees: L0/ · L5/, each with figures|tables/<N_family>/<judge>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md. EVERY grader nests under its own short label (gpt-4o-mini/ · claude-haiku-4-5/) since 2026-07-28 — the primary is no longer flat, so a path always names the grader. (The pooled all/ view was retired 2026-07-27 — renderable, gitignored, not a deliverable.)
 │   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
 │   └── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
 ├── meetings/                            supervisor-facing output ONLY — never imported by code/ or eda/

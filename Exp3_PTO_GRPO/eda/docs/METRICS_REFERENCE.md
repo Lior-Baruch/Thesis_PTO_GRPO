@@ -259,14 +259,26 @@ comparison, so nothing here averages raw scores across judges — level bias is 
 | `retention` = `delta_judge / delta_primary` | Each arm's gain over a reference (default `PTOExp3_LA0_Base`), as seen by the held-out judge, relative to the trained-against judge. Persona-bootstrap CI | **The reward-hacking test.** ~1.0 = a real behaviour change both judges see; ~0 = a gain that existed only in the optimized grader. Uniform retention across arms is scale compression; retention that *differs by arm on one metric while flat on another* is the hacking signature |
 | `concordance` (by `|Δ|` bin) | P(second judge agrees on the direction) as a function of the gap the primary judge reports, over conversation PAIRS. Exact primary-judge ties excluded | "Is a gap of *this size* trustworthy?" — which a scalar r cannot answer (level bias dominates Pearson; rank statistics discard magnitude). ⚠ **Per conversation pair, not per arm.** Arm means over 96 conversations resolve ~10× better; do not read a bin height as confidence in an arm-level claim |
 | `same_sign` (all pairs) | As §7, but over **every** model pair, paired on the recovered `persona_id` rather than `file_index` | `file_index` is reshuffled every iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive that; `dz` and CIs do not |
+| `pct_same_sign` (`sign_preservation`) | The **rate** of `same_sign` over the all-pairs table, laddered by `\|delta_primary\|` (≥0.10 / 0.25 / 0.50) and, in the `_by_metric` variant, per rubric | The rate is meaningless without an effect size: pooled it counts contrasts too small to claim. Read the row at the gap you are claiming. Per rubric it re-detects a judge-dependent rubric from a completely different direction than `dependability_k1` — when both flag the same rubric, believe it |
 
-Measured (2026-07-27, 4 anchor models × {Q1, Q2, MICI}): **18/18** pairwise contrasts preserve
-their sign, including the two never previously checked — the best-vs-best steelman (PTO@10 vs
-GRPO@8) and the regression claim (GRPO@8 vs GRPO@10). Arm-mean variance is 16–65% arm, 31–83%
-judge level, and only **0.5–4.6% arm×judge**; `dependability_k1` 0.91–0.98. Q1 gain retention
-separates cleanly — PTO@10 **0.80** [0.68, 0.93] vs GRPO@10 **0.28** [0.05, 0.43], non-overlapping
-— while every Q2 interval overlaps (0.80–0.85), i.e. the transfer failure is Q1-specific and
-arm-specific, not scale compression.
+**Provenance: numbers below are the `L0` view** (22 arms × 2 judges, every cell n=96), the tracked
+deliverable. Pre-2026-07-28 versions of this paragraph mixed a 4-anchor measurement with full-grid
+retention values; scopes are now uniform.
+
+Sign preservation over all **1,848** arm×metric contrasts: **88.3%** pooled, **94.1%** at |Δ|≥0.10,
+**97.0%** at ≥0.25, **98.9%** at ≥0.50 — the judges disagree only about gaps too small to claim.
+Per rubric, **MITI is the weakest at 77.5%** (Q1 86.6%, Q2 90.5%, PCT 93.5%, MICI 92.2%) — and it is
+the only rubric still disagreeing at a claimable gap: all others reach 95.5–100% by |Δ|≥0.25, MITI
+88.2%. ⚠ Ladder thresholds are absolute, so compare rows *within* a rubric only (PCT/MICI are 0–1
+scale, Q1/Q2/WAI-SR/MITI are 1–5 or 1–7); the `all contrasts` row is the cross-rubric one. The six
+thesis-critical contrasts are **18/18** preserved, including the best-vs-best steelman (PTO@10 vs
+GRPO@8) and the regression claim (GRPO@8 vs GRPO@10). Arm-mean variance is 3.6–72% arm, 22–95% judge
+level, and only **1.2–6.9% arm×judge**; `dependability_k1` 0.88–0.95 on seven rubrics but **0.65 on
+MITI**, which is why MITI arm differences are flagged provisional. Q1 gain retention separates
+cleanly — PTO@10 **0.80** [0.68, 0.93] vs GRPO@10 **0.28** [0.06, 0.43], non-overlapping — while
+every Q2 interval overlaps (0.80–0.85), i.e. the transfer failure is Q1-specific and arm-specific,
+not scale compression. Per iteration it is a decay curve, not a step: PTO holds 0.80–0.98 throughout
+while GRPO falls from ~0.89 (iter 3) to 0.28 (iter 10).
 
 ---
 

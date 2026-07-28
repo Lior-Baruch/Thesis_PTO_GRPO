@@ -91,20 +91,24 @@ def set_formats(fig_formats=None, table_formats=None) -> None:
 
 # ── View/judge-aware path helpers (everything downstream routes through these) ─
 #
-# Layout:  results/<view>/{figures,tables}/<group>/[<judge>/]<name>.<ext>
+# Layout:  results/<view>/{figures,tables}/<group>/<judge>/<name>.<ext>
 #
 # The JUDGE is the DEEPEST level, so a family's outputs from every grader sit side by side and are
-# trivially comparable (`1_outcomes/` next to `1_outcomes/anthropic_claude-haiku-4-5/`). The
-# primary oracle stays FLAT at `<group>/` — it is the tree the thesis already cites, and adding a
-# second grader must not churn a single existing path.
+# trivially comparable (`1_outcomes/gpt-4o-mini/` next to `1_outcomes/claude-haiku-4-5/`).
+#
+# EVERY judge gets a folder, including the primary (2026-07-28). Until then the primary rendered
+# FLAT at `<group>/` so that adding a second grader churned no existing path — but that made the
+# layout assert something the project no longer believes: that one grader is the default and the
+# other an annex. A figure's path now always names the grader that produced it, which is the whole
+# point of having measured them against each other.
 def _results_root() -> str:
     return os.path.join(RESULTS_DIR, _VIEW) if _VIEW else RESULTS_DIR
 
 
 def _judge_sub() -> str:
-    """Deepest path segment for the active judge (``""`` for the primary oracle)."""
-    from .constants import active_judge
-    return active_judge()
+    """Deepest path segment for the active judge — the short model label, never empty."""
+    from .constants import judge_dirname
+    return judge_dirname()
 
 
 def _figures_root() -> str:
@@ -216,8 +220,14 @@ def _write_xlsx_sheet(dir_path: str, name: str, df: pd.DataFrame, *, index: bool
 
     One workbook per tables subfolder, one sheet per table name (Excel caps sheet names at 31 chars).
     Re-running a notebook overwrites that sheet (idempotent). Requires ``openpyxl``.
+
+    Named for the FAMILY, not the leaf directory. Since 2026-07-28 the leaf is always the judge
+    (see :func:`_leaf`), and ``gpt-4o-mini.xlsx`` would say nothing about what is inside — so skip
+    one level up. The judge is already unambiguous from the containing path. Works for nested
+    subgroups too: ``tables/2_questionnaires/mici/<judge>/`` -> ``mici.xlsx``, as before the move.
     """
-    group = os.path.basename(dir_path.rstrip("/\\")) or "tables"
+    parts = [p for p in dir_path.rstrip("/\\").replace("\\", "/").split("/") if p]
+    group = parts[-2] if len(parts) >= 2 else "tables"      # [-1] is the judge
     xpath = os.path.join(dir_path, f"{group}.xlsx")
     sheet = re.sub(r"[\[\]:*?/\\]", "_", name)[:31]
     try:
@@ -258,14 +268,19 @@ def _to_markdown(df: pd.DataFrame, *, index: bool, float_format: str) -> str:
 
 
 def save_provenance(cfg, scores=None, *, group: Optional[str] = None) -> str:
-    """Write a per-run provenance banner to ``results/<view>/figures/<group>/_provenance.md``.
+    """Write a per-run provenance banner to ``results/<view>/figures/<group>/<judge>/_provenance.md``.
 
     Records the active ``EdaConfig`` (incl. the view) + the arms/metrics actually present in
     ``scores`` so every regenerated figure set is traceable to the config that produced it.
     Returns the file path.
+
+    Routed through :func:`_fig_dir` so it lands in the JUDGE leaf like every other artifact — the
+    config it records includes ``judge``, so one file per judge is the only correct arity. (Before
+    2026-07-28 it wrote to the group root, where a ``--judge`` render silently overwrote the
+    primary's record with the second judge's config.)
     """
     g = (group if group is not None else _GROUP) or ""
-    d = os.path.join(_figures_root(), g) if g else _figures_root()
+    d = _fig_dir(g)
     os.makedirs(d, exist_ok=True)
     cfgd = cfg.as_dict() if hasattr(cfg, "as_dict") else dict(cfg)
     lines = [f"# Provenance — view `{_VIEW or '(flat)'}` · group `{g or '(flat)'}`\n"]
@@ -363,7 +378,8 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
     """Clear generated artifacts of the ACTIVE VIEW before a clean regenerate.
 
     Operates only on ``results/<view>/{figures,tables}/`` — never the view root, so the
-    hand-authored ``SUMMARY.md`` (and anything else in :data:`PRESERVE`) is always kept.
+    hand-authored ``SUMMARY.md`` (and anything else in :data:`PRESERVE`) is kept structurally,
+    by never descending where it lives, rather than by name-filtering during deletion.
 
     - ``groups`` given (e.g. ``["1_outcomes", "2_questionnaires"]``) → remove just those
       ``figures/<group>/`` + ``tables/<group>/`` subfolders (nested content included).
@@ -371,31 +387,25 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
     - ``flat=True`` → also delete loose figure/table files sitting at the (view's) flat roots.
       Subfolders are recreated lazily on the next save.
 
-    **Judge-scoped.** With a second judge active this clears only that judge's leaf
-    (``<group>/<judge>/``) and never the group folder itself — the group holds the PRIMARY
-    oracle's artifacts, i.e. the figures the thesis cites. Without this scoping a routine
-    ``--judge`` regenerate would delete the primary tree as a side effect.
+    **Judge-scoped.** Clears only the ACTIVE judge's leaf (``<group>/<judge>/``) and never the
+    group folder itself, which holds every other grader's copy of the same family. Without this
+    scoping a routine ``--judge`` regenerate would delete another judge's tree as a side effect.
+    Since 2026-07-28 this includes the primary, which is a judge like any other here.
     """
     judge = _judge_sub()
-    for root, exts in ((_figures_root(), _FIG_EXTS), (_tables_root(), _TAB_EXTS)):
+    for root in (_figures_root(), _tables_root()):
         if not os.path.isdir(root):
             continue
         group_dirs = ([os.path.join(root, g) for g in groups] if groups is not None
                       else [os.path.join(root, d) for d in os.listdir(root)
                             if os.path.isdir(os.path.join(root, d)) and d != judge])
-        # Under a judge, descend one more level: delete <group>/<judge>, keep <group>.
-        subs = [os.path.join(d, judge) for d in group_dirs] if judge else group_dirs
-        for s in subs:
+        # The judge is the deepest level: drop <group>/<judge>, keep <group> for other graders.
+        for d in group_dirs:
+            s = os.path.join(d, judge)
             if os.path.isdir(s):
                 shutil.rmtree(s)
         if flat:
-            flat_root = os.path.join(root, judge) if judge else root
-            if judge and os.path.isdir(flat_root):
+            # Group-less saves land at <root>/<judge>/ rather than loose in <root>/.
+            flat_root = os.path.join(root, judge)
+            if os.path.isdir(flat_root):
                 shutil.rmtree(flat_root)
-            elif not judge:
-                for f in os.listdir(root):
-                    if f in PRESERVE:
-                        continue
-                    fp = os.path.join(root, f)
-                    if os.path.isfile(fp) and (f.lower().endswith(exts) or f == "CAPTIONS.md"):
-                        os.remove(fp)

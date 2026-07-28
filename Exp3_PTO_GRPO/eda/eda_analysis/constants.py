@@ -317,6 +317,13 @@ RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|bra
 EVAL_SCORES_BY_JUDGE = os.path.join(DATA_DIR, "eval_scores_by_judge")
 JUDGE_PARTITION = "judge="            # key=value partition level, matching metric=/oracle=/rep=
 
+# The grader that produced the PRIMARY eval_scores/ tree — and, because it was also the training
+# reward, the one every other judge is held out against. It has no `judge=` partition of its own on
+# the score side (those CSVs live co-located per method), but it DOES get a results/ folder like any
+# other judge, so the layout states which grader produced a figure instead of leaving it implied.
+PRIMARY_JUDGE_TAG = "openai_gpt-4o-mini-2024-07-18"
+_JUDGE_DATE_SUFFIX = re.compile(r"-\d{4}-\d{2}-\d{2}$")
+
 # Back-compat alias (the old name is still referenced by scoring/judge.py's public surface).
 JUDGE_CHECK_ROOT = EVAL_SCORES_BY_JUDGE
 
@@ -345,7 +352,21 @@ def active_judge_rep() -> int:
     return _ACTIVE_JUDGE_REP
 
 
-def judge_label(tag: str = None) -> str:
-    """Short human label for figure titles / folder names (``""`` -> ``primary``)."""
-    t = active_judge() if tag is None else tag
-    return t.split("_", 1)[-1] if t else "primary"
+def judge_dirname(tag: str = None) -> str:
+    """Short model label used as the export-path segment for a judge.
+
+    Drops the provider prefix and any trailing ISO release date, so
+    ``openai_gpt-4o-mini-2024-07-18 -> gpt-4o-mini`` and
+    ``anthropic_claude-haiku-4-5 -> claude-haiku-4-5``. The DATA tree keeps the full tag
+    (``eval_scores_by_judge/judge=<tag>/``) because that is a stable partition key; the RESULTS tree
+    uses the short label because a human reads those paths. ``tag=None`` resolves the active judge,
+    and the primary oracle resolves to its own label rather than to a flat path — every grader gets
+    a folder, so no tree is privileged by layout.
+    """
+    t = (active_judge() if tag is None else tag) or PRIMARY_JUDGE_TAG
+    t = t.split("_", 1)[-1]                       # provider prefix
+    return _JUDGE_DATE_SUFFIX.sub("", t)          # trailing -YYYY-MM-DD release date
+
+
+# Back-compat: `judge_label` was the pre-2026-07-28 name, when the primary rendered as "primary".
+judge_label = judge_dirname

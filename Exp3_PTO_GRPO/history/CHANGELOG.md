@@ -4,6 +4,102 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-28) — the judge level is now SYMMETRIC: every grader gets a folder, the primary
+included.** Lior's call. The layout had the second judge nested at `<family>/<judge>/` while the
+primary rendered *flat* at `<family>/` — deliberate at the time (adding a grader moved no path the
+thesis cited), but once Haiku had scored the same full 22,272-cell grid the asymmetry made the
+**layout** assert something the project no longer believes: that one grader is the default and the
+other an annex. A figure's path now always names the grader that produced it.
+- **Naming: short model labels, both sides.** `gpt-4o-mini/` and `claude-haiku-4-5/` — so the
+  existing `anthropic_claude-haiku-4-5/` folders were renamed too. NEW
+  `constants.judge_dirname()` drops the provider prefix and any trailing ISO release date
+  (`openai_gpt-4o-mini-2024-07-18 -> gpt-4o-mini`), generalizing to future judges; `judge_label` is
+  kept as an alias. The **score** tree deliberately keeps the full `judge=<tag>` partition — a
+  stable key there, a human-readable path here. NEW `constants.PRIMARY_JUDGE_TAG`.
+- **One-line mechanism.** `exports._judge_sub()` returned `""` for the primary; it now returns
+  `judge_dirname()`, which is never empty. Everything else composes through `_leaf()` already.
+  `reset_results` lost its two primary-vs-judge branches (every judge has a leaf now), and `PRESERVE`
+  became structural rather than an active name filter.
+- **Bug found and fixed in passing:** `save_provenance` built its path from `_figures_root()`
+  directly instead of `_fig_dir()`, so it never nested — meaning a `--judge` render **silently
+  overwrote the primary's `_provenance.md` with the second judge's config**, in a file whose entire
+  job is recording which config produced the figures. Now routed through `_fig_dir()`.
+- **Second bug, caused BY the move and caught by verification:** `_write_xlsx_sheet` named the
+  per-family Excel workbook after `os.path.basename(dir_path)` — which used to be the family and is
+  now the JUDGE, so the first re-render emitted `gpt-4o-mini.xlsx` beside the stale `1_outcomes.xlsx`
+  in every family. Now takes `parts[-2]` (the judge is always the leaf by construction of `_leaf`),
+  which also keeps nested subgroups right: `2_questionnaires/mici/<judge>/` → `mici.xlsx`, as before.
+  Cleanup: 28 mis-named primary workbooks deleted and rebuilt by a re-render; the second judge's 10
+  were renamed off the old `anthropic_` tag rather than regenerated (content was already correct).
+  Found by diffing the tracked file list at HEAD against the new one, mapping each old path to where
+  the move should have put it. Final state: **671 → 675 files, 0 unaccounted for**, the only four
+  genuinely new ones being the sign-preservation tables added the same day. Worth keeping as the
+  pattern — git's own rename detection reported the duplicate workbooks as ordinary churn, so a bulk
+  move is only verified when every old path is shown to have a new home.
+- **Migration:** 32 judge-dir renames + 382 files moved into `gpt-4o-mini/`, across both views'
+  figures and tables. Then 73 links rewritten in `L0/SUMMARY.md` (61), `L5/SUMMARY.md` (11) and
+  `eda/README.md`; the deck builders gained a `_jp()` helper injecting the judge segment (one place
+  each, not ~40 call sites) with `JUDGE = "gpt-4o-mini"` at the top to retarget a whole deck.
+  Verified: 35/35 deck paths and 42/42 SUMMARY links resolve on disk.
+- **Also caught:** `L0/SUMMARY.md` §1 pointed at `../../METRICS_REFERENCE.md`, stale since the
+  2026-07-27 `eda/docs/` reorg — the link checker written for this migration found it.
+- `_selfcheck`'s judge-routing case was inverted accordingly: it used to assert the primary stays
+  flat, and now asserts the two judges are **siblings** under one family dir with distinct labels.
+
+---
+
+**Landed (2026-07-28) — the judge evidence reaches the narrative docs; two numbers surfaced that
+were computed but never written up; provenance unified on the tracked `L0` view.** No new figures,
+no new API spend — a pass over the hand-authored layer, which had fallen behind the 2026-07-27 sweep.
+- **`results/L0/SUMMARY.md` — the primary read — had ZERO mention of the second judge** (no "judge",
+  "Haiku", "retention", or "dependability" anywhere), even though root CLAUDE.md designates it as the
+  full narrative and the judge work is the strongest validity evidence in the thesis. New **§7 "Does
+  the result survive a different judge?"** carries sign preservation, the variance decomposition, the
+  MITI warning, gain retention, and the retention trajectory; old §7 Caveats → §8, with the folklore
+  "oracle noise ≈ 0.10" line replaced by the measured ICC.
+- **Two numbers existed in the artifacts but in no document.**
+  (a) **Full-grid sign preservation.** The docs quoted "18/18", which is `contrasts()` over six
+  hand-picked pairs × 3 metrics. `all_pairs_contrasts` had meanwhile enumerated **1,848** arm×metric
+  contrasts in `L0`: **88.3%** keep their sign, **94.1%** at |Δ|≥0.10, **97.0%** at ≥0.25, **98.9%**
+  at ≥0.50 (94.7% among the 1,299 with a judge-side CI excluding zero). The judges disagree *only*
+  about differences too small to claim. Per rubric MITI is worst at **77.5%** — an independent
+  confirmation of its 0.65 dependability, from a different statistic. L5: 160/168 = 95.2%, and
+  102/102 at |Δ|≥0.10.
+  **Made reproducible, not just quoted:** NEW `reliability.sign_preservation(pairs, thresholds, by)`
+  + two tracked tables (`multijudge_sign_preservation{,_by_metric}.md`) saved from notebook 5 §8b.
+  Writing a doc number that no artifact produced is the same provenance bug fixed below, so the
+  ladder was turned into code in the same pass rather than left in a scratch script.
+  The per-rubric ladder then **sharpened the MITI limitation**: every other rubric reaches 95.5–100%
+  sign preservation once |Δ|≥0.25, MITI only 88.2% (needing ≥0.50 for 97.6%). MITI is therefore not
+  merely noisier — it is the one rubric where a *claimable-size* difference can still flip sign under
+  a different grader. ⚠ Thresholds are absolute, so the ladder is readable down a rubric but not
+  across them (PCT/MICI are 0–1, the rest 1–5 or 1–7); caveat is in the table caption and both docs.
+  (b) **Gain retention is an ONSET curve.** Only the endpoint was ever reported. Per iteration, PTO's
+  Q1 retention holds 0.80–0.98 for the whole run while GRPO decays monotonically in trend
+  (I3 0.89 → I6 0.57 → I9 0.03 → I10 0.28), the two arms indistinguishable for three iterations.
+  `multijudge_retention_trajectory.png` already existed. This is a stronger statement than the
+  endpoint contrast: the held-out grader withdraws credit *progressively*, as drift onto
+  grader-specific features predicts.
+- **Provenance unified — THREE different scopes were in circulation.** `LIMITATIONS.md` §2's variance
+  table quoted 29-arm figures from the pooled `all` view — **retired to gitignored scratch
+  2026-07-27**, so no longer reproducible from any tracked artifact — while §3's retention table was
+  already `L0`-sourced, and `METRICS_REFERENCE.md` §7b quoted a *third* set (0.5–4.6% arm×judge,
+  dep 0.91–0.98) from the 4-anchor measurement, spliced onto full-grid retention values in the same
+  paragraph. All three now cite `L0` (22 arms, every cell n=96) and say so: CSQ 70.6 not 72.6, MITI
+  **3.6% arm / 94.5% judge / dep 0.65** not 4.7/93.0/0.68, Q1 10.9% dep 0.90, arm×judge 1.2–6.9%.
+  Same story throughout, ±1–2 points. Root CLAUDE.md's block re-cited to match and labelled.
+  `METRICS_REFERENCE.md` §7b also gained a `pct_same_sign` row for the new ladder.
+- **Stale text fixed.** `LIMITATIONS.md` §1(b) still described the sweep as "landed 43%" with
+  partials "quarantined" — coverage has been 232/232 since 2026-07-27. Rewritten; the 43% forensics
+  kept as a blockquote because it explains why `filter_complete_cells` remains in the pipeline.
+- **Broken links fixed + a gap named.** `results/L5/SUMMARY.md` linked to `../all/` three times.
+  Removing them exposed that **RQ-i (K0 vs K5) has no tracked artifact at all** — `k_paired_by_method`
+  only exists in the retired `all` view. §3 now says so explicitly and records the decision to make
+  when the K=5 arms resume (promote `all` back, or move the table into `L5`). Also added an L5 §5
+  second-judge check and refreshed both views' caveats.
+
+---
+
 **Landed (2026-07-26) — judge reliability MEASURED: oracle ICC + a decoupled Claude second judge;
 LIMITATIONS §1–§2 bought down.** `Judge_Reliability.ipynb` had been ready-but-never-run since
 2026-07-16 (blocked on a missing Anthropic key). Ran it end-to-end on the anchor subset (4 models ×

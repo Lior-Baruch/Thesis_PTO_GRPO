@@ -323,24 +323,31 @@ def _c_judge_dimension() -> str:
         judge_dir = arm.eval_dir(k, "Q1")
         judge_fig = E._fig_dir()
 
-        from eda_analysis.constants import EVAL_SCORES_BY_JUDGE, judge_partition_dir
+        from eda_analysis.constants import (EVAL_SCORES_BY_JUDGE, judge_partition_dir,
+                                            judge_dirname)
         assert judge_dir.startswith(judge_partition_dir(second[0])), \
             f"judge score dir did not route to the judge= partition: {judge_dir}"
         assert not primary_dir.startswith(EVAL_SCORES_BY_JUDGE), \
             f"primary leaked into the by-judge tree: {primary_dir}"
         assert "eval_scores" in primary_dir, \
             f"primary should read the per-method eval_scores tree: {primary_dir}"
-        # layout: results/<view>/figures/<group>/<judge>/ — judge is the DEEPEST level, and the
-        # primary stays flat at <group>/ so no existing thesis artifact path moves.
-        assert judge_fig == os.path.join(primary_fig, second[0]), \
-            f"judge figures must nest inside the group dir: {judge_fig} vs {primary_fig}"
-        assert second[0] not in primary_fig, f"primary export path polluted: {primary_fig}"
+        # layout: results/<view>/figures/<group>/<judge>/ — the judge is the DEEPEST level and
+        # EVERY grader gets one, primary included (2026-07-28), so a figure path always names the
+        # grader that produced it. The two must be SIBLINGS, never nested one inside the other.
+        p_label, j_label = judge_dirname(""), judge_dirname(second[0])
+        assert os.path.basename(primary_fig) == p_label, \
+            f"primary figures must nest under its own judge label {p_label!r}: {primary_fig}"
+        assert os.path.basename(judge_fig) == j_label, \
+            f"judge figures must nest under {j_label!r}: {judge_fig}"
+        assert os.path.dirname(primary_fig) == os.path.dirname(judge_fig), \
+            f"judges must be siblings under one group dir: {primary_fig} vs {judge_fig}"
+        assert p_label != j_label, "two judges collapsed to the same folder label"
     finally:
         K.set_active_judge("")
         E.set_export_group("")
     assert K.active_judge() == "", "active judge not restored"
-    return (f"reads -> eval_scores_by_judge/judge={second[0]}; writes -> <group>/{second[0]}/ "
-            f"(primary stays flat at <group>/)")
+    return (f"reads -> eval_scores_by_judge/judge={second[0]}; "
+            f"writes -> <group>/{{{p_label},{j_label}}}/ (every judge nests, none is flat)")
 
 
 def _c_multi_judge() -> str:

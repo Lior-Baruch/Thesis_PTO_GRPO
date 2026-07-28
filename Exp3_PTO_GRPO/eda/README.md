@@ -6,8 +6,8 @@ training iterations, under matched look-ahead K and MCL. Everything lives in ONE
 the top level + the oracle-scoring layer in the `scoring/` subpackage. The recurring figures are
 named functions in the `eda_analysis/plotting/` subpackage (called once from multiple notebooks),
 and genuinely one-off exploration stays inline (the **hybrid** plotting split). Thesis
-figures/tables are exported per **VIEW** into `results/<view>/figures|tables/<family>/` — figures
-`.png`, tables `.md` + `.xlsx`.
+figures/tables are exported per **VIEW** into `results/<view>/figures|tables/<family>/<judge>/` —
+figures `.png`, tables `.md` + `.xlsx`.
 
 **Organization = tier-based drill-down, notebooks ↔ numbered result families 1:1 (2026-07-16 reorg).**
 Level 1 = global scores → Level 2 = inside each questionnaire → Level 3+ = cross-cutting analyses.
@@ -24,7 +24,7 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `2_Questionnaire_Detail.ipynb` | `2_questionnaires/` | **Level 2 — one uniform detail section per rubric:** Q1/Q2/WAI-SR/CSQ-8/MI-SAT item grids (`<slug>_detail_grid`) + item-delta bars final+best (`<slug>_item_deltas_*`) · Q2 face-content groups · WAI subscales · MITI detail grid (globals + 7 behaviour rates + ratios; zooms in `miti/`) + **official MITI 4.2.1 thresholds** · PCT detail (`pct/`) · MICI detail (`mici/`) |
 | `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
-| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation) · **multi-judge §8** (variance decomposition, gain retention, all-pairs contrasts, concordance-vs-effect-size) — both read from `data/eval_scores_by_judge/` |
+| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation) · **multi-judge §8** (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size) — both read from `data/eval_scores_by_judge/` |
 | `6_Preference.ipynb` | `6_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
 | `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · **best-vs-best method contrast (`method_paired_best`)** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 
@@ -87,7 +87,7 @@ the `all` arm filter (every arm) / all present metrics; notebooks set `view=VIEW
   overlay/trajectory figures) + `focus_metric`.
 - **Plot scales:** `context`, `font_scale`, `dpi`, `savefig_dpi`, `panel`, `ncols`, `score_ylim`,
   `share_y`, `palette_overrides` (all default = inherit the publication style).
-- **Exports:** `export_group` (→ `results/<view>/<figures|tables>/<family>/`; set it to the
+- **Exports:** `export_group` (→ `results/<view>/<figures|tables>/<family>/<judge>/`; set it to the
   notebook's family, e.g. `"1_outcomes"`), `fig_formats` (**default `("png",)`**; `("png","pdf")` to
   also emit vector), `table_formats` (**default `("md","xlsx")`** — readable Markdown + a per-family
   Excel workbook, one sheet per table). A per-call `group=` on `save_fig`/`save_table` overrides the
@@ -167,8 +167,12 @@ selects which *grader's scores* are read.
 
 | `JUDGE` | Reads | Writes |
 |---|---|---|
-| `""` (default) | `data/<method>_Exp3/eval_scores/` — the primary oracle, the numbers the thesis reports | `results/<view>/figures/<family>/` (**unchanged**) |
-| `anthropic_claude-haiku-4-5` | `data/eval_scores_by_judge/judge=<tag>/rep=<r>/` | `results/<view>/figures/<family>/<tag>/` |
+| `""` (default) | `data/<method>_Exp3/eval_scores/` — the primary oracle, the numbers the thesis reports | `results/<view>/figures/<family>/gpt-4o-mini/` |
+| `anthropic_claude-haiku-4-5` | `data/eval_scores_by_judge/judge=<tag>/rep=<r>/` | `results/<view>/figures/<family>/claude-haiku-4-5/` |
+
+The write path uses the **short model label** (`constants.judge_dirname`: provider prefix and
+release date dropped), while the *score* tree keeps the full `judge=<tag>` partition — a path a
+human reads vs. a stable partition key.
 
 > **Why the two score trees differ in location.** The primary oracle's scores sit *inside each
 > method's run directory* (`data/{grpo,pto}_Exp3/eval_scores/`) because those are **Google Drive
@@ -181,25 +185,34 @@ selects which *grader's scores* are read.
 
 ```
 results/L0/figures/1_outcomes/
-├── outcomes_by_model.png                    ← primary oracle (flat)
-├── effect_forest.png
-└── anthropic_claude-haiku-4-5/              ← same family, second judge
+├── gpt-4o-mini/                             ← primary oracle (the training reward)
+│   ├── outcomes_by_model.png
+│   └── effect_forest.png
+└── claude-haiku-4-5/                        ← same family, held-out judge
     ├── outcomes_by_model.png
     └── effect_forest.png
 ```
 
 The **judge is the deepest level**, so a family's output from every grader sits side by side and
-compares in one glance. The primary stays **flat** so every existing artifact, `SUMMARY.md` link
-and cross-reference keeps working — adding a grader must not move a path the thesis already cites.
+compares in one glance.
+
+> **Every judge nests, including the primary (2026-07-28).** Until then the primary rendered *flat*
+> at `<family>/` so that adding a second grader moved no path the thesis already cited. That was the
+> right call while a second judge was a spot check — but once Haiku had scored the same full
+> 22,272-cell grid, a flat primary made the *layout* assert something the project no longer
+> believes: that one grader is the default and the other an annex. A figure's path now always names
+> the grader that produced it. (Cost of the change: a one-off rewrite of ~73 `SUMMARY.md` links and
+> the deck builders' path helpers.)
+
 This works at all because `scoring/judge*.py` writes its CSVs in the *identical*
 `metric=/oracle=/<Model>/<file_index>.csv` layout with identical column names, so `Arm.eval_dir()`
 only has to swap a root.
 
-`reset_results()` is **judge-scoped**: with a judge active it clears only `<family>/<judge>/`, never
-the family folder itself. Otherwise a routine `--judge` regenerate would delete the primary tree.
+`reset_results()` is **judge-scoped**: it clears only the active judge's `<family>/<judge>/`, never
+the family folder itself — otherwise a routine `--judge` regenerate would wipe another grader's tree.
 
 ```bash
-python tools/render_views.py                                       # primary oracle (unchanged)
+python tools/render_views.py                                       # primary oracle -> gpt-4o-mini/
 python tools/render_views.py --judge anthropic_claude-haiku-4-5    # the same EDA, Claude's scores
 python tools/render_views.py --judge anthropic_claude-haiku-4-5 --nb 1 7   # just outcomes + stats
 ```
@@ -287,7 +300,9 @@ behind an unchanged public surface.
     random-effects decomposition → arm vs judge-level vs **arm×judge**, plus `dependability_k1/k2`),
     `gain_retention` (the reward-hacking transfer test, persona-bootstrap CI), `all_pairs_contrasts`
     (every model pair, paired on the recovered `persona_id` — see `attach_persona`, since
-    `file_index` is reshuffled per iteration), `concordance_by_effect_size`,
+    `file_index` is reshuffled per iteration), `sign_preservation` (the *rate* over that table,
+    laddered by effect size and optionally `by=["metric"]` — a pooled rate is uninterpretable because
+    it counts contrasts too small to claim), `concordance_by_effect_size`,
     `multi_judge_summary_line`. **Never averages raw scores across judges** — the primary judge was
     the training reward and the second is held out, so this is train-vs-test, not two raters.
 - **`exports`** — `save_fig` (PNG) / `save_table` (MD+XLSX) → `results/<view>/<group>/`;

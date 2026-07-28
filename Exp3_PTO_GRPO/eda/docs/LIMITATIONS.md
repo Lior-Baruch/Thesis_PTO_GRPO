@@ -24,24 +24,23 @@ the thesis actually reports.
 **What this still does not cover.** (a) Re-seeding at `temperature=0.1` probes **sampling** noise
 only — it is a *floor* on reliability and says nothing about systematic sensitivity to rubric
 wording, item order, or transcript position; a paraphrased-prompt rep would be needed for that.
-(b) The measurement is on 3 metrics and 4 model states. `Judge_Reliability.ipynb` §3 extends the
-second judge to the full 8-rubric × 29-model grid (21,120 calls, $42 batched); it was **submitted
-2026-07-27 and landed 43%** — the Anthropic credit balance ran out mid-sweep, so 12,090 requests
-returned `invalid_request_error` (unbilled). **The partial scores are quarantined, not published:**
-`reliability.filter_complete_cells` restricts §8 to fully-scored cells, so every number in this
-document is still the complete-coverage anchor analysis. Per-cell coverage is recorded in
-`multijudge_coverage.md`. Top up the balance and re-run §3 to close this; the retry is scoped to
-exactly the missing cells.
-The oracle-repeatability half (§1's ICC table) remains anchor-subset only — see the rep argument
-below for why that is a deliberate choice rather than a gap.
+(b) **This ICC table is anchor-subset only** — 3 metrics × 4 model states. That is a deliberate
+choice, not a gap: see the rep argument below. The *second-judge* half is no longer subset-limited —
+`Judge_Reliability.ipynb` §3 completed the full 8-rubric × 29-model grid on 2026-07-27
+(**22,272 / 22,272 cells**, $42 batched), so `reliability.filter_complete_cells` now drops nothing
+and every §8 number below is computed at full n=96 per cell. Coverage is recorded in
+`multijudge_coverage.md` (232/232 cells).
 
-> **Why partial cells are excluded rather than used.** Failures were random with respect to
-> persona, so a partial cell's mean is unbiased — but it is not *comparable* to a complete one.
-> Precision differs (SE scales as √(96/n), and n ran 24–96), and persona-PAIRED statistics collapse
-> outright: two arms each covering a random ~43% of personas overlap on only ~0.43² ≈ 18% of them,
-> gutting the pairing that `all_pairs_contrasts` and `gain_retention` depend on. Mixing 96-conversation
-> anchor cells with 41-conversation cells in one table would weight them equally while presenting
-> neither honestly.
+> **Provenance of the sweep** (kept because it explains the guard that is still in the code). The
+> first submission — 9 batches, 21,120 requests — landed only 43%: the Anthropic credit balance ran
+> out mid-sweep and 12,090 requests returned `invalid_request_error` (never billed). Partial cells
+> were **quarantined rather than used**, because a partial cell's mean is unbiased but not
+> *comparable* to a complete one: precision differs (SE scales as √(96/n), and n ran 24–96), and
+> persona-PAIRED statistics collapse outright — two arms each covering a random ~43% of personas
+> overlap on only ~0.43² ≈ 18% of them, gutting the pairing that `all_pairs_contrasts` and
+> `gain_retention` depend on. After a top-up the remainder was resubmitted (5 batches) and completed,
+> plus 13 stragglers filled via the live path (`Grammar compilation timed out`, transient).
+> `filter_complete_cells` stays in the pipeline as a guard for any future partial sweep.
 (c) There is still **no human MI/MITI-coder validation** — an oracle can be perfectly repeatable
 and consistently wrong. That remains the strongest further addition (costs Lior-time, not API
 budget), and no ICC substitutes for it.
@@ -82,6 +81,33 @@ different model family that never played the patient (`Judge_Reliability.ipynb` 
    (PTO@10 − GRPO@8: Q1 +0.32 judge vs +0.20 primary) and the **regression claim**
    (GRPO@8 − GRPO@10: Q1 +0.46 vs +0.33) — both preserved, both with bootstrap CIs excluding zero.
    **The PTO-vs-GRPO result is not an artifact of the patient and the grader sharing a model.**
+
+   **Beyond the six thesis-critical contrasts, the whole grid agrees where it matters.**
+   `all_pairs_contrasts` enumerates *every* arm pair × rubric in the view — **1,848** contrasts in
+   `L0` (`multijudge_all_pairs_contrasts.md`) — and sign preservation rises monotonically with
+   effect size (`multijudge_sign_preservation.md`):
+
+   | primary-judge \|Δ\| | contrasts | same sign |
+   |---|---|---|
+   | any | 1,848 | **88.3%** |
+   | ≥ 0.10 | 1,201 | 94.1% |
+   | ≥ 0.25 | 736 | 97.0% |
+   | ≥ 0.50 | 352 | **98.9%** |
+
+   So the two judges disagree **only about differences too small to claim**, which is the pattern a
+   trustworthy instrument should show. Restricting to contrasts whose judge-side bootstrap CI
+   excludes zero (1,299 of 1,848) gives 94.7% agreement. Per rubric
+   (`multijudge_sign_preservation_by_metric.md`), **MITI is the worst at 77.5%** and Q1 is 86.6%,
+   against PCT 93.5% and MICI 92.2% — an independent confirmation of the MITI dependability warning
+   below, arrived at from a completely different statistic.
+
+   **MITI fails the ladder as well as the pooled rate, and that is the sharper finding.** Every
+   other rubric reaches **95.5–100%** by |Δ|≥0.25 — i.e. once a gap is large enough to claim, the
+   judges simply agree. MITI reaches only **88.2%** there and needs |Δ|≥0.50 to hit 97.6%. So MITI
+   is not merely noisier: it is the one rubric where a **claimable-size** difference can still flip
+   sign under a different grader. ⚠ The thresholds are *absolute*, so read a ladder down its own
+   rubric, never across rubrics — PCT and MICI sit on a 0–1 scale and never reach 0.25 at all, while
+   Q1/Q2/WAI-SR/MITI are 1–5 or 1–7. Only the pooled `all contrasts` row is cross-rubric comparable.
 2. **Rank agreement on Q1/Q2 is high**: r 0.84–0.88 (Q1) and 0.80–0.86 (Q2) against an attenuation
    ceiling of ~0.98 — i.e. 82–89% of the agreement two raters of this reliability could reach.
 3. **Haiku is systematically harsher** (Q1 −1.25 to −1.74, Q2 −1.09 to −1.32) and flags *more*
@@ -103,29 +129,36 @@ decomposition of the arm means the thesis reports (`5_Training_and_Reliability` 
 variance into arm (signal), judge level, and **arm × judge** (an ordering that depends on who is
 grading — the only component that can invalidate a claim):
 
-(29 arms × 2 judges, full grid.)
+Numbers below are the **`L0` view** (22 arms × 2 judges, every cell at n=96) — the tracked primary
+deliverable, `multijudge_variance_components.md`. The pooled 29-arm figures quoted before
+2026-07-28 came from the `all` view, which has since been retired to gitignored scratch; they told
+the same story to within a percentage point or two, but are no longer reproducible from a tracked
+artifact, so `L0` is now the cited source throughout this document (as §3's retention table already
+was).
 
 | metric | arm | judge level | **arm × judge** | dependability, 1 judge | 2 judges |
 |---|---|---|---|---|---|
-| CSQ-8 | 72.6% | 21.8% | **5.7%** | 0.93 | 0.96 |
-| PCT | 67.1% | 29.0% | **3.9%** | 0.95 | 0.97 |
-| MICI | 44.6% | 48.9% | **6.5%** | 0.87 | 0.93 |
-| MI-SAT | 33.7% | 63.1% | **3.1%** | 0.92 | 0.96 |
-| WAI-SR | 24.2% | 74.1% | **1.7%** | 0.94 | 0.97 |
-| Q2 | 15.9% | 82.8% | **1.4%** | 0.92 | 0.96 |
-| Q1 | 12.7% | 86.2% | **1.1%** | 0.92 | 0.96 |
-| **MITI** | **4.7%** | **93.0%** | **2.2%** | **0.68** | 0.81 |
+| PCT | 72.0% | 24.5% | **3.5%** | 0.95 | 0.98 |
+| CSQ-8 | 70.6% | 22.5% | **6.9%** | 0.91 | 0.95 |
+| MICI | 45.5% | 48.3% | **6.2%** | 0.88 | 0.94 |
+| MI-SAT | 29.6% | 67.0% | **3.4%** | 0.90 | 0.95 |
+| WAI-SR | 22.8% | 75.2% | **1.9%** | 0.92 | 0.96 |
+| Q2 | 13.2% | 85.5% | **1.3%** | 0.91 | 0.95 |
+| Q1 | 10.9% | 87.8% | **1.2%** | 0.90 | 0.95 |
+| **MITI** | **3.6%** | **94.5%** | **1.9%** | **0.65** | 0.79 |
 
 The judge term is large and the interaction is small everywhere: **the two judges disagree about
 the level, not about the ordering of arms.** Averaging both judges raises dependability only
-~0.92→0.96 on Q1/Q2, which is the quantitative reason the design spent on breadth (all arms × both
+~0.91→0.95 on Q1/Q2, which is the quantitative reason the design spent on breadth (all arms × both
 judges) rather than on more repetitions of a few cells.
 
-> ⚠ **MITI is the exception and it is a limitation, not a footnote.** Only **4.7%** of MITI's
-> arm-mean variance is genuine between-arm signal; **93%** is grader level. A single-judge MITI arm
-> ranking is therefore only **0.68** dependable — well below the ~0.92 of every other rubric, and
-> below any conventional "good" threshold. Averaging both judges lifts it to 0.81, still the
+> ⚠ **MITI is the exception and it is a limitation, not a footnote.** Only **3.6%** of MITI's
+> arm-mean variance is genuine between-arm signal; **94.5%** is grader level. A single-judge MITI arm
+> ranking is therefore only **0.65** dependable — well below the ~0.90 of every other rubric, and
+> below any conventional "good" threshold. Averaging both judges lifts it to 0.79, still the
 > weakest. **Treat MITI arm differences as provisional unless both judges agree on the direction.**
+> The all-pairs enumeration in finding 1 reaches the same verdict independently: MITI preserves its
+> sign on only **77.5%** of contrasts, the lowest of the eight rubrics.
 > This is consistent with MITI being the rubric with the most judge-dependent construct (behaviour
 > counts and technique ratios rather than a Likert impression) and with the MICI caveat below.
 
@@ -170,16 +203,36 @@ arm-specific and collapses**: PTO@10 and GRPO@10 do not overlap. Under a judge t
 during training, GRPO's net Q1 gain over 10 iterations is ≈0.19 points — it ends close to where it
 started — while the primary judge credits it ≈0.68.
 
+**The per-iteration trajectory makes it an onset curve, not just an endpoint fact**
+(`multijudge_retention_trajectory.png`; the same table, every iteration). Q1 retention against the
+shared PTO base:
+
+| iter | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
+|---|---|---|---|---|---|---|---|---|---|---|
+| PTO_LA0 | 0.97 | 0.84 | 0.89 | 0.94 | 0.98 | 0.97 | 0.94 | 0.89 | 0.88 | **0.80** |
+| GRPO_LA0 | 1.13 | 0.79 | 0.89 | 0.79 | 0.73 | 0.57 | 0.70 | 0.64 | 0.03 | **0.28** |
+
+The two arms are indistinguishable for the first three iterations and then separate: PTO holds
+0.80–0.98 for the whole run while GRPO **decays monotonically in trend** from ~0.89 to 0.28. So the
+divergence is not a property of the endpoint that happened to be measured — the held-out grader
+stops crediting GRPO's gains progressively, exactly as an optimiser drifting onto grader-specific
+features would predict. (Iteration 9 is the visible floor at 0.03; it is also the arm's global dip
+in the primary eval, so read it as the extreme of the trend rather than a separate event.)
+
 This is the standard reward-hacking signature (a policy that overfits its grader does not
 transfer), and it is **stronger evidence for the sycophancy claim than the MICI rate**, which
 carries a known weak-agreement caveat (§2). It does not dissolve the circularity — Q1+Q2 remains
 the reward — but it converts "partly circular, treat with caution" into a measured statement about
-*which* arms' gains survive an independent grader and by how much.
+*which* arms' gains survive an independent grader, by how much, and *from which iteration on*.
 
-One honest limit remains: retention is a ratio of two estimated deltas, hence the CIs — compare
-arms by interval overlap, not by point estimate. The coverage limit is gone: this is now measured
-across all 29 model states, and the Q1 point estimates and intervals are unchanged from the
-4-anchor version, which is itself reassuring.
+Two honest limits remain. (a) Retention is a ratio of two estimated deltas, hence the CIs — compare
+arms by interval overlap, not by point estimate; where the denominator delta is near zero the ratio
+is undefined and the table reports `nan` rather than a large spurious number. (b) Both arms are
+referenced to the **shared `PTOExp3_LA0_Base`**, not to their own base, so that the two columns are
+on one scale; the two bases differ by Q1 0.10 (primary) / 0.02 (judge), far too little to drive the
+PTO-vs-GRPO gap. The coverage limit is gone: this is measured on every scored iteration of both K=0
+arms, and the Q1 point estimates and intervals are unchanged from the 4-anchor version, which is
+itself reassuring.
 
 ## 4 · PCT is not independent of the global-eval rubrics
 Empirically `PCT` (patient change-talk proportion) loads **with** the global-evaluation (halo)
