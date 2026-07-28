@@ -4,6 +4,44 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-28) — the second judge's own ICC is measured; the MICI attribution is resolved.**
+The last named validity gap. `reliability.agreement` computed the attenuation ceiling as
+`sqrt(ICC_primary × ICC_judge)` with `ICC_judge` *assumed* equal to the primary's, collapsing it to
+`ICC_primary`. That left MICI's weak cross-judge agreement (r 0.20–0.55) unattributable between
+"Haiku is noisy" and "the judges disagree about the construct". Two further Haiku reps on the anchor
+subset (4 model states × {Q1, Q2, MICI} × 96 convs, 2,304 calls, 0 errors) close it.
+- **Measured: Q1 0.951–0.978, Q2 0.938–0.963, MICI 0.525–0.929.** Near-parity with the primary on
+  Q1/Q2, so the assumption was sound there. Not on MICI: Haiku's repeatability falls as the
+  MI-inconsistency rate rises (PTO Base 0.929 → PTO@10 0.815 → GRPO@8 0.749 → **GRPO@10 0.525**),
+  i.e. it is least reliable on the arms the sycophancy claim concerns, where the achievable ceiling
+  is **0.70** rather than the assumed 0.93.
+- **Attribution: partly the judge's noise, mostly construct disagreement.** Against the corrected
+  ceiling, agreement recovers Q1 86–91%, Q2 83–88%, MICI only **29–59%**. Haiku's own noise is a
+  genuine contributor but accounts for a minority of the MICI gap, so the `LIMITATIONS.md` §2 MICI
+  caveat stands and gain retention remains the load-bearing sycophancy evidence. No headline result
+  changes; a stated limitation moves from assumed to measured.
+- **A design check preceded the spend ($0.16, 40 calls).** The primary's reps differ by an explicit
+  per-rep API `seed` at temperature 0.1; the Claude path passes neither (Anthropic has no `seed`
+  parameter), so Haiku reps differ only by inherent API nondeterminism. Had it replayed
+  deterministically, an ICC over those reps would have measured API determinism rather than judge
+  reliability. Probed on MICI: 9/20 conversations differed, mean |Δ| 0.095 — informative, so the
+  full run was justified. Worth repeating before any same-prompt rep purchase on a seedless API.
+- **Cost: $9.16 actual, against "~$1–2" documented.** The old figure was an unchecked estimate;
+  `judge_plan.estimate_cost` gives $9.16 direct / $4.58 batched (2,304 calls × 3,621 input + 71
+  output tokens at $1/$5 per MTok). Run live rather than batched — under $5 of difference against
+  minutes versus up to 24h. Corrected at the source with a note to price judge spend with the
+  estimator.
+- **Code.** `reliability.agreement` derives the second judge's ICC from disk where it has ≥2 full
+  reps (new `_second_judge_icc`, which drops cells with lopsided rep coverage), computes the real
+  `sqrt(ICC_p × ICC_j)`, and records `ceiling_basis`; new `icc_judge` column. The same `pearson_r`
+  reads differently under the two bases, so the basis travels with the number. Cells with no ICC on
+  either side are labelled as such rather than as an assumption that is not being applied.
+- ⚠ **Consequence for §8:** the multi-judge analysis reads Haiku **rep 0 only**, and single-rep
+  Haiku MICI on GRPO@10 is ICC 0.525. One-rep MICI on the high-MICI arms is indicative only;
+  averaging the three anchor reps would resolve it for those four model states.
+
+---
+
 **Landed (2026-07-28) — the judge level is now SYMMETRIC: every grader gets a folder, the primary
 included.** Lior's call. The layout had the second judge nested at `<family>/<judge>/` while the
 primary rendered *flat* at `<family>/` — deliberate at the time (adding a grader moved no path the

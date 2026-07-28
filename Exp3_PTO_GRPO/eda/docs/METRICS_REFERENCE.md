@@ -235,13 +235,21 @@ itself is reproducible and grader-independent. Both come from `data/judge_check/
 | `icc_2_1` | ICC(2,1) — two-way random effects, absolute agreement, single rater (Shrout & Fleiss), computed across N re-scorings of the SAME conversations by the SAME oracle with only the API `seed` differing | Share of per-conversation variance that is signal rather than re-scoring noise. Koo & Li (2016): ≥0.75 good, ≥0.90 excellent |
 | `mean_abs_diff` | Mean \|Δ\| between two reps of the same conversation | The citable "oracle noise" figure, in rubric points |
 | `pearson_r` / `spearman_rho` | Second judge vs primary oracle, per conversation, within (metric, model) | Rank agreement across grader families. **Compare to `ceiling`, never to 1.0** |
-| `ceiling` | Attenuation ceiling = `sqrt(ICC_primary × ICC_judge)`; the second judge is scored once, so `ICC_judge` is assumed equal to the primary's, collapsing this to `icc_primary` | Upper bound on achievable r. If the second judge is noisier, the true ceiling is lower and observed agreement is better than it looks |
+| `ceiling` / `ceiling_basis` | Attenuation ceiling = `sqrt(ICC_primary × ICC_judge)`. **Both terms measured since 2026-07-28** (the second judge has 3 reps on the anchor subset); `ceiling_basis` says whether a cell used measured values or fell back to the old `ICC_judge == ICC_primary` assumption | Upper bound on achievable r — **compare `pearson_r` to this, never to 1.0**. The assumption it replaced flattered MICI: Haiku's MICI ICC is 0.53–0.93, so the true ceiling there is 0.70–0.94, not 0.93 |
+| `icc_judge` | The second judge's own ICC(2,1), same construction as `icc_2_1` but across *its* reps. `NaN` where that judge has <2 full reps | Whether weak agreement is the second judge's noise or genuine disagreement — unanswerable without it |
 | `bias_judge_minus_primary` | Mean level offset between judges | Expected and harmless — a harsher grader shifts every score. The thesis reports *contrasts*, which cancel it |
 | `same_sign` | Whether an endpoint contrast (paired Δ over the 96 matched personas) has the same sign under both judges | **The load-bearing number.** Answers `LIMITATIONS.md` §2: is the result an artifact of the patient simulator and the grader being the same model? |
 
 Measured (2026-07-26, Haiku 4.5 as the second judge): oracle ICC 0.90–0.99 (mean \|Δ\| 0.03–0.09);
 Q1/Q2 cross-judge r 0.80–0.88 against a ~0.98 ceiling; MICI r 0.20–0.55 (see the caveat in
 `LIMITATIONS.md` §1); 6/6 contrasts preserved.
+
+**Both judges' ICCs measured (2026-07-28).** Haiku on the anchor subset: Q1 0.951–0.978,
+Q2 0.938–0.963, MICI **0.525–0.929** — near-parity with the primary on Q1/Q2, materially noisier on
+MICI, and worst on the arms with the most MI-inconsistent behaviour (GRPO@10 0.525 vs PTO Base
+0.929). With the ceiling corrected for that, agreement as a share of achievable is Q1 86–91%,
+Q2 83–88%, MICI **29–59%** — the second judge's noise is a real contributor to weak MICI agreement
+but not the main one; construct disagreement dominates. Full treatment: `LIMITATIONS.md` §1–§2.
 
 ## 7b · Multi-judge (what to do once two judges have scored the same conversations)
 

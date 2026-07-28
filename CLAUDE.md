@@ -157,9 +157,23 @@ here — see "Doc map"). Updated 2026-07-08.
     persona sampling, so breadth beats depth at equal cost.
     ⚠ **Haiku 4.5 caches nothing on this prompt** — confirmed empirically
     (`cached_input_tokens = 0`): its cacheable-prefix minimum is 4,096 and only Q1/Q2 come close.
-  - Cheapest remaining validity buy: **2 extra Haiku reps on the anchor subset (~$1–2)** to measure
-    the second judge's own ICC — currently assumed equal to the primary's, which is what makes
-    MICI's weak agreement unattributable between "Haiku is noisy" and "the judges disagree".
+- **Second-judge ICC — MEASURED 2026-07-28**, closing the last named validity gap (was the
+  "cheapest remaining validity buy"). 2 further Haiku reps on the anchor subset, 2,304 calls,
+  0 errors. Haiku's own ICC: **Q1 0.951–0.978, Q2 0.938–0.963, MICI 0.525–0.929.**
+  - The prior assumption (`ICC_judge == ICC_primary`) held on Q1/Q2 but not on MICI: Haiku's
+    repeatability falls as the MI-inconsistency rate rises (PTO Base 0.929 → PTO@10 0.815 →
+    GRPO@8 0.749 → **GRPO@10 0.525**), i.e. it is least reliable on the arms the sycophancy claim
+    concerns, where the achievable ceiling is 0.70, not 0.93.
+  - **Attribution: partly the judge's noise, mostly construct disagreement.** Against the corrected
+    ceiling, agreement recovers Q1 86–91%, Q2 83–88%, MICI only **29–59%**. The MICI caveat stands
+    and gain retention remains the load-bearing sycophancy evidence — **no headline result moves.**
+  - ⚠ **Constrains §8:** the multi-judge analysis reads Haiku **rep 0 only**, and single-rep Haiku
+    MICI on GRPO@10 is ICC 0.525. Treat one-rep MICI on high-MICI arms as indicative; the 3 anchor
+    reps now on disk would resolve it for those four model states.
+  - `reliability.agreement` computes `sqrt(ICC_primary × ICC_judge)` from measured values and records
+    `ceiling_basis`; it falls back to the assumption only where a judge has <2 reps.
+  - **Cost $9.16** (batched would have been $4.58) against "~$1–2" previously documented here — that
+    was an unchecked estimate. Price judge spend with `judge_plan.estimate_cost`.
 
 ## Doc map (one owner per fact)
 | Fact | Lives ONLY in |

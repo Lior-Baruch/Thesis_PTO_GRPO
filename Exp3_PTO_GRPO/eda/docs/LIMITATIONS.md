@@ -45,20 +45,51 @@ and every §8 number below is computed at full n=96 per cell. Coverage is record
 and consistently wrong. That remains the strongest further addition (costs Lior-time, not API
 budget), and no ICC substitutes for it.
 
-**Why more repetitions were NOT bought.** Quantified in `5_Training_and_Reliability` §8: oracle
+**Why breadth was bought before depth.** Quantified in `5_Training_and_Reliability` §8: oracle
 noise contributes ≈0.01 to a 96-conversation arm mean, against ≈0.09 from persona sampling — an
 order of magnitude less. A second rep therefore cannot move any arm-level conclusion (Q1 per-
 conversation reliability goes 0.98 → 0.99 from 1 → 3 reps). At equal cost, **breadth** (all models ×
-both judges) strictly dominates **depth** (more reps of a few cells). The one metric where reps are
-defensible is MICI, whose ICC (0.895–0.958) is the lowest and where the two judges genuinely
-diverge — see the MICI caveat in §2.
+both judges) strictly dominates **depth** (more reps of a few cells), which is why the full grid was
+scored at one rep per judge. Depth was bought only where it answered a question breadth could not —
+the second judge's own repeatability, whose absence made the MICI diagnosis ambiguous (next
+paragraph).
 
-**Second-judge repeatability is unmeasured.** The attenuation ceiling reported in §2 assumes the
-second judge is as self-consistent as the primary (making the ceiling collapse to `ICC_primary`);
-`reliability.agreement` flags it as an upper bound. This assumption does real work on MICI: if
-Haiku's own MICI ICC were low, the observed r 0.20–0.55 would be explained by *its* noise rather
-than by genuine construct disagreement, and the two readings are currently not separable. Two extra
-Haiku reps on the anchor subset (~$1–2) would resolve it.
+**Second-judge repeatability — measured (2026-07-28).** The attenuation ceiling reported in §2 is
+`sqrt(ICC_primary × ICC_judge)`. Until now `ICC_judge` was unmeasured and assumed equal to the
+primary's, collapsing the ceiling to `ICC_primary`. Two further Haiku reps on the anchor subset
+(3 reps total, 4 model states × {Q1, Q2, MICI} × 96 conversations) make both terms measured:
+
+| metric | ICC(2,1) primary | ICC(2,1) Haiku |
+|---|---|---|
+| Q1 | 0.981–0.994 | 0.951–0.978 |
+| Q2 | 0.962–0.992 | 0.938–0.963 |
+| MICI | 0.895–0.958 | **0.525–0.929** |
+
+On Q1 and Q2 the assumption was sound: Haiku is nearly as repeatable as the primary and the ceiling
+moves by <0.03. On MICI it was not. Haiku's MICI repeatability falls as the MI-inconsistency rate
+rises — PTO Base (MICI 0.21) 0.929, PTO@10 (0.49) 0.815, GRPO@8 (0.54) 0.749, GRPO@10 (0.84)
+**0.525** — so it is least reliable on the arms the sycophancy claim concerns, where the achievable
+ceiling is **0.70**, not the 0.93 previously assumed.
+
+Correcting the ceiling therefore raises MICI's agreement-as-a-share-of-achievable, but not to the
+level of the other rubrics:
+
+| metric | observed r | ceiling (measured) | r as % of ceiling |
+|---|---|---|---|
+| Q1 | 0.84–0.88 | 0.97–0.99 | 86–91% |
+| Q2 | 0.80–0.86 | 0.96–0.98 | 83–88% |
+| MICI | 0.20–0.55 | 0.70–0.94 | **29–59%** |
+
+Weak MICI agreement is thus **partly** the second judge's own noise and **mostly** construct
+disagreement: against a ceiling corrected for that noise, MICI still recovers only ~39% of
+achievable agreement where Q1/Q2 recover ~85%. The §2 MICI caveat therefore stands. `reliability.agreement`
+now computes the ceiling from measured values on both sides and records which basis applied in
+`ceiling_basis`.
+
+> ⚠ **Consequence for §8.** The multi-judge analysis reads Haiku **rep 0 only**, and a single-rep
+> Haiku MICI score on GRPO@10 has ICC 0.525 — barely half its variance is signal. Treat one-rep
+> MICI on the high-MICI arms as indicative; averaging the three anchor reps now on disk would
+> resolve it for those four model states.
 
 ## 2 · Shared-model (patient = oracle) coupling
 The simulated patient **and** the grading oracle are the **same** model
@@ -116,12 +147,20 @@ different model family that never played the patient (`Judge_Reliability.ipynb` 
    compared across judges.
 
 **The MICI caveat.** Per-conversation cross-judge agreement on MICI is weak (r 0.20–0.55, ρ
-0.21–0.47) even though the primary oracle is self-consistent on it (ICC 0.90–0.96). Part of this is
-statistical — `MICI_Rate` is a low, zero-inflated count-per-turn, and restriction of range
-attenuates correlation — but the two families clearly do not count MI-inconsistent behaviours the
-same way. So the **sycophancy claim should be stated at the contrast level** (both judges agree
-GRPO@10 is more MI-inconsistent than PTO@10, and that MICI rises from base in both arms), **not as
-a precise per-conversation rate**. A human-coded MICI sample is the fix (see §1).
+0.21–0.47) even though the primary oracle is self-consistent on it (ICC 0.90–0.96). Since
+2026-07-28 the three contributing causes are separated rather than conflated (§1). The second
+judge's *own* MICI noise is real — Haiku's ICC is 0.525–0.929 and falls as the MI-inconsistency
+rate rises, lowering the achievable ceiling to 0.70–0.94 — and statistical attenuation contributes
+too, since `MICI_Rate` is a low, zero-inflated count-per-turn whose restricted range depresses
+correlation. But neither accounts for most of the gap: measured against the corrected ceiling, MICI
+recovers only ~39% of achievable agreement where Q1/Q2 recover ~85%. **Genuine construct
+disagreement remains the dominant term** — the two model families do not count MI-inconsistent
+behaviours the same way.
+
+So the **sycophancy claim should be stated at the contrast level** (both judges agree GRPO@10 is
+more MI-inconsistent than PTO@10, and that MICI rises from base in both arms), **not as a precise
+per-conversation rate** — and the load-bearing evidence should remain gain retention (§3) and the
+deterministic text metrics, not MICI. A human-coded MICI sample is the fix (see §1).
 
 **Variance decomposition (2026-07-27).** The level shift in (3) is not merely *assumed* to be
 harmless — it is now separated from the part that would matter. A two-way random-effects

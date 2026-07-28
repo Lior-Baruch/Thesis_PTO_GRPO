@@ -160,9 +160,15 @@ def agreement(judge_long: pd.DataFrame, primary_long: pd.DataFrame,
 
     ``bias_judge_minus_primary`` is the LEVEL offset (a harsher judge scores everything lower);
     it is irrelevant to the thesis claims, which are all *contrasts* — see :func:`contrasts`.
-    ``ceiling`` is the max r two raters of this reliability could reach (see the module docstring:
-    an upper bound, since the second judge's own ICC is unmeasured); ``r_pct_of_ceiling`` is the
-    observed agreement as a share of it.
+    ``ceiling`` is the max r two raters of this reliability could reach — the classical attenuation
+    bound ``sqrt(ICC_primary * ICC_judge)``; ``r_pct_of_ceiling`` is the observed agreement as a
+    share of it.
+
+    **The second judge's own ICC is used when it has been measured** (≥2 full reps on disk for that
+    judge, 2026-07-28). Before that it was *assumed* equal to the primary's, collapsing the ceiling
+    to ``ICC_primary`` — which flattered MICI badly: Haiku's measured MICI ICC runs 0.53–0.93, so
+    the true ceiling there is as low as 0.70 rather than the assumed 0.93. ``ceiling_basis`` records
+    which applied, because the two give materially different readings of the same ``pearson_r``.
     """
     tab = _judge.agreement_table(judge_long, primary_long)
     if tab.empty:
@@ -172,10 +178,49 @@ def agreement(judge_long: pd.DataFrame, primary_long: pd.DataFrame,
     if rep_tab is not None and not rep_tab.empty:
         icc = rep_tab.set_index(["metric", "model"])["icc_2_1"]
         tab["icc_primary"] = [icc.get((m, mo), np.nan) for m, mo in zip(tab.metric, tab.model)]
-        # sqrt(ICC_p * ICC_j) with ICC_j assumed == ICC_p  ->  the ceiling collapses to ICC_p.
-        tab["ceiling"] = tab["icc_primary"].round(3)
+        tab["icc_judge"] = np.nan
+        # Repeatability is only ever measured on the anchor subset, so most cells have NO ICC on
+        # either side. Say that, rather than labelling them with an assumption that isn't being
+        # made — the ceiling there is NaN, not a value derived from ICC_primary.
+        tab["ceiling_basis"] = np.where(tab["icc_primary"].isna(),
+                                        "no ICC measured for this cell",
+                                        "assumed ICC_judge == ICC_primary")
+        j_icc = _second_judge_icc(judge_long)
+        if j_icc is not None:
+            measured = np.array([j_icc.get((m, mo), np.nan)
+                                 for m, mo in zip(tab.metric, tab.model)], dtype=float)
+            have = ~np.isnan(measured) & tab["icc_primary"].notna().to_numpy()
+            tab.loc[have, "icc_judge"] = measured[have].round(3)
+            tab.loc[have, "ceiling_basis"] = "measured both judges"
+        # Fall back to the primary's ICC wherever the judge's is unmeasured.
+        icc_j = tab["icc_judge"].fillna(tab["icc_primary"])
+        tab["ceiling"] = np.sqrt(tab["icc_primary"].clip(lower=0) * icc_j.clip(lower=0)).round(3)
         tab["r_pct_of_ceiling"] = (100 * tab["pearson_r"] / tab["ceiling"]).round(1)
     return tab
+
+
+def _second_judge_icc(judge_long: pd.DataFrame) -> Optional[pd.Series]:
+    """``(metric, model) -> ICC(2,1)`` for the second judge, or ``None`` if it has <2 reps on disk.
+
+    ``judge_long`` is typically a single rep, so the reps are re-read from disk by tag rather than
+    taken from it. Cells whose rep coverage is partial are dropped — an ICC over a lopsided rep set
+    would understate reliability for reasons that have nothing to do with the judge.
+    """
+    if judge_long is None or judge_long.empty or "judge" not in judge_long.columns:
+        return None
+    tags = [t for t in judge_long["judge"].dropna().unique()]
+    if len(tags) != 1:
+        return None
+    full = load_judge_long(str(tags[0]))
+    if full.empty or full.rep.nunique() < 2:
+        return None
+    per_cell = full.groupby(["metric", "model", "rep"]).size().rename("n").reset_index()
+    counts = per_cell.groupby(["metric", "model"]).rep.nunique()
+    complete = counts[counts >= 2].index
+    full = full[pd.MultiIndex.from_arrays([full.metric, full.model]).isin(complete)]
+    if full.empty:
+        return None
+    return repeatability(full).set_index(["metric", "model"])["icc_2_1"]
 
 
 def contrasts(judge_long: pd.DataFrame, primary_long: pd.DataFrame,
