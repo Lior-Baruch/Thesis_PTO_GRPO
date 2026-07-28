@@ -1,26 +1,29 @@
-"""reliability.py — MEASUREMENT-VALIDITY data layer: reads the re-scoring tree written by
-``Judge_Reliability.ipynb`` (``data/eval_scores_by_judge/``) and builds the tables the EDA displays.
+"""reliability.py — MEASUREMENT-VALIDITY data layer: reads the score lake
+(``data/eval_scores/judge=<tag>/rep=<r>/``) and builds the tables the EDA displays.
 
 Analysis-layer counterpart to :mod:`eda_analysis.scoring.judge`, which OWNS the paid API path that
-*writes* that tree. **Nothing here calls an API** — this module is disk-only and free to re-run,
-like every other ``eda_analysis`` module, so ``5_Training_and_Reliability`` can render these
+*writes* those partitions. **Nothing here calls an API** — this module is disk-only and free to
+re-run, like every other ``eda_analysis`` module, so ``5_Training_and_Reliability`` can render these
 tables/figures inside ``render_views.py`` while the money stays behind the ``RUN_*`` switches in
 ``Judge_Reliability.ipynb``. Same split as ``Run_Eval`` (paid, manual) → notebooks 1–7 (free, auto).
 
-Two questions, from the re-scoring subset (anchor models × Q1/Q2/MICI × 96 convs):
+Two questions. Repeatability is measured on the anchor subset (4 model states × Q1/Q2/MICI × 96
+convs); agreement runs on whatever both judges have scored, which for Haiku is the full grid.
 
-1. **Repeatability** — the primary oracle re-scoring the SAME conversations N times (seeds differ,
-   nothing else) → ICC(2,1) + mean |Δ|. This is the measurement error of the instrument.
+1. **Repeatability** — one judge re-scoring the SAME conversations N times → ICC(2,1) + mean |Δ|.
+   This is the measurement error of the instrument. Reps of a judge differ only by scoring seed
+   (``1000+rep``, OpenAI) or by inherent API nondeterminism (Anthropic, which takes no seed), which
+   is what makes them exchangeable enough for ICC.
 2. **Second-judge agreement** — a different-family judge (Claude Haiku 4.5) scoring the same cells
-   once → r / ρ / bias vs the primary oracle, and the defense-critical check: does the PTO−GRPO
-   endpoint contrast keep its SIGN under a judge that never played the patient?
+   → r / ρ / bias vs the primary oracle, and the defense-critical check: does the PTO−GRPO endpoint
+   contrast keep its SIGN under a judge that never played the patient?
 
 Read agreement against the **attenuation ceiling**, never against 1.0: two noisy raters cannot
-correlate above ``sqrt(ICC_a × ICC_b)``. The subset scores the second judge once, so ``ICC_judge``
-is unmeasured; :func:`agreement` therefore reports the ceiling under the assumption that the second
-judge is as self-consistent as the primary (which makes the ceiling simply ``ICC_primary``) and
-flags it as an upper bound — if Haiku is noisier, the true ceiling is lower and the observed
-agreement is correspondingly better than it looks.
+correlate above ``sqrt(ICC_a × ICC_b)``. BOTH judges' ICCs are now measured (2026-07-28), so
+:func:`agreement` computes the real ceiling and records ``ceiling_basis``; it falls back to
+assuming ``ICC_judge == ICC_primary`` only where a judge has fewer than 2 reps on disk. The
+distinction matters most on MICI, where Haiku's own ICC runs 0.53–0.93 rather than the ~0.93 the
+old assumption implied.
 
 Figures: :mod:`eda_analysis.plotting.reliability`. Metric definitions: ``METRICS_REFERENCE.md`` §7.
 """
@@ -35,7 +38,7 @@ import pandas as pd
 from .scoring import judge as _judge
 from .scoring import registry as _registry
 
-JUDGE_CHECK_ROOT = _judge.JUDGE_CHECK_ROOT
+EVAL_SCORES_ROOT = _judge.EVAL_SCORES_ROOT
 PRIMARY_TAG = _judge.PRIMARY_JUDGE.tag
 
 # The endpoint contrasts worth checking for judge-independence. (a − b); for MICI lower = better,
@@ -48,20 +51,19 @@ DEFAULT_CONTRAST_PAIRS: List[Tuple[str, str]] = [
 
 # ── discovery / guards ────────────────────────────────────────────────────────
 def judge_tags() -> List[str]:
-    """Judge folders present under ``data/eval_scores_by_judge/``.
+    """Every grader with scores in the lake, primary included (``data/eval_scores/judge=*/``).
 
-    Excludes ``summary/`` and any ``_``-prefixed directory. The underscore rule is load-bearing:
-    :mod:`eda_analysis.scoring.judge_batch` keeps its batch manifests in ``eval_scores_by_judge/_batches/``,
-    and without this filter that directory is discovered as a judge — sorting FIRST, so
-    ``second_judge_tags()[0]`` silently resolves to an empty tag and every multi-judge table comes
-    back blank with no error. Keep bookkeeping directories underscore-prefixed.
+    Only ``judge=``-prefixed directories qualify, which is what keeps the bookkeeping siblings
+    (``_batches/``, ``summary/``) from being discovered as graders — without that filter
+    ``_batches`` sorts FIRST, ``second_judge_tags()[0]`` silently resolves to an empty tag, and
+    every multi-judge table comes back blank with no error.
     """
-    if not os.path.isdir(JUDGE_CHECK_ROOT):
+    if not os.path.isdir(EVAL_SCORES_ROOT):
         return []
     from .constants import JUDGE_PARTITION
-    return sorted(d[len(JUDGE_PARTITION):] for d in os.listdir(JUDGE_CHECK_ROOT)
+    return sorted(d[len(JUDGE_PARTITION):] for d in os.listdir(EVAL_SCORES_ROOT)
                   if d.startswith(JUDGE_PARTITION)
-                  and os.path.isdir(os.path.join(JUDGE_CHECK_ROOT, d)))
+                  and os.path.isdir(os.path.join(EVAL_SCORES_ROOT, d)))
 
 
 def second_judge_tags() -> List[str]:
@@ -69,9 +71,23 @@ def second_judge_tags() -> List[str]:
     return [t for t in judge_tags() if t != PRIMARY_TAG]
 
 
+def judge_reps(tag: str) -> List[int]:
+    """Rep indices on disk for one judge. ``0`` is its full-grid draw; ``>=1`` are repeat draws."""
+    root = os.path.join(EVAL_SCORES_ROOT, f"judge={tag}")
+    if not os.path.isdir(root):
+        return []
+    return sorted(int(m.group(1)) for m in
+                  (re.match(r"rep=(\d+)$", d) for d in os.listdir(root)) if m)
+
+
 def available() -> bool:
-    """True when any re-scoring data exists — notebooks guard their section on this."""
-    return bool(judge_tags())
+    """True when there is anything to say about measurement validity — notebooks guard on this.
+
+    That means a decoupled second judge, or ≥2 draws from the primary (an ICC needs two). Since
+    the 2026-07-28 lake migration the primary is itself a ``judge=`` folder, so a bare
+    ``judge_tags()`` is now always non-empty and would have made this vacuously True.
+    """
+    return bool(second_judge_tags()) or len(judge_reps(PRIMARY_TAG)) >= 2
 
 
 # Readable names for figure titles / captions (keys are the MODEL half of a judge tag).
@@ -97,10 +113,11 @@ def load_judge_long(tag: str, *, reps: Optional[List[int]] = None) -> pd.DataFra
 
 def load_primary_long(models: Sequence[str], metrics: Sequence[str],
                       layout: Optional[Dict[str, dict]] = None) -> pd.DataFrame:
-    """The PRODUCTION scores for the same cells, read from the real ``eval_scores/`` tree.
+    """The primary oracle's REPORTED scores for the same cells (``judge=<primary>/rep=0``).
 
     This is the comparison baseline for the second judge — the numbers the thesis actually
-    reports — not a re-score. ``layout`` defaults to the auto-discovered registry layout.
+    reports. ``layout`` defaults to the auto-discovered registry layout, which resolves to the
+    primary at rep 0.
     """
     if layout is None:
         exps = [e for e in _registry.EXPERIMENTS if e.model_name in set(models)]

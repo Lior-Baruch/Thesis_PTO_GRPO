@@ -14,10 +14,14 @@ on a SUBSET, cheaply:
    oracle, and (the defense-critical check) whether the PTO-vs-GRPO endpoint contrast is
    preserved under the second judge.
 
-Outputs are kept OUT of the real ``eval_scores/`` tree:
-    ``data/eval_scores_by_judge/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv``
+Outputs land in the score lake alongside every other grader's, in their own partition:
+    ``data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv``
 (same per-conversation CSV shape as Run_Eval, so loaders are shared). Resume-safe: existing
 CSVs are skipped, like Run_Eval.
+
+⚠ ``rep=0`` of each judge is its FULL-GRID draw and is what the EDA reports. This module writes
+whatever ``rep`` it is handed, so scoring a repeatability draw means passing ``rep>=1`` — writing
+to rep 0 would overwrite the reported scores rather than add a repetition.
 
 Anthropic judge notes (per the Claude API docs, 2026-06):
 - Structured output via ``output_config.format`` (json_schema) — the response's first text block
@@ -45,14 +49,14 @@ from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from ..constants import WORKSPACE_ROOT, EVAL_SCORES_BY_JUDGE, judge_partition_dir
+from ..constants import WORKSPACE_ROOT, EVAL_SCORES, judge_partition_dir
 from .registry import EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, EVAL_QUESTIONNAIRE_DIRS
 from .conversations import reconstruct_conversation_text
 
 # Reuse the questionnaire prompt/parse/row machinery from the primary pipeline.
 from . import pipeline as _pipeline
 
-JUDGE_CHECK_ROOT = EVAL_SCORES_BY_JUDGE   # data/eval_scores_by_judge/ (see constants.py)
+EVAL_SCORES_ROOT = EVAL_SCORES            # data/eval_scores/ — the score lake (see constants.py)
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -250,10 +254,10 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
 
 
 def judge_out_dir(judge_tag: str, rep: int, metric_subdir: str, oracle: str, model: str) -> str:
-    """``data/eval_scores_by_judge/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/``.
+    """``data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/``.
 
-    Every level is a ``key=value`` partition except the model, matching the primary
-    ``eval_scores/`` tree so both are browsable and parseable the same way.
+    Every level is a ``key=value`` partition except the model. Identical to what
+    :func:`registry.eval_csv_dir` builds for the primary path — one layout, one parser.
     """
     return os.path.join(judge_partition_dir(judge_tag), f"rep={rep}",
                         f"metric={metric_subdir}", f"oracle={oracle}", model)
@@ -267,9 +271,10 @@ async def run_judge_scoring(judge: JudgeSpec, combined_data: pd.DataFrame,
 
     - ``combined_data``: Run_Eval-style frame (``Model``, ``id``, ``conversation`` columns).
     - ``questionnaire_names``: display names, e.g. ``["Q1", "Q2", "MICI"]``.
-    - ``model_layout``: ``registry.get_model_eval_layout()`` — used only for the oracle label
-      (output root is ``data/eval_scores_by_judge/``, never the real eval_scores).
-    - ``rep``: repetition index → its own folder + (openai) its own seed ``1000+rep``.
+    - ``model_layout``: ``registry.get_model_eval_layout()`` — used only for the oracle label;
+      the output root comes from ``judge`` + ``rep``, never from the layout's ``root``.
+    - ``rep``: repetition index → its own partition + (openai) its own seed ``1000+rep``.
+      Pass ``rep>=1`` for repeatability draws; rep 0 holds the reported scores.
     - ``subset_n``: score only the first N conversations per model (cost lever).
     Resume-safe (skips existing CSVs). Returns a stats dict.
     """

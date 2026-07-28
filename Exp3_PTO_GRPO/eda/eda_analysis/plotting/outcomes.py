@@ -8,7 +8,7 @@ import seaborn as sns
 
 from ..constants import (
     QUESTIONNAIRE_ORDER, EXTRA_METRICS, LOWER_IS_BETTER,
-    display_label, arm_label,
+    display_label, arm_label, BOOT_SEED,
 )
 from ..plotting_style import (
     grid, model_order, relabel_xticks, add_base_line, figure_legend_from,
@@ -30,7 +30,7 @@ def outcomes_by_model(scores_long, *, palette, metrics: Optional[Sequence[str]] 
     for ax, m in zip(axes, metrics):
         dm = scores_long[scores_long.questionnaire == m]
         sns.barplot(dm, x="model", y="score", hue="arm",
-                    order=order, palette=palette, errorbar=("ci", 95), dodge=False, ax=ax)
+                    order=order, palette=palette, errorbar=("ci", 95), seed=BOOT_SEED, dodge=False, ax=ax)
         ax.set_title(display_label(m)); ax.set_xlabel("")
         relabel_xticks(ax)
         add_base_line(ax, float(dm[dm.is_base].score.mean()) if dm.is_base.any() else None)

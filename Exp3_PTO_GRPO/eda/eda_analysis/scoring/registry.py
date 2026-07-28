@@ -15,7 +15,8 @@ import os
 from dataclasses import dataclass
 from typing import Dict, List, Optional
 
-from ..constants import DATA_DIR, WORKSPACE_ROOT  # noqa: F401  (DATA_DIR re-exported for callers)
+from ..constants import (DATA_DIR, WORKSPACE_ROOT,  # noqa: F401  (re-exported for callers)
+                         judge_partition_dir)
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -62,19 +63,19 @@ MAX_RETRIES = 3
 DEFAULT_CONCURRENCY = 32
 
 
-# Each training method owns its eval_scores/ inside its own data dir, so a
-# model's gradings live next to the conversations they grade and method
-# namespaces never collide. The score path is resolved per-model from the
-# experiment's ``method`` + training ``oracle`` (see ``eval_scores_root_for_method``,
-# ``get_model_eval_layout``, ``eval_csv_dir``).
+# Scores from every grader live in ONE lake, partitioned by judge and rep:
+# ``data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<model>/`` — see
+# ``eval_scores_root``, ``get_model_eval_layout``, ``eval_csv_dir``. There is no method level:
+# ``<model>`` already carries it (GRPOExp3_* / PTOExp3_*), and before 2026-07-28 that redundant
+# split was the reason the primary grader's scores lived in two roots at once.
 
-# Training method -> the data/ subdir that owns its eval_scores/.
+# Training method -> the data/ subdir holding its CONVERSATIONS and RUNS (not its scores).
 METHOD_DATA_DIR = {
     "GRPO_Exp3": "grpo_Exp3",
     "PTO_Exp3":  "pto_Exp3",
 }
 
-# Questionnaire display name -> on-disk folder basename under <method>/eval_scores/.
+# Questionnaire display name -> on-disk folder basename under a rep=<r>/ partition.
 EVAL_QUESTIONNAIRE_DIRS = {
     "CSQ-8":  "CSQ8",
     "WAI-SR": "WAI_SR",
@@ -87,28 +88,23 @@ EVAL_QUESTIONNAIRE_DIRS = {
 }
 
 
-def eval_scores_root_for_method(method: str) -> str:
-    """Absolute ``data/<method_dir>/eval_scores`` for a training method.
+def eval_scores_root(judge_tag: str = "", rep: int = 0) -> str:
+    """Absolute ``data/eval_scores/judge=<tag>/rep=<r>`` — one grader's scores at one rep.
 
-    Raises ``KeyError`` on an unknown method (the Exp2 ``pto_Exp2`` fallback was
-    removed 2026-06-15 — see ``METHOD_DATA_DIR``).
+    An empty ``judge_tag`` resolves to the primary oracle. ``rep=0`` is the full-grid draw for
+    every judge (the one the thesis reports); reps ≥1 are the repeatability draws on the anchor
+    subset. Method-independent by design — see the note above ``METHOD_DATA_DIR``.
     """
-    try:
-        return os.path.join(DATA_DIR, METHOD_DATA_DIR[method], "eval_scores")
-    except KeyError:
-        raise KeyError(
-            f"Unknown training method {method!r}; expected one of "
-            f"{sorted(METHOD_DATA_DIR)}"
-        )
+    return os.path.join(judge_partition_dir(judge_tag), f"rep={int(rep)}")
 
 
 def eval_csv_dir(root: str, oracle: str, metric_subdir: str, model: str) -> str:
     """Folder holding a model's per-patient eval CSVs for one metric.
 
-    Layout: ``<root>/metric=<metric>/oracle=<oracle>/<model>/``. The two labelled
-    levels make the *scoring metric* (what graded it) and the *training oracle*
-    (what it was trained on) explicit and unambiguous — e.g.
-    ``…/eval_scores/metric=WAI_SR/oracle=Q1Q2/L5_Q1Q2_V10/``.
+    Layout: ``<root>/metric=<metric>/oracle=<oracle>/<model>/``, where ``root`` comes from
+    :func:`eval_scores_root`. The two labelled levels make the *scoring metric* (what graded it)
+    and the *training oracle* (what it was trained on) explicit and unambiguous — e.g.
+    ``…/rep=0/metric=WAI_SR/oracle=Q1Q2/PTOExp3_LA0_I10/``.
     """
     return os.path.join(root, f"metric={metric_subdir}", f"oracle={oracle}", model)
 
@@ -123,11 +119,12 @@ class ScoringConfig:
     """Runtime knobs for oracle scoring (formerly ``EDAConfig`` — renamed at the
     2026-07-13 fold to stop the near-collision with ``eda_analysis.EdaConfig``).
 
-    Eval scores are co-located per method and labelled by metric + training
-    oracle: ``data/<method>/eval_scores/metric=<M>/oracle=<O>/<model>/``.
-    ``method`` selects the method root (``eval_base_dir``); cross-method work
-    (Run_Eval) resolves each model's root + oracle via
-    :func:`get_model_eval_layout` and builds paths with :func:`eval_csv_dir`.
+    Eval scores live in the judge-partitioned lake, labelled by metric + training oracle:
+    ``data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<model>/``. ``eval_base_dir``
+    defaults to the primary oracle at rep 0 — the draw the thesis reports; cross-method work
+    (Run_Eval) resolves each model's root + oracle via :func:`get_model_eval_layout` and builds
+    paths with :func:`eval_csv_dir`. ``method`` no longer selects a score root (the lake is
+    method-flat); it is kept because callers use it to locate conversations.
     """
     method: str = "GRPO_Exp3"
     eval_model: str = EVAL_MODEL
@@ -137,7 +134,7 @@ class ScoringConfig:
 
     def __post_init__(self):
         if self.eval_base_dir is None:
-            self.eval_base_dir = eval_scores_root_for_method(self.method)
+            self.eval_base_dir = eval_scores_root()
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -227,20 +224,21 @@ def get_model_names(experiments: Optional[List[Experiment]] = None) -> List[str]
     return [e.model_name for e in experiments]
 
 
-def get_model_eval_layout(experiments: Optional[List[Experiment]] = None) -> Dict[str, Dict[str, str]]:
+def get_model_eval_layout(experiments: Optional[List[Experiment]] = None, *,
+                          judge_tag: str = "", rep: int = 0) -> Dict[str, Dict[str, str]]:
     """``{model_name: {'root': <eval_scores root>, 'oracle': <oracle label>}}``.
 
-    The single source of truth for *where a model's gradings live* (``root``,
-    per method) and *which training oracle produced it* (``oracle``). Drives the
-    ``<root>/metric=<M>/oracle=<O>/<model>/`` layout — build paths with
-    :func:`eval_csv_dir`. The writer (``pipeline.run_all_evaluations_async``) and
+    The single source of truth for *where a model's gradings live* (``root``) and *which training
+    oracle produced it* (``oracle``). Drives the ``<root>/metric=<M>/oracle=<O>/<model>/`` layout —
+    build paths with :func:`eval_csv_dir`. The writer (``pipeline.run_all_evaluations_async``) and
     the judge runner (``judge.run_judge_scoring``) both take this map.
+
+    ``root`` is now identical for every model (the lake is method-flat); the per-model shape is
+    kept because ``oracle`` still varies, and because callers already destructure it.
     """
     experiments = experiments or EXPERIMENTS
-    return {
-        e.model_name: {"root": eval_scores_root_for_method(e.method), "oracle": e.oracle_label}
-        for e in experiments
-    }
+    root = eval_scores_root(judge_tag, rep)
+    return {e.model_name: {"root": root, "oracle": e.oracle_label} for e in experiments}
 
 
 def resolve_paths(experiments: Optional[List[Experiment]] = None) -> List[str]:

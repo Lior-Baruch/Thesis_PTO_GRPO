@@ -11,7 +11,7 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
-from ..constants import Q2_ITEM_GROUP_OF, Q2_ITEM_GROUPS, arm_label
+from ..constants import Q2_ITEM_GROUP_OF, Q2_ITEM_GROUPS, arm_label, BOOT_SEED
 from ..plotting_style import grid, arm_palette, figure_legend_from
 from ._shared import _QUAL_COLORS
 
@@ -43,7 +43,7 @@ def item_trajectory_grid(items_long, *, palette=None, ncols: int = 4,
     fig, axes = grid(len(items), ncols=ncols, panel=panel)
     for ax, it in zip(axes, items):
         sns.lineplot(items_long[items_long["item"] == it], x="iteration", y="score",
-                     hue="arm", palette=pal, marker="o", errorbar=("ci", 95), ax=ax)
+                     hue="arm", palette=pal, marker="o", errorbar=("ci", 95), seed=BOOT_SEED, ax=ax)
         ax.set_title(_item_tick(it, short_of.get(it, it)), fontsize=9)
         ax.set_xlabel("iteration"); ax.set_ylabel("item mean (1–5)")
     figure_legend_from(axes[0], fig, title="arm")
@@ -140,7 +140,7 @@ def q2_item_group_trajectory(q2_long, *, ncols: int = 2):
     for ax, arm in zip(axes, arms):
         sns.lineplot(d[d.arm == arm], x="iteration", y="score", hue="group",
                      hue_order=list(colors), palette=colors, marker="o",
-                     errorbar=("ci", 95), ax=ax)
+                     errorbar=("ci", 95), seed=BOOT_SEED, ax=ax)
         ax.set_title(arm_label(arm)); ax.set_xlabel("iteration"); ax.set_ylabel("Q2 item mean (1–5)")
         if ax is axes[0]:
             ax.legend(fontsize=7, title="item group")

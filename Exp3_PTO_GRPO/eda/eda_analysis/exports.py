@@ -146,6 +146,10 @@ def _append_caption(dir_path: str, name: str, caption: Optional[str]):
 
     Re-running a notebook overwrites the existing line for that artifact instead of appending
     a duplicate, so CAPTIONS.md stays one-line-per-artifact across reruns.
+
+    Lines are kept SORTED rather than in save order. ``0_headline/`` is written by three different
+    notebooks, so append order depended on which finished first — the file churned in git on every
+    render without its content ever changing (2026-07-28, alongside the seaborn seed fix).
     """
     if not caption:
         return
@@ -157,7 +161,7 @@ def _append_caption(dir_path: str, name: str, caption: Optional[str]):
             lines = [l for l in f if not l.startswith(f"- **{name}** —")]
     lines.append(line)
     with open(path, "w", encoding="utf-8") as f:
-        f.writelines(lines)
+        f.writelines(sorted(lines))
 
 
 def save_fig(fig, name: str, *, group: Optional[str] = None,

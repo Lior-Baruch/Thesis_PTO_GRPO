@@ -32,7 +32,7 @@ from .registry import (  # noqa: E402
     ORACLE_TOKEN_ALIASES, COMPOSITE_METRICS,
     EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, DEFAULT_CONCURRENCY,
     DATA_DIR, METHOD_DATA_DIR, EVAL_QUESTIONNAIRE_DIRS,
-    eval_scores_root_for_method, eval_csv_dir,
+    eval_scores_root, eval_csv_dir,
     # Dataclasses + helpers
     ScoringConfig,
     # Experiment registry (auto-generated from eda_analysis.data.discover_arms)
@@ -70,7 +70,7 @@ __all__ = [
     "ORACLE_TOKEN_ALIASES", "COMPOSITE_METRICS",
     "EVAL_MODEL", "EVAL_TEMPERATURE", "MAX_RETRIES", "DEFAULT_CONCURRENCY",
     "DATA_DIR", "METHOD_DATA_DIR", "EVAL_QUESTIONNAIRE_DIRS",
-    "eval_scores_root_for_method", "eval_csv_dir",
+    "eval_scores_root", "eval_csv_dir",
     "ScoringConfig",
     "Experiment", "EXPERIMENTS", "build_experiments_from_disk", "get_data_paths",
     "get_model_names", "get_model_eval_layout", "resolve_paths",

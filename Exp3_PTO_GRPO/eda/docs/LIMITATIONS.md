@@ -8,18 +8,27 @@ the notebooks the reader meets it.
 Every conversation in the main eval is scored **once** by the oracle (`temperature=0.1, seed=42`),
 which *freezes* the judge's bias for reproducibility but does not by itself measure it. It has now
 been measured on the anchor-model subset (4 models × {Q1, Q2, MICI} × 96 convs, re-scored 3× with
-per-rep seeds — `Judge_Reliability.ipynb` Part 1, displayed in `5_Training_and_Reliability` §7):
+per-rep seeds and compared against the reported draw — `Judge_Reliability.ipynb` Part 1, displayed
+in `5_Training_and_Reliability` §7):
 
 | metric | ICC(2,1) | mean \|Δ\| between reps |
 |---|---|---|
-| Q1 | 0.981–0.994 | 0.04–0.08 |
-| Q2 | 0.962–0.992 | 0.07–0.09 |
-| MICI | 0.895–0.958 | 0.03–0.07 |
+| Q1 | 0.982–0.994 | 0.047–0.070 |
+| Q2 | 0.955–0.992 | 0.076–0.089 |
+| MICI | 0.864–0.943 | 0.037–0.069 |
 
-All are "excellent" by the Koo & Li (2016) ≥0.90 guideline, and the mean |Δ| **confirms** the
-project's informal "oracle noise ≈ 0.10" figure as a conservative upper bound. Since arm-level
-claims are means over 96 conversations, this per-conversation noise shrinks by ~√96 at the level
-the thesis actually reports.
+Q1 and Q2 are "excellent" by the Koo & Li (2016) ≥0.90 guideline; MICI is 0.86–0.94, i.e. "good"
+rather than excellent on its weakest cell (PTO@10). The mean |Δ| **confirms** the project's
+informal "oracle noise ≈ 0.10" figure as a conservative upper bound. Since arm-level claims are
+means over 96 conversations, this per-conversation noise shrinks by ~√96 at the level the thesis
+actually reports.
+
+> **Basis (changed 2026-07-28).** The ICC now spans **four** draws — the three seeded reps *plus
+> the draw the thesis actually reports*, which the score-lake migration made addressable as
+> `rep=0`. That is the more honest quantity: the question is how reproducible the reported number
+> is, so the reported number belongs in the estimate, and it is how the second judge's ICC was
+> already computed. It costs nothing (the draw existed) and moves only MICI, whose floor goes
+> 0.895 → 0.864; Q1/Q2 shift by ≤0.007.
 
 **What this still does not cover.** (a) Re-seeding at `temperature=0.1` probes **sampling** noise
 only — it is a *floor* on reliability and says nothing about systematic sensitivity to rubric
@@ -147,7 +156,7 @@ different model family that never played the patient (`Judge_Reliability.ipynb` 
    compared across judges.
 
 **The MICI caveat.** Per-conversation cross-judge agreement on MICI is weak (r 0.20–0.55, ρ
-0.21–0.47) even though the primary oracle is self-consistent on it (ICC 0.90–0.96). Since
+0.21–0.47) even though the primary oracle is reasonably self-consistent on it (ICC 0.86–0.96). Since
 2026-07-28 the three contributing causes are separated rather than conflated (§1). The second
 judge's *own* MICI noise is real — Haiku's ICC is 0.525–0.929 and falls as the MI-inconsistency
 rate rises, lowering the achievable ceiling to 0.70–0.94 — and statistical attenuation contributes

@@ -122,7 +122,7 @@ def _c_scoring_surface() -> str:
         conversations: ("load_data", "combine_data", "reconstruct_conversation_text",
                         "add_model_metadata_columns"),
         pipeline: ("EVAL_CODE_AVAILABLE",),
-        judge: ("JudgeSpec", "PRIMARY_JUDGE", "JUDGE_CHECK_ROOT", "JUDGE_METRIC_COLS",
+        judge: ("JudgeSpec", "PRIMARY_JUDGE", "EVAL_SCORES_ROOT", "JUDGE_METRIC_COLS",
                 "run_judge_scoring", "load_judge_scores", "repeatability_table",
                 "agreement_table", "contrast_preservation", "icc_2_1"),
     }.items():
@@ -323,14 +323,21 @@ def _c_judge_dimension() -> str:
         judge_dir = arm.eval_dir(k, "Q1")
         judge_fig = E._fig_dir()
 
-        from eda_analysis.constants import (EVAL_SCORES_BY_JUDGE, judge_partition_dir,
-                                            judge_dirname)
+        from eda_analysis.constants import (EVAL_SCORES, judge_partition_dir, judge_dirname)
+        # Score side: ONE lake, every grader an equal `judge=` partition of it (2026-07-28).
+        # Before that the primary lived in a per-method tree and only second judges were
+        # partitioned, so the resolver carried a primary-vs-other branch and the primary's
+        # scores were split across two roots at once.
         assert judge_dir.startswith(judge_partition_dir(second[0])), \
             f"judge score dir did not route to the judge= partition: {judge_dir}"
-        assert not primary_dir.startswith(EVAL_SCORES_BY_JUDGE), \
-            f"primary leaked into the by-judge tree: {primary_dir}"
-        assert "eval_scores" in primary_dir, \
-            f"primary should read the per-method eval_scores tree: {primary_dir}"
+        assert primary_dir.startswith(judge_partition_dir("")), \
+            f"primary score dir did not route to its own judge= partition: {primary_dir}"
+        assert os.path.dirname(judge_partition_dir("")) == EVAL_SCORES, \
+            "judge partitions must sit directly under the lake root"
+        assert "rep=" in primary_dir and "rep=" in judge_dir, \
+            f"score dirs must carry a rep= partition: {primary_dir} | {judge_dir}"
+        assert "grpo_Exp3" not in primary_dir and "pto_Exp3" not in primary_dir, \
+            f"primary score dir must not be method-scoped any more: {primary_dir}"
         # layout: results/<view>/figures/<group>/<judge>/ — the judge is the DEEPEST level and
         # EVERY grader gets one, primary included (2026-07-28), so a figure path always names the
         # grader that produced it. The two must be SIBLINGS, never nested one inside the other.
@@ -346,8 +353,57 @@ def _c_judge_dimension() -> str:
         K.set_active_judge("")
         E.set_export_group("")
     assert K.active_judge() == "", "active judge not restored"
-    return (f"reads -> eval_scores_by_judge/judge={second[0]}; "
+    return (f"reads -> eval_scores/judge={{{p_label},{j_label}}}/rep=N; "
             f"writes -> <group>/{{{p_label},{j_label}}}/ (every judge nests, none is flat)")
+
+
+def _c_score_fold() -> str:
+    """The parquet fold serves the SAME rows as the CSVs, and a stale signature is refused.
+
+    The fold is a second read path over the score lake, so the risk it carries is silent drift: a
+    figure rendered off scores that are no longer on disk. That risk is entirely borne by the
+    staleness guard, which is what this asserts — equivalence AND that tampering with the recorded
+    signature makes the read path fall back instead of serving anything.
+    """
+    from eda_analysis import score_archive as A
+    from eda_analysis.data import iter_conv_rows
+    arms = _discover_or_skip()
+    arm = arms[0]
+    k = sorted(arm.iters)[-1]
+    ddir = arm.eval_dir(k, "Q1")
+    parsed = A.parse_eval_dir(ddir)
+    assert parsed is not None, f"lake path not parseable: {ddir}"
+    assert A.parse_eval_dir(os.path.join(os.sep, "not", "the", "lake")) is None, \
+        "a path outside the lake must not parse as a partition"
+
+    A.reset_cache()
+    served = A.rows_for(ddir)
+    if served is None:
+        raise _Skip("no parquet fold on disk (run tools/consolidate_scores.py build)")
+    fold = {fi: r for fi, r in served}
+
+    # Force the CSV path and compare.
+    real, A.rows_for = A.rows_for, lambda d: None
+    try:
+        csv = {fi: r for fi, r in iter_conv_rows(ddir)}
+    finally:
+        A.rows_for = real
+    assert set(fold) == set(csv), \
+        f"fold/CSV disagree on which conversations exist ({len(fold)} vs {len(csv)})"
+    for fi in sorted(fold):
+        a, b = fold[fi], csv[fi]
+        assert list(a.index) == list(b.index), f"column mismatch at {fi}: {list(a.index)} vs {list(b.index)}"
+        for c in a.index:
+            assert float(a[c]) == float(b[c]), f"value mismatch at {fi}.{c}: {a[c]} vs {b[c]}"
+
+    # Tamper with the recorded signature -> the guard must refuse to serve.
+    A.reset_cache()
+    key = A.partition_key(parsed[0], parsed[1], parsed[2])
+    A._manifest()[key] = "deliberately-wrong-signature"
+    A._frame_cache.clear()
+    assert A.rows_for(ddir) is None, "a stale signature was served instead of falling back to CSVs"
+    A.reset_cache()
+    return f"fold == CSVs on {len(fold)} convs; stale signature correctly refused"
 
 
 def _c_multi_judge() -> str:
@@ -441,6 +497,7 @@ def main(argv: List[str] | None = None) -> int:
         _run("scores_long + known means", _c_scores_and_means, results)
         _run("persona permutation", _c_persona_permutation, results)
         _run("judge dimension routing", _c_judge_dimension, results)
+        _run("score fold (parquet read path)", _c_score_fold, results)
         _run("multi-judge analysis", _c_multi_judge, results)
     if probe:
         _run("PTO preference probe", _c_probe, results)

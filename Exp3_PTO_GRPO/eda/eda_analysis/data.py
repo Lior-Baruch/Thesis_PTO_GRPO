@@ -31,6 +31,7 @@ import pandas as pd
 
 from .constants import (DATA_DIR, ITEM_QUESTIONNAIRES, PERSONA_COLS, QUESTIONNAIRES,
                         active_judge, active_judge_rep, item_short_label, judge_partition_dir)
+from . import score_archive          # parquet fold; imports only `constants`, so no cycle
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -209,7 +210,6 @@ class Arm:
     n_personas: int
     conv_dirs: Dict[int, str]   # model_iter k -> abs conversation dir
     runs_dir: str
-    eval_root: str
     config: dict = field(default_factory=dict)
 
     @property
@@ -231,21 +231,14 @@ class Arm:
     def eval_dir(self, k: int, metric_subdir: str) -> str:
         """Per-(iteration, metric) score directory for THIS arm, under the ACTIVE JUDGE.
 
-        With no judge set this is the production ``eval_scores/`` tree. With one set it is that
-        judge's ``eval_scores_by_judge/judge=<tag>/rep=<r>/`` tree, which ``scoring/judge*.py`` writes in the
-        identical ``metric=/oracle=/<Model>/<file_index>.csv`` layout with identical column names —
-        which is exactly what lets every downstream loader swap graders for free.
+        ``data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/`` — one shape for
+        every grader (an empty judge resolves to the primary), which is what lets every downstream
+        loader swap graders for free. Note there is no method level: ``<Model>`` already carries it.
         """
-        judge = active_judge()
-        if judge:
-            return os.path.join(
-                judge_partition_dir(judge), f"rep={active_judge_rep()}",
-                f"metric={metric_subdir}", f"oracle={self.eval_oracle_label(k)}",
-                self.model_name(k),
-            )
         return os.path.join(
-            self.eval_root, f"metric={metric_subdir}",
-            f"oracle={self.eval_oracle_label(k)}", self.model_name(k),
+            judge_partition_dir(active_judge()), f"rep={active_judge_rep()}",
+            f"metric={metric_subdir}", f"oracle={self.eval_oracle_label(k)}",
+            self.model_name(k),
         )
 
     def conv_dir(self, k: int) -> Optional[str]:
@@ -292,8 +285,7 @@ def discover_arms(data_dir: str = DATA_DIR, *, include_archived: bool = False) -
                 method=parsed["method"], exp_name=exp_name, K=parsed["K"],
                 mcl=parsed["mcl"], mode=parsed["mode"], oracle=parsed["oracle"],
                 seed=seed, n_personas=int(cfg.get("num_conversations_per_iter", 96)),
-                conv_dirs=conv_dirs, runs_dir=runs_dir,
-                eval_root=os.path.join(data_dir, mdir, "eval_scores"), config=cfg,
+                conv_dirs=conv_dirs, runs_dir=runs_dir, config=cfg,
             ))
     return arms
 
@@ -423,22 +415,31 @@ def iter_conv_rows(ddir: str):
 
     THE shared inner loop of every per-conversation eval reader (``scores_long``, subscales, and
     the ``behavior`` MITI/MICI/PCT loaders): list ``ddir``, keep ``<digits>.csv``, read each, yield
-    ``(int(stem), df.iloc[0])``. Preserves ``os.listdir`` order (no sort) and silently skips a
-    missing dir and unreadable/empty CSVs — byte-compatible with the five loops it replaced.
+    ``(int(stem), df.iloc[0])``. Silently skips a missing dir and unreadable/empty CSVs —
+    byte-compatible with the five loops it replaced.
+
+    Served from the parquet fold when one is present AND its signature still matches disk (see
+    :mod:`eda_analysis.score_archive`), which turns a cold rebuild from ~22k file opens into a
+    handful — ~90s to ~1s. Falls back here whenever the fold is absent or stale, so this path stays
+    the source of truth. Rows are yielded in ``file_index`` order either way; the CSV branch used to
+    follow ``os.listdir`` order, which no caller depended on (they all group or aggregate).
     """
+    served = score_archive.rows_for(ddir)
+    if served is not None:
+        yield from served
+        return
     if not os.path.isdir(ddir):
         return
-    for fn in os.listdir(ddir):
-        stem, ext = os.path.splitext(fn)
-        if ext != ".csv" or not stem.isdigit():
-            continue
+    stems = sorted((int(os.path.splitext(fn)[0]) for fn in os.listdir(ddir)
+                    if fn.endswith(".csv") and os.path.splitext(fn)[0].isdigit()))
+    for stem in stems:
         try:
-            df = pd.read_csv(os.path.join(ddir, fn))
+            df = pd.read_csv(os.path.join(ddir, f"{stem}.csv"))
         except Exception:
             continue
         if len(df) == 0:
             continue
-        yield int(stem), df.iloc[0]
+        yield stem, df.iloc[0]
 
 
 def load_scores_long(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:

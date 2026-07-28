@@ -24,7 +24,7 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `2_Questionnaire_Detail.ipynb` | `2_questionnaires/` | **Level 2 — one uniform detail section per rubric:** Q1/Q2/WAI-SR/CSQ-8/MI-SAT item grids (`<slug>_detail_grid`) + item-delta bars final+best (`<slug>_item_deltas_*`) · Q2 face-content groups · WAI subscales · MITI detail grid (globals + 7 behaviour rates + ratios; zooms in `miti/`) + **official MITI 4.2.1 thresholds** · PCT detail (`pct/`) · MICI detail (`mici/`) |
 | `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
-| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation) · **multi-judge §8** (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size) — both read from `data/eval_scores_by_judge/` |
+| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation) · **multi-judge §8** (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size) — both read from `data/eval_scores/` |
 | `6_Preference.ipynb` | `6_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
 | `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · **best-vs-best method contrast (`method_paired_best`)** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 
@@ -126,7 +126,7 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
 3. *(optional, costs API budget)* **`Judge_Reliability.ipynb`** — measurement-validity re-scoring on
    a subset: oracle repeatability (ICC, per-rep seeds) + a pluggable **second judge** (Claude via the
    `anthropic` SDK, or another OpenAI model) with the PTO−GRPO contrast-preservation check. Gated
-   behind explicit `RUN_*` flags; writes to `data/judge_check/` (never the real `eval_scores/`);
+   behind explicit `RUN_*` flags; writes to `data/eval_scores/judge=<tag>/rep=<r>/`;
    NOT part of `tools/render_views.py`. Backing module: `eda_analysis/scoring/judge.py`. Addresses
    `LIMITATIONS.md` §1–§2 (measured 2026-07-26 with Claude Haiku 4.5 as the second judge).
    Its **§3 promotes the second judge to a full sweep** — all 29 model states × all 8 rubrics —
@@ -160,6 +160,44 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    > endpoint-to-endpoint puts the shortest *and* longest transcript in the sample, which at
    > `n=2` is `(min + max) / 2` — 2.1× the true mean on this right-skewed data.
 
+## Where the scores live
+
+```
+data/eval_scores/                                        (a Google Drive symlink)
+├── judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+├── _parquet/judge=<tag>/rep=<r>/metric=<M>.parquet      derived, archival only
+├── _batches/<tag>/rep=<r>/*.json                        Message Batches manifests
+└── summary/                                             CSV snapshots from Judge_Reliability
+```
+
+Every grader is an equal `judge=` partition — see the box under "Judge dimension" below for what
+that buys and what it replaced. `rep=0` is each judge's full-grid draw and the one the thesis
+reports; `rep>=1` are repeatability draws on the anchor subset only, so setting `judge_rep` to a
+non-zero value yields a mostly-empty frame outside those four model states.
+
+**The parquet fold.** One CSV per conversation is a *write-time* shape: a file is one completed unit
+of work, so an interrupted scoring run resumes by skipping what exists. That is right for writing
+and wrong for everything else — 50,305 files averaging ~190 bytes are slow to sync and to stat, and
+a cold `load_scores_long` spent ~86 s opening them one at a time.
+`python tools/consolidate_scores.py {build|verify|report}` folds them to 31 parquet files (0.6 MB,
+1,623× fewer files); `verify` re-reads every CSV to prove the fold lossless.
+
+`iter_conv_rows` — the shared inner loop of every per-conversation reader — serves from the fold
+when one is present, which is a **4.3–6.1× speedup** on every builder (`scores_long` 86 s → 16 s;
+the remainder is the per-row `Series` interface, not I/O). Logic lives in
+`eda_analysis/score_archive.py`.
+
+> **The staleness guard is the design.** A second read path that drifts from its source fails
+> *silently* — a figure rendered off scores no longer on disk. So `build` records a content
+> signature per partition in `_parquet/_manifest.json`, and `rows_for` recomputes it before serving
+> anything; any mismatch (re-score, new model, deleted CSV) falls back to the CSVs automatically.
+> That is the same (name, size, mtime) mechanism `load_cached` already trusts, not a new
+> assumption, and the fold is only ever written by an explicit `build` — never by the scorers.
+> Reading is therefore always *correct* and merely *fast when current*. `_selfcheck` asserts both
+> halves: fold-equals-CSV, and that a tampered signature is refused rather than served.
+>
+> Rebuild after new scoring, or delete `_parquet/` — a stale fold costs speed, never accuracy.
+
 ## Judge dimension — running the EDA under a second grader
 
 `VIEW` and `JUDGE` are **orthogonal knobs**: `VIEW` filters which *arms* are analysed, `JUDGE`
@@ -167,21 +205,21 @@ selects which *grader's scores* are read.
 
 | `JUDGE` | Reads | Writes |
 |---|---|---|
-| `""` (default) | `data/<method>_Exp3/eval_scores/` — the primary oracle, the numbers the thesis reports | `results/<view>/figures/<family>/gpt-4o-mini/` |
-| `anthropic_claude-haiku-4-5` | `data/eval_scores_by_judge/judge=<tag>/rep=<r>/` | `results/<view>/figures/<family>/claude-haiku-4-5/` |
+| `""` (default) | `data/eval_scores/judge=openai_gpt-4o-mini-2024-07-18/rep=0/` — the primary oracle, the numbers the thesis reports | `results/<view>/figures/<family>/gpt-4o-mini/` |
+| `anthropic_claude-haiku-4-5` | `data/eval_scores/judge=<tag>/rep=<r>/` | `results/<view>/figures/<family>/claude-haiku-4-5/` |
 
 The write path uses the **short model label** (`constants.judge_dirname`: provider prefix and
 release date dropped), while the *score* tree keeps the full `judge=<tag>` partition — a path a
 human reads vs. a stable partition key.
 
-> **Why the two score trees differ in location.** The primary oracle's scores sit *inside each
-> method's run directory* (`data/{grpo,pto}_Exp3/eval_scores/`) because those are **Google Drive
-> symlinks** — backed up and reachable from Colab. Other judges score into a **local**
-> `data/eval_scores_by_judge/` tree. The split is about **storage**, not status: both use the same
-> `metric=/oracle=/<Model>/<id>.csv` layout, and `Arm.eval_dir()` hides the difference so no
-> analysis ever needs to know. (Renamed from `judge_check/` on 2026-07-27 — that name framed a
-> second grader as a validation aside, but a judge here has now scored the same full grid as the
-> primary.)
+> **One lake, no privileged grader.** Every score any judge ever produced lives under
+> `data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv`, so `judge` is an
+> ordinary partition key alongside `metric`/`oracle`/`rep` and `Arm.eval_dir()` is a single
+> resolver rather than a primary-vs-other branch. `rep=0` is each judge's **full-grid** draw (the
+> reported one); `rep>=1` are repeatability draws on the anchor subset. There is no method level —
+> `<Model>` already carries it. Before the 2026-07-28 migration the primary lived co-located per
+> method while other judges lived in a separate local-only tree, which split the primary across two
+> roots under two partition schemes and left the second judge's scores backed up nowhere.
 
 ```
 results/L0/figures/1_outcomes/
@@ -225,7 +263,7 @@ python tools/render_views.py --judge anthropic_claude-haiku-4-5 --nb 1 7   # jus
 > judge's folder, implying a measurement that never happened, so both the notebook (a `SystemExit`
 > guard in cell 1) and `render_views.py --judge` (skips them, with a printed reason) refuse.
 > The genuinely multi-judge work lives in `5_Training_and_Reliability` §7–§8, which reads
-> `data/judge_check/` directly and puts **both** graders in the same figure.
+> `data/eval_scores/` directly and puts **both** graders in the same figure.
 
 **Coverage is checked, not assumed.** `notebook_setup` warns loudly when a judge has not scored
 every conversation of every arm — a partially-landed sweep otherwise yields arm means that look
@@ -261,6 +299,9 @@ behind an unchanged public surface.
   `final_per_experiment`/`best_iteration_by_arm` — the final-vs-best machinery).
   *(merged `discovery`+`personas`+`scores`+`select` into one module; the old submodule aliases have
   been retired — use the canonical `eda_analysis.data.*` / top-level re-exports.)*
+- **`score_archive`** — the score lake's parquet fold: `build`-side helpers, the signature-guarded
+  read path (`rows_for`, used by `data.iter_conv_rows`), and `fold_status()`. Imports only
+  `constants`, so `data` can depend on it without a cycle. See "Where the scores live" above.
 - **`plotting_style`** — the style/scaffold helpers (Okabe-Ito palette [PTO cool / GRPO warm / Base
   grey], `grid`, `set_style(cfg)`, `clean_label`, `apply_score_axis`, `model_order`, `relabel_*`,
   `add_base_line`, `figure_legend_from`). Re-imported into `plotting`, so `figures.set_style(...)`
@@ -291,7 +332,7 @@ behind an unchanged public surface.
   `tb_curves`/`parse_run_tb` (self-contained TensorBoard parse, no torch/trl).
 - **`pref`** — PTO Mass-Mean-Probe (word ranking/drift, `preference_direction_drift`,
   `learn_unlearn_words`, MI-concept projection).
-- **`reliability`** — MEASUREMENT-validity tables from the `data/judge_check/` re-scoring tree.
+- **`reliability`** — MEASUREMENT-validity tables from the `data/eval_scores/` lake (all judges, all reps).
   Disk-only — the paid scoring lives in `scoring/judge*.py`; this is the free read side.
   - *§7 (single-judge validity):* `repeatability` (ICC(2,1) + mean |Δ|), `agreement` (second judge
     vs primary + attenuation ceiling), `contrasts` (does each endpoint contrast keep its sign?),

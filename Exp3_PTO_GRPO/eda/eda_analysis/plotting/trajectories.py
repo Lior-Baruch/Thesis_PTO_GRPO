@@ -5,7 +5,7 @@ from typing import Optional, Sequence
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from ..constants import display_label, arm_label
+from ..constants import display_label, arm_label, BOOT_SEED
 from ..plotting_style import grid, figure_legend_from, relabel_legend
 from ._shared import _metrics
 
@@ -32,7 +32,7 @@ def trajectory_grid(scores_long, *, palette, metrics: Optional[Sequence[str]] = 
     fig, axes = grid(len(metrics), ncols=ncols, panel=(5.2, 3.2))
     for ax, m in zip(axes, metrics):
         sns.lineplot(scores_long[scores_long.questionnaire == m], x="iteration", y="score",
-                     hue="arm", palette=palette, marker="o", errorbar=("ci", 95), ax=ax)
+                     hue="arm", palette=palette, marker="o", errorbar=("ci", 95), seed=BOOT_SEED, ax=ax)
         ax.set_title(display_label(m))
     figure_legend_from(axes[0], fig, title="arm")
     fig.suptitle("Outcome trajectories across iterations — full-conversation eval",
@@ -69,7 +69,7 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
         d = d[d.iteration.isin(list(iters))]
     fig, ax = plt.subplots(figsize=(8, 4.5))
     sns.lineplot(d, x="iteration", y="score", hue="arm", palette=palette, marker="o",
-                 errorbar=("ci", 95), ax=ax)
+                 errorbar=("ci", 95), seed=BOOT_SEED, ax=ax)
     base = d[d.is_base]
     if baseline_arm is not None:
         base = base[base.arm == baseline_arm]
@@ -126,7 +126,7 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
             ax = axes[r][c]
             d = df[(df.parent == parent) & (df.arm == arm)]
             sns.lineplot(d, x="iteration", y="score", hue="subscale", marker="o",
-                         errorbar=("ci", 95), ax=ax)
+                         errorbar=("ci", 95), seed=BOOT_SEED, ax=ax)
             ax.set_title(f"{display_label(parent)} — {arm_label(arm)}")
             ax.set_xlabel("iteration" if r == nrows - 1 else "")
             ax.set_ylabel("score" if c == 0 else "")

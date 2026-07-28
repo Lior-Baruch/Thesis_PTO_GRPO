@@ -226,7 +226,7 @@ Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N uttera
 ## 7 · Judge reliability (is the measuring instrument trustworthy?)
 
 §6 asks whether the *training* reward predicts the *eval* score. This asks whether the eval score
-itself is reproducible and grader-independent. Both come from `data/judge_check/`, written by
+itself is reproducible and grader-independent. Both come from `data/eval_scores/`, written by
 `Judge_Reliability.ipynb` (paid, manual) and read by `5_Training_and_Reliability` §7 through
 `eda_analysis.reliability` (free, disk-only). Subset: 4 anchor models × {Q1, Q2, MICI} × 96 convs.
 
@@ -240,7 +240,8 @@ itself is reproducible and grader-independent. Both come from `data/judge_check/
 | `bias_judge_minus_primary` | Mean level offset between judges | Expected and harmless — a harsher grader shifts every score. The thesis reports *contrasts*, which cancel it |
 | `same_sign` | Whether an endpoint contrast (paired Δ over the 96 matched personas) has the same sign under both judges | **The load-bearing number.** Answers `LIMITATIONS.md` §2: is the result an artifact of the patient simulator and the grader being the same model? |
 
-Measured (2026-07-26, Haiku 4.5 as the second judge): oracle ICC 0.90–0.99 (mean \|Δ\| 0.03–0.09);
+Measured (2026-07-26, Haiku 4.5 as the second judge; re-measured over 4 draws 2026-07-28):
+oracle ICC 0.86–0.99 (mean \|Δ\| 0.04–0.09) — Q1/Q2 0.96–0.99, only MICI below 0.90;
 Q1/Q2 cross-judge r 0.80–0.88 against a ~0.98 ceiling; MICI r 0.20–0.55 (see the caveat in
 `LIMITATIONS.md` §1); 6/6 contrasts preserved.
 

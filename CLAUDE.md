@@ -85,7 +85,8 @@ here — see "Doc map"). Updated 2026-07-08.
   vs PTO 0.49); PTO climbs stably. Full narrative + tables:
   `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` (L0 = primary read).
 - **Judge validity (NEW 2026-07-26):** the measurement instrument is now measured, not assumed —
-  oracle **ICC(2,1) 0.90–0.99** (mean |Δ| 0.03–0.09, confirming the "≈0.10 noise" folklore), and a
+  oracle **ICC(2,1) 0.86–0.99** (mean |Δ| 0.04–0.09, confirming the "≈0.10 noise" folklore; Q1/Q2
+  hold 0.96–0.99 and only MICI dips below 0.90 — floor is MICI PTO@10 at 0.864), and a
   decoupled second judge (**Claude Haiku 4.5**, different family, never played the patient)
   reproduces **6/6 endpoint contrasts with the same sign** (it *widens* the PTO−GRPO Q1 gap to
   +0.77 vs the primary's +0.53). Q1/Q2 cross-judge r 0.80–0.88 vs a ~0.98 ceiling; MICI agrees
@@ -174,6 +175,21 @@ here — see "Doc map"). Updated 2026-07-08.
     `ceiling_basis`; it falls back to the assumption only where a judge has <2 reps.
   - **Cost $9.16** (batched would have been $4.58) against "~$1–2" previously documented here — that
     was an unchecked estimate. Price judge spend with `judge_plan.estimate_cost`.
+- **ONE SCORE LAKE — 2026-07-28.** Every grader's scores now live in a single judge-partitioned tree,
+  `data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv`, replacing four
+  stores under two schemes (the primary's reported draw was split per method with no `judge=`/`rep=`
+  level; every other grader sat in a separate local-only tree that had both). `judge` is an ordinary
+  partition key now, `rep=0` is each judge's full-grid draw, and there is one resolver instead of a
+  primary-vs-other branch. 50,320 files copied, hash-verified, then removed at source; **no headline
+  number moves** (45/45 endpoint cells and 25,056 rows identical, `_selfcheck` 13/13). Two
+  consequences worth knowing:
+  - **The lake is a Drive symlink**, so the second judge's $42 sweep and the $9.16 ICC reps are
+    backed up for the first time — previously they existed only on one laptop, gitignored.
+  - **The primary's ICC now spans 4 draws** (the reported one included, as the second judge's
+    already did), which is why the range above reads 0.86–0.99 rather than the older 0.90–0.99.
+    Only MICI moves; Q1/Q2 shift ≤0.007.
+  - Archival fold: `eda/tools/consolidate_scores.py` collapses the 50,305 CSVs to 31 parquet files
+    (verified lossless). Not a read path — deliberately unimported, so it cannot feed a stale figure.
 
 ## Doc map (one owner per fact)
 | Fact | Lives ONLY in |

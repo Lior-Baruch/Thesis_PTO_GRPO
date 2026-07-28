@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
-from ..constants import display_label, arm_label
+from ..constants import display_label, arm_label, BOOT_SEED
 from ..plotting_style import grid, arm_palette, relabel_legend, add_base_line
 from ._shared import _metrics, _QUAL_COLORS
 
@@ -151,7 +151,7 @@ def subgroup_endpoint_bars(scores_long, char: str, *, arms: Optional[Sequence[st
     fig, ax = plt.subplots(figsize=(1.7 * max(3, len(cat_order)) + 2, 4.4))
     sns.barplot(fin, x="cat", y="score", hue="arm_disp", order=cat_order,
                 hue_order=[arm_label(a) for a in arm_list], palette=pal_disp,
-                errorbar=("ci", 95), ax=ax)
+                errorbar=("ci", 95), seed=BOOT_SEED, ax=ax)
     add_base_line(ax, float(d[d.is_base].score.mean()) if d.is_base.any() else None)
     ax.set_title(f"{target_label.capitalize()}-iteration {display_label(metric)} by "
                  f"{char.replace('_', ' ')} (per arm; dotted = base)")

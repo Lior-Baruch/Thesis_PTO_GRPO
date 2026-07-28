@@ -45,13 +45,15 @@ class EdaConfig:
     view: str = "all"                              # "all" | "L0" | "L5" (arm filter + results/<view>/)
 
     # ── The OTHER axis: judge = which grader's scores to read ─────────────────
-    # "" = the primary oracle's eval_scores/ tree. A judge tag (e.g.
-    # "anthropic_claude-haiku-4-5") reads that judge's eval_scores_by_judge/ tree instead and routes
-    # exports to results/judges/<tag>/<view>/. Orthogonal to `view`: view filters ARMS, judge
-    # selects the SCORE SOURCE. Training-side analyses are NOT judge-swappable — see the note in
-    # constants.py and the warning notebook_setup emits.
+    # "" = the primary oracle. Any tag (e.g. "anthropic_claude-haiku-4-5") reads that grader's
+    # partition of the score lake, data/eval_scores/judge=<tag>/rep=<judge_rep>/, and routes
+    # exports to results/<view>/figures/<family>/<judge>/. Orthogonal to `view`: view filters
+    # ARMS, judge selects the SCORE SOURCE. Training-side analyses are NOT judge-swappable — see
+    # the note in constants.py and the warning notebook_setup emits.
     judge: str = ""
-    judge_rep: int = 0                             # which rep of that judge's tree to read
+    # rep 0 = the full-grid draw every judge reports; >=1 are repeatability draws on the anchor
+    # subset only, so a non-zero rep yields a mostly-empty frame outside those cells.
+    judge_rep: int = 0
 
     # ── Arm selection (None = no filter on that axis; ks overrides the view) ───
     methods: Optional[Sequence[str]] = None        # e.g. ["PTO"] | ["PTO","GRPO"]
@@ -204,8 +206,8 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
     set_active_judge(judge, cfg.judge_rep)
     if judge:
         print(f"  [notebook_setup] JUDGE={judge_label(judge)} — reading "
-              f"eval_scores_by_judge/judge={judge}/rep={cfg.judge_rep}/, exporting to "
-              f"results/judges/{judge}/{view}/")
+              f"eval_scores/judge={judge}/rep={cfg.judge_rep}/, exporting to "
+              f"results/{view}/figures/<family>/{judge_label(judge)}/")
 
     plotting.set_style(cfg)
     exports.set_view(view)                                                   # results/<view>/...

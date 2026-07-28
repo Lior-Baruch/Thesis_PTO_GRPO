@@ -25,7 +25,7 @@ dropped connection, a closed laptop, or a new session never loses work:
 
 State lives beside the scores, never in memory:
 
-    data/eval_scores_by_judge/_batches/<judge_tag>/rep=<r>/<batch_id>.json    # manifest + status
+    data/eval_scores/_batches/<judge_tag>/rep=<r>/<batch_id>.json    # manifest + status
 
 ``custom_id`` is a bare index (``c000123``) into that manifest rather than an encoded path — model
 names plus metric plus oracle overflow the 64-char ``custom_id`` limit, and an opaque index cannot
@@ -47,7 +47,7 @@ from . import pipeline as _pipeline
 from . import registry as _registry
 from .conversations import reconstruct_conversation_text
 
-BATCH_STATE_ROOT = os.path.join(_judge.JUDGE_CHECK_ROOT, "_batches")
+BATCH_STATE_ROOT = os.path.join(_judge.EVAL_SCORES_ROOT, "_batches")
 
 # Anthropic caps a batch at 100,000 requests / 256 MB. We chunk far below both so that progress is
 # visible, a single rejected batch costs little, and each manifest stays comfortably loadable.
@@ -177,7 +177,7 @@ def submit_sweep(judge: "_judge.JudgeSpec", combined_data: pd.DataFrame,
             "submitted_at": time.strftime("%Y-%m-%dT%H:%M:%S"), "n_requests": len(chunk),
             "collected": False,
             "manifest": [{"custom_id": c.custom_id, "out_path": os.path.relpath(
-                              c.out_path, _judge.JUDGE_CHECK_ROOT),
+                              c.out_path, _judge.EVAL_SCORES_ROOT),
                           "metric": c.metric, "model": c.model, "oracle": c.oracle,
                           "file_index": c.file_index, "n_therapist_utt": c.n_therapist_utt}
                          for c in chunk],

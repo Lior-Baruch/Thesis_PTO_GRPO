@@ -4,6 +4,83 @@ Dated history moved out of [../CLAUDE.md](../CLAUDE.md) to keep the active refer
 
 ---
 
+**Landed (2026-07-28) — the tracked figures are reproducible; the fold becomes a read path.**
+Two follow-ups to the score-lake migration below, both found while proving that migration changed
+nothing.
+
+**(a) Seaborn's bootstrap CIs were unseeded.** Re-rendering rewrote 90 PNGs on unchanged data. Cause:
+seven `sns.lineplot`/`barplot` callsites pass `errorbar=("ci", 95)`, and seaborn 0.13.2 defaults to
+`seed=None` with `n_boot=1000` — so every confidence band was a *fresh* bootstrap. Measured: three
+consecutive renders of one notebook on identical data each differed by ~6% of pixels. The project's
+own `stats.bootstrap_ci` was properly seeded, which is why the numeric tables never moved and this
+went unnoticed; only the seaborn-drawn bands wobbled.
+- Fix: `BOOT_SEED = 12345` promoted from a private `stats._BOOT_SEED` to `constants`, and passed at
+  all seven callsites, so the figure side and the table side now share one seed.
+- Consequence: `results/` PNGs stop churning in git on every render, and a thesis figure is
+  reproducible rather than merely stable-looking.
+
+**(b) `iter_conv_rows` now reads through the parquet fold.** The fold shipped as archival-only,
+explicitly *not* a read path, on the argument that a second read path can drift from its source and
+fail silently. That risk is real but it is the guard's job, not a reason to forgo a 5× speedup.
+- New `eda_analysis/score_archive.py` owns the layout, the guard and the read path; the
+  `tools/consolidate_scores.py` CLI is now a thin driver over it.
+- **The guard:** `build` records a per-partition content signature in `_parquet/_manifest.json`;
+  `rows_for` recomputes it and refuses to serve on any mismatch, falling back to the CSVs. Same
+  (name, size, mtime) mechanism `load_cached` already trusts — not a new assumption — and the fold
+  is only ever written by an explicit `build`, never by the scorers. Reads are therefore always
+  correct and merely fast when current.
+- **Equivalence gate before wiring it in:** all seven per-conversation loaders (`scores_long`,
+  `load_items` ×2, `subscales`, MITI/MICI/PCT behaviour) produce frames identical under
+  `assert_frame_equal(rtol=0, atol=0)` via either path. Speedups **4.3–6.1×** (`scores_long`
+  86 s → 16 s). The residual is the per-row `Series` interface, not I/O.
+- `iter_conv_rows` now yields in `file_index` order on BOTH paths; the CSV branch previously
+  followed `os.listdir` order, which no caller depended on (they all group or aggregate).
+- New `_selfcheck` check (14 total) asserts both halves: fold-equals-CSV row for row, and that a
+  deliberately corrupted signature is refused rather than served.
+
+---
+
+**Landed (2026-07-28) — one score lake: `judge=` becomes an ordinary partition key.**
+Scores lived in four stores under two different schemes. The primary oracle's reported draw sat
+co-located per method (`data/{grpo,pto}_Exp3/eval_scores/`, no `judge=` or `rep=` level) while its
+three ICC reps and the whole Haiku sweep sat in a separate local-only `data/eval_scores_by_judge/`
+tree that *did* have both levels. So "where are gpt-4o-mini's Q1 scores for PTO@10" had two answers,
+the primary was partitioned by a dimension (method) no other grader was, and `Arm.eval_dir()`
+carried a primary-vs-other branch that `_selfcheck` pinned in place. Everything now lives in
+`data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv`.
+- **Migration: 50,320 files, copy → hash-verify → delete.** Zero target collisions, all pairs
+  byte-identical before any source was removed. The census came out symmetric — both judges hold
+  22,272 files at `rep=0`, which independently confirms the two grids match cell-for-cell.
+- **`rep=0` is now each judge's full-grid draw.** The primary's three anchor reps shifted to 1–3 to
+  free it. That makes `judge_rep=0` mean the same thing for every grader, and it is why
+  `EdaConfig.judge=""` now resolves to `PRIMARY_JUDGE_TAG` rather than to a special case.
+- **The primary's ICC now spans four draws, not three** — the reported one included, matching how
+  the second judge's was already computed. Free, and more honest: the question is how reproducible
+  the *reported* number is. Only MICI moves (floor 0.895 → **0.864** at PTO@10); Q1/Q2 shift ≤0.007.
+  The documented range is corrected to **0.86–0.99** in root `CLAUDE.md`, `LIMITATIONS.md` §1,
+  `METRICS_REFERENCE.md` §7 and both `SUMMARY.md`s. **No headline result moves** — all 45 endpoint
+  cells and all 25,056 score rows reproduce exactly, `_selfcheck` 13/13.
+- **The lake is on Drive.** It was the one thing that mattered more than the layout: the second
+  judge's $42 sweep and the $9.16 ICC reps existed only on one laptop, gitignored and backed up
+  nowhere. `data/eval_scores` joins `grpo_Exp3`/`pto_Exp3` as a Drive symlink.
+- **Parquet fold (`tools/consolidate_scores.py {build|verify|report}`).** 50,305 CSVs averaging
+  ~190 bytes → 31 parquet files, 0.6 MB: 1,623× fewer files, 16× smaller, `verify` re-reads every
+  CSV to prove it lossless. One-file-per-conversation is a *write-time* shape (a file is one
+  completed unit, so an interrupted run resumes by skipping what exists) and a bad archival one.
+  Deliberately **not** a read path — nothing in `eda_analysis` imports it, so a stale fold can never
+  silently feed a figure; the EDA keeps reading the CSVs through its content-keyed cache.
+- **Code.** `constants.EVAL_SCORES` replaces `EVAL_SCORES_BY_JUDGE`; `judge_partition_dir("")`
+  resolves to the primary; `Arm.eval_dir` loses its branch and `Arm.eval_root` is deleted;
+  `registry.eval_scores_root(judge_tag, rep)` replaces `eval_scores_root_for_method(method)`;
+  `reliability.judge_reps()` is new and `available()` no longer returns vacuously True now that the
+  primary is itself a `judge=` folder. `_selfcheck`'s judge-routing assertions invert: both graders
+  must be siblings under the lake, and the primary must *not* be method-scoped.
+- ⚠ **Batch manifests store `out_path` relative to the old root.** Harmless — `collect_batches`
+  rebuilds paths from the live layout and treats the stored value as forensics only (all 14 batches
+  are collected anyway), but do not resurrect it as a path source.
+
+---
+
 **Landed (2026-07-28) — the second judge's own ICC is measured; the MICI attribution is resolved.**
 The last named validity gap. `reliability.agreement` computed the attenuation ceiling as
 `sqrt(ICC_primary × ICC_judge)` with `ICC_judge` *assumed* equal to the primary's, collapsing it to

@@ -280,6 +280,16 @@ PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
                 "tried_to_solve", "cooperation_level"]
 
 
+# THE resampling seed for every bootstrap in the EDA — `stats.bootstrap_ci` AND the CI bands
+# seaborn draws inside the figures. It lives in this leaf so both sides share one value.
+#
+# ⚠ Seaborn's `errorbar=("ci", 95)` defaults to `seed=None`, i.e. a fresh 1,000-sample bootstrap on
+# every call. Left unset, the tracked figures were NOT reproducible: three consecutive renders of
+# the same notebook on identical data differed by ~6% of pixels, and every `results/` PNG churned
+# in git on each render (found 2026-07-28). Pass `seed=BOOT_SEED` at every seaborn callsite that
+# draws a bootstrap errorbar.
+BOOT_SEED = 12345
+
 # Lexical affirmation cue (case-insensitive, per therapist turn / completion). A DIRECTIONAL
 # sanity-check on the oracle's affirmation counts, NOT a primary metric — shared by
 # ``behavior`` (lex_affirm_marker_rate) and ``pref`` (chosen/rejected text features).
@@ -291,8 +301,9 @@ RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|bra
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 #
 # Orthogonal to the VIEW (which filters ARMS). The judge selects the SCORE SOURCE:
-#   ""                              -> the production eval_scores/ tree (primary oracle, default)
-#   "anthropic_claude-haiku-4-5"    -> data/eval_scores_by_judge/judge=<tag>/rep=<r>/ (a second judge)
+#   ""                              -> the primary oracle (resolves to PRIMARY_JUDGE_TAG), default
+#   "anthropic_claude-haiku-4-5"    -> a second judge
+# Either way the path is data/eval_scores/judge=<tag>/rep=<r>/ — see EVAL_SCORES below.
 #
 # State lives here, in the leaf, so BOTH `data` (which resolves per-metric score directories) and
 # `exports` (which routes results/) can read it without an import cycle. Set it once per session
@@ -305,32 +316,42 @@ RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|bra
 # measurement that never happened. `notebook_setup` warns when a training-side notebook runs with a
 # non-primary judge; see eda/README.md § "Judge dimension".
 
-# Every judge OTHER than the primary oracle scores into this tree. Named for what it holds
-# (eval scores, partitioned by judge) rather than "judge_check" — that framed a second grader as a
-# spot check, but a judge here has now scored the same full grid as the primary and is a
-# first-class measurement, not a validation aside.
+# ── THE SCORE LAKE ────────────────────────────────────────────────────────────
+# ONE tree holds every score any grader ever produced:
 #
-# The primary oracle deliberately stays co-located with the run that produced it
-# (data/<method>_Exp3/eval_scores/), because that tree is a Google Drive symlink and therefore
-# backed up + reachable from Colab. This tree is local-only. The asymmetry is about STORAGE, not
-# status; `Arm.eval_dir()` hides it from every analysis.
-EVAL_SCORES_BY_JUDGE = os.path.join(DATA_DIR, "eval_scores_by_judge")
+#   data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<file_index>.csv
+#
+# `judge` is an ordinary partition key alongside metric/oracle/rep — no grader is privileged by
+# layout, and there is a single resolver (`Arm.eval_dir`) rather than a primary-vs-other branch.
+# `<Model>` already encodes the method (GRPOExp3_* / PTOExp3_*), so the tree is method-flat.
+#
+# **rep=0 is the full-grid draw for EVERY judge** (29 model states × 8 rubrics × 96 convs) and is
+# what the EDA reads by default; reps ≥1 are the repeatability draws on the anchor subset. Reps of
+# one judge differ only by scoring seed (`1000+rep` on the OpenAI path; the Anthropic path has no
+# seed and varies by inherent API nondeterminism), so they are exchangeable — which is what makes
+# ICC(2,1) across them meaningful.
+#
+# The lake is a Google Drive symlink, so it is backed up and reachable from Colab. Before
+# 2026-07-28 the primary's production draw lived co-located per method
+# (data/<method>_Exp3/eval_scores/) while every other grader lived in a local-only
+# data/eval_scores_by_judge/ tree: the primary was split across two roots under two different
+# partition schemes, and the second judge's $50 of scores were backed up nowhere.
+EVAL_SCORES = os.path.join(DATA_DIR, "eval_scores")
 JUDGE_PARTITION = "judge="            # key=value partition level, matching metric=/oracle=/rep=
 
-# The grader that produced the PRIMARY eval_scores/ tree — and, because it was also the training
-# reward, the one every other judge is held out against. It has no `judge=` partition of its own on
-# the score side (those CSVs live co-located per method), but it DOES get a results/ folder like any
-# other judge, so the layout states which grader produced a figure instead of leaving it implied.
+# The grader that produced the primary scores — and, because it was also the training reward, the
+# one every other judge is held out against. `EdaConfig.judge=""` resolves here, so "no judge set"
+# and "the primary judge" name the same partition instead of the same special case.
 PRIMARY_JUDGE_TAG = "openai_gpt-4o-mini-2024-07-18"
 _JUDGE_DATE_SUFFIX = re.compile(r"-\d{4}-\d{2}-\d{2}$")
 
-# Back-compat alias (the old name is still referenced by scoring/judge.py's public surface).
-JUDGE_CHECK_ROOT = EVAL_SCORES_BY_JUDGE
 
+def judge_partition_dir(tag: str = "") -> str:
+    """``data/eval_scores/judge=<tag>`` — the root of one judge's scores.
 
-def judge_partition_dir(tag: str) -> str:
-    """``<EVAL_SCORES_BY_JUDGE>/judge=<tag>`` — the root of one judge's scores."""
-    return os.path.join(EVAL_SCORES_BY_JUDGE, f"{JUDGE_PARTITION}{tag}")
+    An empty tag resolves to the primary oracle, matching ``EdaConfig.judge=""``.
+    """
+    return os.path.join(EVAL_SCORES, f"{JUDGE_PARTITION}{tag or PRIMARY_JUDGE_TAG}")
 
 _ACTIVE_JUDGE = ""
 _ACTIVE_JUDGE_REP = 0
@@ -344,7 +365,7 @@ def set_active_judge(tag: str = "", rep: int = 0) -> None:
 
 
 def active_judge() -> str:
-    """Active judge tag, or ``""`` for the primary oracle's ``eval_scores/`` tree."""
+    """Active judge tag, or ``""`` for the primary oracle (see :data:`PRIMARY_JUDGE_TAG`)."""
     return _ACTIVE_JUDGE
 
 
@@ -358,10 +379,10 @@ def judge_dirname(tag: str = None) -> str:
     Drops the provider prefix and any trailing ISO release date, so
     ``openai_gpt-4o-mini-2024-07-18 -> gpt-4o-mini`` and
     ``anthropic_claude-haiku-4-5 -> claude-haiku-4-5``. The DATA tree keeps the full tag
-    (``eval_scores_by_judge/judge=<tag>/``) because that is a stable partition key; the RESULTS tree
-    uses the short label because a human reads those paths. ``tag=None`` resolves the active judge,
-    and the primary oracle resolves to its own label rather than to a flat path — every grader gets
-    a folder, so no tree is privileged by layout.
+    (``eval_scores/judge=<tag>/``) because that is a stable partition key; the RESULTS tree uses the
+    short label because a human reads those paths. ``tag=None`` resolves the active judge, and the
+    primary oracle resolves to its own label rather than to a flat path — every grader gets a
+    folder, so no tree is privileged by layout.
     """
     t = (active_judge() if tag is None else tag) or PRIMARY_JUDGE_TAG
     t = t.split("_", 1)[-1]                       # provider prefix

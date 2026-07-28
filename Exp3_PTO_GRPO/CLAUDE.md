@@ -229,25 +229,27 @@ Exp3_PTO_GRPO/
 │   └── PTO_Exp3/
 │       ├── train_PTO_Iterative.ipynb    visible orchestration loop (mirrors GRPO_Exp3)
 │       └── pto_trainer.py               PTOConfig + run_one_iteration + build_pref_pairs_for_conversation + …
-├── data/                               eval scores co-locate per method, labelled metric=<M>/oracle=<O>/ (M=scoring metric, O=training oracle)
+├── data/                               ALL THREE subdirs are Google Drive symlinks (backed up + reachable from Colab)
 │   ├── eval_coverage.csv                scoring-coverage snapshot: per model × metric done/todo counts
-│   ├── eval_scores_by_judge/            LOCAL — every judge OTHER than the primary oracle (renamed
-│   │   │                                from judge_check/ 2026-07-27: a second grader is a
-│   │   │                                first-class measurement, not a spot check)
+│   ├── eval_scores/                     THE SCORE LAKE — every grader's scores, one shape (2026-07-28)
 │   │   ├── judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+│   │   │                                M=scoring metric, O=training oracle. rep=0 is each judge's
+│   │   │                                FULL-GRID draw (the reported one); rep>=1 are repeatability
+│   │   │                                draws on the anchor subset. No method level — <Model>
+│   │   │                                already carries it (GRPOExp3_* / PTOExp3_*).
+│   │   ├── _parquet/judge=<tag>/rep=<r>/metric=<M>.parquet   derived fold of the CSVs (50,305 → 31)
+│   │   │   + _manifest.json             built by tools/consolidate_scores.py; READ by
+│   │   │                                iter_conv_rows (4.3–6.1× faster) but ONLY while the
+│   │   │                                manifest's per-partition content signature still matches
+│   │   │                                disk — any mismatch silently falls back to the CSVs.
 │   │   ├── _batches/<tag>/rep=<r>/*.json   Message Batches manifests (submit → collect state)
 │   │   └── summary/                     convenience CSV snapshots from Judge_Reliability
-│   │   ⚠ The PRIMARY oracle stays co-located per method (below) because those dirs are Google
-│   │     Drive symlinks — backed up + reachable from Colab. The asymmetry is about STORAGE, not
-│   │     status: `Arm.eval_dir()` hides it, and the EDA reads either via `EdaConfig.judge`.
 │   ├── grpo_Exp3/                       produced by GRPO_Exp3 runs
 │   │   ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training}/
-│   │   ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
-│   │   └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+│   │   └── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
 │   └── pto_Exp3/                        produced by PTO_Exp3 runs (same shape as grpo_Exp3)
 │       ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training, pref_pairs/}
-│       ├── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
-│       └── eval_scores/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+│       └── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
 ├── eda/                                 verified runnable end-to-end (2026-07-27 reorg: notebooks/ docs/ tools/)
 │   ├── README.md                        EDA guide: notebook↔family table, VIEW + JUDGE knobs, module map
 │   ├── notebooks/
@@ -266,10 +268,14 @@ Exp3_PTO_GRPO/
 │   ├── tools/
 │   │   ├── render_views.py              DRIVER: regenerate results/<view>/ via nbconvert (sets EDA_VIEW/EDA_JUDGE;
 │   │   │                                --output-dir tmp; --nb takes the notebook/family NUMBER 1..7; --judge <tag>)
+│   │   ├── consolidate_scores.py        {build|verify|report} the score lake's parquet fold
+│   │   │                                (CLI over eda_analysis/score_archive.py). Run `build`
+│   │   │                                after any new scoring — stale is safe, just slow.
 │   │   └── strip_notebook_outputs.py    output-clean helper (paired with the nbstrip git clean-filter)
 │   ├── eda_analysis/                    THE Exp3 EDA package (one package since the 2026-07-13 fold):
 │   │                                    analysis layer (disk-discovery, read-only) = constants LEAF
-│   │                                    + config / data / plotting_style / stats / behavior / training /
+│   │                                    + config / data / score_archive / plotting_style / stats /
+│   │                                    behavior / training /
 │   │                                    pref / exports / _selfcheck + plotting/ subpackage (topic-split
 │   │                                    figures; figures+plots alias it); scoring layer = scoring/
 │   │                                    subpackage (registry / conversations / pipeline / judge — the
@@ -462,12 +468,12 @@ HF token IS used locally — Llama-3.2-1B is gated.
 
 ### Sync (Colab ↔ local)
 
-**Results pull — Google Drive Desktop, no rclone.** `data/grpo_Exp3` and
-`data/pto_Exp3` are **directory symlinks** into Drive
-(`G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data\<method>`). Colab writes to mounted
+**Results pull — Google Drive Desktop, no rclone.** `data/eval_scores`, `data/grpo_Exp3` and
+`data/pto_Exp3` are all **directory symlinks** into Drive
+(`G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data\<name>`). Colab writes to mounted
 Drive → Drive Desktop (kept in **streaming** mode, low disk) surfaces it locally →
 files appear straight inside the repo; EDA reads through the link unchanged (all reads
-go via `WORKSPACE_ROOT/data/...`). EDA only reads `conversations/` + `eval_scores/`
+go via `WORKSPACE_ROOT/data/...`). EDA only reads `conversations/` + the score lake's
 CSVs, so streaming downloads just those on open; big artifacts (`runs/`, adapters,
 `*.safetensors`) are never read locally and also live on HF Hub + W&B.
 
@@ -476,10 +482,15 @@ Re-create the links (Windows **Developer Mode** on; use `mklink`, **not** PowerS
 ```powershell
 $D = "G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data"
 $R = "C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data"
-cmd /c "mklink /D ""$R\grpo_Exp3"" ""$D\grpo_Exp3"""
-cmd /c "mklink /D ""$R\pto_Exp3""  ""$D\pto_Exp3"""
+cmd /c "mklink /D ""$R\eval_scores"" ""$D\eval_scores"""
+cmd /c "mklink /D ""$R\grpo_Exp3""   ""$D\grpo_Exp3"""
+cmd /c "mklink /D ""$R\pto_Exp3""    ""$D\pto_Exp3"""
 ```
 To undo: delete the **link** (`Remove-Item "$R\grpo_Exp3"`) — Drive data untouched.
+
+⚠ **The score lake is the only copy of ~$350 of oracle + judge calls.** Re-scoring it is not
+affordable (see the cost constraint in the root CLAUDE.md), so it lives on Drive rather than
+local-only, and `_parquet/` gives a 31-file form that is cheap to copy somewhere else again.
 
 **Code push (local → Drive for Colab) is manual, `code/` only.** The whole `code/`
 tree was pushed to `G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code\` (2026-06-01, robocopy) —
@@ -511,10 +522,10 @@ figures → the topic module in `plotting/` (+ its `__init__` re-export); a new 
 - **`scoring/registry.py::ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `conversations._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
 - **`scoring/registry.py::COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
 - **`scoring/registry.py::EXPERIMENTS`** — registry of trained-model data locations, **auto-generated at import** by `build_experiments_from_disk()` from `eda_analysis.data.discover_arms()` (2026-07-11). New runs are picked up automatically once their conversations land; nothing to edit. (If the Drive symlinks are offline the registry is empty and a warning prints.)
-- **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs stay under `data/judge_check/`, never the real `eval_scores/`. **Claude judges:** `json_schema` rejects `minimum`/`maximum`/`minItems`/`maxItems` (folded into `description` instead — do NOT just drop them, or the array-shaped rubrics lose their one-score-per-item guarantee), and Sonnet 5 / Opus 4.8+ need `thinking={"type":"disabled"}` or adaptive thinking eats `max_tokens`.
+- **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs land in `data/eval_scores/judge=<tag>/rep=<r>/`, never in another grader's partition. **Claude judges:** `json_schema` rejects `minimum`/`maximum`/`minItems`/`maxItems` (folded into `description` instead — do NOT just drop them, or the array-shaped rubrics lose their one-score-per-item guarantee), and Sonnet 5 / Opus 4.8+ need `thinking={"type":"disabled"}` or adaptive thinking eats `max_tokens`.
 - **`scoring/judge_plan.py`** (FREE pre-flight, no API) — `check_rubric_parity()` is **the gate before any second-judge spend**: it verifies every constraint stripped for Claude was restated in `description` and the encodings are otherwise structurally identical. Runs automatically in `_selfcheck`. Also `prefix_report()` (which rubrics actually prompt-cache), `plan_sweep()` (coverage-aware call count, skips existing CSVs), `estimate_cost`/`sweep_report`. **Pricing lives in `JUDGE_PRICING` — verify against the billing dashboard before quoting a number.**
-- **`scoring/judge_batch.py`** (PAID) — the full-sweep path via **Anthropic Message Batches (50% off)**: `submit_sweep` → `poll_batches` → `collect_batches`, three separate phases with manifests persisted under `data/judge_check/_batches/` so collection works from a fresh kernel. `custom_id` is an opaque index into that manifest, never an encoded path (model+metric+oracle overflows the 64-char limit and a truncation collision would write a score to the wrong model's folder). Anthropic-only by design — the primary judge already has a full rep, and extra reps are cheap enough for the live path.
-- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/judge_check/`: ICC/agreement/contrast tables for `5_Training_and_Reliability` §7, plus the **multi-judge** layer for §8 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_views.py`.
+- **`scoring/judge_batch.py`** (PAID) — the full-sweep path via **Anthropic Message Batches (50% off)**: `submit_sweep` → `poll_batches` → `collect_batches`, three separate phases with manifests persisted under `data/eval_scores/_batches/` so collection works from a fresh kernel. `custom_id` is an opaque index into that manifest, never an encoded path (model+metric+oracle overflows the 64-char limit and a truncation collision would write a score to the wrong model's folder). Anthropic-only by design — the primary judge already has a full rep, and extra reps are cheap enough for the live path.
+- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/eval_scores/`: ICC/agreement/contrast tables for `5_Training_and_Reliability` §7, plus the **multi-judge** layer for §8 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_views.py`.
   - ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the second judge is held out — that is train-vs-test, not two raters. The level offset is 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to every effect. Combine only contrasts or standardized quantities.
   - ⚠ **Pair on `persona_id`, not `file_index`** (`attach_persona`). The 96 personas are reshuffled each iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it; `dz` and CIs do not.
 - **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with all 22,272 conversations already scored.

@@ -19,10 +19,10 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from .constants import QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, EXTRA_METRICS
+from .constants import QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, EXTRA_METRICS, BOOT_SEED
 from .data import to_wide
 
-_BOOT_SEED = 12345  # fixed for reproducibility
+_BOOT_SEED = BOOT_SEED  # single source of truth in constants (shared with the figure-side bands)
 
 
 # ── Paired comparisons (by persona) ──────────────────────────────────────────
