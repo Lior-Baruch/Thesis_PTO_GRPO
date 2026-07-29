@@ -3,7 +3,7 @@
 
 Analysis-layer counterpart to :mod:`eda_analysis.scoring.judge`, which OWNS the paid API path that
 *writes* those partitions. **Nothing here calls an API** — this module is disk-only and free to
-re-run, like every other ``eda_analysis`` module, so ``5_Training_and_Reliability`` can render these
+re-run, like every other ``eda_analysis`` module, so ``8_Measurement_Validity`` can render these
 tables/figures inside ``render_views.py`` while the money stays behind the ``RUN_*`` switches in
 ``Judge_Reliability.ipynb``. Same split as ``Run_Eval`` (paid, manual) → notebooks 1–7 (free, auto).
 

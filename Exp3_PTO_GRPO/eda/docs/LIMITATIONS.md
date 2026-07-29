@@ -15,7 +15,7 @@ Every conversation in the main eval is scored **once** by the oracle (`temperatu
 which *freezes* the judge's bias for reproducibility but does not by itself measure it. It has now
 been measured on the anchor-model subset (4 models × {Q1, Q2, MICI} × 96 convs, re-scored 3× with
 per-rep seeds and compared against the reported draw — `Judge_Reliability.ipynb` Part 1, displayed
-in `5_Training_and_Reliability` §7):
+in `8_Measurement_Validity` §1):
 
 | metric | ICC(2,1) | mean \|Δ\| between reps |
 |---|---|---|
@@ -43,7 +43,7 @@ wording, item order, or transcript position; a paraphrased-prompt rep would be n
 choice, not a gap: see the rep argument below. The *second-judge* half is no longer subset-limited —
 `Judge_Reliability.ipynb` §3 completed the full 8-rubric × 29-model grid on 2026-07-27
 (**22,272 / 22,272 cells**, $42 batched), so `reliability.filter_complete_cells` now drops nothing
-and every §8 number below is computed at full n=96 per cell. Coverage is recorded in
+and every multi-judge number below is computed at full n=96 per cell. Coverage is recorded in
 `multijudge_coverage.md` (232/232 cells).
 
 > **Provenance of the sweep** (kept because it explains the guard that is still in the code). The
@@ -60,7 +60,7 @@ and every §8 number below is computed at full n=96 per cell. Coverage is record
 and consistently wrong. That remains the strongest further addition (costs Lior-time, not API
 budget), and no ICC substitutes for it.
 
-**Why breadth was bought before depth.** Quantified in `5_Training_and_Reliability` §8: oracle
+**Why breadth was bought before depth.** Quantified in `8_Measurement_Validity` §2: oracle
 noise contributes ≈0.01 to a 96-conversation arm mean, against ≈0.09 from persona sampling — an
 order of magnitude less. A second rep therefore cannot move any arm-level conclusion (Q1 per-
 conversation reliability goes 0.98 → 0.99 from 1 → 3 reps). At equal cost, **breadth** (all models ×
@@ -104,7 +104,7 @@ achievable agreement where Q1/Q2 recover ~85%. The §2 MICI caveat therefore sta
 now computes the ceiling from measured values on both sides and records which basis applied in
 `ceiling_basis`.
 
-> ⚠ **Consequence for §8.** The multi-judge analysis reads Haiku **rep 0 only**, and a single-rep
+> ⚠ **Consequence for the multi-judge analysis** (`8_Measurement_Validity` §2). It reads Haiku **rep 0 only**, and a single-rep
 > Haiku MICI score on GRPO@10 has ICC 0.525 — barely half its variance is signal. Treat one-rep
 > MICI on the high-MICI arms as indicative; averaging the three anchor reps now on disk would
 > resolve it for those four model states.
@@ -120,7 +120,7 @@ un-rewarded oracle axes (MICI, PCT, MITI ratios) as corroboration.
 
 **Empirically bounded (2026-07-26).** The same subset was re-scored by **Claude Haiku 4.5** — a
 different model family that never played the patient (`Judge_Reliability.ipynb` Part 2, displayed in
-`5_Training_and_Reliability` §7). Three findings:
+`8_Measurement_Validity` §1). Three findings:
 
 1. **Every contrast keeps its sign — 18/18** (2026-07-27; was 6/6 when only two hand-picked pairs
    were checked). PTO@10 − GRPO@10: Q1 +0.77 (primary +0.53), Q2 +0.45 (+0.48), MICI −0.22 (−0.35,
@@ -172,7 +172,7 @@ deterministic text metrics, not MICI. A human-coded MICI sample is the fix (see 
 
 **Variance decomposition (2026-07-27).** The level shift in (3) is not merely *assumed* to be
 harmless — it is now separated from the part that would matter. A two-way random-effects
-decomposition of the arm means the thesis reports (`5_Training_and_Reliability` §8b) splits their
+decomposition of the arm means the thesis reports (`8_Measurement_Validity` §2b) splits their
 variance into arm (signal), judge level, and **arm × judge** (an ordering that depends on who is
 grading — the only component that can invalidate a claim):
 
@@ -225,7 +225,7 @@ the deterministic text metrics. See the confirmatory/exploratory split in `7_Sta
 gives a direct handle on this circularity rather than only a caveat. Because the primary oracle
 *was* the training reward and Claude Haiku 4.5 never touched training, `Δ(held-out) / Δ(trained-
 against)` is a **train/test generalization ratio** for each arm's gain over Base
-(`5_Training_and_Reliability` §8c, persona-bootstrap CIs):
+(`8_Measurement_Validity` §2c, persona-bootstrap CIs):
 
 | metric | PTO@10 | GRPO@8 | GRPO@10 |
 |---|---|---|---|
@@ -271,7 +271,7 @@ factor is `MICI ↓` + the MITI ratios (`R:Q`/`%CR`/`%MICO`). Reported as a find
 
 ## 5 · Look-ahead (K=0 vs K=5) is descriptive only
 The LA5 arms are thin (PTO_LA5 = 4 scored iters, GRPO_LA5 = 1), so every K contrast
-(`5_Training_and_Reliability` §4, `6_Preference` §2, `7_Stats` §4) is **hypothesis-generating, not inferential**
+(`5_Training` §4, `6_Preference` §2, `7_Stats` §4) is **hypothesis-generating, not inferential**
 — banners mark these in-notebook. The confirmatory PTO-vs-GRPO result is at K=0 and is
 unaffected.
 

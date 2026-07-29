@@ -42,7 +42,7 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 ## Key methodological shift across experiments
 - **Look-ahead K** stayed central throughout (the lever from the ICLR paper).
 - **The hard part moved from "can PTO beat the baseline?" (Exp1, settled) to "is GRPO competitive with PTO under matched look-ahead?" (Exp3, open).**
-- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in [Exp3_PTO_GRPO/eda/notebooks/analysis/5_Training_and_Reliability.ipynb](Exp3_PTO_GRPO/eda/notebooks/analysis/5_Training_and_Reliability.ipynb)) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
+- **Exp3 also exposed a reward-faithfulness concern** the earlier experiments never tested: the partial-conversation oracle diagnostic (originally `Partial_Conv_Oracle_EDA` on Exp2 data; now rebuilt on Exp3 data in [Exp3_PTO_GRPO/eda/notebooks/analysis/5_Training.ipynb](Exp3_PTO_GRPO/eda/notebooks/analysis/5_Training.ipynb)) shows that the short-cut training reward has only ~0.66–0.73 rank agreement with the full-conv eval at `n_turns=2`. Motivates the `MIN_CONV_LENGTH` knob — now wired in both GRPO_Exp3 (slice filter) and PTO_Exp3 (greedy: tree-start prefix length; independent: branch-point filter); encoded in `EXPERIMENT_NAME` so MCL sweeps stay in disjoint folders.
 
 ## Methods (one line each)
 - **PTO V1** (Exp1) = original preference-tree exploration + K look-ahead + DPO. Published.
@@ -71,7 +71,7 @@ here — see "Doc map"). Updated 2026-07-29.
   *widens* the PTO−GRPO Q1 gap to +0.77 vs the primary's +0.53). Q1/Q2 cross-judge r 0.80–0.88 vs a
   measured 0.96–0.98 ceiling; MICI agrees weakly (r 0.20–0.55) so the sycophancy claim holds at the
   contrast level, not as a precise rate. Buys down LIMITATIONS §1–§2. Cost ~$5.30.
-  See `eda/notebooks/analysis/5_Training_and_Reliability` §7.
+  See `eda/notebooks/analysis/8_Measurement_Validity` §1.
 - **Cost constraint:** OpenAI spend hit **~$300** and is binding — RQ-i (K0 vs K5) on hold. Cost is
   dominated by oracle scoring + (at K=5) look-ahead patient calls, both ∝ candidate count
   (`prompts×G` / `branch-points×M`) × iterations; prompt caching is already maxed (~50% off the
@@ -97,8 +97,9 @@ here — see "Doc map"). Updated 2026-07-29.
   path always names the grader that produced it. Notebooks 5+6 **refuse** a
   second judge — they read the training side, which cannot be re-graded after the fact.
 - **Multi-judge EDA — BUILT 2026-07-27** (was queued 2026-07-26). Lands as
-  `5_Training_and_Reliability` **§8** (free, inside `tools/render_views.py`) +
-  `Judge_Reliability.ipynb` **§3** (the paid full sweep). The four results that carry weight — all
+  `8_Measurement_Validity` (free, inside `tools/render_views.py`; family `8_measurement/`,
+  no `<judge>/` level because every artifact contains both graders) + `Judge_Reliability.ipynb`
+  **§3** (the paid full sweep). The four results that carry weight — all
   on the tracked `L0` view (22 arms), **numbers owned by
   [L0/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md) §7, caveats by
   [LIMITATIONS.md](Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md) §1–§3:**
@@ -464,8 +465,8 @@ Exp3_PTO_GRPO/
 │   ├── notebooks/
 │   │   ├── analysis/                    FREE + reproducible — the 7 tier-based topic notebooks
 │   │   │                                (`1_Outcomes` `2_Questionnaire_Detail` `3_Validity_and_Hacking`
-│   │   │                                `4_Heterogeneity` `5_Training_and_Reliability` `6_Preference`
-│   │   │                                `7_Stats`) ↔ result families 1:1 (+ a `0_headline/` family of
+│   │   │                                `4_Heterogeneity` `5_Training` `6_Preference` `7_Stats`
+│   │   │                                `8_Measurement_Validity`) ↔ result families 1:1 (+ a `0_headline/` family of
 │   │   │                                re-saved presentation figures), [EVAL]/[TRAINING]-tagged,
 │   │   │                                endpoint artifacts as final+best pairs. Driven by tools/render_views.py
 │   │   └── scoring/                     **$$ PAID + manual** (RUN_* switches; never in render_views):
@@ -530,7 +531,7 @@ not maintained here either: see the Doc map.
 
 Both trainers score *partial* conversations (slices as short as 2 turns) as the training reward, but
 the thesis evaluates *full* conversations. The diagnostic — rebuilt on Exp3 data with no new oracle
-calls in [5_Training_and_Reliability.ipynb](Exp3_PTO_GRPO/eda/notebooks/analysis/5_Training_and_Reliability.ipynb)
+calls in [5_Training.ipynb](Exp3_PTO_GRPO/eda/notebooks/analysis/5_Training.ipynb)
 (from the per-branch `prefix` in `generations.jsonl`); the original Exp2 version motivated the MCL
 knob — shows pairwise rank agreement with the final-conv score is **barely above chance at
 `n_turns=2` and only clears 0.8/0.9 at ~10/~30 turns**, a structural gap well above oracle
@@ -705,7 +706,7 @@ figures → the topic module in `plotting/` (+ its `__init__` re-export); a new 
 - **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs land in `data/eval_scores/judge=<tag>/rep=<r>/`, never in another grader's partition. **Claude judges:** `json_schema` rejects `minimum`/`maximum`/`minItems`/`maxItems` (folded into `description` instead — do NOT just drop them, or the array-shaped rubrics lose their one-score-per-item guarantee), and Sonnet 5 / Opus 4.8+ need `thinking={"type":"disabled"}` or adaptive thinking eats `max_tokens`.
 - **`scoring/judge_plan.py`** (FREE pre-flight, no API) — `check_rubric_parity()` is **the gate before any second-judge spend**: it verifies every constraint stripped for Claude was restated in `description` and the encodings are otherwise structurally identical. Runs automatically in `_selfcheck`. Also `prefix_report()` (which rubrics actually prompt-cache), `plan_sweep()` (coverage-aware call count, skips existing CSVs), `estimate_cost`/`sweep_report`. **Pricing lives in `JUDGE_PRICING` — verify against the billing dashboard before quoting a number.**
 - **`scoring/judge_batch.py`** (PAID) — the full-sweep path via **Anthropic Message Batches (50% off)**: `submit_sweep` → `poll_batches` → `collect_batches`, three separate phases with manifests persisted under `data/eval_scores/_batches/` so collection works from a fresh kernel. `custom_id` is an opaque index into that manifest, never an encoded path (model+metric+oracle overflows the 64-char limit and a truncation collision would write a score to the wrong model's folder). Anthropic-only by design — the primary judge already has a full rep, and extra reps are cheap enough for the live path.
-- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/eval_scores/`: ICC/agreement/contrast tables for `5_Training_and_Reliability` §7, plus the **multi-judge** layer for §8 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `sign_preservation`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_views.py`.
+- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/eval_scores/`: ICC/agreement/contrast tables for `8_Measurement_Validity` §1, plus the **multi-judge** layer for its §2 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `sign_preservation`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_views.py`.
   - ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the second judge is held out — that is train-vs-test, not two raters. The level offset is 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to every effect. Combine only contrasts or standardized quantities.
   - ⚠ **Pair on `persona_id`, not `file_index`** (`attach_persona`). The 96 personas are reshuffled each iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it; `dz` and CIs do not.
 - **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with all 22,272 conversations already scored.

@@ -443,6 +443,47 @@ def _c_multi_judge() -> str:
             f"to 100%; {int(pairs.same_sign.sum())}/{len(pairs)} pairwise contrasts keep their sign")
 
 
+def _c_cross_judge_layout() -> str:
+    """A CROSS-JUDGE artifact must never sit under a single judge's folder.
+
+    The ``<judge>/`` path segment asserts "this grader produced this file". For a multi-judge
+    artifact that is false — ``multijudge_variance_decomposition.png`` plots BOTH graders, and
+    filing it under ``gpt-4o-mini/`` credits the primary with the very figure that proves the two
+    agree. That is exactly where these lived until 2026-07-29 (inside the training-side family 5,
+    which refuses a second judge, so they could only ever be written under the primary).
+
+    Structural, not data-dependent: it walks the committed results trees.
+    """
+    import re as _re
+    from eda_analysis import exports as X
+
+    # Asserted as a PATH SHAPE, not against a list of judge names: a cross-judge artifact must sit
+    # directly in a judge-invariant family, with no segment of any kind between family and file.
+    # That catches a <judge>/ level without needing to know what the graders are called.
+    cross = _re.compile(r"^(multijudge_|second_judge_|oracle_repeatability_|judge_)")
+    offenders, seen = [], 0
+    for view in ("L0", "L5"):
+        for kind in ("figures", "tables"):
+            root = os.path.join(X.RESULTS_DIR, view, kind)
+            if not os.path.isdir(root):
+                continue
+            for dirpath, _dirs, files in os.walk(root):
+                rel = os.path.relpath(dirpath, root)
+                parts = [] if rel == "." else rel.split(os.sep)
+                for f in files:
+                    if not cross.match(f):
+                        continue
+                    seen += 1
+                    if len(parts) != 1 or parts[0] not in X.JUDGE_INVARIANT_GROUPS:
+                        offenders.append(os.path.join(view, kind, rel, f))
+    assert not offenders, ("cross-judge artifacts must live directly in a JUDGE_INVARIANT_GROUPS "
+                           f"family, never under a <judge>/ level: {sorted(offenders)[:6]}")
+    assert "8_measurement" in X.JUDGE_INVARIANT_GROUPS, "family 8 must be judge-invariant"
+    assert X._leaf("root", "8_measurement") == os.path.join("root", "8_measurement"), \
+        "_leaf still appends a <judge> segment to a judge-invariant family"
+    return f"{seen} cross-judge artifacts, none under a <judge>/ dir; family 8 judge-invariant"
+
+
 # ── probe (opt-in, heavy) ─────────────────────────────────────────────────────
 def _c_probe() -> str:
     arms = _discover_or_skip()
@@ -491,6 +532,7 @@ def main(argv: List[str] | None = None) -> int:
     _run("notebook symbol refs resolve", _c_notebook_refs_resolve, results)
     _run("cache mechanism + invalidation", _c_cache_mechanism, results)
     _run("rubric parity (2nd judge gate)", _c_rubric_parity, results)
+    _run("cross-judge artifact layout", _c_cross_judge_layout, results)
     # Data — unless --fast.
     if not fast:
         _run("discover_arms", _c_discover, results)

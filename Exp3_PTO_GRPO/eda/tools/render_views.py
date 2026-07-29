@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 """
-render_views.py — regenerate ``results/{L0,L5,all}/`` for the 7 Exp3 analysis notebooks.
+render_views.py — regenerate ``results/{L0,L5,all}/`` for the 8 Exp3 analysis notebooks.
 
 Each notebook's cell 1 reads ``VIEW = os.environ.get("EDA_VIEW", "L0")``, so this driver simply
 sets ``EDA_VIEW`` and executes the notebook via ``nbconvert`` (no notebook-JSON mutation, no
@@ -11,7 +11,7 @@ as a side effect (figures, tables, INDEX.md, _provenance.md).
 **Speed.** Views are rendered **in parallel** — one worker per view (``--jobs`` to tune) — and a
 bare run renders only **L0 + L5**, the two views that hold distinct data. ``all`` is a merged
 SUPERSET of L0+L5 that rarely earns its render cost, so it is now **opt-in** (``render_views.py
-all``). Within a view the 7 notebooks run **sequentially**: they share that view's ``INDEX.md`` +
+all``). Within a view the 8 notebooks run **sequentially**: they share that view's ``INDEX.md`` +
 per-family ``CAPTIONS.md`` (``build_index`` rewrites them), so parallelism is ACROSS views, never
 within one. For a one-figure tweak, render just the affected notebook of the view you need
 (``render_views.py L0 --nb 2``) — far cheaper than a full sweep.
@@ -62,9 +62,10 @@ NOTEBOOKS = [
     "2_Questionnaire_Detail.ipynb",
     "3_Validity_and_Hacking.ipynb",
     "4_Heterogeneity.ipynb",
-    "5_Training_and_Reliability.ipynb",
+    "5_Training.ipynb",
     "6_Preference.ipynb",
     "7_Stats.ipynb",
+    "8_Measurement_Validity.ipynb",
 ]
 NB_BY_NUMBER = {int(nb.split("_")[0]): nb for nb in NOTEBOOKS}
 KERNEL = "thesis-venv313"
@@ -72,10 +73,16 @@ TIMEOUT = 1800  # seconds per notebook (the preference embedding cell is the slo
 MAX_PARALLEL_VIEWS = 4  # cap default parallelism — each concurrent view is one live nbconvert kernel
 
 
-# Notebooks that read the TRAINING side (candidate rewards, preference pairs, TB curves). Those
-# scores were produced by the training oracle during the run and cannot be re-graded, so a
-# --judge render skips them rather than emitting byte-identical figures under another grader's name.
-TRAINING_SIDE_NOTEBOOKS = {"5_Training_and_Reliability.ipynb", "6_Preference.ipynb"}
+# ── Notebooks a --judge render skips, for two OPPOSITE reasons ─────────────────
+# TRAINING-SIDE: they read candidate rewards, preference pairs and TB curves, produced by the
+# training oracle during the run and impossible to re-grade. Rendering them under another grader
+# would emit byte-identical figures under that grader's name — a measurement that never happened.
+TRAINING_SIDE_NOTEBOOKS = {"5_Training.ipynb", "6_Preference.ipynb"}
+# JUDGE-INVARIANT: notebook 8 already contains EVERY grader. reliability.py loads each judge from
+# the score lake explicitly and ignores EDA_JUDGE, and its family (`8_measurement`) is exported with
+# no <judge>/ level (exports.JUDGE_INVARIANT_GROUPS), so a per-judge render would rewrite the same
+# files with the same bytes. It is rendered exactly once per view, on the primary pass.
+JUDGE_INVARIANT_NOTEBOOKS = {"8_Measurement_Validity.ipynb"}
 
 
 def run_one(view: str, nb: str, outdir: str, judge: str = "") -> bool:
@@ -118,14 +125,15 @@ def main(argv=None) -> int:
     ap.add_argument("views", nargs="*", default=None,
                     help="views to render (subset of all/L0/L5); default = L0 L5 (all is opt-in)")
     ap.add_argument("--nb", nargs="*", type=int, default=None,
-                    help="notebook NUMBERS to render (1..7 — the filename/family number, "
-                         "e.g. 3 = 3_Validity_and_Hacking); default = all seven")
+                    help="notebook NUMBERS to render (1..8 — the filename/family number, "
+                         "e.g. 3 = 3_Validity_and_Hacking); default = all eight")
     ap.add_argument("--jobs", "-j", type=int, default=None,
                     help=f"parallel views (default = #views, capped at {MAX_PARALLEL_VIEWS}); 1 = sequential")
     ap.add_argument("--judge", default="",
                     help="score source: '' = the primary oracle (default), or a judge tag such as "
-                         "anthropic_claude-haiku-4-5 -> results/judges/<tag>/<view>/. Training-side "
-                         "notebooks (5, 6) are skipped for a non-primary judge.")
+                         "anthropic_claude-haiku-4-5 -> figures/<family>/<judge>/. Training-side "
+                         "notebooks (5, 6) and the judge-invariant one (8) are skipped for a "
+                         "non-primary judge.")
     ap.add_argument("--list", action="store_true", help="print the view/notebook lists and exit")
     args = ap.parse_args(argv)
 
@@ -152,11 +160,17 @@ def main(argv=None) -> int:
         if args.judge not in known:
             ap.error(f"unknown judge {args.judge!r}; scored judges on disk: {known or '(none)'}")
         skipped = [n for n in notebooks if n in TRAINING_SIDE_NOTEBOOKS]
-        notebooks = [n for n in notebooks if n not in TRAINING_SIDE_NOTEBOOKS]
+        invariant = [n for n in notebooks if n in JUDGE_INVARIANT_NOTEBOOKS]
+        notebooks = [n for n in notebooks
+                     if n not in TRAINING_SIDE_NOTEBOOKS and n not in JUDGE_INVARIANT_NOTEBOOKS]
         if skipped:
             print(f"[render] judge={args.judge}: skipping training-side notebook(s) "
                   f"{', '.join(skipped)} — their scores come from the training oracle and "
                   f"cannot be re-graded.", flush=True)
+        if invariant:
+            print(f"[render] judge={args.judge}: skipping judge-invariant notebook(s) "
+                  f"{', '.join(invariant)} — they already read every grader and export with no "
+                  f"<judge>/ level; render them on the primary pass.", flush=True)
         if not notebooks:
             print("[render] nothing to render for this judge.")
             return 0

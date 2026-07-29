@@ -33,9 +33,19 @@ OUT  = os.path.join(ROOT, "meetings", "2026-07-16", "supervisor_meeting_2026-07-
 # spelled out at every call site. Point JUDGE at another grader to rebuild the same deck off it.
 JUDGE = "gpt-4o-mini"
 
+# Families that are ABOUT the judges rather than produced BY one export with no <JUDGE> level
+# (eda_analysis.exports.JUDGE_INVARIANT_GROUPS). Keep in sync, or a deck asks for a path that the
+# EDA never writes -- which fails loudly at add_picture, but only when someone builds a deck.
+JUDGE_INVARIANT_FAMILIES = {"8_measurement"}
+
 def _jp(base, p):
-    """``<base>/<family>[/<sub>]/<JUDGE>/<name>`` — judge goes ahead of the FILENAME, not the family."""
+    """``<base>/<family>[/<sub>]/<JUDGE>/<name>`` — judge goes ahead of the FILENAME, not the family.
+
+    A judge-invariant family has no <JUDGE> segment at all: its artifacts contain every grader.
+    """
     *parts, name = p.split("/")
+    if parts and parts[0] in JUDGE_INVARIANT_FAMILIES:
+        return os.path.join(base, *parts, name)
     return os.path.join(base, *parts, JUDGE, name)
 
 def f(p):  return _jp(FIG, p)

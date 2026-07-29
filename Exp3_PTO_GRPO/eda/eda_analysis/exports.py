@@ -12,7 +12,8 @@ Two-level layout::
   ``EdaConfig.view``). It splits the artifacts into the parallel look-ahead trees the user
   asked for. With no view set (``""``) artifacts fall back to the legacy bare ``results/`` root.
 - ``<group>`` is the notebook's topic family (``"1_outcomes"``, ``"2_questionnaires"``,
-  ``"3_validity"``, ``"4_heterogeneity"``, ``"5_training"``, ``"6_preference"``, ``"7_stats"``) set via
+  ``"3_validity"``, ``"4_heterogeneity"``, ``"5_training"``, ``"6_preference"``, ``"7_stats"``,
+  ``"8_measurement"``) set via
   :func:`set_export_group` — the family NUMBER matches the producing notebook's number, so any
   artifact traces straight back to its notebook. A per-call ``group=`` on ``save_fig``/``save_table``
   overrides it for one save and may be a NESTED subpath within the family
@@ -45,6 +46,23 @@ PRESERVE = {"SUMMARY.md"}
 # Figure/table file extensions recognized by build_index / reset_results, per root.
 _FIG_EXTS = (".png", ".pdf", ".svg")
 _TAB_EXTS = (".md",)
+
+# ── Families that are ABOUT the judges rather than PRODUCED BY one ──────────────
+# The <judge>/ level means "this grader produced this artifact". For a cross-judge artifact that
+# claim is false: `multijudge_variance_decomposition.png` plots BOTH graders, and filing it under
+# `gpt-4o-mini/` says the primary made it alone — the one figure proving the judges agree, attributed
+# to a single judge. Such families skip the segment entirely (2026-07-29).
+#
+# They are also judge-INVARIANT: `reliability.py` loads every judge from the score lake explicitly
+# and ignores the active EDA_JUDGE, so re-rendering under another grader would reproduce byte-
+# identical output. render_views.py therefore renders them exactly once.
+JUDGE_INVARIANT_GROUPS = frozenset({"8_measurement"})
+
+
+def _is_judge_invariant(group: str) -> bool:
+    """True if *group* (or its top-level family, for nested subpaths) skips the ``<judge>/`` level."""
+    return bool(group) and group.split("/", 1)[0] in JUDGE_INVARIANT_GROUPS
+
 
 # The active view subfolder. Empty = legacy bare roots (results/figures/...).
 _VIEW = ""
@@ -120,12 +138,16 @@ def _tables_root() -> str:
 
 
 def _leaf(root: str, group: Optional[str]) -> str:
-    """``<root>/<group>/[<judge>]`` — the single place group + judge are composed."""
+    """``<root>/<group>/[<judge>]`` — the single place group + judge are composed.
+
+    A :data:`JUDGE_INVARIANT_GROUPS` family gets no ``<judge>`` segment: its artifacts are about
+    the graders, not the output of one.
+    """
     g = _norm_group(group) if group is not None else _GROUP
     parts = [root]
     if g:
         parts.append(g)
-    j = _judge_sub()
+    j = "" if _is_judge_invariant(g) else _judge_sub()
     if j:
         parts.append(j)
     return os.path.join(*parts)
@@ -225,13 +247,19 @@ def _write_xlsx_sheet(dir_path: str, name: str, df: pd.DataFrame, *, index: bool
     One workbook per tables subfolder, one sheet per table name (Excel caps sheet names at 31 chars).
     Re-running a notebook overwrites that sheet (idempotent). Requires ``openpyxl``.
 
-    Named for the FAMILY, not the leaf directory. Since 2026-07-28 the leaf is always the judge
+    Named for the FAMILY, not the leaf directory. Since 2026-07-28 the leaf is normally the judge
     (see :func:`_leaf`), and ``gpt-4o-mini.xlsx`` would say nothing about what is inside — so skip
     one level up. The judge is already unambiguous from the containing path. Works for nested
     subgroups too: ``tables/2_questionnaires/mici/<judge>/`` -> ``mici.xlsx``, as before the move.
+
+    A :data:`JUDGE_INVARIANT_GROUPS` family has NO judge level, so there the leaf already *is* the
+    family and skipping a level up would reach the ``tables/`` root — yielding ``tables.xlsx``.
     """
     parts = [p for p in dir_path.rstrip("/\\").replace("\\", "/").split("/") if p]
-    group = parts[-2] if len(parts) >= 2 else "tables"      # [-1] is the judge
+    if any(p in JUDGE_INVARIANT_GROUPS for p in parts):
+        group = parts[-1]                                   # no judge level: leaf IS the family
+    else:
+        group = parts[-2] if len(parts) >= 2 else "tables"  # [-1] is the judge
     xpath = os.path.join(dir_path, f"{group}.xlsx")
     sheet = re.sub(r"[\[\]:*?/\\]", "_", name)[:31]
     try:
@@ -282,8 +310,16 @@ def save_provenance(cfg, scores=None, *, group: Optional[str] = None) -> str:
     config it records includes ``judge``, so one file per judge is the only correct arity. (Before
     2026-07-28 it wrote to the group root, where a ``--judge`` render silently overwrote the
     primary's record with the second judge's config.)
+
+    **No group, no banner** (2026-07-29). A provenance file records which config produced a
+    *family* of artifacts; with no family it documents nothing and lands at ``figures/<judge>/``,
+    i.e. a judge folder sitting at family depth, which reads like a phantom family in the results
+    tree. An interactive ``notebook_setup(EdaConfig())`` left exactly one such file behind. Returns
+    ``""`` in that case instead of writing.
     """
     g = (group if group is not None else _GROUP) or ""
+    if not g:
+        return ""
     d = _fig_dir(g)
     os.makedirs(d, exist_ok=True)
     cfgd = cfg.as_dict() if hasattr(cfg, "as_dict") else dict(cfg)
@@ -395,6 +431,9 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
     group folder itself, which holds every other grader's copy of the same family. Without this
     scoping a routine ``--judge`` regenerate would delete another judge's tree as a side effect.
     Since 2026-07-28 this includes the primary, which is a judge like any other here.
+
+    A :data:`JUDGE_INVARIANT_GROUPS` family has no ``<judge>`` level, so there the whole family
+    folder IS the active scope and is cleared directly — it belongs to no single grader.
     """
     judge = _judge_sub()
     for root in (_figures_root(), _tables_root()):
@@ -404,8 +443,9 @@ def reset_results(groups: Optional[Sequence[str]] = None, *, flat: bool = False)
                       else [os.path.join(root, d) for d in os.listdir(root)
                             if os.path.isdir(os.path.join(root, d)) and d != judge])
         # The judge is the deepest level: drop <group>/<judge>, keep <group> for other graders.
+        # Judge-invariant families have no such level — clear the family folder itself.
         for d in group_dirs:
-            s = os.path.join(d, judge)
+            s = d if _is_judge_invariant(os.path.basename(d)) else os.path.join(d, judge)
             if os.path.isdir(s):
                 shutil.rmtree(s)
         if flat:

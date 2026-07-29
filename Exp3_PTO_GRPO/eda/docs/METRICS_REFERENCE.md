@@ -221,7 +221,7 @@ here.)*
 ## 6 · Reward-faithfulness (why MIN_CONV_LENGTH exists)
 
 Separate but related: the **training** reward scores *partial* conversations, but the thesis evaluates
-*full* ones. `5_Training_and_Reliability` rebuilds the partial-conv reliability curve on Exp3 data
+*full* ones. `5_Training` rebuilds the partial-conv reliability curve on Exp3 data
 (`stats.rank_agreement_by_nturns`, from `generations.jsonl`): short cuts (`n_turns=2`) agree with the
 final-conv ranking only ~0.66–0.73 (barely above chance), clearing 0.8 at ~10 turns, 0.9 at ~30.
 Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N utterances).
@@ -230,7 +230,7 @@ Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N uttera
 
 §6 asks whether the *training* reward predicts the *eval* score. This asks whether the eval score
 itself is reproducible and grader-independent. Both come from `data/eval_scores/`, written by
-`Judge_Reliability.ipynb` (paid, manual) and read by `5_Training_and_Reliability` §7 through
+`Judge_Reliability.ipynb` (paid, manual) and read by `8_Measurement_Validity` §1 through
 `eda_analysis.reliability` (free, disk-only). Subset: 4 anchor models × {Q1, Q2, MICI} × 96 convs.
 
 | Metric | Definition | Read |
@@ -249,7 +249,7 @@ judges' ICC tables, the observed-r-vs-ceiling table and what they imply are owne
 
 ## 7b · Multi-judge (what to do once two judges have scored the same conversations)
 
-Read by `5_Training_and_Reliability` §8 from the same tree. **The two judges are not
+Read by `8_Measurement_Validity` §2 from the same tree. **The two judges are not
 interchangeable raters.** The primary oracle *was the training reward*; the second judge never
 touched training. That makes every comparison below an **optimization-target vs held-out-test**
 comparison, so nothing here averages raw scores across judges — level bias is 1.2–1.7 points and is
@@ -279,5 +279,6 @@ owned by [`results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7, with the cavea
 ### Quick map: figure family → notebook
 `1_Outcomes` (trajectories, effect forest, scorecard) · `4_Heterogeneity` (persona splits, endpoint
 bars) · `3_Validity_and_Hacking` (behavior drift, reward_hack_panel, question/over-praise cross-checks, factor
-structure) · `5_Training_and_Reliability` (TB curves, reward dist, reliability curve) · `6_Preference`
-(PTO preference probe) · `7_Stats` (all heavy tables + PCA).
+structure) · `5_Training` (TB curves, reward dist, reliability curve) · `6_Preference`
+(PTO preference probe) · `7_Stats` (all heavy tables + PCA) · `8_Measurement_Validity`
+(judge ICC, second-judge agreement, multi-judge variance + gain retention).

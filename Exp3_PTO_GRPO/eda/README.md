@@ -7,7 +7,8 @@ the top level + the oracle-scoring layer in the `scoring/` subpackage. The recur
 named functions in the `eda_analysis/plotting/` subpackage (called once from multiple notebooks),
 and genuinely one-off exploration stays inline (the **hybrid** plotting split). Thesis
 figures/tables are exported per **VIEW** into `results/<view>/figures|tables/<family>/<judge>/` —
-figures `.png`, tables `.md` + `.xlsx`.
+figures `.png`, tables `.md` + `.xlsx`. (The one exception is the judge-invariant family
+`8_measurement/`, which has no `<judge>/` level because its artifacts contain every grader.)
 
 **Organization = tier-based drill-down, notebooks ↔ numbered result families 1:1 (2026-07-16 reorg).**
 Level 1 = global scores → Level 2 = inside each questionnaire → Level 3+ = cross-cutting analyses.
@@ -24,9 +25,10 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `2_Questionnaire_Detail.ipynb` | `2_questionnaires/` | **Level 2 — one uniform detail section per rubric:** Q1/Q2/WAI-SR/CSQ-8/MI-SAT item grids (`<slug>_detail_grid`) + item-delta bars final+best (`<slug>_item_deltas_*`) · Q2 face-content groups · WAI subscales · MITI detail grid (globals + 7 behaviour rates + ratios; zooms in `miti/`) + **official MITI 4.2.1 thresholds** · PCT detail (`pct/`) · MICI detail (`mici/`) |
 | `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
-| `5_Training_and_Reliability.ipynb` | `5_training/` | TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) · **judge reliability §7** (oracle ICC + second-judge agreement + contrast preservation) · **multi-judge §8** (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size) — both read from `data/eval_scores/` |
+| `5_Training.ipynb` | `5_training/` | **`[TRAINING]` only:** TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
 | `6_Preference.ipynb` | `6_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
 | `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · **best-vs-best method contrast (`method_paired_best`)** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
+| `8_Measurement_Validity.ipynb` | `8_measurement/` **(no `<judge>/` level)** | **is the ruler trustworthy?** §1 judge reliability (oracle ICC + second-judge agreement + contrast preservation) · §2 multi-judge (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size). Reads **every** grader from `data/eval_scores/`, so it is judge-INVARIANT — see "Judge dimension" |
 
 Every section is tagged **`[EVAL]`** (full-conversation oracle scores — the held-out outcome) or
 **`[TRAINING]`** (partial-branch rewards / preference pairs — what the policy is updated on). Every
@@ -62,7 +64,7 @@ auto-generated **`INDEX.md`** (the artifact map).
 
 ### Regenerate every view
 ```
-python tools/render_views.py            # the tracked views (L0 + L5) × 7 notebooks
+python tools/render_views.py            # the tracked views (L0 + L5) × 8 notebooks
 python tools/render_views.py L0         # just the L0 view
 python tools/render_views.py L5 --nb 3  # one view, one notebook (--nb takes the notebook/family NUMBER: 3 = 3_Validity_and_Hacking)
 ```
@@ -128,7 +130,7 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    `discover_arms()`** (2026-07-11, roadmap #7) — a new run is scoreable as soon as its
    conversations land; no registry edit. Resume-safe. Score **PCT** + **MICI** with
    `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
-2. **`1_Outcomes.ipynb`** → **`7_Stats.ipynb`** in any order (the notebook↔family table above says
+2. **`1_Outcomes.ipynb`** → **`8_Measurement_Validity.ipynb`** in any order (the notebook↔family table above says
    what lives where). Every notebook auto-discovers arms from disk via `eda_analysis.discover_arms()`
    (no path literals) and ends with `build_index()` → `results/<view>/INDEX.md`. Notebooks run with
    the venv kernel `thesis-venv313`, cwd = `eda/`.
@@ -142,9 +144,9 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    through `scoring/judge_plan.py` (free pre-flight: rubric-parity gate, coverage plan, cost model)
    and `scoring/judge_batch.py` (Anthropic Message Batches, 50% off, submit/poll/collect).
    **Presentation is split off deliberately:** this notebook only *scores*;
-   `5_Training_and_Reliability` §7–§8 *read* the same tree via `eda_analysis/reliability.py` (no API
-   calls) and export the tracked tables + figures — same paid-pipeline/free-notebook split as
-   `Run_Eval` → notebooks 1–7, which keeps `tools/render_views.py` fully reproducible without spending.
+   `8_Measurement_Validity` *reads* the same tree via `eda_analysis/reliability.py` (no API
+   calls) and exports the tracked tables + figures — same paid-pipeline/free-notebook split as
+   `Run_Eval` → notebooks 1–8, which keeps `tools/render_views.py` fully reproducible without spending.
 
    > **Run the parity gate before any second-judge spend.** Claude's `json_schema` rejects
    > `minimum`/`maxItems`/…, so those are folded into `description`; `check_rubric_parity()`
@@ -258,6 +260,8 @@ only has to swap a root.
 
 `reset_results()` is **judge-scoped**: it clears only the active judge's `<family>/<judge>/`, never
 the family folder itself — otherwise a routine `--judge` regenerate would wipe another grader's tree.
+(For a judge-invariant family there is no `<judge>/` level, so the family folder itself *is* the
+active scope and is cleared directly.)
 
 ```bash
 python tools/render_views.py                                       # primary oracle -> gpt-4o-mini/
@@ -265,15 +269,22 @@ python tools/render_views.py --judge anthropic_claude-haiku-4-5    # the same ED
 python tools/render_views.py --judge anthropic_claude-haiku-4-5 --nb 1 7   # just outcomes + stats
 ```
 
-> ⚠ **Only eval-score-derived notebooks are judge-swappable.** Notebooks **1, 2, 3, 4, 7** read
-> `scores_long` / the oracle behaviour counts and re-grade cleanly. Notebooks **5 and 6** are
-> **training-side** — candidate rewards in `generations.jsonl`, PTO preference pairs, TensorBoard
-> curves — all produced by the *training* oracle during the run and impossible to re-grade after
-> the fact. Re-rendering them under a second judge would emit byte-identical figures into that
-> judge's folder, implying a measurement that never happened, so both the notebook (a `SystemExit`
-> guard in cell 1) and `render_views.py --judge` (skips them, with a printed reason) refuse.
-> The genuinely multi-judge work lives in `5_Training_and_Reliability` §7–§8, which reads
-> `data/eval_scores/` directly and puts **both** graders in the same figure.
+> ⚠ **A `--judge` render skips three notebooks, for two opposite reasons.**
+>
+> - **Judge-SWAPPABLE (1, 2, 3, 4, 7).** They read `scores_long` / the oracle behaviour counts and
+>   re-grade cleanly — these are what `--judge` is for.
+> - **TRAINING-side (5, 6).** Candidate rewards in `generations.jsonl`, PTO preference pairs,
+>   TensorBoard curves — produced by the *training* oracle during the run and impossible to re-grade
+>   after the fact. Re-rendering them under a second judge would emit byte-identical figures into
+>   that judge's folder, implying a measurement that never happened, so both the notebook (a
+>   `SystemExit` guard in cell 1) and `render_views.py --judge` refuse, with a printed reason.
+> - **Judge-INVARIANT (8).** `8_Measurement_Validity` already contains *every* grader:
+>   `reliability.py` loads each judge from the score lake explicitly and ignores `EDA_JUDGE`. It is
+>   rendered exactly **once** per view, on the primary pass, and its family is exported with **no
+>   `<judge>/` level** (`exports.JUDGE_INVARIANT_GROUPS`) — a path naming one grader would assert
+>   that grader produced a cross-judge figure. Until the 2026-07-29 split these artifacts lived
+>   inside training-side family 5, so they could only ever be written under `gpt-4o-mini/`: the very
+>   figure proving the two judges agree was filed as the primary's own output.
 
 **Coverage is checked, not assumed.** `notebook_setup` warns loudly when a judge has not scored
 every conversation of every arm — a partially-landed sweep otherwise yields arm means that look
@@ -343,11 +354,12 @@ behind an unchanged public surface.
 - **`pref`** — PTO Mass-Mean-Probe (word ranking/drift, `preference_direction_drift`,
   `learn_unlearn_words`, MI-concept projection).
 - **`reliability`** — MEASUREMENT-validity tables from the `data/eval_scores/` lake (all judges, all reps).
-  Disk-only — the paid scoring lives in `scoring/judge*.py`; this is the free read side.
-  - *§7 (single-judge validity):* `repeatability` (ICC(2,1) + mean |Δ|), `agreement` (second judge
+  Disk-only — the paid scoring lives in `scoring/judge*.py`; this is the free read side. It backs
+  **`8_Measurement_Validity`** (before the 2026-07-29 split: `5_Training_and_Reliability` §7–§8).
+  - *§1 (single-judge validity):* `repeatability` (ICC(2,1) + mean |Δ|), `agreement` (second judge
     vs primary + attenuation ceiling), `contrasts` (does each endpoint contrast keep its sign?),
     `arm_means_by_judge`, `summary_line`.
-  - *§8 (multi-judge):* `variance_components_conversation` / `variance_components_arm` (two-way
+  - *§2 (multi-judge):* `variance_components_conversation` / `variance_components_arm` (two-way
     random-effects decomposition → arm vs judge-level vs **arm×judge**, plus `dependability_k1/k2`),
     `gain_retention` (the reward-hacking transfer test, persona-bootstrap CI), `all_pairs_contrasts`
     (every model pair, paired on the recovered `persona_id` — see `attach_persona`, since

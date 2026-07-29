@@ -9,6 +9,53 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-07-29) — the judge evidence gets its own family, and a cross-judge figure stops
+being filed as one grader's output.** Notebook 5 was `[TRAINING ↔ EVAL]`: §1–§6 read the training
+side, §7–§8 read `data/eval_scores/`. That split was visible in the artifacts — **every one of
+family 5's 14 tables came from §7–§8**, as did 8 of its 13 figures — but the family was called
+`5_training/`.
+
+The real defect was in the layout, not the name. `figures/5_training/gpt-4o-mini/multijudge_variance_decomposition.png`
+plots **both** graders, yet sat under `gpt-4o-mini/`, whose stated meaning since 2026-07-28 is *"the
+grader that produced this file"*. And because notebook 5 was in `TRAINING_SIDE_NOTEBOOKS`, a
+`--judge` render skipped it — so these artifacts *could only ever* be written under the primary.
+The one figure proving the two judges agree was filed as the primary oracle's own output.
+
+- **Split.** `5_Training_and_Reliability.ipynb` → `5_Training.ipynb` (§1–§6, unchanged, still
+  `[TRAINING]` and still judge-refusing) + new **`8_Measurement_Validity.ipynb`** (§7–§8, renumbered
+  §1–§2) → new family `8_measurement/`. Named *Measurement_Validity*, not *Judge_Reliability*, so it
+  cannot be confused with the **paid** `notebooks/scoring/Judge_Reliability.ipynb` that writes the
+  scores this notebook reads.
+- **`JUDGE_INVARIANT_GROUPS` is now a first-class concept** in `exports.py`, applied at `_leaf` —
+  the single place group and judge compose — so family 8 exports with **no `<judge>/` segment**.
+  `reset_results` gains the matching branch (with no judge level, the family folder itself is the
+  active scope), and `_write_xlsx_sheet` too (it named the workbook one level up from the leaf,
+  assuming the leaf was a judge; without the fix family 8's workbook came out as `tables.xlsx`).
+- **Rendered once, not once per grader.** `reliability.py` loads every judge from the lake
+  explicitly and ignores `EDA_JUDGE`, so a per-judge render would rewrite the same bytes.
+  `render_views.py` now skips notebook 8 on `--judge` runs — the same mechanism as notebooks 5/6 but
+  for the opposite reason, and it says which reason on stdout.
+- **Appended as 8, not renumbered in.** Slotting measurement-validity next to `3_validity` would
+  have churned ~15 doc references, both `SUMMARY.md` trees and the deck builders for no analytical
+  gain. 1–7 then 8 as the instrument appendix also reads honestly: it is about the ruler, not the
+  result.
+- **Guarded** by a new `_selfcheck` check (**15 total**): no `multijudge_*` / `second_judge_*` /
+  `oracle_repeatability_*` / `judge_*` artifact may sit anywhere but directly inside a
+  judge-invariant family. Asserted as a **path shape** rather than against a list of grader names,
+  so it keeps working when a third judge lands. It failed loudly on the pre-render tree and passes
+  after — which is the evidence that the move actually happened.
+- **Also fixed:** a stray `results/L0/figures/gpt-4o-mini/_provenance.md` — a phantom family at
+  family depth, left by an interactive `notebook_setup(EdaConfig())` with no export group.
+  `save_provenance` now returns `""` instead of writing when there is no family, since a banner that
+  records the config for *nothing* documents nothing.
+- Both deck builders learned the rule (`JUDGE_INVARIANT_FAMILIES` in `_jp`); they currently cite only
+  family 5's training-side figures, so nothing in a deck moved.
+- **Verification:** full re-render of L0+L5 × 8 notebooks, no failures; `_selfcheck` 15/15;
+  0 broken relative links across the 15 hand-authored docs + both `INDEX.md`; `--judge` dry run
+  prints both skip reasons and exits 0.
+
+---
+
 **Landed (2026-07-29) — docs consolidated: one context file, one changelog, one owner per number.**
 A full audit of the 15 hand-authored markdown files (the 213 generated ones under `eda/results/`
 are untouched — `render_views.py` owns those). Four structural changes and a staleness sweep.
