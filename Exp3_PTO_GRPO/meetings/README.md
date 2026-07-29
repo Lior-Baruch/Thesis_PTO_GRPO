@@ -49,6 +49,10 @@ only as current as the last `render_views.py` run. If a figure moved or was rena
 refactor, the script fails loudly at `add_picture` and writes nothing — the file on disk is never
 half-updated.
 
+⚠ **Artifact paths carry a `<judge>/` level** (`<family>/gpt-4o-mini/<name>.png`) since 2026-07-28 —
+every grader nests, including the primary. The builders' path helpers were updated then; a deck
+built off a hand-written flat path will fail the `add_picture` check above.
+
 ## What's tracked
 
 `.pptx` is gitignored repo-wide (regenerable from `build/`). The **PDF is tracked**: it is the

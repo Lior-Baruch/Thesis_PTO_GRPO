@@ -5,9 +5,12 @@ computed**. Everything is scored on the same object: a therapist(Llama-3.2-1B)�
 conversation. Two data sources feed the EDA:
 
 - **Oracle (gpt-4o-mini, JSON-schema output)** — grades a full transcript against MI questionnaires.
-  Defined in [code/questionnaires.py](../code/questionnaires.py); scored by [Run_Eval.ipynb](notebooks/scoring/Run_Eval.ipynb) → `data/<method>_Exp3/eval_scores/`.
+  Defined in [code/questionnaires.py](../../code/questionnaires.py); scored by
+  [Run_Eval.ipynb](../notebooks/scoring/Run_Eval.ipynb) into the score lake,
+  `data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv`. A second
+  judge writes the identical shape under its own `judge=` partition.
 - **Deterministic text metrics** — cheap regex/counting over the raw transcript, no LLM. Defined in
-  [eda_analysis/behavior.py](eda_analysis/behavior.py). These cross-check the oracle.
+  [eda_analysis/behavior.py](../eda_analysis/behavior.py). These cross-check the oracle.
 
 > **Two valences.** Almost everything is *higher = better*. The one exception is **MICI** (and its
 > sub-counts): *lower = better*. The EDA flags these with a trailing `↓` (`display_label`) and the
@@ -63,7 +66,7 @@ whose point of view the oracle adopts.
   measures outside the halo. Adding them drops PC1 from ≈91% → ≈55%, but the split is **not** the
   one intended: `PCT` loads WITH the 5 rubrics (ρ≈0.79–0.94); only `MICI↓` + the MITI ratios define
   the second factor. Report all of them flat as evaluation metrics — do **not** call them
-  "orthogonal axes" (see [LIMITATIONS.md](docs/LIMITATIONS.md) §4).
+  "orthogonal axes" (see [LIMITATIONS.md](LIMITATIONS.md) §4).
 
 **MITI globals** (part of ID 7, each 1–5): `MITI1_CultivatingChangeTalk`, `MITI2_SofteningSustainTalk`,
 `MITI3_Partnership`, `MITI4_Empathy`. **PCT globals**: `PCT_Importance`, `PCT_Confidence`,
@@ -240,17 +243,9 @@ itself is reproducible and grader-independent. Both come from `data/eval_scores/
 | `bias_judge_minus_primary` | Mean level offset between judges | Expected and harmless — a harsher grader shifts every score. The thesis reports *contrasts*, which cancel it |
 | `same_sign` | Whether an endpoint contrast (paired Δ over the 96 matched personas) has the same sign under both judges | **The load-bearing number.** Answers `LIMITATIONS.md` §2: is the result an artifact of the patient simulator and the grader being the same model? |
 
-Measured (2026-07-26, Haiku 4.5 as the second judge; re-measured over 4 draws 2026-07-28):
-oracle ICC 0.86–0.99 (mean \|Δ\| 0.04–0.09) — Q1/Q2 0.96–0.99, only MICI below 0.90;
-Q1/Q2 cross-judge r 0.80–0.88 against a ~0.98 ceiling; MICI r 0.20–0.55 (see the caveat in
-`LIMITATIONS.md` §1); 6/6 contrasts preserved.
-
-**Both judges' ICCs measured (2026-07-28).** Haiku on the anchor subset: Q1 0.951–0.978,
-Q2 0.938–0.963, MICI **0.525–0.929** — near-parity with the primary on Q1/Q2, materially noisier on
-MICI, and worst on the arms with the most MI-inconsistent behaviour (GRPO@10 0.525 vs PTO Base
-0.929). With the ceiling corrected for that, agreement as a share of achievable is Q1 86–91%,
-Q2 83–88%, MICI **29–59%** — the second judge's noise is a real contributor to weak MICI agreement
-but not the main one; construct disagreement dominates. Full treatment: `LIMITATIONS.md` §1–§2.
+*(Definitions only — as everywhere else in this file, the measured values live elsewhere. Both
+judges' ICC tables, the observed-r-vs-ceiling table and what they imply are owned by
+[LIMITATIONS.md](LIMITATIONS.md) §1–§2.)*
 
 ## 7b · Multi-judge (what to do once two judges have scored the same conversations)
 
@@ -270,24 +265,14 @@ comparison, so nothing here averages raw scores across judges — level bias is 
 | `same_sign` (all pairs) | As §7, but over **every** model pair, paired on the recovered `persona_id` rather than `file_index` | `file_index` is reshuffled every iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive that; `dz` and CIs do not |
 | `pct_same_sign` (`sign_preservation`) | The **rate** of `same_sign` over the all-pairs table, laddered by `\|delta_primary\|` (≥0.10 / 0.25 / 0.50) and, in the `_by_metric` variant, per rubric | The rate is meaningless without an effect size: pooled it counts contrasts too small to claim. Read the row at the gap you are claiming. Per rubric it re-detects a judge-dependent rubric from a completely different direction than `dependability_k1` — when both flag the same rubric, believe it |
 
-**Provenance: numbers below are the `L0` view** (22 arms × 2 judges, every cell n=96), the tracked
-deliverable. Pre-2026-07-28 versions of this paragraph mixed a 4-anchor measurement with full-grid
-retention values; scopes are now uniform.
+⚠ **One reading rule that belongs with the definitions, not the results.** The sign-preservation
+ladder's thresholds are **absolute**, so read a ladder *down its own rubric*, never across rubrics:
+PCT and MICI sit on a 0–1 scale (and never reach |Δ|≥0.25 at all), while Q1/Q2/WAI-SR/MITI are 1–5
+or 1–7. Only the pooled `all contrasts` row is cross-rubric comparable.
 
-Sign preservation over all **1,848** arm×metric contrasts: **88.3%** pooled, **94.1%** at |Δ|≥0.10,
-**97.0%** at ≥0.25, **98.9%** at ≥0.50 — the judges disagree only about gaps too small to claim.
-Per rubric, **MITI is the weakest at 77.5%** (Q1 86.6%, Q2 90.5%, PCT 93.5%, MICI 92.2%) — and it is
-the only rubric still disagreeing at a claimable gap: all others reach 95.5–100% by |Δ|≥0.25, MITI
-88.2%. ⚠ Ladder thresholds are absolute, so compare rows *within* a rubric only (PCT/MICI are 0–1
-scale, Q1/Q2/WAI-SR/MITI are 1–5 or 1–7); the `all contrasts` row is the cross-rubric one. The six
-thesis-critical contrasts are **18/18** preserved, including the best-vs-best steelman (PTO@10 vs
-GRPO@8) and the regression claim (GRPO@8 vs GRPO@10). Arm-mean variance is 3.6–72% arm, 22–95% judge
-level, and only **1.2–6.9% arm×judge**; `dependability_k1` 0.88–0.95 on seven rubrics but **0.65 on
-MITI**, which is why MITI arm differences are flagged provisional. Q1 gain retention separates
-cleanly — PTO@10 **0.80** [0.68, 0.93] vs GRPO@10 **0.28** [0.06, 0.43], non-overlapping — while
-every Q2 interval overlaps (0.80–0.85), i.e. the transfer failure is Q1-specific and arm-specific,
-not scale compression. Per iteration it is a decay curve, not a step: PTO holds 0.80–0.98 throughout
-while GRPO falls from ~0.89 (iter 3) to 0.28 (iter 10).
+*(The measured values — sign-preservation rates, the variance components, gain retention — are
+owned by [`results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7, with the caveats they imply in
+[LIMITATIONS.md](LIMITATIONS.md) §2–§3.)*
 
 ---
 

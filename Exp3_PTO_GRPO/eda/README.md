@@ -76,6 +76,14 @@ Needs the venv kernel `thesis-venv313` (register once:
 `.venv\Scripts\python.exe -m ipykernel install --user --name thesis-venv313`). The hand-authored
 `SUMMARY.md` files are never touched.
 
+> **Renders are deterministic — keep them that way.** Seaborn's `errorbar=("ci", 95)` defaults to
+> `seed=None`, so every confidence band used to be a *fresh* 1,000-draw bootstrap: three renders of
+> one notebook on identical data differed by ~6% of pixels and re-rendering churned 90 PNGs in git
+> for no reason (found 2026-07-28). `constants.BOOT_SEED = 12345` is now passed at **every** seaborn
+> callsite that draws a CI, and `stats.bootstrap_ci` reads the same constant — the figure side and
+> the table side share one seed. **Any new `errorbar=` callsite must pass `seed=BOOT_SEED`**, or a
+> thesis figure stops being reproducible.
+
 ## Configuring a notebook (`EdaConfig`)
 `EdaConfig` is the single flat-globals control surface (`eda_analysis/config.py`). `EdaConfig()` =
 the `all` arm filter (every arm) / all present metrics; notebooks set `view=VIEW` explicitly. Knobs beyond `view`:
@@ -114,7 +122,8 @@ resolved view; `S.RESULTS_DIR` is the view dir; `S.ARMS / S.SCORES / S.PALETTE /
 S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="best")`.
 
 ## Run order
-1. **`Run_Eval.ipynb`** — async oracle scoring → `data/<method>/eval_scores/`. The
+1. **`Run_Eval.ipynb`** — async oracle scoring → the score lake,
+   `data/eval_scores/judge=<tag>/rep=<r>/` (see "Where the scores live"). The
    `eda_analysis/scoring/registry.py::EXPERIMENTS` registry is **auto-generated from
    `discover_arms()`** (2026-07-11, roadmap #7) — a new run is scoreable as soon as its
    conversations land; no registry edit. Resume-safe. Score **PCT** + **MICI** with
@@ -165,7 +174,8 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
 ```
 data/eval_scores/                                        (a Google Drive symlink)
 ├── judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
-├── _parquet/judge=<tag>/rep=<r>/metric=<M>.parquet      derived, archival only
+├── _parquet/judge=<tag>/rep=<r>/metric=<M>.parquet      derived fold — the fast READ path
+│                                                        while its signature matches (below)
 ├── _batches/<tag>/rep=<r>/*.json                        Message Batches manifests
 └── summary/                                             CSV snapshots from Judge_Reliability
 ```
@@ -363,8 +373,11 @@ behind an unchanged public surface.
   `estimate_cost` / `sweep_report`) · `judge_batch` (the **Anthropic Message Batches** path, 50% off:
   `submit_sweep` → `poll_batches` → `collect_batches`, three phases with disk-persisted manifests so
   a fresh kernel can collect; plus `probe_usage` for a measured token profile).
-- **`_selfcheck`** — the guard: package invariants + the scoring surface + known headline means +
-  cache round-trip. Run `python -m eda_analysis._selfcheck` after any EDA change.
+- **`_selfcheck`** — the guard, **14 checks**: package invariants, the scoring surface, notebook
+  symbol refs, the cache round-trip, the second-judge rubric-parity gate, arm discovery, the known
+  headline means, the persona permutation, judge routing, the parquet fold (equals the CSVs *and*
+  refuses a tampered signature), and the multi-judge layer. Run
+  `python -m eda_analysis._selfcheck` after any EDA change (`--fast` runs the 8 structural ones).
 - **`__init__`** — thin re-export hub: re-exports the `constants` leaf + every analysis submodule's
   public names, and the `figures`/`plots` → `plotting` aliases. No definitions of its own.
 
@@ -378,6 +391,6 @@ Not duplicated here (so they can't drift). The full narrative + numbers live in
 [CLAUDE.md](../../CLAUDE.md) § "Current status & next step".
 
 ## Roadmap
-Dated pass history (2026-06-09 → 2026-07-16) is in [history/CHANGELOG.md](../history/CHANGELOG.md);
+Dated pass history (2026-06-09 → today) is in [history/CHANGELOG_EDA.md](../history/CHANGELOG_EDA.md);
 the backlog is clear (last item — the tier-based 7-family reorg + `0_headline/` + generic
 questionnaire item detail + final-vs-best everywhere — landed 2026-07-16).

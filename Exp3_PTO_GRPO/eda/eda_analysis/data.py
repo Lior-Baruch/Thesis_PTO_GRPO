@@ -166,7 +166,7 @@ def load_cached(name: str, arms, builder, *, input_roots, params: Optional[dict]
 #
 # Globs ``data/{pto,grpo}_Exp3/conversations/full/<EXP_NAME>/model_iter_<k>_TT*_TP*`` and reads
 # the sibling ``runs/full/<EXP_NAME>/run_metadata.json`` for the seed + training config. One
-# :class:`Arm` per run. Experiment-name schemes (see Exp3 CLAUDE.md):
+# :class:`Arm` per run. Experiment-name schemes (see the root CLAUDE.md, "Exp3 · EXPERIMENT_NAME"):
 #   GRPO: GRPO_Iterative_{Oracle}_Llama32-1B_LA{K}_MCL{MCL}_G{G}
 #   PTO:  PTO_Iterative_{Oracle}_Llama32-1B_LA{K}_MCL{MCL}_M{M}_PT{greedy|indep}
 

@@ -1,8 +1,14 @@
 # Exp3 — measurement & inference limitations (for the thesis write-up)
 
 Deliberately-scoped limitations of the Exp3 evaluation. These are **documented, not fixed**
-(what *was* fixed is in [../history/CHANGELOG.md](../history/CHANGELOG.md)). Each names where in
-the notebooks the reader meets it.
+(what *was* fixed is in [../../history/CHANGELOG_EDA.md](../../history/CHANGELOG_EDA.md)). Each
+names where in the notebooks the reader meets it.
+
+> **Scope of this file.** It owns the *measurement-quality* evidence — both judges' ICCs, agreement
+> against the attenuation ceiling, coverage and sweep provenance — and the caveats that follow from
+> them. The multi-judge **findings** (sign-preservation rates, the variance decomposition, gain
+> retention) are owned by [`../results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7 and are cited
+> here rather than restated, so the two cannot drift apart.
 
 ## 1 · Judge reliability — MEASURED on a subset (2026-07-26); no human validation
 Every conversation in the main eval is scored **once** by the oracle (`temperature=0.1, seed=42`),
@@ -70,9 +76,12 @@ primary's, collapsing the ceiling to `ICC_primary`. Two further Haiku reps on th
 
 | metric | ICC(2,1) primary | ICC(2,1) Haiku |
 |---|---|---|
-| Q1 | 0.981–0.994 | 0.951–0.978 |
-| Q2 | 0.962–0.992 | 0.938–0.963 |
-| MICI | 0.895–0.958 | **0.525–0.929** |
+| Q1 | 0.982–0.994 | 0.951–0.978 |
+| Q2 | 0.955–0.992 | 0.938–0.963 |
+| MICI | 0.864–0.943 | **0.525–0.929** |
+
+*(Primary column = the same four-draw estimate as the table at the top of this section; source
+`oracle_repeatability_icc.md` + `second_judge_agreement.md`.)*
 
 On Q1 and Q2 the assumption was sound: Haiku is nearly as repeatable as the primary and the ceiling
 moves by <0.03. On MICI it was not. Haiku's MICI repeatability falls as the MI-inconsistency rate
@@ -87,7 +96,7 @@ level of the other rubrics:
 |---|---|---|---|
 | Q1 | 0.84–0.88 | 0.97–0.99 | 86–91% |
 | Q2 | 0.80–0.86 | 0.96–0.98 | 83–88% |
-| MICI | 0.20–0.55 | 0.70–0.94 | **29–59%** |
+| MICI | 0.20–0.55 | 0.70–0.93 | **29–59%** |
 
 Weak MICI agreement is thus **partly** the second judge's own noise and **mostly** construct
 disagreement: against a ceiling corrected for that noise, MICI still recovers only ~39% of
@@ -123,43 +132,33 @@ different model family that never played the patient (`Judge_Reliability.ipynb` 
    **The PTO-vs-GRPO result is not an artifact of the patient and the grader sharing a model.**
 
    **Beyond the six thesis-critical contrasts, the whole grid agrees where it matters.**
-   `all_pairs_contrasts` enumerates *every* arm pair × rubric in the view — **1,848** contrasts in
-   `L0` (`multijudge_all_pairs_contrasts.md`) — and sign preservation rises monotonically with
-   effect size (`multijudge_sign_preservation.md`):
+   `all_pairs_contrasts` enumerates *every* arm pair × rubric in the view — 1,848 contrasts in `L0` —
+   and sign preservation rises monotonically with effect size, from **88.3%** pooled to **98.9%** at
+   |Δ|≥0.50. The two judges therefore disagree **only about differences too small to claim**, which
+   is the pattern a trustworthy instrument should show. *(Full ladder + the per-rubric breakdown:
+   [`../results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7, tracked tables
+   `multijudge_sign_preservation{,_by_metric}.md`.)*
 
-   | primary-judge \|Δ\| | contrasts | same sign |
-   |---|---|---|
-   | any | 1,848 | **88.3%** |
-   | ≥ 0.10 | 1,201 | 94.1% |
-   | ≥ 0.25 | 736 | 97.0% |
-   | ≥ 0.50 | 352 | **98.9%** |
-
-   So the two judges disagree **only about differences too small to claim**, which is the pattern a
-   trustworthy instrument should show. Restricting to contrasts whose judge-side bootstrap CI
-   excludes zero (1,299 of 1,848) gives 94.7% agreement. Per rubric
-   (`multijudge_sign_preservation_by_metric.md`), **MITI is the worst at 77.5%** and Q1 is 86.6%,
-   against PCT 93.5% and MICI 92.2% — an independent confirmation of the MITI dependability warning
-   below, arrived at from a completely different statistic.
-
-   **MITI fails the ladder as well as the pooled rate, and that is the sharper finding.** Every
-   other rubric reaches **95.5–100%** by |Δ|≥0.25 — i.e. once a gap is large enough to claim, the
-   judges simply agree. MITI reaches only **88.2%** there and needs |Δ|≥0.50 to hit 97.6%. So MITI
-   is not merely noisier: it is the one rubric where a **claimable-size** difference can still flip
-   sign under a different grader. ⚠ The thresholds are *absolute*, so read a ladder down its own
-   rubric, never across rubrics — PCT and MICI sit on a 0–1 scale and never reach 0.25 at all, while
-   Q1/Q2/WAI-SR/MITI are 1–5 or 1–7. Only the pooled `all contrasts` row is cross-rubric comparable.
-2. **Rank agreement on Q1/Q2 is high**: r 0.84–0.88 (Q1) and 0.80–0.86 (Q2) against an attenuation
-   ceiling of ~0.98 — i.e. 82–89% of the agreement two raters of this reliability could reach.
+   **What matters here is where it fails: MITI.** It is the worst rubric pooled (**77.5%**), and —
+   the sharper point — the only one that still disagrees at a **claimable** gap: every other rubric
+   reaches 95.5–100% by |Δ|≥0.25, MITI only 88.2%, needing |Δ|≥0.50 to reach 97.6%. So MITI is not
+   merely noisier; a difference large enough to report can still flip sign under a different grader.
+   This is an independent confirmation of the dependability warning below, arrived at from a
+   completely different statistic. ⚠ Ladder thresholds are *absolute* — read one down its own
+   rubric, never across rubrics (`METRICS_REFERENCE.md` §7b).
+2. **Rank agreement on Q1/Q2 is high**: r 0.84–0.88 (Q1) and 0.80–0.86 (Q2) against a **measured**
+   attenuation ceiling of 0.97–0.99 / 0.96–0.98 — i.e. 86–91% (Q1) and 83–88% (Q2) of the agreement
+   two raters of this reliability could reach (§1; both ICC terms measured since 2026-07-28).
 3. **Haiku is systematically harsher** (Q1 −1.25 to −1.74, Q2 −1.09 to −1.32) and flags *more*
    MI-inconsistent behaviour (MICI +0.15 to +0.36). This is a **level** shift, which cancels in
    every contrast the thesis reports; absolute Q1/Q2 values are grader-specific and should never be
    compared across judges.
 
 **The MICI caveat.** Per-conversation cross-judge agreement on MICI is weak (r 0.20–0.55, ρ
-0.21–0.47) even though the primary oracle is reasonably self-consistent on it (ICC 0.86–0.96). Since
+0.21–0.47) even though the primary oracle is reasonably self-consistent on it (ICC 0.86–0.94). Since
 2026-07-28 the three contributing causes are separated rather than conflated (§1). The second
 judge's *own* MICI noise is real — Haiku's ICC is 0.525–0.929 and falls as the MI-inconsistency
-rate rises, lowering the achievable ceiling to 0.70–0.94 — and statistical attenuation contributes
+rate rises, lowering the achievable ceiling to 0.70–0.93 — and statistical attenuation contributes
 too, since `MICI_Rate` is a low, zero-inflated count-per-turn whose restricted range depresses
 correlation. But neither accounts for most of the gap: measured against the corrected ceiling, MICI
 recovers only ~39% of achievable agreement where Q1/Q2 recover ~85%. **Genuine construct
@@ -177,28 +176,16 @@ decomposition of the arm means the thesis reports (`5_Training_and_Reliability` 
 variance into arm (signal), judge level, and **arm × judge** (an ordering that depends on who is
 grading — the only component that can invalidate a claim):
 
-Numbers below are the **`L0` view** (22 arms × 2 judges, every cell at n=96) — the tracked primary
-deliverable, `multijudge_variance_components.md`. The pooled 29-arm figures quoted before
-2026-07-28 came from the `all` view, which has since been retired to gitignored scratch; they told
-the same story to within a percentage point or two, but are no longer reproducible from a tracked
-artifact, so `L0` is now the cited source throughout this document (as §3's retention table already
-was).
-
-| metric | arm | judge level | **arm × judge** | dependability, 1 judge | 2 judges |
-|---|---|---|---|---|---|
-| PCT | 72.0% | 24.5% | **3.5%** | 0.95 | 0.98 |
-| CSQ-8 | 70.6% | 22.5% | **6.9%** | 0.91 | 0.95 |
-| MICI | 45.5% | 48.3% | **6.2%** | 0.88 | 0.94 |
-| MI-SAT | 29.6% | 67.0% | **3.4%** | 0.90 | 0.95 |
-| WAI-SR | 22.8% | 75.2% | **1.9%** | 0.92 | 0.96 |
-| Q2 | 13.2% | 85.5% | **1.3%** | 0.91 | 0.95 |
-| Q1 | 10.9% | 87.8% | **1.2%** | 0.90 | 0.95 |
-| **MITI** | **3.6%** | **94.5%** | **1.9%** | **0.65** | 0.79 |
-
-The judge term is large and the interaction is small everywhere: **the two judges disagree about
-the level, not about the ordering of arms.** Averaging both judges raises dependability only
-~0.91→0.95 on Q1/Q2, which is the quantitative reason the design spent on breadth (all arms × both
-judges) rather than on more repetitions of a few cells.
+Across the eight rubrics the judge term is large and the interaction is small — arm×judge is
+**1.2–6.9%** of arm-mean variance, so **the two judges disagree about the level, not about the
+ordering of arms**. Averaging both judges raises dependability only ~0.91→0.95 on Q1/Q2, which is
+the quantitative reason the design spent on breadth (all arms × both judges) rather than on more
+repetitions of a few cells. *(Narrative in
+[`../results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7; the full 8-rubric table is the tracked
+`multijudge_variance_components.md` on the `L0` view — 22 arms × 2 judges, every cell n=96. The
+pooled 29-arm figures quoted here before 2026-07-28 came from the `all` view, since retired to
+gitignored scratch; same story to within a point or two, but no longer reproducible from a tracked
+artifact.)*
 
 > ⚠ **MITI is the exception and it is a limitation, not a footnote.** Only **3.6%** of MITI's
 > arm-mean variance is genuine between-arm signal; **94.5%** is grader level. A single-judge MITI arm
@@ -252,20 +239,14 @@ during training, GRPO's net Q1 gain over 10 iterations is ≈0.19 points — it 
 started — while the primary judge credits it ≈0.68.
 
 **The per-iteration trajectory makes it an onset curve, not just an endpoint fact**
-(`multijudge_retention_trajectory.png`; the same table, every iteration). Q1 retention against the
-shared PTO base:
-
-| iter | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
-|---|---|---|---|---|---|---|---|---|---|---|
-| PTO_LA0 | 0.97 | 0.84 | 0.89 | 0.94 | 0.98 | 0.97 | 0.94 | 0.89 | 0.88 | **0.80** |
-| GRPO_LA0 | 1.13 | 0.79 | 0.89 | 0.79 | 0.73 | 0.57 | 0.70 | 0.64 | 0.03 | **0.28** |
-
-The two arms are indistinguishable for the first three iterations and then separate: PTO holds
-0.80–0.98 for the whole run while GRPO **decays monotonically in trend** from ~0.89 to 0.28. So the
-divergence is not a property of the endpoint that happened to be measured — the held-out grader
-stops crediting GRPO's gains progressively, exactly as an optimiser drifting onto grader-specific
-features would predict. (Iteration 9 is the visible floor at 0.03; it is also the arm's global dip
-in the primary eval, so read it as the extreme of the trend rather than a separate event.)
+(`multijudge_retention_trajectory.png`; the same table, every iteration — printed in
+[`../results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7). The two arms are indistinguishable for
+the first three iterations and then separate: PTO holds 0.80–0.98 for the whole run while GRPO
+**decays monotonically in trend** from ~0.89 (I3) to 0.28 (I10). So the divergence is not a
+property of the endpoint that happened to be measured — the held-out grader stops crediting GRPO's
+gains progressively, exactly as an optimiser drifting onto grader-specific features would predict.
+(Iteration 9 is the visible floor at 0.03; it is also the arm's global dip in the primary eval, so
+read it as the extreme of the trend rather than a separate event.)
 
 This is the standard reward-hacking signature (a policy that overfits its grader does not
 transfer), and it is **stronger evidence for the sycophancy claim than the MICI rate**, which

@@ -16,7 +16,8 @@ Run ONE part per process (each frees VRAM on exit; a crash in one won't lose the
 
 IMPORTANT (local only): `trl` is imported BEFORE `torch`. On the local Blackwell (sm_120)
 importing trl *after* torch segfaults at CUDA init — an environment/init-order quirk, not a
-bug in the trainers (Colab is unaffected; the notebooks train there). See CLAUDE.md gotchas.
+bug in the trainers (Colab is unaffected; the notebooks train there). See the root CLAUDE.md,
+"Exp3 · Gotchas".
 Training is meant for Colab; this script is only a local sanity check of the fixes.
 """
 import os, sys, subprocess

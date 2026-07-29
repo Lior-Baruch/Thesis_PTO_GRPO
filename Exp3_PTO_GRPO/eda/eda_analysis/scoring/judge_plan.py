@@ -22,7 +22,7 @@ here:
 
 Prompt-caching thresholds matter here and differ by judge (see :data:`JUDGE_PRICING`). The oracle
 prompt's fixed prefix is ~1.1k tokens — rubric-first by design so OpenAI's 1,024-token minimum is
-cleared (see the caching gotcha in ``Exp3_PTO_GRPO/CLAUDE.md``). Claude Haiku 4.5's minimum is
+cleared (see the caching gotcha in the root ``CLAUDE.md``). Claude Haiku 4.5's minimum is
 4,096, so **the same prompt does not cache on Haiku**: the second judge pays full input price on
 every call while the primary gets ~50% off. :func:`prefix_report` measures the real prefix so this
 is a checked fact rather than an assumption.
