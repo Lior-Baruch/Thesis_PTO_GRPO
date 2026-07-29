@@ -494,6 +494,13 @@ Exp3_PTO_GRPO/
 │   ├── results/                         GENERATED thesis artifacts in 2 tracked VIEW trees: L0/ · L5/, each with figures|tables/<N_family>/<judge>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md. EVERY grader nests under its own short label (gpt-4o-mini/ · claude-haiku-4-5/) since 2026-07-28 — the primary is no longer flat, so a path always names the grader. (The pooled all/ view was retired 2026-07-27 — renderable, gitignored, not a deliverable.)
 │   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
 │   └── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
+├── figures/                             hand-authored METHOD schematics — NOT data-derived, so they
+│                                        live outside eda/results/ (no view, no <judge>/ level, no
+│                                        producing notebook). build_method_figures.py draws the PTO +
+│                                        GRPO framework diagrams (ICLR Fig 1 redrawn + its GRPO twin)
+│                                        and the two generation diagrams (ICLR Fig 2 redrawn for greedy
+│                                        mode + the GRPO group). No in-figure titles — captions live in
+│                                        CAPTIONS.md, the slide title, or the LaTeX caption.
 ├── meetings/                            supervisor-facing output ONLY — never imported by code/ or eda/
 │   ├── README.md                        which deck is which + rebuild/export commands
 │   ├── build/                           build_supervisor_deck.py (full) · build_results_snapshot.py (lean)

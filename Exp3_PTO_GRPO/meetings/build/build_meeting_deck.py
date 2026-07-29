@@ -27,6 +27,7 @@ ROOT = os.path.dirname(os.path.dirname(HERE))           # Exp3_PTO_GRPO/
 L0F  = os.path.join(ROOT, "eda", "results", "L0", "figures")
 L0T  = os.path.join(ROOT, "eda", "results", "L0", "tables")
 L5F  = os.path.join(ROOT, "eda", "results", "L5", "figures")
+METH = os.path.join(ROOT, "figures")   # hand-authored method schematics (build_method_figures.py)
 OUT  = os.path.join(ROOT, "meetings", "2026-08-03", "meeting_kfir_2026-08-03.pptx")
 
 # Since 2026-07-28 every grader has its own leaf: results/<view>/figures/<family>/<judge>/<name>.
@@ -52,6 +53,7 @@ def _jp(base, p):
 def f0(p): return _jp(L0F, p)
 def t0(p): return _jp(L0T, p)
 def f5(p): return _jp(L5F, p)
+def fm(p): return os.path.join(METH, p)   # schematics: no view, no judge, no family
 
 NAVY  = RGBColor(0x1F,0x3A,0x5F); PTO = RGBColor(0x00,0x72,0xB2)
 GRPO  = RGBColor(0xE6,0x9F,0x00); GREY= RGBColor(0x5A,0x5A,0x5A)
@@ -371,7 +373,67 @@ grid_table(s,[
 ],0.6,5.55,12.1,[0.16,0.19,0.19,0.46],fontsize=12,rowh=0.33)
 
 # =====================================================================
-# 6 · MAIN FIGURE — trajectories
+# 6 · METHOD — the PTO loop  (redraw of the ICLR paper's Figure 1)
+# =====================================================================
+s = slide(); title_bar(s,"How PTO works — one training iteration","METHOD · 1")
+figure(s,fm("pto_framework.png"),12.4,5.4,0.45,1.4)
+caption(s,"Figure 1 of the ICLR 2025 paper, redrawn with this experiment's models.",
+        0.45,6.95,12.4,size=11.5)
+
+# =====================================================================
+# 7 · METHOD — the GRPO loop, same picture
+# =====================================================================
+s = slide(); title_bar(s,"How GRPO works — the same loop, one method over","METHOD · 2")
+figure(s,fm("grpo_framework.png"),12.4,5.4,0.45,1.4)
+caption(s,"The same diagram for GRPO — no counterpart exists in the paper, which is PTO-only.",
+        0.45,6.95,12.4,size=11.5)
+
+# =====================================================================
+# 8 · METHOD — one PTO branch point  (redraw of the ICLR paper's Figure 2)
+# =====================================================================
+s = slide(); title_bar(s,"PTO — how a single training pair is made","METHOD · 3")
+figure(s,fm("pto_preference_tree.png"),5.1,5.85,0.35,1.28,anchor="top")
+side_notes(s,"Figure 2 of the paper, in Exp3's greedy mode",[
+  [("At each therapist turn the policy samples ",False,DARK),("M = 8 candidate replies",True,DARK),
+   (".",False,DARK)],
+  [("Each candidate is rolled forward ",False,DARK),("K further turns",True,PTO),
+   (" — patient, therapist, patient — ",False,DARK),("before",True,DARK),(" the oracle sees it. "
+   "That rollout is the entire look-ahead lever: K changes what the oracle scores, and nothing "
+   "else in the method.",False,DARK)],
+  [("Of the 8 scored candidates exactly two survive — best and worst — and only if they are far "
+    "enough apart. ",False,DARK),("A tie at a branch point produces no training data at all.",
+    True,DARK)],
+  [("The winner is then ",False,DARK),("appended to the trunk",True,PTO),(", so the tree is one "
+   "conversation growing under its own decisions rather than eight independent ones. This is what "
+   "makes the search sequential.",False,DARK)],
+  [("The pair that leaves this picture — (trunk, chosen, rejected) — is the only thing DPO ever "
+    "sees. The scores themselves are not part of the loss.",False,DARK)],
+],5.75,1.35,7.15,size=12,gap=11)
+
+# =====================================================================
+# 9 · METHOD — one GRPO group
+# =====================================================================
+s = slide(); title_bar(s,"GRPO — how a single update is made","METHOD · 4")
+figure(s,fm("grpo_group_rollout.png"),5.1,5.85,0.35,1.28,anchor="top")
+side_notes(s,"Deliberately the same rows as the previous slide",[
+  [("Everything above the oracle is identical",True,NAVY),(" — same policy, same G = 8 samples, "
+    "same K-turn look-ahead, same full-trajectory scoring. The methods diverge only in what "
+    "happens to the scores.",False,DARK)],
+  [("Nothing is discarded. ",True,GRPO),("All G completions carry a gradient, weighted by the "
+    "group-relative advantage — how far above or below the group mean each one scored.",
+    False,DARK)],
+  [("There is no threshold, ",True,GRPO),("so every prompt produces an update. PTO can spend a "
+    "whole branch point and emit nothing.",False,DARK)],
+  [("There is no trunk. ",True,GRPO),("The prompt list is sliced from the rollout at the start of "
+    "the iteration and then fixed — a completion winning here does not change which prompt comes "
+    "next.",False,DARK)],
+  [("That last difference is the substantive one: ",True,NAVY),("PTO searches sequentially, "
+    "conditioning each choice on the previous one; GRPO improves the policy against a fixed set "
+    "of situations.",False,DARK)],
+],5.75,1.35,7.15,size=12,gap=11)
+
+# =====================================================================
+# 10 · MAIN FIGURE — trajectories
 # =====================================================================
 s = slide(); title_bar(s,"All metrics across 10 iterations (K = 0)","RESULTS · 1")
 figure(s,f0("0_headline/trajectories_all_metrics.png"),12.3,5.15,0.5,1.35)

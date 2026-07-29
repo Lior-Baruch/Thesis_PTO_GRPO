@@ -53,10 +53,15 @@ once you've checked the layout.
 
 Use the repo `.venv` python — the system python has neither `python-pptx` nor `pillow`.
 
-Both scripts read PNGs and markdown tables straight out of `../eda/results/<view>/`, so a deck is
+The scripts read PNGs and markdown tables straight out of `../eda/results/<view>/`, so a deck is
 only as current as the last `render_views.py` run. If a figure moved or was renamed by an EDA
 refactor, the script fails loudly at `add_picture` and writes nothing — the file on disk is never
 half-updated.
+
+`build_meeting_deck.py` also reads the method schematics in [`../figures/`](../figures/) (the PTO
+and GRPO framework diagrams and the two generation diagrams). Those are hand-authored, not
+data-derived — regenerate them with `build_method_figures.py` in that directory, not with
+`render_views.py`.
 
 ⚠ **Artifact paths carry a `<judge>/` level** (`<family>/gpt-4o-mini/<name>.png`) since 2026-07-28 —
 every grader nests, including the primary. The builders' path helpers were updated then; a deck
