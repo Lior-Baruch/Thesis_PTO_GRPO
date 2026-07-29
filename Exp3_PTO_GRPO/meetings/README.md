@@ -9,6 +9,7 @@ meetings/
 ├── build/                          the generators (run from anywhere; paths resolve off __file__)
 │   ├── build_supervisor_deck.py    FULL deck — progress + results deep-dive + stats appendix
 │   ├── build_results_snapshot.py   LEAN deck — results only, minimum interpretation
+│   ├── build_meeting_deck.py       MEETING deck — snapshot results + measurement validity + decisions
 │   └── export_pdf.ps1              .pptx -> .pdf (PowerPoint COM); -Png also dumps slide images
 └── <YYYY-MM-DD>/                   one folder per meeting: the deck + anything sent with it
 ```
@@ -19,6 +20,7 @@ meetings/
 | [2026-07-13](2026-07-13/) | supervisor progress deck | `build_supervisor_deck.py` (earlier revision) |
 | [2026-07-16](2026-07-16/) | supervisor progress deck — steelman best-vs-best headline | `build_supervisor_deck.py` |
 | [2026-07-26](2026-07-26/) | results snapshot (pptx + **pdf**) + `email_draft_2026-07-26.md` | `build_results_snapshot.py` |
+| [2026-08-03](2026-08-03/) | meeting deck for Kfir Bar — adds the measurement-validity block and the framing/budget decisions | `build_meeting_deck.py` |
 
 ## Which deck to build
 
@@ -29,6 +31,10 @@ meetings/
   the value and draw no conclusions; opens with an ICLR reminder + an Exp1/Exp2/Exp3 lineage slide.
   Written for a reader coming in cold, and for cases where the interpretation should happen live
   rather than on the slide.
+- **`build_meeting_deck.py`** — the snapshot's visual language, but meant to be *talked through*:
+  the same background + results block condensed, then the measurement-validity evidence (oracle
+  ICC, second-judge sweep, sign preservation, gain retention, and where the graders disagree), then
+  the framing and budget decisions the snapshot deliberately left off the slide. 18 slides.
 
 Only one script targets each meeting folder — a script's `OUT` names the dated folder it writes
 into. To build a deck for a **new** meeting, copy the closest script, change `OUT` (and the date on
@@ -38,9 +44,12 @@ the title slide), and create the dated folder.
 
 ```powershell
 # from meetings/build/
-& ..\..\..\.venv\Scripts\python.exe build_results_snapshot.py
-.\export_pdf.ps1 ..\2026-07-26\results_snapshot_2026-07-26.pptx
+& ..\..\..\.venv\Scripts\python.exe build_meeting_deck.py
+.\export_pdf.ps1 ..\2026-08-03\meeting_kfir_2026-08-03.pptx        # add -Png to eyeball layout
 ```
+
+`-Png` writes a scratch `<name>_png\` folder next to the deck. It is **not** gitignored — delete it
+once you've checked the layout.
 
 Use the repo `.venv` python — the system python has neither `python-pptx` nor `pillow`.
 
