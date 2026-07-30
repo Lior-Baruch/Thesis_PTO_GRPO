@@ -919,14 +919,31 @@ def _run_one_pass(
                 progress_made = True
                 batch_saved += 1
 
+        # Release this batch's KV cache + activations before the next batch allocates its own.
+        # Previously this ran ONLY on the failure paths above, so on a healthy multi-batch run the
+        # caching allocator's high-water mark GREW every batch: consecutive batches have different
+        # max sequence lengths, so freed blocks are the wrong size to reuse and the allocator asks
+        # the driver for more. Measured on the 12 GB local card (96 convs, batch 6): batch 1 peaked
+        # 8.0 GB, batch 2 reached 11.9 GB / 12.2 GB — and an over-budget request on that GPU reboots
+        # the machine rather than raising OutOfMemoryError. A single-batch smoke run cannot surface
+        # this. Cost is one re-allocation per batch (negligible next to the batch's own generation);
+        # `empty_cache` frees only UNUSED cached blocks, so results are bit-identical.
+        del final_states, batch_result
+        gc.collect()
+        torch.cuda.empty_cache()
+
         if verbose:
             total_elapsed = time.time() - start_time
+            reserved = (
+                f", vram {torch.cuda.memory_reserved() / 1024**3:.1f}G"
+                if torch.cuda.is_available() else ""
+            )
             print(
                 f"    Batch {batch_num}/{num_batches}: "
                 f"{batch_saved}/{len(batch_indices)} saved — "
                 f"{len(completed)}/{total} total "
                 f"({len(completed)/total*100:.0f}%) — "
-                f"batch {batch_elapsed:.1f}s, total {total_elapsed:.1f}s"
+                f"batch {batch_elapsed:.1f}s, total {total_elapsed:.1f}s{reserved}"
             )
 
     return progress_made

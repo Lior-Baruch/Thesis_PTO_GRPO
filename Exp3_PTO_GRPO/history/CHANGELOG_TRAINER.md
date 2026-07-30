@@ -10,6 +10,58 @@ The CURRENT behavior these established is summarized in the root [CLAUDE.md](../
 
 ---
 
+## Generate-only eval pass for an orphaned adapter + an inter-batch VRAM leak (landed 2026-07-30)
+
+**The gap.** `model_iter_k` is produced as Step 1 of iteration `k+1`, so a run that dies between
+"iteration k's adapter saved" and "iteration k+1's Step 1 finished" leaves an adapter that can
+**never be scored**. PTO LA5 was exactly there: adapters for iters 1–5, but `model_iter_5` empty
+because iteration 6 was killed ~1 min in (adapter saved 02:32, `iteration_6/` created 02:33).
+
+**New tooling** (`code/PTO_Exp3/`), runs on Colab or locally unchanged:
+- **`generate_eval_convs.py`** — loads `iteration_N/adapter`, runs *only* `run_generation_only`, writes
+  `model_iter_N_TT*_TP*/`. No branching / look-ahead / oracle / DPO. Config is rebuilt from the run's
+  own `run_metadata.json` (= `asdict(PTOConfig)`) so it cannot drift from how iters 0..N-1 were made;
+  the Colab-absolute `local_outdir`/`conv_outdir` are remapped onto the current host and the
+  recomputed tail is asserted against the stored one. `PTOConfig` is frozen, so all overrides are
+  applied to the dict *before* construction.
+- **Seeds are derived, not typed.** `model_iter_k` ⇐ iteration `k+1`'s Step 1 ⇒ shuffle seed =
+  `patient_api_seed` = `cfg.seed + k + 1`, the same formula `eda_analysis.data.persona_order` replays.
+- **`--verify-seeds` proves that before spending.** Replays the shuffle for each already-generated
+  `model_iter_k` and checks the patient really is the predicted persona, comparing the age the patient
+  *states* to `age_value`. Result on PTO LA5: **314 correct / 0 wrong** over iters 0–4. Two subtleties
+  it exposed: (a) ~1/3 of patients never state an age — those are UNRESOLVED, not mismatches (a naive
+  "does the age appear anywhere" test reported 13–27 false mismatches per iteration); (b) only a
+  handful of distinct ages spread over 96 personas, so a *wrong* shuffle still collides ~48% of the
+  time — hence two **decoy offsets** that must fail (`seed+k+0` 163 wrong, `seed+k+2` 159 wrong). A
+  decoy that passes is reported as INCONCLUSIVE. The script refuses to generate unless the gate passes.
+- **`generate_eval_convs.ipynb`** — thin notebook over those helpers (visible orchestration, per the
+  repo pattern). Locates `code/PTO_Exp3/` by probing for `pto_trainer.py` rather than trusting cwd (a
+  notebook has no `__file__` and VS Code's cwd depends on `jupyter.notebookFileRoot`).
+- **Scale-reduction knobs are guarded.** `--num-convs` / `--num-utterances` **require** an explicit
+  `--conv-dir`: a partial or short set written into the real `model_iter_N/` would be treated as done
+  by the per-CSV resume, so a later full pass would keep it and ship an arm mixing scales/hosts.
+
+**The bug it surfaced — `_shared/convs.py` never freed VRAM between *successful* batches.**
+`gc.collect()` + `torch.cuda.empty_cache()` existed only on the OOM/failure paths in
+`_run_generation_rounds`. Consecutive batches have different max sequence lengths, so freed blocks are
+the wrong size to reuse and the caching allocator keeps requesting more from the driver. Measured on
+the 12 GB local card (96 convs, batch 6): **batch 1 peaked 8.0 GB, batch 2 reached 11.9/12.2 GB (97%)**.
+A single-batch smoke run cannot surface this. **Fixed:** release after each successful batch too, plus
+each batch line now prints `vram <N>G` (`torch.cuda.memory_reserved()`) so a regression is visible
+live — it must stay flat across batches. `empty_cache` frees only unused cached blocks, so results are
+bit-identical; the cost is one re-allocation per batch.
+
+**Why it matters beyond tidiness (local hardware).** On the RTX 5070 Ti (sm_120, driver 610.62) an
+over-budget VRAM request **reboots the machine** instead of raising `torch.OutOfMemoryError` — the same
+signature as the earlier local crashes ("no Python traceback, hard GPU/driver fault"). Generation costs
+≈1.1 GB per concurrent conversation on top of 2.6 GB of weights, so a `--batch-size 32` attempt asked
+for ~38 GB and rebooted the PC. Batch 4 measured 7.1 GB (58%), batch 6 ≈8.0 GB per batch with the fix.
+**Do the GB/conversation arithmetic before raising the batch on this card.**
+
+⚠ **Module caching gotcha:** editing `_shared/convs.py` does NOT affect an already-running Jupyter
+kernel — Python caches the imported module. If the batch lines lack the `vram` field, the kernel
+predates the fix and is running the old code; **restart the kernel**. (Per-CSV resume makes that free.)
+
 ## Step-2 (pref-build) resume — automatic (landed 2026-06-07)
 
 Step 2 ("Building pref pairs") is the dominant PTO phase (~41 min at K=0, hours at K=5) and
