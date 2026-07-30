@@ -29,7 +29,7 @@ Three controlled comparisons, all live in Exp3:
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | **all 8 rubrics** — the 6 questionnaires + `PCT` + `MICI` (added 2026-06-14) |
 | **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + tier-based notebooks `1_Outcomes`–`7_Stats` (+ `0_headline/` family; final-vs-best endpoint pairs); per-generation `iteration_N/eda/generations.jsonl` |
-| **Convs / models** | (paper figures) | 4,512 / 47 | 2,784 / 29 scored (PTO+GRPO LA0 to iter 10 + partial LA5: PTO I1–4, GRPO I1). **+96 PTO LA5 I5 convs generated 2026-07-30 — SCORING PENDING**, see "Current status & next step" |
+| **Convs / models** | (paper figures) | 4,512 / 47 | 2,880 / 30 scored on both graders (PTO+GRPO LA0 to iter 10 + partial LA5: **PTO I1–5**, GRPO I1) |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
@@ -79,18 +79,23 @@ here — see "Doc map"). Updated 2026-07-29.
   plateau by iter ~4), drop `M`/`G` 8→4, (PTO) lower `GREEDY_TRUNK_TARGET_LEN` — keep **K** (the
   RQ-i variable) and the **gpt-4o-mini oracle** (the measurement instrument) fixed. See the
   `project-openai-cost-constraint` memory.
-- **Next step — IN PROGRESS 2026-07-30:** the cheapest RQ-i point (one generate-only pass with the
-  existing PTO LA5 **iter-5** adapter, 96 convs, no training) is now **tooled and running locally**;
-  scoring is the remaining half. Tooling =
-  [`code/PTO_Exp3/generate_eval_convs.py`](Exp3_PTO_GRPO/code/PTO_Exp3/generate_eval_convs.py) +
-  a thin `.ipynb` over it — mechanics + the VRAM leak they exposed are in
-  [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md) (2026-07-30 entry).
-  - **When the 96 convs land:** score BOTH graders (`Run_Eval` for gpt-4o-mini; `Judge_Reliability`
-    §3 batched for Haiku) — Haiku currently sits at 232/232 cells at full n=96, so a primary-only
-    `PTOExp3_LA5_I5` would punch a hole in that parity. ≈$2 total. Then
-    `tools/consolidate_scores.py build` → `tools/render_views.py` for `results/L5/`.
-  - ⚠ **This buys the K0-vs-K5 contrast WITHIN PTO only** — GRPO LA5 still has just iter 1, so it is
-    not a K×method comparison.
+- **RQ-i first matched point — DONE 2026-07-30.** `PTOExp3_LA5_I5` is generated, scored on BOTH
+  graders (23,040 Haiku cells now; parity kept), folded, and rendered. **PTO LA5 = iters 0–5.**
+  - **The read: look-ahead buys no Q1+Q2 advantage at equal iteration count.** K=5 trails K=0 by
+    0.08–0.16 through iters 1–4, then ties at iter 5 (**4.017 vs 4.014**) — both at the ~4.01
+    plateau K=0 passes on its way to 4.26 by iter 10. Since K=5 costs materially more per iteration,
+    that is a substantive negative result. Unpaired means, no matched endpoint, one crossover point
+    — directional only. Numbers + caveats:
+    [L5/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L5/SUMMARY.md) §3.
+  - ⚠ **WITHIN PTO only** — GRPO LA5 still has just iter 1, so this is not a K×method comparison.
+  - ⚠ **RQ-i still has no tracked artifact.** The contrast needs both K arms in one frame, which
+    neither `L0` nor `L5` provides; it lives only in the retired `all` view. Promote `all` back or
+    move `k_paired_by_method` into `L5`.
+  - Tooling = [`code/PTO_Exp3/generate_eval_convs.{py,ipynb}`](Exp3_PTO_GRPO/code/PTO_Exp3/generate_eval_convs.py)
+    (repairs any orphaned adapter). Mechanics + the VRAM leak it exposed:
+    [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md) (2026-07-30 entry).
+  - **Next:** resume PTO LA5 → iter 10 and GRPO LA5 from iter 1 when budget allows. Cost: $1.33
+    (Haiku batched) for the iter-5 sweep; `judge_plan.estimate_cost` prices the rest.
   - **Durable LA5-resume facts** (what's actually on Drive; dated forensics in
     [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md), 2026-07-11 entry):
     **PTO LA5** has trained adapters for iters 1–5 but only I1–I4 scored — the iter-5 eval convs
