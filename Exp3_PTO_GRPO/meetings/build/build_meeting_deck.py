@@ -4,9 +4,13 @@ Same lean visual language as `build_results_snapshot.py` (the attachment that as
 meeting), but written to be *talked through* rather than read cold:
 
 - the results block is the snapshot's, condensed;
-- a new measurement-validity block — everything landed since the 07-26 email: the oracle's own
+- a measurement-validity block — everything landed since the 07-26 email: the oracle's own
   repeatability, the full second-judge sweep, sign preservation, gain retention, and the places
   where the two graders do NOT agree;
+- the open look-ahead comparison, which as of 2026-07-30 has its first MATCHED-budget point;
+- a mechanism block (2026-08-02) reading the training signal directly: the drift is a compounding
+  loop rather than a hard pull, and the PTO-vs-GRPO gap survives swapping the weighting rule —
+  i.e. it is about exploration, not the loss. That result is a direct input to Decision 1;
 - and it ends where the snapshot deliberately stopped: framing, budget, and the asks.
 
 Numbers are owned by `eda/results/L0/SUMMARY.md` and `eda/docs/LIMITATIONS.md` — this script only
@@ -255,9 +259,12 @@ bullets(s,[
     ("This is what's new since the email: the oracle's own repeatability, and a complete re-scoring "
      "of every conversation by a judge from a different model family that never played the patient.",
      False,DARK)],0),
+  ([("The training signal itself is now measurable — for both methods. ",True,NAVY),
+    ("New since the email: what each update actually rewards, on one scale, which turns the "
+     "reward-hacking story from an inference about outcomes into a direct measurement.",False,DARK)],0),
   ([("Everything is reproducible from one command",False,DARK),(" — figures, tables and summaries "
     "regenerate under either grader, with seeded confidence intervals.",False,DARK)],0),
-], left=0.6, top=1.95, width=6.0, size=14.5, gap=18)
+], left=0.6, top=1.95, width=6.0, size=13.5, gap=11)
 
 rect(s,6.85,1.45,0.02,4.4,RGBColor(0xD5,0xDD,0xE5))
 p = box(s,7.15,1.45,5.5,0.4).text_frame.paragraphs[0]
@@ -624,31 +631,128 @@ s = slide(); title_bar(s,"Look-ahead (K = 5): exactly what exists today","THE OP
 
 grid_table(s,[
   (["Arm","Trained","Scored","Missing"],None,True),
-  (["PTO  K=5","iters 1–5","base + iters 1–4","iter-5 eval conversations never generated"],RED,False),
+  (["PTO  K=5","iters 1–5","base + iters 1–5  (complete)","iters 6–10"],GREEN,False),
   (["GRPO K=5","iter 1","base + iter 1","iters 2–10"],RED,False),
-],0.5,1.4,12.3,[0.13,0.15,0.20,0.52],fontsize=12,rowh=0.34)
+],0.5,1.4,12.3,[0.13,0.15,0.28,0.44],fontsize=12,rowh=0.34)
 
-bot5 = figure(s,f5("1_outcomes/trajectories_all_metrics.png"),7.5,3.95,0.35,2.65,anchor="top")
-side_notes(s,"Numbers so far (PTO K=5 only)",[
-  [("Q1+Q2 3.00 → 3.89 over 4 iterations (dz 0.88).",False,DARK)],
-  [("MICI 0.18 → 0.33 over the same 4 iterations.",False,DARK)],
-  [("K=0 vs K=5, paired at matched early iterations (PTO): no significant difference on any "
-    "metric (all Holm p > .5).",False,DARK)],
-  [("GRPO K=5 has one trained iteration — not comparable.",False,DARK)],
-  [("Both K=5 arms were paused on API cost, not on any result.",False,GREY)],
-],8.2,2.55,4.75,size=12,gap=10)
+bot5 = figure(s,f5("7_stats/k_trajectory_Q1Q2.png"),7.5,3.85,0.35,2.6,anchor="top")
+side_notes(s,"The first matched-budget K comparison",[
+  [("Since the last deck: the trained-but-unscored iteration-5 adapter was generated and scored "
+    "on both graders, so K=0 and K=5 can now be compared at ",False,DARK),
+   ("equal iteration count",True,DARK),(".",False,DARK)],
+  [("K=5 trails K=0 by 0.08–0.16 on Q1+Q2 through iterations 1–4 — small (dz ≤ 0.20) and ",False,DARK),
+   ("never significant",True,DARK),(" — then ties at iteration 5 (4.016 vs 4.014).",False,DARK)],
+  [("Under the held-out judge there is ",False,DARK),("no tie",True,RED),
+   (": K=0 leads at every iteration, at iteration 5 by +0.173 (Holm p = .017).",False,DARK)],
+  [("So: ",False,DARK),("\"K=5 never wins\" holds under both graders",True,DARK),
+   ("; \"they converge\" is the primary oracle's picture only.",False,DARK)],
+  [("GRPO K=5 still has one trained iteration — this is within PTO, not a K × method result.",
+    False,GREY)],
+],8.2,2.5,4.75,size=11.5,gap=8)
 
-rect(s,8.2,6.15,4.75,0.9,LIGHT)
-tb2 = box(s,8.35,6.22,4.5,0.8); tf2 = tb2.text_frame
-set_runs(tf2.paragraphs[0],[("Against the ICLR paper: ",True,NAVY),
-                            ("there K=5 beat K=0 on Llama-2-7B over 7 iterations. Here the K "
-                             "comparison rests on 4 iterations of one method — underpowered, "
-                             "not negative.",False,DARK)],11)
-caption(s,"K=5 trajectories — 4 iterations for PTO, 1 for GRPO. Read as preliminary.",
-        0.35,bot5+0.05,7.5,size=11)
+rect(s,8.2,6.25,4.75,0.85,RGBColor(0xFB,0xEE,0xE6)); rect(s,8.2,6.25,0.06,0.85,RED)
+tb2 = box(s,8.42,6.32,4.45,0.78); tf2 = tb2.text_frame
+set_runs(tf2.paragraphs[0],[("The awkward part: ",True,RED),
+                            ("K=5 costs materially more per iteration and buys nothing measurable "
+                             "at matched budget. The ICLR paper found the opposite on a 7B model "
+                             "over 7 iterations.",False,DARK)],11)
+caption(s,"Q1+Q2 across iterations, both K arms of both methods. K=5 lines stop where the arms were "
+          "paused — everything right of that is K=0 only.",
+        0.35,bot5+0.03,7.5,size=10.5)
 
 # =====================================================================
-# 16 · DECISION 1 — the framing
+# 16 · TRAINING SIGNAL 1 — the reward-hack is a loop, not a pull
+# =====================================================================
+s = slide(); title_bar(s,"Inside the training signal — the drift is a loop, not a pull",
+                       "MECHANISM · 1")
+
+caption(s,"Both methods weight the candidates of a group and step along the weighted sum — DPO puts "
+          "±1 on chosen/rejected, GRPO uses the standardized advantage. Rescaled to a common size "
+          "they become one probe, so for the first time the GRPO side is measurable too.",
+        0.6,1.3,12.1,size=12,align=PP_ALIGN.LEFT)
+
+bot6 = figure(s,f0("6_preference/generation_vs_selection.png"),7.6,4.0,0.35,1.85,anchor="top")
+side_notes(s,"Two rows, two different questions",[
+  [("Top row = what the policy ",False,DARK),("generates",True,DARK),
+   (" (mean over every candidate). Bottom row = what the update ",False,DARK),
+   ("selects for",True,DARK),(" inside a group.",False,DARK)],
+  [("Affirmation: selection pressure runs 0.01 → 0.10, while the generated rate runs ",False,DARK),
+   ("0.02 → 0.54",True,RED),(" (GRPO) and 0.04 → 0.57 (PTO).",False,DARK)],
+  [("Over-praise reaches ",False,DARK),("74%",True,RED),(" of GRPO's candidates; questions collapse "
+    "from 0.71 to 0.06 per turn.",False,DARK)],
+  [("So the reward-hack is not one hard pull. It is a small, persistent, same-signed pressure "
+    "compounding through an on-policy loop — each iteration branches from an already-more-"
+    "effusive policy.",False,DARK)],
+  [("By the last iterations the update is choosing between ",False,DARK),
+   ("two effusive completions",True,DARK),(", which is why the selection contrast understates "
+    "how far the pool has moved.",False,DARK)],
+],8.25,1.85,4.7,size=11.5,gap=8)
+
+caption(s,"Training-side measurement — independent of the eval scores. GRPO's dip at iteration 9 "
+          "is the same iteration the outcome curves dip.",
+        0.35,bot6+0.03,7.6,size=10.5)
+
+# The same finding in words: what the update was actually choosing between, early vs late.
+rect(s,0.35,5.45,12.6,1.55,WHITE,line=RGBColor(0xCF,0xD6,0xDE)); rect(s,0.35,5.45,0.1,1.55,PTO)
+p = box(s,0.6,5.5,12.2,0.35).text_frame.paragraphs[0]
+set_runs(p,[("The same finding in words — the two completions PTO's update was choosing between",
+             True,NAVY)],12.5)
+tb = box(s,0.6,5.85,12.2,1.1); tf = tb.text_frame
+set_runs(tf.paragraphs[0],
+  [("iteration 1    ",True,GREY),("kept: ",True,GREEN),
+   ("“That’s really helpful to hear. How about we start by asking you about your "
+    "motivations…”      ",False,DARK),
+   ("dropped: ",True,RED),("“Great! I’m happy you’ve agreed to work on your motivation…”",
+                            False,DARK)],11)
+set_runs(tf.add_paragraph(),
+  [("iteration 10  ",True,GREY),("kept: ",True,GREEN),
+   ("“You’re brave, open, and strong. It takes tremendous courage to choose to explore "
+    "and transform…”",False,DARK)],11)
+set_runs(tf.add_paragraph(),
+  [("                     ",True,GREY),("dropped: ",True,RED),
+   ("“You’re courageous and courageous, and your resilience is inspiring. Trusting your "
+    "ability to find answers…”",False,DARK)],11)
+
+# =====================================================================
+# 17 · TRAINING SIGNAL 2 — loss or exploration?
+# =====================================================================
+s = slide(); title_bar(s,"Is the PTO–GRPO gap the loss, or the exploration?","MECHANISM · 2")
+
+caption(s,"The two methods differ in two ways at once: they see different candidate pools, and they "
+          "weight them differently. Every group logs all its candidates' scores, so the group can be "
+          "held fixed and only the weighting rule swapped — which separates the two.",
+        0.6,1.3,12.1,size=12.5,align=PP_ALIGN.LEFT)
+
+grid_table(s,[
+  (["What is held fixed","Cosine between the two update directions",""],None,True),
+  (["As trained — rule and data both differ","0.27  (0.32 corrected for estimation noise)",
+    "the headline gap"],GREY,False),
+  (["Same groups, PTO's rule swapped for GRPO's","0.91","the rule barely matters"],GREEN,False),
+  (["Same groups, GRPO's rule swapped for PTO's","0.99","the rule barely matters"],GREEN,False),
+  (["Same rule, each method's own groups","0.36 / 0.27  (0.40 / 0.32 corrected)",
+    "the gap survives"],RED,False),
+],0.6,2.3,12.1,[0.34,0.40,0.26],fontsize=12.5,rowh=0.42)
+
+rect(s,0.6,4.75,12.1,1.15,LIGHT); rect(s,0.6,4.75,0.06,1.15,PTO)
+tb = box(s,0.85,4.85,11.7,1.05); tf = tb.text_frame
+set_runs(tf.paragraphs[0],[("Read: ",True,NAVY),
+  ("swapping DPO for group-relative weighting on the same eight completions barely changes what the "
+   "update points at. Holding the rule fixed and swapping the candidates leaves the two methods as "
+   "far apart as they ever were.",False,DARK)],13.5)
+set_runs(tf.add_paragraph(),[("At matched look-ahead and a shared oracle, the two losses extract "
+  "nearly the same direction from the same candidates — ",False,DARK),
+  ("the difference between PTO and GRPO is which candidates they generate, not how they weight them.",
+   True,NAVY)],13.5)
+
+rect(s,0.6,6.1,12.1,0.9,RGBColor(0xEC,0xF5,0xF1)); rect(s,0.6,6.1,0.06,0.9,GREEN)
+set_runs(box(s,0.85,6.2,11.7,0.8).text_frame.paragraphs[0],
+  [("Why it matters for the framing: ",True,GREEN),
+   ("this makes the result a statement about exploration — preference-tree search versus "
+    "group sampling — rather than about DPO versus group-relative PPO. It is a cleaner and more "
+    "general claim, and it is the one the data actually supports.",False,DARK)],13)
+
+# =====================================================================
+# 18 · DECISION 1 — the framing
 # =====================================================================
 s = slide(); title_bar(s,"Decision 1 — which story do we tell, and where","DECISION")
 caption(s,"The three framings are not exclusive, but one of them has to lead: it decides the venue, "
@@ -656,15 +760,17 @@ caption(s,"The three framings are not exclusive, but one of them has to lead: it
         0.6,1.32,12.1,size=12.5,align=PP_ALIGN.LEFT)
 
 cards(s,[
-  ("A · Method story — preference trees vs group-relative optimization under an expensive LLM judge",
-   "The finding is the stability and generalization gap: GRPO is competitive up to its peak, then "
-   "overshoots into a grader-specific optimum; PTO sustains gains. Gain retention under a held-out "
-   "judge is the evidence, and it is unusually clean.   Needs nothing further — it is in hand.",
+  ("A · Search story — preference-tree exploration vs group sampling under an expensive LLM judge",
+   "The stability and generalization gap: GRPO is competitive up to its peak, then overshoots into "
+   "a grader-specific optimum; PTO sustains gains. Gain retention under a held-out judge is the "
+   "evidence. The training-signal analysis sharpens it — the two losses want the same thing from "
+   "the same candidates, so the gap is about what each method explores.   In hand.",
    GREEN,"complete today"),
   ("B · Look-ahead story — the ICLR lever, extended to both method families",
-   "The most direct continuation of the paper, and the one Kfir co-authored. Requires finishing at "
-   "least one K=5 arm; the current K evidence is 4 iterations of one method and shows nothing "
-   "either way.   Needs budget — see Decision 2.",
+   "The most direct continuation of the paper, and the one Kfir co-authored. K=0 and K=5 now meet "
+   "at a matched iteration and look-ahead buys nothing — a real but underpowered negative (one "
+   "method, 5 iterations). Making it conclusive needs at least one K=5 arm finished.   Needs "
+   "budget — see Decision 2.",
    NAVY,"needs the K=5 arms"),
   ("C · MI story — what it takes to train a small model toward genuine MI quality",
    "The most interesting story to a clinical audience, and the one the added metrics were built "
@@ -695,13 +801,14 @@ set_runs(tf.add_paragraph(),[("Cost scales with the number of candidates scored 
 
 cards(s,[
   ("1 · The nearly-free look-ahead point",
-   "One generate-only pass with the PTO K=5 iteration-5 adapter that already exists (96 "
-   "conversations, no training), then score it. Adds a fifth K=5 point for a few dollars.",
-   GREEN,"do regardless"),
+   "Done since the last deck: a generate-only pass with the PTO K=5 iteration-5 adapter, scored on "
+   "both graders for $1.33. It bought the first matched-budget K comparison — and the answer so "
+   "far is that look-ahead does not pay at equal iteration count.",
+   GREEN,"DONE — $1.33"),
   ("2 · Resume one K=5 arm, cost-capped",
    "Halve the candidate count (M/G 8 → 4) and cap at 5–6 iterations — the curves plateau by "
-   "iteration 4 anyway. Makes the look-ahead comparison conclusive rather than preliminary. "
-   "Keep K and the oracle model fixed, since those are the variables under test.",
+   "iteration 4 anyway. Turns the current one-method, five-iteration negative into a conclusive "
+   "one. Keep K and the oracle model fixed, since those are the variables under test.",
    NAVY,"needed for framing B"),
   ("3 · Human MI-coder validation on a sample",
    "A trained coder scores a sample of conversations against the same rubrics. Costs time, not "
@@ -721,7 +828,8 @@ bullets(s,[
   ([("A decision on the lead framing ",True,NAVY),("(A / B / C) — everything else follows from it.",
     False,DARK)],0),
   ([("A yes or no on resuming one K=5 arm, cost-capped",True,NAVY),(", and if yes, roughly what "
-    "budget I should plan against. The free iteration-5 point I will take either way.",False,DARK)],0),
+    "budget I should plan against. The matched iteration-5 point is already in — it says look-ahead "
+    "does not pay, and the question is whether that is worth confirming properly.",False,DARK)],0),
   ([("A view on human coder validation",True,NAVY),(" — whether it is worth arranging, and who "
     "could do the coding.",False,DARK)],0),
   ([("Agreement on scope",True,NAVY),(" — what goes in a paper, what stays in the thesis, and "

@@ -20,7 +20,7 @@ meetings/
 | [2026-07-13](2026-07-13/) | supervisor progress deck | `build_supervisor_deck.py` (earlier revision) |
 | [2026-07-16](2026-07-16/) | supervisor progress deck — steelman best-vs-best headline | `build_supervisor_deck.py` |
 | [2026-07-26](2026-07-26/) | results snapshot (pptx + **pdf**) + `email_draft_2026-07-26.md` | `build_results_snapshot.py` |
-| [2026-08-03](2026-08-03/) | meeting deck for Kfir Bar — adds the measurement-validity block and the framing/budget decisions | `build_meeting_deck.py` |
+| [2026-08-03](2026-08-03/) | meeting deck for Kfir Bar — measurement validity, the first matched-budget K comparison, the training-signal mechanism block, and the framing/budget decisions | `build_meeting_deck.py` |
 
 ## Which deck to build
 
@@ -33,8 +33,10 @@ meetings/
   rather than on the slide.
 - **`build_meeting_deck.py`** — the snapshot's visual language, but meant to be *talked through*:
   the same background + results block condensed, then the measurement-validity evidence (oracle
-  ICC, second-judge sweep, sign preservation, gain retention, and where the graders disagree), then
-  the framing and budget decisions the snapshot deliberately left off the slide. 18 slides.
+  ICC, second-judge sweep, sign preservation, gain retention, and where the graders disagree), the
+  look-ahead comparison at its first matched-budget point, a mechanism block reading the training
+  signal directly (generation vs selection; the loss-vs-exploration decomposition), and finally the
+  framing and budget decisions the snapshot deliberately left off the slide. 24 slides.
 
 Only one script targets each meeting folder — a script's `OUT` names the dated folder it writes
 into. To build a deck for a **new** meeting, copy the closest script, change `OUT` (and the date on
