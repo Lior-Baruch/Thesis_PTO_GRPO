@@ -1,7 +1,7 @@
 """
-pref.py — Exp3 successor to the Exp2 ``pref_emb`` analysis (PTO-only).
+pref.py — what the training signal pushes the policy toward, for BOTH methods.
 
-Over the PTO ``pref_pairs/pairs.csv`` across iterations:
+**Part 1 (original, PTO-only)** — over the PTO ``pref_pairs/pairs.csv`` across iterations:
 - chosen−rejected **score-margin** distributions (how decisive the τ-filtered pairs are);
 - **sentence-embedding geometry** of chosen vs rejected completions (cached to disk, same
   idea as Exp2's ``emb_cache_words``) — within-pair cosine separation + a 2D projection,
@@ -10,7 +10,27 @@ Over the PTO ``pref_pairs/pairs.csv`` across iterations:
   affirmation) — cross-links to :mod:`behavior` to test "is the policy increasingly
   preferring affirmation-heavy turns?".
 
-GRPO has no preference data, so everything here is empty for GRPO arms.
+**Part 2 (2026-08-02) — the update-weighted view, which both methods have.** GRPO has no
+preference pairs, but "preference" was never the essential thing: both methods weight the
+candidates of a group and push the policy along the weighted sum. Write the update direction as
+``normalize(Σ_g w_g · emb(t_g))`` and the two methods differ only in the weights ``w``:
+
+===========  ======================================================================
+DPO (PTO)    ``+1`` on the recorded ``chosen``, ``−1`` on ``rejected``, 0 on the rest
+             (the roles are logged, so this is the literal τ-filtered training pair)
+GRPO         the standardized group-relative advantage ``(r_g − mean_g) / std_g``,
+             i.e. what actually scales each completion's gradient
+===========  ======================================================================
+
+Weights are then rescaled per group to ``Σ|w| = 2`` — DPO's natural ±1 scale — so a "unit of
+push" means the same thing on both sides and the probes are comparable. Every downstream probe
+(word ranking, MI-concept projection, drift) already takes a plain ``{iter: direction}`` dict, so
+it works unchanged for GRPO.
+
+**Part 3 (2026-08-02) — does the training signal predict the eval move?** ``link_to_outcomes``
+joins each iteration's preference features to the persona-paired eval delta that iteration's
+update produced (``model_iter_n`` vs ``model_iter_{n-1}``), turning "what the update prefers" from
+a description into a testable mechanism for the sycophancy story.
 """
 
 import hashlib
@@ -22,10 +42,11 @@ from typing import List, Optional
 import numpy as np
 import pandas as pd
 
-from .constants import WORKSPACE_ROOT, RE_AFFIRM
-from .training import load_pref_pairs  # re-exported convenience
+from .constants import WORKSPACE_ROOT, RE_AFFIRM, RE_EFFUSIVE, BOOT_SEED
+from .training import load_generations, load_pref_pairs  # re-exported convenience
 
 _RE_AFFIRM = RE_AFFIRM   # shared lexical affirmation cue (see constants.py)
+_RE_EFFUSIVE = RE_EFFUSIVE
 # Embedding cache lives beside the parquet cache at the eda/ root (NOT inside the package source).
 _EDA_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))   # .../eda
 _CACHE_DIR = os.path.join(_EDA_DIR, ".emb_cache")
@@ -399,3 +420,624 @@ def category_projection(directions: dict, categories: dict = None,
             rows.append({"category": cat, "train_iter": it,
                          "score": float((sub @ dv).mean()), "n_words": len(ii)})
     return pd.DataFrame(rows)
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║   ONE PROBE, BOTH METHODS — the update-weighted candidate view                 ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# See the module docstring, Part 2. Everything below reads generations.jsonl (which BOTH
+# trainers write, one row per group with all candidates nested) rather than PTO's pairs.csv.
+
+# The group = the set of completions that compete in ONE update. `conversation_id` is in the key
+# because PTO's `branch_id` is trunk DEPTH, not a unique id (it repeats across conversations) —
+# keying on branch_id alone silently pools unrelated conversations.
+_GROUP_KEYS = ["arm", "train_iter", "conversation_id", "branch_id", "epoch"]
+
+
+def _cell_rng(seed: int, arm: str, it) -> "np.random.Generator":
+    """A generator seeded by (seed, arm, iteration) — NOT by position in a shared stream.
+
+    Every sampling/splitting decision below is per (arm, iteration), so it must depend only on that
+    cell. With one shared stream the draw for ``PTO_LA0`` iter 3 would change whenever another arm
+    is added to the frame, and the same figure would differ between the ``L0`` and ``all`` renders
+    on identical data.
+    """
+    import zlib
+    # `it` may be -1 (the pooled-over-iterations block); the seed sequence needs non-negatives.
+    return np.random.default_rng([int(seed), zlib.crc32(str(arm).encode()), int(it) + 1])
+
+
+def load_weighted_candidates(arms: Optional[List] = None, *,
+                             drop_zero_weight: bool = True) -> pd.DataFrame:
+    """Every training candidate with the weight its method's update actually gives it.
+
+    One row per candidate of every group that contributed a gradient, with ``weight`` set per
+    method (module docstring, Part 2): DPO's recorded ±1 chosen/rejected roles for PTO, the
+    standardized group-relative advantage for GRPO. Weights are rescaled within each group to
+    ``Σ|w| = 2`` so the two methods' "one unit of push" is the same size — without that, GRPO's
+    weights carry the group's reward spread and every cross-method contrast is a scale artifact.
+
+    Also attaches the lexical features both methods are tested on (``n_questions``,
+    ``affirm_marker``, ``overpraise_marker``; ``len_chars`` comes from the loader) and
+    ``group_size``.
+
+    Drops: the ``eval`` phase (TRL's eval-loop generations produce no gradient), candidates with no
+    score, and every group that lacks an up- **and** a down-weighted side — for PTO a branch point
+    where the τ filter emitted no pair (logged ``chosen``, no ``rejected``), for GRPO a group with
+    zero reward spread. Neither produced a gradient. With ``drop_zero_weight`` (default) the
+    surviving zero-weight rows go too: they contribute nothing to any weighted quantity, and for
+    PTO that is 6 of every 8 candidates.
+    """
+    gens = load_generations(arms)
+    if gens.empty:
+        return pd.DataFrame()
+    d = gens[(gens["phase"] != "eval") & gens["score"].notna()].copy()
+    if d.empty:
+        return pd.DataFrame()
+    # epoch is NaN for PTO and a float progress marker for GRPO; groupby DROPS NaN keys, so pin it.
+    d["epoch"] = d["epoch"].fillna(-1.0)
+
+    d["weight"] = 0.0
+    is_pto = d["method"] == "PTO"
+    if is_pto.any():
+        d.loc[is_pto, "weight"] = (d.loc[is_pto, "role"]
+                                   .map({"chosen": 1.0, "rejected": -1.0}).fillna(0.0))
+    is_grpo = d["method"] == "GRPO"
+    if is_grpo.any():
+        g = d[is_grpo].groupby(_GROUP_KEYS)["score"]
+        mean = d.loc[is_grpo, "group_mean"].fillna(g.transform("mean"))
+        std = d.loc[is_grpo, "group_std"].fillna(g.transform("std")).replace(0.0, np.nan)
+        d.loc[is_grpo, "weight"] = ((d.loc[is_grpo, "score"] - mean) / std).fillna(0.0)
+
+    d["group_size"] = d.groupby(_GROUP_KEYS)["score"].transform("size")
+    # A group only pushes if it has BOTH an up- and a down-weighted side. For PTO that drops the
+    # ~16% of branch points that logged a `chosen` but no `rejected` — the τ filter found no pair
+    # there, so DPO never saw the group; keeping it would rescale that lone `chosen` to a full
+    # +2 one-sided push the trainer never applied. GRPO's standardized advantages always straddle 0.
+    grp = d.groupby(_GROUP_KEYS)["weight"]
+    d = d[(grp.transform("max") > 0) & (grp.transform("min") < 0)].copy()
+    if d.empty:
+        return d
+    d["_absw"] = d["weight"].abs()
+    d["weight"] = 2.0 * d["weight"] / d.groupby(_GROUP_KEYS)["_absw"].transform("sum")
+    d = d.drop(columns=["_absw"])
+
+    comp = d["completion"].astype(str)
+    d["n_questions"] = comp.str.count(r"\?")
+    d["affirm_marker"] = comp.map(lambda t: bool(_RE_AFFIRM.search(t))).astype(float)
+    d["overpraise_marker"] = comp.map(lambda t: bool(_RE_EFFUSIVE.search(t))).astype(float)
+    if drop_zero_weight:
+        d = d[d["weight"] != 0.0].copy()
+    return d.reset_index(drop=True)
+
+
+def sample_groups(cands: pd.DataFrame, *, max_groups_per_iter: int = 400,
+                  seed: int = BOOT_SEED, verbose: bool = True) -> pd.DataFrame:
+    """Cap the number of GROUPS per (arm, iteration) — the embedding budget knob.
+
+    Sampling is at the GROUP level so a group is never half-embedded, and seeded so a re-render
+    reproduces the same figures. The default 400 was chosen by measuring, not guessed: split-half
+    reliability of the per-iteration direction climbs 0.19 → 0.26 → 0.47 → 0.66 (GRPO) across caps
+    50/100/200/400, so 400 is where the per-iteration estimate becomes usable for that method —
+    while embedding all ~223k candidates would cost ~5× more for the next increment. PTO reaches
+    only ~0.19 even uncapped (it has ~400 pairs an iteration, and that IS all of them), which is
+    why its per-iteration readouts carry a reliability caveat and its cross-arm claims use
+    :func:`direction_by_arm`.
+
+    Prints what it dropped unless ``verbose=False``: a cap that silently shrinks the evidence reads
+    as full coverage in the artifact.
+    """
+    if cands.empty or not max_groups_per_iter:
+        return cands
+    keep, dropped, total = [], 0, 0
+    for (arm, it), g in cands.groupby(["arm", "train_iter"], sort=True):
+        ids = g.groupby(_GROUP_KEYS).ngroup()
+        uniq = np.array(sorted(ids.unique()))
+        total += len(uniq)
+        if len(uniq) <= max_groups_per_iter:
+            keep.append(g)
+            continue
+        chosen = set(_cell_rng(seed, arm, it)
+                     .choice(uniq, size=max_groups_per_iter, replace=False).tolist())
+        keep.append(g[ids.isin(chosen)])
+        dropped += len(uniq) - max_groups_per_iter
+    out = pd.concat(keep, ignore_index=True) if keep else cands.iloc[:0]
+    if verbose:
+        print(f"[sample_groups] cap={max_groups_per_iter}/iter, seed={seed}: kept "
+              f"{total - dropped}/{total} groups ({dropped} dropped), {len(out)} candidate rows.")
+    return out
+
+
+def embed_candidates(cands: pd.DataFrame, model_name: str = _DEFAULT_MODEL) -> pd.DataFrame:
+    """Attach ``emb`` to each weighted candidate (same disk cache as :func:`embed_pairs`)."""
+    if cands.empty:
+        return cands
+    lut = _embed_texts(cands["completion"].astype(str).tolist(), model_name)
+    out = cands.copy()
+    out["emb"] = out["completion"].astype(str).map(lambda t: lut.get(t))
+    return out[out["emb"].notna()].copy()
+
+
+def _direction(sub: pd.DataFrame) -> np.ndarray:
+    v = (np.vstack(list(sub["emb"])) * sub["weight"].to_numpy()[:, None]).sum(axis=0)
+    return v / (np.linalg.norm(v) + 1e-12)
+
+
+def direction_by_iter(embedded: pd.DataFrame) -> dict:
+    """``{arm: {train_iter: unit direction}}`` — the update direction, per arm per iteration.
+
+    The generalization of :func:`preference_direction_by_iter` to any weighting (and therefore to
+    GRPO): ``normalize(Σ w · emb)``. With DPO's ±1 weights the two agree by construction, which is
+    what :func:`direction_agreement_with_pairs` checks on real data.
+    """
+    out: dict = {}
+    for (arm, it), g in embedded.groupby(["arm", "train_iter"]):
+        out.setdefault(arm, {})[int(it)] = _direction(g)
+    return out
+
+
+def _wins(sub: pd.DataFrame, dv: np.ndarray):
+    """(share of groups ordered correctly by *dv*, mean projection gap) for one set of groups."""
+    proj = np.vstack(list(sub["emb"])) @ dv
+    gg = sub.assign(_proj=proj, _gid=sub.groupby(_GROUP_KEYS).ngroup())
+    wins, gaps = [], []
+    for _, grp in gg.groupby("_gid"):
+        hi, lo = grp.loc[grp["weight"].idxmax()], grp.loc[grp["weight"].idxmin()]
+        wins.append(hi["_proj"] > lo["_proj"])
+        gaps.append(hi["_proj"] - lo["_proj"])
+    return (float(np.mean(wins)) if wins else np.nan,
+            float(np.mean(gaps)) if gaps else np.nan)
+
+
+def _quality_row(sub: pd.DataFrame, dv: np.ndarray, rng) -> dict:
+    """Probe quality for one (already grouped) block: in-sample wins, held-out wins, split-half."""
+    gids = sub.groupby(_GROUP_KEYS).ngroup()
+    uniq = np.array(sorted(gids.unique()))
+    wins_in, gap = _wins(sub, dv)
+    row = {"n_groups": len(uniq), "n_candidates": len(sub), "wins_correct": wins_in,
+           "mean_gap": gap, "wins_holdout": np.nan, "split_half_cos": np.nan}
+    if len(uniq) < 4:
+        return row
+    half = set(rng.choice(uniq, size=len(uniq) // 2, replace=False).tolist())
+    a, b = sub[gids.isin(half)], sub[~gids.isin(half)]
+    if not len(a) or not len(b):
+        return row
+    da, db = _direction(a), _direction(b)
+    row["split_half_cos"] = float(da @ db)
+    # Each half is scored by the OTHER half's direction — no candidate helps fit the direction it
+    # is then judged by, which is what makes this number honest.
+    row["wins_holdout"] = float(np.mean([_wins(b, da)[0], _wins(a, db)[0]]))
+    return row
+
+
+def direction_quality(embedded: pd.DataFrame, directions: dict, *,
+                      seed: int = BOOT_SEED) -> pd.DataFrame:
+    """Per (arm, iter): is the direction real, and is it estimated from enough groups?
+
+    - ``wins_correct`` — share of groups whose most up-weighted candidate projects above its most
+      down-weighted one. **In-sample**, so it is optimistic: the direction was fitted on these very
+      groups, and the smaller the iteration the more it overfits (measured: PTO's drops 0.88 → 0.68
+      as the group count goes 50 → 380).
+    - ``wins_holdout`` — the same share with each half judged by the *other* half's direction. This
+      is the number to quote.
+    - ``mean_gap`` — mean projection gap between the two extremes, in units of the unit direction.
+    - ``split_half_cos`` — cosine between directions estimated on two disjoint halves. The
+      **precision** check the original probe lacked, and it bites: a per-iteration PTO direction
+      scores ~0.1–0.2 here, i.e. two halves of the same iteration point almost independently. Low
+      ``wins_holdout`` means the axis is weak; low ``split_half_cos`` means it is real but not yet
+      measured, and the fix is more groups (or :func:`direction_by_arm`, which pools them).
+    """
+    rows = []
+    for (arm, it), g in embedded.groupby(["arm", "train_iter"]):
+        dv = directions.get(arm, {}).get(int(it))
+        if dv is None:
+            continue
+        rows.append({"arm": arm, "method": g["method"].iloc[0], "train_iter": int(it),
+                     **_quality_row(g, dv, _cell_rng(seed, arm, it))})
+    return pd.DataFrame(rows).sort_values(["arm", "train_iter"]).reset_index(drop=True)
+
+
+def direction_by_arm(embedded: pd.DataFrame) -> dict:
+    """``{arm: unit direction}`` pooled over every iteration — the arm's overall update target.
+
+    The answer to :func:`direction_quality`'s reliability problem when the question is "what does
+    this method prefer?" rather than "how does that move per iteration": pooling multiplies the
+    group count by the iteration count, and the split-half cosine rises accordingly (see
+    :func:`pooled_direction_quality`). Use the pooled direction for cross-method claims and the
+    per-iteration ones only for drift, with their reliability quoted alongside.
+    """
+    return {arm: _direction(g) for arm, g in embedded.groupby("arm")}
+
+
+def pooled_direction_quality(embedded: pd.DataFrame, directions_by_arm: dict, *,
+                             seed: int = BOOT_SEED) -> pd.DataFrame:
+    """:func:`direction_quality` for the pooled per-arm directions (one row per arm)."""
+    rows = []
+    for arm, g in embedded.groupby("arm"):
+        dv = directions_by_arm.get(arm)
+        if dv is None:
+            continue
+        rows.append({"arm": arm, "method": g["method"].iloc[0], "n_iters": g["train_iter"].nunique(),
+                     **_quality_row(g, dv, _cell_rng(seed, arm, -1))})
+    return pd.DataFrame(rows).sort_values("arm").reset_index(drop=True)
+
+
+def _spearman_brown(split_half: float) -> float:
+    """Half-sample split-half cosine -> reliability of the FULL-sample direction."""
+    if split_half is None or not np.isfinite(split_half) or split_half <= 0:
+        return np.nan
+    return 2.0 * split_half / (1.0 + split_half)
+
+
+def direction_cosine(directions: dict, arm_a: str, arm_b: str,
+                     quality: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+    """Per matched iteration: cosine between two arms' update directions (1 = same target).
+
+    Serves both cross-arm questions with one function — PTO vs GRPO at matched K ("do the two
+    losses pull toward the same language?") and K=0 vs K=5 within a method ("does look-ahead
+    re-aim the update?").
+
+    Pass ``quality`` (a :func:`direction_quality` frame) to also get the **attenuation ceiling**:
+    two noisily-estimated directions cannot correlate to 1 even if they are identical, so a raw
+    cosine of 0.3 means different things at reliability 0.9 and at reliability 0.2. ``ceiling`` =
+    ``sqrt(r_a · r_b)`` with each ``r`` the Spearman-Brown-corrected split-half reliability, and
+    ``cosine_corrected`` = ``cosine / ceiling`` — the same correction
+    :mod:`~eda_analysis.reliability` applies to cross-judge agreement, for the same reason.
+    """
+    da, db = directions.get(arm_a, {}), directions.get(arm_b, {})
+    rel = {}
+    if quality is not None and not quality.empty:
+        rel = {(r.arm, int(r.train_iter)): _spearman_brown(r.split_half_cos)
+               for r in quality.itertuples(index=False)}
+    rows = []
+    for i in sorted(set(da) & set(db)):
+        row = {"train_iter": i, "arm_a": arm_a, "arm_b": arm_b, "cosine": float(da[i] @ db[i])}
+        ra, rb = rel.get((arm_a, i), np.nan), rel.get((arm_b, i), np.nan)
+        ceil = float(np.sqrt(ra * rb)) if np.isfinite(ra) and np.isfinite(rb) else np.nan
+        row["ceiling"] = ceil
+        row["cosine_corrected"] = row["cosine"] / ceil if ceil and np.isfinite(ceil) else np.nan
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def pooled_direction_cosines(directions_by_arm: dict,
+                             quality: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+    """Every arm pair's pooled direction cosine + attenuation ceiling (one row per pair).
+
+    The cross-method and cross-K read that the per-iteration cosines are too noisy to support —
+    pooling raises each direction's reliability enough for the comparison to mean something.
+    """
+    rel = {}
+    if quality is not None and not quality.empty:
+        rel = {r.arm: _spearman_brown(r.split_half_cos) for r in quality.itertuples(index=False)}
+    arms = sorted(directions_by_arm)
+    rows = []
+    for i, a in enumerate(arms):
+        for b in arms[i + 1:]:
+            cos = float(directions_by_arm[a] @ directions_by_arm[b])
+            ra, rb = rel.get(a, np.nan), rel.get(b, np.nan)
+            ceil = float(np.sqrt(ra * rb)) if np.isfinite(ra) and np.isfinite(rb) else np.nan
+            rows.append({"arm_a": a, "arm_b": b, "cosine": cos, "ceiling": ceil,
+                         "cosine_corrected": cos / ceil if ceil and np.isfinite(ceil) else np.nan})
+    return pd.DataFrame(rows)
+
+
+def direction_agreement_with_pairs(embedded: pd.DataFrame, arm_label: str,
+                                   pairs_directions: dict) -> pd.DataFrame:
+    """Sanity gate: the candidate-derived PTO direction vs the one built from ``pairs.csv``.
+
+    Two independent files describe the same DPO update — ``generations.jsonl`` (roles per
+    candidate) and ``pairs.csv`` (the emitted pairs). Cosine ≈ 1 per iteration says the new
+    method-agnostic path reproduces the original PTO probe, which is what licenses reading the
+    GRPO side the same way. Anything well below 1 means the two logs disagree about what was
+    trained on — a data-integrity finding, not a plotting detail.
+    """
+    dirs = direction_by_iter(embedded[embedded["arm"] == arm_label])
+    own = dirs.get(arm_label, {})
+    return pd.DataFrame([{"train_iter": i, "cosine": float(own[i] @ pairs_directions[i])}
+                         for i in sorted(set(own) & set(pairs_directions))])
+
+
+# ── The lexical half: exact, needs no embeddings, covers every group ──────────────
+_LEX_FEATURES = {"len_chars": "w_len", "n_questions": "w_question",
+                 "affirm_marker": "w_affirm", "overpraise_marker": "w_overpraise"}
+
+
+def weighted_lexical_contrast(cands: pd.DataFrame) -> pd.DataFrame:
+    """Per (arm, iter): the feature difference the update pushes for, in chosen−rejected units.
+
+    ``Σ_g w · f`` averaged over groups. Because weights are normalized to ``Σ|w| = 2``, a value of
+    ``+40`` on ``w_len`` reads as "the update pushes toward completions ~40 characters longer",
+    identically for DPO's pair and for GRPO's advantage-weighted group.
+
+    Exact and cheap — it uses every group (no embedding, no sampling), so it is the right series to
+    correlate against outcomes; the embedding direction is the semantic complement.
+
+    Each feature also gets a ``<name>_se`` — the standard error over groups. These per-pair pushes
+    are small numbers (one PTO pair moves the affirmation-marker rate by ~0.05), so the SE is what
+    separates "the update leans this way" from "this iteration's groups happened to differ".
+    """
+    if cands.empty:
+        return pd.DataFrame()
+    out = []
+    for (arm, it), g in cands.groupby(["arm", "train_iter"]):
+        contrib = {f"_{name}": g["weight"] * g[src].astype(float)
+                   for src, name in _LEX_FEATURES.items()}
+        per_group = g.assign(**contrib).groupby(_GROUP_KEYS)[list(contrib)].sum()
+        row = {"arm": arm, "method": g["method"].iloc[0], "K": g["K"].iloc[0],
+               "train_iter": int(it), "n_groups": len(per_group), "n_candidates": len(g)}
+        for name in _LEX_FEATURES.values():
+            row[name] = float(per_group[f"_{name}"].mean())
+            row[f"{name}_se"] = float(per_group[f"_{name}"].sem())
+        out.append(row)
+    return pd.DataFrame(out).sort_values(["arm", "train_iter"]).reset_index(drop=True)
+
+
+_LEX_TITLES = {"w_len": "completion length (chars)", "w_question": "question marks",
+               "w_affirm": "affirmation marker", "w_overpraise": "over-praise marker"}
+
+
+def plot_lexical_push(lex: pd.DataFrame, *, features: Optional[List[str]] = None,
+                      palette: Optional[dict] = None, ncols: int = 4):
+    """What each iteration's update pushes toward, per arm — the cross-method figure.
+
+    One panel per lexical feature; y is the per-group weighted contrast (± 1 SE over groups), so
+    **0 = the update is indifferent** to that feature and positive = it pushes toward more of it.
+    Both methods appear on the same axes because the weights were normalized to a shared scale
+    (see :func:`load_weighted_candidates`).
+    """
+    import matplotlib.pyplot as plt
+    from .plotting_style import grid
+    if lex.empty:
+        return None
+    features = [f for f in (features or list(_LEX_FEATURES.values())) if f in lex.columns]
+    fig, axes = grid(len(features), ncols=min(ncols, len(features)), panel=(4.2, 3.0))
+    for ax, f in zip(axes, features):
+        for arm, g in lex.sort_values("train_iter").groupby("arm"):
+            se = g[f"{f}_se"] if f"{f}_se" in g else None
+            ax.errorbar(g["train_iter"], g[f], yerr=se, marker="o", ms=4, capsize=2, lw=1.4,
+                        label=arm, color=(palette or {}).get(arm))
+        ax.axhline(0, color="grey", lw=0.7, ls="--")
+        ax.set_title(_LEX_TITLES.get(f, f), fontsize=9)
+        ax.set_xlabel("training iteration"); ax.set_ylabel(f"{f}  (per group, ±1 SE)")
+    axes[0].legend(fontsize=7, frameon=False)
+    fig.suptitle("What the update pushes toward, per iteration — both methods on one scale",
+                 y=1.04, fontweight="bold")
+    fig.text(0.5, -0.02, "Weighted contrast Σ w·feature per group (DPO's ±1 pair scale; GRPO's "
+                         "standardized advantages rescaled to match). 0 = indifferent.",
+             ha="center", va="top", fontsize=7.5, style="italic", color="#444444", wrap=True)
+    fig.tight_layout()
+    return fig
+
+
+def preference_features_by_iter(cands: pd.DataFrame, *, directions: Optional[dict] = None,
+                                quality: Optional[pd.DataFrame] = None,
+                                categories: Optional[dict] = None) -> pd.DataFrame:
+    """One row per (arm, train_iter): everything about that iteration's update, ready to correlate.
+
+    Merges the exact lexical contrasts (:func:`weighted_lexical_contrast`) with, when
+    ``directions`` is given, each MI concept's projection onto that iteration's direction
+    (``cat_<Concept>``) and ``dir_cos_prev`` (cosine with the previous iteration's direction — is
+    the target holding still or re-aiming?), plus ``wins_correct``/``split_half_cos`` from
+    ``quality``. This is the left-hand side of :func:`link_to_outcomes`.
+    """
+    feats = weighted_lexical_contrast(cands)
+    if feats.empty:
+        return feats
+    if directions:
+        cat_rows = []
+        for arm, dirs in directions.items():
+            cat = category_projection(dirs, categories)
+            if cat.empty:
+                continue
+            wide = cat.pivot_table(index="train_iter", columns="category", values="score")
+            wide.columns = [f"cat_{c}" for c in wide.columns]
+            wide = wide.reset_index().assign(arm=arm)
+            its = sorted(dirs)
+            wide["dir_cos_prev"] = wide["train_iter"].map(
+                {i: (float(dirs[i] @ dirs[p]) if (p := i - 1) in dirs else np.nan) for i in its})
+            cat_rows.append(wide)
+        if cat_rows:
+            feats = feats.merge(pd.concat(cat_rows, ignore_index=True),
+                                on=["arm", "train_iter"], how="left")
+    if quality is not None and not quality.empty:
+        feats = feats.merge(quality[["arm", "train_iter", "wins_correct", "split_half_cos"]],
+                            on=["arm", "train_iter"], how="left")
+    return feats
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║   TRAINING SIGNAL -> EVAL MOVE — does what the update prefers predict the gain? ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+
+FEATURE_COLS = ["w_len", "w_question", "w_affirm", "w_overpraise",
+                "cat_Affirmation", "cat_Reflection", "cat_OpenQuestion", "cat_ChangeTalk",
+                "cat_SustainTalk", "cat_TherapistActions", "dir_cos_prev", "wins_correct"]
+
+
+def link_to_outcomes(features: pd.DataFrame, scores_long: pd.DataFrame, *,
+                     metrics: Optional[List[str]] = None) -> pd.DataFrame:
+    """Join each iteration's preference features to the eval delta that iteration's update caused.
+
+    The iteration bookkeeping is the whole point and is easy to get wrong: the update performed in
+    **train_iter n** produced adapter ``iteration_n``, whose conversations are ``model_iter_n``.
+    So its effect is ``eval(model_iter_n) − eval(model_iter_{n-1})``, persona-paired over the 96
+    shared personas via :func:`~eda_analysis.stats.compare_two_models` (NOT a difference of
+    iteration means — the personas are reshuffled every iteration).
+
+    Long format: one row per (arm, train_iter, metric) carrying every feature column plus
+    ``delta_mean`` / ``dz`` / ``p`` for that step. Iterations whose two model states are not both
+    scored are dropped.
+
+    ⚠ Correlational and small-*n* (≤10 steps per arm). It cannot separate "the update pushed
+    affirmation, which raised the score" from "iterations where the policy was improving anyway
+    also had affirmation-heavy branches" — read it as a mechanism *consistent with* the outcome
+    curves, never as the cause of them.
+    """
+    from .stats import compare_two_models
+    if features.empty or scores_long.empty:
+        return pd.DataFrame()
+    rows = []
+    for arm, f in features.groupby("arm"):
+        sub = scores_long[scores_long["arm"] == arm]
+        if sub.empty:
+            continue
+        model_at = {int(i): g["model"].iloc[0] for i, g in sub.groupby("iteration")}
+        for r in f.itertuples(index=False):
+            it = int(r.train_iter)
+            if it not in model_at or (it - 1) not in model_at:
+                continue
+            cmp = compare_two_models(sub, model_at[it], model_at[it - 1], metrics)
+            if cmp.empty:
+                continue
+            base = {k: v for k, v in r._asdict().items()}
+            for c in cmp.itertuples(index=False):
+                rows.append({**base, "metric": c.metric, "delta_mean": c.mean_delta,
+                             "dz": c.dz, "p": c.p, "n_paired": c.n})
+    return pd.DataFrame(rows)
+
+
+def _partial_spearman(x, y, z):
+    """Spearman correlation of *x* and *y* with *z* partialled out (rank residuals)."""
+    from scipy import stats as _st
+    rx, ry, rz = (_st.rankdata(v) for v in (x, y, z))
+    zc = rz - rz.mean()
+    denom = float((zc ** 2).sum())
+    if denom <= 0:
+        return np.nan, np.nan
+    res = []
+    for r in (rx, ry):
+        rc = r - r.mean()
+        res.append(rc - (float((rc * zc).sum()) / denom) * zc)
+    if np.allclose(res[0], 0) or np.allclose(res[1], 0):
+        return np.nan, np.nan
+    stat = _st.pearsonr(res[0], res[1])
+    return float(stat[0]), float(stat[1])
+
+
+def outcome_correlations(link: pd.DataFrame, *, features: Optional[List[str]] = None,
+                         min_n: int = 4) -> pd.DataFrame:
+    """Does a feature of the update predict the eval move — beyond both just drifting with time?
+
+    Three numbers per (scope, metric, feature):
+
+    - ``spearman_rho`` — the raw association across iterations.
+    - ``rho_feature_vs_iter`` — how strongly the feature itself trends with iteration.
+    - ``rho_partial_iter`` — **the one to read**: Spearman with ``train_iter`` partialled out of
+      both sides.
+
+    The partial is not optional decoration here. Most of these features rise monotonically over
+    training and most eval deltas shrink (gains taper) or grow (MICI), so *any* monotone feature
+    correlates with *any* monotone delta — the raw ρ is confounded with iteration index almost by
+    construction. A raw ρ that collapses once ``train_iter`` is removed is a shared time trend, not
+    a mechanism; one that survives means the iterations that pushed harder moved further **relative
+    to where they sat in training**.
+
+    Reported per arm and, because a single arm gives at most 10 points, pooled per method
+    (``scope`` = arm label or ``"<METHOD> (pooled)"``). Rows with fewer than ``min_n`` iterations
+    are dropped rather than shown with an uninterpretable ρ.
+
+    **Descriptive only** — n ≤ 10 per arm, no multiplicity correction across the feature × metric
+    grid, and the caveat in :func:`link_to_outcomes` applies to every row.
+    """
+    from scipy import stats as _st
+    if link.empty:
+        return pd.DataFrame()
+    feats = [c for c in (features or FEATURE_COLS) if c in link.columns]
+    scopes = [(a, d) for a, d in link.groupby("arm")]
+    scopes += [(f"{m} (pooled)", d) for m, d in link.groupby("method") if d["arm"].nunique() > 1]
+    rows = []
+    for scope, d in scopes:
+        for metric, dm in d.groupby("metric"):
+            for f in feats:
+                x = dm[[f, "delta_mean", "train_iter"]].dropna()
+                if len(x) < min_n or x[f].nunique() < 3:
+                    continue
+                rho, p = _st.spearmanr(x[f], x["delta_mean"])
+                rho_p, p_p = _partial_spearman(x[f], x["delta_mean"], x["train_iter"])
+                trend, _ = _st.spearmanr(x[f], x["train_iter"])
+                rows.append({"scope": scope, "metric": metric, "feature": f, "n_iters": len(x),
+                             "spearman_rho": float(rho), "p": float(p),
+                             "rho_partial_iter": rho_p, "p_partial": p_p,
+                             "rho_feature_vs_iter": float(trend)})
+    out = pd.DataFrame(rows)
+    return out.sort_values(["metric", "feature", "scope"]).reset_index(drop=True) if not out.empty else out
+
+
+def plot_pref_outcome(link: pd.DataFrame, *, feature: str, metrics: Optional[List[str]] = None,
+                      palette: Optional[dict] = None, ncols: int = 3):
+    """Scatter of one preference feature against the eval delta it preceded, one panel per metric.
+
+    Points are iterations, coloured by arm, annotated with the point's iteration number so an
+    outlier can be traced back to a specific update; the dashed line is the per-arm least-squares
+    fit and the corner text is Spearman ρ per arm.
+    """
+    import matplotlib.pyplot as plt
+    from .constants import display_label
+    from .plotting_style import grid
+    if link.empty or feature not in link.columns:
+        return None
+    metrics = metrics or [m for m in ("Q1Q2", "MICI", "MITI") if m in set(link["metric"])]
+    metrics = [m for m in metrics if m in set(link["metric"])]
+    if not metrics:
+        return None
+    fig, axes = grid(len(metrics), ncols=min(ncols, len(metrics)), panel=(4.6, 3.4))
+    for ax, m in zip(axes, metrics):
+        d = link[link["metric"] == m].dropna(subset=[feature, "delta_mean"])
+        notes = []
+        for arm, g in d.groupby("arm"):
+            col = (palette or {}).get(arm, None)
+            ax.scatter(g[feature], g["delta_mean"], s=34, label=arm, color=col, zorder=3)
+            for r in g.itertuples(index=False):
+                ax.annotate(str(int(r.train_iter)), (getattr(r, feature), r.delta_mean),
+                            textcoords="offset points", xytext=(4, 3), fontsize=6, color="#555555")
+            if len(g) >= 3 and g[feature].nunique() >= 2:
+                b, a = np.polyfit(g[feature], g["delta_mean"], 1)
+                xs = np.linspace(g[feature].min(), g[feature].max(), 20)
+                ax.plot(xs, a + b * xs, ls="--", lw=1.0, color=col, alpha=0.8, zorder=2)
+                from scipy import stats as _st
+                notes.append(f"{arm}: ρ={_st.spearmanr(g[feature], g['delta_mean'])[0]:+.2f}")
+        ax.axhline(0, color="grey", lw=0.6, ls=":")
+        ax.set_title(display_label(m), fontsize=9)
+        ax.set_xlabel(feature); ax.set_ylabel(f"Δ {display_label(m)} vs prev iter")
+        if notes:
+            ax.text(0.02, 0.02, "\n".join(notes), transform=ax.transAxes, fontsize=6.5,
+                    va="bottom", color="#333333")
+    axes[0].legend(fontsize=7, frameon=False)
+    fig.suptitle(f"Training-signal feature '{feature}' vs the eval move it preceded",
+                 y=1.03, fontweight="bold")
+    fig.text(0.5, -0.02, "Each point is one training iteration (label = iteration). Correlational, "
+                         "n <= 10 per arm — a mechanism consistent with the curves, not a cause.",
+             ha="center", va="top", fontsize=7.5, style="italic", color="#444444", wrap=True)
+    fig.tight_layout()
+    return fig
+
+
+def plot_category_compare(cat_by_arm: dict, *, palette: Optional[dict] = None,
+                          title: str = "MI-concept preference by arm"):
+    """Overlay the MI-concept drift of several arms — one panel per concept, one line per arm.
+
+    Takes ``{arm_label: category_projection frame}``. Used for both cross-arm reads the notebook
+    makes (PTO vs GRPO, K=0 vs K=5) so neither is a hand-rolled inline plot.
+    """
+    import matplotlib.pyplot as plt
+    frames = {a: c for a, c in cat_by_arm.items() if c is not None and not c.empty}
+    if len(frames) < 2:
+        return None
+    cats = sorted(set.intersection(*(set(c["category"]) for c in frames.values())))
+    if not cats:
+        return None
+    fig, axes = plt.subplots(1, len(cats), figsize=(2.8 * len(cats), 3.3), squeeze=False,
+                             sharey=True)
+    for ax, c in zip(axes.flat, cats):
+        for arm, cat in frames.items():
+            d = cat[cat["category"] == c].sort_values("train_iter")
+            ax.plot(d["train_iter"], d["score"], marker="o", label=arm,
+                    color=(palette or {}).get(arm))
+        ax.axhline(0, color="grey", lw=0.5, ls="--")
+        ax.set_title(c, fontsize=8); ax.set_xlabel("train iter")
+    axes.flat[0].legend(fontsize=7, frameon=False); axes.flat[0].set_ylabel("projection")
+    fig.suptitle(title, y=1.05, fontweight="bold")
+    fig.tight_layout()
+    return fig

@@ -36,6 +36,13 @@ _VIEW_KS: Dict[str, Optional[List[int]]] = {"all": None, "L0": [0], "L5": [5]}
 # Case-insensitive input -> canonical view name (so "l0"/"L0" both work; folder stays "L0").
 _VIEW_ALIASES: Dict[str, str] = {"all": "all", "l0": "L0", "l5": "L5"}
 
+# The view that OWNS the K0-vs-K5 (RQ-i) artifacts. RQ-i is the one contrast no K-specific view can
+# serve from its own ``S.SCORES`` — ``L0`` holds the K=0 arms and ``L5`` the K=5 arms, so a paired
+# K comparison is empty in either. ``cross_k_scores`` supplies the frame; this constant decides WHERE
+# the resulting tables/figures land, so there is exactly one copy to keep in sync (the look-ahead
+# view, whose SUMMARY already narrates RQ-i). Other views print a pointer instead of a second copy.
+RQ_I_VIEW = "L5"
+
 
 @dataclass
 class EdaConfig:
@@ -258,3 +265,34 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
 
     return Setup(ARMS=arms, SCORES=scores, PALETTE=palette, METRICS=metrics,
                  ORACLE_NOISE=cfg.oracle_noise, RESULTS_DIR=results_dir, VIEW=view, CFG=cfg)
+
+
+def cross_k_scores(source) -> pd.DataFrame:
+    """Scores for BOTH look-ahead arms of every method — the view's K filter dropped.
+
+    The escape hatch RQ-i needs. A K-specific view is exactly the wrong frame for the look-ahead
+    question: ``L0`` sees only the K=0 arms and ``L5`` only the K=5 arms, so
+    :func:`~eda_analysis.stats.paired_k_comparison` comes back empty in both and the contrast used
+    to exist only in the pooled ``all`` view (retired 2026-07-27). This rebuilds ``scores_long``
+    with ``ks=None`` and *everything else* — method/mode/label filters, judge + rep, persona
+    attachment, derived MITI-proficiency rows — taken from the active config, so the K contrast can
+    be computed and exported from inside a view.
+
+    ``source`` is the :class:`Setup` returned by :func:`notebook_setup` (or a bare
+    :class:`EdaConfig`). **Read-only w.r.t. routing**: the active judge and the export root are left
+    exactly as :func:`notebook_setup` set them, so artifacts still land under
+    ``results/<view>/`` — see :data:`RQ_I_VIEW` for which view should be the one to save them.
+
+    Note an explicit ``cfg.arm_labels`` whitelist is still honoured, so a config that named a single
+    arm returns a single arm (the caller asked for that); ``ks`` is the only filter dropped.
+    """
+    from . import discover_arms, load_scores_long, add_derived_mitiprof_rows
+    from .data import filter_arms
+
+    cfg = source.CFG if isinstance(source, Setup) else source
+    arms = filter_arms(discover_arms(include_archived=cfg.include_archived),
+                       methods=cfg.methods, ks=None, modes=cfg.modes, arm_labels=cfg.arm_labels)
+    scores = load_scores_long(arms, attach_persona=cfg.attach_persona)
+    if cfg.add_derived_mitiprof and not scores.empty:
+        scores = add_derived_mitiprof_rows(scores, arms)
+    return scores

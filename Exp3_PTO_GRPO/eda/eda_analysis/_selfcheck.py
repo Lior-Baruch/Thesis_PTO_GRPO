@@ -38,6 +38,8 @@ import traceback
 from glob import glob
 from typing import Callable, List, Tuple
 
+import numpy as np
+
 # Import the package the same way the notebooks do (cwd = eda/, package on the path).
 import eda_analysis as E  # noqa: E402
 
@@ -87,7 +89,11 @@ def _c_view_map() -> str:
     for k, v in C._VIEW_ALIASES.items():
         assert v in C._VIEW_KS, f"alias {k!r} -> unknown view {v!r}"
     assert C._VIEW_ALIASES["l0"] == "L0" and C._VIEW_ALIASES["all"] == "all"
-    return f"view->ks {C._VIEW_KS}"
+    # The view that owns the RQ-i artifacts must be a real, K-SPECIFIC view: `all` would put the K
+    # contrast back in the retired pooled tree, and an unknown name would silently save nowhere.
+    assert C.RQ_I_VIEW in C._VIEW_KS, f"RQ_I_VIEW {C.RQ_I_VIEW!r} is not a view"
+    assert C._VIEW_KS[C.RQ_I_VIEW], f"RQ_I_VIEW {C.RQ_I_VIEW!r} must be a K-specific view"
+    return f"view->ks {C._VIEW_KS} | RQ-i owner {C.RQ_I_VIEW}"
 
 
 def _c_config_roundtrip() -> str:
@@ -245,6 +251,107 @@ def _c_discover() -> str:
     for need in ("PTO_LA0", "GRPO_LA0"):
         assert need in labels, f"expected arm {need} missing; found {sorted(labels)}"
     return f"{len(arms)} arms: {sorted(labels)}"
+
+
+def _c_update_probe() -> str:
+    """The cross-method preference probe: one weight scale, real groups only, right iteration join.
+
+    Three things the probe would otherwise get silently wrong:
+    1. **Scale.** DPO's ±1 pair and GRPO's standardized advantages are only comparable after the
+       per-group rescale; if it regresses, every cross-method contrast becomes a scale artifact
+       rather than a finding. Asserted as Σw = 0 and Σ|w| = 2 in EVERY group of BOTH methods.
+    2. **Which groups count.** A PTO branch point that logged a ``chosen`` but no ``rejected`` was
+       τ-filtered out and never trained on — it must not survive as a one-sided +2 push. Asserted
+       as "PTO groups hold exactly 2 candidates, and every group has both signs".
+    3. **The iteration join.** ``link_to_outcomes`` credits train_iter *n* with
+       ``eval(model_iter_n) − eval(model_iter_{n-1})``; an off-by-one would attribute every
+       update's effect to its neighbour and no test would notice. Asserted against the raw
+       iteration means (identical when both cells are complete over the same 96 personas).
+    """
+    arms = _discover_or_skip()
+    from eda_analysis import pref
+    cands = pref.load_weighted_candidates(arms)
+    if cands.empty:
+        raise _Skip("no generations.jsonl on disk")
+    per_group = (cands.assign(_abs=cands["weight"].abs())
+                 .groupby(pref._GROUP_KEYS)
+                 .agg(wsum=("weight", "sum"), wabs=("_abs", "sum"),
+                      wmax=("weight", "max"), wmin=("weight", "min")))
+    worst_sum = float(per_group.wsum.abs().max())
+    assert worst_sum < 1e-9, f"group weights do not cancel (max |Σw| = {worst_sum:.2e})"
+    assert bool(np.allclose(per_group.wabs, 2.0)), (
+        f"group weights not on the shared Σ|w|=2 scale "
+        f"(range {per_group.wabs.min():.4f}–{per_group.wabs.max():.4f})")
+    assert (per_group.wmax > 0).all() and (per_group.wmin < 0).all(), (
+        "a group survived without both an up- and a down-weighted side")
+    pto = cands[cands.method == "PTO"]
+    if not pto.empty:
+        sizes = pto.groupby(pref._GROUP_KEYS).size().unique()
+        assert set(sizes) == {2}, f"PTO groups must be exactly (chosen, rejected); sizes seen: {sizes}"
+
+    # 3 — the iteration join, checked against raw means on a complete arm.
+    scores = E.load_scores_long(arms)
+    feats = pref.weighted_lexical_contrast(cands)
+    link = pref.link_to_outcomes(feats, scores, metrics=["Q1Q2"])
+    assert not link.empty, "link_to_outcomes produced no rows"
+    checked = 0
+    for arm, d in link.groupby("arm"):
+        q = scores[(scores.arm == arm) & (scores.questionnaire == "Q1Q2")]
+        means = q.groupby("iteration")["score"].mean()
+        for r in d.itertuples(index=False):
+            it = int(r.train_iter)
+            if it in means.index and (it - 1) in means.index:
+                want = float(means[it] - means[it - 1])
+                assert abs(r.delta_mean - want) < 1e-6, (
+                    f"{arm} train_iter {it}: link delta {r.delta_mean:.4f} != "
+                    f"eval(iter {it}) - eval(iter {it-1}) = {want:.4f} — iteration join is off")
+                checked += 1
+    assert checked, "no complete step to verify the iteration join against"
+    return (f"{len(cands)} candidates, {cands.groupby(pref._GROUP_KEYS).ngroups} groups on one "
+            f"weight scale; {checked} (arm, iter) joins land on the right eval step")
+
+
+def _c_cross_k() -> str:
+    """RQ-i's escape hatch: ``cross_k_scores`` must widen the READ without moving the WRITE.
+
+    The K0-vs-K5 contrast is the one comparison a K-specific view cannot serve, and the tempting
+    wrong fix is to relax the view itself — which would silently re-point every other artifact in
+    the notebook at a pooled frame. So assert both halves: the returned frame carries both K arms
+    while the view's own scores carry exactly one, AND the export root is byte-identical before and
+    after the call. Also pins the sign convention shared by ``k_means_by_iter`` and
+    ``paired_k_comparison`` (+ => K=0 higher), which the tables' captions promise.
+    """
+    _discover_or_skip()
+    from eda_analysis import exports
+    S = E.notebook_setup(E.EdaConfig(view=E.RQ_I_VIEW, export_group="7_stats", verbose=False))
+    if S.SCORES.empty:
+        raise _Skip(f"no scores for view {E.RQ_I_VIEW}")
+    root_before = exports._results_root(), exports._fig_dir(None)
+    ks_view = set(S.SCORES.K.unique())
+    cross = E.cross_k_scores(S)
+    root_after = exports._results_root(), exports._fig_dir(None)
+    assert root_before == root_after, f"cross_k_scores moved the export root: {root_before} -> {root_after}"
+    assert len(ks_view) == 1, f"view {E.RQ_I_VIEW} should hold ONE K, holds {sorted(ks_view)}"
+    ks_cross = set(cross.K.unique())
+    assert ks_view < ks_cross, f"cross-K frame did not widen K: view {sorted(ks_view)} vs {sorted(ks_cross)}"
+
+    means = E.k_means_by_iter(cross, "PTO")
+    paired = E.paired_k_comparison(cross, "PTO")
+    assert not means.empty and not paired.empty, "PTO K contrast empty on the cross-K frame"
+    # Same sign convention on both sides: where a cell is complete (96/96), the unpaired difference
+    # of arm means IS the paired mean_delta — pairing buys precision, not a different centre.
+    m = means[(means.metric == "Q1Q2") & (means.n_K0 == 96) & (means.n_K5 == 96)]
+    p = paired[paired.metric == "Q1Q2"].set_index("iteration")["mean_delta"]
+    checked = 0
+    for r in m.itertuples():
+        if r.iteration in p.index:
+            assert abs(r.delta - float(p.loc[r.iteration])) < 1e-9, (
+                f"iter {r.iteration}: k_means delta {r.delta:.4f} != paired mean_delta "
+                f"{float(p.loc[r.iteration]):.4f} — sign/ordering convention diverged")
+            checked += 1
+    assert checked, "no complete matched iteration to cross-check the K delta against"
+    return (f"view {E.RQ_I_VIEW} K={sorted(ks_view)} -> cross-K K={sorted(ks_cross)}, "
+            f"exports unmoved, {checked} matched iters agree on delta")
 
 
 def _c_scores_and_means() -> str:
@@ -537,6 +644,8 @@ def main(argv: List[str] | None = None) -> int:
     if not fast:
         _run("discover_arms", _c_discover, results)
         _run("scores_long + known means", _c_scores_and_means, results)
+        _run("cross-K frame (RQ-i)", _c_cross_k, results)
+        _run("update probe (both methods)", _c_update_probe, results)
         _run("persona permutation", _c_persona_permutation, results)
         _run("judge dimension routing", _c_judge_dimension, results)
         _run("score fold (parquet read path)", _c_score_fold, results)

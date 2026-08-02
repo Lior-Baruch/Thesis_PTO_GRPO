@@ -82,15 +82,32 @@ here — see "Doc map"). Updated 2026-07-29.
 - **RQ-i first matched point — DONE 2026-07-30.** `PTOExp3_LA5_I5` is generated, scored on BOTH
   graders (23,040 Haiku cells now; parity kept), folded, and rendered. **PTO LA5 = iters 0–5.**
   - **The read: look-ahead buys no Q1+Q2 advantage at equal iteration count.** K=5 trails K=0 by
-    0.08–0.16 through iters 1–4, then ties at iter 5 (**4.017 vs 4.014**) — both at the ~4.01
+    0.08–0.16 through iters 1–4, then ties at iter 5 (**4.016 vs 4.014**, primary oracle only — the
+    held-out judge sees no tie, see the ⚠ two bullets down) — both at the ~4.01
     plateau K=0 passes on its way to 4.26 by iter 10. Since K=5 costs materially more per iteration,
-    that is a substantive negative result. Unpaired means, no matched endpoint, one crossover point
-    — directional only. Numbers + caveats:
+    that is a substantive negative result. No matched endpoint, one crossover point — directional
+    only (the unpaired-means caveat is retired; see the tracked-artifact bullet below). Numbers + caveats:
     [L5/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L5/SUMMARY.md) §3.
   - ⚠ **WITHIN PTO only** — GRPO LA5 still has just iter 1, so this is not a K×method comparison.
-  - ⚠ **RQ-i still has no tracked artifact.** The contrast needs both K arms in one frame, which
-    neither `L0` nor `L5` provides; it lives only in the retired `all` view. Promote `all` back or
-    move `k_paired_by_method` into `L5`.
+  - **RQ-i IS NOW A TRACKED ARTIFACT (2026-08-02)** — and the read got stronger, because it is
+    persona-**paired** rather than a hand-computed difference of means. `L5` owns it
+    (`config.RQ_I_VIEW`); `7_Stats` §4c builds it from `eda_analysis.cross_k_scores(S)`, which
+    rebuilds the score frame with **only** the K filter dropped and leaves export routing alone, so
+    the pooled `all` view stays retired. Three artifacts under
+    `results/L5/{tables,figures}/7_stats/<judge>/`: `k_means_by_iter` (levels),
+    `k_paired_by_method` (Δ/dz/Holm p), `k_trajectory_Q1Q2` (all four arms in one frame). Paired
+    result: K=5 trails K=0 by 0.08–0.16 at iters 1–4 with *dz* ≤ 0.20 and **never significant**,
+    then ties at iter 5 — indistinguishable at matched iteration count, for materially more cost.
+    Guarded by the `cross-K frame (RQ-i)` self-check.
+  - ⚠ **The iter-5 TIE is the primary oracle's picture only.** The same tables under the held-out
+    judge (rendered beside the primary's) put K=0 ahead at **every** iteration 1–5 — at iter 5 by
+    **+0.173 Q1+Q2 (dz 0.33, p_holm 0.017)**, plus MITI +0.206 and Q2 +0.236, all Holm-significant.
+    **"K=5 never wins" survives both graders; "the arms converge at iter 5" does not** — so make the
+    claim about the lever, not the convergence. Sign agreement 68.5% overall but 92.9% at |Δ|≥0.10
+    and 100% at |Δ|≥0.15 (the usual ladder: disagreement only where the difference is too small to
+    claim). Both graders also flag **PTO iter-4 MICI with K=5 worse** (−0.111 primary / −0.177
+    judge, both Holm-significant), and the judge sees that tilt at iters 2–5 — suggestive that
+    look-ahead costs MI-consistency, not established.
   - Tooling = [`code/PTO_Exp3/generate_eval_convs.{py,ipynb}`](Exp3_PTO_GRPO/code/PTO_Exp3/generate_eval_convs.py)
     (repairs any orphaned adapter). Mechanics + the VRAM leak it exposed:
     [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md) (2026-07-30 entry).
@@ -106,6 +123,31 @@ here — see "Doc map"). Updated 2026-07-29.
     (0 bytes) were deleted. `pairs.csv` is the Step-2 **completion marker**, so an empty one would
     have made a resumed iter 6 reload 0 pairs, skip the ~41-min build, and run a silent **no-op DPO
     update**. Check for empty markers before resuming any arm.
+- **THE TRAINING SIGNAL IS NOW MEASURABLE FOR BOTH METHODS — 2026-08-02.** `6_Preference` was
+  PTO-only because GRPO has no preference pairs; but preference was never the essential thing — both
+  methods weight a group's candidates and step along the weighted sum (DPO ±1 on the logged
+  chosen/rejected, GRPO the standardized advantage), so rescaling each group to a common size puts
+  them on **one probe**. Three results, all in
+  [L0/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md) §6:
+  - **The affirmation push grows over training in BOTH methods** (exact, embedding-free, every
+    group): GRPO −0.006 → **+0.086 ± 0.008**, PTO 0.008 → **0.103 ± 0.029** (iter 8). The
+    reward-hack now has a *training-side* measurement, not only the outcome-side inference. GRPO's
+    series dips negative at **iter 9** — the same iteration the outcome grid dips, from an
+    independent source.
+  - **The two losses do not want the same thing:** pooled update-direction cosine 0.267 raw,
+    **0.317 attenuation-corrected** (ceiling 0.844) — under a third of achievable agreement, at
+    matched K and a shared oracle.
+  - **The push predicts the MICI move in GRPO only:** with `train_iter` partialled out (mandatory —
+    the raw ρ is confounded with iteration by construction), GRPO's ΔMICI tracks its affirmation
+    push **ρ 0.647 (p .043)**, length 0.706, over-praise 0.617; PTO's does not. Same direction as
+    the endpoint MICI gap, reached from the training data. n ≤ 10/arm, uncorrected — mechanism, not
+    cause.
+  - ⚠ **It also audited the old probe and the old probe lost.** §1's `wins_correct` was IN-sample;
+    held out, a per-iteration PTO direction wins **0.47–0.59** with split-half reliability
+    **0.15–0.32**. The per-iteration latent-drift artifacts (word drift, learn/unlearn, MI-concept
+    curves) are **mostly estimation noise** — the L0 SUMMARY §6 claim built on them is corrected in
+    place. Pooled directions (0.597 PTO / 0.911 GRPO) and the exact lexical contrasts are what
+    survive.
 - **SECOND JUDGE IS NOW CO-PRIMARY — full sweep COMPLETE 2026-07-27.** Claude Haiku 4.5 has scored
   **22,272 / 22,272** cells (29 model states × 8 rubrics × 96 convs; 232/232 cells at full n=96),
   matching the primary oracle's grid exactly. Cost **$42** via Message Batches (50% off; measured
@@ -177,7 +219,7 @@ here — see "Doc map"). Updated 2026-07-29.
     `_parquet/_manifest.json` still matches disk and falls back to the CSVs otherwise —
     **4.3–6.1×** faster (`scores_long` 86 s → 16 s), with all seven per-conversation loaders proven
     identical under `assert_frame_equal(rtol=0, atol=0)` via either path. `_selfcheck` is now
-    **14 checks** and asserts both halves (fold-equals-CSV, and that a tampered signature is
+    **17 checks** and asserts both halves (fold-equals-CSV, and that a tampered signature is
     refused rather than served).
 
 ## Doc map (one owner per fact)
@@ -553,7 +595,7 @@ its own family; `python tools/render_views.py` regenerates everything. Reproduci
    **JUDGE knob** selects which grader's scores are read and which `<judge>/` subfolder is written.
 3. **Regenerate:** `python tools/render_views.py` (renders the two tracked views, L0+L5) → `results/<view>/`.
    The pooled `all` view was RETIRED 2026-07-27 — still renderable, but gitignored scratch, not a deliverable.
-   Run **`python -m eda_analysis._selfcheck`** after any EDA change (14 checks).
+   Run **`python -m eda_analysis._selfcheck`** after any EDA change (17 checks).
 
 The VIEW/JUDGE systems, `EdaConfig`, parquet cache, output-clean policy, and the package module map
 are all documented in [eda/README.md](Exp3_PTO_GRPO/eda/README.md) — not here. Eval **numbers** are

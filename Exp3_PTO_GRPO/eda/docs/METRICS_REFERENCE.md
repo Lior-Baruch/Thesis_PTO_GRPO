@@ -226,6 +226,46 @@ Separate but related: the **training** reward scores *partial* conversations, bu
 final-conv ranking only ~0.66–0.73 (barely above chance), clearing 0.8 at ~10 turns, 0.9 at ~30.
 Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N utterances).
 
+## 6b · The update-weighted probe (what the training signal pushes toward)
+
+§6 asks whether the training reward *predicts* the eval score. This asks what the update actually
+rewards — for **both** methods, which is possible because "preference" is not the essential thing:
+each method weights the candidates of a group and steps along the weighted sum. `pref` gives every
+candidate its method's weight (`6_Preference` §3):
+
+| method | weight `w` |
+|---|---|
+| PTO / DPO | `+1` on the logged `chosen`, `−1` on `rejected`, 0 otherwise — the literal τ-filtered pair |
+| GRPO | `(r_g − mean_g) / std_g`, the standardized advantage that scales each completion's gradient |
+
+Weights are rescaled **within each group to `Σ|w| = 2`** (DPO's natural ±1 size), which is what makes
+the two comparable — without it GRPO's weights carry the group's reward spread and every
+cross-method contrast is a scale artifact. Groups lacking either sign are dropped: for PTO that is a
+branch point the τ filter left unpaired (logged `chosen`, no `rejected`), which never trained.
+
+- **`w_len` / `w_question` / `w_affirm` / `w_overpraise`** (`weighted_lexical_contrast`) —
+  `Σ w·feature` per group, averaged over groups, ± SE. Units are chosen-minus-rejected, so
+  `w_len = +40` means "the update pushes toward ~40-character-longer completions" and `0` means
+  indifferent. Exact, no embeddings, every group. `w_affirm`/`w_overpraise` use the same
+  `RE_AFFIRM`/`RE_EFFUSIVE` cues as the conversation-side lexical checks in §5, deliberately: the
+  two sides must be able to agree.
+- **Update direction** (`direction_by_iter` / `direction_by_arm`) — `normalize(Σ w·embedding)`, the
+  Mass-Mean-Probe generalized to any weighting. Word/MI-concept projections read out on it.
+- **Probe audit** (`direction_quality`, `pooled_direction_quality`) — `wins_correct` is IN-sample
+  and optimistic; **`wins_holdout`** (each half scored by the other half's direction) is the honest
+  one; **`split_half_cos`** says whether the direction is estimated at all. Measured: a
+  per-iteration PTO direction is only ~0.19 reliable and wins 0.55 held out (vs 0.68 in-sample), so
+  per-iteration PTO projections are mostly noise; pooled over iterations it reaches ~0.60, and GRPO
+  ~0.91 (8 candidates per group instead of 2, and more groups).
+- **`cosine_corrected`** (`pooled_direction_cosines`) — cross-arm direction cosine divided by the
+  attenuation ceiling `sqrt(r_a·r_b)`, each `r` a Spearman-Brown-corrected split-half. Same
+  correction as the cross-judge agreement in §7, for the same reason: two noisy estimates cannot
+  correlate to 1 even when identical.
+- **`rho_partial_iter`** (`outcome_correlations`) — the training-signal → eval-move link
+  (`6_Preference` §4). **Always read the partial, never the raw ρ**: most features rise
+  monotonically over training and most eval deltas trend too, so a raw correlation is confounded
+  with iteration index by construction. n ≤ 10 iterations per arm, uncorrected — descriptive.
+
 ## 7 · Judge reliability (is the measuring instrument trustworthy?)
 
 §6 asks whether the *training* reward predicts the *eval* score. This asks whether the eval score
@@ -280,5 +320,6 @@ owned by [`results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7, with the cavea
 `1_Outcomes` (trajectories, effect forest, scorecard) · `4_Heterogeneity` (persona splits, endpoint
 bars) · `3_Validity_and_Hacking` (behavior drift, reward_hack_panel, question/over-praise cross-checks, factor
 structure) · `5_Training` (TB curves, reward dist, reliability curve) · `6_Preference`
-(PTO preference probe) · `7_Stats` (all heavy tables + PCA) · `8_Measurement_Validity`
+(PTO preference probe; the both-methods update-weighted probe + the signal→outcome link) ·
+`7_Stats` (all heavy tables + PCA) · `8_Measurement_Validity`
 (judge ICC, second-judge agreement, multi-judge variance + gain retention).

@@ -163,6 +163,52 @@ def paired_k_comparison(scores_long: pd.DataFrame, method: str = "PTO",
                                   metrics, method=method)
 
 
+def k_means_by_iter(scores_long: pd.DataFrame, method: str = "PTO",
+                    K_lo: int = 0, K_hi: int = 5,
+                    metrics: Optional[Sequence[str]] = None) -> pd.DataFrame:
+    """Per-iteration arm MEANS for both look-ahead arms of one method, side by side (RQ-i levels).
+
+    The companion to :func:`paired_k_comparison`, which reports only the paired *delta*: this is the
+    LEVEL table (``mean_K{lo}``, ``mean_K{hi}``, ``delta``, and each side's ``n``) that says where
+    the two arms actually sit and how far the K=5 arm got. Columns: method, metric, iteration,
+    mean_K{lo}, mean_K{hi}, delta, n_K{lo}, n_K{hi}. ``+ delta => K_lo higher`` (same sign
+    convention as :func:`paired_k_comparison`).
+
+    Rows are kept for every iteration EITHER arm scored — a one-sided row (K=0 running past the
+    K=5 arm's last iteration) leaves the missing side NaN rather than dropping, because "K=0 kept
+    climbing after K=5 stopped" is part of the look-ahead answer.
+
+    ⚠ ``delta`` is an UNPAIRED difference of arm means. Where both cells are complete over the same
+    96 personas it equals the paired ``mean_delta`` exactly — pairing changes the standard error,
+    not the mean — so read the *dz*/*p* off :func:`paired_k_comparison`, never off this table.
+    Needs a scores frame holding BOTH K arms: under a K-specific view build it with
+    :func:`~eda_analysis.config.cross_k_scores`.
+    """
+    arm_lo, arm_hi = f"{method}_LA{K_lo}", f"{method}_LA{K_hi}"
+    sub = scores_long[scores_long["arm"].isin([arm_lo, arm_hi])]
+    if sub.empty:
+        return pd.DataFrame()
+    present = set(sub["questionnaire"].unique())
+    metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in present]
+    agg = (sub.groupby(["questionnaire", "arm", "iteration"])["score"]
+           .agg(["mean", "size"]))
+    rows = []
+    for m in metrics:
+        d = sub[sub["questionnaire"] == m]
+        for it in sorted(int(i) for i in d["iteration"].unique()):
+            cell = {}
+            for arm, K in ((arm_lo, K_lo), (arm_hi, K_hi)):
+                key = (m, arm, it)
+                cell[f"mean_K{K}"] = float(agg.loc[key, "mean"]) if key in agg.index else np.nan
+                cell[f"n_K{K}"] = int(agg.loc[key, "size"]) if key in agg.index else 0
+            rows.append({"method": method, "metric": m, "iteration": it,
+                         f"mean_K{K_lo}": cell[f"mean_K{K_lo}"],
+                         f"mean_K{K_hi}": cell[f"mean_K{K_hi}"],
+                         "delta": cell[f"mean_K{K_lo}"] - cell[f"mean_K{K_hi}"],
+                         f"n_K{K_lo}": cell[f"n_K{K_lo}"], f"n_K{K_hi}": cell[f"n_K{K_hi}"]})
+    return pd.DataFrame(rows)
+
+
 def paired_best_method_comparison(scores_long: pd.DataFrame, method_a: str = "PTO",
                                   method_b: str = "GRPO", K: int = 0,
                                   metrics: Optional[Sequence[str]] = None) -> pd.DataFrame:

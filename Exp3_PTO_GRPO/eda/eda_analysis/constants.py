@@ -294,6 +294,12 @@ BOOT_SEED = 12345
 # sanity-check on the oracle's affirmation counts, NOT a primary metric — shared by
 # ``behavior`` (lex_affirm_marker_rate) and ``pref`` (chosen/rejected text features).
 RE_AFFIRM = re.compile(r"\byou are\b|\byou're (worthy|enough|strong|powerful|brave|amazing|a )", re.I)
+# The over-praise cue (effusive, "you are a beacon" register). Lives here rather than in behavior.py
+# because BOTH the conversation side (behavior.text_metrics) and the training side
+# (pref.weighted_lexical_contrast) test the same drift — one regex, or the two sides stop agreeing.
+RE_EFFUSIVE = re.compile(
+    r"\bi'?m so proud|proud of you|inspiration to me|you got this|beautiful|beacon|"
+    r"shining|warrior|hero of your|you are a (light|beacon)", re.I)
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗

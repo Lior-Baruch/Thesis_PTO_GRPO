@@ -26,8 +26,8 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
 | `5_Training.ipynb` | `5_training/` | **`[TRAINING]` only:** TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
-| `6_Preference.ipynb` | `6_preference/` | PTO Mass-Mean-Probe (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5) |
-| `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base/method/K paired · **best-vs-best method contrast (`method_paired_best`)** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
+| `6_Preference.ipynb` | `6_preference/` | **what the training signal pushes toward.** §1–§2 PTO Mass-Mean-Probe over `pairs.csv` (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5). §3 **both methods on one probe** — every candidate carries its method's update weight (DPO ±1 / GRPO standardized advantage, rescaled to a shared per-group size), giving `update_lexical_push` (exact, every group), the audited `update_direction_quality{,_pooled}` (held-out wins + split-half reliability) and `update_direction_cosines` (attenuation-corrected). §4 **training signal → eval move** (`pref_outcome_link/_correlations`, partial-ρ on `train_iter`) |
+| `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base + method paired · **best-vs-best method contrast (`method_paired_best`)** · **§4c RQ-i, the K0-vs-K5 contrast — `k_means_by_iter` + `k_paired_by_method` + the one `7_stats/` figure `k_trajectory_Q1Q2`, saved ONLY in `config.RQ_I_VIEW` (`L5`) off a cross-K frame** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 | `8_Measurement_Validity.ipynb` | `8_measurement/` **(no `<judge>/` level)** | **is the ruler trustworthy?** §1 judge reliability (oracle ICC + second-judge agreement + contrast preservation) · §2 multi-judge (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size). Reads **every** grader from `data/eval_scores/`, so it is judge-INVARIANT — see "Judge dimension" |
 
 Every section is tagged **`[EVAL]`** (full-conversation oracle scores — the held-out outcome) or
@@ -51,12 +51,20 @@ S    = eda_analysis.notebook_setup(cfg)
 
 So `results/` holds **two** tracked trees, `L0` and `L5`.
 
-> **`all` was retired on 2026-07-27.** It existed to compare L0 against L5, but with the K=5 arms
-> thin and paused that comparison isn't live, and a future look-ahead comparison will get its own
-> dedicated view rather than a pooled one. `all` still *renders*
+> **`all` was retired on 2026-07-27.** It existed to compare L0 against L5. `all` still *renders*
 > (`python tools/render_views.py all`) as ad-hoc scratch, but `results/all/` is gitignored and is
 > no longer a tracked deliverable. Its hand-authored narrative is recoverable with
 > `git show HEAD:Exp3_PTO_GRPO/eda/results/all/SUMMARY.md`.
+
+> **The cross-K (RQ-i) contrast does NOT need the pooled view (2026-08-02).** Retiring `all` left
+> the one comparison that spans views — K=0 vs K=5 — without a tracked artifact. It now lives
+> inside a normal view: `eda_analysis.cross_k_scores(S)` rebuilds the score frame with **only** the
+> K filter dropped (methods/modes/labels, judge, personas, derived rows all still from the active
+> config) and **does not touch export routing**, so `7_Stats` §4c computes the contrast and saves
+> `k_means_by_iter` + `k_paired_by_method` + `k_trajectory_Q1Q2` under whichever view owns it.
+> That owner is `config.RQ_I_VIEW` (= `L5`); other views print a pointer rather than a second copy,
+> so there is exactly one place to keep in sync. Guarded by the `cross-K frame (RQ-i)` self-check,
+> which asserts the read widens while the export root does not move.
 
 Edit the `VIEW` default for interactive use, or set the `EDA_VIEW` env var. An explicit `ks=[...]` overrides the view's arm filter (the view is a convenience
 default). Each view root also has a hand-authored **`SUMMARY.md`** (the written analysis) and an
@@ -311,7 +319,9 @@ behind an unchanged public surface.
   `DISPLAY_NAMES`/`ARM_LABELS`, `display_label`/`short_label`/`arm_label`/`item_short_label`,
   the shared `RE_AFFIRM` cue.
 - **`config`** — `EdaConfig` (the single control surface, incl. `view` + PNG/xlsx defaults) +
-  `notebook_setup(cfg)` → `Setup` (incl. `S.VIEW`, `S.CFG`). *(absorbed the old `notebook.py`.)*
+  `notebook_setup(cfg)` → `Setup` (incl. `S.VIEW`, `S.CFG`). Also `cross_k_scores(S)` + `RQ_I_VIEW`,
+  the read-only escape hatch for the one contrast that spans views (see the RQ-i note above).
+  *(absorbed the old `notebook.py`.)*
 - **`data`** — the load+shape layer: arm **discovery** (`discover_arms`/`filter_arms`/`Arm`), TRUE-
   **persona** recovery (`attach_personas`/`canonical_personas` — replays the per-iter shuffle), the
   **`scores_long`** backbone (`load_scores_long`/`load_subscales`/`load_items` [generic per-item
@@ -351,8 +361,22 @@ behind an unchanged public surface.
 - **`training`** — `generations.jsonl` proxy reward + degeneracy scan + pref pairs +
   `advantage_signal_by_iter`/`reward_distribution_frame` + `load_branch_reliability` +
   `tb_curves`/`parse_run_tb` (self-contained TensorBoard parse, no torch/trl).
-- **`pref`** — PTO Mass-Mean-Probe (word ranking/drift, `preference_direction_drift`,
-  `learn_unlearn_words`, MI-concept projection).
+- **`pref`** — what the training signal pushes toward, in three layers.
+  - *PTO pairs (original):* Mass-Mean-Probe over `pairs.csv` — word ranking/drift,
+    `preference_direction_drift`, `learn_unlearn_words`, MI-concept projection.
+  - *Both methods (2026-08-02):* `load_weighted_candidates` reads `generations.jsonl` and gives
+    every candidate the weight its method's update applies (DPO's recorded ±1 chosen/rejected;
+    GRPO's standardized group-relative advantage), rescaled per group to `Σ|w| = 2` so the two are
+    one scale. Then `weighted_lexical_contrast` (exact, every group, with SEs),
+    `direction_by_iter`/`direction_by_arm` (`normalize(Σ w·emb)` — §1's probe generalized to any
+    weighting), and `pooled_direction_cosines` with an **attenuation ceiling**.
+    `direction_quality` audits the probe: `wins_holdout` (each half judged by the other half's
+    direction) and `split_half_cos`. That audit is why §1's per-iteration PTO readouts now carry a
+    caveat — measured split-half ≈ 0.19 per iteration, vs 0.60 pooled.
+  - *Signal → outcome:* `preference_features_by_iter` → `link_to_outcomes` (persona-paired eval
+    delta of the update's own iteration) → `outcome_correlations` (**read `rho_partial_iter`** —
+    the raw ρ is confounded with iteration index by construction). Figures: `plot_lexical_push`,
+    `plot_pref_outcome`, `plot_category_compare`.
 - **`reliability`** — MEASUREMENT-validity tables from the `data/eval_scores/` lake (all judges, all reps).
   Disk-only — the paid scoring lives in `scoring/judge*.py`; this is the free read side. It backs
   **`8_Measurement_Validity`** (before the 2026-07-29 split: `5_Training_and_Reliability` §7–§8).
@@ -385,7 +409,7 @@ behind an unchanged public surface.
   `estimate_cost` / `sweep_report`) · `judge_batch` (the **Anthropic Message Batches** path, 50% off:
   `submit_sweep` → `poll_batches` → `collect_batches`, three phases with disk-persisted manifests so
   a fresh kernel can collect; plus `probe_usage` for a measured token profile).
-- **`_selfcheck`** — the guard, **14 checks**: package invariants, the scoring surface, notebook
+- **`_selfcheck`** — the guard, **17 checks**: package invariants, the scoring surface, notebook
   symbol refs, the cache round-trip, the second-judge rubric-parity gate, arm discovery, the known
   headline means, the persona permutation, judge routing, the parquet fold (equals the CSVs *and*
   refuses a tampered signature), and the multi-judge layer. Run

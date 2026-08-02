@@ -39,7 +39,7 @@ from .constants import (  # noqa: E402,F401
 
 # ── Public API re-exports ──────────────────────────────────────────────────────
 # Control surface (EdaConfig + the one-call notebook_setup) — config.py absorbed the old notebook.py.
-from .config import EdaConfig, notebook_setup, Setup  # noqa: E402
+from .config import EdaConfig, notebook_setup, Setup, cross_k_scores, RQ_I_VIEW  # noqa: E402
 # Data layer (discovery + personas + scores + select all merged into data.py).
 from .data import (  # noqa: E402
     Arm, discover_arms, parse_experiment_name, filter_arms,
@@ -55,7 +55,7 @@ from .exports import (  # noqa: E402
 )
 from .stats import (  # noqa: E402
     paired_method_comparison, paired_k_comparison, paired_best_method_comparison,
-    rank_agreement_by_nturns, filter_thin_arms, thin_arms,
+    k_means_by_iter, rank_agreement_by_nturns, filter_thin_arms, thin_arms,
 )
 from .training import (  # noqa: E402
     advantage_signal_by_iter, reward_distribution_frame,
@@ -64,6 +64,11 @@ from .training import (  # noqa: E402
 from .pref import (  # noqa: E402
     pref_word_ranking, pref_word_drift_heatmap, plot_category_drift, top_words_by_iter,
     preference_direction_drift, plot_direction_drift, learn_unlearn_words, plot_learn_unlearn,
+    # the method-agnostic update-weighted probe + the training-signal -> eval-move link
+    load_weighted_candidates, sample_groups, embed_candidates, direction_by_iter,
+    direction_quality, direction_cosine, weighted_lexical_contrast,
+    preference_features_by_iter, link_to_outcomes, outcome_correlations,
+    plot_pref_outcome, plot_category_compare,
 )
 
 # Submodules + backward-compat aliases. ``figures``/``plots`` -> ``plotting`` are KEPT (heavily used
@@ -83,7 +88,7 @@ __all__ = [
     "WARMTH_RUBRICS", "EXTRA_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
     "MITI_THRESHOLDS", "Q1_ITEM_SHORT", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS", "ITEM_QUESTIONNAIRES",
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label", "item_short_label",
-    "EdaConfig", "notebook_setup", "Setup",
+    "EdaConfig", "notebook_setup", "Setup", "cross_k_scores", "RQ_I_VIEW",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "attach_personas",
     "load_scores_long", "load_subscales", "load_items", "load_q2_items", "to_wide", "collapse_base",
@@ -93,11 +98,15 @@ __all__ = [
     "save_fig", "save_table", "save_provenance", "build_index", "reset_results",
     "set_export_group", "set_view", "RESULTS_DIR", "FIGURES_DIR", "TABLES_DIR",
     "paired_method_comparison", "paired_k_comparison", "paired_best_method_comparison",
-    "rank_agreement_by_nturns", "filter_thin_arms", "thin_arms",
+    "k_means_by_iter", "rank_agreement_by_nturns", "filter_thin_arms", "thin_arms",
     "advantage_signal_by_iter", "reward_distribution_frame",
     "load_branch_reliability", "tb_curves", "parse_run_tb",
     "pref_word_ranking", "pref_word_drift_heatmap", "plot_category_drift", "top_words_by_iter",
     "preference_direction_drift", "plot_direction_drift", "learn_unlearn_words", "plot_learn_unlearn",
+    "load_weighted_candidates", "sample_groups", "embed_candidates", "direction_by_iter",
+    "direction_quality", "direction_cosine", "weighted_lexical_contrast",
+    "preference_features_by_iter", "link_to_outcomes", "outcome_correlations",
+    "plot_pref_outcome", "plot_category_compare",
     "plotting", "data", "figures", "plots", "stats", "behavior", "training", "pref",
     "reliability",
 ]

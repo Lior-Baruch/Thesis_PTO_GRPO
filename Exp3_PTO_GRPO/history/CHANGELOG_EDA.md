@@ -9,6 +9,119 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-02) — the preference EDA stops being PTO-only, and starts checking itself.**
+`6_Preference` could describe what PTO's update wanted but had no way to ask the same of GRPO ("no
+preference pairs"), and no way to ask whether wanting it did anything. Both gaps close, and the
+second one turned up a problem in the notebook's existing half.
+
+- **"Preference" was never the essential thing.** Both methods weight the candidates of a group and
+  step along the weighted sum; they differ only in the weights — DPO puts ±1 on the *recorded*
+  `chosen`/`rejected` roles, GRPO uses the standardized advantage `(r−mean)/std` that actually
+  scales each completion's gradient. `pref.load_weighted_candidates` reads both out of
+  `generations.jsonl` and rescales each group to `Σ|w| = 2` (DPO's natural size), which is what
+  makes them comparable at all: without it GRPO's weights carry the group's reward spread and every
+  cross-method number is a scale artifact. Every existing probe takes a plain direction dict, so
+  word ranking / MI concepts / drift now work for GRPO unchanged.
+- **A bug this found in itself.** The first cut scaled *any* group with non-zero weight, including
+  the ~16% of PTO branch points that logged a `chosen` but no `rejected` — the τ filter emitted no
+  pair there and DPO never saw them. Rescaling that lone `chosen` to a full +2 one-sided push
+  produced a spectacular fake result (affirmation contrast 0.036 → 0.476 over training) that was
+  really just "what chosen completions look like". Groups now need both signs to survive; the real
+  effect is ~10× smaller. The self-check pins it (PTO groups must hold exactly 2 candidates).
+- **What the updates actually push toward** (`update_lexical_push`, exact, every group, with SEs
+  because these are small per-pair numbers): the **affirmation-marker push grows over training in
+  BOTH methods** — GRPO −0.006 → **+0.086 ± 0.008**, PTO 0.008 → **0.103 ± 0.029** at iter 8. The
+  reward-hacking story now has a training-side measurement, not only an outcome-side inference.
+  GRPO's series also dips negative at **iter 9** — the same iteration the outcome grid dips across
+  almost every metric, from an independent data source.
+- **The two losses do not want the same thing.** Pooled direction cosine PTO vs GRPO is 0.267 raw,
+  but a raw cosine is capped by how well each direction is estimated, so `pooled_direction_cosines`
+  reports the **attenuation ceiling** (0.844) and the corrected value: **0.317**. Under a third of
+  the achievable agreement, at matched K and a shared oracle.
+- **Does the signal predict the move?** `link_to_outcomes` joins each iteration's features to the
+  persona-paired eval delta *that update* produced (train_iter n → `model_iter_n` vs
+  `model_iter_{n-1}`; the self-check verifies the join against raw iteration means, because an
+  off-by-one here would silently credit every update to its neighbour). The raw correlations are
+  confounded — nearly every feature trends with iteration and so do the deltas — so
+  `outcome_correlations` reports **`rho_partial_iter`** with `train_iter` partialled out of both
+  sides. After that control: **GRPO's ΔMICI tracks its affirmation push (ρ 0.647, p .043), its
+  length push (0.706, p .023) and its over-praise push (0.617, p .057); PTO's does not** (−0.492,
+  ns). Which is the direction the outcome side already points (GRPO MICI endpoint 0.84 vs PTO 0.49)
+  — reached from the training data instead. n ≤ 10 per arm, uncorrected: a mechanism consistent
+  with the curves, not a cause.
+- **⚠ The probe audit is the uncomfortable part.** `direction_quality` adds two numbers the original
+  probe never had, and they do not flatter it: `wins_holdout` (each half scored by the *other*
+  half's direction) and `split_half_cos`. A PTO direction estimated from ONE iteration's pairs
+  scores **split-half 0.15–0.32** and **held-out wins 0.47–0.59** — at several iterations, chance —
+  against the **0.66–0.73** in-sample `wins_correct` §1 reports. So §1–§2's per-iteration artifacts
+  (word drift, learn/unlearn, MI-concept curves, direction drift) are **largely estimation noise**,
+  and the notebook now says so in its header, its §1 banner and its "how to read". Pooled over
+  iterations the same direction reaches 0.597 (GRPO: 0.911, having 8 candidates a group instead of
+  2), which is why every cross-arm claim uses `direction_by_arm`.
+- **Sanity gate.** `direction_agreement_with_pairs` cross-checks the new candidate-derived PTO
+  direction against the one built from `pairs.csv` — two independent logs of the same DPO update.
+  Cosine is **exactly 1.000 at every iteration small enough to escape the 400-group sampling cap**
+  and 0.82–0.96 where sampling bites, i.e. the only deviation is the cap. The GRPO side is read the
+  same way, so that agreement is what licenses it.
+- Sampling is seeded **per (arm, iteration)**, not from one shared stream, so a cell's draw does not
+  change when another arm joins the frame — verified identical between the `L0` and `all` renders.
+  The 400 cap itself was chosen by measuring reliability at 50/100/200/400, and `sample_groups`
+  prints what it dropped.
+- `RE_EFFUSIVE` moved to `constants` beside `RE_AFFIRM`: the conversation side (`behavior`) and the
+  training side (`pref`) now test over-praise with one regex, or the two sides could drift apart.
+- Self-check is **17** (`update probe (both methods)`): one weight scale in every group of both
+  methods, τ-filtered PTO groups excluded, and the iteration join landing on the right eval step.
+
+---
+
+**Landed (2026-08-02) — RQ-i stops being a number computed in the margin.** The look-ahead contrast
+had no tracked artifact. It needs both K arms in one frame, and neither tracked view has that: `L0`
+holds the K=0 arms, `L5` the K=5 arms, so `stats.paired_k_comparison` returned an empty frame in
+both and `7_Stats` printed *"K0-vs-K5 not comparable yet"*. The contrast lived only in the pooled
+`all` view, retired to gitignored scratch on 2026-07-27 — so the K0-vs-K5 table in
+[`results/L5/SUMMARY.md`](../eda/results/L5/SUMMARY.md) §3 was hand-computed from
+`load_scores_long()` and said so. A thesis research question was resting on a number no deliverable
+contained.
+
+- **The fix is a wider READ, not a wider view.** `config.cross_k_scores(S)` rebuilds `scores_long`
+  with **only** the K filter dropped — methods/modes/labels, judge + rep, persona attachment and
+  derived MITI-proficiency rows all still come from the active `EdaConfig` — and touches **nothing**
+  about routing. The tempting alternative (relax the view, or bring `all` back) would have
+  re-pointed every *other* artifact in the notebook at a pooled frame to fix one table.
+- **One owner.** `config.RQ_I_VIEW = "L5"` names the view that saves the RQ-i artifacts (the
+  look-ahead view, whose SUMMARY already narrates the question); other views print a pointer instead
+  of a duplicate. Asserted K-specific in the self-check, so pointing it at `all` fails loudly.
+- **Three artifacts**, `7_Stats` §4c → `results/L5/{tables,figures}/7_stats/<judge>/`:
+  `k_means_by_iter` (new `stats.k_means_by_iter` — both arms' means per method × rubric × iteration,
+  keeping one-sided rows so "K=0 kept climbing after K=5 stopped" stays visible),
+  `k_paired_by_method` (the paired Δ/*dz*/Holm *p*, which the view previously could not produce at
+  all), and `k_trajectory_Q1Q2` — the first figure family `7_stats/` has ever held, and the "both K
+  arms in one frame" the old ⚠ asked for.
+- **The read got stronger, and slightly worse for look-ahead.** Persona-paired now, not a difference
+  of means: K=5 trails K=0 by 0.08–0.16 at iters 1–4 with *dz* ≤ 0.20, **never significant**, then
+  ties at iter 5 (4.014 vs 4.016). Indistinguishable at matched iteration count — for a lever that
+  costs materially more per iteration, that is a negative result rather than a null one.
+- **And rendering it under the second judge immediately paid for itself.** Haiku 4.5 puts K=0 ahead
+  at **every** iteration 1–5, with iter 5 at **+0.173 Q1+Q2 (*dz* 0.33, p_holm 0.017)** plus MITI
+  +0.206 and Q2 +0.236 — i.e. **the iter-5 tie is the primary oracle's picture, not a fact about the
+  lever**. The conclusion "K=5 never wins" survives both graders; "the arms converge at iter 5" does
+  not, and SUMMARY §3 + the root CLAUDE.md now say so. Sign agreement runs the familiar ladder:
+  68.5% over all 54 contrasts, 92.9% at |Δ|≥0.10, 100% at |Δ|≥0.15. The one contrast that clears
+  Holm under the primary — PTO iter-4 **MICI**, K=5 worse by 0.111 (*dz* −0.40) — is **flagged by
+  both judges** (−0.177 held-out), and the held-out judge sees the same tilt at iters 2–5, so it
+  reads as a suggestive cost in MI-consistency rather than the 1-in-54 fluke it looked like off one
+  grader.
+- **Sign convention unified.** Both tables use Δ = K0 − K5 (`+` ⇒ K=0 higher, matching
+  `paired_k_comparison`); SUMMARY §3 previously printed K5 − K0. The self-check pins them together —
+  on every complete 96/96 cell the unpaired delta must equal the paired `mean_delta` to 1e-9, which
+  is exactly the invariant a future refactor of either function would break silently.
+- **Guard:** new `cross-K frame (RQ-i)` check (self-check is now **16**, and the docs' "14" was
+  already stale by one). It asserts both halves — the returned frame widens K while the view's own
+  scores hold exactly one, **and** `exports._results_root()`/`_fig_dir()` are byte-identical across
+  the call.
+
+---
+
 **Landed (2026-07-29) — the judge evidence gets its own family, and a cross-judge figure stops
 being filed as one grader's output.** Notebook 5 was `[TRAINING ↔ EVAL]`: §1–§6 read the training
 side, §7–§8 read `data/eval_scores/`. That split was visible in the artifacts — **every one of
