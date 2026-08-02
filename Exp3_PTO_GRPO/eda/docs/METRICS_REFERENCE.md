@@ -265,6 +265,24 @@ branch point the τ filter left unpaired (logged `chosen`, no `rejected`), which
   (`6_Preference` §4). **Always read the partial, never the raw ρ**: most features rise
   monotonically over training and most eval deltas trend too, so a raw correlation is confounded
   with iteration index by construction. n ≤ 10 iterations per arm, uncorrected — descriptive.
+- **`pool_len` / `pool_question` / `pool_affirm` / `pool_overpraise`** (`pool_mean_by_iter`) — the
+  unweighted mean of the same features over **all** candidates: what the policy *generates*, as
+  opposed to what the update *selects for*. The pair is the point — a selection contrast of ~0.05
+  next to a pool that moves 0.02 → 0.54 says the drift is a compounding on-policy loop, not one
+  hard pull. ⚠ **Indexing:** `train_iter n` samples from the iter-start policy, so its pool row
+  describes the policy the eval set calls `model_iter_{n-1}` — off by one from the selection
+  contrast on the same row, deliberately.
+- **`weighting_decomposition`** — the loss-vs-data test. `reweight` applies one method's weighting
+  rule to the other's groups, so the as-trained cosine can be split into a **rule** effect (same
+  groups, swapped rule) and a **data** effect (same rule, each method's own groups). ⚠ Read the
+  `read` column: the attenuation ceiling assumes independent estimation errors, which is true
+  across arms and false for the same-groups rows (both directions share their noise, so the
+  correction over-corrects — a corrected value above 1.0 is the tell).
+- **`yield_rate`** (`pair_yield_by_iter`) — `groups_trained / groups_built` per iteration. GRPO
+  trains on every prompt group it builds; PTO emits a pair only where the best and worst branch
+  differ by more than τ, so its yield (and its absolute pair count) can fall as branches converge.
+  A shrinking training set is a candidate explanation for a flattening curve that no outcome figure
+  can see.
 
 ## 7 · Judge reliability (is the measuring instrument trustworthy?)
 

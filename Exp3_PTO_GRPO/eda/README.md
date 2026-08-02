@@ -26,7 +26,7 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `3_Validity_and_Hacking.ipynb` | `3_validity/` | **Level 3 — is it real skill?** rubric factor structure (correlation + PCA loadings) · reward-hack panel · question-rate/over-praise cross-checks · session shape (deterministic text metrics, exported) · transcripts |
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
 | `5_Training.ipynb` | `5_training/` | **`[TRAINING]` only:** TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
-| `6_Preference.ipynb` | `6_preference/` | **what the training signal pushes toward.** §1–§2 PTO Mass-Mean-Probe over `pairs.csv` (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5). §3 **both methods on one probe** — every candidate carries its method's update weight (DPO ±1 / GRPO standardized advantage, rescaled to a shared per-group size), giving `update_lexical_push` (exact, every group), the audited `update_direction_quality{,_pooled}` (held-out wins + split-half reliability) and `update_direction_cosines` (attenuation-corrected). §4 **training signal → eval move** (`pref_outcome_link/_correlations`, partial-ρ on `train_iter`) |
+| `6_Preference.ipynb` | `6_preference/` | **what the training signal pushes toward.** §1–§2 PTO Mass-Mean-Probe over `pairs.csv` (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5). §3 **both methods on one probe** — every candidate carries its method's update weight (DPO ±1 / GRPO standardized advantage, rescaled to a shared per-group size), giving `update_lexical_push` (exact, every group), the audited `update_direction_quality{,_pooled}` (held-out wins + split-half reliability) and `update_direction_cosines` (attenuation-corrected). §4 **training signal → eval move** (`pref_outcome_link/_correlations`, partial-ρ on `train_iter`). §5 **loss vs data** (`weighting_decomposition` — swap the rule on fixed groups), **generation vs selection** (`generation_vs_selection`, `generation_pool_means`), **signal yield** (`training_signal_yield`) and text exhibits (`<arm>_examples`) |
 | `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base + method paired · **best-vs-best method contrast (`method_paired_best`)** · **§4c RQ-i, the K0-vs-K5 contrast — `k_means_by_iter` + `k_paired_by_method` + the one `7_stats/` figure `k_trajectory_Q1Q2`, saved ONLY in `config.RQ_I_VIEW` (`L5`) off a cross-K frame** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 | `8_Measurement_Validity.ipynb` | `8_measurement/` **(no `<judge>/` level)** | **is the ruler trustworthy?** §1 judge reliability (oracle ICC + second-judge agreement + contrast preservation) · §2 multi-judge (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size). Reads **every** grader from `data/eval_scores/`, so it is judge-INVARIANT — see "Judge dimension" |
 
@@ -375,8 +375,16 @@ behind an unchanged public surface.
     caveat — measured split-half ≈ 0.19 per iteration, vs 0.60 pooled.
   - *Signal → outcome:* `preference_features_by_iter` → `link_to_outcomes` (persona-paired eval
     delta of the update's own iteration) → `outcome_correlations` (**read `rho_partial_iter`** —
-    the raw ρ is confounded with iteration index by construction). Figures: `plot_lexical_push`,
-    `plot_pref_outcome`, `plot_category_compare`.
+    the raw ρ is confounded with iteration index by construction).
+  - *Loss vs data:* `reweight` swaps one method's weighting rule onto the other's groups, and
+    `weighting_decomposition` turns that into as-trained / same-data-other-rule /
+    same-rule-other-data cosines — the test of whether "PTO vs GRPO" is about the loss or about
+    the candidates each generates. `rule_reconstruction_check` guards the reconstruction.
+  - *Generation vs selection:* `pool_mean_by_iter` (what the policy produces) against
+    `weighted_lexical_contrast` (what the update selects for). `pair_yield_by_iter` counts how many
+    groups actually trained; `pref_examples` pulls the decisive pairs as text.
+  - Figures: `plot_lexical_push`, `plot_pref_outcome`, `plot_category_compare`,
+    `plot_selection_vs_generation`, `plot_pair_yield`.
 - **`reliability`** — MEASUREMENT-validity tables from the `data/eval_scores/` lake (all judges, all reps).
   Disk-only — the paid scoring lives in `scoring/judge*.py`; this is the free read side. It backs
   **`8_Measurement_Validity`** (before the 2026-07-29 split: `5_Training_and_Reliability` §7–§8).

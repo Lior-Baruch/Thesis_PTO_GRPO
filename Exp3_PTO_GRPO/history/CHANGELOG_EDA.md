@@ -9,6 +9,55 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-02, second pass) — three questions the aggregate curves could not answer.**
+With both methods on one probe, three follow-ups became askable from data already on disk. All
+three landed in `6_Preference` §5.
+
+- **Is "PTO vs GRPO" the LOSS or the DATA?** The as-trained direction cosine confounds two
+  differences: the methods see different candidate *pools* and apply different weighting *rules*.
+  Every group logs all its candidates' scores, so `reweight` holds the groups fixed and swaps only
+  the rule. The answer is unambiguous: **swapping the rule on the same groups barely moves the
+  direction (0.908 on PTO's groups, 0.988 on GRPO's), while holding the rule fixed across the two
+  methods' own groups leaves them as far apart as ever (0.356 / 0.266 raw; 0.397 / 0.324
+  corrected, against 0.317 as trained).** So the divergence is **entirely about which candidates
+  each method generates**, not about DPO vs group-relative weighting — at matched K and a shared
+  oracle the two losses extract nearly the same direction from the same eight completions. That
+  reframes the thesis comparison as one about *exploration*, and is the strongest single result of
+  this pass.
+  - ⚠ The attenuation correction assumes independent estimation error. True across arms; false for
+    the same-groups rows, where both directions share their noise — the correction over-corrects
+    and can exceed 1.0. The table carries a `read` column naming which cosine to quote per row.
+  - The score-only `dpo` rule reproduces PTO's recorded roles: it picks a maximum-scoring candidate
+    **100%** of the time (and a minimum 100%). Exact row identity is only 82%, purely because **40%
+    of PTO groups have TIED maxima** where any tie-break is arbitrary — which is why the check
+    asserts "picks a maximum", not "picks the same row".
+- **Does the update PULL the drift or FOLLOW it?** §3 measures what the update selects for *within*
+  a group; `pool_mean_by_iter` measures what the policy *generates* at all. The two are on
+  completely different scales: the affirmation-marker **selection** contrast is ≈0.01 → 0.10, while
+  the **generated** rate goes **0.02 → 0.54 (GRPO) and 0.04 → 0.57 (PTO)**; over-praise
+  0.003 → **0.74** (GRPO); questions collapse **0.71 → 0.06** (GRPO), 0.67 → 0.27 (PTO); mean
+  completion length roughly triples. The reward-hack is therefore **not one hard pull** — it is a
+  small, persistent, same-signed selection pressure compounding through an on-policy loop, each
+  iteration branching from an already-more-effusive policy. By the last iterations the update is
+  choosing between two effusive completions, which is also why the selection contrast *understates*
+  how far the pool has travelled. Indexing is off by one on purpose and documented: `train_iter n`'s
+  pool describes the policy the eval set calls `model_iter_{n-1}`.
+- **How much usable signal is there?** GRPO trains on **94–98%** of the groups it builds, flat
+  across training. PTO's τ filter and its shrinking trunks compound: branch points built fall
+  **949 → 410**, yield falls **0.82 → 0.69**, so groups actually trained fall **782 → 281 (−64%)**
+  while the mean best−worst margin decays 0.274 → 0.196. PTO's late iterations train on a third of
+  the data its early ones did — a candidate explanation for a flattening curve that no outcome
+  figure can see.
+- **Text exhibits.** `pref_examples` prints the most decisive up- vs down-weighted completions per
+  iteration. At iter 1 PTO is choosing between an agenda-setting turn and a question; by iter 10 it
+  is choosing between *"You're brave, open, and strong…"* and *"You're courageous and courageous,
+  and your resilience is inspiring…"*. Deliberately the most decisive groups, not a random sample,
+  and labelled as such.
+- Self-check (still 17, extended): both counterfactual rules must preserve `Σw = 0` / `Σ|w| = 2`,
+  and the `dpo` rule must select a maximum-scoring candidate in every PTO group.
+
+---
+
 **Landed (2026-08-02) — the preference EDA stops being PTO-only, and starts checking itself.**
 `6_Preference` could describe what PTO's update wanted but had no way to ask the same of GRPO ("no
 preference pairs"), and no way to ask whether wanting it did anything. Both gaps close, and the

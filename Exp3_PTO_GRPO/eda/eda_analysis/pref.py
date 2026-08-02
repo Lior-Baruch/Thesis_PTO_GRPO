@@ -37,7 +37,7 @@ import hashlib
 import os
 import pickle
 import re
-from typing import List, Optional
+from typing import List, Optional, Sequence
 
 import numpy as np
 import pandas as pd
@@ -499,9 +499,7 @@ def load_weighted_candidates(arms: Optional[List] = None, *,
     d = d[(grp.transform("max") > 0) & (grp.transform("min") < 0)].copy()
     if d.empty:
         return d
-    d["_absw"] = d["weight"].abs()
-    d["weight"] = 2.0 * d["weight"] / d.groupby(_GROUP_KEYS)["_absw"].transform("sum")
-    d = d.drop(columns=["_absw"])
+    d = _rescale_weights(d)
 
     comp = d["completion"].astype(str)
     d["n_questions"] = comp.str.count(r"\?")
@@ -510,6 +508,53 @@ def load_weighted_candidates(arms: Optional[List] = None, *,
     if drop_zero_weight:
         d = d[d["weight"] != 0.0].copy()
     return d.reset_index(drop=True)
+
+
+def _rescale_weights(d: pd.DataFrame) -> pd.DataFrame:
+    """Rescale within each group to ``Σ|w| = 2`` — DPO's ±1 pair size, the shared unit of push."""
+    out = d.assign(_absw=d["weight"].abs())
+    absum = out.groupby(_GROUP_KEYS)["_absw"].transform("sum")
+    out = out[absum > 0].copy()
+    out["weight"] = 2.0 * out["weight"] / out.groupby(_GROUP_KEYS)["_absw"].transform("sum")
+    return out.drop(columns=["_absw"])
+
+
+def reweight(cands: pd.DataFrame, rule: str) -> pd.DataFrame:
+    """Re-weight the SAME groups under the OTHER method's rule — the counterfactual.
+
+    The cross-method direction cosine confounds two things: PTO and GRPO see different candidate
+    **pools** (one branches a trunk, the other samples a group off a fixed prompt) *and* apply
+    different weighting **rules**. Holding the groups fixed and swapping only the rule separates
+    them, and every group already carries all its candidates' scores, so this needs no new data.
+
+    ``rule``:
+
+    - ``"dpo"`` — ``+1`` on the group's highest-scoring candidate, ``−1`` on its lowest, 0 for the
+      rest (a best-vs-worst preference pair). On PTO's own groups this reconstructs what DPO did,
+      which is the check that the reconstruction is faithful.
+    - ``"grpo"`` — the standardized advantage ``(score − mean) / std`` over the group, computed
+      from the candidates themselves (population std, matching the trainer).
+
+    Pass a frame from ``load_weighted_candidates(..., drop_zero_weight=False)``: the counterfactual
+    needs every candidate of the group, not just the two DPO kept. Weights are rescaled to the same
+    ``Σ|w| = 2``, so a direction built from the result is directly comparable to the native one.
+    """
+    if cands.empty:
+        return cands
+    if rule not in ("dpo", "grpo"):
+        raise ValueError(f"unknown rule {rule!r} (expected 'dpo' or 'grpo')")
+    d = cands.copy()
+    g = d.groupby(_GROUP_KEYS)["score"]
+    if rule == "grpo":
+        mean, std = g.transform("mean"), g.transform(lambda s: s.std(ddof=0))
+        d["weight"] = ((d["score"] - mean) / std.replace(0.0, np.nan)).fillna(0.0)
+    else:
+        hi, lo = g.transform("max"), g.transform("min")
+        # A tie for the extreme would double-count; keep the first occurrence only.
+        first_hi = (d["score"] == hi) & ~d.duplicated(subset=_GROUP_KEYS + ["score"]) & (hi != lo)
+        first_lo = (d["score"] == lo) & ~d.duplicated(subset=_GROUP_KEYS + ["score"]) & (hi != lo)
+        d["weight"] = first_hi.astype(float) - first_lo.astype(float)
+    return _rescale_weights(d).reset_index(drop=True)
 
 
 def sample_groups(cands: pd.DataFrame, *, max_groups_per_iter: int = 400,
@@ -723,6 +768,98 @@ def pooled_direction_cosines(directions_by_arm: dict,
     return pd.DataFrame(rows)
 
 
+def weighting_decomposition(embedded_all: pd.DataFrame, arm_a: str, arm_b: str, *,
+                            seed: int = BOOT_SEED) -> pd.DataFrame:
+    """Is the cross-method divergence about the LOSS or about the DATA?
+
+    The as-trained cosine between PTO's and GRPO's update directions confounds two differences:
+    they see different candidate **pools** (one branches a greedy trunk, the other samples a group
+    off a fixed prompt) and they apply different weighting **rules**. Every group logs all of its
+    candidates' scores, so the two can be separated with no new data — hold the groups fixed and
+    swap only the rule (:func:`reweight`):
+
+    ==========================================  ==========================================
+    ``as trained``                              rule *and* data differ — the headline cosine
+    ``same data, other rule`` (one row per arm) the RULE's effect, on that arm's own pool
+    ``same rule, data differs`` (dpo and grpo)  the DATA's effect, rule held constant
+    ==========================================  ==========================================
+
+    If the same-rule rows stay as low as ``as trained`` while the same-data rows are high, the two
+    methods diverge because of the candidates they generate, not because of how they weight them —
+    and "PTO vs GRPO" is then a statement about exploration, not about DPO vs group-relative PPO.
+    The reverse pattern says the loss family is doing the work.
+
+    Takes the embedded frame with **every** candidate kept
+    (``load_weighted_candidates(..., drop_zero_weight=False)`` → :func:`embed_candidates`), since a
+    counterfactual rule needs the candidates the native rule discarded. Each row carries the
+    attenuation ceiling for its own pair of weightings, because these directions are not equally
+    well estimated (a DPO-style ±1 direction uses 2 candidates per group, a GRPO-style one uses 8).
+
+    ⚠ The ``read`` column says which cosine to quote, and it is not cosmetic. The attenuation
+    correction assumes the two estimates' errors are **independent** — true across arms, false for
+    the same-data rows, where both directions come from the very same groups and share their noise.
+    There the correction over-corrects (it can exceed 1.0, which is the tell), so read the RAW
+    cosine on those rows and the corrected one on the cross-arm rows.
+    """
+    if embedded_all.empty:
+        return pd.DataFrame()
+    variants = {"native": embedded_all, "dpo": reweight(embedded_all, "dpo"),
+                "grpo": reweight(embedded_all, "grpo")}
+    dirs, rel = {}, {}
+    for name, frame in variants.items():
+        f = frame[frame["weight"] != 0]
+        if f.empty:
+            continue
+        d = direction_by_arm(f)
+        q = pooled_direction_quality(f, d, seed=seed).set_index("arm")["split_half_cos"]
+        for arm, vec in d.items():
+            dirs[(name, arm)] = vec
+            rel[(name, arm)] = _spearman_brown(q.get(arm, np.nan))
+    plan = [
+        ("as trained (rule AND data differ)", ("native", arm_a), ("native", arm_b)),
+        (f"same data ({arm_a}), rule swapped", ("native", arm_a), ("grpo", arm_a)),
+        (f"same data ({arm_b}), rule swapped", ("native", arm_b), ("dpo", arm_b)),
+        ("same rule (group-relative), data differs", ("grpo", arm_a), ("native", arm_b)),
+        ("same rule (best-vs-worst), data differs", ("native", arm_a), ("dpo", arm_b)),
+    ]
+    rows = []
+    for label, ka, kb in plan:
+        if ka not in dirs or kb not in dirs:
+            continue
+        cos = float(dirs[ka] @ dirs[kb])
+        ra, rb = rel.get(ka, np.nan), rel.get(kb, np.nan)
+        ceil = float(np.sqrt(ra * rb)) if np.isfinite(ra) and np.isfinite(rb) else np.nan
+        same_arm = ka[1] == kb[1]
+        rows.append({"comparison": label, "a": f"{ka[1]}({ka[0]})", "b": f"{kb[1]}({kb[0]})",
+                     "cosine": cos, "ceiling": ceil,
+                     "cosine_corrected": cos / ceil if ceil and np.isfinite(ceil) else np.nan,
+                     "read": "cosine (same groups — see note)" if same_arm else "cosine_corrected"})
+    return pd.DataFrame(rows)
+
+
+def rule_reconstruction_check(cands_all: pd.DataFrame, arm_label: str) -> dict:
+    """Does the score-only ``dpo`` rule pick the same candidates PTO's trainer recorded?
+
+    Reports the honest version of that question. Exact row agreement understates it: ~36% of PTO
+    groups have **tied** maxima, and a tie-break is arbitrary by definition. So this returns both
+    ``picks_a_maximum`` (does the rule select a top-scoring candidate at all — the property that
+    actually has to hold) and ``tie_rate`` (how often the choice among equals was free).
+    """
+    d = cands_all[(cands_all["arm"] == arm_label) & cands_all["role"].isin(["chosen", "rejected"])]
+    if d.empty:
+        return {}
+    g = cands_all[cands_all["arm"] == arm_label].groupby(_GROUP_KEYS)["score"]
+    hi, lo = g.transform("max"), g.transform("min")
+    ch, rj = d[d.role == "chosen"], d[d.role == "rejected"]
+    n_at_max = cands_all[cands_all["arm"] == arm_label].assign(
+        _m=lambda x: x["score"] == hi).groupby(_GROUP_KEYS)["_m"].transform("sum")
+    return {"arm": arm_label,
+            "chosen_picks_a_maximum": float((ch["score"] == hi.loc[ch.index]).mean()),
+            "rejected_picks_a_minimum": float((rj["score"] == lo.loc[rj.index]).mean()),
+            "tie_rate_at_max": float((n_at_max.loc[ch.index] > 1).mean()),
+            "n_groups": int(len(ch))}
+
+
 def direction_agreement_with_pairs(embedded: pd.DataFrame, arm_label: str,
                                    pairs_directions: dict) -> pd.DataFrame:
     """Sanity gate: the candidate-derived PTO direction vs the one built from ``pairs.csv``.
@@ -774,6 +911,108 @@ def weighted_lexical_contrast(cands: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(out).sort_values(["arm", "train_iter"]).reset_index(drop=True)
 
 
+def pool_mean_by_iter(cands_all: pd.DataFrame) -> pd.DataFrame:
+    """Per (arm, iter): the mean feature over ALL candidates — what the policy *generates*.
+
+    The other half of the drift question. :func:`weighted_lexical_contrast` measures what the
+    update **selects for** within a group; this measures what the policy **produces** in the first
+    place. They answer different questions and can move independently:
+
+    - pool rising, selection ≈ 0 → the policy drifted on its own and the reward is merely
+      following it (the update is not pulling);
+    - pool flat, selection > 0 → the reward is pulling against the policy's own tendency;
+    - both rising → the pull and the drift compound, which is the reward-hacking story in full.
+
+    Needs the UNFILTERED frame — ``load_weighted_candidates(..., drop_zero_weight=False)`` — or the
+    "pool" is just the two extremes DPO kept, which is exactly the thing being controlled for.
+    Columns mirror the contrast table with a ``pool_`` prefix (``pool_len``, ``pool_question``, …).
+
+    **Iteration indexing.** ``train_iter`` *n* samples its candidates from π\\ :sub:`n-1` (the
+    iter-start policy), so the pool at *n* describes the same policy the eval set calls
+    ``model_iter_{n-1}`` — off by one from the selection contrast on the same row, which describes
+    the update *applied* at *n*. That is intentional and is exactly the pairing the question needs:
+    what the policy already produced, next to what the update did about it.
+    """
+    if cands_all.empty:
+        return pd.DataFrame()
+    rows = []
+    for (arm, it), g in cands_all.groupby(["arm", "train_iter"]):
+        row = {"arm": arm, "method": g["method"].iloc[0], "K": g["K"].iloc[0],
+               "train_iter": int(it), "n_candidates": len(g)}
+        for src, name in _LEX_FEATURES.items():
+            v = g[src].astype(float)
+            row[name.replace("w_", "pool_")] = float(v.mean())
+            row[name.replace("w_", "pool_") + "_se"] = float(v.sem())
+        rows.append(row)
+    return pd.DataFrame(rows).sort_values(["arm", "train_iter"]).reset_index(drop=True)
+
+
+def pair_yield_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iter): how many groups actually produced a gradient, out of how many were built.
+
+    The asymmetry this exposes is structural, not cosmetic. GRPO trains on **every** prompt it
+    builds; PTO emits a pair only where the best and worst branch differ by more than ``τ``, so its
+    usable signal can dry up as the policy's branches converge — and a shrinking pair count is a
+    candidate explanation for a flattening learning curve that no outcome figure can see.
+
+    Columns: ``groups_built`` (every branch point / prompt group logged for that iteration),
+    ``groups_trained`` (those with both an up- and a down-weighted side), ``yield_rate``, and
+    ``mean_margin`` / ``median_margin`` — the best−worst score gap, i.e. how decisive the surviving
+    groups were.
+    """
+    gens = load_generations(arms)
+    if gens.empty:
+        return pd.DataFrame()
+    d = gens[(gens["phase"] != "eval") & gens["score"].notna()].copy()
+    d["epoch"] = d["epoch"].fillna(-1.0)
+    trained = load_weighted_candidates(arms, drop_zero_weight=True)
+    trained_keys = set(map(tuple, trained[_GROUP_KEYS].to_numpy())) if not trained.empty else set()
+    rows = []
+    for (arm, it), g in d.groupby(["arm", "train_iter"]):
+        keys = g.groupby(_GROUP_KEYS)
+        built = keys.ngroups
+        margins = keys["score"].max() - keys["score"].min()
+        n_trained = sum(1 for k in keys.groups if tuple(k) in trained_keys)
+        rows.append({"arm": arm, "method": g["method"].iloc[0], "train_iter": int(it),
+                     "groups_built": built, "groups_trained": n_trained,
+                     "yield_rate": n_trained / built if built else np.nan,
+                     "mean_margin": float(margins.mean()),
+                     "median_margin": float(margins.median())})
+    return pd.DataFrame(rows).sort_values(["arm", "train_iter"]).reset_index(drop=True)
+
+
+def pref_examples(cands: pd.DataFrame, *, arm: str, iters: Optional[Sequence[int]] = None,
+                  k: int = 3, max_chars: int = 320) -> pd.DataFrame:
+    """The most decisive up- vs down-weighted completions, as text — early vs late.
+
+    Every other artifact here is an aggregate; a reader (and a thesis chapter) also wants to see
+    what the drift actually looks like in words. Takes the ``k`` groups per iteration with the
+    largest score gap — **deliberately not a random sample**: these are the groups carrying most of
+    the update, and they are the ones worth reading. Quote them as illustration, never as evidence
+    of a rate.
+    """
+    if cands.empty:
+        return pd.DataFrame()
+    d = cands[(cands["arm"] == arm) & (cands["weight"] != 0)]
+    if iters is not None:
+        d = d[d["train_iter"].isin(list(iters))]
+    if d.empty:
+        return pd.DataFrame()
+    rows = []
+    for it, g in d.groupby("train_iter"):
+        gg = g.assign(_gid=g.groupby(_GROUP_KEYS).ngroup())
+        gaps = gg.groupby("_gid")["score"].agg(lambda s: s.max() - s.min()).sort_values(ascending=False)
+        for gid in gaps.head(k).index:
+            grp = gg[gg["_gid"] == gid]
+            hi, lo = grp.loc[grp["weight"].idxmax()], grp.loc[grp["weight"].idxmin()]
+            clip = lambda t: (str(t)[:max_chars] + "…") if len(str(t)) > max_chars else str(t)
+            rows.append({"arm": arm, "train_iter": int(it),
+                         "score_gap": round(float(hi["score"] - lo["score"]), 3),
+                         "up_weighted": clip(hi["completion"]).replace("\n", " "),
+                         "down_weighted": clip(lo["completion"]).replace("\n", " ")})
+    return pd.DataFrame(rows)
+
+
 _LEX_TITLES = {"w_len": "completion length (chars)", "w_question": "question marks",
                "w_affirm": "affirmation marker", "w_overpraise": "over-praise marker"}
 
@@ -807,6 +1046,70 @@ def plot_lexical_push(lex: pd.DataFrame, *, features: Optional[List[str]] = None
     fig.text(0.5, -0.02, "Weighted contrast Σ w·feature per group (DPO's ±1 pair scale; GRPO's "
                          "standardized advantages rescaled to match). 0 = indifferent.",
              ha="center", va="top", fontsize=7.5, style="italic", color="#444444", wrap=True)
+    fig.tight_layout()
+    return fig
+
+
+def plot_selection_vs_generation(pool: pd.DataFrame, lex: pd.DataFrame, *,
+                                 features: Optional[List[str]] = None,
+                                 palette: Optional[dict] = None):
+    """Two rows: what the policy GENERATES (pool mean) over what the update SELECTS for.
+
+    Reading the columns top-to-bottom answers "is the reward pulling the policy toward this, or has
+    the policy already gone there on its own?" — the question that separates a reward that *causes*
+    the drift from one that merely *ratifies* it.
+    """
+    import matplotlib.pyplot as plt
+    if pool.empty or lex.empty:
+        return None
+    features = [f for f in (features or list(_LEX_FEATURES.values())) if f in lex.columns]
+    n = len(features)
+    fig, axes = plt.subplots(2, n, figsize=(4.2 * n, 6.2), squeeze=False)
+    for j, f in enumerate(features):
+        pf = f.replace("w_", "pool_")
+        for arm, g in pool.sort_values("train_iter").groupby("arm"):
+            axes[0][j].errorbar(g["train_iter"], g[pf], yerr=g.get(f"{pf}_se"), marker="o", ms=4,
+                                capsize=2, lw=1.4, label=arm, color=(palette or {}).get(arm))
+        for arm, g in lex.sort_values("train_iter").groupby("arm"):
+            axes[1][j].errorbar(g["train_iter"], g[f], yerr=g.get(f"{f}_se"), marker="o", ms=4,
+                                capsize=2, lw=1.4, label=arm, color=(palette or {}).get(arm))
+        axes[1][j].axhline(0, color="grey", lw=0.7, ls="--")
+        axes[0][j].set_title(_LEX_TITLES.get(f, f), fontsize=9)
+        axes[0][j].set_ylabel("GENERATED\n(mean over all candidates)" if j == 0 else "")
+        axes[1][j].set_ylabel("SELECTED FOR\n(weighted contrast)" if j == 0 else "")
+        axes[1][j].set_xlabel("training iteration")
+    axes[0][0].legend(fontsize=7, frameon=False)
+    fig.suptitle("Generation vs selection — does the update pull the drift, or follow it?",
+                 y=1.02, fontweight="bold")
+    fig.text(0.5, -0.01, "Top: what the policy produces (unweighted mean over every candidate). "
+                         "Bottom: what the update pushes toward within a group (0 = indifferent).",
+             ha="center", va="top", fontsize=7.5, style="italic", color="#444444", wrap=True)
+    fig.tight_layout()
+    return fig
+
+
+def plot_pair_yield(yield_df: pd.DataFrame, *, palette: Optional[dict] = None):
+    """How much of each iteration's built signal survived to train — and how decisive it was."""
+    import matplotlib.pyplot as plt
+    if yield_df.empty:
+        return None
+    fig, axes = plt.subplots(1, 3, figsize=(13.5, 3.4))
+    panels = [("groups_trained", "groups that trained"),
+              ("yield_rate", "yield = trained / built"),
+              ("mean_margin", "best−worst score gap")]
+    for ax, (col, title) in zip(axes, panels):
+        for arm, g in yield_df.sort_values("train_iter").groupby("arm"):
+            ax.plot(g["train_iter"], g[col], marker="o", ms=4, lw=1.5, label=arm,
+                    color=(palette or {}).get(arm))
+        ax.set_title(title, fontsize=9); ax.set_xlabel("training iteration"); ax.set_ylabel(col)
+    axes[1].set_ylim(0, 1.05)
+    axes[0].legend(fontsize=7, frameon=False)
+    fig.suptitle("How much usable training signal each iteration actually produced",
+                 y=1.05, fontweight="bold")
+    fig.text(0.5, -0.02, "GRPO trains on every prompt it builds; PTO emits a pair only where the "
+                         "best and worst branch differ by more than tau, so its yield can fall as "
+                         "branches converge.", ha="center", va="top", fontsize=7.5, style="italic",
+             color="#444444", wrap=True)
     fig.tight_layout()
     return fig
 

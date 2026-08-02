@@ -142,6 +142,21 @@ here — see "Doc map"). Updated 2026-07-29.
     push **ρ 0.647 (p .043)**, length 0.706, over-praise 0.617; PTO's does not. Same direction as
     the endpoint MICI gap, reached from the training data. n ≤ 10/arm, uncorrected — mechanism, not
     cause.
+  - **THE GAP IS THE DATA, NOT THE LOSS (2026-08-02, second pass).** Swapping the weighting rule on
+    the *same* groups barely moves the update direction (**0.908** on PTO's groups, **0.988** on
+    GRPO's); holding the rule fixed across the two methods' *own* groups leaves them as far apart as
+    ever (0.397 / 0.324 corrected, vs 0.317 as trained). At matched K and a shared oracle the two
+    losses extract nearly the same direction from the same eight completions — **"PTO vs GRPO" is a
+    statement about exploration, not about DPO vs group-relative weighting.** Frame the thesis
+    comparison accordingly.
+  - **The reward-hack is a compounding loop, not a hard pull.** Per-iteration *selection* pressure
+    on affirmation is ≈0.01 → 0.10, while what the policy *generates* moves **0.02 → 0.54** (GRPO)
+    / 0.04 → 0.57 (PTO); over-praise reaches **0.74** of GRPO's candidates and questions collapse
+    **0.71 → 0.06**. Small persistent pressure applied each iteration to an already-more-effusive
+    policy — by the end the update is choosing between two effusive completions.
+  - **PTO's training signal shrinks by two-thirds:** branch points built 949 → 410, τ yield
+    0.82 → 0.69, groups trained **782 → 281**, margin 0.274 → 0.196. GRPO trains on 94–98% of its
+    groups throughout. A flattening PTO curve may partly be data starvation.
   - ⚠ **It also audited the old probe and the old probe lost.** §1's `wins_correct` was IN-sample;
     held out, a per-iteration PTO direction wins **0.47–0.59** with split-half reliability
     **0.15–0.32**. The per-iteration latent-drift artifacts (word drift, learn/unlearn, MI-concept

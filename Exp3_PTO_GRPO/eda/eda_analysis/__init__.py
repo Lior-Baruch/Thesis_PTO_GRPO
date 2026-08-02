@@ -66,9 +66,14 @@ from .pref import (  # noqa: E402
     preference_direction_drift, plot_direction_drift, learn_unlearn_words, plot_learn_unlearn,
     # the method-agnostic update-weighted probe + the training-signal -> eval-move link
     load_weighted_candidates, sample_groups, embed_candidates, direction_by_iter,
-    direction_quality, direction_cosine, weighted_lexical_contrast,
+    direction_by_arm, direction_quality, pooled_direction_quality, direction_cosine,
+    pooled_direction_cosines, weighted_lexical_contrast,
     preference_features_by_iter, link_to_outcomes, outcome_correlations,
-    plot_pref_outcome, plot_category_compare,
+    plot_pref_outcome, plot_category_compare, plot_lexical_push,
+    # loss-vs-data decomposition · generation-vs-selection · yield · exhibits
+    reweight, weighting_decomposition, rule_reconstruction_check,
+    pool_mean_by_iter, pair_yield_by_iter, pref_examples,
+    plot_selection_vs_generation, plot_pair_yield,
 )
 
 # Submodules + backward-compat aliases. ``figures``/``plots`` -> ``plotting`` are KEPT (heavily used
@@ -104,9 +109,13 @@ __all__ = [
     "pref_word_ranking", "pref_word_drift_heatmap", "plot_category_drift", "top_words_by_iter",
     "preference_direction_drift", "plot_direction_drift", "learn_unlearn_words", "plot_learn_unlearn",
     "load_weighted_candidates", "sample_groups", "embed_candidates", "direction_by_iter",
-    "direction_quality", "direction_cosine", "weighted_lexical_contrast",
+    "direction_by_arm", "direction_quality", "pooled_direction_quality", "direction_cosine",
+    "pooled_direction_cosines", "weighted_lexical_contrast",
     "preference_features_by_iter", "link_to_outcomes", "outcome_correlations",
-    "plot_pref_outcome", "plot_category_compare",
+    "plot_pref_outcome", "plot_category_compare", "plot_lexical_push",
+    "reweight", "weighting_decomposition", "rule_reconstruction_check",
+    "pool_mean_by_iter", "pair_yield_by_iter", "pref_examples",
+    "plot_selection_vs_generation", "plot_pair_yield",
     "plotting", "data", "figures", "plots", "stats", "behavior", "training", "pref",
     "reliability",
 ]

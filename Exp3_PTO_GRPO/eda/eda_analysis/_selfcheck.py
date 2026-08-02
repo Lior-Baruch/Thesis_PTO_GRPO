@@ -307,8 +307,25 @@ def _c_update_probe() -> str:
                     f"eval(iter {it}) - eval(iter {it-1}) = {want:.4f} — iteration join is off")
                 checked += 1
     assert checked, "no complete step to verify the iteration join against"
+
+    # 4 — the counterfactual re-weighting keeps the group set and the scale, and its score-only
+    # `dpo` rule must select a MAXIMUM-scoring candidate (exact row identity is the wrong test:
+    # ~40% of PTO groups have tied maxima, where any tie-break is arbitrary).
+    all_c = pref.load_weighted_candidates(arms, drop_zero_weight=False)
+    for rule in ("dpo", "grpo"):
+        rw = pref.reweight(all_c, rule)
+        pg = (rw.assign(_abs=rw["weight"].abs()).groupby(pref._GROUP_KEYS)
+              .agg(wsum=("weight", "sum"), wabs=("_abs", "sum")))
+        assert float(pg.wsum.abs().max()) < 1e-9, f"reweight({rule!r}) weights do not cancel"
+        assert bool(np.allclose(pg.wabs, 2.0)), f"reweight({rule!r}) left the shared scale"
+    pto_arm = next((a.label for a in arms if a.method == "PTO"), None)
+    if pto_arm:
+        chk = pref.rule_reconstruction_check(all_c, pto_arm)
+        assert chk and chk["chosen_picks_a_maximum"] == 1.0 and chk["rejected_picks_a_minimum"] == 1.0, (
+            f"the score-only dpo rule disagrees with {pto_arm}'s recorded roles: {chk}")
     return (f"{len(cands)} candidates, {cands.groupby(pref._GROUP_KEYS).ngroups} groups on one "
-            f"weight scale; {checked} (arm, iter) joins land on the right eval step")
+            f"weight scale; {checked} (arm, iter) joins land on the right eval step; "
+            f"both counterfactual rules preserve scale + pick the extremes")
 
 
 def _c_cross_k() -> str:
