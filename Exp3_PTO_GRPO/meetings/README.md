@@ -20,7 +20,7 @@ meetings/
 | [2026-07-13](2026-07-13/) | supervisor progress deck | `build_supervisor_deck.py` (earlier revision) |
 | [2026-07-16](2026-07-16/) | supervisor progress deck — steelman best-vs-best headline | `build_supervisor_deck.py` |
 | [2026-07-26](2026-07-26/) | results snapshot (pptx + **pdf**) + `email_draft_2026-07-26.md` | `build_results_snapshot.py` |
-| [2026-08-03](2026-08-03/) | meeting deck for Kfir Bar — measurement validity, the first matched-budget K comparison, the training-signal mechanism block, and the framing/budget decisions | `build_meeting_deck.py` |
+| [2026-08-03](2026-08-03/) | supervision meeting deck (a room, not one reader — no "since the email" framing) — measurement validity, the first matched-budget K comparison, the training-signal mechanism block, and the framing/budget decisions | `build_meeting_deck.py` |
 
 ## Which deck to build
 
@@ -47,7 +47,7 @@ the title slide), and create the dated folder.
 ```powershell
 # from meetings/build/
 & ..\..\..\.venv\Scripts\python.exe build_meeting_deck.py
-.\export_pdf.ps1 ..\2026-08-03\meeting_kfir_2026-08-03.pptx        # add -Png to eyeball layout
+.\export_pdf.ps1 ..\2026-08-03\meeting_2026-08-03.pptx             # add -Png to eyeball layout
 ```
 
 `-Png` writes a scratch `<name>_png\` folder next to the deck. It is **not** gitignored — delete it

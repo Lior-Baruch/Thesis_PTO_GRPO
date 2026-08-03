@@ -1,17 +1,22 @@
-"""Build the MEETING deck for the Kfir Bar meeting (2026-08-03).
+"""Build the MEETING deck for the 2026-08-03 supervision meeting.
 
-Same lean visual language as `build_results_snapshot.py` (the attachment that asked for this
-meeting), but written to be *talked through* rather than read cold:
+Written for a ROOM, not for one reader: several people, not all of whom have followed the thread,
+so every slide has to stand on its own. No "new since the email", no "as discussed" — if something
+is worth a slide it is stated in full, and if it is only interesting relative to a previous
+conversation it does not belong here.
 
-- the results block is the snapshot's, condensed;
-- a measurement-validity block — everything landed since the 07-26 email: the oracle's own
-  repeatability, the full second-judge sweep, sign preservation, gain retention, and the places
-  where the two graders do NOT agree;
-- the open look-ahead comparison, which as of 2026-07-30 has its first MATCHED-budget point;
-- a mechanism block (2026-08-02) reading the training signal directly: the drift is a compounding
-  loop rather than a hard pull, and the PTO-vs-GRPO gap survives swapping the weighting rule —
-  i.e. it is about exploration, not the loss. That result is a direct input to Decision 1;
-- and it ends where the snapshot deliberately stopped: framing, budget, and the asks.
+Same lean visual language as `build_results_snapshot.py`, but written to be *talked through*
+rather than read cold:
+
+- background + setup, enough that someone seeing the project today can follow the results;
+- the results block, condensed;
+- a measurement-validity block: the oracle's own repeatability, the second-judge sweep, sign
+  preservation, gain retention, and the places where the two graders do NOT agree;
+- the open look-ahead comparison, at its first matched-budget point;
+- a mechanism block reading the training signal directly: the drift is a compounding loop rather
+  than a hard pull, and the PTO-vs-GRPO gap survives swapping the weighting rule — i.e. it is
+  about exploration, not the loss. That result is a direct input to Decision 1;
+- and it closes on the open decisions: framing, budget, and the asks.
 
 Numbers are owned by `eda/results/L0/SUMMARY.md` and `eda/docs/LIMITATIONS.md` — this script only
 restates them. If a number here disagrees with those files, those files are right.
@@ -32,7 +37,7 @@ L0F  = os.path.join(ROOT, "eda", "results", "L0", "figures")
 L0T  = os.path.join(ROOT, "eda", "results", "L0", "tables")
 L5F  = os.path.join(ROOT, "eda", "results", "L5", "figures")
 METH = os.path.join(ROOT, "figures")   # hand-authored method schematics (build_method_figures.py)
-OUT  = os.path.join(ROOT, "meetings", "2026-08-03", "meeting_kfir_2026-08-03.pptx")
+OUT  = os.path.join(ROOT, "meetings", "2026-08-03", "meeting_2026-08-03.pptx")
 
 # Since 2026-07-28 every grader has its own leaf: results/<view>/figures/<family>/<judge>/<name>.
 # The decks show the PRIMARY grader's figures, so the judge segment is injected here rather than
@@ -232,12 +237,12 @@ set_runs(tf.add_paragraph(),[("Preference-Tree (PTO) vs Group-Relative (GRPO) op
                              "of a small Motivational-Interviewing therapist",False,
                              RGBColor(0xBD,0xD6,0xEA))],18)
 tb2 = box(s,0.9,4.85,11.5,2.0); tf2 = tb2.text_frame
-set_runs(tf2.paragraphs[0],[("Exp3 — results, measurement validity, and what to decide",True,WHITE)],20)
+set_runs(tf2.paragraphs[0],[("Results, measurement validity, and the open decisions",True,WHITE)],20)
 p = tf2.add_paragraph(); p.space_before = Pt(4)
-set_runs(p,[("Update on the 26 July snapshot: the evaluation has since been re-run end-to-end "
-             "under a second, independent judge.",False,RGBColor(0x9F,0xB4,0xC8))],14)
+set_runs(p,[("The main comparison is complete and has been re-scored end-to-end by a second, "
+             "independent judge.",False,RGBColor(0x9F,0xB4,0xC8))],14)
 p = tf2.add_paragraph(); p.space_before = Pt(10)
-set_runs(p,[("Lior Baruch · Reichman University · meeting with Kfir Bar · 3 August 2026",
+set_runs(p,[("Lior Baruch · Reichman University · 3 August 2026",
              False,RGBColor(0x9F,0xB4,0xC8))],13)
 p = tf2.add_paragraph(); p.space_before = Pt(4)
 set_runs(p,[("Llama-3.2-1B therapist (bf16)  ·  gpt-4o-mini simulated patient + oracle  ·  "
@@ -255,13 +260,13 @@ bullets(s,[
   ([("The main comparison is finished. ",True,NAVY),("PTO and GRPO, 10 training iterations each "
     "under matched settings, fully scored on the whole battery over 96 fixed patient personas.",
     False,DARK)],0),
-  ([("The measurement instrument is now measured, not assumed. ",True,NAVY),
-    ("This is what's new since the email: the oracle's own repeatability, and a complete re-scoring "
-     "of every conversation by a judge from a different model family that never played the patient.",
+  ([("The measurement instrument is measured, not assumed. ",True,NAVY),
+    ("The oracle's own repeatability, plus a complete re-scoring of every conversation by a judge "
+     "from a different model family that never played the patient and took no part in training.",
      False,DARK)],0),
-  ([("The training signal itself is now measurable — for both methods. ",True,NAVY),
-    ("New since the email: what each update actually rewards, on one scale, which turns the "
-     "reward-hacking story from an inference about outcomes into a direct measurement.",False,DARK)],0),
+  ([("The training signal itself is measurable — for both methods. ",True,NAVY),
+    ("What each update actually rewards, on one scale, which turns the reward-hacking story from "
+     "an inference about outcomes into a direct measurement.",False,DARK)],0),
   ([("Everything is reproducible from one command",False,DARK),(" — figures, tables and summaries "
     "regenerate under either grader, with seeded confidence intervals.",False,DARK)],0),
 ], left=0.6, top=1.95, width=6.0, size=13.5, gap=11)
@@ -319,7 +324,7 @@ bullets(s,[
 s = slide(); title_bar(s,"What changed since the paper","BACKGROUND · 2")
 
 grid_table(s,[
-  (["","Exp1 — ICLR paper","Exp2","Exp3 — this meeting"],None,True),
+  (["","Exp1 — ICLR paper","Exp2","Exp3 — current"],None,True),
   (["Therapist","Llama-2-7B","Llama-3.2-1B, 4-bit","Llama-3.2-1B, bf16"],None,False),
   (["Patient + oracle","GPT-3.5","gpt-4o-mini","gpt-4o-mini"],None,False),
   (["Patient personas","cooperative","less cooperative","less cooperative"],None,False),
@@ -362,12 +367,14 @@ bullets(s,[
      "look-ahead K, matched min-conversation-length filter.",False,DARK)],0),
   ([("Loop. ",True,NAVY),("Each iteration regenerates all conversations from the current policy; "
     "those same conversations are the evaluation set.",False,DARK)],0),
-  ([("Evaluation. ",True,NAVY),("Full-conversation scores on eight metrics: the five questionnaire "
-    "rubrics ",False,DARK),("Q1+Q2, WAI-SR, CSQ-8, MI-SAT, MITI",True,DARK),(", plus ",False,DARK),
-    ("PCT",True,DARK),(" (patient change-talk), ",False,DARK),("MICI",True,DARK),
-    (" (MI-inconsistent therapist behaviour, lower is better), and the MITI ratios ",False,DARK),
-    ("R:Q / %CR / %MICO",True,DARK),(". Every conversation is now graded twice — once by the "
-    "training oracle, once by a held-out judge.",False,DARK)],0),
+  ([("Evaluation. ",True,NAVY),("Full-conversation scores on eight oracle instruments — ",
+    False,DARK),("Q1, Q2, WAI-SR, CSQ-8, MI-SAT, MITI",True,DARK),(" (Q1 and Q2 are scored "
+    "separately and reported throughout as the ",False,DARK),("Q1+Q2",True,DARK),(" composite), "
+    "plus ",False,DARK),("PCT",True,DARK),(" (patient change-talk) and ",False,DARK),
+    ("MICI",True,DARK),(" (MI-inconsistent therapist behaviour, lower is better) — and three "
+    "ratios derived from the MITI behaviour counts, ",False,DARK),("R:Q / %CR / %MICO",True,DARK),
+    (". Every conversation is graded twice: once by the training oracle, once by a held-out "
+     "judge.",False,DARK)],0),
 ], top=1.45, size=15.5, gap=13)
 
 rect(s,0.6,5.35,12.1,0.03,RGBColor(0xD5,0xDD,0xE5))
@@ -375,7 +382,7 @@ grid_table(s,[
   (["Arm","Iterations trained","Iterations scored","Status"],None,True),
   (["PTO   K=0","1–10","base + 1–10","complete, both judges"],GREEN,False),
   (["GRPO  K=0","1–10","base + 1–10","complete, both judges"],GREEN,False),
-  (["PTO   K=5","1–5","base + 1–4","paused (iter-5 adapter unscored)"],RED,False),
+  (["PTO   K=5","1–5","base + 1–5","paused after iteration 5"],RED,False),
   (["GRPO  K=5","1","base + 1","paused"],RED,False),
 ],0.6,5.55,12.1,[0.16,0.19,0.19,0.46],fontsize=12,rowh=0.33)
 
@@ -525,7 +532,7 @@ caption(s,"Per-conversation rate of each MI-inconsistent therapist behaviour, by
 # 11 · VALIDITY 1 — the instrument is measured
 # =====================================================================
 s = slide(); title_bar(s,"The instrument itself is now measured, not assumed",
-                       "MEASUREMENT VALIDITY · 1  ·  NEW SINCE THE EMAIL")
+                       "MEASUREMENT VALIDITY · 1")
 figure(s,f0("8_measurement/oracle_repeatability_icc.png"),11.6,2.55,0.85,1.32,anchor="top")
 caption(s,"ICC(2,1) per model and metric across four independent scorings of the same "
           "conversations. Dotted lines: Koo & Li \"good\" (0.75) and \"excellent\" (0.90).",
@@ -637,8 +644,8 @@ grid_table(s,[
 
 bot5 = figure(s,f5("7_stats/k_trajectory_Q1Q2.png"),7.5,3.85,0.35,2.6,anchor="top")
 side_notes(s,"The first matched-budget K comparison",[
-  [("Since the last deck: the trained-but-unscored iteration-5 adapter was generated and scored "
-    "on both graders, so K=0 and K=5 can now be compared at ",False,DARK),
+  [("The K=5 arm's last trained adapter has now been generated and scored on both graders, so "
+    "K=0 and K=5 can be compared at ",False,DARK),
    ("equal iteration count",True,DARK),(".",False,DARK)],
   [("K=5 trails K=0 by 0.08–0.16 on Q1+Q2 through iterations 1–4 — small (dz ≤ 0.20) and ",False,DARK),
    ("never significant",True,DARK),(" — then ties at iteration 5 (4.016 vs 4.014).",False,DARK)],
@@ -767,7 +774,7 @@ cards(s,[
    "the same candidates, so the gap is about what each method explores.   In hand.",
    GREEN,"complete today"),
   ("B · Look-ahead story — the ICLR lever, extended to both method families",
-   "The most direct continuation of the paper, and the one Kfir co-authored. K=0 and K=5 now meet "
+   "The most direct continuation of the published work. K=0 and K=5 now meet "
    "at a matched iteration and look-ahead buys nothing — a real but underpowered negative (one "
    "method, 5 iterations). Making it conclusive needs at least one K=5 arm finished.   Needs "
    "budget — see Decision 2.",
@@ -801,7 +808,7 @@ set_runs(tf.add_paragraph(),[("Cost scales with the number of candidates scored 
 
 cards(s,[
   ("1 · The nearly-free look-ahead point",
-   "Done since the last deck: a generate-only pass with the PTO K=5 iteration-5 adapter, scored on "
+   "Already done: a generate-only pass with the PTO K=5 iteration-5 adapter, scored on "
    "both graders for $1.33. It bought the first matched-budget K comparison — and the answer so "
    "far is that look-ahead does not pay at equal iteration count.",
    GREEN,"DONE — $1.33"),
