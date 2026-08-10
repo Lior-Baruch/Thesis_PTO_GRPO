@@ -713,8 +713,11 @@ def _c_arm_identity_unique() -> str:
                     f"{a.exp_name!r} — their scores would share one eval_scores folder")
             seen[name] = a.exp_name
 
-    from .scoring.registry import build_experiments_from_disk
-    by_path = {e.path: e.model_name for e in build_experiments_from_disk()}
+    # The module-level registry, NOT a fresh build_experiments_from_disk(): re-running discovery
+    # costs a second full walk of the Drive-streamed data dirs (minutes when Drive is cold), and
+    # EXPERIMENTS is what Run_Eval actually writes from, so checking it is the more faithful test.
+    from .scoring.registry import EXPERIMENTS
+    by_path = {e.path: e.model_name for e in EXPERIMENTS}
     import os as _os
     from .constants import WORKSPACE_ROOT
     n = 0

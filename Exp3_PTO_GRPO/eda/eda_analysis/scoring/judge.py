@@ -87,10 +87,19 @@ class JudgeSpec:
     # ``thinking={"type": "disabled"}`` for those models — a judge filling a fixed rubric has
     # nothing to think about.
     thinking: Optional[dict] = None
+    # Override the derived partition name. Mainly for locally-served models, whose
+    # provider+model would otherwise read ``openai_compat_google_gemma-3n-E4B-it``.
+    tag_override: Optional[str] = None
 
     @property
     def tag(self) -> str:
-        """Filesystem-safe judge folder name, e.g. ``anthropic_claude-haiku-4-5``."""
+        """Filesystem-safe judge folder name, e.g. ``anthropic_claude-haiku-4-5``.
+
+        This names ``data/eval_scores/judge=<tag>/`` and every artifact folder under it —
+        once a judge has scored anything, changing its tag orphans those scores.
+        """
+        if self.tag_override:
+            return re.sub(r"[^A-Za-z0-9.\-_]+", "_", self.tag_override)
         return re.sub(r"[^A-Za-z0-9.\-]+", "_", f"{self.provider}_{self.model}")
 
 
