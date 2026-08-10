@@ -9,6 +9,41 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-10) — PTO LA5 reaches iter 7 and RQ-i turns into a mechanistic negative result.**
+
+The arm resumed on Colab (`NUM_ITERATIONS=8`; cell 1 had been left at `LOOKAHEAD_K=2`, which would
+have started a *fresh* LA2 run from the base model rather than resuming LA5 at iter 6). Iters 6+7
+scored on both graders — 1,536 cells each, 0 errors, $1.06 primary live + $3.74 Haiku batched.
+`PTOExp3_LA5_I6/I7` were picked up with **no registry edit** (auto-discovery), taking the grid to 32
+model states.
+
+- **K=5 never leads, at any of 7 matched iterations, under either grader.** Primary Δ(K0−K5) on
+  Q1+Q2: +0.08…+0.16 (iters 1–4), −0.002 (5), **+0.257 (6; dz 0.42, p_holm 0.0004)**, +0.044 (7).
+  Held-out judge: K=0 ahead at **every** iteration 1–7, iter 6 widening to +0.343. ⚠ The previous
+  **"arms tie at iter 5" claim is superseded** — a primary-oracle artifact that did not survive
+  iter 6 and that the held-out judge never saw as a tie.
+- **1.7× more preference pairs bought nothing.** LA5 had 568 pairs at iter 6 vs LA0's 475 and 689 vs
+  400 at iter 7, yet scored worse at 6 and tied at 7 — which kills data starvation as the
+  explanation for PTO's flattening curve.
+- **Why, from three independent angles.** Look-ahead creates **no extra branch points**; it
+  multiplies the within-group score spread ~1.55× with **margin and SD rising by the identical
+  factor** (margin/SD sits at the pure-noise expectation for 8 draws, ≈2.85, in every arm), so it
+  does not separate the winner from the pack. Since τ=0.1 is an *absolute* threshold, rescaling
+  LA0's margins by the observed SD ratio closes 44–87% of the yield gap. And at **matched policy**
+  (train_iter 1 — both arms on the base model, base Q1Q2 3.000 vs 3.003, p=0.987) look-ahead adds
+  **zero** reward faithfulness: 11/19 depth bins, weighted −0.005, Wilcoxon p=0.59. The pooled
+  +0.052 faithfulness advantage is confounded with the policy difference and does not survive the
+  control.
+- **Conversation length is a live, unreported behavioural difference.** PTO shortens sessions
+  monotonically (LA0 28.4 → 20.4 utterances) while GRPO does not (oscillates 24–38, no trend). Within
+  every iteration, shorter conversations score higher on **all eight rubrics** (Q1Q2 ρ −0.18 to
+  −0.38, negative in 30/30 arm×iteration cells) — including the length-normalized PCT and MICI, so
+  it is not mechanical. Adding conv_len to the model costs PTO_LA0 11.6% of its iteration slope and
+  GRPO **−3.4%**, so the headline is safe, but "PTO improves partly by reaching a natural close
+  sooner" belongs in the write-up.
+
+⚠ **`results/L5/SUMMARY.md` still narrates the old iter-5 tie** and needs rewriting once iter 8 lands.
+
 **Landed (2026-08-02, second pass) — three questions the aggregate curves could not answer.**
 With both methods on one probe, three follow-ups became askable from data already on disk. All
 three landed in `6_Preference` §5.

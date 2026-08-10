@@ -56,9 +56,12 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 **THE single live copy of run status + headline numbers + cost constraint** (all other docs point
 here — see "Doc map"). Updated 2026-07-29.
 
-- **Run status:** PTO LA0 = 10 iters scored; **GRPO LA0 = 10 iters (FINISHED, re-scored)**. **Both
-  LA5 arms PAUSED/thin** (PTO LA5: I1–I4 scored + an unscored iter-5 adapter whose eval convs were
-  never generated; GRPO LA5: I1 trained AND fully scored).
+- **Run status (2026-08-10):** PTO LA0 = 10 iters scored; **GRPO LA0 = 10 iters (FINISHED,
+  re-scored)**; **PTO LA5 = iters 0–7 trained AND scored on BOTH graders, iter 8 training on Colab**
+  (resumed 2026-08-10 with `NUM_ITERATIONS=8`); **GRPO LA5 still thin** (I1 trained AND fully scored).
+  **32 scored model states.** Raising `NUM_ITERATIONS` back to 10 later is safe: `model_iter_k` seeds
+  are `seed+k+1` from either the loop or the post-loop pass, so the persona shuffle matches and
+  per-CSV resume skips what exists.
 - **Headline:** **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs 3.75; paired +0.51,
   dz 0.73)** because GRPO peaks at iter 8 (4.08) then regresses into sycophancy (MICI endpoint 0.84
   vs PTO 0.49); PTO climbs stably. Full narrative + tables:
@@ -72,7 +75,8 @@ here — see "Doc map"). Updated 2026-07-29.
   measured 0.96–0.98 ceiling; MICI agrees weakly (r 0.20–0.55) so the sycophancy claim holds at the
   contrast level, not as a precise rate. Buys down LIMITATIONS §1–§2. Cost ~$5.30.
   See `eda/notebooks/analysis/8_Measurement_Validity` §1.
-- **Cost constraint:** OpenAI spend hit **~$300** and is binding — RQ-i (K0 vs K5) on hold. Cost is
+- **Cost constraint:** OpenAI spend ~**$300** + ~$5 on 2026-08-10 (iters 6+7: $1.06 primary live,
+  $3.74 Haiku batched, 3,072 cells, 0 errors) and is binding. Cost is
   dominated by oracle scoring + (at K=5) look-ahead patient calls, both ∝ candidate count
   (`prompts×G` / `branch-points×M`) × iterations; prompt caching is already maxed (~50% off the
   oracle's fixed prefix), so the only lever is call **COUNT**: cap `NUM_ITERATIONS` ~5–6 (curves
@@ -81,13 +85,24 @@ here — see "Doc map"). Updated 2026-07-29.
   `project-openai-cost-constraint` memory.
 - **RQ-i first matched point — DONE 2026-07-30.** `PTOExp3_LA5_I5` is generated, scored on BOTH
   graders (23,040 Haiku cells now; parity kept), folded, and rendered. **PTO LA5 = iters 0–5.**
-  - **The read: look-ahead buys no Q1+Q2 advantage at equal iteration count.** K=5 trails K=0 by
-    0.08–0.16 through iters 1–4, then ties at iter 5 (**4.016 vs 4.014**, primary oracle only — the
-    held-out judge sees no tie, see the ⚠ two bullets down) — both at the ~4.01
-    plateau K=0 passes on its way to 4.26 by iter 10. Since K=5 costs materially more per iteration,
-    that is a substantive negative result. No matched endpoint, one crossover point — directional
-    only (the unpaired-means caveat is retired; see the tracked-artifact bullet below). Numbers + caveats:
-    [L5/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L5/SUMMARY.md) §3.
+  - **The read (UPDATED 2026-08-10, iters 6+7 scored): K=5 NEVER LEADS, at any of 7 matched
+    iterations, under EITHER grader.** Primary oracle Δ(K0−K5) on Q1+Q2: +0.08…+0.16 at iters 1–4,
+    −0.002 at 5, **+0.257 at iter 6 (dz 0.42, p_holm 0.0004 — the first Holm-significant Q1Q2 result
+    in the whole K comparison)**, +0.044 at 7. Under the held-out judge **K=0 leads at every iteration
+    1–7**, widening iter 6 to +0.343.
+    ⚠ **The old "arms tie at iter 5" claim is SUPERSEDED** — it was a primary-oracle artifact that did
+    not survive iter 6, and the held-out judge never saw it as a tie. Make the claim about the lever,
+    never about convergence.
+  - **More training data did NOT help — data starvation is dead as an explanation.** LA5 carried
+    **1.2×** LA0's pref pairs at iter 6 (568 vs 475) and **1.7×** at iter 7 (689 vs 400), and scored
+    *worse* at 6 and *tied* at 7. Three independent measurements now agree that look-ahead changes the
+    **scale** of the reward signal, not its **information content**: it creates no extra branch points
+    and multiplies the within-group spread ~1.55× with **margin and SD rising by the identical factor**
+    (so it does not separate the winner from the pack — margin/SD sits at the pure-noise expectation
+    for 8 draws in every arm); and at **matched policy** (train_iter 1, both arms on the base model)
+    look-ahead adds **zero** reward faithfulness (11/19 depth bins, weighted −0.005, p=0.59). The
+    pooled faithfulness advantage is confounded with the policy difference. Full evidence:
+    the `project-lookahead-negative-result` memory.
   - ⚠ **WITHIN PTO only** — GRPO LA5 still has just iter 1, so this is not a K×method comparison.
   - **RQ-i IS NOW A TRACKED ARTIFACT (2026-08-02)** — and the read got stronger, because it is
     persona-**paired** rather than a hand-computed difference of means. `L5` owns it
