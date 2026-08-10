@@ -15,6 +15,7 @@ from .runtime import (
     RuntimeInfo,
     detect_runtime,
     init_openai_client,
+    init_role_client,
     authenticate,
     verify_helpers,
 )
@@ -101,7 +102,8 @@ from .eda_recorder import EDARecorder
 
 __all__ = [
     # runtime
-    "RuntimeInfo", "detect_runtime", "init_openai_client", "authenticate", "verify_helpers",
+    "RuntimeInfo", "detect_runtime", "init_openai_client", "init_role_client",
+    "authenticate", "verify_helpers",
     # model
     "CHATML_TEMPLATE",
     "ITER_PREFIX", "HF_CKPT_PREFIX", "ADAPTER_SUBDIR", "ADAPTER_FILES", "HF_TRAINER_FILES",

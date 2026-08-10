@@ -637,6 +637,98 @@ def _c_probe() -> str:
 
 
 # ── driver ────────────────────────────────────────────────────────────────────
+def _c_role_bindings() -> str:
+    """Role-binding names round-trip, and default-bound runs keep their historical names.
+
+    ``roles.binding_suffix`` widens an arm's identity when the patient/oracle model is not the
+    Exp3 default. Three properties have to hold or the score lake corrupts quietly:
+
+    1. **Default ⇒ empty suffix.** Every run to date used gpt-4o-mini for both roles; if the
+       suffix stopped being empty for them, all ~50k CSVs would be orphaned under new names.
+    2. **Round-trip.** A name built with a suffix must parse back to the same tags, so the
+       reader (``Arm.model_name``) reconstructs the writer's folder exactly.
+    3. **No ``_PT`` collision.** PTO names end in ``_PT{greedy|indep}``; the patient prefix is
+       ``_Pat`` precisely so ``_PTgreedy`` is not read as patient tag "Tgreedy".
+    """
+    from roles import (DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL, binding_suffix,
+                       suffix_from_tags, assert_name_matches_roles, model_tag)
+    from .data import parse_experiment_name
+
+    assert binding_suffix(DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL) == "", \
+        "default role models must produce an EMPTY suffix (else existing arms are renamed)"
+    assert binding_suffix(None, None) == ""
+
+    gem = "google/gemma-3n-E4B-it"
+    tag = model_tag(gem)
+    assert tag.isalnum(), f"model tag {tag!r} must be alphanumeric for the arm-name regex"
+    assert binding_suffix(gem) == f"_O{tag}"
+    assert binding_suffix(None, gem) == f"_Pat{tag}"
+
+    legacy = "PTO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_M8_PTgreedy"
+    p = parse_experiment_name(legacy)
+    assert p and p["oracle_tag"] is None and p["patient_tag"] is None, \
+        f"legacy PTO name must parse with NO bindings, got {p}"
+    assert p["mode"] == "greedy", "the _PTgreedy mode token must survive the binding groups"
+
+    for suffix, exp_o, exp_p in ((f"_O{tag}", tag, None),
+                                 (f"_Pat{tag}", None, tag),
+                                 (f"_O{tag}_Pat{tag}", tag, tag)):
+        q = parse_experiment_name(legacy + suffix)
+        assert q, f"name with suffix {suffix!r} failed to parse"
+        assert (q["oracle_tag"], q["patient_tag"]) == (exp_o, exp_p), \
+            f"{suffix!r} round-trip gave {(q['oracle_tag'], q['patient_tag'])}"
+        assert suffix_from_tags(q["oracle_tag"], q["patient_tag"]) == suffix
+
+    grpo = "GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8"
+    assert parse_experiment_name(grpo)["oracle_tag"] is None
+    assert parse_experiment_name(grpo + f"_O{tag}")["oracle_tag"] == tag
+
+    assert_name_matches_roles(legacy, DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL)
+    assert_name_matches_roles(legacy + f"_O{tag}", gem, DEFAULT_PATIENT_MODEL)
+    try:
+        assert_name_matches_roles(legacy, gem, DEFAULT_PATIENT_MODEL)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a non-default oracle with an unsuffixed name must RAISE")
+    return f"default⇒'', round-trip ok, _PT collision guarded (tag {tag!r})"
+
+
+def _c_arm_identity_unique() -> str:
+    """No two discovered arms may share a score-lake folder, and writer must equal reader.
+
+    ``Arm.model_name`` (read side) names where the EDA looks for scores; the scoring
+    registry's ``Experiment.model_name`` (write side) names where Run_Eval puts them. They
+    are now derived once and carried, but this asserts it — a divergence would make
+    Run_Eval's skip-existing resume compare against another arm's CSVs.
+    """
+    arms = _discover_or_skip()
+    seen = {}
+    for a in arms:
+        for k in a.iters:
+            name = a.model_name(k)
+            if name in seen:
+                raise AssertionError(
+                    f"model_name collision: {name!r} claimed by both {seen[name]!r} and "
+                    f"{a.exp_name!r} — their scores would share one eval_scores folder")
+            seen[name] = a.exp_name
+
+    from .scoring.registry import build_experiments_from_disk
+    by_path = {e.path: e.model_name for e in build_experiments_from_disk()}
+    import os as _os
+    from .constants import WORKSPACE_ROOT
+    n = 0
+    for a in arms:
+        for k in a.iters:
+            rel = _os.path.relpath(a.conv_dirs[k], WORKSPACE_ROOT)
+            if rel in by_path:
+                assert by_path[rel] == a.model_name(k), (
+                    f"write/read model_name disagree for {rel}: registry says "
+                    f"{by_path[rel]!r}, Arm says {a.model_name(k)!r}")
+                n += 1
+    return f"{len(seen)} unique model names, {n} write/read pairs agree"
+
+
 def main(argv: List[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     fast = "--fast" in argv
@@ -657,9 +749,11 @@ def main(argv: List[str] | None = None) -> int:
     _run("cache mechanism + invalidation", _c_cache_mechanism, results)
     _run("rubric parity (2nd judge gate)", _c_rubric_parity, results)
     _run("cross-judge artifact layout", _c_cross_judge_layout, results)
+    _run("role bindings + name suffix", _c_role_bindings, results)
     # Data — unless --fast.
     if not fast:
         _run("discover_arms", _c_discover, results)
+        _run("arm identity is collision-free", _c_arm_identity_unique, results)
         _run("scores_long + known means", _c_scores_and_means, results)
         _run("cross-K frame (RQ-i)", _c_cross_k, results)
         _run("update probe (both methods)", _c_update_probe, results)

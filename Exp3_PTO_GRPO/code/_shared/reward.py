@@ -27,6 +27,7 @@ import numpy as np
 import torch
 
 from questionnaires import get_prompt_eval_questionnaire
+from roles import RoleBinding, make_client
 from .convs import (
     handle_session_end,
     clean_completion,
@@ -592,6 +593,11 @@ class OracleConfig:
     eval_temperature: float
     max_concurrency: int
     min_success_ratio: float
+    # Optional backend override so the oracle can run on a DIFFERENT provider/host from the
+    # patient — e.g. a local vLLM-served open-weights grader while the patient stays on the
+    # OpenAI API. ``None`` (the default) means "score with whatever client the caller passed",
+    # which is the historical behavior: one client serving both roles. See ``code/roles.py``.
+    binding: Optional[RoleBinding] = None
 
 
 @dataclass(frozen=True)
@@ -665,6 +671,31 @@ class OracleAsyncPrimitives:
 _NON_RETRYABLE = (KeyError, TypeError)
 
 
+def _resolve_oracle_backend(client, oracle_cfg: OracleConfig):
+    """``(client, model_id)`` to grade with — the caller's client unless a binding overrides.
+
+    With ``oracle_cfg.binding is None`` this returns ``(client, oracle_cfg.model_id)``, i.e.
+    exactly what the code did before role bindings existed. That identity is what makes every
+    existing run reproducible after this change, and it is asserted by the smoke test.
+
+    Only OpenAI-shaped providers are supported here: the training oracle relies on
+    ``chat.completions`` + ``response_format={"type": "json_schema", strict: True}``, which
+    ``openai_compat`` servers (vLLM et al.) implement via guided decoding but Anthropic does
+    not. A Claude grader belongs on the eval side (``scoring/judge.py``), which has the
+    schema-stripping the Messages API needs.
+    """
+    b = oracle_cfg.binding
+    if b is None:
+        return client, oracle_cfg.model_id
+    if b.provider not in ("openai", "openai_compat"):
+        raise ValueError(
+            f"Oracle binding provider {b.provider!r} is not supported as a TRAINING oracle "
+            f"(needs chat.completions + json_schema response_format). Use 'openai' or "
+            f"'openai_compat'; for a Claude grader use the eval-side JudgeSpec instead."
+        )
+    return make_client(b), b.model
+
+
 async def get_evaluation_json(
     client,
     oracle_cfg: OracleConfig,
@@ -701,12 +732,14 @@ async def get_evaluation_json(
     scale_min = eval_dict["scale_min"]
     scale_max = eval_dict["scale_max"]
 
+    oracle_client, oracle_model = _resolve_oracle_backend(client, oracle_cfg)
+
     for attempt in range(oracle_cfg.max_retries):
         try:
             async with primitives.oracle_sem():
                 resp = await asyncio.wait_for(
-                    client.chat.completions.create(
-                        model=oracle_cfg.model_id,
+                    oracle_client.chat.completions.create(
+                        model=oracle_model,
                         messages=[{"role": "user", "content": eval_prompt}],
                         temperature=oracle_cfg.eval_temperature,
                         max_tokens=256,

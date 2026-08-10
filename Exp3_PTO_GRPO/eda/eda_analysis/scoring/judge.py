@@ -66,11 +66,20 @@ EVAL_SCORES_ROOT = EVAL_SCORES            # data/eval_scores/ — the score lake
 
 @dataclass
 class JudgeSpec:
-    """One judge configuration (provider + model)."""
-    provider: str                      # "openai" | "anthropic"
+    """One judge configuration (provider + model).
+
+    ``provider="openai_compat"`` points at any OpenAI-compatible server (vLLM, llama.cpp,
+    TGI) via ``base_url`` — the call shape, including ``response_format`` json_schema via
+    guided decoding, is identical to OpenAI's, so the whole parse/validate/retry path is
+    reused. That is how an open-weights grader (Gemma et al.) plugs in without a new code
+    path; see ``code/roles.py`` for the training-side twin of this idea.
+    """
+    provider: str                      # "openai" | "anthropic" | "openai_compat"
     model: str                         # e.g. "gpt-4o-mini-2024-07-18" | "claude-haiku-4-5"
     temperature: Optional[float] = None  # None = omit (required for newest Claude models)
     max_tokens: int = 1024
+    # Required for "openai_compat"; ignored otherwise. e.g. "http://localhost:8000/v1"
+    base_url: Optional[str] = None
     # Anthropic only. None = omit the parameter (correct for Haiku 4.5, where thinking is off
     # unless explicitly enabled). REQUIRED for Sonnet 5 / Opus 4.8+, where OMITTING `thinking`
     # runs ADAPTIVE thinking by default: those tokens bill against the same `max_tokens`, so a
@@ -105,6 +114,13 @@ def init_judge_client(judge: JudgeSpec):
         if not key:
             raise RuntimeError("No OpenAI key (env OPENAI_API_KEY or openai_key.txt).")
         return AsyncOpenAI(api_key=key)
+    if judge.provider == "openai_compat":
+        from openai import AsyncOpenAI
+        if not judge.base_url:
+            raise RuntimeError("openai_compat judges need base_url (e.g. a local vLLM server).")
+        # Local servers usually accept any key; the SDK still requires one to construct.
+        key = os.environ.get("OPENAI_COMPAT_API_KEY") or "EMPTY"
+        return AsyncOpenAI(api_key=key, base_url=judge.base_url)
     if judge.provider == "anthropic":
         try:
             from anthropic import AsyncAnthropic
@@ -229,7 +245,7 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
                 else _pipeline.QuestionnaireID(questionnaire_id))
     try:
         ed = _pipeline.get_prompt_eval_questionnaire(questionnaire=questionnaire_id, conversation=conv_str)
-        if judge.provider == "openai":
+        if judge.provider in ("openai", "openai_compat"):
             resp = await call_openai_json_seeded(
                 client, ed["prompt"], ed["schema"],
                 schema_name=f"questionnaire_{qid_enum.value}_evaluation",

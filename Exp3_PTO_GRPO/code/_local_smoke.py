@@ -140,12 +140,55 @@ def part_grpo():
     assert ok
 
 
-PARTS = {"stopgen": part_stopgen, "dpo": part_dpo, "grpo": part_grpo}
+def part_roles():
+    """Role bindings are inert by default — the property that keeps old runs reproducible.
+
+    ``OracleConfig`` grew an optional ``binding`` so the grader can live on a different
+    provider/host from the patient (e.g. a local vLLM open-weights oracle). Every existing
+    run has ``binding=None``, and for those the resolver MUST hand back exactly the client
+    and model id the caller passed — otherwise this refactor silently changed what graded
+    the reward. Cheap, no GPU, no network: it only resolves the backend, never calls it.
+    """
+    from _shared.reward import OracleConfig, _resolve_oracle_backend
+    from roles import RoleBinding
+
+    sentinel = object()
+    cfg = OracleConfig(model_id="gpt-4o-mini-2024-07-18", request_timeout=60, max_retries=3,
+                       eval_temperature=0.0, max_concurrency=128, min_success_ratio=0.5)
+    assert cfg.binding is None, "OracleConfig.binding must default to None"
+    client, model = _resolve_oracle_backend(sentinel, cfg)
+    assert client is sentinel, "default path must reuse the caller's client object"
+    assert model == "gpt-4o-mini-2024-07-18", f"default path changed the model: {model}"
+    print("  default binding -> caller's client + model_id (unchanged)")
+
+    local = RoleBinding(model="google/gemma-3n-E4B-it", provider="openai_compat",
+                        base_url="http://localhost:8000/v1")
+    client2, model2 = _resolve_oracle_backend(sentinel, OracleConfig(
+        model_id="gpt-4o-mini-2024-07-18", request_timeout=60, max_retries=3,
+        eval_temperature=0.0, max_concurrency=128, min_success_ratio=0.5, binding=local))
+    assert client2 is not sentinel and model2 == "google/gemma-3n-E4B-it"
+    assert str(client2.base_url).rstrip("/") == "http://localhost:8000/v1"
+    print("  openai_compat binding -> its own client + model (no server contacted)")
+
+    # A Claude grader has no chat.completions/json_schema path here; it must fail loudly
+    # rather than fall through to the patient's client.
+    try:
+        _resolve_oracle_backend(sentinel, OracleConfig(
+            model_id="x", request_timeout=60, max_retries=3, eval_temperature=0.0,
+            max_concurrency=128, min_success_ratio=0.5,
+            binding=RoleBinding(model="claude-haiku-4-5", provider="anthropic")))
+    except ValueError:
+        print("  anthropic oracle binding rejected (belongs on the eval-side JudgeSpec)")
+    else:
+        raise AssertionError("anthropic training-oracle binding must raise")
+
+
+PARTS = {"stopgen": part_stopgen, "dpo": part_dpo, "grpo": part_grpo, "roles": part_roles}
 
 if __name__ == "__main__":
     name = sys.argv[1] if len(sys.argv) > 1 else "all"
     if name == "all":
-        for part in ("stopgen", "dpo", "grpo"):
+        for part in ("roles", "stopgen", "dpo", "grpo"):
             print(f"\n=== running {part} (subprocess) ===", flush=True)
             r = subprocess.run([sys.executable, "-u", os.path.abspath(__file__), part])
             print(f"=== {part} exit {r.returncode} ===")

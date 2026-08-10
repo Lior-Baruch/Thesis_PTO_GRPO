@@ -151,18 +151,25 @@ class Experiment:
     path: str
     method: str = "GRPO_Exp3"
     epoch: Optional[int] = None
+    # Set by :func:`build_experiments_from_disk` to the DISCOVERED arm's own
+    # ``Arm.model_name(k)``. The write side (this registry, which decides where Run_Eval
+    # puts CSVs) and the read side (``data.Arm.model_name``, which decides where the EDA
+    # looks for them) must produce the same string; deriving it twice invited drift, and a
+    # drift here silently splits or merges arms in the score lake. So it is derived ONCE,
+    # by the arm, and carried. ``None`` keeps the legacy Exp1/Exp2-style fallback below.
+    model_name_override: Optional[str] = None
 
     @property
     def model_name(self) -> str:
+        if self.model_name_override:
+            return self.model_name_override
         # Exp3 methods carry their look-ahead K in the name (and so in the per-model
         # eval_scores/.../<model>/ folder) so LA0 and LA5 arms of the same method
         # never collide. ``lookahead`` is required for Exp3 entries.
-        if self.method == "GRPO_Exp3":
+        if self.method in ("GRPO_Exp3", "PTO_Exp3"):
+            prefix = "GRPOExp3" if self.method == "GRPO_Exp3" else "PTOExp3"
             tail = "Base" if self.epoch == 0 else f"I{self.epoch}"
-            return f"GRPOExp3_LA{self.lookahead}_{tail}"
-        if self.method == "PTO_Exp3":
-            tail = "Base" if self.epoch == 0 else f"I{self.epoch}"
-            return f"PTOExp3_LA{self.lookahead}_{tail}"
+            return f"{prefix}_LA{self.lookahead}_{tail}"
         if self.oracle == "Base":
             return "Base"
         return f"L{self.lookahead}_{self.oracle}_V{self.version}"
@@ -202,6 +209,7 @@ def build_experiments_from_disk() -> List[Experiment]:
                 path=os.path.relpath(arm.conv_dirs[k], WORKSPACE_ROOT),
                 method=method,
                 epoch=k,
+                model_name_override=arm.model_name(k),
             ))
     return exps
 

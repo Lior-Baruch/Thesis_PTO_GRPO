@@ -192,6 +192,25 @@ def init_openai_client(rt: RuntimeInfo):
     return client
 
 
+def init_role_client(rt: RuntimeInfo, binding):
+    """Client for one :class:`~roles.RoleBinding`, using this host's key resolution.
+
+    ``init_openai_client`` covers the common case where patient and oracle are the same
+    OpenAI model. Use this when a role runs somewhere else — e.g. an ``openai_compat``
+    binding pointing at a local vLLM server, which needs no key at all (the OpenAI SDK still
+    demands a placeholder, so one is supplied).
+
+    Keys come from :func:`_load_openai_key` for OpenAI so Colab userdata → env → key-file
+    resolution stays identical to the rest of the trainer.
+    """
+    from roles import make_client
+    api_key = _load_openai_key(rt) if binding.provider == "openai" else None
+    client = make_client(binding, api_key=api_key)
+    where = binding.base_url or binding.provider
+    print(f"Role client initialized: {binding.model} @ {where}")
+    return client
+
+
 def _load_hf_token(rt: RuntimeInfo) -> str:
     """Resolve HF token: Colab userdata > env > HF_key.txt at experiment root."""
     if rt.in_colab:

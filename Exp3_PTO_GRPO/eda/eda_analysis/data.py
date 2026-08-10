@@ -175,14 +175,25 @@ _MODEL_PREFIX = {"PTO": "PTOExp3", "GRPO": "GRPOExp3"}
 _DEFAULT_SEED = 42  # all current runs; only used if run_metadata.json is missing
 _ITER_RE = re.compile(r"model_iter_(\d+)_")
 
+# The trailing (?:_O…)(?:_P…) groups are the ROLE-BINDING suffix written by
+# ``roles.binding_suffix``: present only when the training oracle / patient model differs
+# from the Exp3 default (gpt-4o-mini). Both are optional, so every pre-existing arm name
+# still matches unchanged — which is the whole point, since renaming one would orphan its
+# scores in the lake. See ``code/roles.py``.
 _EXP_RE = re.compile(
     r"^(?P<method>PTO|GRPO)_Iterative_(?P<oracle>[A-Za-z0-9]+)_Llama32-1B_"
-    r"LA(?P<K>\d+)_MCL(?P<mcl>\d+)_(?:G(?P<g>\d+)|M(?P<m>\d+)_PT(?P<mode>greedy|indep))$"
+    r"LA(?P<K>\d+)_MCL(?P<mcl>\d+)_(?:G(?P<g>\d+)|M(?P<m>\d+)_PT(?P<mode>greedy|indep))"
+    r"(?:_O(?P<otag>[A-Za-z0-9]+))?(?:_Pat(?P<ptag>[A-Za-z0-9]+))?$"
 )
 
 
 def parse_experiment_name(exp_name: str) -> Optional[dict]:
-    """Parse an EXPERIMENT_NAME folder into its fields, or ``None`` if it doesn't match."""
+    """Parse an EXPERIMENT_NAME folder into its fields, or ``None`` if it doesn't match.
+
+    ``oracle`` is the training-QUESTIONNAIRE token (Q1Q2/WAI/…), not a model — that naming
+    predates role bindings. The MODEL that graded training is ``oracle_tag`` (``None`` =
+    the default gpt-4o-mini).
+    """
     m = _EXP_RE.match(exp_name)
     if not m:
         return None
@@ -194,6 +205,8 @@ def parse_experiment_name(exp_name: str) -> Optional[dict]:
         "mcl": int(d["mcl"]),
         "mode": d["mode"] or ("group" if d["method"] == "GRPO" else None),
         "branches": int(d["g"]) if d["g"] else (int(d["m"]) if d["m"] else None),
+        "oracle_tag": d["otag"],
+        "patient_tag": d["ptag"],
     }
 
 
@@ -211,19 +224,38 @@ class Arm:
     conv_dirs: Dict[int, str]   # model_iter k -> abs conversation dir
     runs_dir: str
     config: dict = field(default_factory=dict)
+    # Non-default role bindings, recovered from the folder name. ``None`` = the Exp3 default
+    # (gpt-4o-mini). These widen the arm's IDENTITY: without them, an arm graded by a
+    # different oracle would share a label and a score-lake folder with the default one.
+    oracle_tag: Optional[str] = None
+    patient_tag: Optional[str] = None
+
+    @property
+    def binding_suffix(self) -> str:
+        """``""`` for default-bound arms, so their labels/folders are unchanged."""
+        from roles import suffix_from_tags
+        return suffix_from_tags(self.oracle_tag, self.patient_tag)
 
     @property
     def label(self) -> str:
-        return f"{self.method}_LA{self.K}"
+        return f"{self.method}_LA{self.K}{self.binding_suffix}"
 
     @property
     def iters(self) -> List[int]:
         return sorted(self.conv_dirs)
 
     def model_name(self, k: int) -> str:
+        """Score-lake folder name for this arm's iter-*k* policy.
+
+        THE collision-critical string: it names ``eval_scores/…/oracle=<O>/<Model>/``, and
+        ``Run_Eval`` resumes by skipping CSVs that already exist there. Two arms that map to
+        the same ``model_name`` would therefore report "already scored" against each other's
+        numbers, silently. The binding suffix keeps differently-graded arms apart; the
+        ``_I{k}`` tail stays last so the iteration is still the terminal token.
+        """
         prefix = _MODEL_PREFIX[self.method]
         tail = "Base" if k == 0 else f"I{k}"
-        return f"{prefix}_LA{self.K}_{tail}"
+        return f"{prefix}_LA{self.K}{self.binding_suffix}_{tail}"
 
     def eval_oracle_label(self, k: int) -> str:
         return "none" if k == 0 else self.oracle
@@ -281,13 +313,36 @@ def discover_arms(data_dir: str = DATA_DIR, *, include_archived: bool = False) -
                 continue
             runs_dir = os.path.join(data_dir, mdir, "runs", "full", exp_name)
             seed, cfg = _read_seed_config(runs_dir)
+            _warn_binding_mismatch(exp_name, parsed, cfg)
             arms.append(Arm(
                 method=parsed["method"], exp_name=exp_name, K=parsed["K"],
                 mcl=parsed["mcl"], mode=parsed["mode"], oracle=parsed["oracle"],
                 seed=seed, n_personas=int(cfg.get("num_conversations_per_iter", 96)),
                 conv_dirs=conv_dirs, runs_dir=runs_dir, config=cfg,
+                oracle_tag=parsed["oracle_tag"], patient_tag=parsed["patient_tag"],
             ))
     return arms
+
+
+def _warn_binding_mismatch(exp_name: str, parsed: dict, cfg: dict) -> None:
+    """Warn when a run's folder name disagrees with the models ``run_metadata.json`` records.
+
+    The likely way to corrupt the score lake is to change ``ORACLE_MODEL_ID`` in a trainer
+    notebook without the matching name suffix: the run then writes conversations under a
+    name that claims the default grader, and its scores land in the default arm's folder.
+    Discovery is where both facts are in hand, so the mismatch is caught here rather than
+    silently pooled downstream.
+    """
+    from roles import binding_suffix, suffix_from_tags
+    recorded = binding_suffix(cfg.get("oracle_model_id"), cfg.get("patient_model_id"))
+    from_name = suffix_from_tags(parsed["oracle_tag"], parsed["patient_tag"])
+    if recorded and recorded != from_name:
+        print(
+            f"[eda_analysis.data] WARNING: {exp_name!r} records non-default role models "
+            f"(oracle={cfg.get('oracle_model_id')!r}, patient={cfg.get('patient_model_id')!r} "
+            f"→ expected suffix {recorded!r}) but its folder name carries {from_name or 'none'!r}. "
+            f"Its scores will be written under the wrong arm identity — rename the run dir."
+        )
 
 
 def filter_arms(arms: List[Arm], *, methods=None, ks=None, modes=None,

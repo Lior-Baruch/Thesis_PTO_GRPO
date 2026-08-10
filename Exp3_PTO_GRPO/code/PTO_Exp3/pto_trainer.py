@@ -195,6 +195,13 @@ class PTOConfig:
     tb_live_logging: bool = False
     tb_sample_completions_n: int = 8
 
+    def __post_init__(self):
+        # Fail at config construction — before a single GPU-hour or oracle call — if the
+        # run name doesn't encode a non-default patient/oracle model. See roles.py.
+        from roles import assert_name_matches_roles
+        assert_name_matches_roles(
+            self.experiment_name, self.oracle_model_id, self.patient_model_id)
+
 
 @dataclass
 class PTOSummary:
