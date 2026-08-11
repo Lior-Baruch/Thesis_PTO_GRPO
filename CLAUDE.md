@@ -56,12 +56,18 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 **THE single live copy of run status + headline numbers + cost constraint** (all other docs point
 here — see "Doc map"). Updated 2026-07-29.
 
-- **Run status (2026-08-10):** PTO LA0 = 10 iters scored; **GRPO LA0 = 10 iters (FINISHED,
-  re-scored)**; **PTO LA5 = iters 0–7 trained AND scored on BOTH graders, iter 8 training on Colab**
-  (resumed 2026-08-10 with `NUM_ITERATIONS=8`); **GRPO LA5 still thin** (I1 trained AND fully scored).
-  **32 scored model states.** Raising `NUM_ITERATIONS` back to 10 later is safe: `model_iter_k` seeds
+- **Run status (2026-08-11):** PTO LA0 = 10 iters scored; **GRPO LA0 = 10 iters (FINISHED,
+  re-scored)**; **PTO LA5 = iters 0–8 trained AND scored on BOTH graders — the arm has reached its
+  configured `NUM_ITERATIONS=8` endpoint**; **GRPO LA5 still thin** (I1 trained AND fully scored).
+  **33 scored model states.** Raising `NUM_ITERATIONS` back to 10 later is safe: `model_iter_k` seeds
   are `seed+k+1` from either the loop or the post-loop pass, so the persona shuffle matches and
   per-CSV resume skips what exists.
+  ⚠ **"The conv dir exists" is not "the convs exist", AND "the dir reads as empty" is not "the run
+  died"** (learned twice on 2026-08-11 over the same folder). PTO LA5's `model_iter_8/` first looked
+  populated, then read as 0 files with an intermittent `WinError 1450` — but all 96 convs were
+  present in Drive the whole time; the local Drive Desktop mount had wedged on that one folder and a
+  Drive restart fixed it. **Before concluding an arm is unfinished, check the cloud** (the Drive MCP
+  connector lists the folder directly) — the alternative was a needless ~50-min regeneration.
 - **Headline:** **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs 3.75; paired +0.51,
   dz 0.73)** because GRPO peaks at iter 8 (4.08) then regresses into sycophancy (MICI endpoint 0.84
   vs PTO 0.49); PTO climbs stably. Full narrative + tables:
@@ -76,7 +82,11 @@ here — see "Doc map"). Updated 2026-07-29.
   contrast level, not as a precise rate. Buys down LIMITATIONS §1–§2. Cost ~$5.30.
   See `eda/notebooks/analysis/8_Measurement_Validity` §1.
 - **Cost constraint:** OpenAI spend ~**$300** + ~$5 on 2026-08-10 (iters 6+7: $1.06 primary live,
-  $3.74 Haiku batched, 3,072 cells, 0 errors) and is binding. Cost is
+  $3.74 Haiku batched, 3,072 cells, 0 errors) + ~**$1.25** on 2026-08-11 (iter 8: ~$0.53 primary
+  live, **$0.72 Haiku batched**, 1,536 cells, 0 errors) and is binding. ⚠ Price a Haiku sweep off
+  `judge_plan.sweep_report(..., receipt=(42.0, 22272))` — the receipt-calibrated basis put iter 8 at
+  $0.72 where the char estimator said $1.33 and a pro-rata guess off the *live-priced* 08-10 run
+  said $1.87. Cost is
   dominated by oracle scoring + (at K=5) look-ahead patient calls, both ∝ candidate count
   (`prompts×G` / `branch-points×M`) × iterations; prompt caching is already maxed (~50% off the
   oracle's fixed prefix), so the only lever is call **COUNT**: cap `NUM_ITERATIONS` ~5–6 (curves
@@ -85,11 +95,14 @@ here — see "Doc map"). Updated 2026-07-29.
   `project-openai-cost-constraint` memory.
 - **RQ-i first matched point — DONE 2026-07-30.** `PTOExp3_LA5_I5` is generated, scored on BOTH
   graders (23,040 Haiku cells now; parity kept), folded, and rendered. **PTO LA5 = iters 0–5.**
-  - **The read (UPDATED 2026-08-10, iters 6+7 scored): K=5 NEVER LEADS, at any of 7 matched
-    iterations, under EITHER grader.** Primary oracle Δ(K0−K5) on Q1+Q2: +0.08…+0.16 at iters 1–4,
-    −0.002 at 5, **+0.257 at iter 6 (dz 0.42, p_holm 0.0004 — the first Holm-significant Q1Q2 result
-    in the whole K comparison)**, +0.044 at 7. Under the held-out judge **K=0 leads at every iteration
-    1–7**, widening iter 6 to +0.343.
+  - **The read (UPDATED 2026-08-11, iter 8 scored — the arm is now COMPLETE at its `NUM_ITERATIONS=8`
+    endpoint): K=5 NEVER LEADS, at any of 8 matched iterations, under EITHER grader.** Primary oracle
+    Δ(K0−K5) on Q1+Q2: +0.08…+0.16 at iters 1–4, −0.002 at 5, **+0.257 at iter 6 (dz 0.42,
+    p_holm 0.0004 — the first Holm-significant Q1Q2 result in the whole K comparison)**, +0.044 at 7,
+    **+0.077 at 8** (dz 0.17, p_holm 0.21 — n.s., though Q2 alone is +0.145, dz 0.33, p_holm 0.010).
+    Under the held-out judge **K=0 leads at every iteration 1–8**, widening iter 6 to +0.343 and
+    making **iter 8 Holm-significant (+0.186, dz 0.34, p_holm 0.0019; Q2 +0.307, MITI +0.164)**.
+    Levels at the endpoint: primary 4.221 (K=0) vs 4.144 (K=5); judge 2.895 vs 2.710.
     ⚠ **The old "arms tie at iter 5" claim is SUPERSEDED** — it was a primary-oracle artifact that did
     not survive iter 6, and the held-out judge never saw it as a tie. Make the claim about the lever,
     never about convergence.
@@ -123,11 +136,19 @@ here — see "Doc map"). Updated 2026-07-29.
     claim). Both graders also flag **PTO iter-4 MICI with K=5 worse** (−0.111 primary / −0.177
     judge, both Holm-significant), and the judge sees that tilt at iters 2–5 — suggestive that
     look-ahead costs MI-consistency, not established.
+    ⚠ **That MICI tilt REVERSES at iters 7–8** (added 2026-08-11): Δ(K0−K5) turns *positive*, i.e.
+    K=5 is the MI-consistent arm — +0.078/+0.059 primary (iter 7 p_holm 0.029) and +0.071 judge at
+    iter 8 (p_holm 0.043). A claim that flips sign across the run is a claim about *when*, not about
+    the lever — **drop "look-ahead costs MI-consistency" from the write-up** rather than restate it
+    with more iterations.
   - Tooling = [`code/PTO_Exp3/generate_eval_convs.{py,ipynb}`](Exp3_PTO_GRPO/code/PTO_Exp3/generate_eval_convs.py)
     (repairs any orphaned adapter). Mechanics + the VRAM leak it exposed:
     [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md) (2026-07-30 entry).
-  - **Next:** resume PTO LA5 → iter 10 and GRPO LA5 from iter 1 when budget allows. Cost: $1.33
-    (Haiku batched) for the iter-5 sweep; `judge_plan.estimate_cost` prices the rest.
+  - **Next:** PTO LA5 is DONE at its `NUM_ITERATIONS=8` endpoint and fully scored, so the open
+    question is no longer "more PTO K=5 iterations" — 8 matched points already say the same thing
+    eight times. The remaining gap is **GRPO LA5, which still has only iter 1**: without it the K
+    result is WITHIN PTO and cannot be stated as a K×method comparison. Spend there before extending
+    PTO LA5 to 10. `judge_plan.sweep_report(..., receipt=(42.0, 22272))` prices the scoring.
   - **Durable LA5-resume facts** (what's actually on Drive; dated forensics in
     [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md), 2026-07-11 entry):
     **PTO LA5** has trained adapters for iters 1–5 but only I1–I4 scored — the iter-5 eval convs
@@ -249,7 +270,7 @@ here — see "Doc map"). Updated 2026-07-29.
     `_parquet/_manifest.json` still matches disk and falls back to the CSVs otherwise —
     **4.3–6.1×** faster (`scores_long` 86 s → 16 s), with all seven per-conversation loaders proven
     identical under `assert_frame_equal(rtol=0, atol=0)` via either path. `_selfcheck` is now
-    **17 checks** and asserts both halves (fold-equals-CSV, and that a tampered signature is
+    **19 checks** and asserts both halves (fold-equals-CSV, and that a tampered signature is
     refused rather than served).
 
 ## Doc map (one owner per fact)
@@ -625,7 +646,7 @@ its own family; `python tools/render_views.py` regenerates everything. Reproduci
    **JUDGE knob** selects which grader's scores are read and which `<judge>/` subfolder is written.
 3. **Regenerate:** `python tools/render_views.py` (renders the two tracked views, L0+L5) → `results/<view>/`.
    The pooled `all` view was RETIRED 2026-07-27 — still renderable, but gitignored scratch, not a deliverable.
-   Run **`python -m eda_analysis._selfcheck`** after any EDA change (17 checks).
+   Run **`python -m eda_analysis._selfcheck`** after any EDA change (19 checks).
 
 The VIEW/JUDGE systems, `EdaConfig`, parquet cache, output-clean policy, and the package module map
 are all documented in [eda/README.md](Exp3_PTO_GRPO/eda/README.md) — not here. Eval **numbers** are

@@ -417,7 +417,7 @@ behind an unchanged public surface.
   `estimate_cost` / `sweep_report`) · `judge_batch` (the **Anthropic Message Batches** path, 50% off:
   `submit_sweep` → `poll_batches` → `collect_batches`, three phases with disk-persisted manifests so
   a fresh kernel can collect; plus `probe_usage` for a measured token profile).
-- **`_selfcheck`** — the guard, **17 checks**: package invariants, the scoring surface, notebook
+- **`_selfcheck`** — the guard, **19 checks**: package invariants, the scoring surface, notebook
   symbol refs, the cache round-trip, the second-judge rubric-parity gate, arm discovery, the known
   headline means, the persona permutation, judge routing, the parquet fold (equals the CSVs *and*
   refuses a tampered signature), and the multi-judge layer. Run
