@@ -1,0 +1,20 @@
+# LaTeX build output — regenerable from the .tex sources
+*.aux
+*.bbl
+*.blg
+*.fdb_latexmk
+*.fls
+*.log
+*.out
+*.synctex.gz
+*.toc
+*.pdf
+build.log
+
+# ...except a PDF that was actually submitted or circulated: force-add it
+# (`git add -f submitted/<name>.pdf`) so there is a record of what people saw.
+!submitted/*.pdf
+
+# NOT ignored, deliberately: acl.sty and acl_natbib.bst are vendored from
+# github.com/acl-org/acl-style-files so the paper builds without a network
+# round-trip and against a pinned style version. They are ~57 KB total.

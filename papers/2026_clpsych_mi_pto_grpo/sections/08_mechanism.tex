@@ -1,0 +1,52 @@
+% !TeX root = ../main.tex
+\section{Where the Difference Comes From}
+\label{sec:mechanism}
+
+The two arms differ in a loss \emph{and} in a data-collection strategy. Which carries the
+gap? Preference turns out not to be the essential difference: both methods weight the
+candidates of a group and step along the weighted sum --- DPO puts $+1$ on the logged winner
+and $-1$ on the loser, GRPO the standardized advantage on each of its $G$ completions ---
+so rescaling every group's weights to a common size puts both on one probe and lets us read
+the training signal directly. Appendix~\ref{app:mechanism} gives the construction, the probe
+audit that disqualifies per-iteration estimates, and the per-iteration series; two results
+matter here.
+
+\paragraph{The reward hack is visible in the gradient, and it compounds.}
+The update's affirmation push --- exact, embedding-free, over every group --- rises from
+$-0.006$ to $+0.086$ in GRPO and from $0.008$ to $0.103$ in PTO, so \S\ref{sec:hacking}'s
+drift has a training-side measurement and not only an outcome-side inference. But that
+selection pressure is an order of magnitude smaller than the drift it produces: over all
+sampled candidates, affirmation cues go $0.02 \to 0.54$ (GRPO) and question marks
+$0.71 \to 0.06$. Small, same-signed pressure applied each iteration to an
+already-more-effusive policy compounds --- which matters for mitigation, since penalising the
+selection step would barely touch a drift that lives in the generation distribution.
+
+\paragraph{The gap is the data, not the loss.}
+The arms' pooled update directions agree only weakly (cosine $0.32$, corrected for how well
+each is estimated). Applying each method's weighting rule to the \emph{other's} candidate
+groups isolates why:
+
+\begin{center}\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+Comparison & cos\\
+\midrule
+As trained (rule \emph{and} data differ) & 0.32\\
+Same groups, rule swapped (PTO's data)   & 0.91\\
+Same groups, rule swapped (GRPO's data)  & 0.99\\
+Same rule, each method's own data        & 0.40 / 0.32\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+Swapping the rule on identical groups barely moves the update; holding the rule fixed and
+swapping the groups leaves the arms as far apart as when trained. \textbf{At matched $K$ and
+a shared oracle, DPO and group-relative weighting extract nearly the same direction from the
+same eight completions.} ``PTO vs GRPO'' is therefore a statement about \emph{exploration}
+--- which conversational states each method collects candidates in --- not about the loss
+family, and the design question becomes which states to visit rather than which objective to
+use. One caution on our own headline: PTO's $\tau$ filter and shrinking branch count cost it
+two-thirds of its training signal over the run (groups trained $782 \to 281$, against
+$94$--$98\%$ retention for GRPO), so a flattening PTO curve may partly be a data-starvation
+curve (Appendix~\ref{app:mechanism}, Table~\ref{tab:yield}).

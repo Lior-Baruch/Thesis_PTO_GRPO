@@ -1,0 +1,104 @@
+% !TeX root = ../main.tex
+\section{Auditing the Judge: Gain Retention}
+\label{sec:validity}
+
+Everything so far was graded by the model that supplied the training reward and that also
+played the patient. To test whether the conclusions are properties of the therapist or of
+that grader, we re-scored the \emph{entire} grid --- every conversation, every rubric, every
+model state, $22{,}272$ cells --- with \heldoutjudge{}: a different model family that never
+played the patient and never touched training.
+
+\paragraph{The measuring instruments are repeatable.}
+Reproducibility is measured rather than assumed. Re-scoring the same conversations with
+only the sampling seed changed gives ICC(2,1) \citep{shrout1979icc} of $0.98$--$0.99$ (Q1),
+$0.96$--$0.99$ (Q2) and $0.86$--$0.94$ (\mici{}) for the primary oracle, and
+$0.95$--$0.98$ / $0.94$--$0.96$ / $0.53$--$0.93$ for the held-out judge
+(Appendix~\ref{app:reliability}, Table~\ref{tab:icc}) --- ``excellent'' on the reward
+instruments by the \citet{koo2016icc} guideline. This matters for reading the next
+paragraph: two noisy raters cannot agree perfectly even if they measure the same thing, so
+cross-judge agreement must be read against the attenuation ceiling
+$\sqrt{\mathrm{ICC}_a \cdot \mathrm{ICC}_b}$, never against $1.0$
+(Table~\ref{tab:ceiling}).
+
+\paragraph{The rankings survive.}
+Across all $1{,}848$ pairwise (arm $\times$ metric) contrasts in this comparison, $88.3\%$
+keep their sign under the held-out judge, rising monotonically with effect size to $94.1\%$
+at $|\Delta|\!\ge\!0.10$, $97.0\%$ at $\ge\!0.25$ and $98.9\%$ at $\ge\!0.50$ (Appendix~\ref{app:signs},
+Table~\ref{tab:signladder}): the two
+graders disagree only about differences too small to claim. All 18 contrasts this paper
+leans on --- including the steelman PTO@10 $-$ GRPO@8 and the regression claim
+GRPO@8 $-$ GRPO@10 --- are preserved with bootstrap CIs excluding zero, and the held-out
+judge in fact \emph{widens} the headline Q1 gap ($+0.77$ vs the primary's $+0.53$). A
+two-way decomposition of the arm means puts only $1.2$--$6.9\%$ of variance in the
+arm~$\times$~judge interaction, the only component that could invalidate an ordering; the
+judges differ on \emph{level} (the held-out judge is $1.2$--$1.7$ points harsher), which
+cancels in every contrast we report.
+
+\paragraph{One rubric genuinely disagrees.}
+MITI is the exception and we flag it as a limitation rather than a footnote: only $3.6\%$
+of its arm-mean variance is between-arm signal, a single-judge MITI ranking is $0.65$
+dependable against ${\approx}0.90$ for every other rubric, and it preserves its sign on only
+$77.5\%$ of contrasts --- and, unlike every other rubric, still only $88.2\%$ at
+$|\Delta|\!\ge\!0.25$, i.e.\ it can flip at a gap large enough to want to report.
+\textbf{MITI arm differences in this paper should be treated as provisional unless both
+graders agree on the direction.} \mici{} agrees only weakly per conversation
+($r=0.20$--$0.55$); against the measured ceiling it recovers ${\approx}39\%$ of achievable
+agreement where Q1/Q2 recover ${\approx}85\%$, so the residual is mostly genuine construct
+disagreement about what counts as MI-inconsistent. We therefore state the sycophancy claim
+at the \emph{contrast} level (both graders agree GRPO@10 is more MI-inconsistent than
+PTO@10, and that \mici{} rises from base in both arms) and not as a precise rate.
+
+\paragraph{Gain retention separates the arms.}
+The sharpest use of a held-out grader is not agreement but \emph{retention}. Because the
+primary oracle was the training reward and the second judge never touched training,
+\[
+  \text{retention} \;=\;
+  \frac{\Delta_{\text{held-out judge}}}{\Delta_{\text{trained-against judge}}}
+\]
+is a train/test generalization ratio for each arm's gain over base: ${\approx}1$ means a
+behaviour change both graders see, ${\approx}0$ means a gain that existed only inside the
+optimized grader. On Q1 the arms separate and their intervals do not overlap:
+PTO@10 $0.80\,[0.68, 0.93]$ versus GRPO@10 $0.28\,[0.06, 0.43]$ (GRPO@8:
+$0.64\,[0.53, 0.78]$). Under a judge that never graded during training, GRPO's net
+ten-iteration Q1 gain is ${\approx}0.19$ points --- close to where it started --- against
+the ${\approx}0.68$ the primary grader credits it. Q2 retention, by contrast, is flat at
+$0.80$--$0.85$ with fully overlapping intervals, which is ordinary scale compression
+between graders and is exactly the null result that makes the Q1 divergence readable as
+arm-specific rather than as a grader artifact.
+
+\begin{table}[t]
+  \centering\small
+  \setlength{\tabcolsep}{3.4pt}
+  \begin{tabular}{@{}lcccccccccc@{}}
+    \toprule
+    iter & 1 & 2 & 3 & 4 & 5 & 6 & 7 & 8 & 9 & 10\\
+    \midrule
+    PTO  & .97 & .84 & .89 & .94 & .98 & .97 & .94 & .89 & .88 & \textbf{.80}\\
+    GRPO & 1.13 & .79 & .89 & .79 & .73 & .57 & .70 & .64 & .03 & \textbf{.28}\\
+    \bottomrule
+  \end{tabular}
+  \caption{Q1 gain retention by iteration. The arms are indistinguishable for three
+  iterations, then separate: PTO holds $0.80$--$0.98$ for the whole run while GRPO decays
+  monotonically in trend. This is an onset curve, not an endpoint accident.}
+  \label{tab:retention}
+\end{table}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\linewidth]{figures/multijudge_retention_trajectory.png}
+  \caption{Gain retention across iterations (Table~\ref{tab:retention}, plotted). The
+  held-out grader stops crediting GRPO's gains \emph{progressively} --- the signature of a
+  policy drifting onto grader-specific features rather than of a bad final checkpoint.}
+  \label{fig:retention}
+\end{figure}
+
+\paragraph{Why this is the load-bearing evidence.}
+Retention is measured on Q1 --- an instrument \emph{inside} the training reward --- which
+makes it immune to the objection that outside-the-reward instruments (\mici{}, MITI) might
+simply be measuring something the training never targeted. It requires no human coding, no
+new conversations, and one extra grading pass. And it is an onset curve
+(Table~\ref{tab:retention}, Figure~\ref{fig:retention}): the divergence begins at
+iteration~3 and grows, which is what optimizer drift looks like and is not what a single
+bad checkpoint looks like. We propose it as a default diagnostic for any system trained
+against an LLM judge: \emph{report how much of your gain a grader that never saw training
+still credits, per iteration.}

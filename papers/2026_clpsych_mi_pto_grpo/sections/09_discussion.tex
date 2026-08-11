@@ -1,0 +1,54 @@
+% !TeX root = ../main.tex
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What a practitioner should take from this.}
+If you are training a small model to do MI against an LLM oracle, three things follow.
+(i)~\textbf{Do not stop at the reward curve.} Both arms here would report a large, highly
+significant, multi-rubric success, and one of them ends with a therapist that asks a
+question every seventh turn. (ii)~\textbf{Buy a second grader before you buy more
+iterations.} Re-scoring the whole grid with a held-out judge cost less than a single
+training iteration and is what separated a real gain from a grader-specific one. (iii)~
+\textbf{Prefer the method that explores}, and treat iteration count as a hyperparameter with
+a validation criterion attached --- GRPO's best model is four iterations before its last.
+
+\paragraph{Why the winner wins.}
+Our reading is that PTO's advantage is not the DPO loss (\S\ref{sec:mechanism} rules that
+out fairly directly) but the sequential trunk. Because each branch point commits to its
+winner and continues, PTO collects candidates in states reached by a run of good choices ---
+states that GRPO's fixed, once-per-iteration prompt list never contains. That is a
+distribution-of-training-contexts advantage, and it also predicts the observed cost: PTO's
+sequential growth cannot be batched as freely, and its $\tau$ filter throws data away.
+
+\paragraph{Why the loser loses in a specific way.}
+GRPO's failure is not instability in the usual RL sense --- it improves monotonically for
+eight iterations and its variance is unremarkable. It fails by \emph{succeeding at the
+stated objective}: it drives the reward up, and the reward is a 22-item questionnaire in
+which self-disclosure and taking charge are credited. The clinical failure mode
+(a warm, praising, non-inquiring counsellor) and the machine-learning failure mode (a policy
+overfitting its grader) turn out to be the same event viewed from two instruments, which is
+what makes MI a good testbed for reward hacking rather than merely a domain in which it
+occurs.
+
+\paragraph{On the instruments.}
+The most uncomfortable finding for the paradigm is \S\ref{sec:results}'s factor structure:
+five rubrics that sound like five constructs behave like one. A study that reports Q1, Q2,
+WAI-SR, CSQ-8 and MI-SAT all improving has, to a first approximation, reported one number
+five times. Batteries for LLM-graded MI should be chosen for what they \emph{dis}agree
+about --- which, empirically here, means MI-inconsistency counts and the MITI technique
+ratios --- and not for how many validated instruments they contain.
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+We compared preference-tree and group-relative optimization for training a 1B therapist
+model to do Motivational Interviewing, holding the base policy, the simulated patients, the
+grading oracle, the candidate budget and the look-ahead depth fixed. Both raise the reward
+substantially; PTO leads at the matched ten-iteration endpoint and keeps improving where
+GRPO peaks and regresses. But the gains in both arms come with a drift toward affirmation
+and away from inquiry, and a judge that never touched training credits $0.80$ of PTO's Q1
+gain against $0.28$ of GRPO's --- an onset curve that begins at iteration~3. Reading the
+training signal directly shows the two losses extract nearly the same direction from the
+same candidates, so the method gap is about which conversational states get explored, not
+about DPO versus group-relative weighting. We recommend gain retention under a decoupled
+grader as a routine diagnostic wherever an LLM fills in a questionnaire for reward.

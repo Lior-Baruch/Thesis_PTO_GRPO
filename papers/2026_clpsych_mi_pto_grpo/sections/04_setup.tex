@@ -1,0 +1,111 @@
+% !TeX root = ../main.tex
+\section{Experimental Setup}
+\label{sec:setup}
+
+\paragraph{Models.}
+The therapist is \texttt{Llama-3.2-1B} in \texttt{bfloat16} with a LoRA adapter
+($r{=}16$, $\alpha{=}16$, dropout $0.05$, applied to all attention and MLP projections).
+The patient simulator and the training oracle are both
+\texttt{gpt-4o-mini-2024-07-18}; the oracle answers under a constrained JSON schema.
+Using a 1B policy is a deliberate constraint, not a convenience: it is the regime in
+which an institution could plausibly run a therapist model locally, and it is the regime in
+which reward-hacking is most visible because the policy has the least capability to spend
+on anything else.
+
+\paragraph{Patients.}
+96 patient personas enumerate a full factorial over gender ($2$) $\times$ cooperation level
+($3$: low, high, low-then-rising) $\times$ presenting problem ($2$: smoking, obesity)
+$\times$ problem duration ($2$) $\times$ prior quit attempts ($2$) $\times$ age
+($2$: 27, 61). The therapist persona is held fixed at the ``expert'' level. Personas are
+shuffled between iterations; because the same 96 personas recur at every model state, all
+comparisons in this paper are \textbf{persona-paired} ($n{=}96$).
+
+\paragraph{Training configuration (matched).}
+Table~\ref{tab:matched} gives the controlled variables. Both arms run
+$10$ iterations, $2$ epochs per iteration, regenerating 96 conversations per iteration
+from the current policy, with a training-context floor of $\mathrm{MCL}=12$ utterances,
+$M = G = 8$ candidates per decision point, candidate sampling temperature $1.2$, generation
+temperatures $0.9$ (therapist) / $0.7$ (patient), a $200$-token completion cap, and
+learning rate $10^{-5}$. Method-specific: PTO uses $\tau=0.1$ and DPO
+$\beta=0.1$ (sigmoid loss); GRPO uses a KL coefficient of $0.01$.
+
+\begin{table}[t]
+  \centering\small
+  \begin{tabular}{@{}ll@{}}
+    \toprule
+    \multicolumn{2}{@{}l}{\textbf{Matched across both arms}}\\
+    \midrule
+    Base policy        & Llama-3.2-1B, bf16, LoRA $r{=}16$\\
+    Patient / oracle   & \texttt{gpt-4o-mini-2024-07-18}\\
+    Training reward    & mean(Q1, Q2), 22 items\\
+    Iterations         & 10 ($\times$ 2 epochs)\\
+    Convs / iteration  & 96 (one per persona)\\
+    Candidates / point & $M = G = 8$ @ temp.\ $1.2$\\
+    Look-ahead         & $K = 0$\\
+    Context floor      & $\mathrm{MCL} = 12$ utterances\\
+    Learning rate      & $1\!\times\!10^{-5}$\\
+    \midrule
+    \multicolumn{2}{@{}l}{\textbf{Method-specific}}\\
+    \midrule
+    PTO                & $\tau = 0.1$, DPO $\beta = 0.1$\\
+    GRPO               & KL $\beta = 0.01$, all $G$ kept\\
+    \bottomrule
+  \end{tabular}
+  \caption{Controlled variables. The two arms differ in how rollouts become training data
+  and in the loss, not in generation budget or grading.}
+  \label{tab:matched}
+\end{table}
+
+\paragraph{Reward vs.\ evaluation.}
+The \emph{training} reward is the mean of two instruments only --- Q1 (session
+satisfaction, 5 items) and Q2 (working alliance / relational communication, 17 items), the
+LLM-evaluator prompts validated by \citet{yosef2024assessing}, matching
+\citet{baruch2025pto}. The \emph{evaluation} battery is deliberately wider
+(Table~\ref{tab:instruments}): five global rubrics, a patient change-talk coder, an
+MI-inconsistency coder, and three MITI technique ratios computed from the coded behaviour
+counts. Only \QQ{} is inside the reward; everything else is an outside-the-reward axis, and
+we flag which is which throughout.
+
+\begin{table}[t]
+  \centering\small
+  \setlength{\tabcolsep}{4pt}
+  \begin{tabular}{@{}llc@{}}
+    \toprule
+    Instrument & What it rates & Reward?\\
+    \midrule
+    \QQ{}       & satisfaction + alliance   & \textbf{yes}\\
+    WAI-SR      & alliance: goal/task/bond  & no\\
+    CSQ-8       & client satisfaction       & no\\
+    MI-SAT      & MI-session satisfaction   & no\\
+    MITI        & MI treatment integrity    & no\\
+    PCT         & \emph{patient} change-talk & no\\
+    \mici{}~$\downarrow$ & MI-\emph{inconsistent} moves & no\\
+    R:Q, \%CR, \%MICO & MITI technique ratios & no\\
+    \bottomrule
+  \end{tabular}
+  \caption{The evaluation battery. \mici{} is the only metric where lower is better. WAI-SR
+  \citep{hatcher2006waisr} and CSQ-8 \citep{larsen1979csq} are classically validated human
+  self-report scales completed by the oracle in the patient's voice; MITI is the official
+  coding manual \citep{moyers2016miti}; PCT and \mici{} are MITI-style coders written for
+  this study.}
+  \label{tab:instruments}
+\end{table}
+
+\paragraph{Evaluation protocol.}
+The 96 conversations generated at the start of iteration $n$ are the output of the
+iteration-$(n\!-\!1)$ policy, so they \emph{are} that policy's evaluation set --- no
+separate generation pass is needed for trained states. Every conversation is scored on all
+eight instruments at temperature $0.1$ with a fixed seed. Across the two arms this is 22
+model states $\times$ 8 rubrics $\times$ 96 conversations. Contrasts are persona-paired
+Wilcoxon tests with Holm correction within each family (the eight rubrics of one contrast,
+or the ten iterations of one arm-vs-base sweep); effect sizes are $\dz{}$. Confidence
+intervals are persona bootstraps at a fixed seed.
+
+\paragraph{Second grader.}
+For \S\ref{sec:validity} the entire grid was re-scored by \heldoutjudge{} --- a different
+model family that never played the patient and never touched training --- at full coverage
+($22{,}272/22{,}272$ cells). The two graders are \textbf{never averaged}: the primary
+oracle \emph{was} the training reward and the second was held out, which makes this a
+train-vs-test comparison rather than two interchangeable raters, and their level offset
+($1.2$--$1.7$ points, and model-dependent) would silently shrink every effect. Only
+contrasts and standardized quantities are combined across graders.
