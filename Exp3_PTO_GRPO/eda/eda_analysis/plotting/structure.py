@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 
-from ..constants import WARMTH_RUBRICS, display_label, short_label
+from ..constants import BOOT_SEED, WARMTH_RUBRICS, display_label, short_label
 from ..plotting_style import arm_palette
 
 
@@ -22,7 +22,8 @@ def reliability_curve(agreement_df, *, palette=None):
         return None
     pal = palette or arm_palette(sorted(agreement_df.arm.unique()))
     fig, ax = plt.subplots(figsize=(7.5, 4.5))
-    sns.lineplot(agreement_df, x="n_turns", y="agreement", hue="arm", marker="o", palette=pal, ax=ax)
+    sns.lineplot(agreement_df, x="n_turns", y="agreement", hue="arm", marker="o", palette=pal,
+                 seed=BOOT_SEED, ax=ax)
     ax.axhline(0.5, color="grey", lw=0.8, ls="--")
     ax.text(ax.get_xlim()[1], 0.5, " chance", ha="right", va="bottom", fontsize=7, color="grey")
     ax.set_ylim(0.45, 1.0)

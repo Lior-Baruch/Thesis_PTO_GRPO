@@ -29,9 +29,11 @@ artifacts with stable, thesis-ready names. Captions accumulate in each group's `
 generated figure/table subfolders of the active view but PRESERVES the hand-authored ``SUMMARY.md``.
 """
 
+import datetime
 import os
 import re
 import shutil
+import zipfile
 from typing import Optional, Sequence
 
 import pandas as pd
@@ -81,6 +83,10 @@ _TABLE_FORMATS = ("md", "xlsx")
 # elsewhere, truncating would lose data.
 MD_MAX_BYTES = 64 * 1024
 MD_EXCERPT_ROWS = 60
+
+# Fixed timestamp stamped into every .xlsx (see _freeze_workbook_timestamps). Any constant works;
+# what matters is that it never changes, so an unchanged table produces an unchanged file.
+EXPORT_EPOCH = datetime.datetime(2026, 1, 1, 0, 0, 0)
 
 
 def set_view(view: str = "") -> None:
@@ -293,15 +299,47 @@ def _write_xlsx_sheet(dir_path: str, name: str, df: pd.DataFrame, *, index: bool
     xpath = os.path.join(dir_path, f"{group}.xlsx")
     sheet = re.sub(r"[\[\]:*?/\\]", "_", name)[:31]
     try:
-        if os.path.exists(xpath):
-            with pd.ExcelWriter(xpath, engine="openpyxl", mode="a",
-                                if_sheet_exists="replace") as xw:
-                df.to_excel(xw, sheet_name=sheet, index=index)
-        else:
-            with pd.ExcelWriter(xpath, engine="openpyxl", mode="w") as xw:
-                df.to_excel(xw, sheet_name=sheet, index=index)
+        mode = "a" if os.path.exists(xpath) else "w"
+        kw = {"if_sheet_exists": "replace"} if mode == "a" else {}
+        with pd.ExcelWriter(xpath, engine="openpyxl", mode=mode, **kw) as xw:
+            df.to_excel(xw, sheet_name=sheet, index=index)
+        _normalize_xlsx(xpath)
     except Exception as e:   # missing engine / locked file — don't break the .md export
         print(f"  [exports] xlsx skipped for {name}: {e}")
+
+
+_CORE_TS_RE = re.compile(
+    rb"(<dcterms:(created|modified)[^>]*>)[^<]*(</dcterms:(?:created|modified)>)")
+
+
+def _normalize_xlsx(path: str) -> None:
+    """Rewrite ``path`` with fixed timestamps so an unchanged table stays byte-identical.
+
+    openpyxl stamps the current time in TWO places — ``docProps/core.xml`` (and it overwrites
+    ``modified`` during save, so setting the property beforehand does not stick) and every zip
+    entry's mtime. The result was that re-rendering rewrote EVERY ``.xlsx`` on unchanged data: the
+    same non-determinism :data:`~eda_analysis.constants.BOOT_SEED` fixed on the figure side, and
+    just as misleading — a diff showing 30 changed workbooks reads as "the numbers moved" when only
+    the clock did.
+
+    Rewriting the archive afterwards is the reliable fix: member CONTENT is copied through
+    untouched (verified below by the ``_selfcheck`` round-trip), only the timestamps are pinned.
+    """
+    with zipfile.ZipFile(path) as src:
+        items = [(i.filename, src.read(i.filename)) for i in src.infolist()]
+    stamp = (EXPORT_EPOCH.year, EXPORT_EPOCH.month, EXPORT_EPOCH.day,
+             EXPORT_EPOCH.hour, EXPORT_EPOCH.minute, EXPORT_EPOCH.second)
+    iso = EXPORT_EPOCH.strftime("%Y-%m-%dT%H:%M:%SZ").encode()
+    tmp = f"{path}.{os.getpid()}.tmp"
+    with zipfile.ZipFile(tmp, "w", zipfile.ZIP_DEFLATED) as out:
+        for fname, data in items:
+            if fname == "docProps/core.xml":
+                data = _CORE_TS_RE.sub(rb"\g<1>" + iso + rb"\g<3>", data)
+            zi = zipfile.ZipInfo(fname, date_time=stamp)
+            zi.compress_type = zipfile.ZIP_DEFLATED
+            zi.external_attr = 0o600 << 16
+            out.writestr(zi, data)
+    os.replace(tmp, path)
 
 
 def _to_markdown(df: pd.DataFrame, *, index: bool, float_format: str) -> str:

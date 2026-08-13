@@ -13,6 +13,8 @@ import numpy as np
 import pandas as pd
 import seaborn as sns
 
+from ..constants import BOOT_SEED
+
 from ..plotting_style import grid, arm_palette, clean_label
 
 _MODEL_RE = re.compile(r"^(PTO|GRPO)Exp3_LA(\d+)_(Base|I\d+)$")
@@ -182,7 +184,8 @@ def judge_contrast_bars(contrast_df, *, metrics=None, judge_name: str = "second 
     for ax, pair in zip(axes, pairs):
         g = long[long.contrast == pair]
         sns.barplot(g, x="metric", y="delta", hue="judge", order=order,
-                    palette=["#0072B2", "#D55E00"], ax=ax, legend=(ax is axes[0]))
+                    palette=["#0072B2", "#D55E00"], seed=BOOT_SEED, ax=ax,
+                    legend=(ax is axes[0]))
         ax.axhline(0, lw=1.0, color="#333333", zorder=2)
         lo, hi = ax.get_ylim()                      # headroom so the verdict never sits on a bar
         pad = 0.20 * (hi - lo)

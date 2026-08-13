@@ -44,7 +44,7 @@ def heterogeneity_grid(scores_long, char: str, *, arms: Optional[Sequence[str]] 
     fig, axes = grid(len(arm_list), ncols=ncols, panel=(6.4, 3.8))
     for ax, arm in zip(axes, arm_list):
         sns.lineplot(d[d.arm == arm], x="iteration", y="score", hue=char, hue_order=cats,
-                     marker="o", palette=hue_pal, ax=ax)
+                     marker="o", palette=hue_pal, seed=BOOT_SEED, ax=ax)
         ax.set_title(arm_label(arm)); ax.set_ylabel(display_label(metric)); ax.set_xlabel("iteration")
         if ax is axes[0]:
             relabel_legend(ax, valmap)      # readable category names; palette keyed on raw
@@ -90,7 +90,7 @@ def heterogeneity_overview_grid(scores_long, char: str, *, arms: Optional[Sequen
         for c, arm in enumerate(arm_list):
             ax = axes[r][c]
             sns.lineplot(dm[dm.arm == arm], x="iteration", y="score", hue=char, hue_order=cats,
-                         marker="o", palette=hue_pal, ax=ax)
+                         marker="o", palette=hue_pal, seed=BOOT_SEED, ax=ax)
             if r == 0:
                 ax.set_title(arm_label(arm))
             ax.set_ylabel(display_label(m) if c == 0 else "")

@@ -10,6 +10,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import seaborn as sns
 
+from ..constants import BOOT_SEED
+
 from ..constants import MITI_THRESHOLDS, display_label, arm_label
 from ..plotting_style import grid, arm_palette, relabel_legend
 
@@ -36,7 +38,8 @@ def behavior_trajectory_grid(behavior_by_iter, *, palette=None,
     pal = palette or arm_palette(sorted(behavior_by_iter.arm.unique()))
     fig, axes = grid(len(bm), ncols=ncols)
     for ax, m in zip(axes, bm):
-        sns.lineplot(behavior_by_iter, x="iteration", y=m, hue="arm", palette=pal, marker="o", ax=ax)
+        sns.lineplot(behavior_by_iter, x="iteration", y=m, hue="arm", palette=pal, marker="o",
+                     seed=BOOT_SEED, ax=ax)
         ax.set_title(display_label(m)); ax.set_ylabel(display_label(m))
         if ax is axes[0]:
             relabel_legend(ax)
@@ -58,7 +61,8 @@ def single_behavior_trajectory(behavior_by_iter, metric: str, *, palette=None):
         return None
     pal = palette or arm_palette(sorted(behavior_by_iter.arm.unique()))
     fig, ax = plt.subplots(figsize=(8, 4.5))
-    sns.lineplot(behavior_by_iter, x="iteration", y=metric, hue="arm", palette=pal, marker="o", ax=ax)
+    sns.lineplot(behavior_by_iter, x="iteration", y=metric, hue="arm", palette=pal, marker="o",
+                 seed=BOOT_SEED, ax=ax)
     ax.set_title(f"{display_label(metric)} across iterations")
     ax.set_xlabel("training iteration"); ax.set_ylabel(display_label(metric))
     sns.move_legend(ax, "upper left", bbox_to_anchor=(1.01, 1.0), title="arm", frameon=False)
@@ -93,7 +97,8 @@ def miti_threshold_panel(prof_df, *, palette=None, ncols: int = 2,
     pal = palette or arm_palette(sorted(prof_df.arm.unique()))
     fig, axes = grid(len(mets), ncols=ncols, panel=(6.0, 3.6))
     for ax, m in zip(axes, mets):
-        sns.lineplot(prof_df, x="iteration", y=m, hue="arm", palette=pal, marker="o", ax=ax)
+        sns.lineplot(prof_df, x="iteration", y=m, hue="arm", palette=pal, marker="o",
+                     seed=BOOT_SEED, ax=ax)
         fair, good = MITI_THRESHOLDS[m]
         ax.axhline(fair, color="#E69F00", lw=1.2, ls="--", zorder=1)
         ax.axhline(good, color="#009E73", lw=1.2, ls="--", zorder=1)

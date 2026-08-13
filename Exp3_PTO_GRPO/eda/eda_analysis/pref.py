@@ -293,7 +293,7 @@ def plot_category_drift(category_long: pd.DataFrame, *, palette=None):
         return None
     fig, ax = plt.subplots(figsize=(8, 4.5))
     sns.lineplot(category_long, x="train_iter", y="score", hue="category", marker="o",
-                 palette=palette, ax=ax)
+                 palette=palette, seed=BOOT_SEED, ax=ax)
     ax.axhline(0, color="grey", lw=0.6, ls="--")
     ax.set_title("MI-concept preference drift (projection onto chosen − rejected)")
     ax.set_xlabel("training iteration"); ax.set_ylabel("mean projection")

@@ -31,6 +31,7 @@ Probe (opt-in, heavy — needs sentence-transformers + pref pairs):
 from __future__ import annotations
 
 import json
+import io
 import os
 import re
 import sys
@@ -637,6 +638,48 @@ def _c_probe() -> str:
 
 
 # ── driver ────────────────────────────────────────────────────────────────────
+def _c_seeded_bootstrap() -> str:
+    """Every seaborn call that bootstraps a CI must pass seed=BOOT_SEED.
+
+    lineplot/barplot/pointplot default to errorbar=("ci", 95) — a 1000-resample
+    bootstrap — so a callsite that never NAMES errorbar still draws a randomised CI. The
+    2026-07-28 reproducibility pass seeded the eight callsites that spelled errorbar out and
+    could not see the ones relying on the default, which is why 4_heterogeneity still rewrote
+    20 PNGs per view on unchanged data (found 2026-08-13 while proving a render race was benign:
+    two consecutive clean renders of the same notebook disagreed).
+
+    Source-level on purpose. The data-level symptom is "some PNGs differ between two identical
+    renders", which is slow to notice, easy to blame on the data, and exactly what a thesis figure
+    must not do.
+    """
+    import re as _re
+    pkg = os.path.dirname(os.path.abspath(__file__))
+    call = _re.compile(r"\bsns\.(lineplot|barplot|pointplot)\s*\(")
+    offenders, seen = [], 0
+    for root, _dirs, files in os.walk(pkg):
+        if "__pycache__" in root:
+            continue
+        for fn in sorted(f for f in files if f.endswith(".py")):
+            fp = os.path.join(root, fn)
+            lines = io.open(fp, encoding="utf-8").read().splitlines()
+            for i, line in enumerate(lines):
+                if not call.search(line):
+                    continue
+                if line.lstrip().startswith(("#", '"', "'")) or "..." in line:
+                    continue                      # docstring example, not a callsite
+                block = "\n".join(lines[i:i + 6])
+                seen += 1
+                if any(a in block for a in ('errorbar=None', 'errorbar="se"', "errorbar='se'")):
+                    continue                      # analytic: no bootstrap, no seed needed
+                if "seed=" not in block:
+                    offenders.append(f"{os.path.relpath(fp, pkg)}:{i + 1}")
+    if offenders:
+        raise AssertionError(
+            f"{len(offenders)} seaborn callsite(s) bootstrap a CI without seed=BOOT_SEED "
+            f"(non-reproducible figures): {', '.join(offenders[:6])}")
+    return f"{seen} seaborn CI callsites, all seeded or analytic"
+
+
 def _c_role_bindings() -> str:
     """Role-binding names round-trip, and default-bound runs keep their historical names.
 
@@ -752,6 +795,7 @@ def main(argv: List[str] | None = None) -> int:
     _run("cache mechanism + invalidation", _c_cache_mechanism, results)
     _run("rubric parity (2nd judge gate)", _c_rubric_parity, results)
     _run("cross-judge artifact layout", _c_cross_judge_layout, results)
+    _run("seeded bootstrap (repro figures)", _c_seeded_bootstrap, results)
     _run("role bindings + name suffix", _c_role_bindings, results)
     # Data — unless --fast.
     if not fast:

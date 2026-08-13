@@ -31,6 +31,30 @@ def _arm_runs(arms):
     return discover_arms() if arms is None else arms
 
 
+# ── generations memo ───────────────────────────────────────────────────────────
+# `generations.jsonl` is 557 MB across 29 files and EVERY training-side quantity starts from it:
+# reward_distribution_frame, scan_degeneracy, load_branch_reliability, pref.load_weighted_candidates
+# (twice, for the two drop_zero_weight settings) and the notebooks' own direct calls. Measured
+# 2026-08-13 that is 5+ full re-parses of the same bytes per render — ~7.4 s each, ~30 s per unit.
+#
+# A process-level memo, not `.eda_cache`: the frame is 130 MB with free-text completions, so a
+# parquet round-trip would cost more than the parse it saves, and the lifetime that matters is one
+# notebook run. Under pandas Copy-on-Write (3.0.3 here) the returned `.copy()` is O(1) and mutation
+# by one caller cannot reach another's frame, so handing out copies is both safe and free.
+_GENERATIONS_MEMO: dict = {}
+
+
+def _arm_memo_key(arms) -> str:
+    """Stable key for an arm subset — mirrors ``data.load_cached``'s arm signature."""
+    return "|".join(f"{a.exp_name}:{','.join(map(str, a.iters))}"
+                    for a in sorted(_arm_runs(arms), key=lambda a: a.exp_name))
+
+
+def clear_generations_memo() -> None:
+    """Drop the in-process ``generations.jsonl`` memo (after a training run writes new rows)."""
+    _GENERATIONS_MEMO.clear()
+
+
 def load_generations(arms: Optional[List] = None, *, keep_tail: bool = False) -> pd.DataFrame:
     """One tidy row per candidate across all arms' ``generations.jsonl``.
 
@@ -38,7 +62,14 @@ def load_generations(arms: Optional[List] = None, *, keep_tail: bool = False) ->
     epoch, group_mean, group_std, chosen_idx, cand_idx, role, score, q1, q2,
     realized_turns, ended_early, len_chars, is_chosen, leak/end/empty/floored flags,
     completion (+ tail if keep_tail).
+
+    Memoized per (arm subset, keep_tail) for the life of the process — see the memo note above.
     """
+    memo_key = (_arm_memo_key(arms), keep_tail)
+    hit = _GENERATIONS_MEMO.get(memo_key)
+    if hit is not None:
+        return hit.copy()
+
     rows = []
     for arm in _arm_runs(arms):
         for fp in sorted(glob.glob(os.path.join(arm.runs_dir, "iteration_*", "eda", "generations.jsonl"))):
@@ -81,7 +112,9 @@ def load_generations(arms: Optional[List] = None, *, keep_tail: bool = False) ->
                         if keep_tail:
                             row["tail"] = la.get("tail")
                         rows.append(row)
-    return pd.DataFrame(rows)
+    df = pd.DataFrame(rows)
+    _GENERATIONS_MEMO[memo_key] = df
+    return df.copy()
 
 
 def _num(x):
