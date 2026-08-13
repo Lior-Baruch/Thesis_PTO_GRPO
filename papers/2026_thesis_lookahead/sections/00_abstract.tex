@@ -1,0 +1,45 @@
+% !TeX root = ../main.tex
+\section*{Summary}
+\addcontentsline{toc}{section}{Summary}
+
+Preference-Tree Optimization (PTO) trains a small therapist language model by branching at
+each therapist turn, simulating $\K$ further turns of the conversation under the current
+policy, and letting an LLM oracle score the resulting trajectory rather than the reply in
+isolation. Our ICLR 2025 workshop paper reported that this look-ahead was the lever that
+mattered: deeper look-ahead produced higher and more stable scores
+\citep{baruch2025pto}. This chapter asks whether that finding holds, using three
+generations of the same experiment --- a published one and two subsequent
+re-implementations --- and re-analysing all three with one set of statistics and one
+measurement axis.
+
+It does not hold. Persona-paired at matched iteration counts and graded throughout by the
+same \primaryjudge{} oracle, look-ahead ($\K{=}5$ versus $\K{=}0$) moves from a clear
+advantage in generation~1 (ahead at $7/7$ matched iterations, mean $\dlt = -0.132$ on
+\QQ{}), through a clean null in generation~2 ($0$ of $105$ paired contrasts significant;
+$\K{=}5$ ahead in $58.1\%$ of them, a coin flip), to never leading in generation~3. There
+the held-out grader puts look-ahead behind at all $8$ matched iterations, and the primary
+oracle at $7$ of $8$ --- the eighth being a $-0.002$ dead heat rather than a win --- while
+one iteration significantly \emph{favours} $\K{=}0$ under both.
+
+Two controls make this more than a list of disagreeing experiments. First, the reversal is
+not an artifact of the statistics: re-analysing the published experiment with the modern
+paired test makes its look-ahead effect \emph{stronger}, not weaker, than the unpaired
+best-versus-best comparison originally reported. Second, it is not an artifact of the
+grader: re-scoring all $1{,}344$ of generation~1's conversations with the exact oracle used
+in generation~3 preserves the effect ($7/7$, $20$ of $21$ metric cells), so the judge
+change cannot explain why the effect later disappears.
+
+What does distinguish the generations is how well the \emph{myopic} baseline learns. Under
+the common grader, generation~1's $\K{=}0$ arm never departs from the untrained base
+($+0.023$ over seven iterations), whereas generation~3's climbs $+1.212$. Look-ahead's
+measured benefit runs opposite to that learning rate across the five training arms for
+which both quantities exist ($r = -0.72$ on the slope, $r = -0.84$ on the total gain) ---
+suggestive, but with $n = 5$ arms and one arm contradicting it, an interpretation rather
+than a result. Three independent measurements on the training signal itself agree with the
+reading: look-ahead multiplies the spread of candidate rewards by ${\sim}1.55\times$ with
+margin and standard deviation rising by the \emph{identical} factor, creates no additional
+branch points, and at matched policy adds no measurable reward faithfulness.
+
+The practical conclusion is that look-ahead simulation is a rescue for a reward signal that
+is failing, not a general-purpose improvement --- and that in this domain it costs several
+times more per iteration to buy nothing once the one-step signal works.
