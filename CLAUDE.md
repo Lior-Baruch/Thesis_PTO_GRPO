@@ -31,7 +31,7 @@ Three controlled comparisons, all live in Exp3:
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | **all 8 rubrics** — the 6 questionnaires + `PCT` + `MICI` (added 2026-06-14) |
-| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + tier-based notebooks `1_Outcomes`–`7_Stats` (+ `0_headline/` family; final-vs-best endpoint pairs); per-generation `iteration_N/eda/generations.jsonl` |
+| **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + tier-based notebooks `1_Outcomes`–`8_Measurement_Validity` (+ `0_headline/` family; final-vs-best endpoint pairs); per-generation `iteration_N/eda/generations.jsonl` |
 | **Convs / models** | (paper figures) | 4,512 / 47 | scored on both graders — **live counts in [STATUS.md](STATUS.md)** |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
@@ -371,7 +371,7 @@ Exp3_PTO_GRPO/
    `eda_analysis.data.discover_arms()`, so a run is scoreable as soon as its conversations land on
    disk (empty in-flight `model_iter` dirs are skipped). Writes
    `data/eval_scores/judge=<tag>/rep=<r>/`.
-2. **Analyze:** notebooks `1_Outcomes` … `7_Stats` (topic ↔ results family, 1:1; tier-based
+2. **Analyze:** notebooks `1_Outcomes` … `8_Measurement_Validity` (topic ↔ results family, 1:1; tier-based
    drill-down: global scores → per-questionnaire detail → validity/heterogeneity/training/stats);
    everything auto-discovers arms from disk — no registry edits anywhere. The **VIEW knob**
    (`all`/`L0`/`L5`) sets both the arm filter and the `results/<view>/` output root; the orthogonal

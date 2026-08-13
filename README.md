@@ -103,8 +103,8 @@ These key files are git-ignored and must never be committed.
   or [.../PTO_Exp3/train_PTO_Iterative.ipynb](Exp3_PTO_GRPO/code/PTO_Exp3/train_PTO_Iterative.ipynb).
   Each notebook shows the per-iteration orchestration loop; shared helpers live in `code/_shared/`.
 - **Evaluation & EDA** (local) — `Exp3_PTO_GRPO/eda/notebooks/scoring/Run_Eval.ipynb` runs the oracle scoring
-  pipeline; the analysis lives in the `eda/eda_analysis/` package + seven topic notebooks
-  (`1_Outcomes` … `7_Stats`, where the notebook number == its result-family number). Each
+  pipeline; the analysis lives in the `eda/eda_analysis/` package + eight topic notebooks
+  (`1_Outcomes` … `8_Measurement_Validity`, where the notebook number == its result-family number). Each
   notebook's cell 1 leads with a `VIEW` knob → `eda_analysis.EdaConfig(view=VIEW, …)` →
   `notebook_setup(cfg)` (controls arms / metrics / plot scales / exports); figures save as PNG and
   tables as Markdown + Excel into `eda/results/<view>/<figures|tables>/<N_family>/<judge>/`.
