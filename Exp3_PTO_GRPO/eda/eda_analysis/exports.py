@@ -73,6 +73,15 @@ _GROUP = ""
 _FIG_FORMATS = ("png",)
 _TABLE_FORMATS = ("md", "xlsx")
 
+# Byte ceiling for a rendered ``.md`` table. Past this the markdown stops being a document and
+# becomes a dataset in markdown clothing — unreadable in a diff, unreviewable in a PR, and slow to
+# render on GitHub (``multijudge_all_pairs_contrasts`` reached 407 KB / 1,849 rows). Over the limit
+# we write a HEAD EXCERPT plus a pointer to the group workbook, which already holds every row on a
+# sortable sheet. Only applies when ``.xlsx`` is also being written — with no complete copy
+# elsewhere, truncating would lose data.
+MD_MAX_BYTES = 64 * 1024
+MD_EXCERPT_ROWS = 60
+
 
 def set_view(view: str = "") -> None:
     """Set the active VIEW subfolder for subsequent saves (``results/<view>/...``).
@@ -233,12 +242,33 @@ def save_table(df: pd.DataFrame, name: str, *, group: Optional[str] = None,
         with open(f"{base}.tex", "w", encoding="utf-8") as f:
             f.write(tex)
     if "md" in formats:
+        md = _to_markdown(df, index=index, float_format=float_format)
+        if len(md.encode("utf-8")) > MD_MAX_BYTES and "xlsx" in formats:
+            md = _md_excerpt(df, name, index=index, float_format=float_format)
         with open(f"{base}.md", "w", encoding="utf-8") as f:
-            f.write(_to_markdown(df, index=index, float_format=float_format))
+            f.write(md)
     if "xlsx" in formats:
         _write_xlsx_sheet(d, name, df, index=index)
     _append_caption(d, name, caption)
     return d
+
+
+def _md_excerpt(df: pd.DataFrame, name: str, *, index: bool, float_format: str) -> str:
+    """Render an over-:data:`MD_MAX_BYTES` table as a head excerpt + a pointer to the workbook.
+
+    The full frame is always on the ``<family>.xlsx`` sheet of the same name, so nothing is lost —
+    the ``.md`` stops pretending to be the complete artifact and says where the complete one is.
+    Called only when ``xlsx`` is among the requested formats (see :func:`save_table`).
+    """
+    head = df.head(MD_EXCERPT_ROWS)
+    sheet = re.sub(r"[\[\]:*?/\\]", "_", name)[:31]
+    return (
+        f"> **Excerpt — first {len(head):,} of {len(df):,} rows.** The full table is too large to "
+        f"read as markdown, so it lives on sheet `{sheet}` of the `.xlsx` workbook in this folder. "
+        f"Load it with `pandas.read_excel(..., sheet_name=\"{sheet}\")`.\n\n"
+        + _to_markdown(head, index=index, float_format=float_format)
+        + f"\n\n_... {len(df) - len(head):,} further rows in the workbook._\n"
+    )
 
 
 def _write_xlsx_sheet(dir_path: str, name: str, df: pd.DataFrame, *, index: bool = False) -> None:
