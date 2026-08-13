@@ -41,8 +41,33 @@ experiments). In Exp3 both helpers live once at `code/` root and the EDA package
 
 Generated data (`data/`) is **not** tracked in git — see "Data & large artifacts" below.
 
-The root [CLAUDE.md](CLAUDE.md) is the cross-experiment map **and** carries the full context for
-the active experiment (Exp3). The two frozen experiments keep their own `CLAUDE.md`.
+### Write-ups
+
+[`papers/`](papers/) holds the drafts, one subfolder per paper. They live at the root rather than
+inside an `Exp*/` because they span experiments, and they only ever *read* the generated artifacts
+under `Exp3_PTO_GRPO/eda/results/`.
+
+| Paper | Covers | Domain |
+|---|---|---|
+| [`2026_clpsych_mi_pto_grpo/`](papers/2026_clpsych_mi_pto_grpo/) | PTO vs GRPO at matched `K=0` | Exp3, `L0` view |
+| [`2026_thesis_lookahead/`](papers/2026_thesis_lookahead/) | Does look-ahead help? | all three generations |
+
+Every paper carries a **`NUMBERS.md` ledger** mapping each quantitative claim to the exact artifact
+path it came from — so when the EDA is re-rendered and a number moves, you can find every sentence
+that has to change. See [papers/README.md](papers/README.md).
+
+### Where the docs live
+
+| | |
+|---|---|
+| [CLAUDE.md](CLAUDE.md) | cross-experiment map + the full method/spec context for Exp3 |
+| [STATUS.md](STATUS.md) | run status, headline numbers, cost constraint, next step |
+| `Exp{1,2}_*/CLAUDE.md` | per-experiment context for the two frozen experiments |
+| [Exp3_PTO_GRPO/history/](Exp3_PTO_GRPO/history/CHANGELOG.md) | the only dated history |
+
+Docs are split by **rate of change**: CLAUDE.md describes how things are, STATUS.md is rewritten in
+place each week, and anything dated goes to `history/`. CLAUDE.md's "Doc map" names the single owner
+of every fact.
 
 ## Setup
 

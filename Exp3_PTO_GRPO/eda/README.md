@@ -299,6 +299,38 @@ every conversation of every arm — a partially-landed sweep otherwise yields ar
 like the primary's but rest on smaller, unequal samples, and persona-paired contrasts between two
 such arms overlap on only a fraction of personas.
 
+### Adding a third grader — the open-weights path (`$0` in API spend)
+
+API spend is the binding constraint on the project, so there is a track for auditioning a **locally
+served open-weights grader**: if one reproduces the contrasts, every future experiment's measurement
+is free; if it doesn't, that was learned for free rather than inside a training run.
+
+| Piece | Role |
+|---|---|
+| [`scoring/local_server.py`](eda_analysis/scoring/local_server.py) | starts vLLM (or attaches to a server you started), waits for ready, and wraps it as an ordinary `JudgeSpec` |
+| [`notebooks/scoring/Local_Judge_Validation.ipynb`](notebooks/scoring/Local_Judge_Validation.ipynb) | the audition — two gates, then the sweep |
+
+**It adds no scoring code.** vLLM / llama.cpp / Ollama speak the OpenAI protocol *including*
+`response_format={"type":"json_schema"}` via constrained decoding, so a local Gemma is reachable
+through the same `JudgeSpec` path — same prompts, same parsing, same validation, same
+resume-by-skipping-CSVs, same score-lake partition (`judge=local_<shorttag>`).
+
+⚠ **`check_rubric_parity` is NOT the gate here.** It asks a *static* question — were the constraints
+stripped for Claude restated in prose. A local server strips nothing, so parity is trivially clean
+and tells you nothing. The real risks are empirical, and there are two gates for them:
+
+1. **Schema** — does the backend honour each rubric's `json_schema`? `run_judge_scoring` swallows
+   per-call errors and skips the conversation, so a rubric the model can't satisfy shows up as
+   **biased missingness**, not as an error.
+2. **Discrimination** — can it separate two arms the primary oracle puts far apart (Base vs PTO@I10
+   is +1.26 on Q1+Q2, the largest contrast in the experiment)? A small model can honour the schema
+   perfectly and answer from a template — every item a 4, near-zero per-conversation SD. That
+   parses, writes valid CSVs, and produces a judge that cannot tell any two arms apart. **Nothing
+   downstream would flag it**; the agreement tables would come back ≈0 and look like a finding.
+
+`probe_rubrics` and `probe_discrimination` catch both in a handful of calls, before committing to a
+22k-cell sweep. Run it on Colab, where the GPU is otherwise idle during scoring.
+
 ## Package (`eda_analysis/`) — analysis modules on a `constants` leaf + `scoring/` and `plotting/` subpackages
 Plumbing was consolidated (2026-06-18) from 14 modules to 9; the analysis/topic files stay separate.
 `figures`/`plots` still resolve as aliases of `plotting`; the data-module aliases were retired
@@ -431,8 +463,8 @@ the run) → the notebooks pick it up automatically (re-run `python tools/render
 
 ## Results
 Not duplicated here (so they can't drift). The full narrative + numbers live in
-**`results/<view>/SUMMARY.md`** (L0 is the primary read); the live status + headline is the root
-[CLAUDE.md](../../CLAUDE.md) § "Current status & next step".
+**`results/<view>/SUMMARY.md`** (L0 is the primary read); the live status + headline is
+[STATUS.md](../../STATUS.md) at the repo root.
 
 ## Roadmap
 Dated pass history (2026-06-09 → today) is in [history/CHANGELOG_EDA.md](../history/CHANGELOG_EDA.md);

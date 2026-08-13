@@ -10,15 +10,18 @@ Three controlled comparisons, all live in Exp3:
 2. **PTO vs GRPO** under matched K + MCL — does iterative GRPO compete with PTO?
 3. **Oracle questionnaire** (Q1+Q2 vs WAI-SR vs CSQ-8 vs MI-SAT/MITI) — held for later.
 
-> **This file is also the Exp3 context file.** As of 2026-07-29 there is no
-> `Exp3_PTO_GRPO/CLAUDE.md` — its content lives in "Exp3_PTO_GRPO — the active experiment"
-> below, so the active experiment is always in context and there is exactly one file to update.
-> Exp1 and Exp2 keep their own `CLAUDE.md` because they are frozen/complete.
+> **This file is also the Exp3 context file.** There is no `Exp3_PTO_GRPO/CLAUDE.md` — its content
+> lives in "Exp3_PTO_GRPO — the active experiment" below, so the active experiment is always in
+> context and there is exactly one spec file to update. Exp1 and Exp2 keep their own `CLAUDE.md`
+> because they are frozen/complete.
+>
+> **What is NOT here:** anything that changes weekly → [STATUS.md](STATUS.md); anything dated →
+> [history/](Exp3_PTO_GRPO/history/CHANGELOG.md). See the Doc map below.
 
 ## Experiments (chronological)
 | | [Exp1_ICLR2025/](Exp1_ICLR2025/) | [Exp2_PTO/](Exp2_PTO/) | [Exp3_PTO_GRPO/](Exp3_PTO_GRPO/) |
 |---|---|---|---|
-| **Status** | Frozen — published | Complete — EDA verified | **Active — main thesis chapter; see "Current status & next step" below** |
+| **Status** | Frozen — published | Complete — EDA verified | **Active — main thesis chapter; live run status in [STATUS.md](STATUS.md)** |
 | **Therapist** | Llama-2-7B | Llama-3.2-1B (4-bit NF4) | Llama-3.2-1B (bf16) |
 | **Patient + oracle** | GPT-3.5 | gpt-4o-mini-2024-07-18 | gpt-4o-mini-2024-07-18 |
 | **Patient prompts** | V1 (cooperative) | V3 (less cooperative) | V3 |
@@ -29,7 +32,7 @@ Three controlled comparisons, all live in Exp3:
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | **all 8 rubrics** — the 6 questionnaires + `PCT` + `MICI` (added 2026-06-14) |
 | **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + tier-based notebooks `1_Outcomes`–`7_Stats` (+ `0_headline/` family; final-vs-best endpoint pairs); per-generation `iteration_N/eda/generations.jsonl` |
-| **Convs / models** | (paper figures) | 4,512 / 47 | 2,880 / 30 scored on both graders (PTO+GRPO LA0 to iter 10 + partial LA5: **PTO I1–5**, GRPO I1) |
+| **Convs / models** | (paper figures) | 4,512 / 47 | scored on both graders — **live counts in [STATUS.md](STATUS.md)** |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
@@ -53,248 +56,45 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 **Naming:** PTO is the framework, DPO is the loss. Don't call GRPO data "pref data" — it has none.
 
 ## Current status & next step
-**THE single live copy of run status + headline numbers + cost constraint** (all other docs point
-here — see "Doc map"). Updated 2026-07-29.
+**Lives in [STATUS.md](STATUS.md)** — run status, headline numbers, the cost constraint, the next
+step, and the write-up decisions already made. It is deliberately short and rewritten in place
+rather than appended to; the dated narrative it replaces retired to
+[history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md).
 
-- **Run status (2026-08-11):** PTO LA0 = 10 iters scored; **GRPO LA0 = 10 iters (FINISHED,
-  re-scored)**; **PTO LA5 = iters 0–8 trained AND scored on BOTH graders — the arm has reached its
-  configured `NUM_ITERATIONS=8` endpoint**; **GRPO LA5 still thin** (I1 trained AND fully scored).
-  **33 scored model states.** Raising `NUM_ITERATIONS` back to 10 later is safe: `model_iter_k` seeds
-  are `seed+k+1` from either the loop or the post-loop pass, so the persona shuffle matches and
-  per-CSV resume skips what exists.
-  ⚠ **"The conv dir exists" is not "the convs exist", AND "the dir reads as empty" is not "the run
-  died"** (learned twice on 2026-08-11 over the same folder). PTO LA5's `model_iter_8/` first looked
-  populated, then read as 0 files with an intermittent `WinError 1450` — but all 96 convs were
-  present in Drive the whole time; the local Drive Desktop mount had wedged on that one folder and a
-  Drive restart fixed it. **Before concluding an arm is unfinished, check the cloud** (the Drive MCP
-  connector lists the folder directly) — the alternative was a needless ~50-min regeneration.
-- **Headline:** **PTO wins at the matched 10-iter endpoint (Q1+Q2 4.26 vs 3.75; paired +0.51,
-  dz 0.73)** because GRPO peaks at iter 8 (4.08) then regresses into sycophancy (MICI endpoint 0.84
-  vs PTO 0.49); PTO climbs stably. Full narrative + tables:
-  [Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md) (L0 = primary read).
-- **Judge validity (2026-07-26, extended 07-27/28):** the measurement instrument is now measured,
-  not assumed — oracle **ICC(2,1) 0.86–0.99** (mean |Δ| 0.04–0.09, confirming the "≈0.10 noise"
-  folklore; Q1/Q2 hold 0.96–0.99 and only MICI dips below 0.90 — floor is MICI PTO@10 at 0.864),
-  and a decoupled second judge (**Claude Haiku 4.5**, different family, never played the patient)
-  reproduces every endpoint contrast with the same sign (**18/18** after the full enumeration; it
-  *widens* the PTO−GRPO Q1 gap to +0.77 vs the primary's +0.53). Q1/Q2 cross-judge r 0.80–0.88 vs a
-  measured 0.96–0.98 ceiling; MICI agrees weakly (r 0.20–0.55) so the sycophancy claim holds at the
-  contrast level, not as a precise rate. Buys down LIMITATIONS §1–§2. Cost ~$5.30.
-  See `eda/notebooks/analysis/8_Measurement_Validity` §1.
-- **Cost constraint:** OpenAI spend ~**$300** + ~$5 on 2026-08-10 (iters 6+7: $1.06 primary live,
-  $3.74 Haiku batched, 3,072 cells, 0 errors) + ~**$1.25** on 2026-08-11 (iter 8: ~$0.53 primary
-  live, **$0.72 Haiku batched**, 1,536 cells, 0 errors) and is binding. ⚠ Price a Haiku sweep off
-  `judge_plan.sweep_report(..., receipt=(42.0, 22272))` — the receipt-calibrated basis put iter 8 at
-  $0.72 where the char estimator said $1.33 and a pro-rata guess off the *live-priced* 08-10 run
-  said $1.87. Cost is
-  dominated by oracle scoring + (at K=5) look-ahead patient calls, both ∝ candidate count
-  (`prompts×G` / `branch-points×M`) × iterations; prompt caching is already maxed (~50% off the
-  oracle's fixed prefix), so the only lever is call **COUNT**: cap `NUM_ITERATIONS` ~5–6 (curves
-  plateau by iter ~4), drop `M`/`G` 8→4, (PTO) lower `GREEDY_TRUNK_TARGET_LEN` — keep **K** (the
-  RQ-i variable) and the **gpt-4o-mini oracle** (the measurement instrument) fixed. See the
-  `project-openai-cost-constraint` memory.
-- **RQ-i first matched point — DONE 2026-07-30.** `PTOExp3_LA5_I5` is generated, scored on BOTH
-  graders (23,040 Haiku cells now; parity kept), folded, and rendered. **PTO LA5 = iters 0–5.**
-  - **The read (UPDATED 2026-08-11, iter 8 scored — the arm is now COMPLETE at its `NUM_ITERATIONS=8`
-    endpoint): K=5 NEVER LEADS, at any of 8 matched iterations, under EITHER grader.** Primary oracle
-    Δ(K0−K5) on Q1+Q2: +0.08…+0.16 at iters 1–4, −0.002 at 5, **+0.257 at iter 6 (dz 0.42,
-    p_holm 0.0004 — the first Holm-significant Q1Q2 result in the whole K comparison)**, +0.044 at 7,
-    **+0.077 at 8** (dz 0.17, p_holm 0.21 — n.s., though Q2 alone is +0.145, dz 0.33, p_holm 0.010).
-    Under the held-out judge **K=0 leads at every iteration 1–8**, widening iter 6 to +0.343 and
-    making **iter 8 Holm-significant (+0.186, dz 0.34, p_holm 0.0019; Q2 +0.307, MITI +0.164)**.
-    Levels at the endpoint: primary 4.221 (K=0) vs 4.144 (K=5); judge 2.895 vs 2.710.
-    ⚠ **The old "arms tie at iter 5" claim is SUPERSEDED** — it was a primary-oracle artifact that did
-    not survive iter 6, and the held-out judge never saw it as a tie. Make the claim about the lever,
-    never about convergence.
-  - **More training data did NOT help — data starvation is dead as an explanation.** LA5 carried
-    **1.2×** LA0's pref pairs at iter 6 (568 vs 475) and **1.7×** at iter 7 (689 vs 400), and scored
-    *worse* at 6 and *tied* at 7. Three independent measurements now agree that look-ahead changes the
-    **scale** of the reward signal, not its **information content**: it creates no extra branch points
-    and multiplies the within-group spread ~1.55× with **margin and SD rising by the identical factor**
-    (so it does not separate the winner from the pack — margin/SD sits at the pure-noise expectation
-    for 8 draws in every arm); and at **matched policy** (train_iter 1, both arms on the base model)
-    look-ahead adds **zero** reward faithfulness (11/19 depth bins, weighted −0.005, p=0.59). The
-    pooled faithfulness advantage is confounded with the policy difference. Full evidence:
-    the `project-lookahead-negative-result` memory.
-  - ⚠ **WITHIN PTO only** — GRPO LA5 still has just iter 1, so this is not a K×method comparison.
-  - **RQ-i IS NOW A TRACKED ARTIFACT (2026-08-02)** — and the read got stronger, because it is
-    persona-**paired** rather than a hand-computed difference of means. `L5` owns it
-    (`config.RQ_I_VIEW`); `7_Stats` §4c builds it from `eda_analysis.cross_k_scores(S)`, which
-    rebuilds the score frame with **only** the K filter dropped and leaves export routing alone, so
-    the pooled `all` view stays retired. Three artifacts under
-    `results/L5/{tables,figures}/7_stats/<judge>/`: `k_means_by_iter` (levels),
-    `k_paired_by_method` (Δ/dz/Holm p), `k_trajectory_Q1Q2` (all four arms in one frame). Paired
-    result: K=5 trails K=0 by 0.08–0.16 at iters 1–4 with *dz* ≤ 0.20 and **never significant**,
-    then ties at iter 5 — indistinguishable at matched iteration count, for materially more cost.
-    Guarded by the `cross-K frame (RQ-i)` self-check.
-  - ⚠ **The iter-5 TIE is the primary oracle's picture only.** The same tables under the held-out
-    judge (rendered beside the primary's) put K=0 ahead at **every** iteration 1–5 — at iter 5 by
-    **+0.173 Q1+Q2 (dz 0.33, p_holm 0.017)**, plus MITI +0.206 and Q2 +0.236, all Holm-significant.
-    **"K=5 never wins" survives both graders; "the arms converge at iter 5" does not** — so make the
-    claim about the lever, not the convergence. Sign agreement 68.5% overall but 92.9% at |Δ|≥0.10
-    and 100% at |Δ|≥0.15 (the usual ladder: disagreement only where the difference is too small to
-    claim). Both graders also flag **PTO iter-4 MICI with K=5 worse** (−0.111 primary / −0.177
-    judge, both Holm-significant), and the judge sees that tilt at iters 2–5 — suggestive that
-    look-ahead costs MI-consistency, not established.
-    ⚠ **That MICI tilt REVERSES at iters 7–8** (added 2026-08-11): Δ(K0−K5) turns *positive*, i.e.
-    K=5 is the MI-consistent arm — +0.078/+0.059 primary (iter 7 p_holm 0.029) and +0.071 judge at
-    iter 8 (p_holm 0.043). A claim that flips sign across the run is a claim about *when*, not about
-    the lever — **drop "look-ahead costs MI-consistency" from the write-up** rather than restate it
-    with more iterations.
-  - Tooling = [`code/PTO_Exp3/generate_eval_convs.{py,ipynb}`](Exp3_PTO_GRPO/code/PTO_Exp3/generate_eval_convs.py)
-    (repairs any orphaned adapter). Mechanics + the VRAM leak it exposed:
-    [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md) (2026-07-30 entry).
-  - **Next:** PTO LA5 is DONE at its `NUM_ITERATIONS=8` endpoint and fully scored, so the open
-    question is no longer "more PTO K=5 iterations" — 8 matched points already say the same thing
-    eight times. The remaining gap is **GRPO LA5, which still has only iter 1**: without it the K
-    result is WITHIN PTO and cannot be stated as a K×method comparison. Spend there before extending
-    PTO LA5 to 10. `judge_plan.sweep_report(..., receipt=(42.0, 22272))` prices the scoring.
-  - **Durable LA5-resume facts** (what's actually on Drive; dated forensics in
-    [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md), 2026-07-11 entry):
-    **PTO LA5** has trained adapters for iters 1–5 but only I1–I4 scored — the iter-5 eval convs
-    were never generated by the run itself (`iteration_6/` died ~1 min in: adapter saved 02:32, iter-6
-    dirs created 02:33). **GRPO LA5**: iter-1 adapter trained AND scored; its `iteration_2/` is
-    adapter-less. **Folder presence ≠ data.**
-  - **Cleared 2026-07-30:** `iteration_6/pref_pairs/pairs.csv` (1 byte) + `eda/generations.jsonl`
-    (0 bytes) were deleted. `pairs.csv` is the Step-2 **completion marker**, so an empty one would
-    have made a resumed iter 6 reload 0 pairs, skip the ~41-min build, and run a silent **no-op DPO
-    update**. Check for empty markers before resuming any arm.
-- **THE TRAINING SIGNAL IS NOW MEASURABLE FOR BOTH METHODS — 2026-08-02.** `6_Preference` was
-  PTO-only because GRPO has no preference pairs; but preference was never the essential thing — both
-  methods weight a group's candidates and step along the weighted sum (DPO ±1 on the logged
-  chosen/rejected, GRPO the standardized advantage), so rescaling each group to a common size puts
-  them on **one probe**. Three results, all in
-  [L0/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md) §6:
-  - **The affirmation push grows over training in BOTH methods** (exact, embedding-free, every
-    group): GRPO −0.006 → **+0.086 ± 0.008**, PTO 0.008 → **0.103 ± 0.029** (iter 8). The
-    reward-hack now has a *training-side* measurement, not only the outcome-side inference. GRPO's
-    series dips negative at **iter 9** — the same iteration the outcome grid dips, from an
-    independent source.
-  - **The two losses do not want the same thing:** pooled update-direction cosine 0.267 raw,
-    **0.317 attenuation-corrected** (ceiling 0.844) — under a third of achievable agreement, at
-    matched K and a shared oracle.
-  - **The push predicts the MICI move in GRPO only:** with `train_iter` partialled out (mandatory —
-    the raw ρ is confounded with iteration by construction), GRPO's ΔMICI tracks its affirmation
-    push **ρ 0.647 (p .043)**, length 0.706, over-praise 0.617; PTO's does not. Same direction as
-    the endpoint MICI gap, reached from the training data. n ≤ 10/arm, uncorrected — mechanism, not
-    cause.
-  - **THE GAP IS THE DATA, NOT THE LOSS (2026-08-02, second pass).** Swapping the weighting rule on
-    the *same* groups barely moves the update direction (**0.908** on PTO's groups, **0.988** on
-    GRPO's); holding the rule fixed across the two methods' *own* groups leaves them as far apart as
-    ever (0.397 / 0.324 corrected, vs 0.317 as trained). At matched K and a shared oracle the two
-    losses extract nearly the same direction from the same eight completions — **"PTO vs GRPO" is a
-    statement about exploration, not about DPO vs group-relative weighting.** Frame the thesis
-    comparison accordingly.
-  - **The reward-hack is a compounding loop, not a hard pull.** Per-iteration *selection* pressure
-    on affirmation is ≈0.01 → 0.10, while what the policy *generates* moves **0.02 → 0.54** (GRPO)
-    / 0.04 → 0.57 (PTO); over-praise reaches **0.74** of GRPO's candidates and questions collapse
-    **0.71 → 0.06**. Small persistent pressure applied each iteration to an already-more-effusive
-    policy — by the end the update is choosing between two effusive completions.
-  - **PTO's training signal shrinks by two-thirds:** branch points built 949 → 410, τ yield
-    0.82 → 0.69, groups trained **782 → 281**, margin 0.274 → 0.196. GRPO trains on 94–98% of its
-    groups throughout. A flattening PTO curve may partly be data starvation.
-  - ⚠ **It also audited the old probe and the old probe lost.** §1's `wins_correct` was IN-sample;
-    held out, a per-iteration PTO direction wins **0.47–0.59** with split-half reliability
-    **0.15–0.32**. The per-iteration latent-drift artifacts (word drift, learn/unlearn, MI-concept
-    curves) are **mostly estimation noise** — the L0 SUMMARY §6 claim built on them is corrected in
-    place. Pooled directions (0.597 PTO / 0.911 GRPO) and the exact lexical contrasts are what
-    survive.
-- **SECOND JUDGE IS NOW CO-PRIMARY — full sweep COMPLETE 2026-07-27.** Claude Haiku 4.5 has scored
-  **22,272 / 22,272** cells (29 model states × 8 rubrics × 96 convs; 232/232 cells at full n=96),
-  matching the primary oracle's grid exactly. Cost **$42** via Message Batches (50% off; measured
-  3,621 input + 71 output tokens/call). The whole EDA now runs under either grader:
-  `python tools/render_views.py --judge anthropic_claude-haiku-4-5` → artifacts nest at
-  `results/<view>/figures/<family>/<judge>/` — **every** grader nests under its short label
-  (`gpt-4o-mini/`, `claude-haiku-4-5/`) since 2026-07-28; the primary is no longer flat, so a figure
-  path always names the grader that produced it. Notebooks 5+6 **refuse** a
-  second judge — they read the training side, which cannot be re-graded after the fact.
-- **Multi-judge EDA — BUILT 2026-07-27** (was queued 2026-07-26). Lands as
-  `8_Measurement_Validity` (free, inside `tools/render_views.py`; family `8_measurement/`,
-  no `<judge>/` level because every artifact contains both graders) + `Judge_Reliability.ipynb`
-  **§3** (the paid full sweep). The four results that carry weight — all
-  on the tracked `L0` view (22 arms), **numbers owned by
-  [L0/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md) §7, caveats by
-  [LIMITATIONS.md](Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md) §1–§3:**
-  - **Sign preservation.** 18/18 on the thesis-critical anchor contrasts; **88.3%** across all
-    1,848 arm×metric contrasts, rising to **98.9%** at |Δ|≥0.50 — the judges disagree only about
-    differences too small to claim.
-  - **Variance decomposition.** Only **1.2–6.9%** of arm-mean variance is arm×judge: they disagree
-    about *level*, not about arm *ordering*.
-  - ⚠ **MITI is the exception** — dependability 0.65 off one judge, and the weakest sign
-    preservation (77.5%). **Treat MITI arm differences as provisional.** This is a thesis
-    limitation, not a footnote.
-  - **Gain retention is the reward-hacking test.** Q1 retention PTO@10 **0.80** vs GRPO@10
-    **0.28**, non-overlapping, and per-iteration it is an *onset curve* — GRPO decays from ~0.89
-    (I3) to 0.28 (I10) while PTO holds 0.80–0.98. Stronger evidence for sycophancy than the MICI
-    rate, and it buys down LIMITATIONS §3 (circularity).
-  - **Cost, measured**: 3,621 input + 71 output tokens/call (`judge_batch.probe_usage`); full sweep
-    **$42 batched / $84 direct**; the free char-based estimator lands within 12%. Parity gate 8/8.
-    Deliberately **1 rep, not 3** — oracle noise adds ≈0.01 to a 96-conv arm mean vs ≈0.09 from
-    persona sampling, so breadth beats depth at equal cost.
-    ⚠ **Haiku 4.5 caches nothing on this prompt** — confirmed empirically
-    (`cached_input_tokens = 0`): its cacheable-prefix minimum is 4,096 and only Q1/Q2 come close.
-- **Second-judge ICC — MEASURED 2026-07-28**, closing the last named validity gap (was the
-  "cheapest remaining validity buy"). 2 further Haiku reps on the anchor subset, 2,304 calls,
-  0 errors. Haiku's own ICC: **Q1 0.951–0.978, Q2 0.938–0.963, MICI 0.525–0.929** — near-parity on
-  Q1/Q2, but its MICI repeatability *falls as the MI-inconsistency rate rises* (GRPO@10 0.525), so
-  it is least reliable exactly where the sycophancy claim lives. Against the corrected ceiling,
-  agreement recovers Q1 86–91% / Q2 83–88% but MICI only **29–59%**: partly the judge's noise,
-  mostly construct disagreement. **No headline result moves** — the MICI caveat stands and gain
-  retention remains the load-bearing evidence. Tables + the full argument: LIMITATIONS §1–§2.
-  - `reliability.agreement` computes `sqrt(ICC_primary × ICC_judge)` from measured values and records
-    `ceiling_basis`; it falls back to the assumption only where a judge has <2 reps.
-  - **Cost $9.16** (batched would have been $4.58) against "~$1–2" previously documented here — that
-    was an unchecked estimate. Price judge spend with `judge_plan.estimate_cost`.
-- **ONE SCORE LAKE — 2026-07-28.** Every grader's scores now live in a single judge-partitioned tree,
-  `data/eval_scores/judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<id>.csv`, replacing four
-  stores under two schemes (the primary's reported draw was split per method with no `judge=`/`rep=`
-  level; every other grader sat in a separate local-only tree that had both). `judge` is an ordinary
-  partition key now, `rep=0` is each judge's full-grid draw, and there is one resolver instead of a
-  primary-vs-other branch. 50,320 files copied, hash-verified, then removed at source; **no headline
-  number moves** (45/45 endpoint cells and 25,056 rows identical). Two consequences worth knowing:
-  - **The lake is a Drive symlink**, so the second judge's $42 sweep and the $9.16 ICC reps are
-    backed up for the first time — previously they existed only on one laptop, gitignored.
-  - **The primary's ICC now spans 4 draws** (the reported one included, as the second judge's
-    already did), which is why the range above reads 0.86–0.99 rather than the older 0.90–0.99.
-    Only MICI moves; Q1/Q2 shift ≤0.007.
-- **Reproducible figures + the fold as a read path — 2026-07-28**, both found while proving the
-  score-lake migration changed nothing.
-  - **Seaborn's bootstrap CIs were unseeded**, so re-rendering rewrote 90 PNGs on unchanged data
-    (three consecutive renders each differed by ~6% of pixels). `BOOT_SEED = 12345` was promoted
-    from a private `stats._BOOT_SEED` to `constants` and passed at all seven
-    `errorbar=("ci", 95)` callsites — the figure side and the table side now share one seed, and a
-    thesis figure is reproducible rather than merely stable-looking.
-  - **The parquet fold is now a read path, not archival-only.** `eda_analysis/score_archive.py`
-    owns the layout, the staleness guard and the read; `tools/consolidate_scores.py` is a thin CLI
-    over it. `iter_conv_rows` serves from the fold when the per-partition content signature in
-    `_parquet/_manifest.json` still matches disk and falls back to the CSVs otherwise —
-    **4.3–6.1×** faster (`scores_long` 86 s → 16 s), with all seven per-conversation loaders proven
-    identical under `assert_frame_equal(rtol=0, atol=0)` via either path. `_selfcheck` is now
-    **19 checks** and asserts both halves (fold-equals-CSV, and that a tampered signature is
-    refused rather than served).
+**Read STATUS.md before planning any spend or making any claim about a number.**
 
 ## Doc map (one owner per fact)
-| Fact | Lives ONLY in |
-|---|---|
-| Run status + headline numbers + cost constraint | this file → "Current status & next step" |
-| Method mechanics, trainer internals, gotchas | this file → "Exp3_PTO_GRPO — the active experiment" |
-| Detailed eval narrative + numbers | `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` |
-| EDA how-to (VIEW + JUDGE knobs, `EdaConfig`, package module map) | `Exp3_PTO_GRPO/eda/README.md` |
-| Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/docs/METRICS_REFERENCE.md` |
-| Measurement / inference limitations (for the write-up) | `Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md` |
-| Dated history | `Exp3_PTO_GRPO/history/` — [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md) + [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md) behind a stable [index](Exp3_PTO_GRPO/history/CHANGELOG.md). There is no root changelog. |
-| Supervisor decks + emails | `Exp3_PTO_GRPO/meetings/README.md` |
-| Data/artifact policy (what's gitignored, how it regenerates) | `README.md` § "Data & large artifacts" |
 
-Update a fact in its owner file only; everywhere else keep a pointer.
+Docs are split by **rate of change**, not by topic. Update a fact in its owner file only;
+everywhere else keep a pointer.
+
+| Fact | Lives ONLY in | Changes |
+|---|---|---|
+| Run status, headline numbers, cost constraint, next step | [STATUS.md](STATUS.md) | weekly |
+| Method mechanics, algorithms, trainer internals, gotchas, conventions | this file | when the code does |
+| What each `code/` module does | `Exp3_PTO_GRPO/code/README.md` | when the code does |
+| EDA how-to (VIEW + JUDGE knobs, `EdaConfig`, package module map) | `Exp3_PTO_GRPO/eda/README.md` | when the EDA does |
+| Detailed eval narrative + numbers | `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` | per render |
+| Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/docs/METRICS_REFERENCE.md` | rarely |
+| Measurement / inference limitations (for the write-up) | `Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md` | rarely |
+| **Paper drafts + the claim→artifact ledger** | `papers/README.md`, then each paper's `README.md` + **`NUMBERS.md`** | per draft |
+| Supervisor decks + emails | `Exp3_PTO_GRPO/meetings/README.md` | per meeting |
+| Data/artifact policy (what's gitignored, how it regenerates) | `README.md` § "Data & large artifacts" | rarely |
+| Dated history | `Exp3_PTO_GRPO/history/` — [CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) (status + findings) · [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md) · [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md), behind a stable [index](Exp3_PTO_GRPO/history/CHANGELOG.md). There is no root changelog. | append-only |
+
+⚠ **Nothing dated belongs in this file or in STATUS.md.** A dated entry is history — it goes to
+`history/`. STATUS.md is rewritten in place; CLAUDE.md describes how things *are*.
 
 ## Layout
 ```
 Thesis_PTO_GRPO/
 ├── CLAUDE.md                   (this file — cross-experiment map + the full Exp3 context)
+├── STATUS.md                   run status + headline numbers + cost + next step (the volatile tier)
 ├── README.md, LICENSE          README also owns the data/artifact policy (no DATA_README)
 ├── Exp{1,2}_*/CLAUDE.md        per-experiment context for the FROZEN experiments only
-├── Exp3_PTO_GRPO/history/      the only dated history: CHANGELOG_{EDA,TRAINER}.md + an index
+├── Exp3_PTO_GRPO/history/      the only dated history: CHANGELOG_{STATUS,EDA,TRAINER}.md + an index
+├── papers/                     paper drafts — one subfolder per paper. Span experiments, so they
+│                               live at the root. Each carries a NUMBERS.md claim→artifact ledger.
 ├── HF_key.txt, openai_key.txt  duplicated per-experiment-dir, not at root
 ├── requirements.txt, gen_requirements.py
 └── .venv/                      Python 3.13 env
@@ -530,109 +330,41 @@ PTO is the framework; DPO is the loss it uses.
 
 ## Exp3 · Layout
 
+Directory **purposes** below. The per-file map is NOT duplicated here — it drifts. For the current
+file list use `git ls-files Exp3_PTO_GRPO`, and for what each module does see
+[code/README.md](Exp3_PTO_GRPO/code/README.md) and [eda/README.md](Exp3_PTO_GRPO/eda/README.md)
+§ "Package".
+
 ```
 Exp3_PTO_GRPO/
-├── code/
-│   ├── system_prompts_builder.py        V3 prompts (single canonical copy; EDA also reads this one)
-│   ├── questionnaires.py                V5 oracle (JSON schema, 8 instruments incl. PCT + MICI)
-│   ├── _local_smoke.py                  offline smoke tests (stopgen|dpo|grpo) — no OpenAI; imports trl before torch (see Gotchas)
-│   ├── _shared/                         cross-method modules (GRPO_Exp3 + PTO_Exp3 both import)
-│   │   ├── __init__.py                  public-API re-exports
-│   │   ├── runtime.py                   Colab/local detect, auth, paths, preflight
-│   │   ├── model.py                     tokenizer/quant/LoRA + checkpoint discovery + iteration resume
-│   │   ├── convs.py                     conv state + async gen + per-turn prompt extraction (MCL filter)
-│   │   ├── reward.py                    oracle scoring + K-turn look-ahead (batched) + reward-fn factory
-│   │   ├── tb_plots.py                  TB callbacks + logging lifecycle + TB parser + plot dashboard
-│   │   ├── eda_recorder.py              per-generation EDA capture → iteration_N/eda/generations.jsonl (all candidates + scores + look-ahead tails)
-│   │   └── lookahead_check.py           OPTIONAL (off hot path): serial-vs-batched look-ahead equivalence + OOM smoke
-│   ├── GRPO_Exp3/
-│   │   ├── train_GRPO_Iterative.ipynb   visible orchestration loop
-│   │   └── grpo_trainer.py              TrainingConfig + run_one_iteration + run_final_eval + …
-│   └── PTO_Exp3/
-│       ├── train_PTO_Iterative.ipynb    visible orchestration loop (mirrors GRPO_Exp3)
-│       ├── pto_trainer.py               PTOConfig + run_one_iteration + build_pref_pairs_for_conversation + …
-│       ├── generate_eval_convs.py       GENERATE-ONLY pass for ONE model state — repairs an "orphaned
-│       │                                adapter" (trained but its model_iter_N convs never generated).
-│       │                                Config rebuilt from the run's OWN run_metadata.json; seeds
-│       │                                DERIVED (seed+N+1); --verify-seeds proves that vs decoy offsets
-│       │                                before spending; --num-convs/--num-utterances require --conv-dir.
-│       └── generate_eval_convs.ipynb    thin notebook over it (Colab or local; cwd-robust bootstrap)
-├── data/                               ALL THREE subdirs are Google Drive symlinks (backed up + reachable from Colab)
-│   ├── eval_coverage.csv                scoring-coverage snapshot: per model × metric done/todo counts
-│   ├── eval_scores/                     THE SCORE LAKE — every grader's scores, one shape (2026-07-28)
-│   │   ├── judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
-│   │   │                                M=scoring metric, O=training oracle. rep=0 is each judge's
-│   │   │                                FULL-GRID draw (the reported one); rep>=1 are repeatability
-│   │   │                                draws on the anchor subset. No method level — <Model>
-│   │   │                                already carries it (GRPOExp3_* / PTOExp3_*).
-│   │   ├── _parquet/judge=<tag>/rep=<r>/metric=<M>.parquet   derived fold of the CSVs (50,305 → 31)
-│   │   │   + _manifest.json             built by tools/consolidate_scores.py; READ by
-│   │   │                                iter_conv_rows (4.3–6.1× faster) but ONLY while the
-│   │   │                                manifest's per-partition content signature still matches
-│   │   │                                disk — any mismatch silently falls back to the CSVs.
-│   │   ├── _batches/<tag>/rep=<r>/*.json   Message Batches manifests (submit → collect state)
-│   │   └── summary/                     convenience CSV snapshots from Judge_Reliability
-│   ├── grpo_Exp3/                       produced by GRPO_Exp3 runs
-│   │   ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training}/
-│   │   └── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
-│   └── pto_Exp3/                        produced by PTO_Exp3 runs (same shape as grpo_Exp3)
-│       ├── runs/<MODE_TAG>/<EXP_NAME>/   run_metadata.json + iteration_N/{adapter, training, pref_pairs/}
-│       └── conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
-├── eda/                                 verified runnable end-to-end (2026-07-27 reorg: notebooks/ docs/ tools/)
-│   ├── README.md                        EDA guide: notebook↔family table, VIEW + JUDGE knobs, module map
-│   ├── notebooks/
-│   │   ├── analysis/                    FREE + reproducible — the 7 tier-based topic notebooks
-│   │   │                                (`1_Outcomes` `2_Questionnaire_Detail` `3_Validity_and_Hacking`
-│   │   │                                `4_Heterogeneity` `5_Training` `6_Preference` `7_Stats`
-│   │   │                                `8_Measurement_Validity`) ↔ result families 1:1 (+ a `0_headline/` family of
-│   │   │                                re-saved presentation figures), [EVAL]/[TRAINING]-tagged,
-│   │   │                                endpoint artifacts as final+best pairs. Driven by tools/render_views.py
-│   │   └── scoring/                     **$$ PAID + manual** (RUN_* switches; never in render_views):
-│   │                                    `Run_Eval.ipynb` (async oracle pipeline → eval_scores/, resume-safe)
-│   │                                    `Judge_Reliability.ipynb` (ICC + second judge + §3 full sweep)
-│   ├── docs/
-│   │   ├── LIMITATIONS.md               documented measurement/inference limitations (for the thesis write-up)
-│   │   └── METRICS_REFERENCE.md         cheat-sheet for every EDA number (questionnaires, derived ratios, hack battery)
-│   ├── tools/
-│   │   ├── render_views.py              DRIVER: regenerate results/<view>/ via nbconvert (sets EDA_VIEW/EDA_JUDGE;
-│   │   │                                --output-dir tmp; --nb takes the notebook/family NUMBER 1..7; --judge <tag>)
-│   │   ├── consolidate_scores.py        {build|verify|report} the score lake's parquet fold
-│   │   │                                (CLI over eda_analysis/score_archive.py). Run `build`
-│   │   │                                after any new scoring — stale is safe, just slow.
-│   │   └── strip_notebook_outputs.py    output-clean helper (paired with the nbstrip git clean-filter)
-│   ├── eda_analysis/                    THE Exp3 EDA package (one package since the 2026-07-13 fold):
-│   │                                    analysis layer (disk-discovery, read-only) = constants LEAF
-│   │                                    + config / data / score_archive / plotting_style / stats /
-│   │                                    behavior / training / reliability /
-│   │                                    pref / exports / _selfcheck + plotting/ subpackage (topic-split
-│   │                                    figures; figures+plots alias it); scoring layer = scoring/
-│   │                                    subpackage (registry / conversations / pipeline / judge — the
-│   │                                    Run_Eval + Judge_Reliability backend, imported explicitly, not
-│   │                                    via __init__). Module map: eda/README.md § "Package".
-│   ├── results/                         GENERATED thesis artifacts in 2 tracked VIEW trees: L0/ · L5/, each with figures|tables/<N_family>/<judge>/ (family number == producing-notebook number) + INDEX.md + hand-authored SUMMARY.md. EVERY grader nests under its own short label (gpt-4o-mini/ · claude-haiku-4-5/) since 2026-07-28 — the primary is no longer flat, so a path always names the grader. (The pooled all/ view was retired 2026-07-27 — renderable, gitignored, not a deliverable.)
-│   ├── .eda_cache/                      parquet cache (gitignored; content-keyed on input CSVs)
-│   └── .emb_cache/                      pref completion-embedding cache (gitignored; regenerable)
-├── figures/                             hand-authored METHOD schematics — NOT data-derived, so they
-│                                        live outside eda/results/ (no view, no <judge>/ level, no
-│                                        producing notebook). build_method_figures.py draws the PTO +
-│                                        GRPO framework diagrams (ICLR Fig 1 redrawn + its GRPO twin)
-│                                        and the two generation diagrams (ICLR Fig 2 redrawn for greedy
-│                                        mode + the GRPO group). No in-figure titles — captions live in
-│                                        CAPTIONS.md, the slide title, or the LaTeX caption.
-├── meetings/                            supervisor-facing output ONLY — never imported by code/ or eda/
-│   ├── README.md                        which deck is which + rebuild/export commands
-│   ├── build/                           build_supervisor_deck.py (full) · build_results_snapshot.py (lean)
-│   │                                    · export_pdf.ps1 (pptx→pdf via PowerPoint COM). Paths resolve
-│   │                                    off __file__; each script's OUT names its dated folder.
-│   └── <YYYY-MM-DD>/                    one folder per meeting: deck (.pptx gitignored, .pdf tracked) + email draft
-└── HF_key.txt, openai_key.txt
+├── code/          the trainers. Two method dirs (GRPO_Exp3/, PTO_Exp3/) over one _shared/ layer;
+│                  system_prompts_builder.py + questionnaires.py live here ONCE (canonical copies —
+│                  the EDA package sys.path-prepends code/ to import the same files). → code/README.md
+├── data/          ALL THREE subdirs are Google Drive symlinks (backed up + reachable from Colab).
+│                  GITIGNORED, so the schemas below are the only record of their shape:
+│   ├── eval_scores/   THE SCORE LAKE — every grader's scores, one shape:
+│   │                    judge=<tag>/rep=<r>/metric=<M>/oracle=<O>/<Model>/<patient_id>.csv
+│   │                  M=scoring metric, O=training oracle. rep=0 is each judge's FULL-GRID draw
+│   │                  (the reported one); rep>=1 are repeatability draws on the anchor subset. No
+│   │                  method level — <Model> already carries it (GRPOExp3_* / PTOExp3_*).
+│   │                  _parquet/judge=<tag>/rep=<r>/metric=<M>.parquet + _manifest.json — derived
+│   │                  fold (50,305 -> 31 files), READ by iter_conv_rows but only while the
+│   │                  manifest's per-partition content signature still matches disk.
+│   │                  _batches/<tag>/rep=<r>/*.json — Message Batches manifests (submit -> collect).
+│   └── {grpo,pto}_Exp3/   runs/<MODE_TAG>/<EXP_NAME>/ (run_metadata.json + iteration_N/{adapter,
+│                          training}/, PTO also pref_pairs/) and
+│                          conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
+├── eda/           the analysis. eda_analysis/ package + notebooks/{analysis,scoring}/ + tools/ +
+│                  docs/ + results/. Artifacts nest results/<view>/{figures,tables}/<N_family>/<judge>/
+│                  where the family number == the producing notebook number and EVERY grader nests
+│                  under its short label. → eda/README.md
+├── figures/       hand-authored METHOD schematics — NOT data-derived, so they live outside
+│                  eda/results/ (no view, no <judge>/ level, no producing notebook).
+│                  build_method_figures.py draws them; captions live in CAPTIONS.md.
+├── history/       the only dated history: CHANGELOG_{STATUS,EDA,TRAINER}.md behind a stable index.
+└── meetings/      supervisor-facing decks + emails ONLY — never imported by code/ or eda/.
+                   → meetings/README.md
 ```
-
-**Thesis artifacts.** `results/<view>/figures/` (`.png`) and `results/<view>/tables/` (`.md`+`.xlsx`)
-are **generated** by `eda_analysis.save_fig`/`save_table` (the `formats=` kwarg can request extras for
-a one-off; per-call `group=` overrides the family, incl. nested subpaths). Each notebook regenerates
-its own family; `python tools/render_views.py` regenerates everything. Reproducible from code
-(seeded — see `BOOT_SEED`); tracked in git.
 
 ## Exp3 · EDA workflow (short version — full guide in [eda/README.md](Exp3_PTO_GRPO/eda/README.md))
 1. **Score:** `Run_Eval.ipynb` — its `EXPERIMENTS` registry is auto-generated from
@@ -847,6 +579,8 @@ figures → the topic module in `plotting/` (+ its `__init__` re-export); a new 
 
 - **HF model-card READMEs** inside `data/grpo_Exp3/runs/.../checkpoint-*/` are auto-generated — DO NOT delete or treat as project docs.
 - **Pref-tree audit trail = resume marker.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — it's both the DPO debug trail AND the Step-2 completion marker: its presence makes a restart **reload it and skip the ~41-min build** (see "Training internals" → Resume). The sibling `iteration_N/pref_pairs/_progress.json` is the in-build per-step checkpoint (auto-deleted on success; safe to delete manually to force a clean rebuild).
+  ⚠ **An EMPTY marker is worse than a missing one.** A 1-byte `pairs.csv` makes a resumed iteration reload 0 pairs, skip the build, and run a silent **no-op DPO update** — it looks like success. **Check for empty markers before resuming any arm** (it happened to `iteration_6/` and was caught only by inspection).
+- **"The conv dir exists" ≠ "the convs exist", AND "the dir reads as empty" ≠ "the run died".** `data/` is a Google Drive Desktop symlink, and the mount can wedge on a single folder — a populated `model_iter_N/` read as 0 files with an intermittent `WinError 1450` while all 96 convs were present in Drive the whole time; a Drive restart fixed it. **Before concluding an arm is unfinished, check the cloud** (the Drive MCP connector lists the folder directly). The alternative was a needless ~50-min regeneration.
 - **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Training internals") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **PTO `branch_id` is trunk DEPTH, not a unique id.** Unlike GRPO's, it repeats across conversations, so any per-branch aggregation must key on `(conversation_id, branch_id)` — pooling on `branch_id` alone mixes unrelated conversations.
 - **Local GPU: an over-budget VRAM request REBOOTS the PC — it does not raise `OutOfMemoryError`.**

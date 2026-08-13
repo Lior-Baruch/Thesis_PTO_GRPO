@@ -104,10 +104,10 @@ the two states the number.
 
 | Claim | Source |
 |---|---|
-| held-out sweep \$42 batched; 3,621 in + 71 out tokens/call | `SUMMARY.md` §7 / root `CLAUDE.md` "Current status" |
-| ICC reps \$9.16 | root `CLAUDE.md` "Second-judge ICC" |
+| held-out sweep \$42 batched; 3,621 in + 71 out tokens/call | `SUMMARY.md` §7 / root `STATUS.md` |
+| ICC reps \$9.16 | root `history/CHANGELOG_STATUS.md`, 2026-07-28 |
 | 1 rep not 3: oracle noise ≈0.01 vs persona ≈0.09 on an arm mean | `docs/LIMITATIONS.md` §1 "Why breadth was bought before depth" |
-| **OpenAI total ≈\$300 — covers ALL arms incl. K=5** | root `CLAUDE.md`; ⚠ must be split before quoting in this paper |
+| **OpenAI total ≈\$300 — covers ALL arms incl. K=5** | root `STATUS.md`; ⚠ must be split before quoting in this paper |
 
 ## Open TODOs blocking submission
 

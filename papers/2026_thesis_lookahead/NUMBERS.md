@@ -116,7 +116,7 @@ Do not write "0 of 8 under either grader".
 | Exp2/Exp3 Q1+Q2 prompts byte-identical | asserted at run time (Q1 4,390 / Q2 8,477 chars) | `crossgen.py::verify_shared_axis` |
 | Oracle ICC(2,1) | 0.86–0.99 overall; 0.96–0.99 Q1/Q2 | Exp3 `eda/docs/LIMITATIONS.md` §1 |
 | Oracle mean abs. test–retest | 0.04–0.09 | same |
-| 4-bit vs bf16 degeneration | ≈9.5% vs ≈0.3% of therapist turns | root `CLAUDE.md`, data-lineage note |
+| 4-bit vs bf16 degeneration | ≈9.5% vs ≈0.3% of therapist turns | root `CLAUDE.md` § "Data lineage" |
 | Gen 2 level depression | ≈0.6 points | same |
 
 ---
