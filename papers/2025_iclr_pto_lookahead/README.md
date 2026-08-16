@@ -1,6 +1,9 @@
 # 2025_iclr_pto_lookahead — *Preference Tree Optimization: Enhancing Goal-Oriented Dialogue with Look-Ahead Simulations*
 
-Lior Baruch, Moshe Butman, Kfir Bar, Doron Friedman · ICLR 2025.
+Lior Baruch, Moshe Butman, Kfir Bar, Doron Friedman.
+**ICLR 2025 workshop track** — accepted as a **poster** at
+[SSI-FM](https://sites.google.com/berkeley.edu/selfimprovingfoundationmodels/home), the workshop on
+*Scaling Self-Improving Foundation Models without Human Supervision*.
 
 **PUBLISHED — FROZEN.** Nothing in this folder gets edited. It exists so the published paper sits
 in `papers/` alongside the chapters and drafts still to be written, rather than only inside the
@@ -31,7 +34,17 @@ and oracle). See § "Data lineage" in the root [`CLAUDE.md`](../../CLAUDE.md).
 This is where PTO and the look-ahead lever were introduced, so anything written in `papers/` cites
 it — as prior work, and as generation 1 of the three.
 
-🔲 **Open, and worth settling before the next draft's bibliography:** main conference vs. workshop
-track. The PDF's header line reads "Published as a conference paper at ICLR 2025", but that string
-is ICLR template boilerplate, and the project notes elsewhere describe this as the workshop paper.
-Resolve against the acceptance email / OpenReview page.
+⚠ **Do not read the venue off the PDF.** Its header line says "Published as a conference paper at
+ICLR 2025" — that is the stock ICLR template boilerplate left unchanged, not the workshop header,
+and citing it as a main-conference paper would be wrong. The venue is the SSI-FM workshop, poster.
+
+```bibtex
+@inproceedings{baruch2025pto,
+  author    = {Baruch, Lior and Butman, Moshe and Bar, Kfir and Friedman, Doron},
+  title     = {Preference Tree Optimization: Enhancing Goal-Oriented Dialogue with
+               Look-Ahead Simulations},
+  booktitle = {ICLR 2025 Workshop on Scaling Self-Improving Foundation Models
+               without Human Supervision (SSI-FM)},
+  year      = {2025}
+}
+```
