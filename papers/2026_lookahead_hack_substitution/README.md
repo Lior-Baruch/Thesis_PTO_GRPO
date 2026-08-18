@@ -81,10 +81,10 @@ by construction (they record the training oracle's own selection during the run)
 
 ## Length — measured, not estimated
 
-Currently **8 pages total**, body ending at ~30% of p.7, **0 overfull boxes, 0 undefined refs**.
-Slack is thinner than it was after the iteration-10 revision, and it is spoken for:
-`02_related.tex` is a scaffold of `\todo{}` citation slots and `A_channels.tex` needs its table
-pasted in. Any addition now needs a matching cut.
+Currently **10 pages total**, body ending at ~68% of p.7, **0 overfull boxes, 0 undefined refs**
+(measured 2026-08-18, after the related-work section was written, the full channel table landed
+in Appendix A, and §4 gained the gain-retention paragraph). ~1.3 columns of body slack remain
+before the 8-page limit.
 
 ```powershell
 & ..\..\.venv\Scripts\python.exe -c "import fitz; d=fitz.open('main.pdf'); [print(f'p.{i+1} {j/len(t):.0%}') for i,p in enumerate(d) for t in [' '.join(p.get_text().split())] for j in [t.find('Limitations')] if j>=0]"

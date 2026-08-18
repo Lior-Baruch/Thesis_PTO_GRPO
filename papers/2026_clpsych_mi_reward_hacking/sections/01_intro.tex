@@ -53,11 +53,10 @@ grader from a different model family that never played the patient and never par
 training. We report \emph{gain retention}, $\Delta_\text{held-out}/\Delta_\text{trained-against}$,
 as a per-arm train/test generalization ratio. At the matched ten-iteration endpoint, PTO
 retains $0.80$ of its Q1 gain and GRPO $0.28$, with non-overlapping bootstrap intervals.
-Crucially this is an \emph{onset} curve rather than an endpoint accident: the arms are
-indistinguishable for three iterations ($0.84$--$0.97$), then separate, with PTO holding
-$0.80$--$0.98$ for the remainder while GRPO decays in trend to $0.28$. A policy drifting onto
-grader-specific features is what that shape looks like, and it is legible four iterations
-before the reward curve turns over (\S\ref{sec:heldout}).
+Crucially retention is an \emph{onset} curve, not an endpoint accident: the arms are
+indistinguishable for three iterations, then separate --- the shape a policy drifting onto
+grader-specific features would produce, legible four iterations before the reward curve turns
+over (\S\ref{sec:heldout}).
 
 \paragraph{Contributions.} (i) A controlled ten-iteration comparison of two exploration
 strategies under an identical LLM-questionnaire reward in a clinical dialogue task, with all

@@ -46,10 +46,14 @@ acl.sty acl_natbib.bst vendored from acl-org/acl-style-files
 
 ## Length — measured, not estimated
 
-**The body fits inside 8 pages** — the Limitations heading opens at ~96% of p.8 — with
-**0 overfull boxes and 0 undefined references**; the whole PDF is 13 pages. Limitations, Ethics,
-References and the three appendices are unlimited and don't count. Word counts are a bad proxy
-for two-column ACL — always measure from the compiled PDF:
+**The body fills exactly 8 pages** — the Limitations heading opens at the very top of p.9
+(measured 2026-08-18, after the Discussion gained the compute-axis paragraph, Figure 3 became
+the Q1-only panel with the 7-panel grid moved to Appendix A, and matching cuts were taken:
+Discussion ¶1 deduplicated against Appendix B, the compounding-loop paragraph folded into the
+mechanism reading, §5/§6 prose tightened, body figures at `0.9\columnwidth`, float separations
+reduced in the preamble) — with **0 overfull boxes and 0 undefined references**; the whole PDF
+is 14 pages. Limitations, Ethics, References and the three appendices are unlimited and don't
+count. Word counts are a bad proxy for two-column ACL — always measure from the compiled PDF:
 
 ```powershell
 & ..\..\.venv\Scripts\python.exe -c "import fitz; d=fitz.open('main.pdf'); [print(f'p.{i+1} {j/len(t):.0%}') for i,p in enumerate(d) for t in [' '.join(p.get_text().split())] for j in [t.find('Limitations')] if j>=0]"
@@ -93,13 +97,16 @@ Every quantitative claim is in [`NUMBERS.md`](NUMBERS.md) with its artifact path
 & ..\..\.venv\Scripts\python.exe sync_figures.py           # re-copy
 ```
 
-then walk the ledger. Six claims are easy to get subtly wrong and are flagged there explicitly:
+then walk the ledger. Seven claims are easy to get subtly wrong and are flagged there explicitly:
 
 - **Retention intervals are non-overlapping at iterations 9–10 ONLY** — not at best-vs-best.
   An earlier revision claimed otherwise. The robust statement is the *ordering* (PTO above GRPO
   at every iteration from 4 on), not a peak-vs-peak significant contrast.
 - **The two question rates are different measures.** `L0/SUMMARY.md` §4 quotes the regex rate
   (0.83→0.15) while citing the table that holds the *oracle* rate (0.446→0.319). Always say which.
+- **The top Q2 items are NOT "the same three in both arms"** — an earlier revision of §5 said so.
+  Self-disclosure tops only GRPO; PTO's top two are warmth items (*shoes* +1.54, *cared for*
+  +1.53). What survives: self-disclosure + direction items sit in the top four of both.
 - **The PTO affirmation push peaks at iteration 8**, not 10 (iter 10 falls back to 0.039).
 - **Never average the two graders' raw scores** — train-vs-test, not two raters.
 - **Don't resurrect `wins_correct` 0.65→0.71** — it was in-sample.

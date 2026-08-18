@@ -19,7 +19,10 @@ They are split on the **K axis**, and the split is what keeps their ledgers disj
   that varies. It establishes *that* the LLM-judge reward is hacked, and through which channel.
 - **`2026_lookahead_hack_substitution/` is PTO only, K ∈ {0,5}.** The optimizer is held fixed and
   K is the one thing that varies. It tests look-ahead as a *mitigation* and finds it relocates the
-  hack rather than reducing it (the MI-inconsistent total is unchanged at the matched endpoint).
+  hack rather than reducing it. ⚠ State the aggregate carefully: at the matched endpoint the
+  MI-inconsistent per-session total is unchanged **under the held-out judge** (dz 0.10, ns) while
+  the training oracle scores it reduced (dz 0.45) — the paper claims the substitution, never the
+  reduction, and the judge-dependence of the total IS its second finding.
 
 Neither is a K×method result — but that is now a **scope choice, not a data limitation**. GRPO LA5
 trained iterations 1–5 and is scored 0–5 on both graders (39 scored model states in all, per

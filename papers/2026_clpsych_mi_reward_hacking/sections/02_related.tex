@@ -23,7 +23,8 @@ diverge.
 
 \paragraph{Tree-structured preference data.} Constructing preferences by branching a dialogue
 and scoring simulated continuations connects to MCTS-guided preference learning
-\citep{xie2024mctsdpo,yu2023promptmcts,yuan2024eurus} and to the preference-tree formulation
+\citep{xie2024mctsdpo,yu2023promptmcts,yuan2024eurus}, to efficient planning over simulated
+conversation continuations \citep{chen2025broaden}, and to the preference-tree formulation
 this work builds on \citep{baruch2025pto}, which also introduced a look-ahead depth $K$
 (candidates scored after $K$ further simulated turns). We hold $K=0$ throughout so the
 optimizer is the only variable; the $K$ comparison is reported separately.
@@ -31,8 +32,9 @@ optimizer is the only variable; the $K$ comparison is reported separately.
 \paragraph{MI and computational models of counselling.} MI's coding systems
 \citep{moyers2016miti} give this domain what most dialogue benchmarks lack: an externally
 specified account of which behaviours are correct, with published competency thresholds.
-LLM-simulated patients have been used to train and assess counsellors
-\citep{steenstra2024scaffolding}, \citet{yosef2024assessing} validate the questionnaire-filling
-evaluators we use as the reward, and \citet{chen2025broaden} study LLM therapist behaviour
-beyond aggregate quality. Ours is not a new MI system but a measurement result about what
-happens when such an evaluator is optimised against for long enough.
+Counselling quality is separable from language alone \citep{perezrosas2019goodcounselor},
+LLM-simulated patients have been used to train and assess human counsellors
+\citep{steenstra2025scaffolding}, and \citet{yosef2024assessing} validate the
+questionnaire-filling evaluators we use as the reward. Ours is not a new MI system but a
+measurement result about what happens when such an evaluator is optimised against for long
+enough.

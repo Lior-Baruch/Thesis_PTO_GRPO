@@ -39,6 +39,9 @@ FIGURES: list[tuple[Path, str]] = [
     (EDA / "3_validity" / "gpt-4o-mini" / "reward_hack_panel.png",
      "reward_hack_panel_gpt-4o-mini.png"),
     # sec:heldout -- gain retention. Both graders in one artifact, so no <judge>/ level.
+    # The body embeds the Q1-only panel (legible at \columnwidth); the full grid is app:measurement.
+    (EDA / "8_measurement" / "multijudge_retention_trajectory_Q1.png",
+     "multijudge_retention_trajectory_Q1.png"),
     (EDA / "8_measurement" / "multijudge_retention_trajectory.png",
      "multijudge_retention_trajectory.png"),
     (EDA / "8_measurement" / "multijudge_gain_retention.png",

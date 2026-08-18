@@ -8,8 +8,8 @@ improvement is not a therapy skill but a grader-specific one. Behaviourally, bot
 preference-tree (PTO/DPO) and a group-relative (GRPO) optimizer converge on the same drift:
 turns grow $2.3$--$3.4\times$ longer, affirmations rise more than fivefold, MI-inconsistent
 behaviour rises $2.3\times$ (PTO) to $4.0\times$ (GRPO), and literal questions nearly vanish.
-Counting questions two ways is diagnostic: in GRPO the regex rate falls $0.83$ to $0.15$ per
-turn while the grader's own MI question code falls only $0.45$ to $0.32$ --- the oracle keeps
+Counting questions two ways is diagnostic: a deterministic regex rate and the grader's own MI
+question code agree at initialisation and \emph{invert} by the endpoint --- the oracle keeps
 crediting inquiry that has stopped. To
 quantify how much of the gain survives outside the training signal, we re-score all
 $16{,}896$ evaluation cells with a held-out judge from a different model family that never

@@ -111,13 +111,18 @@ these descriptively and leans no contrast on them. Keep it that way.
 | Conversation length | PTO 28.4 → 20.4; GRPO 28.8 → 25.2 utt. | `session_shape_by_iter.md` (`conv_len`) |
 | Phrase-loop rate | 0.490 / 0.479 → 0.000 | same (`loop`) |
 | Top Q2 item deltas (GRPO, final) | revealed thinking +1.073; shoes +1.010; took charge +0.990 | `tables/2_questionnaires/gpt-4o-mini/q2_item_deltas.md` |
+| Top Q2 item deltas (PTO, final) | shoes +1.542; cared for +1.531; revealed thinking +1.479; took charge +1.479 (tie) | same |
 
-⚠ **Two easy mistakes here, both previously made.**
+⚠ **Three easy mistakes here, all previously made.**
 1. **`L0/SUMMARY.md` §4 quotes the regex rate (0.83 → 0.15) while citing `miti_detail_by_iter.md`,
    which holds the *oracle* rate (0.446 → 0.319).** They are different measures of the same
    construct, and the divergence is this paper's §5 diagnostic. Always name which one you mean.
 2. The summary's "B6_AF 0.52 → 1.98" and "B3_Q 6.4 → 4.1" are **raw per-conversation counts**,
    not rates (`per_turn × n_th_turns`). The draft uses rates throughout.
+3. **The top Q2 items are NOT "the same three in both arms"** — an earlier revision said so.
+   Self-disclosure (*revealed thinking*) tops only GRPO; PTO's top two are *shoes* and *cared
+   for* (warmth), with *revealed thinking*/*took charge* tied just behind at +1.479. The claim
+   that survives is that self-disclosure and direction items sit in the **top four of both**.
 
 ## §6 Held-out judge (Table 5 = `tables/retention.tex`)
 
@@ -166,6 +171,24 @@ the second judge is held out — that is train-vs-test, not two raters. The leve
 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to
 every effect. Only contrasts and standardized quantities may be combined.
 
+## §7 Discussion — the compute-axis paragraph
+
+⚠ **These artifacts live under `results/L5/`, the one deliberate exception to "view is `L0`
+throughout".** The compute axis is *owned* by the L5 results tree (`eda_analysis/compute.py`
+renders there), but these rows describe the two **L0 arms** this paper compares — no claim
+overlaps the sibling draft, which is PTO-only and never quotes GRPO compute.
+
+| Claim | Value | Source |
+|---|---|---|
+| GPU-hours, 10 iterations | PTO_LA0 **8.119** vs GRPO_LA0 **27.906**; 27.906/8.119 = **3.4×** | `../L5/tables/7_stats/gpt-4o-mini/compute_by_arm.md` |
+| Why: build vs in-loop reward | PTO build 5.669 of 8.119 h, once per iteration | same (`build_h`) |
+| Matched-budget contrast (PTO@10 vs GRPO@3, ratio 1.011) | Q1+Q2 +0.266, dz 0.529, p_holm <.001 | `../L5/tables/7_stats/gpt-4o-mini/iso_compute_contrast.md` |
+| …MICI there (PTO **worse**) | +0.261, dz 0.904, p_holm <.001 | same |
+| …both replicate held-out | Q1+Q2 +0.230/dz 0.456/p .0002; MICI +0.418/dz 1.280/p <.001 | `../L5/tables/7_stats/claude-haiku-4-5/iso_compute_contrast.md` |
+
+⚠ Never quote the matched-budget reward win without the MICI deterioration beside it — at equal
+spend PTO has trained ten iterations to GRPO's three, and the hack tracks optimization depth.
+
 ## §7 Discussion / Appendix B (the probe)
 
 | Claim | Value | Source |
@@ -210,16 +233,21 @@ iteration at $0.72 where the char estimator said $1.33 and a pro-rata guess said
 
 ## Open TODOs
 
-- [ ] **Figure 3 legibility.** `multijudge_retention_trajectory.png` is a 7-panel grid; at
-      `\columnwidth` the individual panels are small. The caption was corrected to describe the
-      grid (an earlier revision wrongly called it a Q1-only plot), but the paper's claim rests on
-      the **Q1 panel**. Options: ask the EDA for a Q1-only variant, or promote it to a
-      two-column `figure*` (expensive — ~4× the column area, and the body has no slack).
+- [x] **Figure 3 legibility — resolved 2026-08-18.** The EDA now renders a Q1-only variant
+      (`8_measurement/multijudge_retention_trajectory_Q1.png`); the body embeds it as Figure 3
+      and the full 7-panel grid moved to Appendix A (`fig:retention_grid`), keeping the
+      instrument-specificity argument with a figure to point at.
 - [ ] **Co-author list and order** — currently commented out in `main.tex`; confirm before submission.
 - [ ] **Artifact release** — decide what ships publicly (transcripts + scores are synthetic and
       releasable; adapter release needs co-author sign-off). Placeholder `\todo` in `C_repro.tex`.
 - [ ] `moyers2016miti` has key year 2016 but `year = {2015}` (manual revision June 2015). The
       rendered citation says 2015, which is correct; the key name is merely misleading. Left as-is
       because renaming the key touches every citation.
-- [ ] Two `refs.bib` entries inherited from the deleted draft were never verified against their
-      sources (`steenstra2024scaffolding`, `chen2025broaden`). Check before submission.
+- [x] **Both inherited `refs.bib` entries verified 2026-08-18.** `steenstra2024scaffolding` was a
+      raw placeholder → replaced with the real entry (Steenstra, Nouraei & Bickmore, **CHI 2025**,
+      arXiv:2502.18673), key renamed `steenstra2025scaffolding`. `chen2025broaden` (ICLR 2025) is
+      real but is a conversation-*planning* paper — its citation moved from the MI paragraph to
+      the tree-search/look-ahead paragraph, and the MI paragraph now cites
+      `perezrosas2019goodcounselor` (ACL 2019) instead. Five further verified entries added
+      (`amodei2016concrete`, `pan2022effects`, `singhal2024long`, `lightman2024letsverify`,
+      `perezrosas2019goodcounselor`), shared with the sibling draft's bib.

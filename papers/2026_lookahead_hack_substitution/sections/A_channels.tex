@@ -1,15 +1,67 @@
 \section{Full channel table}
 \label{app:channels}
 
-\todo{Insert the full \texttt{k\_paired\_channels} table for PTO at iterations 5--8, all channel
-families, both judges. Source: the \texttt{L5} results tree, \texttt{tables/7\_stats/} under each
-judge. Keep the \texttt{family} column visible so the Holm scope stays legible.}
+Table~\ref{tab:allchannels} reports every coded channel at the matched endpoint (iteration 10),
+under both graders, in the body's convention: persona-paired $\Kz - \Kf$, $n=96$, positive means
+the \Kz{} policy does more of it; per-session counts except where marked; Holm correction within
+each family.
 
-The body reports the MI-inconsistent per-session family. The remaining families --- MI-consistent
-behaviour rates, the MITI proficiency ratios, and the deterministic session-shape metrics --- are
-reported here for completeness. The session-shape entries are worth naming because they are large,
-they are measured without any LLM in the loop, and none of them is a quality difference. At
-iteration~10 the \Kf{} policy writes longer turns ($810.9$ vs.\ $686.2$ characters) across more
-therapist turns ($14.4$ vs.\ $10.2$) in longer conversations ($28.7$ vs.\ $20.4$ utterances). That
-turn-count gap is the denominator behind every per-turn rate in this paper and is why
-\S\ref{sec:aggregate} reports counts first.
+\begin{table}[t]
+  \centering\small
+  \setlength{\tabcolsep}{2.2pt}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    & \multicolumn{2}{c}{primary oracle} & \multicolumn{2}{c}{held-out judge} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    iteration 10, per session & $\Delta$ & \dz{} & $\Delta$ & \dz{} \\
+    \midrule
+    \multicolumn{5}{@{}l}{\emph{MI-inconsistent acts (MICI coder)}}\\
+    Over-praise            & $+2.42$ & $+0.89^{*}$ & $+3.57$ & $+1.00^{*}$ \\
+    Advice w/o permission  & $-0.31$ & $-0.24$     & $-1.95$ & $-0.71^{*}$ \\
+    Directing              & $-0.38$ & $-0.39^{*}$ & $-0.68$ & $-0.47^{*}$ \\
+    Confronting            & $-0.06$ & $-0.26$     & $-0.29$ & $-0.31^{*}$ \\
+    Judging                & $-0.04$ & $-0.21$     & $-0.07$ & $-0.24$ \\
+    Warning                & $-0.01$ & $-0.10$     & $-0.05$ & $-0.20$ \\
+    \textbf{All acts}      & $+1.61$ & $+0.45^{*}$ & $+0.53$ & $+0.10$ \\
+    \midrule
+    \multicolumn{5}{@{}l}{\emph{MITI behaviour counts}}\\
+    Questions (B3)             & $-0.92$ & $-0.43^{*}$ & $-0.74$ & $-0.32^{*}$ \\
+    Simple reflections (B4)    & $-1.24$ & $-0.55^{*}$ & $-0.07$ & $-0.07$ \\
+    Complex reflections (B5)   & $-0.78$ & $-0.45^{*}$ & $-0.56$ & $-0.27^{*}$ \\
+    Affirmations (B6)          & $+0.79$ & $+0.41^{*}$ & $+1.00$ & $+0.48^{*}$ \\
+    Persuade (B2)              & $-0.67$ & $-0.52^{*}$ & $-2.63$ & $-0.87^{*}$ \\
+    Giving information (B1)    & $+0.01$ & $+0.01$     & $-1.05$ & $-0.37^{*}$ \\
+    Seeking collab.\ (B7)      & $+0.24$ & $+0.16$     & $-0.10$ & $-0.31^{*}$ \\
+    \midrule
+    \multicolumn{5}{@{}l}{\emph{MITI proficiency ratios (per turn)}}\\
+    R:Q      & $-0.20$ & $-0.26$ & $+0.08$ & $+0.04$ \\
+    \%CR     & $+0.00$ & $+0.01$ & $-0.13$ & $-0.27$ \\
+    \%MICO   & $+0.03$ & $+0.10$ & $+0.20$ & $+0.56^{*}$ \\
+    \midrule
+    \multicolumn{5}{@{}l}{\emph{Session shape (deterministic --- no LLM in the loop)}}\\
+    Characters per turn   & $-124.7$ & $-0.55^{*}$ & \multicolumn{2}{c}{(same)} \\
+    Conversation length (utt.) & $-8.31$ & $-0.55^{*}$ & \multicolumn{2}{c}{(same)} \\
+    Therapist turns       & $-4.16$ & $-0.55^{*}$ & \multicolumn{2}{c}{(same)} \\
+    \bottomrule
+  \end{tabular}
+  \caption{Every coded channel at the matched endpoint. ${}^{*}$ survives Holm within its
+  family. The session-shape rows are computed from the transcripts directly and are therefore
+  identical under both graders.}
+  \label{tab:allchannels}
+\end{table}
+
+Three readings worth naming. \textbf{First, the substitution is corroborated by a second
+instrument.} The MICI coder's advice-without-permission rise under \Kf{} (\S\ref{sec:aggregate})
+reappears in the MITI behaviour counts as \emph{persuade} --- $0.67$ more acts per session under
+the primary oracle ($\dz{}=0.52$) and $2.63$ more under the held-out judge ($\dz{}=0.87$), both
+Holm-significant --- so the ``flattery becomes advice'' trade is visible to two independently
+prompted coders, not an artifact of one rubric's category boundaries. \textbf{Second, most of the
+\Kf{} arm's higher per-session MI-consistent counts are session length.} The \Kf{} policy takes
+about four more therapist turns per session, and its per-session question and reflection counts
+are higher by roughly that factor while the per-turn versions are null --- the one exception being
+affirmations, which are genuinely lower under \Kf{} on both measures. \textbf{Third, the
+session-shape rows are large, deterministic, and not quality differences.} At iteration~10 the
+\Kf{} policy writes longer turns ($810.9$ vs.\ $686.2$ characters) across more therapist turns
+($14.4$ vs.\ $10.2$) in longer conversations ($28.7$ vs.\ $20.4$ utterances). That turn-count gap
+is the denominator behind every per-turn rate in this paper and is why \S\ref{sec:aggregate}
+reports counts first.

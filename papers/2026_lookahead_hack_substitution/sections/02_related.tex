@@ -1,33 +1,43 @@
 \section{Related work}
 \label{sec:related}
 
-\paragraph{Reward hacking and proxy gaming.} \todo{cite: Amodei et al. concrete problems; Skalse et
-al. reward hacking definitions; Gao/Schulman/Hilton scaling laws for reward model overoptimisation;
-Pan et al. the effects of reward misspecification.} The consistent finding is that optimising a
-proxy past a point degrades the true objective. Our contribution is narrower and, we think,
-under-reported: what happens to the \emph{composition} of the degradation when a mitigation removes
-one route to it.
+\paragraph{Reward hacking and proxy gaming.} That optimising a proxy past a point degrades the
+true objective is established theoretically \citep{skalse2022defining}, empirically for learned
+reward models \citep{gao2023scaling}, and across hand-specified rewards
+\citep{amodei2016concrete,pan2022effects}. The consistent framing is volumetric --- how much
+proxy score is gained, how much true objective is lost, and where the divergence begins. Our
+contribution is narrower and, we think, under-reported: what happens to the \emph{composition}
+of the degradation when a mitigation closes one route to it while the proxy's exploitable gap
+stays open.
 
-\paragraph{Length and sycophancy biases in LLM judges.} \todo{cite: Sharma et al. towards
-understanding sycophancy; Singhal et al. long way to go / length bias in RLHF; Dubois et al.
-length-controlled AlpacaEval; Zheng et al. MT-bench judge biases.} Our flattery result is a
-clinical instance of the sycophancy bias, with the twist that the instruments being gamed are
-published clinical questionnaires rather than generic preference ratings.
+\paragraph{Length and sycophancy biases in LLM judges.} LLM raters systematically prefer longer
+outputs \citep{singhal2024long,dubois2024lengthcontrolled,zheng2023judging} and agreeable ones
+\citep{sharma2024sycophancy}, and prefer their own family's text \citep{panickssery2024selfpreference}.
+Our flattery result is a clinical instance of the sycophancy bias, with the twist that the
+instruments being gamed are published clinical questionnaires rather than generic preference
+ratings --- and our verbosity analysis (\S\ref{sec:aggregate}) shows the length bias operating
+through a moving denominator rather than through the score alone.
 
-\paragraph{Trajectory- and lookahead-based reward.} \todo{cite: our prior preference-tree
-optimisation with look-ahead simulations (ICLR 2025 SSI-FM workshop poster); MCTS-style
-value estimation in dialogue; process- vs outcome-supervision (Lightman et al.).} Look-ahead is
-usually motivated as a variance/credit-assignment improvement. We evaluate it instead as a
-\emph{reward-hacking mitigation}, which is a use it is often informally credited with and, to our
+\paragraph{Trajectory-level and process-level reward.} Scoring a decision by the continuation it
+leads to, rather than in isolation, underlies look-ahead in preference-tree optimisation
+\citep{baruch2025pto}, MCTS-guided preference construction \citep{xie2024mctsdpo,yu2023promptmcts},
+efficient planning over simulated conversation futures \citep{chen2025broaden}, and, one level
+down, process supervision over reasoning steps \citep{lightman2024letsverify}. These methods are
+usually motivated as variance or credit-assignment improvements. We evaluate look-ahead instead
+as a \emph{reward-hacking mitigation} --- a use it is often informally credited with and, to our
 knowledge, has not been tested as.
 
-\paragraph{NLP for Motivational Interviewing.} \todo{cite: MITI 4.2.1 coding manual; Perez-Rosas
-et al. MI quality; Welivita \& Pu / Shen et al. counselling dialogue generation; the CLPsych
-LLM-evaluator prompts our Q1/Q2 rubrics come from.} Automated MI fidelity coding is an established
-task; our use of it is as an \emph{outcome} for an RL study rather than as the modelling target.
+\paragraph{NLP for Motivational Interviewing.} MI comes with an official treatment-integrity
+coding system and published competency thresholds \citep{moyers2016miti}, and counselling quality
+is separable from language alone \citep{perezrosas2019goodcounselor}. LLM-simulated patients are
+used to train human counsellors \citep{steenstra2025scaffolding}, and \citet{yosef2024assessing}
+validate the questionnaire-filling LLM evaluators our reward is built from. We use MI fidelity
+coding as the \emph{outcome} of an RL study rather than as the modelling target: the coded
+behaviour inventory is what lets a substitution be distinguished from a reduction at all.
 
-\paragraph{Multi-judge evaluation.} \todo{cite: judge agreement / LLM-as-judge reliability work;
-generalisability theory for rater designs.} We use a held-out judge specifically as a train/test
-split on the reward: the primary grader \emph{was} the training signal, so agreement between the
-two is not inter-rater reliability but a generalisation check, and raw scores must never be pooled
-across them.
+\paragraph{Multi-judge evaluation.} Agreement between LLM judges is usually treated as
+inter-rater reliability \citep{zheng2023judging,koo2016icc}. Ours cannot be: the primary grader
+\emph{was} the training signal, so the second judge is a train/test split on the reward, not a
+second rater --- their raw scores are never pooled, and their disagreement over the aggregate in
+\S\ref{sec:aggregate} is itself a finding about aggregates over heterogeneous failures, not a
+reliability failure to be averaged away.

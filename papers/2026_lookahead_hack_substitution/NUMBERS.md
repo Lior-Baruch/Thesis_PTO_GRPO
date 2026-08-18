@@ -72,6 +72,7 @@ All from `tables/7_stats/<judge>/k_paired_channels.md`, family `MI-inconsistent 
 | Therapist turns, iter 10 | 10.229 (K=0) vs 14.385 (K=5) | `tables/3_validity/*/session_shape_by_iter.md` |
 | Q1+Q2 iter 10, primary | 4.260 vs **4.307**, dz −0.096, raw p .087, **p_holm .695** | `k_means_by_iter.md` + `k_paired_by_method.md` |
 | Q1+Q2 iter 10, held-out | 2.866 vs 2.667, dz 0.308, raw p .032, **p_holm .130** | `tables/7_stats/claude-haiku-4-5/` same two |
+| **Gain retention, K=5 vs K=0 (§4 "nor more real")** | Q1: 0.720 [0.608, 0.839] (K=5) vs 0.795 [0.677, 0.934] (K=0, overlapping); Q2: 0.562 [0.472, 0.662] vs 0.849 [0.743, 0.979] (**disjoint, K=5 worse**) | K=5 rows: `tables/8_measurement/multijudge_gain_retention.md` (this view; reference `PTOExp3_LA5_Base`; table was EMPTY until the 2026-08-18 fix). K=0 rows: `../L0/tables/8_measurement/multijudge_gain_retention.md` (reference `PTOExp3_LA0_Base`). ⚠ cross-view comparison against different (identical-policy) base draws — the measured base noise floor (max \|dz\| 0.15) bounds the draw effect; the Q2 gap is far beyond it |
 
 ## §5 The aggregate — the paper's table
 
@@ -117,11 +118,34 @@ judge (family `MI-inconsistent (per session)`).
 | Severity does not persist to endpoint | primary dz −0.156, held-out ns at iter 10 | same |
 | GRPO K=5 trained 1-5, scored 0-5 on both graders | 6 model states (1 base + 5 trained) | `STATUS.md` run table; `results/L5/tables/7_stats/*/compute_by_arm.md` (`last_iter` 5, 27.078 GPU-h) |
 
-## §A Appendix
+## §A Appendix (Table 2 — every coded channel at iteration 10)
+
+Every numeric cell of `tables/A` comes from `tables/7_stats/<judge>/7_stats.xlsx`, sheet
+`k_paired_channels`, rows `method=PTO, iteration=10` — the md excerpt truncates at 60 rows, so
+the xlsx sheet is the citable source. Families as printed there; Δ = K0 − K5.
 
 | Claim | Value | Source |
 |---|---|---|
-| Session shape, iter 10 | turn len 686.2 vs 810.9; therapist turns 10.2 vs 14.4; conv len 20.4 vs 28.7 | `tables/3_validity/gpt-4o-mini/session_shape_by_iter.md` |
+| MICI channels + total, iter 10 | (same as §5 table, plus Confront −0.06/−0.26, Judge −0.04/−0.21, Warn −0.01/−0.10 primary; −0.29/−0.31*, −0.07/−0.24, −0.05/−0.20 held-out) | `k_paired_channels` xlsx, family `MI-inconsistent (per session)` |
+| **Persuade (MITI B2) rises under K=5** | Δ −0.67, dz −0.52, p_holm <.001 (primary); Δ −2.63, dz −0.87, p_holm <.001 (held-out) | same, family `MI-consistent (per session)`, metric `B2_Persuade` — quoted in §5 body too |
+| Affirmations (B6) lower under K=5, both measures | per session +0.79/dz 0.41* (+1.00/0.48* held-out); per turn +0.099/dz 0.71* (+0.101/0.69* held-out) | same, families `MI-consistent (per session)` / `(per turn)` |
+| Questions/reflections per session higher under K=5, per turn null | B3 −0.92/dz −0.43* but B3_per_turn +0.029 ns (primary) | same |
+| Ratios, iter 10 | R:Q −0.20/−0.26 (p .05); %CR +0.00/0.01; %MICO +0.03/0.10 primary, +0.20/0.56* held-out | same, family `MI-consistent (per turn)` |
+| Session shape deltas, iter 10 | chars/turn −124.7, conv len −8.31, therapist turns −4.16, all dz −0.55* | same, family `session shape` (judge-invariant) |
+| Session shape levels, iter 10 | turn len 686.2 vs 810.9; therapist turns 10.2 vs 14.4; conv len 20.4 vs 28.7 | `tables/3_validity/gpt-4o-mini/session_shape_by_iter.md` |
+
+## §B Reproducibility (values verified against `run_metadata.json` on disk, 2026-08-18)
+
+| Claim | Value | Source |
+|---|---|---|
+| Base model / LoRA / LR / DPO | `meta-llama/Llama-3.2-1B`, r=16 α=16, lr 1e-5, β=0.1 sigmoid, τ=0.1 | `data/pto_Exp3/runs/full/PTO_Iterative_Q1Q2_Llama32-1B_LA{0,5}_MCL12_M8_PTgreedy/run_metadata.json` |
+| Temps / caps | therapist 0.9, patient 0.7, branch 1.2, 200-token cap, MCL 12, target 49 utt | same |
+| Oracle/patient snapshot | `gpt-4o-mini-2024-07-18` (both roles) | same (`oracle_model_id`, `patient_model_id`) |
+| Adapters on HF Hub | `LBK95/PTO_Iterative_Q1Q2_Llama32-1B_LA{0,5}_MCL12_M8_PTgreedy_full` | same (`current_adapter_repo`) |
+| Noise floor quoted in §B | 54 base-vs-base contrasts, 0 significant, max \|dz\| 0.147 | `STATUS.md` § Next step (base replicate draws) |
+
+⚠ `run_metadata.json` is overwritten in place on resume — the LA5 file's `started_at`
+(2026-08-16) is the extension restart, not the run's origin. Do not quote it as a run date.
 
 ## Scoring provenance for this revision
 
@@ -137,9 +161,11 @@ judge (family `MI-inconsistent (per session)`).
 
 ## Open TODOs before submission
 
-- [ ] `sections/02_related.tex` is a scaffold of `\todo{}` citation slots — nothing is cited yet.
-- [ ] `sections/A_channels.tex` needs the full channel table pasted in.
-- [ ] `sections/B_repro.tex` needs seeds, adapter revisions, oracle snapshot dates.
+- [x] `sections/02_related.tex` — written 2026-08-18; every entry verified against arXiv/ACL
+      Anthology/venue pages (Steenstra et al. is CHI **2025**, key `steenstra2025scaffolding`).
+- [x] `sections/A_channels.tex` — full channel table pasted from the `k_paired_channels` xlsx
+      (see §A ledger above); surfaced the MITI-B2 persuade corroboration now also quoted in §5.
+- [x] `sections/B_repro.tex` — filled from both runs' `run_metadata.json` (see §B ledger above).
 - [ ] Co-author list/order, venue, submission date.
 - [ ] Decide whether the GRPO arms stay in the figures as context (they currently do) or are cut
       to keep the paper strictly within-optimiser.

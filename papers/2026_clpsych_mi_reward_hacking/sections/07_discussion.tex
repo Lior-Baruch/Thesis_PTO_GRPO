@@ -4,12 +4,11 @@
 \paragraph{The result is not ``DPO beats GRPO''.} It would be easy to read
 \S\ref{sec:gains}--\S\ref{sec:heldout} as a verdict on the loss function. It is not. We probed
 the update directions of both methods directly by re-weighting each method's own candidate
-groups under the \emph{other} method's rule (Appendix~\ref{app:probe}). Swapping the weighting
-rule while holding the data fixed barely moves the update direction (cosine $0.908$ on PTO's
-groups, $0.988$ on GRPO's); holding the rule fixed while varying whose groups are used leaves
-the two as far apart as they were as trained ($0.397$ and $0.324$ corrected, versus $0.317$ as
-trained). At matched look-ahead and a shared oracle, the two losses extract nearly the same
-direction from the same eight completions.
+groups under the \emph{other} method's rule (Appendix~\ref{app:probe}): swapping the rule while
+holding the data fixed barely moves the update direction (cosine $\geq0.91$), while holding the
+rule fixed across each method's own groups leaves the two as far apart as they were as trained
+($0.32$--$0.40$ ceiling-corrected, versus $0.317$ as trained). The two losses extract nearly the
+same direction from the same eight completions.
 
 The gap is therefore about \textbf{which states the training data is drawn from}
 (\S\ref{sec:setup}), and that suggests a mechanism the outcome scores alone do not:
@@ -19,16 +18,21 @@ update chooses among candidates continued from an already-drifted prefix. PTO's 
 re-anchored at every step by an oracle selection, which bounds how far its state distribution
 can wander. We offer this as the reading most consistent with our measurements, not a
 demonstrated cause: isolating it needs an arm that reranks states while holding the loss fixed,
-which we did not run.
+which we did not run. The drift itself is a \emph{compounding loop, not a strong pull}:
+per-iteration selection pressure toward affirmation never exceeds ${\approx}0.10$ while the
+policy's generated affirmation rate moves an order of magnitude further
+(Appendix~\ref{app:probe}) --- which is why selection-time contrasts understate the drift,
+why single-iteration diagnostics miss it, and why retention, which compares policies rather
+than candidates, sees it first.
 
-\paragraph{The hack is a compounding loop, not a strong pull.} Measured on the training data,
-per-iteration \emph{selection} pressure toward affirmation stays small
-($\approx0.01\rightarrow0.10$) while what the policy \emph{generates} moves an order of
-magnitude further ($0.02\rightarrow0.54$ GRPO, $0.04\rightarrow0.57$ PTO; Appendix~\ref{app:probe}).
-A weak, persistently same-signed preference applied each iteration to an already-more-effusive
-policy is enough. By the endpoint the update is choosing between two effusive candidates, which
-is why selection-time contrasts \emph{understate} the drift, why single-iteration diagnostics
-miss it, and why retention --- which compares policies, not candidates --- sees it first.
+\paragraph{Efficiency changes the comparison, not the conclusion.} An iteration is not a unit
+of cost: PTO's ten iterations cost $8.1$ GPU-hours to GRPO's $27.9$ ($3.4\times$ less --- its
+tree build runs once per iteration; GRPO recomputes its reward inside the training loop), so on
+the compute axis PTO dominates outright. But at \emph{matched} spend (${\approx}8$ GPU-h, GRPO
+reaching only iteration 3), PTO@10 wins the reward ($+0.27$, $\dz{}=0.53$) while being markedly
+\emph{worse} on MI-inconsistency ($+0.26$, $\dz{}=0.90$; both replicate held-out): the hack
+accumulates with optimization depth, so more reward per GPU-hour buys more reward-hacking per
+GPU-hour with it.
 
 \paragraph{Practical recommendation.} Whenever an LLM judge supplies the reward, score a
 held-out grader from a different family on states you have already generated and report gain
@@ -42,7 +46,7 @@ and nearly free.
 
 \paragraph{For MI specifically.} The endpoint models are more pleasant and less therapeutic:
 they validate more, ask less, and talk longer. A satisfaction-shaped reward selects for a
-satisfaction-shaped therapist. If the goal is MI fidelity, the reward has to contain the
+satisfaction-shaped therapist; if the goal is MI fidelity, the reward has to contain the
 prohibition. MI-inconsistency and question rate are cheap to score and were, here, only ever
 measured --- putting them in the reward is the natural next experiment, though that also
 removes them from the independent checks.

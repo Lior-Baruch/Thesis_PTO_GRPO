@@ -1,24 +1,22 @@
 \section{How Much of the Gain Is Real?}
 \label{sec:heldout}
 
-\S\ref{sec:learned} establishes that the policy changed in ways MI would not endorse. It does
+\S\ref{sec:learned} establishes that the policy changed in ways MI would not endorse; it does
 not establish how much of the \emph{measured} improvement those changes account for, because
-every number so far comes from the model that also supplied the reward. To separate the two we
-re-scored the entire study with a second grader.
+every number so far comes from the model that also supplied the reward. So we re-scored the
+entire study with a second grader.
 
 \subsection{A decoupled second grader}
 \heldoutjudge{} re-scored all \textbf{16{,}896} evaluation cells of this comparison --- 8
-instruments $\times$ 22 model states $\times$ 96 conversations, complete, no missing cells (part
-of a larger sweep covering all 39 model states in the project, $29{,}952$ cells). It is decoupled from
-training in three ways that matter: a different model family, it never played the patient, and
-it never produced a reward. Rubrics were held structurally identical, verified by an automated
-parity check before any scoring (Appendix~\ref{app:measurement}).
+instruments $\times$ 22 model states $\times$ 96 conversations, complete, no missing cells. It is
+decoupled from training in three ways that matter: a different model family, it never played the
+patient, and it never produced a reward. Rubrics were held structurally identical, verified by
+an automated parity check before any scoring (Appendix~\ref{app:measurement}).
 
 \textbf{This is a held-out grader, not a second rater.} The primary oracle \emph{was} the
-training signal, so the relation is train-versus-test, not inter-annotator agreement. We
-therefore never average the two --- the level offset is $1.2$--$1.7$ points and
-model-dependent, so averaging would silently shrink every effect by an arm-dependent amount.
-Only contrasts are compared.
+training signal, so the relation is train-versus-test, not inter-annotator agreement. We never
+average the two --- the level offset is $1.2$--$1.7$ points and model-dependent, so averaging
+would silently shrink every effect by an arm-dependent amount. Only contrasts are compared.
 
 \subsection{The rankings survive; the levels do not}
 Across all \textbf{1{,}848} pairwise arm\,$\times$\,instrument contrasts, $88.3\%$ keep their
@@ -48,16 +46,13 @@ offset cancels; intervals are bootstrapped over the 96 personas.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/multijudge_retention_trajectory.png}
-\caption{Gain retention by iteration, every instrument where the ratio is estimable (MICI's
-base $\Delta$ is near zero, so only iterations 8--10 survive). Blue PTO, orange GRPO;
-$1.0$ = the held-out judge credits the full gain. \textbf{The arms separate on Q1 and MITI and
-track each other on the alliance and satisfaction scales.} In the Q1 panel they are
-indistinguishable for three iterations, after which PTO holds $0.80$--$0.98$ while GRPO decays
-in trend to $0.28$ --- visible well before the outcome curve (Figure~\ref{fig:trajectory})
-turns over at iteration~8. Retention above $1.0$ on WAI-SR and CSQ-8 means the held-out judge
-credits \emph{more} there than the primary, which is why the diagnostic is the between-arm
-comparison within an instrument and not the absolute level.}
+\includegraphics[width=0.9\columnwidth]{figures/multijudge_retention_trajectory_Q1.png}
+\caption{Gain retention on Q1 by iteration; $1.0$ = the held-out judge credits the full gain,
+bands are persona-bootstrap 95\% intervals. The arms are indistinguishable for three
+iterations, after which PTO holds $0.80$--$0.98$ while GRPO decays in trend to $0.28$ ---
+visible well before the outcome curve (Figure~\ref{fig:trajectory}) turns over at
+iteration~8. The other seven instruments are in Figure~\ref{fig:retention_grid}
+(Appendix~\ref{app:measurement}).}
 \label{fig:retention}
 \end{figure}
 
@@ -78,22 +73,22 @@ result as a consistent ordering whose endpoint separates, not as one significant
 
 \paragraph{Q2 is a control, and the separation is instrument-specific.} Every Q2 retention
 interval overlaps, in a narrow $0.80$--$0.86$ band across both arms and endpoints --- mild scale
-compression affecting both equally. That matters because it shows retention is not simply
-measuring ``the second grader is stingier''; if it were, Q1 and Q2 would behave alike. They do
-not. Figure~\ref{fig:retention} shows the separation is confined to Q1 and MITI, while WAI-SR,
-CSQ-8 and MI-SAT track each other in both arms (and sit above $1.0$, the held-out judge crediting
-\emph{more} than the primary). We read this as diagnostic rather than dilutive: Q1 asks
-\emph{was this helpful, did I learn, will I act on it} --- where warmth substitutes for
+compression affecting both equally, showing retention is not simply measuring ``the second
+grader is stingier'': if it were, Q1 and Q2 would behave alike, and they do not.
+Figure~\ref{fig:retention_grid} shows the separation is confined to Q1 and MITI, while WAI-SR,
+CSQ-8 and MI-SAT track each other in both arms (and sit above $1.0$, the held-out judge
+crediting \emph{more} than the primary). We read this as diagnostic rather than dilutive: Q1
+asks \emph{was this helpful, did I learn, will I act on it} --- where warmth substitutes for
 substance most easily --- whereas the alliance and satisfaction scales reward warmth directly,
 and so have less to withdraw.
 
 \paragraph{Onset, not endpoint.} Retention is a curve, not a final number. Both arms sit at
 $0.84$--$0.97$ through iteration~3; GRPO then declines steadily before collapsing at iterations
-9--10 ($0.03$, $0.28$), while PTO stays in $0.80$--$0.98$ throughout. Two consequences.
-Retention separates the arms from iteration~4, whereas the reward curve does not distinguish
-them until GRPO turns over at iteration~8 --- a monitor computed on data one already has would
-have flagged this four iterations earlier. And GRPO's outcome regression and its retention
-collapse are the same phenomenon seen twice.
+9--10 ($0.03$, $0.28$), while PTO stays in $0.80$--$0.98$ throughout
+(Figure~\ref{fig:retention}). Retention thus separates the arms from iteration~4, whereas the
+reward curve does not distinguish them until GRPO turns over at iteration~8 --- a monitor
+computed on data one already has would have flagged this four iterations earlier --- and GRPO's
+outcome regression and its retention collapse are the same phenomenon seen twice.
 
 \paragraph{Why retention rather than MI-inconsistency.} Retention needs no cross-judge agreement
 on level or rate --- only that each grader is internally consistent across the states it
