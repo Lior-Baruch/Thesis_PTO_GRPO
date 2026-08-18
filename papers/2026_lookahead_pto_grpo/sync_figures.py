@@ -66,9 +66,16 @@ FIGURES: list[tuple[Path, str]] = [
     (MECHANISM / "dispersion.png", "dispersion_by_k_fig.png"),
     (MECHANISM / "faithfulness.png", "reward_faithfulness_fig.png"),
     (COST / "api_calls.png", "tail_audit_fig_api.png"),
-    # NOTE: the other PNG/PDF files in ./figures/ (the *_fig.pdf twins, side-by-side variants,
+    # NOTE: the remaining unsynced PNGs in ./figures/ (side-by-side variants,
     # k_overpraise_trajectory_*, k_mechanism_overpraise_*, session_shape_stability_fig_sd, ...) are
     # stale generator output no longer referenced by any .tex and no longer synced.
+    #
+    # ⚠ The 23 stale ``*_fig.pdf`` twins were DELETED on 2026-08-19: they still held the retired
+    # generators' data, and a ``\includegraphics{figures/x}`` written without an extension would
+    # have silently preferred the stale PDF over the fresh PNG. Every include names ``.png``
+    # explicitly today. For a camera-ready that wants VECTOR figures, re-render the source families
+    # with ``EdaConfig(fig_formats=("png", "pdf"))`` and add the ``.pdf`` sources to this list —
+    # do not resurrect the deleted twins.
 ]
 
 

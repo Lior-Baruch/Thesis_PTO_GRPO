@@ -89,7 +89,7 @@ meetings/
   decisions needed to submit (co-author list, venue, date, human-coder validation). 14 slides.
   The refusals slide is the point of this deck: claims that were weakened during drafting are named
   on a slide, so nobody in the room leaves repeating a stronger version than the paper defends.
-  Numbers here are owned by the paper's `NUMBERS.md` ledger, not by `eda/results/SUMMARY.md`.
+  Numbers here are owned by the paper's `NUMBERS.md` ledger, not by `eda/results/<top>/SUMMARY.md`.
 
 - **`build_status_deck_2026-08-18.py`** — the **current** whole-project deck (21 slides): the
   2026-08-16 status deck's structure, re-verified numbers, plus three slides that did not exist

@@ -6,7 +6,7 @@ and a whole PTO iteration costs a fraction of a GRPO one. Re-drawn against cumul
 the same curves tell a materially different story — arms that "stopped early" turn out to have
 spent the same money, and the ordering of two arms can invert.
 
-Single-judge figures (the tracked ``7_Stats`` §4e set):
+Single-judge figures (the tracked ``compute/cost`` set):
 
 - :func:`compute_trajectory` — score vs cumulative GPU-h, one line per arm, iteration numbers
   annotated so the reader can move between the two axes.

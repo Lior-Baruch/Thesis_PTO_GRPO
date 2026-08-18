@@ -3,6 +3,8 @@
 *Trajectory-Level Reward Redirects Rather Than Reduces Reward Hacking in a Motivational
 Interviewing Therapist*
 
+> ⚠ **RETIRED 2026-08-18 — archived, not live.** Superseded by [`../../2026_lookahead_pto_grpo/`](../../2026_lookahead_pto_grpo/) (*Same Lever, Different Optimizer*), which absorbs this paper's substitution result as its behaviour section and extends it to both optimizers, both graders and both cost axes. Do not edit this draft; its `NUMBERS.md` **traps still bind** on the shared numbers. Artifact paths below point at the pre-reorg `results/L0|L5/` tree (recoverable at commit `b09eb6f`; map them via `Exp3_PTO_GRPO/eda/README.md` § Migration).
+
 **Target:** CLPsych / NLP-for-psychology workshop (ACL style, 8-page body).
 **Domain:** Exp3, **`L5` view** — PTO at matched $K \in \{0,5\}$, **iterations 0–10** (both arms complete).
 **Sibling draft:** [`../2026_clpsych_mi_reward_hacking/`](../2026_clpsych_mi_reward_hacking/) is

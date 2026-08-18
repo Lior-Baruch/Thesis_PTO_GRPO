@@ -40,7 +40,7 @@ def faithfulness_proxy_vs_eval(scores_long, generations, *, metric: str = "Q1Q2"
     """Training proxy reward vs full-conversation eval, per (arm, iteration); dashed y=x.
 
     Joins on ``eval_iter = train_iter - 1`` (the proxy iteration N branches the policy that
-    produced the ``model_iter_{N-1}`` eval convs). Used by ``4_Training_and_Reliability``.
+    produced the ``model_iter_{N-1}`` eval convs). Used by ``arms/training``.
     """
     if generations.empty:
         return None

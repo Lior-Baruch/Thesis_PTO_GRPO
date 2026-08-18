@@ -6,7 +6,7 @@ things stand*, not *how they got here*. When an entry stops being current, move 
 [Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) rather than
 appending a new dated paragraph beneath the old one.
 
-**Last updated 2026-08-18.**
+**Last updated 2026-08-19.**
 
 ## Run status — all four arms trained and fully scored
 
@@ -24,6 +24,18 @@ K×method comparison.
 GRPO LA5 was stopped **~2 minutes into iteration 6**: `iteration_6/` holds one optimizer step
 (`completions_00001.parquet`) and tb_logs, no adapter and no checkpoint. Nothing depends on it —
 `model_iter_5` is the last complete policy — but a resume restarts iteration 6 from step 1.
+
+## Where the artifacts live
+
+The EDA is organised **by research question** (2026-08-18 reorg):
+`Exp3_PTO_GRPO/eda/results/<top>/<sub>/{figures,tables}/[<judge>/]` with tops **`arms/`** (per-arm
+descriptives, all four arms on one axis, one leaf per grader), **`lookahead/`** (RQ-i: reward ·
+transfer · behaviour · mechanism · replication), **`method/contrast`**, **`compute/cost`**,
+**`measurement/validity`** — the four contrast tops carry both graders side by side and have no
+`<judge>/` level. Each top has a hand-authored `SUMMARY.md`; `results/INDEX.md` maps every family to
+its notebook. Regenerate with `python eda/tools/render_results.py` (see
+[eda/README.md](Exp3_PTO_GRPO/eda/README.md), whose Migration table maps every retired
+`results/L0|L5/...` path). Owner paths quoted below are in that tree.
 
 ## ⚠ Read every contrast on the COMPUTE axis, not just the iteration axis
 
@@ -187,7 +199,7 @@ graders: 4 × 8 × 96 = 3,072 calls per grader, 0 errors).
 only noise floor that exists is at the base (4 independent draws of the identical base policy:
 6 pairs × 9 metrics = 54 same-policy contrasts, **0 reaching even uncorrected p < .05, max |dz|
 0.128 primary / 0.147 held-out**). No code change
-is needed — therapist decoding is unseeded, and `generate_eval_convs.py --conv-dir` keeps the
+is needed — therapist decoding is unseeded, and `code/tools/generate_eval_convs.py --conv-dir` keeps the
 replicate out of the primary partition.
 
 Cost: ~**$11.4** (6,000 patient calls ≈ $1.6 + 5 × 96 × 8 = 3,840 scoring calls per grader ≈ $1.2

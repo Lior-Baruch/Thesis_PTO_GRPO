@@ -17,7 +17,7 @@ B3_Q 6.45→3.84, B6_AF 0.42→1.64, loop% 49→0 over PTO LA0 iters 0→10).
 *validates the direction of* the oracle's MITI_B6_AF (affirmation) and MICI_OverPraise
 (sycophancy) counts — they are NOT primary behavior metrics and are deliberately excluded from
 ``_BEHAVIOR_METRICS``. Use the oracle-coded ``B6_AF`` and ``MICI_OverPraiseRate`` for the real
-affirmation/over-praise story; see notebook ``3_Validity_and_Hacking`` for the cross-check.
+affirmation/over-praise story; see notebook ``arms/validity.ipynb`` for the cross-check.
 """
 
 import os
@@ -323,7 +323,7 @@ def _behavior_by_iter_impl(arms) -> pd.DataFrame:
 
 
 # ── MITI drill-down detail (the per-questionnaire view: globals + rates + ratios) ─
-# The MITI section of 2_Questionnaire_Detail: everything the MITI oracle annotation yields, in one
+# The MITI section of arms/questionnaires: everything the MITI oracle annotation yields, in one
 # frame — 4 global ratings (1-5), the 7 behavior counts as per-therapist-turn rates, and the derived
 # proficiency ratios. The by-iter version feeds the uniform detail grid; the per-conv version feeds
 # the item-delta bars (final/best vs base).
@@ -362,7 +362,7 @@ def miti_detail_per_conv(arms: Optional[List] = None) -> pd.DataFrame:
 
 def miti_detail_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     """Per (arm, iteration) means of the MITI drill-down metrics — the frame behind the
-    ``miti_detail_grid`` figure (2_Questionnaire_Detail §MITI). Parquet-cached."""
+    ``miti_detail_grid`` figure (arms/questionnaires §MITI). Parquet-cached."""
     arms = _arms(arms)
     return load_cached("miti_detail_by_iter", arms, lambda: _miti_detail_by_iter_impl(arms),
                        input_roots=eval_input_roots(arms) + conv_input_roots(arms))
@@ -384,7 +384,7 @@ _SESSION_SHAPE_METRICS = ["mean_turn_len", "q_per_turn", "loop", "conv_len", "n_
 def session_shape_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
     """Per (arm, iteration) means of the deterministic text metrics (turn length, regex ``?``/turn,
     degeneration fraction, conversation length, therapist turns) — the exported session-shape
-    view (3_Validity_and_Hacking). Parquet-cached (content-keyed on the conversation CSVs)."""
+    view (arms/validity). Parquet-cached (content-keyed on the conversation CSVs)."""
     arms = _arms(arms)
     return load_cached("session_shape_by_iter", arms, lambda: _session_shape_by_iter_impl(arms),
                        input_roots=conv_input_roots(arms))

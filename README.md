@@ -56,7 +56,9 @@ ever *read* the generated artifacts under `Exp3_PTO_GRPO/eda/results/` — nothi
 | Paper | Covers | Domain | Status |
 |---|---|---|---|
 | [`2025_iclr_pto_lookahead/`](papers/2025_iclr_pto_lookahead/) | PTO + look-ahead, as introduced | Exp1 | published, frozen |
-| [`2026_clpsych_mi_reward_hacking/`](papers/2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry* — what an LLM judge actually teaches, and how much of the gain a held-out judge credits | Exp3, `L0` view | drafting |
+| [`2026_lookahead_pto_grpo/`](papers/2026_lookahead_pto_grpo/) | *Same Lever, Different Optimizer* — does $K$-turn look-ahead help, and does the answer depend on the optimizer? | Exp3, all four arms, both graders | **drafting** — the live draft |
+| [`archive/2026_clpsych_mi_reward_hacking/`](papers/archive/2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry* — what an LLM judge actually teaches, and how much of the gain a held-out judge credits | Exp3, K=0 only | retired 2026-08-18 — absorbed by the live draft's §6 |
+| [`archive/2026_lookahead_hack_substitution/`](papers/archive/2026_lookahead_hack_substitution/) | *The Hack Moves* — trajectory-level reward redirects rather than reduces reward hacking | Exp3, K=5, PTO only | retired 2026-08-18 — absorbed by the live draft's §6 |
 
 Every paper carries a **`NUMBERS.md` ledger** mapping each quantitative claim to the exact artifact
 path it came from — so when the EDA is re-rendered and a number moves, you can find every sentence
@@ -70,7 +72,7 @@ that has to change. See [papers/README.md](papers/README.md).
 | [CLAUDE.md](CLAUDE.md) | cross-experiment map + the full method/spec context for Exp3 |
 | [STATUS.md](STATUS.md) | run status, headline numbers, cost constraint, next step |
 | `Exp{1,2}_*/CLAUDE.md` | per-experiment context for the two frozen experiments |
-| [Exp3_PTO_GRPO/eda/README.md](Exp3_PTO_GRPO/eda/README.md) | the EDA how-to: VIEW/JUDGE knobs, package map, re-render |
+| [Exp3_PTO_GRPO/eda/README.md](Exp3_PTO_GRPO/eda/README.md) | the EDA how-to: FAMILY/JUDGE knobs, package map, re-render |
 | [Exp3_PTO_GRPO/code/README.md](Exp3_PTO_GRPO/code/README.md) | what each trainer module does |
 | [Exp3_PTO_GRPO/history/](Exp3_PTO_GRPO/history/CHANGELOG.md) | the only dated history |
 

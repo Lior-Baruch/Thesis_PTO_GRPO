@@ -134,7 +134,7 @@ def _c_family_map() -> str:
     nothing and a notebook with no family writes nowhere the index knows. Missing notebooks are a
     WARN (expected until Phase C of the reorg lands the new notebooks); a notebook under a
     ``<top>/`` folder that names NO family, or a ``PER_JUDGE_TOPS`` entry that is not a top, FAILS.
-    ``scoring/`` (Run_Eval etc.) and the legacy ``analysis/`` folder are not families.
+    ``scoring/`` (Run_Eval etc.) is not a family.
     """
     from eda_analysis import config as C
     assert C.FAMILIES and all(subs for subs in C.FAMILIES.values()), "FAMILIES must be non-empty"
@@ -225,12 +225,12 @@ def _c_scoring_surface() -> str:
             f"{len(registry.EXPERIMENTS)} experiments)")
 
 
-def _notebook_symbol_refs(legacy: bool = False) -> dict:
+def _notebook_symbol_refs() -> dict:
     """Scan committed notebooks for ``<submodule>.<attr>(`` calls -> {submodule: {attr, ...}}.
 
-    ``legacy=False`` scans the live notebooks (``notebooks/<top>/`` for every ``config.FAMILIES``
-    top + ``notebooks/scoring/``); ``legacy=True`` scans only the pre-reorg ``notebooks/analysis/``
-    folder, which Phase C of the 2026-08-18 reorg deletes once its content has moved.
+    Scans every live notebook: ``notebooks/<top>/`` for each ``config.FAMILIES`` top, plus
+    ``notebooks/scoring/``. (The pre-reorg ``notebooks/analysis/`` folder and its legacy scan were
+    removed with the 2026-08-18 reorg; git keeps them at ``b09eb6f``.)
     """
     from eda_analysis.config import FAMILIES
     # ``(?<![\w.])`` — the submodule name must not itself be an attribute: ``plotting.lookahead.k_did``
@@ -238,7 +238,7 @@ def _notebook_symbol_refs(legacy: bool = False) -> dict:
     # ``k_did``). Same-named analysis + plotting modules exist for every promoted topic.
     pat = re.compile(r"(?<![\w.])(" + "|".join(_SUBMODULES) + r")\.([A-Za-z_][A-Za-z0-9_]*)")
     refs: dict = {m: set() for m in _SUBMODULES}
-    tops = ["analysis"] if legacy else list(FAMILIES) + ["scoring"]
+    tops = list(FAMILIES) + ["scoring"]
     for top in tops:
         for nb in glob(os.path.join(_EDA_DIR, "notebooks", top, "*.ipynb")):
             d = json.load(open(nb, encoding="utf-8"))
@@ -269,13 +269,7 @@ def _c_notebook_refs_resolve() -> str:
     bad, total = _resolve(refs)
     assert not bad, f"notebook-referenced symbols not resolvable: {bad}"
     used = {m: len(a) for m, a in refs.items() if a}
-    # The pre-reorg notebooks/analysis/ folder is scheduled for deletion (Phase C); a dangling
-    # reference there is a WARN, not a regression of the live surface.
-    lbad, ltotal = _resolve(_notebook_symbol_refs(legacy=True))
-    if lbad:
-        raise _Warn(f"{total} live notebook symbol refs resolve across {used}; legacy "
-                    f"notebooks/analysis/ has {len(lbad)} dangling ref(s) (deleted in Phase C): {lbad}")
-    return f"{total} live notebook symbol refs resolve across {used} (+{ltotal} legacy refs OK)"
+    return f"{total} live notebook symbol refs resolve across {used}"
 
 
 def _c_cache_mechanism() -> str:

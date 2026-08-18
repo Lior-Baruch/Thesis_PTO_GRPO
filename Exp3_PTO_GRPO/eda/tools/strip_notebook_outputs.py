@@ -12,7 +12,7 @@ Three modes:
 * **in-place** (default) — strip every ``eda/*.ipynb`` (or the paths given) and rewrite::
 
       python strip_notebook_outputs.py               # all eda/*.ipynb
-      python strip_notebook_outputs.py 4_Training_and_Reliability.ipynb
+      python strip_notebook_outputs.py notebooks/arms/training.ipynb
 
 * **--check** — exit non-zero (and list offenders) if any tracked notebook still has outputs.
   Cheap regression guard; wire into CI / the self-check / a pre-push hook::

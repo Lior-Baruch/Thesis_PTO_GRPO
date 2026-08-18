@@ -2,6 +2,8 @@
 
 *Reward Hacking When an LLM Judge Trains a Motivational Interviewing Therapist*
 
+> ⚠ **RETIRED 2026-08-18 — archived, not live.** Superseded by [`../../2026_lookahead_pto_grpo/`](../../2026_lookahead_pto_grpo/) (*Same Lever, Different Optimizer*), which absorbs this paper's K=0 reward-hacking result. Do not edit this draft; its `NUMBERS.md` **traps still bind** on the shared numbers. Artifact paths below point at the pre-reorg `results/L0|L5/` tree (recoverable at commit `b09eb6f`; map them via `Exp3_PTO_GRPO/eda/README.md` § Migration).
+
 **Target:** CLPsych / NLP-for-psychology workshop (ACL style, 8-page body).
 **Domain:** Exp3, `L0` view only — PTO vs GRPO at matched look-ahead $K=0$.
 The look-ahead comparison is deliberately excluded (see [`../README.md`](../README.md)).

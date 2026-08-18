@@ -17,7 +17,7 @@ Split into topic submodules (2026-07-13; formerly one 935-line ``plotting.py``) 
   the "which items drive the change" delta bars (+ the Q2 face-content specializations).
 - :mod:`.training`      — TRAINING-signal figures (reward distributions, advantage side-by-side).
 - :mod:`.reliability`   — MEASUREMENT-validity figures (oracle ICC, second-judge agreement +
-  contrast preservation), from the ``data/eval_scores_by_judge/`` re-scoring tree.
+  contrast preservation), from the ``data/eval_scores/judge=<tag>/rep=<r>/`` score lake.
 - :mod:`.compute`       — the COMPUTE axis: score vs cumulative GPU-hours, the budget sweep
   (does the lever pay at equal spend?), and where each arm's hours go.
 - :mod:`.lookahead`     — RQ-i: the BEHAVIOUR channels the K=0-vs-K=5 reward curve hides

@@ -1,8 +1,9 @@
 """reliability.py — MEASUREMENT-VALIDITY figures: oracle repeatability (ICC) and second-judge
 agreement / contrast preservation. (Data-side counterpart: :mod:`eda_analysis.reliability`.)
 
-These read the ``data/eval_scores_by_judge/`` re-scoring tree via that module — no API calls, so they render
-inside ``render_views.py`` while the paid re-scoring stays behind ``Judge_Reliability.ipynb``.
+These read the ``data/eval_scores/judge=<tag>/rep=<r>/`` score lake via that module — no API calls,
+so they render inside ``render_results.py`` (family ``measurement/validity``) while the paid
+re-scoring stays behind ``Judge_Reliability.ipynb``.
 """
 
 import colorsys

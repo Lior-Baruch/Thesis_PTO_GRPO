@@ -717,8 +717,8 @@ and the measurement/inference limitations in [`results/LIMITATIONS.md`](results/
 
 ## Migration (2026-08-18) — old → new
 
-The results tree was reorganised by research question (the design note lived at
-`eda/REORG_2026-08-18.md` while the work was in flight). **Commit `b09eb6f` is the last pre-reorg
+The results tree was reorganised by research question (the design note that guided it was a scratch
+file, never committed — this table is the record). **Commit `b09eb6f` is the last pre-reorg
 state** — check it out to re-run anything that read the retired `L0`/`L5` tree (the deck builders
 written before that date, the paper's own `analysis/*.py` generators). `L0/`, `L5/`, the `VIEW`
 knob, `RQ_I_VIEW`, `render_views.py` (`EDA_VIEW`) and `EdaConfig(view=, export_group=)` are gone;

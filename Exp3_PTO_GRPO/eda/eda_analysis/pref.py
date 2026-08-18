@@ -208,7 +208,7 @@ def pref_word_ranking(word_projection: pd.DataFrame, *, top_n: int = 15,
     Takes the :func:`word_projection` frame (index = word, a ``mean`` column = pooled projection
     onto the chosen−rejected preference direction). Pools over iterations via ``mean``. Returns a
     ``fig`` (the notebook saves/shows it) — lives here (not ``plotting.py``) so all PTO-preference
-    code stays in the one PTO-only module. Used by ``5_Preference``.
+    code stays in the one PTO-only module. Used by ``arms/preference``.
     """
     import matplotlib.pyplot as plt
     if word_projection.empty or "mean" not in word_projection.columns:
@@ -440,7 +440,7 @@ def _cell_rng(seed: int, arm: str, it) -> "np.random.Generator":
 
     Every sampling/splitting decision below is per (arm, iteration), so it must depend only on that
     cell. With one shared stream the draw for ``PTO_LA0`` iter 3 would change whenever another arm
-    is added to the frame, and the same figure would differ between the ``L0`` and ``all`` renders
+    is added to the frame, and the same figure would differ between a K-filtered and an all-arms render
     on identical data.
     """
     import zlib

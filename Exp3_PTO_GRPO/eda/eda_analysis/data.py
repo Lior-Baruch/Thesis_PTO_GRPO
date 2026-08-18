@@ -120,9 +120,9 @@ def load_cached(name: str, arms, builder, *, input_roots, params: Optional[dict]
     """Return ``builder()``, memoized to ``.eda_cache/<name>__<armkey>__<contentkey>.parquet``.
 
     ``input_roots`` = directories whose CSV ``(name, size, mtime)`` define the content signature
-    (use :func:`eval_input_roots` / :func:`conv_input_roots`). Distinct arm-subsets (e.g. L0 vs L5)
-    coexist via a separate ``armkey``; a re-score changes ``contentkey`` and the write prunes only
-    the SAME arm-subset's stale file. Bypassed when :func:`cache_enabled` is False; a parquet
+    (use :func:`eval_input_roots` / :func:`conv_input_roots`). Distinct arm-subsets (e.g. a K=0-only
+    config vs the all-arms default) coexist via a separate ``armkey``; a re-score changes
+    ``contentkey`` and the write prunes only the SAME arm-subset's stale file. Bypassed when :func:`cache_enabled` is False; a parquet
     round-trip failure degrades to an uncached build.
     """
     if not cache_enabled():

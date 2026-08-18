@@ -15,7 +15,7 @@ analysis layer's and shadowed the ``eval`` builtin):
   pluggable second judge (OpenAI/Anthropic) + contrast preservation.
 
 This subpackage is NOT imported by ``eda_analysis/__init__`` on purpose: building the registry
-scans the data dirs on disk, which the analysis notebooks (``1_Outcomes`` … ``6_Stats``) never
+scans the data dirs on disk, which the family notebooks (``notebooks/<top>/<sub>.ipynb``) never
 need. Import it explicitly (``from eda_analysis import scoring`` /
 ``from eda_analysis.scoring import ...``) — only the two scoring notebooks do.
 
