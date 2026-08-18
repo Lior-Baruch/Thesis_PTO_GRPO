@@ -18,3 +18,8 @@ build.log
 # NOT ignored, deliberately: acl.sty and acl_natbib.bst are vendored from
 # github.com/acl-org/acl-style-files so the paper builds without a network
 # round-trip and against a pinned style version. They are ~57 KB total.
+
+# per-paper scratch renders (page thumbnails) and build logs
+_preview/
+b[0-9].log
+bib.log

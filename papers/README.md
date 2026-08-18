@@ -8,34 +8,34 @@ schematics in `Exp3_PTO_GRPO/figures/`.
 | Folder | Paper | Domain | Status |
 |---|---|---|---|
 | [`2025_iclr_pto_lookahead/`](2025_iclr_pto_lookahead/) | *Preference Tree Optimization: Enhancing Goal-Oriented Dialogue with Look-Ahead Simulations* | Exp1 | **published — frozen** (ICLR 2025 SSI-FM workshop, poster) |
-| [`2026_clpsych_mi_reward_hacking/`](2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry: Reward Hacking When an LLM Judge Trains a Motivational Interviewing Therapist* | Exp3, `L0` view | **drafting** (CLPsych / ACL style, 8pp) |
-| [`2026_lookahead_hack_substitution/`](2026_lookahead_hack_substitution/) | *The Hack Moves: Trajectory-Level Reward Redirects Rather Than Reduces Reward Hacking in a Motivational Interviewing Therapist* | Exp3, `L5` view | **drafting** (CLPsych / ACL style, 8pp) |
+| [`2026_lookahead_pto_grpo/`](2026_lookahead_pto_grpo/) | *Same Lever, Different Optimizer: Does $K$-Turn Look-Ahead Help a Small Motivational-Interviewing Therapist?* | Exp3, all four arms (both K, both optimizers, both graders) | **drafting** — the live draft (ACL style, 8pp body + appendix) |
+| [`archive/2026_clpsych_mi_reward_hacking/`](archive/2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry: Reward Hacking When an LLM Judge Trains a Motivational Interviewing Therapist* | Exp3, `L0` view | **retired 2026-08-18** — its K=0 reward-hacking result is absorbed by the live draft's §6 |
+| [`archive/2026_lookahead_hack_substitution/`](archive/2026_lookahead_hack_substitution/) | *The Hack Moves: Trajectory-Level Reward Redirects Rather Than Reduces Reward Hacking in a Motivational Interviewing Therapist* | Exp3, `L5` view, PTO only | **retired 2026-08-18** — its substitution result is absorbed by the live draft's §6; its `NUMBERS.md` traps still apply |
 
-## Scope of the two current drafts — they must share no claims
+**`archive/` holds retired drafts, tracked** (un-ignored in `.gitignore` exactly like
+`meetings/archive/`). They are records of what was argued and how far the writing got, not live
+work: do not edit them in place. Their ledgers (`NUMBERS.md`) remain the fastest way to find the
+trap list for a number that appears in the live draft too.
 
-They are split on the **K axis**, and the split is what keeps their ledgers disjoint:
+## Scope of the live draft
 
-- **`2026_clpsych_mi_reward_hacking/` is K=0 only.** The optimizer (PTO vs GRPO) is the one thing
-  that varies. It establishes *that* the LLM-judge reward is hacked, and through which channel.
-- **`2026_lookahead_hack_substitution/` is PTO only, K ∈ {0,5}.** The optimizer is held fixed and
-  K is the one thing that varies. It tests look-ahead as a *mitigation* and finds it relocates the
-  hack rather than reducing it. ⚠ State the aggregate carefully: at the matched endpoint the
-  MI-inconsistent per-session total is unchanged **under the held-out judge** (dz 0.10, ns) while
-  the training oracle scores it reduced (dz 0.45) — the paper claims the substitution, never the
-  reduction, and the judge-dependence of the total IS its second finding.
+`2026_lookahead_pto_grpo/` is the **one** live paper. It asks the direct question the ICLR poster
+raised — does scoring a candidate turn on its $K$-turn continuation help — and answers it across
+**both optimizers (PTO, GRPO), both look-ahead depths ($K\in\{0,5\}$), both graders (the training
+oracle and a held-out judge), and both cost axes (matched iteration and matched GPU-hours)**. It
+therefore absorbs, as one section, the two retired drafts' behavioural finding (over-praise closes
+under $K{=}5$; MI-inconsistency is *relocated* to unsolicited advice rather than reduced), stated
+with the retired ledgers' traps intact (channel level, counts before rates, name the axis and the
+grader, never a "reduction" without "under the training oracle only").
 
-Neither is a K×method result — but that is now a **scope choice, not a data limitation**. GRPO LA5
-trained iterations 1–5 and is scored 0–5 on both graders (39 scored model states in all, per
-[`STATUS.md`](../STATUS.md)), so a K×method contrast exists over iterations 0–5 and is already
-rendered in `Exp3_PTO_GRPO/eda/results/L5/tables/7_stats/*/k_paired_by_method.md`. Both drafts
-state their claims at iteration 10, outside that window, and both say so in Limitations. **Before touching a shared artifact, check both
-`NUMBERS.md` ledgers**; the over-praise numbers in particular appear in both, at different
-iterations and under different framings, and are easy to cross-contaminate.
-
-⚠ **They read different views.** The K=0 draft reads `results/L0/`; the look-ahead draft reads
-`results/L5/`, which is `eda_analysis.RQ_I_VIEW` — the only view whose K-contrast notebook
-sections execute at all. Each `sync_figures.py` points at its own view; do not "fix" one to match
-the other.
+⚠ **It reads the `L5` view for EDA-owned artifacts** (`L5` is `eda_analysis.RQ_I_VIEW`, the only
+view whose K-contrast notebook sections execute) **and generates its own cross-K artifacts** in
+`analysis/` (the four-arm persona-paired K contrast under both graders, the cross-K judge test,
+the compute sweeps on the channels, the look-ahead tail audit, the ICLR conversations re-scored
+under the modern oracle, …), because no tracked EDA artifact puts $K{=}0$ and $K{=}5$ on one axis.
+Those generators import `eda_analysis` for every load and every paired statistic, so their numbers
+agree with the tracked tables where they overlap; each writes a JSON ledger under
+`analysis/out/` that `NUMBERS.md` cites.
 
 ## Conventions
 

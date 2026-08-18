@@ -1,0 +1,21 @@
+\begin{abstract}
+Look-ahead scores a candidate therapist turn on the $K$-turn continuation it leads to under the
+current policy, rather than in isolation; it was reported to raise the oracle reward of a
+preference-tree-optimised (PTO) Motivational-Interviewing therapist (Llama-2-7B against GPT-3.5
+patients, $K{=}5$ over $K{=}0$). We re-run the lever on a Llama-3.2-1B therapist against
+\primaryjudge{} patients under two optimizers --- PTO with a DPO loss and iterative GRPO --- at
+$K \in \{0, 5\}$, matched otherwise, and score all 39 model states $\times$ 96 personas on eight
+instruments under both the training oracle and a held-out judge. For PTO look-ahead does not raise the training reward:
+\Kz{} is higher at eight of ten iterations, Holm-significantly at one under the oracle and three
+under the held-out judge (\dz{} $0.33$--$0.51$), and no endpoint contrast on \QQ{} survives correction.
+For GRPO the sign flips in \Kf{}'s favour at iterations 4--5 (held-out \dz{} $-0.37$/$-0.43$;
+that arm is censored at iteration~5). Look-ahead costs $1.9$--$2.4\times$ per step or per
+iteration and about twice the API calls, and at matched GPU-hours it never significantly beats
+\Kz{} on the training oracle.
+Robustly, it closes the over-praise channel (per turn, PTO \dz{} $1.2$--$1.6$; GRPO
+$0.3$--$0.7$) while, in PTO, MI-inconsistency relocates to unsolicited advice, and it moves
+session length in opposite directions by optimizer. Re-scoring the original study's 1{,}440 transcripts with the modern grader
+reproduces its $K{=}5 > K{=}0$ ordering at 7/7 iterations: the null belongs to the regime, not
+the judge. Look-ahead is a ${\approx}2\times$-cost lever that changes what the policy learns to
+do more than how well the oracle scores it.
+\end{abstract}

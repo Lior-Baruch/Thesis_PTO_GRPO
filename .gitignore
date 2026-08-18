@@ -30,6 +30,9 @@ archive/
 # Both negations are needed: the dir must be un-excluded before files inside it can be.
 !meetings/archive/
 !meetings/archive/**
+# papers/archive/ likewise: retired drafts stay tracked (their .tex/.bib/NUMBERS.md/figures/tables).
+!papers/archive/
+!papers/archive/**
 # Sentence-embedding caches (these .npy files are ~139 MB each — over GitHub's limit)
 **/emb_cache_words/
 *.npy

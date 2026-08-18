@@ -13,6 +13,56 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-08-18 — the look-ahead paper: two drafts retired, one live draft built, six cross-K findings
+
+The two 2026 drafts (`2026_clpsych_mi_reward_hacking`, K=0 only; `2026_lookahead_hack_substitution`,
+PTO only) were **retired to `papers/archive/`** (tracked; `.gitignore` un-ignores it like
+`meetings/archive/`) and replaced by one live paper, **`papers/2026_lookahead_pto_grpo/`** — *Same
+Lever, Different Optimizer: Does K-Turn Look-Ahead Help a Small MI Therapist?* — that reads all four
+arms under both graders on both cost axes. It was built cold: a six-reader table sweep with the
+narrative docs closed, four framing lenses, a diff against STATUS/SUMMARY/drafts, 17 load-bearing
+numbers re-opened, then nine paper-local generators (`analysis/*.py`, each importing `eda_analysis`
+and reproducing a tracked cell before writing), three writers, an editor pass, a 15-section
+adversarial number audit and a reviewer read. Every number sits in `NUMBERS.md` → `tables/*.md` →
+`analysis/out/*.json`.
+
+Findings that did not exist as artifacts before today (all now in `papers/2026_lookahead_pto_grpo/tables/`):
+
+- **The four-arm, persona-paired K contrast under both graders in one frame** (`k_contrast_headline_*`).
+  PTO: K=0 ≥ K=5 at 8/10 iterations, Holm-sig in K=0's favour at 6 (primary) and 5/6/8 (held-out),
+  carried by Q2 — the ICLR Q2-only K finding, reversed. GRPO: K=5 > K=0 at 4–5, on Q1.
+- **The ICLR ordering reproduces on the poster's own 1,440 transcripts under gpt-4o-mini**
+  (`crossgen_exp1_*`; the `_crossgen/` re-score of 08-12 had never been analysed): K=5 above K=0 at
+  7/7 iterations under both graders, dz −0.54 vs −0.61, Spearman 0.84 across the 15 model means.
+  The Exp3 null is a regime change, not a judge change.
+- **Look-ahead rescales the training signal rather than sharpening it** (`dispersion_by_k_*`): margin
+  and SD rise by the same factor (ratio-of-ratios 1.01–1.03), margin/SD at the 8-draw expectation
+  everywhere; ~half of PTO K=5's τ-yield edge at the base policy is rescaling. **Matched-policy
+  faithfulness nil** (`reward_faithfulness_*`): K0−K5 +0.004 [−0.067, 0.074] PTO, +0.015 GRPO.
+- **The tail audit** (`tail_audit_*`): 19–23% of K=5 tails end early, almost always the patient
+  closing (the `SESSION ENDED` marker is stripped by `handle_session_end`; a trailing-whitespace
+  fingerprint survives at ~90% precision); ended-early siblings score lower within group (dz
+  −0.24/−0.26) and are ~23% less likely to be the argmax; API calls ×2.1–2.3 (patient calls are the
+  multiplier; oracle calls per candidate are matched).
+- **Session shape reverses by optimizer** (`session_shape_stability_*`): PTO K=5 +8.3 utterances,
+  GRPO K=5 −8.1; both write longer turns; the ICLR "lowest SD" claim fails (PTO K=5 more dispersed at
+  10/10 iterations; SD is a ceiling artefact, Spearman(mean, SD) −0.87).
+- **Held-out instruments** (`held_out_instruments_*`): WAI-SR Bond→Goal/Task composition shift (both
+  graders, dz ≈ 0.44); held-out Q2 items 3/10 carry K=0's late gain (+1.1 over K=5); PCT change-talk
+  rises under K=5 in Warms-up personas; Cooperative third at ceiling on the primary.
+- **Cross-judge sweep** (`compute_axis_budget_sweep_crossjudge`): GRPO K=5's held-out lead at the top
+  budget survives honest selection (+0.166 dz 0.27 when the primary selects); PTO K=5's deficit
+  survives in sign under every select/score combination.
+
+Prose-about-tables errors caught in the retired drafts and STATUS by the cold read (fixed here or
+noted in the paper's README traps): "identical for eight iterations" (K=5 sig *higher* at iter 4),
+"reward indifferent throughout" (K=0 sig ahead at 5–8), the S6 off-by-one on selection-weight
+iterations, LIMITATIONS §5b "2.4 more therapist turns" (real: +4.16; 2.4 is the over-praise Δ),
+"only the held-out grader can see the flip" (iteration-5-specific; the primary sees GRPO > PTO at
+iter 4), "no extra branch points" (7,548 vs 6,240 over the run). `PTO_LA5 gen_h = 0.000` for iters
+1–5 in `compute_by_iteration` is a batch-flushed-mtime artefact (time lands in iter 6; totals
+intact).
+
 ## 2026-08-18 — GRPO LA5 lands; the COMPUTE axis reframes RQ-i and RQ-ii
 
 **Run status.** GRPO LA5 trained iterations 1–5 and was **stopped ~2 minutes into iteration 6**

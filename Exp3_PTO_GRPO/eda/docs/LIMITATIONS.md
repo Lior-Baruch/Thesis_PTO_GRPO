@@ -290,7 +290,9 @@ and the `7_Stats` §4e artifacts.
 Behaviour claims can be stated per therapist TURN, per SESSION, or per unit of therapist LANGUAGE,
 and on this data the three **disagree in direction** for the GRPO K contrast — because both the
 turn count and the turn length move, in method-dependent directions (at PTO's endpoint K=5 takes
-~2.4 *more* therapist turns; at GRPO's it takes ~4.0 *fewer*, while writing ~1.7x longer turns).
+~4.2 *more* therapist turns — 14.39 vs 10.23, dz 0.55; at GRPO's it takes ~4.0 *fewer*, while writing
+~1.7x longer turns). *(Corrected 2026-08-18: this line said "~2.4 more", which is the over-praise
+per-session Δ transposed onto the turn-count row — see `7_stats.xlsx` sheet `k_paired_channels`.)*
 
 Per-1,000-character normalisation is not a fix either: coded MI acts per 1k characters roughly
 halve under GRPO K=5 in **both** valences, so a drop in MI-inconsistency density there is dilution,

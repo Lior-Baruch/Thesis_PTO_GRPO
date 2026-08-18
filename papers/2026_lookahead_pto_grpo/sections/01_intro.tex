@@ -1,0 +1,42 @@
+\section{Introduction}
+\label{sec:intro}
+
+When the reward for a dialogue policy is a language model filling in a questionnaire about the
+conversation, the designer chooses what the grader reads: the transcript so far plus the
+candidate turn, or that transcript extended by $K$ further turns simulated under the current
+policy, so that a turn is credited for where it leads rather than for how it looks. Look-ahead
+changes nothing but the grader's context --- no loss, no hyperparameter, no sampling
+distribution --- and drops into any optimizer that scores candidates.
+
+\paragraph{What was claimed, and what could not be tested.} The ICLR 2025 SSI-FM workshop
+poster that introduced preference-tree optimization (PTO) reported that $K{=}5$ gave a Llama-2-7B therapist
+higher and lower-variance oracle scores and shorter conversations than $K{=}0$ against GPT-3.5
+patients, the gain significant only on the working-alliance rubric and only between post-hoc
+best iterations \citep{baruch2025pto}. It ran one optimizer, evaluated on its own training
+rubric under the grader that produced the reward, and did not price the lever. We re-run $K \in \{0, 5\}$ on a Llama-3.2-1B therapist against
+\primaryjudge{} patients under two optimizers --- PTO with a direct-preference-optimization
+(DPO) loss and iterative group-relative policy optimization (GRPO) --- with matched context, candidate budget ($M{=}G{=}8$), oracle and hyperparameters
+(\S\ref{sec:setup}). All 39 model states are scored on 96 personas and eight instruments by the
+training oracle and by a held-out judge from another model family, persona-paired, on iteration
+and GPU-hour axes. GRPO \Kf{} ran five iterations, the other arms ten.
+
+\paragraph{What we find.} Look-ahead does not raise PTO's training reward and flips sign for
+GRPO (\S\ref{sec:reward}); it costs about $2\times$ and never significantly beats \Kz{} at
+matched GPU-hours on the training oracle (\S\ref{sec:cost}); what it does robustly is close the
+over-praise channel, while in PTO MI-inconsistency relocates to advice without permission
+(\S\ref{sec:behaviour}), by rescaling the training signal rather than sharpening it
+(\S\ref{sec:mechanism}); and the poster's own transcripts keep their ordering under the new
+grader, so the null belongs to the regime, not the judge (\S\ref{sec:iclr}).
+
+\paragraph{Contributions.}
+\begin{enumerate}\setlength{\itemsep}{0pt}
+  \item A matched two-optimizer, two-grader, eight-instrument test of look-ahead, persona-paired (\S\ref{sec:setup}--\ref{sec:reward}).
+  \item A cost accounting in GPU-hours and API calls, with $K$ read at matched budget (\S\ref{sec:cost}).
+  \item A behavioural account of what the lever changes: over-praise closes, MI-inconsistency relocates, session shape moves in opposite directions by optimizer, and the held-out instruments shift in composition (\S\ref{sec:behaviour}).
+  \item A mechanism at the reward: look-ahead rescales the training signal rather than sharpening it, adds a session-closing pressure through its tails, is no more faithful at a matched policy, and acts through the data rather than the loss (\S\ref{sec:mechanism}).
+  \item A cross-grader replication of the original result on its own transcripts (\S\ref{sec:iclr}).
+\end{enumerate}
+
+We do not claim that look-ahead is useless, nor that it helps: on this task the answer is not
+independent of the optimizer, the grader or the budget, and what the lever moves most reliably
+is the policy's behaviour, not its score.

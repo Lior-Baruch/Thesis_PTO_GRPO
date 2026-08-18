@@ -1,0 +1,40 @@
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Trajectory-level reward and search-based preference construction.} Crediting a
+dialogue turn by the continuation it leads to goes back to simulated-future rewards in neural
+dialogue RL \citep{li2016deeprl}; it underlies look-ahead in preference-tree optimization
+\citep{baruch2025pto}, MCTS-guided preference construction \citep{xie2024mctsdpo,yu2023promptmcts},
+planning over simulated conversation futures \citep{chen2025broaden} and, one level down,
+process supervision over reasoning steps \citep{lightman2024letsverify}. These methods are
+evaluated on the reward that trained them, at post-hoc best or matched iterations, under one
+optimizer; we test the lever itself under two loss families, priced, and read on the training
+reward, on six further instruments, and under a judge that took no part in training.
+
+\paragraph{Iterative self-improvement and group-relative optimization.} Regenerating training
+data from the current policy each round is the common shape of self-rewarding and online
+AI-feedback loops \citep{yuan2024selfrewarding,guo2024oaif}, best-of-$N$ distillation
+\citep{pace2024westofn} and DPO on freshly sampled pairs \citep{rafailov2023dpo}; GRPO replaces
+the learned value function with a group-standardized advantage over sibling completions
+\citep{shao2024deepseekmath}. Our two arms are one such loop with two weighting rules --- best
+and worst of eight above an absolute threshold, or all eight by group-relative advantage
+(\S\ref{sec:mechanism}).
+
+\paragraph{Reward hacking and judge biases.} That optimizing a proxy past a point degrades the
+target is established in theory \citep{skalse2022defining}, for learned reward models
+\citep{gao2023scaling} and across hand-specified rewards \citep{amodei2016concrete,pan2022effects}.
+LLM judges prefer longer outputs \citep{singhal2024long,dubois2024lengthcontrolled,zheng2023judging},
+agreeable ones \citep{sharma2024sycophancy} and their own family's text
+\citep{panickssery2024selfpreference}. The hack our \Kz{} arms commit is the clinical form of the
+sycophancy bias; \S\ref{sec:behaviour} shows the pressure look-ahead removes from one route
+reappearing on another.
+
+\paragraph{Motivational Interviewing, and two judges as train and test.} MI \citep{miller1991mi}
+comes with a treatment integrity coding system \citep{moyers2016miti}; counselling quality is
+separable from language alone \citep{perezrosas2019goodcounselor}; simulated patients train and
+assess human counsellors \citep{steenstra2025scaffolding}; and \citet{yosef2024assessing}
+validate the questionnaire-filling evaluators our reward is built from. We use MI fidelity
+coding as the outcome of an RL comparison, which lets a relocation be told from a reduction. Agreement between LLM graders is usually treated as inter-rater reliability
+\citep{zheng2023judging,koo2016icc}; ours cannot be, because the training oracle \emph{was} the
+reward, so the second judge is a held-out split on the reward, never pooled with it, and their
+disagreements are reported as findings about which claims are grader-invariant.

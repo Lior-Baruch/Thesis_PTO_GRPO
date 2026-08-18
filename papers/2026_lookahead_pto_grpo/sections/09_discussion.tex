@@ -1,0 +1,46 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{What the answer depends on.} ``Does look-ahead help'' turned out to be five
+questions. On the \emph{optimizer}: at iteration~5 the held-out judge has PTO ahead at \Kz{}
+and GRPO ahead at \Kf{} (DiD \dz{} $0.52$; \S\ref{sec:reward}). On the \emph{grader}: the PTO
+\Kz{} edge is one Holm-significant iteration under the training oracle and three under the
+held-out judge, and GRPO \Kf{}'s matched-budget lead exists only under the held-out judge
+(\S\ref{sec:cost}). On the \emph{budget}: both \Kf{} arms trail at every budget short of the last
+one or two of their sweeps (PTO \Kf{} until $19.7$\,h; GRPO \Kf{} until $23.2$\,h, where it
+already ties under the training oracle and leads under the held-out judge) and draw level, or
+part company, only there. On the \emph{instrument}: at PTO's endpoint WAI-SR's total does not
+move while its composition does, and MICI falls under \Kf{} per turn on both graders and per
+session on one (for GRPO the per-session drop is on the other grader and the per-turn one is
+absent; \S\ref{sec:behaviour}). And on the \emph{patient stratum}: the \Kf{} gains that exist
+sit on the personas scripted to warm up, while the held-out judge's \Kz{} PTO edge sits on the
+cooperative third.
+
+\paragraph{Why: $K$ acts through the data.} Look-ahead hands the optimizer a different signal,
+not a different loss, and three properties of that signal account for most of what we saw. It
+is \emph{rescaled}: margin and within-group SD rise by the same factor; GRPO's normalization
+divides the scale back out, PTO's absolute $\tau$ turns it into more pairs. It carries a
+\emph{session-closing pressure}: candidates whose tail ends early --- almost always because the
+simulated patient closes --- are $21$--$23\%$ less likely to be the argmax, and in PTO that
+pressure grows, consistent with PTO \Kf{}'s longer sessions and the length channel its selection
+opens. And it \emph{shows the grader the patient's reaction}: the route it closes is praise on
+both optimizers, and the one it leaves open --- in PTO, where every component of the trade keeps
+its sign across graders --- is directive advice, the failure MI was formulated against
+\citep{miller1991mi}; why the simulated patient's reaction spares advice and not praise we have
+not tested.
+
+\paragraph{The regime reading of the reproduction.} The poster's ordering survives a modern
+grader on its own transcripts (\S\ref{sec:iclr}), so the non-transfer lies in what changed: a 1B
+rather than 7B therapist, in bf16 rather than 4-bit; a stronger, less cooperative patient
+simulator; a tree seeded at utterance 12 with a prefix sliced from the current policy's own
+sessions, rather than grown from the opening; and hyperparameters matched across optimizers
+rather than tuned for PTO; the design cannot separate them.
+
+\paragraph{How to report a look-ahead result.} Per optimizer, since the sign is
+optimizer-conditional. At matched compute as well as matched iteration, since the lever costs
+${\approx}2\times$ and its sign is a function of budget: quote the sweep, not a row. Under a
+held-out judge and on instruments outside the reward, since the training oracle under-reports
+the harm channel by $1.1$--$4.6\times$ from iteration~3 on. Counts before rates for MI-consistency; endpoints rather
+than best-of-$N$. The next steps are a second seed of every arm, intermediate depths
+$K \in \{1, 2, 3\}$, GRPO \Kf{} run to ten iterations, and human MITI coding of a stratified
+sample.

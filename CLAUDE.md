@@ -77,7 +77,7 @@ everywhere else keep a pointer.
 | Detailed eval narrative + numbers | `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` | per render |
 | Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/docs/METRICS_REFERENCE.md` | rarely |
 | Measurement / inference limitations (for the write-up) | `Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md` | rarely |
-| **Paper drafts + the claim→artifact ledger** | [`papers/README.md`](papers/README.md), then each paper's `README.md` + **`NUMBERS.md`**. Live draft: [`papers/2026_clpsych_mi_reward_hacking/`](papers/2026_clpsych_mi_reward_hacking/) (Exp3 `L0`, K=0 only) | per draft |
+| **Paper drafts + the claim→artifact ledger** | [`papers/README.md`](papers/README.md), then each paper's `README.md` + **`NUMBERS.md`**. Live draft: [`papers/2026_lookahead_pto_grpo/`](papers/2026_lookahead_pto_grpo/) (all four arms, both graders, both cost axes; its `analysis/*.py` generators + `analysis/out/*.json` ledgers own the cross-K numbers). Retired drafts live tracked under `papers/archive/` | per draft |
 | Supervisor decks + emails | [`meetings/README.md`](meetings/README.md) | per meeting |
 | Data/artifact policy (what's gitignored, how it regenerates) | `README.md` § "Data & large artifacts" | rarely |
 | Dated history | `Exp3_PTO_GRPO/history/` — [CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) (status + findings) · [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md) · [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md), behind a stable [index](Exp3_PTO_GRPO/history/CHANGELOG.md). There is no root changelog. | append-only |

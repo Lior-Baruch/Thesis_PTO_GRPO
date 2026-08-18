@@ -1,0 +1,2631 @@
+{
+ "_script": "tail_audit",
+ "numbers": {
+  "rows.PTO_LA5": {
+   "value": {
+    "all": 60384,
+    "eval_phase_dropped": 0,
+    "not_simulated_dropped": 127,
+    "unscored_dropped": 389,
+    "analysed": 59868
+   },
+   "source": "tail_audit.py stdout; generations.jsonl row filter",
+   "note": ""
+  },
+  "rows.GRPO_LA5": {
+   "value": {
+    "all": 59192,
+    "eval_phase_dropped": 3640,
+    "not_simulated_dropped": 0,
+    "unscored_dropped": 0,
+    "analysed": 55552
+   },
+   "source": "tail_audit.py stdout; generations.jsonl row filter",
+   "note": ""
+  },
+  "scout_check.GRPO_LA5.iter5.first300groups": {
+   "value": {
+    "n": 2400,
+    "realized_turns": {
+     "5": 1743,
+     "1": 374,
+     "3": 233,
+     "0": 45,
+     "4": 3,
+     "2": 2
+    },
+    "ended_early": 657,
+    "ended_early_rate": 0.27375
+   },
+   "source": "tail_audit.py stdout (recomputed from generations.jsonl); scout expected rt {5:1743,3:233,1:374,0:45,4:3,2:2}, ended_early 657/2400=27.4%",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.1": {
+   "value": {
+    "n_groups": 890,
+    "n_candidates": 7097,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.21022967451035648,
+    "ended_early_ci_lo": 0.2010708750176131,
+    "ended_early_ci_hi": 0.22051923347893476,
+    "realized_turns_mean": 4.3701564041144145,
+    "patient_closed_share": 0.19120755248696633,
+    "therapist_stalled_share": 0.0015499506833873467,
+    "no_tail_share": 0.006622516556291391,
+    "full_share": 0.7897703254896435,
+    "full_closed_at_turn5_share": 0.11173735381146964,
+    "wrapup_cue_rate_patient_closed": 0.887988209285188,
+    "wrapup_cue_rate_full_open": 0.11471321695760599,
+    "tail_chars_mean": 1552.5465689728055,
+    "tail_loop_rate": 0.08834718895307876,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=1",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.2": {
+   "value": {
+    "n_groups": 837,
+    "n_candidates": 6685,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.2035901271503366,
+    "ended_early_ci_lo": 0.19341436050860134,
+    "ended_early_ci_hi": 0.21391174270755423,
+    "realized_turns_mean": 4.391922213911743,
+    "patient_closed_share": 0.19012715033657443,
+    "therapist_stalled_share": 0.0016454749439042632,
+    "no_tail_share": 0.002393418100224383,
+    "full_share": 0.7964098728496635,
+    "full_closed_at_turn5_share": 0.11967090501121914,
+    "wrapup_cue_rate_patient_closed": 0.8638867033831629,
+    "wrapup_cue_rate_full_open": 0.10941644562334217,
+    "tail_chars_mean": 1767.856095736724,
+    "tail_loop_rate": 0.0599850411368736,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=2",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.3": {
+   "value": {
+    "n_groups": 816,
+    "n_candidates": 6522,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.2195645507513033,
+    "ended_early_ci_lo": 0.2086783195338853,
+    "ended_early_ci_hi": 0.2301441275682306,
+    "realized_turns_mean": 4.362312174179699,
+    "patient_closed_share": 0.2053051211284882,
+    "therapist_stalled_share": 0.0006133088009812941,
+    "no_tail_share": 0.003526525605642441,
+    "full_share": 0.7804354492486967,
+    "full_closed_at_turn5_share": 0.13799448022079117,
+    "wrapup_cue_rate_patient_closed": 0.8797610156833457,
+    "wrapup_cue_rate_full_open": 0.14057279236276848,
+    "tail_chars_mean": 1952.0651640601043,
+    "tail_loop_rate": 0.05075130328120209,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=3",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.4": {
+   "value": {
+    "n_groups": 613,
+    "n_candidates": 4899,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.26495203102674014,
+    "ended_early_ci_lo": 0.2527046335986936,
+    "ended_early_ci_hi": 0.2761788120024495,
+    "realized_turns_mean": 4.197387221882017,
+    "patient_closed_share": 0.2535211267605634,
+    "therapist_stalled_share": 0.0016329863237395388,
+    "no_tail_share": 0.003674219228413962,
+    "full_share": 0.7350479689732599,
+    "full_closed_at_turn5_share": 0.16370687895488875,
+    "wrapup_cue_rate_patient_closed": 0.9154589371980676,
+    "wrapup_cue_rate_full_open": 0.18685244730260808,
+    "tail_chars_mean": 2103.5084711165546,
+    "tail_loop_rate": 0.011635027556644213,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=4",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.5": {
+   "value": {
+    "n_groups": 468,
+    "n_candidates": 3351,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 389,
+    "ended_early_rate": 0.3539242017308266,
+    "ended_early_ci_lo": 0.3383989853774993,
+    "ended_early_ci_hi": 0.3709340495374515,
+    "realized_turns_mean": 3.9045061175768425,
+    "patient_closed_share": 0.2864816472694718,
+    "therapist_stalled_share": 0.0002984183825723665,
+    "no_tail_share": 0.028349746344374812,
+    "full_share": 0.6460757982691734,
+    "full_closed_at_turn5_share": 0.1584601611459266,
+    "wrapup_cue_rate_patient_closed": 0.9104166666666667,
+    "wrapup_cue_rate_full_open": 0.17870257037943696,
+    "tail_chars_mean": 2145.0778871978514,
+    "tail_loop_rate": 0.007460459564309161,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=5",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.6": {
+   "value": {
+    "n_groups": 663,
+    "n_candidates": 5289,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.26413310644734356,
+    "ended_early_ci_lo": 0.2524059368500662,
+    "ended_early_ci_hi": 0.2764227642276423,
+    "realized_turns_mean": 4.217432406882208,
+    "patient_closed_share": 0.25505766685573833,
+    "therapist_stalled_share": 0.0024579315560597464,
+    "no_tail_share": 0.0011344299489506524,
+    "full_share": 0.7358668935526564,
+    "full_closed_at_turn5_share": 0.17148799394970693,
+    "wrapup_cue_rate_patient_closed": 0.8902891030392883,
+    "wrapup_cue_rate_full_open": 0.2723618090452261,
+    "tail_chars_mean": 2653.2548685951974,
+    "tail_loop_rate": 0.003592361505010399,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=6",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.7": {
+   "value": {
+    "n_groups": 807,
+    "n_candidates": 6444,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.24906890130353818,
+    "ended_early_ci_lo": 0.23867163252638113,
+    "ended_early_ci_hi": 0.25978041589075107,
+    "realized_turns_mean": 4.253103662321539,
+    "patient_closed_share": 0.2344816883923029,
+    "therapist_stalled_share": 0.0013966480446927375,
+    "no_tail_share": 0.004189944134078212,
+    "full_share": 0.7509310986964618,
+    "full_closed_at_turn5_share": 0.14059590316573556,
+    "wrapup_cue_rate_patient_closed": 0.9066843150231635,
+    "wrapup_cue_rate_full_open": 0.2936689549961861,
+    "tail_chars_mean": 2922.3381440099315,
+    "tail_loop_rate": 0.004345127250155183,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=7",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.8": {
+   "value": {
+    "n_groups": 767,
+    "n_candidates": 6117,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.21317639365702143,
+    "ended_early_ci_lo": 0.20287314042831453,
+    "ended_early_ci_hi": 0.22380660454471146,
+    "realized_turns_mean": 4.366683014549616,
+    "patient_closed_share": 0.19437632826548962,
+    "therapist_stalled_share": 0.002779140101356874,
+    "no_tail_share": 0.004250449566781102,
+    "full_share": 0.7868236063429785,
+    "full_closed_at_turn5_share": 0.1338891613536047,
+    "wrapup_cue_rate_patient_closed": 0.9184188393608074,
+    "wrapup_cue_rate_full_open": 0.3895843765648473,
+    "tail_chars_mean": 3366.691678927579,
+    "tail_loop_rate": 0.0022887036128821318,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=8",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.9": {
+   "value": {
+    "n_groups": 761,
+    "n_candidates": 6077,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.20618726345236135,
+    "ended_early_ci_lo": 0.19631397070923154,
+    "ended_early_ci_hi": 0.216558334704624,
+    "realized_turns_mean": 4.389007734079316,
+    "patient_closed_share": 0.1918709889748231,
+    "therapist_stalled_share": 0.001645548790521639,
+    "no_tail_share": 0.003126542701991114,
+    "full_share": 0.7938127365476386,
+    "full_closed_at_turn5_share": 0.12835280566068785,
+    "wrapup_cue_rate_patient_closed": 0.9108061749571184,
+    "wrapup_cue_rate_full_open": 0.35311572700296734,
+    "tail_chars_mean": 3391.3867039657725,
+    "tail_loop_rate": 0.0003291097581043278,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=9",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.10": {
+   "value": {
+    "n_groups": 926,
+    "n_candidates": 7387,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.18248273994855826,
+    "ended_early_ci_lo": 0.1738188709895763,
+    "ended_early_ci_hi": 0.19141735481250846,
+    "realized_turns_mean": 4.460809530255855,
+    "patient_closed_share": 0.16745634222282388,
+    "therapist_stalled_share": 0.004331934479490998,
+    "no_tail_share": 0.0025720860971977797,
+    "full_share": 0.8175172600514418,
+    "full_closed_at_turn5_share": 0.11614999323135237,
+    "wrapup_cue_rate_patient_closed": 0.8940986257073565,
+    "wrapup_cue_rate_full_open": 0.3916232387569967,
+    "tail_chars_mean": 3703.0854203330173,
+    "tail_loop_rate": 0.0002707459049681874,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=10",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.pooled": {
+   "value": {
+    "n_groups": 7548,
+    "n_candidates": 59868,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 389,
+    "ended_early_rate": 0.2284358922963854,
+    "ended_early_ci_lo": 0.22524512260306007,
+    "ended_early_ci_hi": 0.23177741030266588,
+    "realized_turns_mean": 4.318183336674016,
+    "patient_closed_share": 0.21081379033874523,
+    "therapist_stalled_share": 0.0019375960446315226,
+    "no_tail_share": 0.004944210596645954,
+    "full_share": 0.7715641077036146,
+    "full_closed_at_turn5_share": 0.135230841183938,
+    "wrapup_cue_rate_patient_closed": 0.8971555344267491,
+    "wrapup_cue_rate_full_open": 0.24758504829903402,
+    "tail_chars_mean": 2580.4097013429546,
+    "tail_loop_rate": 0.02515534175185408,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=PTO_LA5 train_iter=pooled",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.1": {
+   "value": {
+    "n_groups": 864,
+    "n_candidates": 6912,
+    "log_coverage": 0.5,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.1685474537037037,
+    "ended_early_ci_lo": 0.1595775462962963,
+    "ended_early_ci_hi": 0.17708333333333334,
+    "realized_turns_mean": 4.422743055555555,
+    "patient_closed_share": 0.11255787037037036,
+    "therapist_stalled_share": 0.0007233796296296296,
+    "no_tail_share": 0.037037037037037035,
+    "full_share": 0.8314525462962963,
+    "full_closed_at_turn5_share": 0.05381944444444445,
+    "wrapup_cue_rate_patient_closed": 0.8071979434447301,
+    "wrapup_cue_rate_full_open": 0.07720930232558139,
+    "tail_chars_mean": 1508.4113136574074,
+    "tail_loop_rate": 0.2790798611111111,
+    "cand_floored_rate": 0.001880787037037037
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=1",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.2": {
+   "value": {
+    "n_groups": 1184,
+    "n_candidates": 9472,
+    "log_coverage": 0.7115384615384616,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.17345861486486486,
+    "ended_early_ci_lo": 0.16596283783783783,
+    "ended_early_ci_hi": 0.18095703124999998,
+    "realized_turns_mean": 4.418391047297297,
+    "patient_closed_share": 0.12394425675675676,
+    "therapist_stalled_share": 0.0010557432432432433,
+    "no_tail_share": 0.029666385135135136,
+    "full_share": 0.8265413851351351,
+    "full_closed_at_turn5_share": 0.07369087837837837,
+    "wrapup_cue_rate_patient_closed": 0.8304940374787053,
+    "wrapup_cue_rate_full_open": 0.08049361940821764,
+    "tail_chars_mean": 1611.8213682432433,
+    "tail_loop_rate": 0.17757601351351351,
+    "cand_floored_rate": 0.0007390202702702703
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=2",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.3": {
+   "value": {
+    "n_groups": 1792,
+    "n_candidates": 14336,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.15785435267857142,
+    "ended_early_ci_lo": 0.15136544363839285,
+    "ended_early_ci_hi": 0.16357421875,
+    "realized_turns_mean": 4.466029575892857,
+    "patient_closed_share": 0.12423270089285714,
+    "therapist_stalled_share": 0.00020926339285714285,
+    "no_tail_share": 0.022600446428571428,
+    "full_share": 0.8421456473214286,
+    "full_closed_at_turn5_share": 0.07945033482142858,
+    "wrapup_cue_rate_patient_closed": 0.8528916339135317,
+    "wrapup_cue_rate_full_open": 0.09539052496798976,
+    "tail_chars_mean": 1658.8383091517858,
+    "tail_loop_rate": 0.07247488839285714,
+    "cand_floored_rate": 0.00034877232142857144
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=3",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.4": {
+   "value": {
+    "n_groups": 1696,
+    "n_candidates": 13568,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.20437794811320756,
+    "ended_early_ci_lo": 0.19767099056603774,
+    "ended_early_ci_hi": 0.21079193691037737,
+    "realized_turns_mean": 4.33704304245283,
+    "patient_closed_share": 0.18808962264150944,
+    "therapist_stalled_share": 0.00014740566037735848,
+    "no_tail_share": 0.013045400943396226,
+    "full_share": 0.7956220518867925,
+    "full_closed_at_turn5_share": 0.12006191037735849,
+    "wrapup_cue_rate_patient_closed": 0.9106583072100314,
+    "wrapup_cue_rate_full_open": 0.14815622954396684,
+    "tail_chars_mean": 1928.7603920990566,
+    "tail_loop_rate": 0.00685436320754717,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=4",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.5": {
+   "value": {
+    "n_groups": 1408,
+    "n_candidates": 11264,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.25159801136363635,
+    "ended_early_ci_lo": 0.24351917613636365,
+    "ended_early_ci_hi": 0.2594149502840909,
+    "realized_turns_mean": 4.1565163352272725,
+    "patient_closed_share": 0.23455255681818182,
+    "therapist_stalled_share": 0.00044389204545454544,
+    "no_tail_share": 0.014825994318181818,
+    "full_share": 0.7484019886363636,
+    "full_closed_at_turn5_share": 0.14302201704545456,
+    "wrapup_cue_rate_patient_closed": 0.8989401968205905,
+    "wrapup_cue_rate_full_open": 0.19079043848071564,
+    "tail_chars_mean": 2252.138849431818,
+    "tail_loop_rate": 0.0015980113636363637,
+    "cand_floored_rate": 0.0
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=5",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.pooled": {
+   "value": {
+    "n_groups": 6944,
+    "n_candidates": 55552,
+    "log_coverage": 0.8378378378378378,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.19221630184331798,
+    "ended_early_ci_lo": 0.18897429435483873,
+    "ended_early_ci_hi": 0.19581788234447006,
+    "realized_turns_mean": 4.358258928571429,
+    "patient_closed_share": 0.160696284562212,
+    "therapist_stalled_share": 0.000450028801843318,
+    "no_tail_share": 0.021691388248847927,
+    "full_share": 0.807783698156682,
+    "full_closed_at_turn5_share": 0.09808827764976959,
+    "wrapup_cue_rate_patient_closed": 0.8761061946902655,
+    "wrapup_cue_rate_full_open": 0.1189854153455929,
+    "tail_chars_mean": 1818.3311131912442,
+    "tail_loop_rate": 0.08570348502304148,
+    "cand_floored_rate": 0.000450028801843318
+   },
+   "source": "tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=pooled",
+   "note": ""
+  },
+  "within_group.PTO_LA5.1": {
+   "value": {
+    "n_groups": 890,
+    "n_groups_both": 436,
+    "delta_ee_minus_full": -0.04279604502351395,
+    "dz": -0.24085612992992478,
+    "ci_lo": -0.05909979955284865,
+    "ci_hi": -0.025203200890447888,
+    "p": 8.772291956942286e-08,
+    "p_holm": 5.263375174165371e-07,
+    "rho_dev_vs_realized_turns": 0.09022453106068634,
+    "rho_dev_vs_tail_chars": 0.16387573453147317,
+    "z_ee_mean": -0.2301051699293825,
+    "z_full_mean": 0.07945395563787272,
+    "base_ee_rate": 0.21022967451035648,
+    "p_chosen_is_ee": 0.1696629213483146,
+    "chosen_minus_base": -0.04056675316204189,
+    "chosen_minus_base_ci_lo": -0.058991207178625375,
+    "chosen_minus_base_ci_hi": -0.021551567399209454,
+    "p_chosen_given_ee": 0.10120643431635389,
+    "p_chosen_given_full": 0.13184656556645852,
+    "rr_chosen_ee_vs_full": 0.7676076648757287,
+    "rr_ci_lo": 0.6693651092077546,
+    "rr_ci_hi": 0.87151916942178
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=1",
+   "note": ""
+  },
+  "within_group.PTO_LA5.2": {
+   "value": {
+    "n_groups": 837,
+    "n_groups_both": 398,
+    "delta_ee_minus_full": -0.032742036513097664,
+    "dz": -0.2042053090042433,
+    "ci_lo": -0.048513770709288695,
+    "ci_hi": -0.016702731972185837,
+    "p": 5.618199607777118e-05,
+    "p_holm": 0.00016854598823331352,
+    "rho_dev_vs_realized_turns": 0.0652941253421627,
+    "rho_dev_vs_tail_chars": 0.12850919800120472,
+    "z_ee_mean": -0.17597920231259806,
+    "z_full_mean": 0.05576716098583225,
+    "base_ee_rate": 0.2035901271503366,
+    "p_chosen_is_ee": 0.16965352449223417,
+    "chosen_minus_base": -0.033936602658102416,
+    "chosen_minus_base_ci_lo": -0.052199628469393064,
+    "chosen_minus_base_ci_hi": -0.016193746928401573,
+    "p_chosen_given_ee": 0.10433504775900074,
+    "p_chosen_given_full": 0.13054094665664914,
+    "rr_chosen_ee_vs_full": 0.7992515025452085,
+    "rr_ci_lo": 0.6979414563449631,
+    "rr_ci_hi": 0.9033006096127932
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=2",
+   "note": ""
+  },
+  "within_group.PTO_LA5.3": {
+   "value": {
+    "n_groups": 816,
+    "n_groups_both": 416,
+    "delta_ee_minus_full": -0.042263554460245614,
+    "dz": -0.25759582180960633,
+    "ci_lo": -0.057625560560762734,
+    "ci_hi": -0.02661769419306184,
+    "p": 1.5747606466563896e-07,
+    "p_holm": 7.873803233281947e-07,
+    "rho_dev_vs_realized_turns": 0.11815068485584043,
+    "rho_dev_vs_tail_chars": 0.1413445856740498,
+    "z_ee_mean": -0.22021702667126578,
+    "z_full_mean": 0.08357327737689205,
+    "base_ee_rate": 0.2195645507513033,
+    "p_chosen_is_ee": 0.18259803921568626,
+    "chosen_minus_base": -0.03696651153561703,
+    "chosen_minus_base_ci_lo": -0.0575046007562324,
+    "chosen_minus_base_ci_hi": -0.019112757847155003,
+    "p_chosen_given_ee": 0.10405027932960893,
+    "p_chosen_given_full": 0.13104125736738703,
+    "rr_chosen_ee_vs_full": 0.7940268692469408,
+    "rr_ci_lo": 0.6863620766266757,
+    "rr_ci_hi": 0.8904339769773286
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=3",
+   "note": ""
+  },
+  "within_group.PTO_LA5.4": {
+   "value": {
+    "n_groups": 613,
+    "n_groups_both": 338,
+    "delta_ee_minus_full": -0.030039654915220503,
+    "dz": -0.22773100630322218,
+    "ci_lo": -0.04377312063878804,
+    "ci_hi": -0.015878092213216656,
+    "p": 0.00010794457454377971,
+    "p_holm": 0.00021588914908755942,
+    "rho_dev_vs_realized_turns": 0.10589527393321861,
+    "rho_dev_vs_tail_chars": 0.12704588268606185,
+    "z_ee_mean": -0.16424022277587716,
+    "z_full_mean": 0.07902386145479968,
+    "base_ee_rate": 0.26495203102674014,
+    "p_chosen_is_ee": 0.23491027732463296,
+    "chosen_minus_base": -0.030041753702107182,
+    "chosen_minus_base_ci_lo": -0.05359565470490901,
+    "chosen_minus_base_ci_hi": -0.007193507747739013,
+    "p_chosen_given_ee": 0.11093990755007704,
+    "p_chosen_given_full": 0.130241599555679,
+    "rr_chosen_ee_vs_full": 0.8518008679911032,
+    "rr_ci_lo": 0.7450465325166449,
+    "rr_ci_hi": 0.9634498015381106
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=4",
+   "note": ""
+  },
+  "within_group.PTO_LA5.5": {
+   "value": {
+    "n_groups": 468,
+    "n_groups_both": 275,
+    "delta_ee_minus_full": -0.03352966641201935,
+    "dz": -0.21132572642683653,
+    "ci_lo": -0.05319199643493763,
+    "ci_hi": -0.01470217086834735,
+    "p": 0.00012644515635717508,
+    "p_holm": 0.00021588914908755942,
+    "rho_dev_vs_realized_turns": 0.1234679702955099,
+    "rho_dev_vs_tail_chars": 0.13939981271096816,
+    "z_ee_mean": -0.13531428522600514,
+    "z_full_mean": 0.11816784560997819,
+    "base_ee_rate": 0.3539242017308266,
+    "p_chosen_is_ee": 0.30982905982905984,
+    "chosen_minus_base": -0.04409514190176678,
+    "chosen_minus_base_ci_lo": -0.07509579424028245,
+    "chosen_minus_base_ci_hi": -0.013752968600247604,
+    "p_chosen_given_ee": 0.12225969645868466,
+    "p_chosen_given_full": 0.1491916859122402,
+    "rr_chosen_ee_vs_full": 0.8194806279661061,
+    "rr_ci_lo": 0.7073425305669571,
+    "rr_ci_hi": 0.9391410539580135
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=5",
+   "note": ""
+  },
+  "within_group.PTO_LA5.6": {
+   "value": {
+    "n_groups": 663,
+    "n_groups_both": 368,
+    "delta_ee_minus_full": -0.028358680428693238,
+    "dz": -0.25214098574446364,
+    "ci_lo": -0.03939405218609184,
+    "ci_hi": -0.016805062378212176,
+    "p": 1.9901465519612262e-08,
+    "p_holm": 1.3931025863728584e-07,
+    "rho_dev_vs_realized_turns": 0.10869479866424962,
+    "rho_dev_vs_tail_chars": 0.08262266253684215,
+    "z_ee_mean": -0.1974030847459486,
+    "z_full_mean": 0.11222654825589741,
+    "base_ee_rate": 0.26413310644734356,
+    "p_chosen_is_ee": 0.2187028657616893,
+    "chosen_minus_base": -0.045430240685654266,
+    "chosen_minus_base_ci_lo": -0.06948951233101051,
+    "chosen_minus_base_ci_hi": -0.022057358819815118,
+    "p_chosen_given_ee": 0.10379384395132427,
+    "p_chosen_given_full": 0.13309352517985612,
+    "rr_chosen_ee_vs_full": 0.7798564491477877,
+    "rr_ci_lo": 0.6769241101476452,
+    "rr_ci_hi": 0.8898772414419319
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=6",
+   "note": ""
+  },
+  "within_group.PTO_LA5.7": {
+   "value": {
+    "n_groups": 807,
+    "n_groups_both": 412,
+    "delta_ee_minus_full": -0.03390497946751517,
+    "dz": -0.26478542487553286,
+    "ci_lo": -0.04573163889342145,
+    "ci_hi": -0.021753664572625155,
+    "p": 8.421509055304522e-10,
+    "p_holm": 6.737207244243618e-09,
+    "rho_dev_vs_realized_turns": 0.1696954979829515,
+    "rho_dev_vs_tail_chars": 0.13428778090575277,
+    "z_ee_mean": -0.1995288380945015,
+    "z_full_mean": 0.12125868617161228,
+    "base_ee_rate": 0.24906890130353818,
+    "p_chosen_is_ee": 0.20322180916976457,
+    "chosen_minus_base": -0.04584709213377361,
+    "chosen_minus_base_ci_lo": -0.06611389194435034,
+    "chosen_minus_base_ci_hi": -0.02552709544437632,
+    "p_chosen_given_ee": 0.10218068535825545,
+    "p_chosen_given_full": 0.13287869394502996,
+    "rr_chosen_ee_vs_full": 0.7689771950989084,
+    "rr_ci_lo": 0.6770061328964362,
+    "rr_ci_hi": 0.8669920497073447
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=7",
+   "note": ""
+  },
+  "within_group.PTO_LA5.8": {
+   "value": {
+    "n_groups": 767,
+    "n_groups_both": 384,
+    "delta_ee_minus_full": -0.016713424953314626,
+    "dz": -0.1450355736142342,
+    "ci_lo": -0.028152967436974746,
+    "ci_hi": -0.004867873190943007,
+    "p": 5.634257566779877e-06,
+    "p_holm": 2.2537030267119507e-05,
+    "rho_dev_vs_realized_turns": 0.10674940506643925,
+    "rho_dev_vs_tail_chars": 0.07771380826064685,
+    "z_ee_mean": -0.22040918395245312,
+    "z_full_mean": 0.08500967818522184,
+    "base_ee_rate": 0.21317639365702143,
+    "p_chosen_is_ee": 0.1577574967405476,
+    "chosen_minus_base": -0.05541889691647384,
+    "chosen_minus_base_ci_lo": -0.07447028809133373,
+    "chosen_minus_base_ci_hi": -0.035898777387923964,
+    "p_chosen_given_ee": 0.09279141104294479,
+    "p_chosen_given_full": 0.13421982131726573,
+    "rr_chosen_ee_vs_full": 0.6913391042564911,
+    "rr_ci_lo": 0.5926981868286844,
+    "rr_ci_hi": 0.7962396529102383
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=8",
+   "note": ""
+  },
+  "within_group.PTO_LA5.9": {
+   "value": {
+    "n_groups": 761,
+    "n_groups_both": 350,
+    "delta_ee_minus_full": -0.042392236894757906,
+    "dz": -0.30713404731677874,
+    "ci_lo": -0.056248023209283717,
+    "ci_hi": -0.028024275710284135,
+    "p": 3.548878551044339e-12,
+    "p_holm": 3.1939906959399054e-11,
+    "rho_dev_vs_realized_turns": 0.17023892452469794,
+    "rho_dev_vs_tail_chars": 0.11131266704247342,
+    "z_ee_mean": -0.3362772685722301,
+    "z_full_mean": 0.15354928254024017,
+    "base_ee_rate": 0.20618726345236135,
+    "p_chosen_is_ee": 0.15768725361366623,
+    "chosen_minus_base": -0.048500009838695124,
+    "chosen_minus_base_ci_lo": -0.06669460455293996,
+    "chosen_minus_base_ci_hi": -0.02948345524084635,
+    "p_chosen_given_ee": 0.09577015163607343,
+    "p_chosen_given_full": 0.13287728026533996,
+    "rr_chosen_ee_vs_full": 0.7207413595825558,
+    "rr_ci_lo": 0.625538264066039,
+    "rr_ci_hi": 0.8267445567605703
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=9",
+   "note": ""
+  },
+  "within_group.PTO_LA5.10": {
+   "value": {
+    "n_groups": 926,
+    "n_groups_both": 432,
+    "delta_ee_minus_full": -0.037901104886399,
+    "dz": -0.3809227848721867,
+    "ci_lo": -0.04800231481481484,
+    "ci_hi": -0.029090116486409367,
+    "p": 5.1767592716907425e-23,
+    "p_holm": 5.176759271690742e-22,
+    "rho_dev_vs_realized_turns": 0.21044097927150265,
+    "rho_dev_vs_tail_chars": 0.12172732511608007,
+    "z_ee_mean": -0.4105396299509489,
+    "z_full_mean": 0.1824549587440188,
+    "base_ee_rate": 0.18248273994855826,
+    "p_chosen_is_ee": 0.12958963282937366,
+    "chosen_minus_base": -0.0528931071191846,
+    "chosen_minus_base_ci_lo": -0.06942741758603639,
+    "chosen_minus_base_ci_hi": -0.036777008098690445,
+    "p_chosen_given_ee": 0.08902077151335312,
+    "p_chosen_given_full": 0.13346580559695315,
+    "rr_chosen_ee_vs_full": 0.6669931007061284,
+    "rr_ci_lo": 0.5753646896590158,
+    "rr_ci_hi": 0.7627716651699018
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=10",
+   "note": ""
+  },
+  "within_group.PTO_LA5.pooled": {
+   "value": {
+    "n_groups": 7548,
+    "n_groups_both": 3809,
+    "delta_ee_minus_full": -0.03430807765479517,
+    "dz": -0.24368359937919998,
+    "ci_lo": -0.0387733509129564,
+    "ci_hi": -0.029708411101379367,
+    "p": 1.4415999365639852e-66,
+    "p_holm": null,
+    "rho_dev_vs_realized_turns": 0.12427434910385096,
+    "rho_dev_vs_tail_chars": 0.12266923193852974,
+    "z_ee_mean": -0.2311571575438737,
+    "z_full_mean": 0.10593015458345058,
+    "base_ee_rate": 0.2284358922963854,
+    "p_chosen_is_ee": 0.1856120826709062,
+    "chosen_minus_base": -0.04282380962547919,
+    "chosen_minus_base_ci_lo": -0.04901129322474719,
+    "chosen_minus_base_ci_hi": -0.036194240340356724,
+    "p_chosen_given_ee": 0.10244223457151214,
+    "p_chosen_given_full": 0.13307499134049186,
+    "rr_chosen_ee_vs_full": 0.7698083128887732,
+    "rr_ci_lo": 0.7381933302699234,
+    "rr_ci_hi": 0.8032594156252912
+   },
+   "source": "tables/tail_audit_within_group.md row arm=PTO_LA5 train_iter=pooled",
+   "note": ""
+  },
+  "within_group.GRPO_LA5.1": {
+   "value": {
+    "n_groups": 864,
+    "n_groups_both": 353,
+    "delta_ee_minus_full": -0.09430333039731471,
+    "dz": -0.3209636098914039,
+    "ci_lo": -0.12473884312931967,
+    "ci_hi": -0.06448437264424187,
+    "p": 6.159866292592856e-16,
+    "p_holm": 2.4639465170371425e-15,
+    "rho_dev_vs_realized_turns": 0.137413642020595,
+    "rho_dev_vs_tail_chars": 0.1792741955189244,
+    "z_ee_mean": -0.35422903498882835,
+    "z_full_mean": 0.14809721763975126,
+    "base_ee_rate": 0.1685474537037037,
+    "p_chosen_is_ee": 0.1261574074074074,
+    "chosen_minus_base": -0.04239004629629628,
+    "chosen_minus_base_ci_lo": -0.05787037037037038,
+    "chosen_minus_base_ci_hi": -0.026182725694444443,
+    "p_chosen_given_ee": 0.09356223175965665,
+    "p_chosen_given_full": 0.13137289020358447,
+    "rr_chosen_ee_vs_full": 0.71218827274536,
+    "rr_ci_lo": 0.6150529947898766,
+    "rr_ci_hi": 0.8161363049857392
+   },
+   "source": "tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=1",
+   "note": ""
+  },
+  "within_group.GRPO_LA5.2": {
+   "value": {
+    "n_groups": 1184,
+    "n_groups_both": 500,
+    "delta_ee_minus_full": -0.05826459383753498,
+    "dz": -0.2806355919148955,
+    "ci_lo": -0.07764275770308121,
+    "ci_hi": -0.04046362745098039,
+    "p": 1.302987331633558e-10,
+    "p_holm": 2.605974663267116e-10,
+    "rho_dev_vs_realized_turns": 0.08571491709264888,
+    "rho_dev_vs_tail_chars": 0.14825712856777942,
+    "z_ee_mean": -0.19613752857187863,
+    "z_full_mean": 0.08626865164172295,
+    "base_ee_rate": 0.17345861486486486,
+    "p_chosen_is_ee": 0.14273648648648649,
+    "chosen_minus_base": -0.03072212837837837,
+    "chosen_minus_base_ci_lo": -0.045294024493243254,
+    "chosen_minus_base_ci_hi": -0.015516786317567552,
+    "p_chosen_given_ee": 0.10286062081558126,
+    "p_chosen_given_full": 0.12964618725252267,
+    "rr_chosen_ee_vs_full": 0.7933948772070795,
+    "rr_ci_lo": 0.7025926516878671,
+    "rr_ci_hi": 0.8924396148311988
+   },
+   "source": "tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=2",
+   "note": ""
+  },
+  "within_group.GRPO_LA5.3": {
+   "value": {
+    "n_groups": 1792,
+    "n_groups_both": 693,
+    "delta_ee_minus_full": -0.07283264821079943,
+    "dz": -0.3262152347442368,
+    "ci_lo": -0.0880723774358228,
+    "ci_hi": -0.05653279796767191,
+    "p": 4.710887563625182e-19,
+    "p_holm": 2.355443781812591e-18,
+    "rho_dev_vs_realized_turns": 0.1328961749493882,
+    "rho_dev_vs_tail_chars": 0.2050537226734196,
+    "z_ee_mean": -0.22242651393266283,
+    "z_full_mean": 0.13653063857002273,
+    "base_ee_rate": 0.15785435267857142,
+    "p_chosen_is_ee": 0.12220982142857142,
+    "chosen_minus_base": -0.03564453125,
+    "chosen_minus_base_ci_lo": -0.04673549107142856,
+    "chosen_minus_base_ci_hi": -0.02406180245535714,
+    "p_chosen_given_ee": 0.0967741935483871,
+    "p_chosen_given_full": 0.13029073138408018,
+    "rr_chosen_ee_vs_full": 0.7427557779463938,
+    "rr_ci_lo": 0.6701547651655276,
+    "rr_ci_hi": 0.8236566109809844
+   },
+   "source": "tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=3",
+   "note": ""
+  },
+  "within_group.GRPO_LA5.4": {
+   "value": {
+    "n_groups": 1696,
+    "n_groups_both": 716,
+    "delta_ee_minus_full": -0.015380205154687573,
+    "dz": -0.10328692040902077,
+    "ci_lo": -0.025796698707415935,
+    "ci_hi": -0.005328953648498474,
+    "p": 0.004108992323371201,
+    "p_holm": 0.004108992323371201,
+    "rho_dev_vs_realized_turns": 0.06184165734591774,
+    "rho_dev_vs_tail_chars": 0.0930693055904733,
+    "z_ee_mean": -0.06375507405934579,
+    "z_full_mean": 0.04268328888406059,
+    "base_ee_rate": 0.20437794811320756,
+    "p_chosen_is_ee": 0.17629716981132076,
+    "chosen_minus_base": -0.028080778301886794,
+    "chosen_minus_base_ci_lo": -0.040247272995283,
+    "chosen_minus_base_ci_hi": -0.015844265919811314,
+    "p_chosen_given_ee": 0.10782545979084024,
+    "p_chosen_given_full": 0.12941176470588237,
+    "rr_chosen_ee_vs_full": 0.8331967347474017,
+    "rr_ci_lo": 0.7662432959810043,
+    "rr_ci_hi": 0.9035045927254984
+   },
+   "source": "tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=4",
+   "note": ""
+  },
+  "within_group.GRPO_LA5.5": {
+   "value": {
+    "n_groups": 1408,
+    "n_groups_both": 616,
+    "delta_ee_minus_full": -0.036755838699116,
+    "dz": -0.27763610746200773,
+    "ci_lo": -0.047233360958019575,
+    "ci_hi": -0.026418432145585518,
+    "p": 3.299480326221151e-12,
+    "p_holm": 9.898440978663452e-12,
+    "rho_dev_vs_realized_turns": 0.1375934261758233,
+    "rho_dev_vs_tail_chars": 0.08218851985808827,
+    "z_ee_mean": -0.1740703469454544,
+    "z_full_mean": 0.14303999051599178,
+    "base_ee_rate": 0.25159801136363635,
+    "p_chosen_is_ee": 0.21235795454545456,
+    "chosen_minus_base": -0.039240056818181795,
+    "chosen_minus_base_ci_lo": -0.05353781960227275,
+    "chosen_minus_base_ci_hi": -0.025031072443181812,
+    "p_chosen_given_ee": 0.10550458715596331,
+    "p_chosen_given_full": 0.13155397390272836,
+    "rr_chosen_ee_vs_full": 0.8019870782008752,
+    "rr_ci_lo": 0.7365647944281712,
+    "rr_ci_hi": 0.8717473613085347
+   },
+   "source": "tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=5",
+   "note": ""
+  },
+  "within_group.GRPO_LA5.pooled": {
+   "value": {
+    "n_groups": 6944,
+    "n_groups_both": 2878,
+    "delta_ee_minus_full": -0.0509201602809296,
+    "dz": -0.25460573114645446,
+    "ci_lo": -0.05785229649538757,
+    "ci_hi": -0.043663674173630526,
+    "p": 2.212477376462753e-49,
+    "p_holm": null,
+    "rho_dev_vs_realized_turns": 0.10833003153739021,
+    "rho_dev_vs_tail_chars": 0.1386249271731547,
+    "z_ee_mean": -0.18404805466548724,
+    "z_full_mean": 0.10725685324743607,
+    "base_ee_rate": 0.19221630184331798,
+    "p_chosen_is_ee": 0.1576900921658986,
+    "chosen_minus_base": -0.03452620967741937,
+    "chosen_minus_base_ci_lo": -0.041061527937788014,
+    "chosen_minus_base_ci_hi": -0.02809889832949307,
+    "p_chosen_given_ee": 0.10254729350065556,
+    "p_chosen_given_full": 0.1303427374426171,
+    "rr_chosen_ee_vs_full": 0.786751111052901,
+    "rr_ci_lo": 0.7491242031443164,
+    "rr_ci_hi": 0.8228140985527392
+   },
+   "source": "tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=pooled",
+   "note": ""
+  },
+  "cues.PTO_LA5.1": {
+   "value": {
+    "cand_q_per_turn": 0.6068761448499366,
+    "tail_th_q_per_turn": 0.5684276532371845,
+    "cand_affirm_rate": 0.05100746794420177,
+    "tail_th_affirm_rate": 0.0444427026179652,
+    "cand_effusive_rate": 0.003663519797097365,
+    "tail_th_effusive_rate": 0.003605580812039505,
+    "cand_len_chars": 306.6753557841341,
+    "tail_th_turn_len_chars": 299.51191409311804,
+    "tail_loop_rate": 0.08834718895307876
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=1",
+   "note": ""
+  },
+  "cues.PTO_LA5.2": {
+   "value": {
+    "cand_q_per_turn": 0.5901271503365744,
+    "tail_th_q_per_turn": 0.5457038391224863,
+    "cand_affirm_rate": 0.04771877337322363,
+    "tail_th_affirm_rate": 0.03963769320259265,
+    "cand_effusive_rate": 0.0034405385190725505,
+    "tail_th_effusive_rate": 0.003656307129798903,
+    "cand_len_chars": 364.46133133881824,
+    "tail_th_turn_len_chars": 355.89712481302973,
+    "tail_loop_rate": 0.0599850411368736
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=2",
+   "note": ""
+  },
+  "cues.PTO_LA5.3": {
+   "value": {
+    "cand_q_per_turn": 0.5895430849432689,
+    "tail_th_q_per_turn": 0.5526629232601667,
+    "cand_affirm_rate": 0.05228457528365532,
+    "tail_th_affirm_rate": 0.04483580057852646,
+    "cand_effusive_rate": 0.006746396810794235,
+    "tail_th_effusive_rate": 0.007656967840735069,
+    "cand_len_chars": 445.4911070223858,
+    "tail_th_turn_len_chars": 438.41781521184276,
+    "tail_loop_rate": 0.05075130328120209
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=3",
+   "note": ""
+  },
+  "cues.PTO_LA5.4": {
+   "value": {
+    "cand_q_per_turn": 0.5313329250867525,
+    "tail_th_q_per_turn": 0.5142756016989146,
+    "cand_affirm_rate": 0.06695243927332109,
+    "tail_th_affirm_rate": 0.04672015101462954,
+    "cand_effusive_rate": 0.016738109818330273,
+    "tail_th_effusive_rate": 0.01651722510618216,
+    "cand_len_chars": 561.7958767095325,
+    "tail_th_turn_len_chars": 555.5057810287872,
+    "tail_loop_rate": 0.011635027556644213
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=4",
+   "note": ""
+  },
+  "cues.PTO_LA5.5": {
+   "value": {
+    "cand_q_per_turn": 0.4897045658012534,
+    "tail_th_q_per_turn": 0.4823956442831216,
+    "cand_affirm_rate": 0.07221724858251269,
+    "tail_th_affirm_rate": 0.061524500907441014,
+    "cand_effusive_rate": 0.010743061772605193,
+    "tail_th_effusive_rate": 0.019419237749546278,
+    "cand_len_chars": 630.7042673828707,
+    "tail_th_turn_len_chars": 624.8441016333938,
+    "tail_loop_rate": 0.007460459564309161
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=5",
+   "note": ""
+  },
+  "cues.PTO_LA5.6": {
+   "value": {
+    "cand_q_per_turn": 0.43732274532047644,
+    "tail_th_q_per_turn": 0.4260342213558588,
+    "cand_affirm_rate": 0.07638494989601059,
+    "tail_th_affirm_rate": 0.06703487112843838,
+    "cand_effusive_rate": 0.01947438079031953,
+    "tail_th_effusive_rate": 0.0301061295213342,
+    "cand_len_chars": 754.8916619398752,
+    "tail_th_turn_len_chars": 740.1854017760451,
+    "tail_loop_rate": 0.003592361505010399
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=6",
+   "note": ""
+  },
+  "cues.PTO_LA5.7": {
+   "value": {
+    "cand_q_per_turn": 0.4514276846679081,
+    "tail_th_q_per_turn": 0.4828500707213578,
+    "cand_affirm_rate": 0.07091868404717566,
+    "tail_th_affirm_rate": 0.05922913719943423,
+    "cand_effusive_rate": 0.03026070763500931,
+    "tail_th_effusive_rate": 0.039603960396039604,
+    "cand_len_chars": 837.5588144009931,
+    "tail_th_turn_len_chars": 832.0936173974541,
+    "tail_loop_rate": 0.004345127250155183
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=7",
+   "note": ""
+  },
+  "cues.PTO_LA5.8": {
+   "value": {
+    "cand_q_per_turn": 0.2380251757397417,
+    "tail_th_q_per_turn": 0.20943979628955983,
+    "cand_affirm_rate": 0.08010462645087461,
+    "tail_th_affirm_rate": 0.06929792651873408,
+    "cand_effusive_rate": 0.05264018309628903,
+    "tail_th_effusive_rate": 0.06829756275009094,
+    "cand_len_chars": 939.4106588196828,
+    "tail_th_turn_len_chars": 941.6971626045835,
+    "tail_loop_rate": 0.0022887036128821318
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=8",
+   "note": ""
+  },
+  "cues.PTO_LA5.9": {
+   "value": {
+    "cand_q_per_turn": 0.28467994076024355,
+    "tail_th_q_per_turn": 0.2666970802919708,
+    "cand_affirm_rate": 0.08244199440513411,
+    "tail_th_affirm_rate": 0.0729014598540146,
+    "cand_effusive_rate": 0.06006253085403982,
+    "tail_th_effusive_rate": 0.08868613138686131,
+    "cand_len_chars": 962.129340134935,
+    "tail_th_turn_len_chars": 963.495802919708,
+    "tail_loop_rate": 0.0003291097581043278
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=9",
+   "note": ""
+  },
+  "cues.PTO_LA5.10": {
+   "value": {
+    "cand_q_per_turn": 0.27440097468525787,
+    "tail_th_q_per_turn": 0.23807053941908712,
+    "cand_affirm_rate": 0.08650331663733586,
+    "tail_th_affirm_rate": 0.07491108476585655,
+    "cand_effusive_rate": 0.07756870177338568,
+    "tail_th_effusive_rate": 0.10262299940723177,
+    "cand_len_chars": 1006.2868552863138,
+    "tail_th_turn_len_chars": 1006.6224066390041,
+    "tail_loop_rate": 0.0002707459049681874
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=10",
+   "note": ""
+  },
+  "cues.PTO_LA5.pooled": {
+   "value": {
+    "cand_q_per_turn": 0.4472506180263246,
+    "tail_th_q_per_turn": 0.42398385431333896,
+    "cand_affirm_rate": 0.06820004008819402,
+    "tail_th_affirm_rate": 0.05788979630151131,
+    "cand_effusive_rate": 0.029548339680630722,
+    "tail_th_effusive_rate": 0.0399981225945743,
+    "cand_len_chars": 681.5101055655776,
+    "tail_th_turn_len_chars": 677.3328358208955,
+    "tail_loop_rate": 0.02515534175185408
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=PTO_LA5 train_iter=pooled",
+   "note": ""
+  },
+  "cues.GRPO_LA5.1": {
+   "value": {
+    "cand_q_per_turn": 0.6665219907407407,
+    "tail_th_q_per_turn": 0.7110807333547765,
+    "cand_affirm_rate": 0.041666666666666664,
+    "tail_th_affirm_rate": 0.038356384689610806,
+    "cand_effusive_rate": 0.00318287037037037,
+    "tail_th_effusive_rate": 0.000643293663557414,
+    "cand_len_chars": 324.19675925925924,
+    "tail_th_turn_len_chars": 277.8601640398842,
+    "tail_loop_rate": 0.2790798611111111
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=1",
+   "note": ""
+  },
+  "cues.GRPO_LA5.2": {
+   "value": {
+    "cand_q_per_turn": 0.7759712837837838,
+    "tail_th_q_per_turn": 0.8546812514702423,
+    "cand_affirm_rate": 0.048880912162162164,
+    "tail_th_affirm_rate": 0.044577746412608796,
+    "cand_effusive_rate": 0.0027449324324324326,
+    "tail_th_effusive_rate": 0.0014702422959303693,
+    "cand_len_chars": 331.0805532094595,
+    "tail_th_turn_len_chars": 285.3795577511174,
+    "tail_loop_rate": 0.17757601351351351
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=2",
+   "note": ""
+  },
+  "cues.GRPO_LA5.3": {
+   "value": {
+    "cand_q_per_turn": 0.6752232142857143,
+    "tail_th_q_per_turn": 0.7240232108317215,
+    "cand_affirm_rate": 0.03913225446428571,
+    "tail_th_affirm_rate": 0.029671179883945843,
+    "cand_effusive_rate": 0.003138950892857143,
+    "tail_th_effusive_rate": 0.0026305609284332687,
+    "cand_len_chars": 353.23388671875,
+    "tail_th_turn_len_chars": 300.1404642166344,
+    "tail_loop_rate": 0.07247488839285714
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=3",
+   "note": ""
+  },
+  "cues.GRPO_LA5.4": {
+   "value": {
+    "cand_q_per_turn": 0.6244103773584906,
+    "tail_th_q_per_turn": 0.6269807998658506,
+    "cand_affirm_rate": 0.03309257075471698,
+    "tail_th_affirm_rate": 0.020751236689863336,
+    "cand_effusive_rate": 0.006412146226415095,
+    "tail_th_effusive_rate": 0.009977362287247422,
+    "cand_len_chars": 461.0137087264151,
+    "tail_th_turn_len_chars": 431.7226880187809,
+    "tail_loop_rate": 0.00685436320754717
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=4",
+   "note": ""
+  },
+  "cues.GRPO_LA5.5": {
+   "value": {
+    "cand_q_per_turn": 0.5949041193181818,
+    "tail_th_q_per_turn": 0.6118239660657476,
+    "cand_affirm_rate": 0.04580965909090909,
+    "tail_th_affirm_rate": 0.03112407211028632,
+    "cand_effusive_rate": 0.012340198863636364,
+    "tail_th_effusive_rate": 0.015800636267232236,
+    "cand_len_chars": 584.8796164772727,
+    "tail_th_turn_len_chars": 578.7398727465536,
+    "tail_loop_rate": 0.0015980113636363637
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=5",
+   "note": ""
+  },
+  "cues.GRPO_LA5.pooled": {
+   "value": {
+    "cand_q_per_turn": 0.6626224078341014,
+    "tail_th_q_per_turn": 0.699838782090527,
+    "cand_affirm_rate": 0.0409886232718894,
+    "tail_th_affirm_rate": 0.0314681033427207,
+    "cand_effusive_rate": 0.005742367511520737,
+    "tail_th_effusive_rate": 0.00649973470470593,
+    "cand_len_chars": 419.1374207949309,
+    "tail_th_turn_len_chars": 380.39305538549445,
+    "tail_loop_rate": 0.08570348502304148
+   },
+   "source": "tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=pooled",
+   "note": ""
+  },
+  "score_by_realized_turns.PTO_LA5.pooled.rt0": {
+   "value": {
+    "n": 296,
+    "dev_mean": -0.06694654213036569,
+    "dev_lo": -0.0839785687078886,
+    "dev_hi": -0.052033941701680714,
+    "score_mean": 3.6453497615262322,
+    "p_chosen": 0.060810810810810814
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=PTO_LA5 train_iter=pooled realized_turns=0",
+   "note": ""
+  },
+  "score_by_realized_turns.PTO_LA5.pooled.rt1": {
+   "value": {
+    "n": 6307,
+    "dev_mean": -0.011727092612849793,
+    "dev_lo": -0.013932114938095094,
+    "dev_hi": -0.009284071980623535,
+    "score_mean": 4.155829657057051,
+    "p_chosen": 0.09703504043126684
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=PTO_LA5 train_iter=pooled realized_turns=1",
+   "note": ""
+  },
+  "score_by_realized_turns.PTO_LA5.pooled.rt2": {
+   "value": {
+    "n": 304,
+    "dev_mean": -0.06377257481940148,
+    "dev_lo": -0.08092924694548873,
+    "dev_hi": -0.04738797361049686,
+    "score_mean": 3.3822174922600623,
+    "p_chosen": 0.09539473684210527
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=PTO_LA5 train_iter=pooled realized_turns=2",
+   "note": ""
+  },
+  "score_by_realized_turns.PTO_LA5.pooled.rt3": {
+   "value": {
+    "n": 6430,
+    "dev_mean": -0.004921570805616172,
+    "dev_lo": -0.0077661590452666185,
+    "dev_hi": -0.0021605901030707724,
+    "score_mean": 4.09453206476992,
+    "p_chosen": 0.11306376360808709
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=PTO_LA5 train_iter=pooled realized_turns=3",
+   "note": ""
+  },
+  "score_by_realized_turns.PTO_LA5.pooled.rt4": {
+   "value": {
+    "n": 339,
+    "dev_mean": -0.07850900242102743,
+    "dev_lo": -0.0959206008362047,
+    "dev_hi": -0.061836432950761445,
+    "score_mean": 3.342581988547631,
+    "p_chosen": 0.04424778761061947
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=PTO_LA5 train_iter=pooled realized_turns=4",
+   "note": ""
+  },
+  "score_by_realized_turns.PTO_LA5.pooled.rt5": {
+   "value": {
+    "n": 46192,
+    "dev_mean": 0.0037111635007310855,
+    "dev_lo": 0.00248616488940571,
+    "dev_hi": 0.005141456802456,
+    "score_mean": 3.7767743077487315,
+    "p_chosen": 0.13307499134049186
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=PTO_LA5 train_iter=pooled realized_turns=5",
+   "note": ""
+  },
+  "score_by_realized_turns.GRPO_LA5.pooled.rt0": {
+   "value": {
+    "n": 1205,
+    "dev_mean": -0.07069380034171345,
+    "dev_lo": -0.0922416249694899,
+    "dev_hi": -0.05221785757871615,
+    "score_mean": 3.0852916768367096,
+    "p_chosen": 0.06887966804979254
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=0",
+   "note": ""
+  },
+  "score_by_realized_turns.GRPO_LA5.pooled.rt1": {
+   "value": {
+    "n": 5345,
+    "dev_mean": -0.009435013481538551,
+    "dev_lo": -0.01326519768337644,
+    "dev_hi": -0.005573453750068796,
+    "score_mean": 3.8748847190887576,
+    "p_chosen": 0.10215154349859681
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=1",
+   "note": ""
+  },
+  "score_by_realized_turns.GRPO_LA5.pooled.rt2": {
+   "value": {
+    "n": 255,
+    "dev_mean": -0.07061418685121107,
+    "dev_lo": -0.093300100922722,
+    "dev_hi": -0.05028899942329872,
+    "score_mean": 2.307035755478662,
+    "p_chosen": 0.03529411764705882
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=2",
+   "note": ""
+  },
+  "score_by_realized_turns.GRPO_LA5.pooled.rt3": {
+   "value": {
+    "n": 3607,
+    "dev_mean": -0.001132601640600776,
+    "dev_lo": -0.00639153443467765,
+    "dev_hi": 0.00378436944503336,
+    "score_mean": 3.906696130073876,
+    "p_chosen": 0.12309398392015525
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=3",
+   "note": ""
+  },
+  "score_by_realized_turns.GRPO_LA5.pooled.rt4": {
+   "value": {
+    "n": 266,
+    "dev_mean": -0.11036045997346308,
+    "dev_lo": -0.13423989661654137,
+    "dev_hi": -0.08627529301194165,
+    "score_mean": 2.271052631578947,
+    "p_chosen": 0.04887218045112782
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=4",
+   "note": ""
+  },
+  "score_by_realized_turns.GRPO_LA5.pooled.rt5": {
+   "value": {
+    "n": 44874,
+    "dev_mean": 0.004168649342341562,
+    "dev_lo": 0.0024771021441736198,
+    "dev_hi": 0.005753443792947047,
+    "score_mean": 3.3725655364432177,
+    "p_chosen": 0.1303427374426171
+   },
+   "source": "tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=5",
+   "note": ""
+  },
+  "api.PTO_LA0.iter1": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_0",
+    "n_steps": null,
+    "n_groups_logged": 949,
+    "log_coverage": 1.0,
+    "n_groups": 949,
+    "n_candidates": 7592,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 15158,
+    "oracle_retries": 10,
+    "oracle_input_Mchars": 125.189458,
+    "patient_calls_eval_convs": 1349,
+    "patient_calls_trunk": 949,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 2298,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 28.385416666666668,
+    "eval_ended_by_patient": 69
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=1",
+   "note": ""
+  },
+  "api.PTO_LA0.iter2": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_1",
+    "n_steps": null,
+    "n_groups_logged": 772,
+    "log_coverage": 1.0,
+    "n_groups": 772,
+    "n_candidates": 6176,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 12348,
+    "oracle_retries": 12,
+    "oracle_input_Mchars": 100.874818,
+    "patient_calls_eval_convs": 1237,
+    "patient_calls_trunk": 772,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 2009,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 25.895833333333332,
+    "eval_ended_by_patient": 63
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=2",
+   "note": ""
+  },
+  "api.PTO_LA0.iter3": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_2",
+    "n_steps": null,
+    "n_groups_logged": 787,
+    "log_coverage": 1.0,
+    "n_groups": 787,
+    "n_candidates": 6296,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 12558,
+    "oracle_retries": 4,
+    "oracle_input_Mchars": 106.201858,
+    "patient_calls_eval_convs": 1322,
+    "patient_calls_trunk": 787,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 2109,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 27.6875,
+    "eval_ended_by_patient": 73
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=3",
+   "note": ""
+  },
+  "api.PTO_LA0.iter4": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_3",
+    "n_steps": null,
+    "n_groups_logged": 647,
+    "log_coverage": 1.0,
+    "n_groups": 647,
+    "n_candidates": 5176,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 10339,
+    "oracle_retries": 3,
+    "oracle_input_Mchars": 91.82433,
+    "patient_calls_eval_convs": 1144,
+    "patient_calls_trunk": 647,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1791,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 23.927083333333332,
+    "eval_ended_by_patient": 73
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=4",
+   "note": ""
+  },
+  "api.PTO_LA0.iter5": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_4",
+    "n_steps": null,
+    "n_groups_logged": 600,
+    "log_coverage": 1.0,
+    "n_groups": 600,
+    "n_candidates": 4800,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 9588,
+    "oracle_retries": 4,
+    "oracle_input_Mchars": 92.13719,
+    "patient_calls_eval_convs": 1143,
+    "patient_calls_trunk": 600,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1743,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 23.854166666666668,
+    "eval_ended_by_patient": 77
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=5",
+   "note": ""
+  },
+  "api.PTO_LA0.iter6": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_5",
+    "n_steps": null,
+    "n_groups_logged": 591,
+    "log_coverage": 1.0,
+    "n_groups": 591,
+    "n_candidates": 4728,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 9437,
+    "oracle_retries": 1,
+    "oracle_input_Mchars": 98.422028,
+    "patient_calls_eval_convs": 1112,
+    "patient_calls_trunk": 591,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1703,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 23.1875,
+    "eval_ended_by_patient": 82
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=6",
+   "note": ""
+  },
+  "api.PTO_LA0.iter7": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_6",
+    "n_steps": null,
+    "n_groups_logged": 521,
+    "log_coverage": 1.0,
+    "n_groups": 521,
+    "n_candidates": 4168,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 8320,
+    "oracle_retries": 4,
+    "oracle_input_Mchars": 102.164566,
+    "patient_calls_eval_convs": 1040,
+    "patient_calls_trunk": 521,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1561,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 21.71875,
+    "eval_ended_by_patient": 83
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=7",
+   "note": ""
+  },
+  "api.PTO_LA0.iter8": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_7",
+    "n_steps": null,
+    "n_groups_logged": 517,
+    "log_coverage": 1.0,
+    "n_groups": 517,
+    "n_candidates": 4136,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 8232,
+    "oracle_retries": 4,
+    "oracle_input_Mchars": 99.00814,
+    "patient_calls_eval_convs": 1088,
+    "patient_calls_trunk": 517,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1605,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 22.71875,
+    "eval_ended_by_patient": 82
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=8",
+   "note": ""
+  },
+  "api.PTO_LA0.iter9": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_8",
+    "n_steps": null,
+    "n_groups_logged": 446,
+    "log_coverage": 1.0,
+    "n_groups": 446,
+    "n_candidates": 3568,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 7114,
+    "oracle_retries": 2,
+    "oracle_input_Mchars": 90.234274,
+    "patient_calls_eval_convs": 995,
+    "patient_calls_trunk": 446,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1441,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 20.770833333333332,
+    "eval_ended_by_patient": 88
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=9",
+   "note": ""
+  },
+  "api.PTO_LA0.iter10": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_9",
+    "n_steps": null,
+    "n_groups_logged": 410,
+    "log_coverage": 1.0,
+    "n_groups": 410,
+    "n_candidates": 3280,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 6528,
+    "oracle_retries": 6,
+    "oracle_input_Mchars": 81.042186,
+    "patient_calls_eval_convs": 917,
+    "patient_calls_trunk": 410,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1327,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 19.197916666666668,
+    "eval_ended_by_patient": 92
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=10",
+   "note": ""
+  },
+  "api.PTO_LA0.iter11": {
+   "value": {
+    "row_kind": "final eval pass",
+    "eval_convs_of": "model_iter_10",
+    "n_steps": null,
+    "n_groups_logged": 0,
+    "log_coverage": 1.0,
+    "n_groups": 0,
+    "n_candidates": 0,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 0,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 0.0,
+    "patient_calls_eval_convs": 975,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 975,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 20.385416666666668,
+    "eval_ended_by_patient": 89
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA0 train_iter=11",
+   "note": ""
+  },
+  "api.PTO_LA5.iter1": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_0",
+    "n_steps": null,
+    "n_groups_logged": 890,
+    "log_coverage": 1.0,
+    "n_groups": 890,
+    "n_candidates": 7120,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 14199,
+    "oracle_retries": 5,
+    "oracle_input_Mchars": 136.85929,
+    "patient_calls_eval_convs": 1458,
+    "patient_calls_trunk": 890,
+    "patient_calls_tail": 19041,
+    "patient_calls_total": 21389,
+    "therapist_gens_tail": 12021,
+    "eval_conv_len_mean": 30.489583333333332,
+    "eval_ended_by_patient": 58
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=1",
+   "note": ""
+  },
+  "api.PTO_LA5.iter2": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_1",
+    "n_steps": null,
+    "n_groups_logged": 837,
+    "log_coverage": 1.0,
+    "n_groups": 837,
+    "n_candidates": 6696,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 13385,
+    "oracle_retries": 15,
+    "oracle_input_Mchars": 144.839512,
+    "patient_calls_eval_convs": 1256,
+    "patient_calls_trunk": 837,
+    "patient_calls_tail": 17999,
+    "patient_calls_total": 20092,
+    "therapist_gens_tail": 11377,
+    "eval_conv_len_mean": 26.322916666666668,
+    "eval_ended_by_patient": 66
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=2",
+   "note": ""
+  },
+  "api.PTO_LA5.iter3": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_2",
+    "n_steps": null,
+    "n_groups_logged": 816,
+    "log_coverage": 1.0,
+    "n_groups": 816,
+    "n_candidates": 6528,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 13048,
+    "oracle_retries": 4,
+    "oracle_input_Mchars": 149.353966,
+    "patient_calls_eval_convs": 1269,
+    "patient_calls_trunk": 816,
+    "patient_calls_tail": 17465,
+    "patient_calls_total": 19550,
+    "therapist_gens_tail": 11009,
+    "eval_conv_len_mean": 26.614583333333332,
+    "eval_ended_by_patient": 76
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=3",
+   "note": ""
+  },
+  "api.PTO_LA5.iter4": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_3",
+    "n_steps": null,
+    "n_groups_logged": 613,
+    "log_coverage": 1.0,
+    "n_groups": 613,
+    "n_candidates": 4904,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 9800,
+    "oracle_retries": 2,
+    "oracle_input_Mchars": 115.004642,
+    "patient_calls_eval_convs": 1217,
+    "patient_calls_trunk": 613,
+    "patient_calls_tail": 12725,
+    "patient_calls_total": 14555,
+    "therapist_gens_tail": 7856,
+    "eval_conv_len_mean": 25.489583333333332,
+    "eval_ended_by_patient": 72
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=4",
+   "note": ""
+  },
+  "api.PTO_LA5.iter5": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_4",
+    "n_steps": null,
+    "n_groups_logged": 468,
+    "log_coverage": 1.0,
+    "n_groups": 468,
+    "n_candidates": 3744,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 8745,
+    "oracle_retries": 1654,
+    "oracle_input_Mchars": 76.184461,
+    "patient_calls_eval_convs": 1093,
+    "patient_calls_trunk": 468,
+    "patient_calls_tail": 8967,
+    "patient_calls_total": 10528,
+    "therapist_gens_tail": 5433,
+    "eval_conv_len_mean": 22.84375,
+    "eval_ended_by_patient": 77
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=5",
+   "note": ""
+  },
+  "api.PTO_LA5.iter6": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_5",
+    "n_steps": null,
+    "n_groups_logged": 663,
+    "log_coverage": 1.0,
+    "n_groups": 663,
+    "n_candidates": 5304,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 10578,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 167.4807,
+    "patient_calls_eval_convs": 1135,
+    "patient_calls_trunk": 663,
+    "patient_calls_tail": 13786,
+    "patient_calls_total": 15584,
+    "therapist_gens_tail": 8526,
+    "eval_conv_len_mean": 23.71875,
+    "eval_ended_by_patient": 82
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=6",
+   "note": ""
+  },
+  "api.PTO_LA5.iter7": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_6",
+    "n_steps": null,
+    "n_groups_logged": 807,
+    "log_coverage": 1.0,
+    "n_groups": 807,
+    "n_candidates": 6456,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 12888,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 226.436414,
+    "patient_calls_eval_convs": 1208,
+    "patient_calls_trunk": 807,
+    "patient_calls_tail": 16910,
+    "patient_calls_total": 18925,
+    "therapist_gens_tail": 10524,
+    "eval_conv_len_mean": 25.260416666666668,
+    "eval_ended_by_patient": 81
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=7",
+   "note": ""
+  },
+  "api.PTO_LA5.iter8": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_7",
+    "n_steps": null,
+    "n_groups_logged": 767,
+    "log_coverage": 1.0,
+    "n_groups": 767,
+    "n_candidates": 6136,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 12234,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 250.373282,
+    "patient_calls_eval_convs": 1116,
+    "patient_calls_trunk": 767,
+    "patient_calls_tail": 16391,
+    "patient_calls_total": 18274,
+    "therapist_gens_tail": 10346,
+    "eval_conv_len_mean": 23.302083333333332,
+    "eval_ended_by_patient": 83
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=8",
+   "note": ""
+  },
+  "api.PTO_LA5.iter9": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_8",
+    "n_steps": null,
+    "n_groups_logged": 761,
+    "log_coverage": 1.0,
+    "n_groups": 761,
+    "n_candidates": 6088,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 12155,
+    "oracle_retries": 1,
+    "oracle_input_Mchars": 248.03225,
+    "patient_calls_eval_convs": 1229,
+    "patient_calls_trunk": 761,
+    "patient_calls_tail": 16355,
+    "patient_calls_total": 18345,
+    "therapist_gens_tail": 10336,
+    "eval_conv_len_mean": 25.645833333333332,
+    "eval_ended_by_patient": 83
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=9",
+   "note": ""
+  },
+  "api.PTO_LA5.iter10": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_9",
+    "n_steps": null,
+    "n_groups_logged": 926,
+    "log_coverage": 1.0,
+    "n_groups": 926,
+    "n_candidates": 7408,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 14774,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 334.598134,
+    "patient_calls_eval_convs": 1317,
+    "patient_calls_trunk": 926,
+    "patient_calls_tail": 20149,
+    "patient_calls_total": 22392,
+    "therapist_gens_tail": 12822,
+    "eval_conv_len_mean": 27.489583333333332,
+    "eval_ended_by_patient": 77
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=10",
+   "note": ""
+  },
+  "api.PTO_LA5.iter11": {
+   "value": {
+    "row_kind": "final eval pass",
+    "eval_convs_of": "model_iter_10",
+    "n_steps": null,
+    "n_groups_logged": 0,
+    "log_coverage": 1.0,
+    "n_groups": 0,
+    "n_candidates": 0,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 0,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 0.0,
+    "patient_calls_eval_convs": 1374,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1374,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 28.697916666666668,
+    "eval_ended_by_patient": 71
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=PTO_LA5 train_iter=11",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter1": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_0",
+    "n_steps": 108.0,
+    "n_groups_logged": 1728,
+    "log_coverage": 1.0,
+    "n_groups": 1728,
+    "n_candidates": 13824,
+    "n_candidates_eval_phase": 528,
+    "oracle_calls_train": 28720,
+    "oracle_retries": 16,
+    "oracle_input_Mchars": 243.613486,
+    "patient_calls_eval_convs": 1373,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1373,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 28.770833333333332,
+    "eval_ended_by_patient": 65
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=1",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter2": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_1",
+    "n_steps": 94.0,
+    "n_groups_logged": 752,
+    "log_coverage": 0.5,
+    "n_groups": 1504,
+    "n_candidates": 12032,
+    "n_candidates_eval_phase": 288,
+    "oracle_calls_train": 24652,
+    "oracle_retries": 12,
+    "oracle_input_Mchars": 185.200036,
+    "patient_calls_eval_convs": 1228,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1228,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 25.791666666666668,
+    "eval_ended_by_patient": 75
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=2",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter3": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_2",
+    "n_steps": 118.0,
+    "n_groups_logged": 1888,
+    "log_coverage": 1.0,
+    "n_groups": 1888,
+    "n_candidates": 15104,
+    "n_candidates_eval_phase": 928,
+    "oracle_calls_train": 32075,
+    "oracle_retries": 11,
+    "oracle_input_Mchars": 238.205216,
+    "patient_calls_eval_convs": 1492,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1492,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 31.208333333333332,
+    "eval_ended_by_patient": 76
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=3",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter4": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_3",
+    "n_steps": 100.0,
+    "n_groups_logged": 1600,
+    "log_coverage": 1.0,
+    "n_groups": 1600,
+    "n_candidates": 12800,
+    "n_candidates_eval_phase": 640,
+    "oracle_calls_train": 26888,
+    "oracle_retries": 8,
+    "oracle_input_Mchars": 204.972074,
+    "patient_calls_eval_convs": 1324,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1324,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 27.604166666666668,
+    "eval_ended_by_patient": 85
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=4",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter5": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_4",
+    "n_steps": 118.0,
+    "n_groups_logged": 1888,
+    "log_coverage": 1.0,
+    "n_groups": 1888,
+    "n_candidates": 15104,
+    "n_candidates_eval_phase": 496,
+    "oracle_calls_train": 31213,
+    "oracle_retries": 13,
+    "oracle_input_Mchars": 245.451806,
+    "patient_calls_eval_convs": 1462,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1462,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 30.5,
+    "eval_ended_by_patient": 70
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=5",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter6": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_5",
+    "n_steps": 116.0,
+    "n_groups_logged": 1376,
+    "log_coverage": 0.7413793103448276,
+    "n_groups": 1856,
+    "n_candidates": 14848,
+    "n_candidates_eval_phase": 1209,
+    "oracle_calls_train": 32116,
+    "oracle_retries": 3,
+    "oracle_input_Mchars": 287.3533844651163,
+    "patient_calls_eval_convs": 1472,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1472,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 30.677083333333332,
+    "eval_ended_by_patient": 68
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=6",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter7": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_6",
+    "n_steps": 128.0,
+    "n_groups_logged": 2048,
+    "log_coverage": 1.0,
+    "n_groups": 2048,
+    "n_candidates": 16384,
+    "n_candidates_eval_phase": 592,
+    "oracle_calls_train": 33954,
+    "oracle_retries": 2,
+    "oracle_input_Mchars": 277.945616,
+    "patient_calls_eval_convs": 1547,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1547,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 32.291666666666664,
+    "eval_ended_by_patient": 59
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=7",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter8": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_7",
+    "n_steps": 108.0,
+    "n_groups_logged": 1248,
+    "log_coverage": 0.7222222222222222,
+    "n_groups": 1728,
+    "n_candidates": 13824,
+    "n_candidates_eval_phase": 642,
+    "oracle_calls_train": 28934,
+    "oracle_retries": 1,
+    "oracle_input_Mchars": 346.80218953846156,
+    "patient_calls_eval_convs": 1381,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1381,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 28.84375,
+    "eval_ended_by_patient": 72
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=8",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter9": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_8",
+    "n_steps": 80.0,
+    "n_groups_logged": 1280,
+    "log_coverage": 1.0,
+    "n_groups": 1280,
+    "n_candidates": 10240,
+    "n_candidates_eval_phase": 416,
+    "oracle_calls_train": 21396,
+    "oracle_retries": 116,
+    "oracle_input_Mchars": 319.41338,
+    "patient_calls_eval_convs": 1150,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1150,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 24.114583333333332,
+    "eval_ended_by_patient": 87
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=9",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter10": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_9",
+    "n_steps": 158.0,
+    "n_groups_logged": 2528,
+    "log_coverage": 1.0,
+    "n_groups": 2528,
+    "n_candidates": 20224,
+    "n_candidates_eval_phase": 1072,
+    "oracle_calls_train": 42593,
+    "oracle_retries": 1,
+    "oracle_input_Mchars": 317.671294,
+    "patient_calls_eval_convs": 1825,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1825,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 38.0625,
+    "eval_ended_by_patient": 45
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=10",
+   "note": ""
+  },
+  "api.GRPO_LA0.iter11": {
+   "value": {
+    "row_kind": "final eval pass",
+    "eval_convs_of": "model_iter_10",
+    "n_steps": null,
+    "n_groups_logged": 0,
+    "log_coverage": 1.0,
+    "n_groups": 0,
+    "n_candidates": 0,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 0,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 0.0,
+    "patient_calls_eval_convs": 1195,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1195,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 25.197916666666668,
+    "eval_ended_by_patient": 91
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA0 train_iter=11",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter1": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_0",
+    "n_steps": 108.0,
+    "n_groups_logged": 864,
+    "log_coverage": 0.5,
+    "n_groups": 1728,
+    "n_candidates": 13824,
+    "n_candidates_eval_phase": 496,
+    "oracle_calls_train": 28648,
+    "oracle_retries": 8,
+    "oracle_input_Mchars": 275.255096,
+    "patient_calls_eval_convs": 1349,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 38840,
+    "patient_calls_total": 40189,
+    "therapist_gens_tail": 24792,
+    "eval_conv_len_mean": 28.291666666666668,
+    "eval_ended_by_patient": 65
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=1",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter2": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_1",
+    "n_steps": 104.0,
+    "n_groups_logged": 1184,
+    "log_coverage": 0.7115384615384616,
+    "n_groups": 1664,
+    "n_candidates": 13312,
+    "n_candidates_eval_phase": 1462,
+    "oracle_calls_train": 29549,
+    "oracle_retries": 1,
+    "oracle_input_Mchars": 308.0002162162162,
+    "patient_calls_eval_convs": 1342,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 40334,
+    "patient_calls_total": 41676,
+    "therapist_gens_tail": 25819,
+    "eval_conv_len_mean": 28.125,
+    "eval_ended_by_patient": 63
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=2",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter3": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_2",
+    "n_steps": 112.0,
+    "n_groups_logged": 1792,
+    "log_coverage": 1.0,
+    "n_groups": 1792,
+    "n_candidates": 14336,
+    "n_candidates_eval_phase": 640,
+    "oracle_calls_train": 29952,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 309.096922,
+    "patient_calls_eval_convs": 1420,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 41008,
+    "patient_calls_total": 42428,
+    "therapist_gens_tail": 26187,
+    "eval_conv_len_mean": 29.739583333333332,
+    "eval_ended_by_patient": 74
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=3",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter4": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_3",
+    "n_steps": 106.0,
+    "n_groups_logged": 1696,
+    "log_coverage": 1.0,
+    "n_groups": 1696,
+    "n_candidates": 13568,
+    "n_candidates_eval_phase": 944,
+    "oracle_calls_train": 29024,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 327.75132,
+    "patient_calls_eval_convs": 1392,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 39016,
+    "patient_calls_total": 40408,
+    "therapist_gens_tail": 24546,
+    "eval_conv_len_mean": 29.0625,
+    "eval_ended_by_patient": 76
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=4",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter5": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_4",
+    "n_steps": 88.0,
+    "n_groups_logged": 1408,
+    "log_coverage": 1.0,
+    "n_groups": 1408,
+    "n_candidates": 11264,
+    "n_candidates_eval_phase": 768,
+    "oracle_calls_train": 24064,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 299.70449,
+    "patient_calls_eval_convs": 1237,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 31301,
+    "patient_calls_total": 32538,
+    "therapist_gens_tail": 19293,
+    "eval_conv_len_mean": 25.78125,
+    "eval_ended_by_patient": 86
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=5",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter6": {
+   "value": {
+    "row_kind": "final eval pass",
+    "eval_convs_of": "model_iter_5",
+    "n_steps": null,
+    "n_groups_logged": 0,
+    "log_coverage": 1.0,
+    "n_groups": 0,
+    "n_candidates": 0,
+    "n_candidates_eval_phase": 0,
+    "oracle_calls_train": 0,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 0.0,
+    "patient_calls_eval_convs": 1081,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 0,
+    "patient_calls_total": 1081,
+    "therapist_gens_tail": 0,
+    "eval_conv_len_mean": 22.572916666666668,
+    "eval_ended_by_patient": 92
+   },
+   "source": "tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=6",
+   "note": ""
+  },
+  "api_ratio.PTO.iters_1-5_(matched).oracle_calls_train": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 59991.0,
+    "K5_sum": 59177.0,
+    "K5_over_K0": 0.9864312980280375,
+    "arithmetic": "59,177 / 59,991"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=iters 1-5 (matched) quantity=oracle_calls_train",
+   "note": ""
+  },
+  "api_ratio.PTO.iters_1-5_(matched).oracle_input_Mchars": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 516.227654,
+    "K5_sum": 622.241871,
+    "K5_over_K0": 1.20536330469425,
+    "arithmetic": "622.2 / 516.2"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=iters 1-5 (matched) quantity=oracle_input_Mchars",
+   "note": ""
+  },
+  "api_ratio.PTO.iters_1-5_(matched).patient_calls_total": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 9950.0,
+    "K5_sum": 86114.0,
+    "K5_over_K0": 8.65467336683417,
+    "arithmetic": "86,114 / 9,950"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=iters 1-5 (matched) quantity=patient_calls_total",
+   "note": ""
+  },
+  "api_ratio.PTO.iters_1-5_(matched).patient_calls_tail": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 0.0,
+    "K5_sum": 76197.0,
+    "K5_over_K0": null,
+    "arithmetic": "76,197 / 0"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=iters 1-5 (matched) quantity=patient_calls_tail",
+   "note": ""
+  },
+  "api_ratio.PTO.iters_1-5_(matched).n_candidates": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 30040.0,
+    "K5_sum": 28992.0,
+    "K5_over_K0": 0.9651131824234355,
+    "arithmetic": "28,992 / 30,040"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=iters 1-5 (matched) quantity=n_candidates",
+   "note": ""
+  },
+  "api_ratio.PTO.iters_1-5_(matched).total_api_calls": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 69941.0,
+    "K5_sum": 145291.0,
+    "K5_over_K0": 2.0773366122874997,
+    "arithmetic": "145,291 / 69,941"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=iters 1-5 (matched) quantity=total_api_calls",
+   "note": ""
+  },
+  "api_ratio.PTO.all_matched_iters.oracle_calls_train": {
+   "value": {
+    "iters": "1,2,3,4,5,6,7,8,9,10",
+    "K0_sum": 99622.0,
+    "K5_sum": 121806.0,
+    "K5_over_K0": 1.2226817369657306,
+    "arithmetic": "121,806 / 99,622"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=all matched iters quantity=oracle_calls_train",
+   "note": ""
+  },
+  "api_ratio.PTO.all_matched_iters.oracle_input_Mchars": {
+   "value": {
+    "iters": "1,2,3,4,5,6,7,8,9,10",
+    "K0_sum": 987.0988480000001,
+    "K5_sum": 1849.162651,
+    "K5_over_K0": 1.8733307760885969,
+    "arithmetic": "1,849.2 / 987.1"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=all matched iters quantity=oracle_input_Mchars",
+   "note": ""
+  },
+  "api_ratio.PTO.all_matched_iters.patient_calls_total": {
+   "value": {
+    "iters": "1,2,3,4,5,6,7,8,9,10",
+    "K0_sum": 17587.0,
+    "K5_sum": 179634.0,
+    "K5_over_K0": 10.214021720589072,
+    "arithmetic": "179,634 / 17,587"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=all matched iters quantity=patient_calls_total",
+   "note": ""
+  },
+  "api_ratio.PTO.all_matched_iters.patient_calls_tail": {
+   "value": {
+    "iters": "1,2,3,4,5,6,7,8,9,10",
+    "K0_sum": 0.0,
+    "K5_sum": 159788.0,
+    "K5_over_K0": null,
+    "arithmetic": "159,788 / 0"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=all matched iters quantity=patient_calls_tail",
+   "note": ""
+  },
+  "api_ratio.PTO.all_matched_iters.n_candidates": {
+   "value": {
+    "iters": "1,2,3,4,5,6,7,8,9,10",
+    "K0_sum": 49920.0,
+    "K5_sum": 60384.0,
+    "K5_over_K0": 1.2096153846153845,
+    "arithmetic": "60,384 / 49,920"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=all matched iters quantity=n_candidates",
+   "note": ""
+  },
+  "api_ratio.PTO.all_matched_iters.total_api_calls": {
+   "value": {
+    "iters": "1,2,3,4,5,6,7,8,9,10",
+    "K0_sum": 117209.0,
+    "K5_sum": 301440.0,
+    "K5_over_K0": 2.571816157462311,
+    "arithmetic": "301,440 / 117,209"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=all matched iters quantity=total_api_calls",
+   "note": ""
+  },
+  "api_ratio.PTO.all_K5_iters.patient_calls_tail_per_candidate": {
+   "value": {
+    "iters": "1,2,3,4,5,6,7,8,9,10",
+    "K0_sum": 0.0,
+    "K5_sum": 2.646197668256492,
+    "K5_over_K0": null,
+    "arithmetic": "159,788 / 60,384 candidates"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=PTO window=all K5 iters quantity=patient_calls_tail_per_candidate",
+   "note": ""
+  },
+  "api_ratio.GRPO.iters_1-5_(matched).oracle_calls_train": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 143548.0,
+    "K5_sum": 141237.0,
+    "K5_over_K0": 0.983900855462981,
+    "arithmetic": "141,237 / 143,548"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=iters 1-5 (matched) quantity=oracle_calls_train",
+   "note": ""
+  },
+  "api_ratio.GRPO.iters_1-5_(matched).oracle_input_Mchars": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 1117.442618,
+    "K5_sum": 1519.8080442162163,
+    "K5_over_K0": 1.3600770363818504,
+    "arithmetic": "1,519.8 / 1,117.4"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=iters 1-5 (matched) quantity=oracle_input_Mchars",
+   "note": ""
+  },
+  "api_ratio.GRPO.iters_1-5_(matched).patient_calls_total": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 6879.0,
+    "K5_sum": 197239.0,
+    "K5_over_K0": 28.672626835295826,
+    "arithmetic": "197,239 / 6,879"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=iters 1-5 (matched) quantity=patient_calls_total",
+   "note": ""
+  },
+  "api_ratio.GRPO.iters_1-5_(matched).patient_calls_tail": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 0.0,
+    "K5_sum": 190499.0,
+    "K5_over_K0": null,
+    "arithmetic": "190,499 / 0"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=iters 1-5 (matched) quantity=patient_calls_tail",
+   "note": ""
+  },
+  "api_ratio.GRPO.iters_1-5_(matched).n_candidates": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 68864.0,
+    "K5_sum": 66304.0,
+    "K5_over_K0": 0.9628252788104089,
+    "arithmetic": "66,304 / 68,864"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=iters 1-5 (matched) quantity=n_candidates",
+   "note": ""
+  },
+  "api_ratio.GRPO.iters_1-5_(matched).total_api_calls": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 150427.0,
+    "K5_sum": 338476.0,
+    "K5_over_K0": 2.250101378077074,
+    "arithmetic": "338,476 / 150,427"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=iters 1-5 (matched) quantity=total_api_calls",
+   "note": ""
+  },
+  "api_ratio.GRPO.all_matched_iters.oracle_calls_train": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 143548.0,
+    "K5_sum": 141237.0,
+    "K5_over_K0": 0.983900855462981,
+    "arithmetic": "141,237 / 143,548"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=oracle_calls_train",
+   "note": ""
+  },
+  "api_ratio.GRPO.all_matched_iters.oracle_input_Mchars": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 1117.442618,
+    "K5_sum": 1519.8080442162163,
+    "K5_over_K0": 1.3600770363818504,
+    "arithmetic": "1,519.8 / 1,117.4"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=oracle_input_Mchars",
+   "note": ""
+  },
+  "api_ratio.GRPO.all_matched_iters.patient_calls_total": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 6879.0,
+    "K5_sum": 197239.0,
+    "K5_over_K0": 28.672626835295826,
+    "arithmetic": "197,239 / 6,879"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=patient_calls_total",
+   "note": ""
+  },
+  "api_ratio.GRPO.all_matched_iters.patient_calls_tail": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 0.0,
+    "K5_sum": 190499.0,
+    "K5_over_K0": null,
+    "arithmetic": "190,499 / 0"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=patient_calls_tail",
+   "note": ""
+  },
+  "api_ratio.GRPO.all_matched_iters.n_candidates": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 68864.0,
+    "K5_sum": 66304.0,
+    "K5_over_K0": 0.9628252788104089,
+    "arithmetic": "66,304 / 68,864"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=n_candidates",
+   "note": ""
+  },
+  "api_ratio.GRPO.all_matched_iters.total_api_calls": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 150427.0,
+    "K5_sum": 338476.0,
+    "K5_over_K0": 2.250101378077074,
+    "arithmetic": "338,476 / 150,427"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=total_api_calls",
+   "note": ""
+  },
+  "api_ratio.GRPO.all_K5_iters.patient_calls_tail_per_candidate": {
+   "value": {
+    "iters": "1,2,3,4,5",
+    "K0_sum": 0.0,
+    "K5_sum": 2.873114744208494,
+    "K5_over_K0": null,
+    "arithmetic": "190,499 / 66,304 candidates"
+   },
+   "source": "tables/tail_audit_api_ratio.md row method=GRPO window=all K5 iters quantity=patient_calls_tail_per_candidate",
+   "note": ""
+  },
+  "api_totals.PTO_LA0": {
+   "value": {
+    "iters": 10,
+    "oracle_calls_train": 99622,
+    "oracle_input_Mchars": 987.0988480000001,
+    "patient_calls_total": 18562,
+    "n_candidates": 49920,
+    "arithmetic": "column sums over all rows of the arm incl. the final eval pass"
+   },
+   "source": "tables/tail_audit_api_calls.md column sums for arm=PTO_LA0",
+   "note": ""
+  },
+  "api_totals.PTO_LA5": {
+   "value": {
+    "iters": 10,
+    "oracle_calls_train": 121806,
+    "oracle_input_Mchars": 1849.162651,
+    "patient_calls_total": 181008,
+    "n_candidates": 60384,
+    "arithmetic": "column sums over all rows of the arm incl. the final eval pass"
+   },
+   "source": "tables/tail_audit_api_calls.md column sums for arm=PTO_LA5",
+   "note": ""
+  },
+  "api_totals.GRPO_LA0": {
+   "value": {
+    "iters": 10,
+    "oracle_calls_train": 302541,
+    "oracle_input_Mchars": 2666.628482003578,
+    "patient_calls_total": 15449,
+    "n_candidates": 151195,
+    "arithmetic": "column sums over all rows of the arm incl. the final eval pass"
+   },
+   "source": "tables/tail_audit_api_calls.md column sums for arm=GRPO_LA0",
+   "note": ""
+  },
+  "api_totals.GRPO_LA5": {
+   "value": {
+    "iters": 5,
+    "oracle_calls_train": 141237,
+    "oracle_input_Mchars": 1519.8080442162163,
+    "patient_calls_total": 198320,
+    "n_candidates": 70614,
+    "arithmetic": "column sums over all rows of the arm incl. the final eval pass"
+   },
+   "source": "tables/tail_audit_api_calls.md column sums for arm=GRPO_LA5",
+   "note": ""
+  },
+  "eval_session_end_reasons_pooled": {
+   "value": {
+    "GRPO_LA0": {
+     "eval_ended_by_patient": 793,
+     "eval_ended_by_therapist": 3,
+     "eval_ended_none": 260
+    },
+    "GRPO_LA5": {
+     "eval_ended_by_patient": 456,
+     "eval_ended_by_therapist": 3,
+     "eval_ended_none": 117
+    },
+    "PTO_LA0": {
+     "eval_ended_by_patient": 871,
+     "eval_ended_by_therapist": 7,
+     "eval_ended_none": 178
+    },
+    "PTO_LA5": {
+     "eval_ended_by_patient": 826,
+     "eval_ended_by_therapist": 4,
+     "eval_ended_none": 226
+    }
+   },
+   "source": "tail_audit.py stdout; cross-checks eda/results/L5/tables/3_validity/gpt-4o-mini/session_end_reasons.md",
+   "note": ""
+  },
+  "figures": {
+   "value": {
+    "fig": "C:\\Users\\baruc\\Desktop\\Projects\\Thesis_PTO_GRPO\\papers\\2026_lookahead_pto_grpo\\figures\\tail_audit_fig.png",
+    "fig_api": "C:\\Users\\baruc\\Desktop\\Projects\\Thesis_PTO_GRPO\\papers\\2026_lookahead_pto_grpo\\figures\\tail_audit_fig_api.png"
+   },
+   "source": "figures/",
+   "note": ""
+  }
+ }
+}

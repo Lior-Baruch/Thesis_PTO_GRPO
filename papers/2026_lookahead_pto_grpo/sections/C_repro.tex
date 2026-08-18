@@ -1,0 +1,88 @@
+\section{Reproducibility}
+\label{app:repro}
+
+\paragraph{Models and configuration.} All four arms fine-tune \texttt{meta-llama/Llama-3.2-1B}
+in bf16 with a LoRA adapter ($r{=}16$, $\alpha{=}16$), learning rate $10^{-5}$, seed 42, 96
+conversations per iteration (one per persona), two epochs per iteration, therapist generation
+temperature $0.9$ with a 200-token completion cap and a 2{,}048-token context, a 49-utterance
+conversation target and $\mathrm{MCL}{=}12$ (no training context shorter than 12 utterances).
+The patient simulator and the training oracle are \texttt{gpt-4o-mini-2024-07-18}: patient
+temperature $0.7$; the training-time oracle returns JSON-schema output at temperature $0.0$ (no
+fixed seed), prompted rubric-first so the fixed prefix caches. The score-lake grader
+(Run\_Eval, and the re-score of the poster's conversations, hereafter the Exp1 re-score) runs the
+same model and schema at temperature $0.1$ with seed 42. GRPO: $G{=}8$ completions per prompt at temperature $1.2$, KL
+$\beta{=}0.01$, TRL \texttt{grpo} loss with group-standardized advantages, per-device batch
+$64 \times$ gradient accumulation $2$, conversation-level train/eval split $0.05$. PTO: greedy
+preference tree, $M{=}8$ candidates per branch point at temperature $1.2$, $\tau{=}0.1$, DPO
+sigmoid loss with $\beta{=}0.1$, per-device batch $2 \times$ accumulation $8$, trunk target 49
+utterances. \Kf{}: five extra simulated turns after each candidate before scoring, in both methods,
+with the current policy generating the therapist turns of the tail. Iterations: 10 for PTO \Kz{},
+PTO \Kf{} and GRPO \Kz{}; 5 for GRPO \Kf{} (right-censored: the analysis is frozen at its fifth
+completed iteration, whose cumulative $27.08$\,\gpuh{} matches GRPO \Kz{}'s ten). One seed per
+arm.
+
+\paragraph{Graders and the score lake.} Every model state ($39 = 11 + 11 + 11 + 6$) is scored on
+all 96 conversations and all 8 instruments by the training oracle and, separately, by
+\heldoutjudge{} via the Message Batches API; the two graders' JSON schemas were checked for
+rubric parity automatically before any spend (constraints the second API rejects were restated in
+the item descriptions, not dropped). This gives $39 \times 8 \times 96 = 29{,}952$ cells per
+grader; a Run\_Eval pass costs $96 \times 8 = 768$ scoring calls per model state per grader.
+Oracle self-repeatability was measured on four \Kz{} anchor states only, ICC $.990$ (Q1), $.976$
+(Q2), $.916$ (MICI); it was not measured on any \Kf{} state, and the $\pm 0.10$ band in the figures
+is its practical width, not a per-state interval. The Exp1 re-score (\S\ref{sec:iclr}) is a single
+draw at temperature $0.1$ on Q1 and Q2 only; the poster's $K{=}3$ sweep ran at different
+hyperparameters (therapist temperature $0.7$, $\tau{=}0.2$) and was not re-scored under the new
+grader (only its original GPT-3.5 scores exist).
+
+\paragraph{Statistics.} All contrasts are paired on the recovered persona identity (the trainer
+reshuffles the 96 personas each iteration; file order is not a pairing key). We report the paired
+mean, Cohen's \dz{}, a 2{,}000-resample percentile bootstrap CI over personas (seed 0), and a
+Wilcoxon signed-rank $p$. Holm families are stated per table: across iterations within (grader,
+method, instrument) for the by-iteration $K$ contrasts and their channel siblings; across the nine
+instruments within a pair for the endpoint contrasts; within (grader, contrast, select$\to$score
+instrument) over unique checkpoint pairs for the budget sweeps; across the three cooperation
+strata, or the 17 Q2 items, where those are the units. Retention is a ratio of two paired deltas
+with a persona bootstrap and is left blank where the oracle delta is below $0.15$ (Likert rubrics)
+or $0.05$ (PCT, MICI). Sign convention throughout: tables report $K{=}0$ minus $K{=}5$; the budget
+sweeps carry $K{=}5$ minus $K{=}0$ beside it. Iteration~0 rows are independent draws of the same
+untrained model and are reported as the noise floor, never as an effect. The two graders are never
+averaged: the training oracle was the reward and the held-out judge was not, and their level
+offset is model-dependent.
+
+\paragraph{Compute reconstruction.} Training ran on cloud A100s. GPU-hours are reconstructed from
+artifact modification times by \texttt{eda\_analysis.compute}: generation from the conversation
+files, PTO's build from the preference-pair artifacts, GRPO's training from the per-step
+completion parquet files and PTO's from TensorBoard wall time. Inter-step gaps outside
+$(0, 3600\,\mathrm{s})$ are resume gaps or re-synced timestamps and are imputed at the phase
+median (three GRPO \Kz{}, two GRPO \Kf{}, one PTO \Kz{}, two PTO \Kf{} imputations). The recorded
+per-process timers in \texttt{iteration\_metadata.json} are not used: a crashed-and-resumed
+iteration records only its last session (GRPO \Kf{} iteration~1 logs 14{,}501\,s for 7.7\,h of
+steps). Generation is systematically under-counted by ${\approx}0.1$\,h per iteration because the
+mtime span opens at the first conversation write; for PTO \Kf{} iterations 1--5 the conversation
+files were batch-flushed, so their generation reads ${\approx}0$ and $0.97$\,h lands in iteration~6.
+Floor-corrected totals are $9.22$ / $21.08$ / $28.77$ / $27.42$\,\gpuh{} for PTO \Kz{} / PTO \Kf{}
+/ GRPO \Kz{} / GRPO \Kf{} against the headline $8.12$ / $19.68$ / $27.91$ / $27.08$; no
+conclusion changes. Ten iterations of GRPO \Kz{} cost $27.906/8.119 = 3.44\times$ ten of PTO
+\Kz{}; PTO's build phase is $85\%$ of PTO \Kf{}'s total against $70\%$ of \Kz{}'s. GRPO \Kf{}'s
+per-step ratio at iteration~1 read $2.41$ under a smaller look-ahead sub-batch (64) and a long
+API tail; iterations 3--5, at sub-batch 128, are the settled figure quoted in \S\ref{sec:cost}.
+Over the matched window (iterations 1--5) the extra oracle spend under \Kf{} is only the longer
+transcript: oracle calls are $0.99\times$ / $0.98\times$ while input characters are
+$1.21\times$ / $1.36\times$ for PTO / GRPO; over PTO's full ten iterations the \Kf{} arm also
+branches more (oracle calls $1.22\times$, characters $1.87\times$). GRPO's per-generation logs under-cover crashed-and-resumed iterations (GRPO
+\Kf{} iterations 1--2 at $0.50$ / $0.71$ coverage; GRPO \Kz{} iterations 2, 6, 8 at
+$0.50$--$0.74$), so API-call counts for those iterations are rescaled to the ground-truth step count
+and their tail statistics describe the post-resume part of the iteration.
+
+\paragraph{Artifact policy.} Every number in this paper is produced by one of nine scripts under
+\texttt{analysis/} (\texttt{k\_contrast\_headline}, \texttt{cross\_k\_multijudge},
+\texttt{compute\_axis}, \texttt{tail\_audit}, \texttt{session\_shape\_stability},
+\texttt{crossgen\_exp1}, \texttt{held\_out\_instruments}, \texttt{dispersion\_by\_k},
+\texttt{reward\_faithfulness}), each of which writes its tables to \texttt{tables/} as
+\texttt{.md}$+$\texttt{.csv}, its figures to \texttt{figures/}, and a JSON ledger of every
+quoted quantity with its source table to \texttt{analysis/out/}, or is quoted directly from the
+tracked experiment EDA (\texttt{eda/results/L5}, \texttt{L0}) or the arms'
+\texttt{run\_metadata.json}; \texttt{NUMBERS.md} names which, mapping each claim in the text to
+the table row or ledger key it came from. Every script cross-checks at least
+one cell against the tracked experiment EDA (e.g.\ PTO \QQ{} iteration~6, $+0.257$, \dz{} $0.417$)
+and against the poster's Table~1 for the Exp1 re-score (max $|\text{diff}| = 0.0005$).

@@ -1,0 +1,31 @@
+\section*{Limitations}
+\label{sec:limitations}
+
+\paragraph{One run per arm.} Each arm is a single run with one seed. The 96 personas give
+precision within a run, which is what every paired contrast uses, but there is no between-run
+interval; the only empirical noise floor is iteration~0, where two independent base draws differ
+by $-0.003$ (PTO pair) and $+0.104$ (\dz{} $0.11$; GRPO pair) on \QQ{} under the training oracle.
+A single-iteration GRPO contrast of that size is not a claim.
+
+\paragraph{Censoring and the $K$ grid.} GRPO \Kf{} stopped at iteration~5, at GRPO \Kz{}'s
+ten-iteration budget: its reversal at 4--5 is measured, its persistence is not. Only
+$K \in \{0, 5\}$ was run, at $\mathrm{MCL}{=}12$.
+
+\paragraph{Two LLM graders, no human coding.} Every score and coded behaviour is produced by a
+language model, and cross-judge agreement is not validity: both graders could share a
+misreading of what counts as over-praise or advice (MICI is where the two graders' gains over
+base diverge most: own-base retention $1.1$--$4.6\times$ in every defined cell from
+iteration~3 on). Oracle self-repeatability was measured on four \Kz{} anchor states only, so
+the $\pm 0.10$ band is assumed, not measured, for \Kf{}.
+
+\paragraph{The compute axis.} GPU-hours are reconstructed from artifact times, under-count
+generation by ${\approx}0.1$\,h per iteration and impute a few resume gaps
+(Appendix~\ref{app:repro}); the budget sweep selects on the scoring grader, and the cross-judge
+sweep weakens GRPO \Kf{}'s lead without removing it.
+
+\paragraph{Simulated patients, in-sample personas, a ceiling.} Change talk, session closing and
+the uptake of advice are properties of a simulated patient that shares a model with the training
+oracle, and the same 96 personas served training and evaluation; which hack look-ahead prevents
+and which it opens should not be expected to transfer, only that it relocated rather than
+removed. On the training oracle the Cooperative third saturates \QQ{} ($88$--$100\%$ of endpoint
+conversations $\geq 4.5$), so no $K$ contrast is observable there at the matched endpoints.

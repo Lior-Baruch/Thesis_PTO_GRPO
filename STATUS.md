@@ -70,7 +70,12 @@ iterations to GRPO's three and is further along the reward-hacking curve. Narrat
 
 **Look-ahead (RQ-i) — the answer is method-dependent.**
 
-- **On PTO, K=5 never leads on the reward** across 11 matched iterations, under either grader.
+- **On PTO, K=5 never *significantly* leads on the reward** across 11 matched iterations, under
+  either grader — and **K=0 leads significantly** at iteration 6 (primary, +0.257 dz 0.42) and at
+  5/6/8 under the held-out judge (dz 0.33–0.51), the edge carried by **Q2** (the ICLR poster's
+  own Q2-only K finding, reversed). Endpoint null on both graders (4.307 vs 4.260 primary).
+  Owner: `papers/2026_lookahead_pto_grpo/tables/k_contrast_headline_table1.md` (persona-paired,
+  both graders in one frame — the artifact that did not exist before 2026-08-18).
 - **On GRPO, K=5 does lead**, on both graders: Q1+Q2 at iteration 4 (Δ 0.115 dz 0.248 p_holm .037
   primary; Δ 0.233 dz 0.374 p_holm .005 held-out) and at iteration 5 under the held-out judge
   (Δ 0.311 dz 0.429 p_holm .006; primary Δ 0.070 ns).
@@ -90,11 +95,37 @@ iterations to GRPO's three and is further along the reward-hacking curve. Narrat
   **Q2 0.56 vs 0.85 disjoint, K=5 worse**). Owner:
   `results/L5/tables/8_measurement/multijudge_gain_retention.md` + L5/SUMMARY §6b.
 
-**Look-ahead flips which method wins — but only the held-out grader can see it.** At iteration 5,
+**Look-ahead flips which method wins — at iteration 5 only the held-out grader can see it** (the
+primary does see GRPO > PTO under K=5 one iteration earlier: iter 4 Q1Q2 dz −0.351 p_holm .024).
+At iteration 5,
 K=0 → PTO leads (+0.265 dz 0.355 p_holm .014); K=5 → GRPO leads (−0.219 dz 0.377 p_holm .005).
 Difference-in-differences on the same 96 personas: Q1Q2 dz **0.525** p_holm **.0001**, Q1 0.473,
 Q2 0.474, MITI 0.441 (all p_holm ≤ .0005). ⚠ **On the primary oracle the same interaction is null**
 (largest dz 0.211, nothing survives Holm) — the grader that *was* the training reward cannot see it.
+
+**Cross-K findings from the paper generators (2026-08-18, `papers/2026_lookahead_pto_grpo/analysis/`).**
+- **The ICLR ordering reproduces on its own transcripts under the modern grader.** Re-scoring the
+  poster's 1,440 Exp1 conversations (`eval_scores/_crossgen/`) with gpt-4o-mini keeps K=5 above K=0
+  at 7/7 iterations (arm-level dz −0.54 vs −0.61 under GPT-3.5; Spearman 0.84 between the graders'
+  15 model means) — the Exp3 null is a property of the **regime** (1B therapist, V3 patients,
+  MCL=12, iterative regeneration, bf16), not of the judge.
+- **Look-ahead rescales the training signal, it does not sharpen it.** Best–worst margin and
+  within-group SD rise by the same ~1.4–1.8× (ratio-of-ratios 1.01–1.03); margin/SD sits at the
+  8-draw expectation in every arm; ~half of PTO K=5's higher τ-yield at the base policy is that
+  rescaling. At a **matched policy** (train_iter 1) look-ahead adds **no** reward faithfulness
+  (K0−K5 +0.004 [−0.067, 0.074] PTO; +0.015 [−0.023, 0.057] GRPO).
+- **What the K-step reward sees:** 19–23% of K=5 tails end early, almost always because the
+  simulated patient closes; ended-early siblings score lower within group (dz −0.24/−0.26) and
+  are ~23% less likely to be the argmax (RR 0.77/0.79), a pressure that grows over PTO training.
+- **Session shape reverses by optimizer:** PTO K=5 sessions +8.3 utterances *longer* at iter 10
+  (dz 0.55), GRPO K=5 −8.1 *shorter* at iter 5 (dz 0.53); both K=5 arms write longer turns; PTO_LA5
+  is the only arm whose update pushes for length at every iteration (`w_len` +49.5 … +7.0).
+- **The ICLR 'lowest SD = more stable' claim fails**: PTO K=5 is *more* dispersed than K=0 at 10/10
+  iterations on the primary (Pitman–Morgan sig at 4); SD is a ceiling artefact (Spearman(mean, SD)
+  −0.87 over 35 states, the cooperative third saturating ≥ 4.5) and absent under the held-out judge.
+- **WAI-SR composition** shifts from Bond (K=0) to Goal/Task (K=5) on both graders (bond-excess
+  K0−K5 +0.22/+0.27, dz ≈ 0.44); the held-out judge puts K=0's late Q2 gain on the two emotional
+  self-disclosure items (+1.1 over K=5, dz > 1); PCT change-talk rises under K=5 in Warms-up personas.
 
 **The reward gain is verbosity-shaped.** Coded MI acts per 1,000 therapist characters roughly halve
 under K=5 at iteration 5 (4.08 → 2.22 primary, dz 0.717; 4.97 → 2.59 held-out, dz 0.650) — fewer,
@@ -171,6 +202,12 @@ shows it would push that arm to ~50 GPU-h against LA0's 28, making the arms *les
 
 ## Write-up decisions already made
 
+- **One live paper: [`papers/2026_lookahead_pto_grpo/`](papers/2026_lookahead_pto_grpo/)** ("Same
+  Lever, Different Optimizer") — both optimizers × both K × both graders × both cost axes, with the
+  ICLR claims re-tested and the poster's transcripts re-scored. The two earlier drafts were **retired
+  to `papers/archive/`** on 2026-08-18; their behavioural finding is the live draft's §6 and their
+  `NUMBERS.md` traps still bind. Body is ~10 pages in ACL review mode; the README lists what to
+  demote for an 8-page venue.
 - **Report the method comparison on BOTH axes.** Matched-iteration and matched-budget answer
   different questions and PTO wins both, but for different reasons — say which axis a number is on.
 - Make the look-ahead claim **about the lever, never about convergence**.
