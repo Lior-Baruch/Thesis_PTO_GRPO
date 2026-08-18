@@ -25,6 +25,11 @@ __pycache__/
 **/data/
 **/eda/eval/
 archive/
+# meetings/archive/ is NOT that kind of archive — it holds the tracked records of what the
+# supervisors were actually shown (PDFs + email drafts; the .pptx stay ignored by the later *.pptx rule).
+# Both negations are needed: the dir must be un-excluded before files inside it can be.
+!meetings/archive/
+!meetings/archive/**
 # Sentence-embedding caches (these .npy files are ~139 MB each — over GitHub's limit)
 **/emb_cache_words/
 *.npy
