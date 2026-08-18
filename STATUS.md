@@ -83,6 +83,13 @@ iterations to GRPO's three and is further along the reward-hacking curve. Narrat
   **7.14 vs 13.00** (held-out). (Holm across the 9 rubrics at that budget, per the rendered
   `iso_compute_contrast.md`.)
 
+- **Retention by K (NEW 2026-08-18 — the L5 retention table existed but was EMPTY until then).**
+  Gain retention (Δ held-out / Δ primary vs base) is **method-dependent in the same direction as
+  the reward**: GRPO K=5 retains its FULL Q1 gain (1.08 [0.94, 1.27] at iter 5 vs K=0's 0.73
+  [0.57, 0.92] — disjoint), while PTO K=5 retains the same or less (Q1 0.72 vs 0.80 overlapping;
+  **Q2 0.56 vs 0.85 disjoint, K=5 worse**). Owner:
+  `results/L5/tables/8_measurement/multijudge_gain_retention.md` + L5/SUMMARY §6b.
+
 **Look-ahead flips which method wins — but only the held-out grader can see it.** At iteration 5,
 K=0 → PTO leads (+0.265 dz 0.355 p_holm .014); K=5 → GRPO leads (−0.219 dz 0.377 p_holm .005).
 Difference-in-differences on the same 96 personas: Q1Q2 dz **0.525** p_holm **.0001**, Q1 0.473,
@@ -117,7 +124,10 @@ affirmation is ≈0.01 → 0.10, while what the policy *generates* moves 0.02 �
 Oracle **ICC(2,1) 0.86–0.99**; the decoupled second judge (**Claude Haiku 4.5**, different family,
 never played the patient) reproduces **18/18** anchor contrasts with the same sign and **88.4%** of
 all 5,928 arm×metric contrasts. **Gain retention** is the load-bearing reward-hacking evidence
-(Q1 retention PTO@10 0.80 vs GRPO@10 0.28, non-overlapping).
+(Q1 retention PTO@10 0.80 vs GRPO@10 0.28, non-overlapping). ⚠ The **L5 view's retention table was
+a silent 0-byte file** until 2026-08-18 (hardcoded L0 reference base absent from the K=5 view);
+fixed, re-rendered, and `save_table` now writes an explicit marker for any empty frame so this
+failure class is visible in the render log.
 
 ⚠ **Standing caveats** — see [eda/docs/LIMITATIONS.md](Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md):
 **MITI** dependability is 0.55 and **MICI** 0.63 off one judge, and those two instruments carry the

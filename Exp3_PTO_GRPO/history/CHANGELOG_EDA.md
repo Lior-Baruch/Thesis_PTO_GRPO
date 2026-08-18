@@ -9,6 +9,35 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-18, second pass) — L5 gain retention un-broken + Q1-only retention figure +
+empty-table guard.**
+
+A cold table-first audit (the CLAUDE.md brainstorming protocol, run before opening any narrative
+doc) found `results/L5/tables/8_measurement/multijudge_gain_retention.md` was a **0-byte file**:
+`8_Measurement_Validity` cell 5 hardcoded `REFERENCE_MODEL = "PTOExp3_LA0_Base"`, which the L5
+view's K-filter (`_VIEW_KS["L5"]=[5]`) excludes, so `gain_retention()` skipped every metric and
+saved an empty frame that serialized to nothing. Three changes:
+
+- **Notebook 8** now derives the reference from the view's own judged frame (any `*_Base` present
+  in both judges' models, preferring the PTO base — identical behaviour on L0/all, `PTOExp3_LA5_Base`
+  on L5) and prints the choice. Re-rendered both views.
+- **`exports.save_table`** writes an explicit `> **EMPTY TABLE.**` marker (and warns in the render
+  log) whenever it receives a 0-row frame, so this failure class can never again produce a silent
+  artifact that reads as "rendered".
+- **Notebook 8 also saves `multijudge_retention_trajectory_Q1`** — a single-panel Q1 variant of
+  the retention trajectory at column width, requested by the reward-hacking draft's Figure-3
+  legibility TODO (the 7-panel grid is illegible at `\columnwidth`; the grid moved to that paper's
+  Appendix A).
+
+The un-broken L5 table produced a **new result** (narrated in `results/L5/SUMMARY.md` §6b, quoted
+in STATUS.md): retention by K is method-dependent — GRPO K=5 retains its full Q1 gain under the
+held-out judge (1.08 [0.94, 1.27] at iter 5 vs K=0's 0.73 [0.57, 0.92], disjoint) while PTO K=5
+retains the same or less (Q2 0.56 vs 0.85, disjoint, worse). Also fixed the stale
+`k_paired_by_method` caption in `7_Stats` §4c ("K=5 arms are thin (PTO to iter 5, GRPO to
+iter 1)" — long superseded by PTO→10 / GRPO→5).
+
+---
+
 **Landed (2026-08-18) — the COMPUTE axis: `eda_analysis/compute.py` + `7_Stats` §4e.**
 
 The EDA had no cost column anywhere. Grepping every `.md` under `results/*/tables/` for

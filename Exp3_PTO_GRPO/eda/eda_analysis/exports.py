@@ -236,6 +236,20 @@ def save_table(df: pd.DataFrame, name: str, *, group: Optional[str] = None,
     formats = formats or _TABLE_FORMATS
     d = _tab_dir(group)
     os.makedirs(d, exist_ok=True)
+    if df is None or len(df) == 0:
+        # An empty frame used to serialize to a 0-byte .md that read as "artifact exists" — the
+        # L5 multijudge_gain_retention table shipped that way for weeks (a hardcoded reference
+        # model absent from the view made the producer return an empty frame; caught 2026-08-18).
+        # Write an explicit marker instead, so an empty artifact can never be mistaken for a
+        # rendered one, and warn in the render log.
+        with open(os.path.join(d, f"{name}.md"), "w", encoding="utf-8") as f:
+            f.write(f"> **EMPTY TABLE.** The producing notebook saved `{name}` with 0 rows — "
+                    f"either the analysis found nothing to report in this view, or an upstream "
+                    f"filter dropped every row (check the producer's inputs before trusting "
+                    f"this absence).\n")
+        print(f"[save_table] WARNING: {name!r} is EMPTY — wrote an explicit empty-table marker")
+        _append_caption(d, name, caption)
+        return d
     base = os.path.join(d, name)
     if "csv" in formats:
         df.to_csv(f"{base}.csv", index=index)

@@ -457,6 +457,9 @@ behind an unchanged public surface.
 - **`exports`** — `save_fig` (PNG) / `save_table` (MD+XLSX) → `results/<view>/<group>/`;
   `set_view` / `set_export_group` / `set_formats` / `save_provenance` / `build_index` /
   `reset_results` (clears the active view's figures/tables; **preserves `SUMMARY.md`**).
+  `save_table` given a **0-row frame** writes an explicit `> **EMPTY TABLE.**` marker `.md` and
+  warns in the render log rather than serializing to a silent 0-byte file (an empty artifact
+  masqueraded as a rendered one once — L5 `multijudge_gain_retention`, caught 2026-08-18).
 - **`scoring/`** (subpackage; NOT imported by `__init__` — its registry scans disk, which the
   analysis notebooks never need; the two scoring notebooks import it explicitly) — the
   oracle-scoring layer, folded in from the legacy `oracle_scoring/` package (2026-07-13):

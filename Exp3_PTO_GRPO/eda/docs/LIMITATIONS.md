@@ -329,6 +329,23 @@ permutations, all of them used. The self-loop makes those same 96 the training r
 eval set at every iteration. Generalisation to unseen patients is therefore **unmeasured and not
 measurable without authoring new persona prompts** — state it, do not try to estimate it.
 
+## 5f · Questions no artifact currently covers (from the 2026-08-18 cold table audit)
+The tables only exist for questions someone asked; these were never asked, so their absence is
+invisible from the results tree:
+
+- **Score by session-end reason.** PTO(K=0) learns to shorten sessions (28.4 → 20.4 utterances)
+  while ~17–25% of conversations hit the turn cap and the therapist almost never ends one
+  (3–7 of ~1,056). No table conditions any score on *how* the session ended, so "shorter because
+  the patient is satisfied" vs "shorter is a smaller surface to be marked down on" is unmeasured —
+  and this interacts with the length confound every instrument carries.
+- **Where in the session the over-praise sits.** All MICI channels are per-conversation counts;
+  whether the praise concentrates in openings, closings, or uniformly (and whether K=5 moves its
+  *position* as well as its volume) has no artifact.
+- **The K=5 endpoint under the held-out judge flips the method ordering** (GRPO_LA5@5 2.798 >
+  PTO_LA5@10 2.667 on Q1+Q2, haiku leaderboard) — visible in the L5 haiku scorecard but tested
+  nowhere (it crosses unequal iterations and both arms' scopes), so no paper or summary leans on
+  it. If a thesis section ever needs it, it needs its own paired test first.
+
 ## 6 · Multiplicity is corrected within families, not across
 Holm/BH corrections apply **within** each family (rubrics within one matched contrast, or
 iterations within one arm-vs-base sweep) and are **not** pooled across the dozens of families
