@@ -28,8 +28,7 @@ GRPO LA5 was stopped **~2 minutes into iteration 6**: `iteration_6/` holds one o
 ## ⚠ Read every contrast on the COMPUTE axis, not just the iteration axis
 
 `eda_analysis/compute.py` reconstructs GPU-hours per iteration from artifact
-mtimes, and it reframes the whole comparison. **Owner: `results/L5/tables/7_stats/*/compute_by_arm.md`,
-`iso_compute_contrast.md`, `budget_sweep.md`; figure `compute_trajectory.png`.**
+mtimes, and it reframes the whole comparison. **Owner: `eda/results/compute/cost/tables/{compute_by_arm,iso_compute_contrast,budget_sweep_<contrast>_<judge>}.md`; figure `compute/cost/figures/compute_trajectory.png`.**
 
 - **The two GRPO arms are budget-matched to within 3%** — 27.08 vs 27.91 GPU-h — despite one
   running twice the iterations. "GRPO LA5 only reached iteration 5" is a statement about iteration
@@ -66,7 +65,7 @@ paired **+0.51, dz 0.73**. GRPO peaks at iter 8 (4.08) then regresses into sycop
 on Q1+Q2 (+0.266 dz 0.529 primary, +0.230 dz 0.456 held-out, both p_holm ≤ .0002) — ⚠ but is **worse**
 on MICI there (+0.261 dz 0.90 / +0.418 dz 1.28), because at equal spend PTO has trained ten
 iterations to GRPO's three and is further along the reward-hacking curve. Narrative:
-[eda/results/L0/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md).
+[eda/results/method/SUMMARY.md](Exp3_PTO_GRPO/eda/results/method/SUMMARY.md) (+ [arms/SUMMARY.md](Exp3_PTO_GRPO/eda/results/arms/SUMMARY.md)).
 
 **Look-ahead (RQ-i) — the answer is method-dependent.**
 
@@ -74,8 +73,8 @@ iterations to GRPO's three and is further along the reward-hacking curve. Narrat
   either grader — and **K=0 leads significantly** at iteration 6 (primary, +0.257 dz 0.42) and at
   5/6/8 under the held-out judge (dz 0.33–0.51), the edge carried by **Q2** (the ICLR poster's
   own Q2-only K finding, reversed). Endpoint null on both graders (4.307 vs 4.260 primary).
-  Owner: `papers/2026_lookahead_pto_grpo/tables/k_contrast_headline_table1.md` (persona-paired,
-  both graders in one frame — the artifact that did not exist before 2026-08-18).
+  Owner: `eda/results/lookahead/reward/tables/k_table1.md` (persona-paired, both graders in one
+  frame — first built for the paper on 2026-08-18, promoted into the EDA the same day).
 - **On GRPO, K=5 does lead**, on both graders: Q1+Q2 at iteration 4 (Δ 0.115 dz 0.248 p_holm .037
   primary; Δ 0.233 dz 0.374 p_holm .005 held-out) and at iteration 5 under the held-out judge
   (Δ 0.311 dz 0.429 p_holm .006; primary Δ 0.070 ns).
@@ -93,7 +92,7 @@ iterations to GRPO's three and is further along the reward-hacking curve. Narrat
   the reward**: GRPO K=5 retains its FULL Q1 gain (1.08 [0.94, 1.27] at iter 5 vs K=0's 0.73
   [0.57, 0.92] — disjoint), while PTO K=5 retains the same or less (Q1 0.72 vs 0.80 overlapping;
   **Q2 0.56 vs 0.85 disjoint, K=5 worse**). Owner:
-  `results/L5/tables/8_measurement/multijudge_gain_retention.md` + L5/SUMMARY §6b.
+  `eda/results/lookahead/transfer/tables/k_retention_summary.md` (own-base + shared-reference kinds) + lookahead/SUMMARY.md.
 
 **Look-ahead flips which method wins — at iteration 5 only the held-out grader can see it** (the
 primary does see GRPO > PTO under K=5 one iteration earlier: iter 4 Q1Q2 dz −0.351 p_holm .024).
@@ -103,7 +102,7 @@ Difference-in-differences on the same 96 personas: Q1Q2 dz **0.525** p_holm **.0
 Q2 0.474, MITI 0.441 (all p_holm ≤ .0005). ⚠ **On the primary oracle the same interaction is null**
 (largest dz 0.211, nothing survives Holm) — the grader that *was* the training reward cannot see it.
 
-**Cross-K findings from the paper generators (2026-08-18, `papers/2026_lookahead_pto_grpo/analysis/`).**
+**Cross-K findings (2026-08-18; first built for the paper, now EDA-owned under `eda/results/lookahead/` + `compute/`).**
 - **The ICLR ordering reproduces on its own transcripts under the modern grader.** Re-scoring the
   poster's 1,440 Exp1 conversations (`eval_scores/_crossgen/`) with gpt-4o-mini keeps K=5 above K=0
   at 7/7 iterations (arm-level dz −0.54 vs −0.61 under GPT-3.5; Spearman 0.84 between the graders'
@@ -144,7 +143,7 @@ method's *own* groups leaves them as far apart as ever (0.397 / 0.324 corrected,
 trained). Frame it as the state distribution the two methods train on — GRPO slices an on-policy
 rollout, PTO grows a best-of-M reranked trunk (closer to expert iteration) — **not** as
 DPO-vs-group-relative, and **not** as "exploration" (candidate sampling is matched by construction,
-temp 1.2, M=G=8). [L0/SUMMARY.md](Exp3_PTO_GRPO/eda/results/L0/SUMMARY.md) §6.
+temp 1.2, M=G=8). [arms/SUMMARY.md](Exp3_PTO_GRPO/eda/results/arms/SUMMARY.md) (training-signal section).
 
 **The reward-hack is a compounding loop, not a hard pull.** Per-iteration *selection* pressure on
 affirmation is ≈0.01 → 0.10, while what the policy *generates* moves 0.02 → 0.54 (GRPO) / 0.04 →
@@ -155,12 +154,12 @@ affirmation is ≈0.01 → 0.10, while what the policy *generates* moves 0.02 �
 Oracle **ICC(2,1) 0.86–0.99**; the decoupled second judge (**Claude Haiku 4.5**, different family,
 never played the patient) reproduces **18/18** anchor contrasts with the same sign and **88.4%** of
 all 5,928 arm×metric contrasts. **Gain retention** is the load-bearing reward-hacking evidence
-(Q1 retention PTO@10 0.80 vs GRPO@10 0.28, non-overlapping). ⚠ The **L5 view's retention table was
+(Q1 retention PTO@10 0.80 vs GRPO@10 0.28, non-overlapping). ⚠ The retired **L5 view's retention table was
 a silent 0-byte file** until 2026-08-18 (hardcoded L0 reference base absent from the K=5 view);
-fixed, re-rendered, and `save_table` now writes an explicit marker for any empty frame so this
+fixed, re-rendered (now `lookahead/transfer/tables/k_retention.md`, every reference kind), and `save_table` writes an explicit marker for any empty frame so this
 failure class is visible in the render log.
 
-⚠ **Standing caveats** — see [eda/docs/LIMITATIONS.md](Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md):
+⚠ **Standing caveats** — see [eda/results/LIMITATIONS.md](Exp3_PTO_GRPO/eda/results/LIMITATIONS.md):
 **MITI** dependability is 0.55 and **MICI** 0.63 off one judge, and those two instruments carry the
 channel results; there is **no channel-level ICC at all**, **no repeatability rep for any K=5
 state**, and **no replicate draw for any trained checkpoint** (therapist decoding is unseeded, so

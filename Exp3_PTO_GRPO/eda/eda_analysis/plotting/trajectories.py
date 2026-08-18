@@ -5,7 +5,7 @@ from typing import Optional, Sequence
 import matplotlib.pyplot as plt
 import seaborn as sns
 
-from ..constants import display_label, arm_label, BOOT_SEED
+from ..constants import display_label, arm_label, BOOT_SEED, LOWER_IS_BETTER
 from ..plotting_style import grid, figure_legend_from, relabel_legend
 from ._shared import _metrics
 
@@ -60,7 +60,11 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
 
     ``mark_peaks=True`` draws a dotted vline + label at each arm's peak iteration **only where the
     peak precedes the final iteration** (i.e. the arm regressed afterwards) — auto-surfacing e.g.
-    GRPO's iter-8 peak-then-decline without hardcoding any arm/iteration.
+    GRPO's iter-8 peak-then-decline without hardcoding any arm/iteration. The flag is a
+    model-selection annotation on HIGHER-is-better metrics; on a :data:`LOWER_IS_BETTER` metric
+    (MICI) the score maximum is the *worst* iteration, so a "peak → regresses" mark there would
+    label the subsequent improvement as a regression — the flag is therefore never drawn for those
+    metrics (direction bug fixed 2026-08-18: it used to fire at MICI's worst iteration).
     """
     d = scores_long[scores_long.questionnaire == metric]
     if arms is not None:
@@ -78,7 +82,7 @@ def single_metric_trajectory(scores_long, metric: str = "Q1Q2", *, palette,
         ax.axhspan(b0 - oracle_noise, b0 + oracle_noise, color="grey", alpha=0.15)
         ax.text(0.02, b0 + oracle_noise, " ~oracle-noise band around base", fontsize=7,
                 va="bottom", color="grey")
-    if mark_peaks:
+    if mark_peaks and metric not in LOWER_IS_BETTER:   # peak = max only where higher is better
         for arm, g in d.groupby("arm"):
             per_iter = g.groupby("iteration")["score"].mean()
             if per_iter.empty:

@@ -74,15 +74,12 @@ branches more (oracle calls $1.22\times$, characters $1.87\times$). GRPO's per-g
 $0.50$--$0.74$), so API-call counts for those iterations are rescaled to the ground-truth step count
 and their tail statistics describe the post-resume part of the iteration.
 
-\paragraph{Artifact policy.} Every number in this paper is produced by one of nine scripts under
-\texttt{analysis/} (\texttt{k\_contrast\_headline}, \texttt{cross\_k\_multijudge},
-\texttt{compute\_axis}, \texttt{tail\_audit}, \texttt{session\_shape\_stability},
-\texttt{crossgen\_exp1}, \texttt{held\_out\_instruments}, \texttt{dispersion\_by\_k},
-\texttt{reward\_faithfulness}), each of which writes its tables to \texttt{tables/} as
-\texttt{.md}$+$\texttt{.csv}, its figures to \texttt{figures/}, and a JSON ledger of every
-quoted quantity with its source table to \texttt{analysis/out/}, or is quoted directly from the
-tracked experiment EDA (\texttt{eda/results/L5}, \texttt{L0}) or the arms'
-\texttt{run\_metadata.json}; \texttt{NUMBERS.md} names which, mapping each claim in the text to
-the table row or ledger key it came from. Every script cross-checks at least
-one cell against the tracked experiment EDA (e.g.\ PTO \QQ{} iteration~6, $+0.257$, \dz{} $0.417$)
-and against the poster's Table~1 for the Exp1 re-score (max $|\text{diff}| = 0.0005$).
+\paragraph{Artifact policy.} Every number in this paper is produced by the analysis modules and
+family notebooks of the tracked experiment EDA (\texttt{eda\_analysis}; notebooks under
+\texttt{eda/notebooks/\{lookahead,compute,\ldots\}}, which render tables, figures and a JSON
+ledger of every quoted quantity under \texttt{eda/results/<family>/}), or is quoted from the arms'
+\texttt{run\_metadata.json}, and was frozen as the paper's fixture (\texttt{tables/},
+\texttt{analysis/out/}); \texttt{NUMBERS.md} maps each claim in the text to the results table row
+or ledger key it came from. The fixture is cross-checked against the live EDA on anchor cells
+(e.g.\ PTO \QQ{} iteration~6, $+0.257$, \dz{} $0.417$) and against the poster's Table~1 for the
+Exp1 re-score (max $|\text{diff}| = 0.0005$).

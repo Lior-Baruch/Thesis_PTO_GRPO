@@ -19,6 +19,21 @@ that accompanied them.
 Nothing here is imported by `code/` or `eda/` — it only *reads* the generated EDA artifacts under
 [`../Exp3_PTO_GRPO/eda/results/`](../Exp3_PTO_GRPO/eda/results/).
 
+> **2026-08-18 — the EDA results tree was reorganised by research question.** Every builder
+> written before that date (`build_supervisor_deck.py`, `build_results_snapshot.py`,
+> `build_meeting_deck.py`, `build_paper_deck.py`, `build_status_deck.py`,
+> `build_status_deck_2026-08-18.py`) reads the **retired** `Exp3_PTO_GRPO/eda/results/L0|L5/…`
+> tree (`<view>/figures|tables/<N_family>/<judge>/`) and the method schematics at
+> `Exp3_PTO_GRPO/figures/` (now `eda/results/schematics/`). Both are recoverable at commit
+> **`b09eb6f`** (the last pre-reorg state) — check it out to re-run one of those builders; **do
+> not edit past builders** to chase the new paths (they are records of what was shown). New builders
+> read `Exp3_PTO_GRPO/eda/results/<top>/<sub>/{figures,tables}/[<judge>/]…` — per-arm figures under
+> `arms/*` (a `<judge>/` leaf), cross-K / method / compute / measurement artifacts under
+> `lookahead/*`, `method/contrast`, `compute/cost`, `measurement/validity` (no judge level — both
+> graders are inside), and schematics under `results/schematics/`. Regenerate with
+> `python tools/render_results.py` from `Exp3_PTO_GRPO/eda/` (`render_views.py` is gone). Old→new
+> path map: [`../Exp3_PTO_GRPO/eda/README.md`](../Exp3_PTO_GRPO/eda/README.md) § "Migration (2026-08-18)".
+
 **This directory lives at the repo root**, beside [`../papers/`](../papers/), because decks span
 experiments and now also present the paper drafts. It used to sit inside `Exp3_PTO_GRPO/`. The
 builders resolve the experiment explicitly:
@@ -108,15 +123,18 @@ once you've checked the layout.
 
 Use the repo `.venv` python — the system python has neither `python-pptx` nor `pillow`.
 
-The scripts read PNGs and markdown tables straight out of `../Exp3_PTO_GRPO/eda/results/<view>/`, so a deck is
-only as current as the last `render_views.py` run. If a figure moved or was renamed by an EDA
-refactor, the script fails loudly at `add_picture` and writes nothing — the file on disk is never
-half-updated.
+The scripts read PNGs and markdown tables straight out of `../Exp3_PTO_GRPO/eda/results/` — the
+pre-2026-08-18 builders from the retired `<view>/…` tree (see the note at the top; check out
+`b09eb6f` to re-run them), new builders from `<top>/<sub>/…` — so a deck is only as current as the
+last render (`render_results.py` now; `render_views.py` before). If a figure moved or was renamed by
+an EDA refactor, the script fails loudly at `add_picture` and writes nothing — the file on disk is
+never half-updated.
 
-`build_meeting_deck.py` also reads the method schematics in [`../Exp3_PTO_GRPO/figures/`](../Exp3_PTO_GRPO/figures/) (the PTO
-and GRPO framework diagrams and the two generation diagrams). Those are hand-authored, not
-data-derived — regenerate them with `build_method_figures.py` in that directory, not with
-`render_views.py`.
+`build_meeting_deck.py` also reads the method schematics (the PTO and GRPO framework diagrams and
+the two generation diagrams) — at `../Exp3_PTO_GRPO/figures/` when it was written, now
+[`../Exp3_PTO_GRPO/eda/results/schematics/`](../Exp3_PTO_GRPO/eda/results/schematics/). Those are
+hand-authored, not data-derived — regenerate them with `build_method_figures.py` in that directory,
+never with the render tool.
 
 ⚠ **Artifact paths carry a `<judge>/` level** (`<family>/gpt-4o-mini/<name>.png`) since 2026-07-28 —
 every grader nests, including the primary. The builders' path helpers were updated then; a deck

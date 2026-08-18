@@ -75,45 +75,53 @@ main.tex               preamble + \input order (macros \QQ \dz \primaryjudge \he
 sections/              00_abstract 01_intro 02_related 03_setup 04_reward 05_cost 06_behaviour
                        07_mechanism 08_iclr 09_discussion 10_limitations 11_ethics
                        A_tables B_tails C_repro
-analysis/*.py          the nine paper-local generators (k_contrast_headline, cross_k_multijudge,
-                       compute_axis, tail_audit, session_shape_stability, crossgen_exp1,
-                       held_out_instruments, dispersion_by_k, reward_faithfulness) + _common.py
-analysis/out/          one JSON ledger per generator (every quotable number, with its source table)
-                       + _findings_digest.txt (findings, caveats, paper-use per generator)
-tables/                176 .md/.csv written by the generators — never edit by hand
-figures/               generator figures + EDA-owned figures copied by sync_figures.py. Body figures (6): the
-                       schematics pair, k_contrast_headline_fig_q1q2 (a figure* at 0.85\textwidth),
-                       compute_axis_fig_trajectory_col, k_contrast_headline_fig_channels, tail_audit_fig,
-                       crossgen_exp1_fig_col; everything else is appendix. The two `_col` files are the
-                       single-column STACKED variants (same panels, same data, narrow-width fonts) that
-                       compute_axis.py / crossgen_exp1.py write beside the original side-by-side
-                       compute_axis_fig_trajectory / crossgen_exp1_fig (kept on disk; the ledgers list only
-                       the originals — the `_col` files carry no ledger entry by design)
-NUMBERS.md             THE CLAIMS LEDGER: every number in the text -> the table row / ledger key
+analysis/              the paper's FROZEN FIXTURE (see analysis/README.md): analysis/out/*.json = one
+                       ledger per retired generator (every quotable number, with its source table),
+                       _findings_digest.txt (findings, caveats, paper-use), _appendix_rows.tex. The nine
+                       generators (analysis/*.py) were retired 2026-08-18 — they live in git at b09eb6f and
+                       were promoted into eda_analysis.{lookahead,transfer,compute,tails,dispersion,
+                       faithfulness,crossgen,replication,instruments} + the family notebooks under
+                       Exp3_PTO_GRPO/eda/notebooks/{lookahead,compute}/. Nothing under analysis/ regenerates;
+                       the EDA self-check's 'paper fixture anchors' reads analysis/out/.
+tables/                176 .md/.csv frozen with the fixture — never edit by hand; the live successors are
+                       Exp3_PTO_GRPO/eda/results/{lookahead/*,compute/cost}/tables/ (map in NUMBERS.md)
+figures/               every figure the .tex references, copied from the tracked results tree by
+                       sync_figures.py (Exp3_PTO_GRPO/eda/results/<family>/figures/ + the hand-drawn
+                       schematics under results/schematics/) under the paper's historical filenames.
+                       Body figures (6): the schematics pair, k_contrast_headline_fig_q1q2 (a figure* at
+                       0.85\textwidth; source lookahead/reward/k_headline_q1q2), compute_axis_fig_trajectory_col
+                       (compute/cost/compute_trajectory_col), k_contrast_headline_fig_channels
+                       (lookahead/behaviour/k_channels_grid), tail_audit_fig (lookahead/mechanism/tail_audit),
+                       crossgen_exp1_fig_col (lookahead/replication/crossgen_col); everything else is
+                       appendix. The `_col` files are the single-column STACKED variants (same panels, same
+                       data, narrow-width fonts). Other PNG/PDF files still on disk here are stale
+                       generator output no longer referenced by any .tex and no longer synced.
+NUMBERS.md             THE CLAIMS LEDGER: every number in the text -> the tracked results table (+ the
+                       fixture table / ledger key in parentheses)
 BRAINSTORM_2026-08-18.md  how the framing was chosen (cold table read → framings → diff vs the retired drafts)
-sync_figures.py        re-copy the EDA-owned figures the .tex actually uses (the two method schematics, the two MICI
-                       composition grids); the over-praise-trajectory / mechanism PNGs are stale leftovers, no longer synced
+sync_figures.py        copy every referenced figure from the tracked results tree into figures/ (--check = drift report)
 refs.bib               33 entries; acl.sty / acl_natbib.bst vendored
 ```
 
 ## Regenerating
 
-From the repo root, with the repo venv (the shell's `python` is not it):
+There is no paper-local generator loop any more. The cross-K artifacts are EDA-owned: re-render
+the two families that carry them, re-sync the figures, then rebuild. From the repo root, with the
+repo venv (the shell's `python` is not it):
 
 ```powershell
 $py = ".\.venv\Scripts\python.exe"
-foreach ($s in "k_contrast_headline","cross_k_multijudge","compute_axis","tail_audit",
-               "session_shape_stability","crossgen_exp1","held_out_instruments",
-               "dispersion_by_k","reward_faithfulness") {
-  & $py "papers\2026_lookahead_pto_grpo\analysis\$s.py"
-}
-& $py papers\2026_lookahead_pto_grpo\sync_figures.py           # EDA-owned figures
-& $py papers\2026_lookahead_pto_grpo\sync_figures.py --check   # drift report only
+& $py Exp3_PTO_GRPO\eda\tools\render_results.py --top lookahead compute   # results/{lookahead/*,compute/cost}
+& $py papers\2026_lookahead_pto_grpo\sync_figures.py                       # copy figures into ./figures/
+& $py papers\2026_lookahead_pto_grpo\sync_figures.py --check               # must print "0 drifted, 0 missing"
 ```
 
-Each generator rewrites its `tables/`, `figures/` and `analysis/out/<name>.json`; every one
-cross-checks at least one cell against the tracked EDA (`Exp3_PTO_GRPO/eda/results/L5/`) and
-asserts on it. Then walk `NUMBERS.md` against the new tables before touching a `.tex`.
+(The schematics are hand-drawn under `Exp3_PTO_GRPO/eda/results/schematics/` and are not part of
+any render.) The re-rendered tables land under `Exp3_PTO_GRPO/eda/results/<family>/tables/`; walk
+`NUMBERS.md` against them before touching a `.tex`. The EDA bootstraps at `BOOT_SEED=12345` where
+the frozen fixture used seed 0, so bootstrap CI bounds may differ from the fixture in the third
+decimal — every mean, dz, p and count is identical. `tables/` and `analysis/out/` are the frozen
+fixture and are NOT rewritten by anything.
 
 **Build:** four passes with MiKTeX, no `latexmk` — see [`../README.md`](../README.md) § Building
 (`pdflatex` → `bibtex` → `pdflatex` → `pdflatex`; `\usepackage{times}` is load-bearing).

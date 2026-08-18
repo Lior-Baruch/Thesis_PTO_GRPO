@@ -21,7 +21,23 @@ Split into topic submodules (2026-07-13; formerly one 935-line ``plotting.py``) 
 - :mod:`.compute`       — the COMPUTE axis: score vs cumulative GPU-hours, the budget sweep
   (does the lever pay at equal spend?), and where each arm's hours go.
 - :mod:`.lookahead`     — RQ-i: the BEHAVIOUR channels the K=0-vs-K=5 reward curve hides
-  (channel trajectories, the select→generate→evaluate mechanism panel, the trade-off forest).
+  (channel trajectories, the select→generate→evaluate mechanism panel, the trade-off forest) +
+  the promoted paper figures (four-arm headline, delta grids, channels grid, both-judges contrast,
+  retention by K, DiD).
+- :mod:`.tails`         — the look-ahead TAIL audit (ended-early share, within-group deviation,
+  P(argmax) by tail state) + API calls per iteration.
+- :mod:`.dispersion`    — within-group reward dispersion by K (SD / margin / margin-over-SD /
+  winner-z) + the τ-yield sensitivity panel.
+- :mod:`.faithfulness`  — reward faithfulness by K (rank-agreement curves + matched-policy bins),
+  one figure per eval grader.
+- :mod:`.crossgen`      — Exp1 (ICLR) under two graders (wide + column variants).
+- :mod:`.replication`   — session-shape trajectories + score-SD stability panels.
+- :mod:`.instruments`   — held-out instruments under K: WAI-SR subscale gains, heterogeneity grid.
+
+``K_STYLE`` (K=0 solid+circle / K=5 dashed+square) is defined by EACH promoted plotting module
+(``plotting.lookahead.K_STYLE``, ``plotting.tails.K_STYLE``, … — ``plotting.instruments.K_STYLE``
+also carries a ``hatch`` key) and is deliberately NOT re-exported at this package level: eight
+same-named module constants would make ``plotting.K_STYLE`` mean one of several. Qualify it.
 
 The style/scaffold helpers live in :mod:`eda_analysis.plotting_style` and are re-imported here so
 ``figures.set_style(...)`` / ``figures.grid(...)`` etc. still resolve on this package.
@@ -70,10 +86,24 @@ from .reliability import (  # noqa: F401
 from .lookahead import (  # noqa: F401
     k_channel_trajectory, k_channel_trajectory_grid, k_mechanism_panel, k_channel_forest,
     k_cost_benefit,
+    # promoted paper figures (k_contrast_headline + cross_k_multijudge)
+    k_headline_fourarm, k_delta_grid, k_channels_grid, k_contrast_both_judges, k_retention, k_did,
 )
 from .compute import (  # noqa: F401
     compute_trajectory, budget_sweep_plot, cost_breakdown,
+    # promoted paper figures (compute_axis)
+    BREAKDOWN_NOTES, cost_breakdown_by_arm, cost_breakdown_by_iteration, budget_sweep_grid,
+    trajectory_by_compute,
 )
+from .tails import tail_audit_fig, api_calls_fig                       # noqa: F401
+from .dispersion import dispersion_fig, tau_fig                        # noqa: F401
+from .faithfulness import faithfulness_fig                             # noqa: F401
+from .crossgen import crossgen_fig                                     # noqa: F401
+from .replication import shape_fig, sd_fig                             # noqa: F401
+from .instruments import wai_fig, hetero_fig                           # noqa: F401
+# The promoted modules are also reachable as submodules (``plotting.lookahead.K_STYLE`` etc.).
+from . import (lookahead, compute, tails, dispersion, faithfulness, crossgen,   # noqa: F401
+               replication, instruments)
 
 __all__ = [
     # style helpers (from plotting_style)
@@ -99,9 +129,28 @@ __all__ = [
     "oracle_repeatability_bars", "judge_agreement_scatter", "judge_contrast_bars",
     "judge_dumbbell", "variance_decomposition_bars", "gain_retention_bars", "concordance_curve",
     "retention_trajectory",
-    # lookahead (RQ-i: the behaviour channels the reward curve hides)
+    # lookahead (RQ-i: the behaviour channels the reward curve hides + the promoted paper figures)
     "k_channel_trajectory", "k_channel_trajectory_grid", "k_mechanism_panel", "k_channel_forest",
     "k_cost_benefit",
+    "k_headline_fourarm", "k_delta_grid", "k_channels_grid", "k_contrast_both_judges",
+    "k_retention", "k_did",
     # compute (the GPU-hour axis: score vs budget, the budget sweep, the cost breakdown)
     "compute_trajectory", "budget_sweep_plot", "cost_breakdown",
+    "BREAKDOWN_NOTES", "cost_breakdown_by_arm", "cost_breakdown_by_iteration", "budget_sweep_grid",
+    "trajectory_by_compute",
+    # tails (look-ahead tail audit + API calls)
+    "tail_audit_fig", "api_calls_fig",
+    # dispersion (within-group reward dispersion by K + tau sensitivity)
+    "dispersion_fig", "tau_fig",
+    # faithfulness (reward faithfulness by K, one figure per grader)
+    "faithfulness_fig",
+    # crossgen (Exp1 under two graders)
+    "crossgen_fig",
+    # replication (session shape + score-SD stability)
+    "shape_fig", "sd_fig",
+    # instruments (WAI-SR subscale gains, heterogeneity grid)
+    "wai_fig", "hetero_fig",
+    # the promoted plotting submodules (K_STYLE lives on each; not re-exported here — see docstring)
+    "lookahead", "compute", "tails", "dispersion", "faithfulness", "crossgen", "replication",
+    "instruments",
 ]

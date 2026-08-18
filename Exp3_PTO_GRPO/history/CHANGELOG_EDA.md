@@ -9,6 +9,24 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-18, evening) — the EDA is reorganised by RESEARCH QUESTION; VIEW/L0/L5 retired.**
+`results/` is now `{arms,lookahead,method,compute,measurement}/<family>/{figures,tables}/[<judge>/]`
+(+ `schematics/`, `METRICS_REFERENCE.md`, `LIMITATIONS.md` at the results root). `arms/*` shows all four
+arms on one axis and renders per judge; the four contrast tops are judge-invariant (both graders side by
+side). `EdaConfig(family=...)` replaces `view`+`export_group`; `exports.set_family` / `save_numbers` /
+per-top `INDEX.md`; `tools/render_results.py` replaces `render_views.py` (units = arms x judges + the
+invariant tops once). Notebooks are `notebooks/<top>/<sub>.ipynb` (15; the numbered 1-8 are deleted).
+The look-ahead paper's nine generators were promoted into `eda_analysis.{lookahead,transfer,tails,
+dispersion,faithfulness,crossgen,replication,instruments}` (+ `compute` extensions) with plotting twins,
+verified against the paper's frozen fixture (only bootstrap-CI third decimals move: `BOOT_SEED` vs seed
+0). Every ported family reproduced its L0/L5 predecessor row-for-row (max |diff| 0 on shared arms; the
+measurement tables now pool all 39 states, so their pooled rates changed by design: sign preservation
+88.4 % over 5,928 contrasts). Self-check = 23 checks (family map 1:1, exports routing, paper-fixture
+anchors). Also: `code/tools/` (smoke + generate-only tool moved), `Exp3_PTO_GRPO/README.md` (new map),
+`eda/README.md` rewritten with the old->new migration table. Last pre-reorg commit: `b09eb6f`.
+Two peak-flag/caption bugs fixed on the way (the `peak -> regresses` flag fired on lower-is-better MICI;
+L5 captions described K=0 phenomena in a K=5 view).
+
 **Landed (2026-08-18, second pass) — L5 gain retention un-broken + Q1-only retention figure +
 empty-table guard.**
 

@@ -10,11 +10,16 @@ code/
 ├── system_prompts_builder.py   V3 patient prompts — THE canonical copy (see "Canonical copies")
 ├── questionnaires.py           V5 oracle rubrics — JSON schema, 8 instruments incl. PCT + MICI
 ├── roles.py                    which model plays patient / oracle / judge + the arm-naming contract
-├── _local_smoke.py             offline smoke tests (stopgen|dpo|grpo) — no OpenAI, tiny, local GPU
 ├── _shared/                    cross-method modules — BOTH trainers import these
 ├── GRPO_Exp3/                  train_GRPO_Iterative.ipynb + grpo_trainer.py
-└── PTO_Exp3/                   train_PTO_Iterative.ipynb + pto_trainer.py + generate_eval_convs.{py,ipynb}
+├── PTO_Exp3/                   train_PTO_Iterative.ipynb + pto_trainer.py
+└── tools/                      stand-alone utilities (moved here 2026-08-18; not imported by the trainers):
+    ├── _local_smoke.py             offline smoke tests (stopgen|dpo|grpo) — no OpenAI, tiny, local GPU
+    └── generate_eval_convs.{py,ipynb}  generate-only pass for ONE model state (repairs an orphaned adapter)
 ```
+
+`tools/` scripts put `code/` (and, for `generate_eval_convs`, `code/PTO_Exp3/`) on `sys.path`
+themselves, so they run from anywhere; nothing in `_shared/` or the method dirs imports them.
 
 ## `_shared/` — the layer both methods import
 
@@ -39,10 +44,18 @@ in the notebook) over `<method>_trainer.py` (`<Method>Config` + `run_one_iterati
 ⚠ **The trainer modules are named per method — `grpo_trainer.py`, `pto_trainer.py` — on purpose,**
 so `from <method>_trainer import …` cannot collide when both notebooks run in one kernel.
 
-`PTO_Exp3/generate_eval_convs.py` is a generate-only pass for **one** model state; it repairs an
-*orphaned adapter* (trained, but its `model_iter_N` convs were never generated). Config is rebuilt
-from the run's own `run_metadata.json` and seeds are **derived** (`seed+N+1`) — `--verify-seeds`
-proves that against decoy offsets before you spend anything.
+`tools/generate_eval_convs.py` (was `PTO_Exp3/generate_eval_convs.py` until 2026-08-18) is a
+generate-only pass for **one** model state; it repairs an *orphaned adapter* (trained, but its
+`model_iter_N` convs were never generated) and, with `--conv-dir`, writes a replicate draw
+somewhere other than the canonical `model_iter_<N>` folder. Config is rebuilt from the run's own
+`run_metadata.json` and seeds are **derived** (`seed+N+1`) — `--verify-seeds` proves that against
+decoy offsets before you spend anything. Run it from `code/tools/`:
+
+```powershell
+# from code/tools/
+& ..\..\..\.venv\Scripts\python.exe generate_eval_convs.py --iter 5 --verify-seeds --dry-run   # free
+& ..\..\..\.venv\Scripts\python.exe generate_eval_convs.py --iter 5 --batch-size 6            # the real pass (local card)
+```
 
 ## `roles.py` — read this before adding any model
 
@@ -80,7 +93,8 @@ or move the transcript ahead of them**, or caching silently stops.
 ## Running things locally
 
 ```powershell
-& ..\..\.venv\Scripts\python.exe _local_smoke.py all      # stopgen | dpo | grpo | all
+# from code/
+& ..\..\.venv\Scripts\python.exe tools\_local_smoke.py all      # stopgen | dpo | grpo | all
 ```
 
 Tiny, no OpenAI. Validates the stop-string bind, the DPO prompt-cap + no-OOM path, and a GRPO step

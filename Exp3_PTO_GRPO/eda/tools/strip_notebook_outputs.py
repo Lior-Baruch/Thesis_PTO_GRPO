@@ -2,8 +2,8 @@
 """
 strip_notebook_outputs.py — keep committed notebooks output-clean (zero external deps).
 
-The ``results/<view>/`` tree is the deliverable; the notebooks are throwaway drivers
-(``render_views.py`` executes them into a *tmp* ``--output-dir``, never touching the committed
+The ``results/<top>/<sub>/`` tree is the deliverable; the notebooks are throwaway drivers
+(``render_results.py`` executes them into a *tmp* ``--output-dir``, never touching the committed
 copies). So committed notebooks should carry **no** cell outputs — otherwise rendered PNGs bloat
 git (nb 4 + nb 5 alone were ~2 MB before this).
 

@@ -6,33 +6,77 @@ and a whole PTO iteration costs a fraction of a GRPO one. Re-drawn against cumul
 the same curves tell a materially different story — arms that "stopped early" turn out to have
 spent the same money, and the ordering of two arms can invert.
 
-- :func:`compute_trajectory` — the headline: score vs cumulative GPU-h, one line per arm, with
-  iteration numbers annotated so the reader can move between the two axes.
-- :func:`budget_sweep_plot` — the lever's paired effect size as a function of budget, with the
-  zero line and the crossover visible.
-- :func:`cost_breakdown` — where each arm's hours actually go (generate / build / train), which
-  is what explains the cost gap rather than asserting it.
+Single-judge figures (the tracked ``7_Stats`` §4e set):
+
+- :func:`compute_trajectory` — score vs cumulative GPU-h, one line per arm, iteration numbers
+  annotated so the reader can move between the two axes.
+- :func:`budget_sweep_plot` — one contrast's paired effect size as a function of budget.
+- :func:`cost_breakdown_by_arm` — stacked GPU-h per arm by phase (generate / build / train).
+
+Both-graders figures (promoted 2026-08-18 from the look-ahead paper's ``compute_axis.py``
+generator, ``papers/2026_lookahead_pto_grpo/analysis/``; the paper's PNGs are the visual
+fixture):
+
+- :func:`budget_sweep_grid` — ``fig_budget_sweep``: 2x2, rows = grader, cols = method; y = the
+  paired Q1Q2 delta **K5 - K0** between best-within-budget checkpoints (above zero = look-ahead
+  ahead — the tracked-EDA sign, NOT the paper's ``+ => K=0 higher`` table convention), bootstrap
+  CI bars, hollow markers = Holm p >= .05, labels ``I<K5>/I<K0>`` = the selected iterations.
+- :func:`trajectory_by_compute` — ``fig_trajectory`` (two grader panels side by side) and its
+  ``layout="col"`` variant ``fig_trajectory_col`` (the same two panels stacked for a single ACL
+  column): Q1Q2 mean ± SEM over the 96 personas vs cumulative GPU-h, four arms, iteration 0 at
+  0 h, last point labelled with its iteration.
+- :func:`cost_breakdown_by_iteration` — ``fig_breakdown``: stacked generate / build / train
+  GPU-h per iteration, one panel per arm, with the two known caveats annotated (PTO_LA5's
+  generation of I1-I5 lands in I6 because its conversation mtimes were batch-flushed; GRPO_LA5 is
+  right-censored at I5).
+- :func:`cost_breakdown` dispatches on its input: an :func:`~eda_analysis.compute.iteration_compute`
+  frame (has ``iteration``) -> :func:`cost_breakdown_by_iteration`; a
+  :func:`~eda_analysis.compute.compute_summary` frame -> :func:`cost_breakdown_by_arm` (the
+  pre-2026-08-18 behaviour, so old call sites keep working).
+
+K encoding everywhere: K=0 solid + circle, K=5 dashed + square (:data:`K_STYLE`) — the same
+encoding as ``plotting/lookahead.py``, so the families read together and the K contrast survives
+greyscale printing. Colours = :func:`~eda_analysis.plotting_style.arm_palette` (PTO cool / GRPO
+warm, Okabe-Ito).
 
 Contract as everywhere in ``plotting``: takes already-built tidy frames, never touches disk,
 returns a ``fig`` (the notebook owns ``save_fig``), returns ``None`` when the arms are absent.
 """
 
-from typing import Optional, Sequence
+import re
+from typing import Dict, Optional, Sequence
 
 import matplotlib.pyplot as plt
+from matplotlib.patches import Patch
 import numpy as np
 import pandas as pd
 
 from ..constants import LOWER_IS_BETTER, arm_label, display_label
 from ..plotting_style import arm_palette
 
-# Solid = K=0, dashed = K=5 — same encoding as plotting/lookahead.py, so the two families read
-# together and the K contrast survives greyscale printing.
-_K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+__all__ = [
+    "K_STYLE", "BREAKDOWN_NOTES", "compute_trajectory", "budget_sweep_plot", "cost_breakdown",
+    "cost_breakdown_by_arm", "cost_breakdown_by_iteration",
+    "budget_sweep_grid", "trajectory_by_compute",
+]
+
+# Solid = K=0, dashed = K=5. If plotting_style grows a package-wide K_STYLE this defers to it.
+try:  # pragma: no cover - depends on a sibling module another author may extend
+    from ..plotting_style import K_STYLE  # type: ignore
+except ImportError:
+    K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+_K_STYLE = K_STYLE           # back-compat alias for the pre-2026-08-18 private name
+
+_LA_RE = re.compile(r"_LA(\d+)$")
 
 
 def _k_of(arm: str) -> int:
-    return 5 if arm.endswith("LA5") else 0
+    m = _LA_RE.search(arm or "")
+    return int(m.group(1)) if m else 0
+
+
+def _kstyle(arm: str) -> dict:
+    return K_STYLE.get(_k_of(arm), K_STYLE[0])
 
 
 def compute_trajectory(by_compute: pd.DataFrame, *, metric: str = "Q1Q2",
@@ -62,7 +106,7 @@ def compute_trajectory(by_compute: pd.DataFrame, *, metric: str = "Q1Q2",
     fig, ax = plt.subplots(figsize=figsize)
     for arm, g in d.groupby("arm"):
         g = g.sort_values("cum_gpu_h")
-        st = _K_STYLE.get(_k_of(arm), _K_STYLE[0])
+        st = _kstyle(arm)
         ax.errorbar(g.cum_gpu_h, g["mean"], yerr=g.get("sem"),
                     label=arm_label(arm), color=pal.get(arm), lw=1.9, ms=5.5,
                     capsize=2.5, elinewidth=0.9, alpha=0.95, **st)
@@ -112,7 +156,7 @@ def budget_sweep_plot(sweep: pd.DataFrame, *, label_a: str = "arm A", label_b: s
     return fig
 
 
-def cost_breakdown(summary: pd.DataFrame, *, figsize=(7.6, 4.0)):
+def cost_breakdown_by_arm(summary: pd.DataFrame, *, figsize=(7.6, 4.0)):
     """Stacked GPU-hours per arm by phase — where the money actually goes.
 
     ``summary`` is :func:`eda_analysis.compute.compute_summary` output. The iteration count is
@@ -142,5 +186,246 @@ def cost_breakdown(summary: pd.DataFrame, *, figsize=(7.6, 4.0)):
     ax.set_xlim(0, float(d.total_gpu_h.max()) * 1.22)
     ax.grid(axis="y", visible=False)
     ax.legend(frameon=False, fontsize=9, loc="lower right")
+    fig.tight_layout()
+    return fig
+
+
+#: The two known per-iteration cost artefacts, annotated on the breakdown panels (the paper's
+#: ``fig_breakdown``). Keyed by arm; ``(x, y_frac_of_ymax, text)``. Left as data so a future run
+#: without the artefact simply drops the entry.
+BREAKDOWN_NOTES = {
+    "GRPO_LA5": (7.9, 0.38, "right-censored\n(stopped at I5)"),
+    "PTO_LA5": (3.2, 0.53, "gen of I1–I5 lands in I6\n(flushed conv mtimes)"),
+}
+
+
+def cost_breakdown_by_iteration(comp: pd.DataFrame, *, arms: Optional[Sequence[str]] = None,
+                                figsize=(7.2, 2.9), notes: Optional[dict] = None,
+                                max_iter: Optional[int] = None):
+    """Stacked generate / build / train GPU-h **per iteration**, one panel per arm (the paper's
+    ``fig_breakdown``).
+
+    ``comp`` is :func:`eda_analysis.compute.iteration_compute` output. Phase encoding: train =
+    solid arm colour; build = arm colour, light; generate = white + arm-colour hatch. Each panel's
+    title carries the arm's total (``Σ h``). ``notes`` (default :data:`BREAKDOWN_NOTES`)
+    annotates the known artefacts — PTO_LA5's I1-I5 generation landing in I6 (batch-flushed conv
+    mtimes) and GRPO_LA5's right-censoring at I5. All panels share the x-ticks ``1..max_iter``
+    (default = the largest trained iteration across the arms) so the censoring is VISIBLE as
+    empty slots rather than a narrower axis.
+    """
+    if comp is None or comp.empty:
+        return None
+    d_all = comp[comp.iteration > 0]
+    order = list(arms) if arms is not None else [a for a in ("PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5")
+                                                    if a in set(d_all.arm)]
+    order += [a for a in sorted(d_all.arm.unique()) if a not in order] if arms is None else []
+    order = [a for a in order if a in set(d_all.arm)]
+    if not order:
+        return None
+    notes = BREAKDOWN_NOTES if notes is None else notes
+    pal = arm_palette(order)
+    n_it = int(max_iter or d_all.iteration.max())
+    fig, axes = plt.subplots(1, len(order), figsize=figsize, sharey=True, squeeze=False)
+    axes = axes[0]
+    ymax = float(d_all.gpu_h.max())
+    for ax, arm in zip(axes, order):
+        d = d_all[d_all.arm == arm].sort_values("iteration")
+        bottom = np.zeros(len(d))
+        ax.bar(d["iteration"], d["gen_h"], bottom=bottom, facecolor="white", edgecolor=pal[arm],
+               hatch="////", linewidth=0.5, width=0.8)
+        bottom += d["gen_h"].values
+        ax.bar(d["iteration"], d["build_h"], bottom=bottom, color=pal[arm], alpha=0.45,
+               edgecolor="white", linewidth=0.5, width=0.8)
+        bottom += d["build_h"].values
+        ax.bar(d["iteration"], d["train_h"], bottom=bottom, color=pal[arm], edgecolor="white",
+               linewidth=0.5, width=0.8)
+        ax.set_title(f"{arm}  (Σ {d['gpu_h'].sum():.1f} h)", fontsize=9)
+        ax.set_xlabel("iteration", fontsize=9)
+        ax.set_xticks(range(1, n_it + 1))
+        ax.tick_params(axis="x", labelsize=7)
+        ax.tick_params(axis="y", labelsize=8)
+        ax.grid(True, axis="y", alpha=0.3)
+        if arm in notes:
+            x, yf, txt = notes[arm]
+            ax.text(x, yf * ymax, txt, ha="center", va="center", fontsize=6.5, color="0.3")
+    axes[0].set_ylabel("GPU-hours per iteration", fontsize=9)
+    handles = [Patch(facecolor="white", edgecolor="0.4", hatch="////", label="generate"),
+               Patch(facecolor="0.4", alpha=0.45, label="build (PTO only)"),
+               Patch(facecolor="0.4", label="train")]
+    axes[-1].legend(handles=handles, fontsize=7, loc="upper right", frameon=True, title="phase",
+                    title_fontsize=7)
+    fig.tight_layout()
+    return fig
+
+
+def cost_breakdown(frame: pd.DataFrame, **kw):
+    """Where the GPU-hours go. Dispatches on the frame: an ``iteration_compute`` frame (has an
+    ``iteration`` column) -> :func:`cost_breakdown_by_iteration` (the paper's per-iteration
+    panels); a ``compute_summary`` frame -> :func:`cost_breakdown_by_arm` (stacked per-arm bars,
+    the pre-2026-08-18 behaviour). ``**kw`` are forwarded."""
+    if frame is None or frame.empty:
+        return None
+    if "iteration" in frame.columns:
+        return cost_breakdown_by_iteration(frame, **kw)
+    return cost_breakdown_by_arm(frame, **kw)
+
+
+def _auto_xlim(x: np.ndarray, pad: float = 0.1):
+    lo, hi = float(np.nanmin(x)), float(np.nanmax(x))
+    r = max(hi - lo, 1.0)
+    return (max(0.0, lo - pad * r), hi + pad * r)
+
+
+def budget_sweep_grid(sweeps: Dict[tuple, pd.DataFrame], *,
+                      methods: Sequence[str] = ("PTO", "GRPO"),
+                      judges: Optional[Sequence[str]] = None,
+                      select_metric: str = "Q1Q2", eval_metric: str = "Q1Q2",
+                      alpha: float = 0.05, figsize=(7.0, 5.2),
+                      xlims: Optional[Dict[str, tuple]] = None):
+    """The look-ahead budget sweep, both graders x both methods (the paper's ``fig_budget_sweep``).
+
+    ``sweeps`` is :func:`eda_analysis.compute.all_budget_sweeps` output
+    (``{(contrast_tag, judge_label): frame}``); the ``<METHOD>_K`` contrasts are drawn. Rows =
+    graders (``judges``, default: every judge present, in first-seen order), cols = ``methods``.
+    x = the K=5 arm's cumulative GPU-h; y = paired ``eval_metric`` delta **K5 - K0** between the
+    best-within-budget checkpoints (``mean_delta`` as tabled — the tracked-EDA sign; above zero =
+    look-ahead ahead), bootstrap 95% CI bars; hollow markers = Holm p >= ``alpha``; labels
+    ``I<K5>/I<K0>`` name the selected iterations (a repeated checkpoint pair is labelled once).
+    ``xlims`` = ``{method: (lo, hi)}`` overrides the per-column auto range.
+    """
+    if not sweeps:
+        return None
+    tags = {m: f"{m}_K" for m in methods}
+    if judges is None:
+        judges = []
+        for (tag, jl) in sweeps:
+            if tag in tags.values() and jl not in judges:
+                judges.append(jl)
+    judges = list(judges)
+    if not judges:
+        return None
+    fig, axes = plt.subplots(len(judges), len(methods), figsize=figsize, sharex="col", squeeze=False)
+    xs_by_col: Dict[int, list] = {}
+    for ci_, method in enumerate(methods):
+        tag = tags[method]
+        for ri, jl in enumerate(judges):
+            ax = axes[ri, ci_]
+            d = sweeps.get((tag, jl))
+            if d is None or d.empty:
+                ax.set_title(f"{method} — {jl} (no sweep)", fontsize=10)
+                ax.axis("off")
+                continue
+            d = d[(d.select_metric == select_metric) & (d.eval_metric == eval_metric)]
+            if d.empty:
+                ax.axis("off")
+                continue
+            a, b = str(d["arm_a"].iloc[0]), str(d["arm_b"].iloc[0])
+            col = arm_palette([a])[a]
+            x = d["budget_gpu_h"].values; y = d["mean_delta"].values
+            yerr = np.vstack([y - d["ci_lo"].values, d["ci_hi"].values - y])
+            ax.axhline(0, color="0.35", lw=0.9, zorder=1)
+            ax.errorbar(x, y, yerr=yerr, color=col, lw=1.7, capsize=2.5, elinewidth=1.0,
+                        label=f"{a} vs {b}", zorder=3, ms=5.5, **_kstyle(a))
+            ns = d["p_holm"].values >= alpha
+            if ns.any():
+                ax.plot(x[ns], y[ns], ls="none", marker=_kstyle(a)["marker"], ms=5.5, mfc="white",
+                        mec=col, mew=1.3, zorder=4, label="not sig. (Holm)")
+            prev = None
+            for xi, yi, ia, ib in zip(x, y, d["best_iter_a"], d["best_iter_b"]):
+                if (ia, ib) == prev:
+                    continue
+                prev = (ia, ib)
+                ax.annotate(f"I{int(ia)}/I{int(ib)}", (xi, yi), textcoords="offset points",
+                            xytext=(0, 8), ha="center", fontsize=6.5, color="0.25")
+            ax.set_title(f"{method} — {jl}", fontsize=10)
+            if ci_ == 0:
+                ax.set_ylabel(f"{display_label(eval_metric)} Δ  (K=5 − K=0)", fontsize=9)
+            ax.tick_params(labelsize=8)
+            ax.grid(True, alpha=0.3)
+            ax.legend(fontsize=7, loc="lower right", frameon=True)
+            xs_by_col.setdefault(ci_, []).extend(list(x))
+    for ci_, method in enumerate(methods):
+        lim = (xlims or {}).get(method)
+        if lim is None and xs_by_col.get(ci_):
+            lim = _auto_xlim(np.asarray(xs_by_col[ci_]))
+        if lim is not None:
+            for ax in axes[:, ci_]:
+                ax.set_xlim(*lim)
+    for ax in axes[-1, :]:
+        ax.set_xlabel("cumulative GPU-hours (K=5 arm's budget)", fontsize=9)
+    fig.suptitle(f"Look-ahead vs budget: paired {display_label(eval_metric)} delta between "
+                 "best-within-budget checkpoints (labels I_K5/I_K0 = selected iterations)", fontsize=9)
+    fig.tight_layout()
+    return fig
+
+
+def trajectory_by_compute(scores_by_judge: Dict[str, pd.DataFrame], comp: pd.DataFrame, *,
+                          metric: str = "Q1Q2", arms: Optional[Sequence[str]] = None,
+                          layout: str = "wide", figsize=None):
+    """``metric`` mean ± SEM vs cumulative GPU-h, four arms, one panel per grader.
+
+    ``scores_by_judge`` = ``{judge_label: scores_long}`` (primary first by convention); ``comp`` =
+    :func:`~eda_analysis.compute.iteration_compute`. Each panel is
+    :func:`~eda_analysis.compute.score_by_compute` drawn per arm (iteration 0 at 0 h; K=0
+    solid/circle, K=5 dashed/square; last point labelled with its iteration — GRPO_LA5 ends at I5).
+
+    ``layout="wide"`` = the paper's ``fig_trajectory`` (panels side by side, shared y);
+    ``layout="col"`` = ``fig_trajectory_col`` (the SAME panels stacked, shared x and y, sized for
+    a 3.4-in single column with fonts scaled for the narrow width). Same data, same style;
+    the layout is the only difference, so a numbers ledger stays layout-agnostic.
+    """
+    from ..compute import score_by_compute
+    if not scores_by_judge or comp is None or comp.empty:
+        return None
+    judges = list(scores_by_judge)
+    col = layout == "col"
+    if figsize is None:
+        figsize = (3.4, 2.0 * len(judges)) if col else (3.5 * len(judges), 3.3)
+    if col:
+        fig, axes = plt.subplots(len(judges), 1, figsize=figsize, sharex=True, sharey=True, squeeze=False)
+        axes = axes[:, 0]
+    else:
+        fig, axes = plt.subplots(1, len(judges), figsize=figsize, sharey=True, squeeze=False)
+        axes = axes[0]
+    ms, lw, cap, elw, fs_ann = (4, 1.4, 1.5, 0.8, 6.5) if col else (5, 1.7, 2, 0.9, 7)
+    drew = False
+    for ax, jl in zip(axes, judges):
+        sbc = score_by_compute(scores_by_judge[jl], comp, metric=metric)
+        if sbc is None or sbc.empty:
+            ax.set_title(f"{display_label(metric)} vs compute — {jl} (no scores)", fontsize=9)
+            continue
+        order = list(arms) if arms is not None else \
+            [a for a in ("PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5") if a in set(sbc.arm)] + \
+            [a for a in sorted(sbc.arm.unique()) if a not in ("PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5")]
+        pal = arm_palette(order)
+        for arm in order:
+            d = sbc[sbc.arm == arm].sort_values("iteration").dropna(subset=["cum_gpu_h", "mean"])
+            if d.empty:
+                continue
+            ks = _kstyle(arm)
+            ax.errorbar(d["cum_gpu_h"], d["mean"], yerr=d["sem"], color=pal[arm], ls=ks["ls"],
+                        marker=ks["marker"], ms=ms, lw=lw, capsize=cap, elinewidth=elw, label=arm)
+            last = d.iloc[-1]
+            ax.annotate(f"I{int(last.iteration)}", (last.cum_gpu_h, last["mean"]),
+                        textcoords="offset points",
+                        xytext=((3, -3 if _k_of(arm) == 0 else 3) if col else (4, -3 if _k_of(arm) == 0 else 4)),
+                        fontsize=fs_ann, color=pal[arm])
+            drew = True
+        ax.set_title(f"{display_label(metric)} vs compute — {jl}", fontsize=9 if col else 10)
+        ax.tick_params(labelsize=7.5 if col else 8)
+        ax.grid(True, alpha=0.3)
+        if col:
+            ax.set_ylabel(f"{display_label(metric)} (mean ± SEM, 96 personas)", fontsize=7.5)
+        else:
+            ax.set_xlabel("cumulative GPU-hours", fontsize=9)
+    if not drew:
+        plt.close(fig)
+        return None
+    if col:
+        axes[-1].set_xlabel("cumulative GPU-hours", fontsize=8)
+        axes[0].legend(fontsize=6.5, loc="lower right", frameon=True, handlelength=2.2)
+    else:
+        axes[0].set_ylabel(f"{display_label(metric)} (mean ± SEM, 96 personas)", fontsize=9)
+        axes[0].legend(fontsize=7.5, loc="lower right", frameon=True)
     fig.tight_layout()
     return fig

@@ -46,6 +46,35 @@ def bootstrap_ci(deltas: np.ndarray, n_boot: int = 2000, alpha: float = 0.05) ->
     return tuple(np.percentile(boot, [100 * alpha / 2, 100 * (1 - alpha / 2)]))
 
 
+def paired_arrays(a, b, *, n_boot: int = 2000, seed: int = _BOOT_SEED) -> dict:
+    """Paired contrast ``a - b`` over two ALIGNED arrays (NaNs dropped pairwise).
+
+    The array-level twin of :func:`paired_compare` for callers that already hold aligned
+    persona vectors (a ``persona_id x model`` pivot, a group-level frame, ...). Returns
+    ``n``, ``mean_delta``, ``dz`` (mean / SD of the deltas, ddof=1), a percentile-bootstrap 95% CI
+    (``ci_lo``/``ci_hi``; ``n_boot`` resamples, seeded with :data:`constants.BOOT_SEED` so figures
+    and tables share one seed) and a Wilcoxon signed-rank ``p`` (``zero_method='wilcox'``).
+    Introduced 2026-08-18 when the look-ahead paper's generators were promoted into the package
+    (they carried an identical helper); NaN-safe and returns NaNs below n=3.
+    """
+    a = np.asarray(a, float); b = np.asarray(b, float)
+    ok = ~(np.isnan(a) | np.isnan(b))
+    d = a[ok] - b[ok]
+    n = int(d.size)
+    if n < 3:
+        return dict(n=n, mean_delta=np.nan, dz=np.nan, ci_lo=np.nan, ci_hi=np.nan, p=np.nan)
+    sd = d.std(ddof=1)
+    dz = float(d.mean() / sd) if sd > 0 else np.nan
+    rng = np.random.default_rng(seed)
+    boots = rng.choice(d, size=(n_boot, n), replace=True).mean(axis=1)
+    lo, hi = np.percentile(boots, [2.5, 97.5])
+    try:
+        p = float(stats.wilcoxon(d, zero_method="wilcox").pvalue) if np.any(d != 0) else 1.0
+    except ValueError:
+        p = np.nan
+    return dict(n=n, mean_delta=float(d.mean()), dz=dz, ci_lo=float(lo), ci_hi=float(hi), p=p)
+
+
 def paired_compare(wide: pd.DataFrame, metric: str, model_a: str, model_b: str,
                    key: str = "persona_id") -> dict:
     """Paired comparison model_a − model_b on *metric*: Wilcoxon + dz + bootstrap CI.
