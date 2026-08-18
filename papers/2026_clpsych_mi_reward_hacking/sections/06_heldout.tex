@@ -1,0 +1,101 @@
+\section{How Much of the Gain Is Real?}
+\label{sec:heldout}
+
+\S\ref{sec:learned} establishes that the policy changed in ways MI would not endorse. It does
+not establish how much of the \emph{measured} improvement those changes account for, because
+every number so far comes from the model that also supplied the reward. To separate the two we
+re-scored the entire study with a second grader.
+
+\subsection{A decoupled second grader}
+\heldoutjudge{} re-scored all \textbf{16{,}896} evaluation cells of this comparison --- 8
+instruments $\times$ 22 model states $\times$ 96 conversations, complete, no missing cells (part
+of a larger sweep covering all 39 model states in the project, $29{,}952$ cells). It is decoupled from
+training in three ways that matter: a different model family, it never played the patient, and
+it never produced a reward. Rubrics were held structurally identical, verified by an automated
+parity check before any scoring (Appendix~\ref{app:measurement}).
+
+\textbf{This is a held-out grader, not a second rater.} The primary oracle \emph{was} the
+training signal, so the relation is train-versus-test, not inter-annotator agreement. We
+therefore never average the two --- the level offset is $1.2$--$1.7$ points and
+model-dependent, so averaging would silently shrink every effect by an arm-dependent amount.
+Only contrasts are compared.
+
+\subsection{The rankings survive; the levels do not}
+Across all \textbf{1{,}848} pairwise arm\,$\times$\,instrument contrasts, $88.3\%$ keep their
+sign under the held-out judge, rising to $94.1\%$ at $|\Delta|\geq0.10$ and $98.9\%$ at
+$\geq0.50$: the judges disagree only about differences too small to claim. Just $1.2$--$6.9\%$
+of arm-mean variance sits in the arm\,$\times$\,judge interaction --- the one component that
+could invalidate a ranking (Appendix~\ref{app:measurement}). \heldoutjudge{} is systematically
+harsher, which cancels in every contrast.
+
+\textbf{MITI is the exception}: $3.6\%$ between-arm signal, dependability $0.65$, sign preserved
+on only $77.5\%$ of contrasts, and the sole instrument still disagreeing at claimable effect
+sizes. We therefore treat every MITI-based statement in \S\ref{sec:gains} --- including the
+competency thresholds --- as provisional. Q1, Q2, PCT and MICI are unaffected.
+
+\subsection{Gain retention}
+What matters is not whether the graders rank arms alike but how much of each arm's improvement
+the held-out grader will credit. We define \textbf{gain retention} for a model state $m$ on
+instrument $i$ as
+\[
+R_i(m)\;=\;\frac{\Delta^{\text{held-out}}_i(m)}{\Delta^{\text{trained-against}}_i(m)},
+\]
+with $\Delta_i(m)$ the persona-paired improvement of $m$ over base. $R=1$ credits the full
+gain, $R=0$ none of it. Since both terms are differences from the same reference, the level
+offset cancels; intervals are bootstrapped over the 96 personas.
+
+\input{tables/retention}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/multijudge_retention_trajectory.png}
+\caption{Gain retention by iteration, every instrument where the ratio is estimable (MICI's
+base $\Delta$ is near zero, so only iterations 8--10 survive). Blue PTO, orange GRPO;
+$1.0$ = the held-out judge credits the full gain. \textbf{The arms separate on Q1 and MITI and
+track each other on the alliance and satisfaction scales.} In the Q1 panel they are
+indistinguishable for three iterations, after which PTO holds $0.80$--$0.98$ while GRPO decays
+in trend to $0.28$ --- visible well before the outcome curve (Figure~\ref{fig:trajectory})
+turns over at iteration~8. Retention above $1.0$ on WAI-SR and CSQ-8 means the held-out judge
+credits \emph{more} there than the primary, which is why the diagnostic is the between-arm
+comparison within an instrument and not the absolute level.}
+\label{fig:retention}
+\end{figure}
+
+At the matched endpoint (Table~\ref{tab:retention}), \textbf{PTO retains $0.80$
+[$0.68$, $0.93$] of its Q1 gain and GRPO $0.28$ [$0.06$, $0.43$]} --- non-overlapping
+intervals. Stated in the units of the instrument: under a grader that never graded during
+training, GRPO's net ten-iteration Q1 improvement is ${\approx}0.19$ points, not the
+${\approx}0.68$ its own reward reports.
+
+\paragraph{Does it survive a best-vs-best comparison?} Only partly, and we state the limit
+precisely. The intervals are non-overlapping at iterations 9--10 \emph{only}. At GRPO's own
+iteration-8 peak PTO still leads ($0.89$ vs $0.64$), but the intervals overlap marginally
+($[0.76,1.04]$ vs $[0.52,0.78]$), as do PTO@10 against GRPO@8 ($[0.68,0.93]$ vs $[0.52,0.78]$).
+\textbf{What is robust is the ordering, not any single disjoint pair}: PTO's Q1 retention
+exceeds GRPO's at \emph{every} iteration from 4 onward (Figure~\ref{fig:retention}), with
+monotonically diverging trends. A reader who insists on peak-vs-peak should take the retention
+result as a consistent ordering whose endpoint separates, not as one significant contrast.
+
+\paragraph{Q2 is a control, and the separation is instrument-specific.} Every Q2 retention
+interval overlaps, in a narrow $0.80$--$0.86$ band across both arms and endpoints --- mild scale
+compression affecting both equally. That matters because it shows retention is not simply
+measuring ``the second grader is stingier''; if it were, Q1 and Q2 would behave alike. They do
+not. Figure~\ref{fig:retention} shows the separation is confined to Q1 and MITI, while WAI-SR,
+CSQ-8 and MI-SAT track each other in both arms (and sit above $1.0$, the held-out judge crediting
+\emph{more} than the primary). We read this as diagnostic rather than dilutive: Q1 asks
+\emph{was this helpful, did I learn, will I act on it} --- where warmth substitutes for
+substance most easily --- whereas the alliance and satisfaction scales reward warmth directly,
+and so have less to withdraw.
+
+\paragraph{Onset, not endpoint.} Retention is a curve, not a final number. Both arms sit at
+$0.84$--$0.97$ through iteration~3; GRPO then declines steadily before collapsing at iterations
+9--10 ($0.03$, $0.28$), while PTO stays in $0.80$--$0.98$ throughout. Two consequences.
+Retention separates the arms from iteration~4, whereas the reward curve does not distinguish
+them until GRPO turns over at iteration~8 --- a monitor computed on data one already has would
+have flagged this four iterations earlier. And GRPO's outcome regression and its retention
+collapse are the same phenomenon seen twice.
+
+\paragraph{Why retention rather than MI-inconsistency.} Retention needs no cross-judge agreement
+on level or rate --- only that each grader is internally consistent across the states it
+compares --- whereas MICI's agreement is weak ($r=0.20$--$0.55$). Hence retention is
+load-bearing here and MICI corroborating.

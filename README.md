@@ -43,14 +43,20 @@ Generated data (`data/`) is **not** tracked in git — see "Data & large artifac
 
 ### Write-ups
 
-[`papers/`](papers/) holds the drafts, one subfolder per paper. They live at the root rather than
-inside an `Exp*/` because they span experiments, and they only ever *read* the generated artifacts
-under `Exp3_PTO_GRPO/eda/results/`.
+Two root-level directories hold everything written *for a human* rather than for the machine.
+Both sit at the root rather than inside an `Exp*/` because they span experiments, and both only
+ever *read* the generated artifacts under `Exp3_PTO_GRPO/eda/results/` — nothing in `code/` or
+`eda/` imports them.
 
-| Paper | Covers | Domain |
+| Dir | What | Index |
 |---|---|---|
-| [`2026_clpsych_mi_pto_grpo/`](papers/2026_clpsych_mi_pto_grpo/) | PTO vs GRPO at matched `K=0` | Exp3, `L0` view |
-| [`2026_thesis_lookahead/`](papers/2026_thesis_lookahead/) | Does look-ahead help? | all three generations |
+| [`papers/`](papers/) | paper drafts, one subfolder per paper | [papers/README.md](papers/README.md) |
+| [`meetings/`](meetings/) | supervisor decks + emails, one folder per date, plus the `build/` generators that produce them | [meetings/README.md](meetings/README.md) |
+
+| Paper | Covers | Domain | Status |
+|---|---|---|---|
+| [`2025_iclr_pto_lookahead/`](papers/2025_iclr_pto_lookahead/) | PTO + look-ahead, as introduced | Exp1 | published, frozen |
+| [`2026_clpsych_mi_reward_hacking/`](papers/2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry* — what an LLM judge actually teaches, and how much of the gain a held-out judge credits | Exp3, `L0` view | drafting |
 
 Every paper carries a **`NUMBERS.md` ledger** mapping each quantitative claim to the exact artifact
 path it came from — so when the EDA is re-rendered and a number moves, you can find every sentence
@@ -60,9 +66,12 @@ that has to change. See [papers/README.md](papers/README.md).
 
 | | |
 |---|---|
+| this file | setup, the API-key resolution order, and the data/artifact policy — including the Colab ↔ local sync mechanics (Drive symlinks, code push) |
 | [CLAUDE.md](CLAUDE.md) | cross-experiment map + the full method/spec context for Exp3 |
 | [STATUS.md](STATUS.md) | run status, headline numbers, cost constraint, next step |
 | `Exp{1,2}_*/CLAUDE.md` | per-experiment context for the two frozen experiments |
+| [Exp3_PTO_GRPO/eda/README.md](Exp3_PTO_GRPO/eda/README.md) | the EDA how-to: VIEW/JUDGE knobs, package map, re-render |
+| [Exp3_PTO_GRPO/code/README.md](Exp3_PTO_GRPO/code/README.md) | what each trainer module does |
 | [Exp3_PTO_GRPO/history/](Exp3_PTO_GRPO/history/CHANGELOG.md) | the only dated history |
 
 Docs are split by **rate of change**: CLAUDE.md describes how things are, STATUS.md is rewritten in
@@ -87,12 +96,25 @@ rest of the stack (transformers / trl / peft / accelerate, openai, the scientifi
 
 ### API keys
 
-The therapist patient-simulator and oracle call the OpenAI and Hugging Face APIs. Keys are
-resolved at runtime in this order: **Colab `userdata` secrets → environment variables → local
-key files** (`Exp3_PTO_GRPO/code/_shared/runtime.py`). Provide them either way:
+The patient simulator and oracle call the OpenAI API; the therapist base model is pulled from
+Hugging Face. Keys are resolved at runtime — **Colab `userdata` secrets → environment variables →
+local key files** — by `init_openai_client` / `authenticate` in
+[Exp3_PTO_GRPO/code/_shared/runtime.py](Exp3_PTO_GRPO/code/_shared/runtime.py). Per secret:
+
+| Secret | Colab | Local |
+|---|---|---|
+| OpenAI | `userdata["OPENAI_API_KEY"]` → env → file | env (`OPENAI_API_KEY`) → file |
+| HF token | `userdata["huggingface"]` → env → file | env (`HF_TOKEN`/`HUGGINGFACE_TOKEN`) → file |
+| W&B | `userdata["wandb"]` | env `WANDB_API_KEY` |
+
+So provide them either way:
 
 - Environment: `OPENAI_API_KEY`, and `HF_TOKEN` (or `HUGGINGFACE_TOKEN`), **or**
 - Files in the experiment directory you're running: `openai_key.txt` and `HF_key.txt`.
+
+The **HF token is used locally too** — Llama-3.2-1B is gated. On Colab all three secrets come from
+**Colab Secrets** (`OPENAI_API_KEY`, `huggingface`, `wandb`), never the `.txt` files; the resolution
+table above is the trainers' path.
 
 These key files are git-ignored and must never be committed.
 
@@ -138,12 +160,68 @@ How it is regenerated:
   (re)produce the per-questionnaire eval scores into the score lake,
   `Exp3_PTO_GRPO/data/eval_scores/judge=<tag>/rep=<r>/`.
 
-⚠ **The score lake is the one copy of ~$350 of paid oracle + judge calls** and is not affordable to
-regenerate — it lives on a Google Drive symlink rather than local-only. See the root
-[CLAUDE.md](CLAUDE.md) § "Exp3 · Colab vs local".
+⚠ **The score lake is the only copy of the paid oracle + judge calls, and re-scoring it is not
+affordable** — the spend to date and the cost constraint live in [STATUS.md](STATUS.md), which owns
+that number. That is why it sits on a Google Drive symlink rather than local-only, and why
+`data/eval_scores/_parquet/` matters: it folds the lake into a 31-file form that is cheap to copy
+somewhere else again. Sync mechanics below.
+
+⚠ **The `README.md` files inside the run directories are auto-generated model cards** — PEFT/TRL
+writes one beside every saved adapter, so they appear at
+`data/{grpo,pto}_Exp3/runs/**/iteration_*/adapter/README.md`,
+`.../iteration_*/training/README.md` and `.../iteration_*/training/checkpoint-*/README.md`, in both
+methods' runs. **Do NOT delete them or treat them as project docs.**
 
 If you need to share the raw datasets or trained adapters, host them externally
 (e.g. Hugging Face Hub, Zenodo, or Google Drive) rather than committing them here.
+
+### Sync: Colab ↔ local
+
+Training runs on Colab and writes into mounted Drive; the EDA runs locally and reads the same bytes.
+No rclone is involved.
+
+**Results pull — Google Drive Desktop.** `data/eval_scores`, `data/grpo_Exp3` and `data/pto_Exp3`
+are all **directory symlinks** into `G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data\<name>`. Colab
+writes to mounted Drive → Drive Desktop (kept in **streaming** mode, low disk) surfaces it locally →
+the files appear straight inside the repo, and the EDA reads through the link unchanged (every read
+goes via `WORKSPACE_ROOT/data/...`). The EDA only opens `conversations/` plus the score lake's
+CSV/parquet, so streaming downloads just those on access; the big artifacts (`runs/`, adapters,
+`*.safetensors`) are never read locally and also live on the HF Hub + W&B.
+
+Re-create the links with Windows **Developer Mode** on, using `mklink` — **not** PowerShell
+`New-Item -ItemType SymbolicLink`, which under WinPS 5.1 ignores Developer Mode and still demands
+admin:
+
+```powershell
+$D = "G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data"
+$R = "C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO\Exp3_PTO_GRPO\data"
+cmd /c "mklink /D ""$R\eval_scores"" ""$D\eval_scores"""
+cmd /c "mklink /D ""$R\grpo_Exp3""   ""$D\grpo_Exp3"""
+cmd /c "mklink /D ""$R\pto_Exp3""    ""$D\pto_Exp3"""
+```
+
+To undo, delete the **link** (`Remove-Item "$R\grpo_Exp3"`) — the Drive data is untouched.
+
+**Code push (local → Drive, `code/` only) is manual and additive.** The whole `code/` tree lives at
+`G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code\` — that is all Colab needs; open a
+`train_*_Iterative.ipynb` from there. Do **not** push `data/` (the symlink targets already live in
+Drive) or `eda/` (local-only). After editing code locally, push the update by **dragging the `code`
+folder** onto the Drive `Exp3_PTO_GRPO\` parent — a merge that adds and overwrites but **never
+deletes**. This is the default. Let Drive Desktop finish syncing (tray ✓) before running the Colab
+cell.
+
+⚠ **Never run `robocopy /MIR`, or any other delete-extras mirror, without Lior's explicit
+go-ahead.** An exact mirror is the only thing that also *removes* files renamed or deleted
+locally — which is precisely why it is destructive on the destination:
+
+```powershell
+# DESTRUCTIVE on the destination. Requires explicit go-ahead — see the warning above.
+robocopy "C:\Users\baruc\Desktop\Projects\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code" `
+         "G:\My Drive\Thesis_PTO_GRPO\Exp3_PTO_GRPO\code" /MIR /XD __pycache__
+```
+
+rclone has the same asymmetry: `rclone sync A B` mirrors (deletes extras in B) — use `copy` for
+additive and `check` for a dry-run diff.
 
 ## Hardware
 

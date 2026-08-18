@@ -4,12 +4,20 @@ _shared — cross-method helpers for the Exp3 trainers (GRPO_Exp3 and PTO_Exp3).
 Single canonical copy of the modules both trainers need: runtime detection,
 model + tokenizer + LoRA + checkpoint utilities, conversation lifecycle (state,
 generation, prompt extraction with MCL filter), oracle scoring + look-ahead
-reward, and TensorBoard parsing/plotting.
+reward, TensorBoard parsing/plotting, and resume-proof per-iteration timing.
 
 The `Exp3_PTO_GRPO/code/system_prompts_builder.py` and `.../questionnaires.py`
 files live at the `code/` root (one canonical copy each); the EDA package
 also reaches them via the same `sys.path` prepend pattern.
 """
+
+from .timing import (
+    SESSIONS_FILENAME,
+    log_session,
+    read_sessions,
+    cumulative_seconds,
+    metadata_fields,
+)
 
 from .runtime import (
     RuntimeInfo,
@@ -102,7 +110,9 @@ from .eda_recorder import EDARecorder
 
 __all__ = [
     # runtime
-    "RuntimeInfo", "detect_runtime", "init_openai_client", "init_role_client",
+    "RuntimeInfo", "detect_runtime",
+    "log_session", "read_sessions", "cumulative_seconds", "metadata_fields",
+    "SESSIONS_FILENAME", "init_openai_client", "init_role_client",
     "authenticate", "verify_helpers",
     # model
     "CHATML_TEMPLATE",

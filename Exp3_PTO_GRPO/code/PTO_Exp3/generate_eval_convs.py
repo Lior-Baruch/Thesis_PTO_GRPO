@@ -32,7 +32,14 @@ Usage
 -----
     python generate_eval_convs.py --iter 5 --verify-seeds --dry-run   # free, no model load
     python generate_eval_convs.py --iter 5                            # the real pass
-    python generate_eval_convs.py --iter 5 --batch-size 32            # smaller GPU
+    python generate_eval_convs.py --iter 5 --batch-size 4             # 12 GB local card
+
+⚠ ``--batch-size`` is a SAFETY setting on the local GPU, not a throughput knob: an over-budget
+VRAM request REBOOTS the machine instead of raising ``OutOfMemoryError`` (no traceback, nothing to
+catch). Budget ≈ 2.6 GB weights + ≈1.1 GB per concurrent conversation, so batch 4 ≈ 7.1 GB of the
+12 GB card and batch 6 ≈ 8.0 GB, while **batch 32 ≈ 38 GB has already rebooted this machine**.
+The default is the run's stored ``conversation_batch_size`` (64 ≈ 73 GB — an A100 value), so
+ALWAYS pass ``--batch-size`` explicitly when running locally. See CLAUDE.md § Gotchas.
 
 Runs on Colab (mounts Drive, uses Colab Secrets) or locally (walks up for the
 key files) with no edits. Generation is resume-safe per conversation CSV, so an

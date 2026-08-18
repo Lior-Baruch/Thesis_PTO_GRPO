@@ -1,0 +1,15 @@
+\section{Full channel table}
+\label{app:channels}
+
+\todo{Insert the full \texttt{k\_paired\_channels} table for PTO at iterations 5--8, all channel
+families, both judges. Source: the \texttt{L5} results tree, \texttt{tables/7\_stats/} under each
+judge. Keep the \texttt{family} column visible so the Holm scope stays legible.}
+
+The body reports the MI-inconsistent per-session family. The remaining families --- MI-consistent
+behaviour rates, the MITI proficiency ratios, and the deterministic session-shape metrics --- are
+reported here for completeness. The session-shape entries are worth naming because they are large,
+they are measured without any LLM in the loop, and none of them is a quality difference. At
+iteration~10 the \Kf{} policy writes longer turns ($810.9$ vs.\ $686.2$ characters) across more
+therapist turns ($14.4$ vs.\ $10.2$) in longer conversations ($28.7$ vs.\ $20.4$ utterances). That
+turn-count gap is the denominator behind every per-turn rate in this paper and is why
+\S\ref{sec:aggregate} reports counts first.

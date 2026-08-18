@@ -39,7 +39,8 @@ from .constants import (  # noqa: E402,F401
 
 # ── Public API re-exports ──────────────────────────────────────────────────────
 # Control surface (EdaConfig + the one-call notebook_setup) — config.py absorbed the old notebook.py.
-from .config import EdaConfig, notebook_setup, Setup, cross_k_scores, RQ_I_VIEW  # noqa: E402
+from .config import (EdaConfig, notebook_setup, Setup, cross_k_scores, cross_k_arms,  # noqa: E402
+                     RQ_I_VIEW)
 # Data layer (discovery + personas + scores + select all merged into data.py).
 from .data import (  # noqa: E402
     Arm, discover_arms, parse_experiment_name, filter_arms,
@@ -81,7 +82,13 @@ from .pref import (  # noqa: E402
 # (personas/scores/discovery/select -> data) are RETIRED — their only live call sites now use the
 # canonical top-level exports (e.g. ``from eda_analysis import persona_order`` /
 # ``eda_analysis.data.best_per_experiment``).
-from . import plotting, data, stats, behavior, training, pref, exports, reliability  # noqa: E402,F401
+from .compute import (  # noqa: E402
+    iteration_compute, compute_summary, step_multiplier, iso_compute_pairs,
+    iso_compute_contrast, budget_sweep, score_by_compute,
+)
+
+from . import (plotting, data, stats, behavior, training, pref, exports, reliability,
+               compute)  # noqa: E402,F401
 figures = plots = plotting              # notebooks: figures.set_style / plots.trajectory_grid
 # Register the plotting aliases as importable submodules too, so ``from eda_analysis.figures import X``
 # resolves — not only attribute access.
@@ -93,7 +100,7 @@ __all__ = [
     "WARMTH_RUBRICS", "EXTRA_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
     "MITI_THRESHOLDS", "Q1_ITEM_SHORT", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS", "ITEM_QUESTIONNAIRES",
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label", "item_short_label",
-    "EdaConfig", "notebook_setup", "Setup", "cross_k_scores", "RQ_I_VIEW",
+    "EdaConfig", "notebook_setup", "Setup", "cross_k_scores", "cross_k_arms", "RQ_I_VIEW",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "attach_personas",
     "load_scores_long", "load_subscales", "load_items", "load_q2_items", "to_wide", "collapse_base",
@@ -116,6 +123,9 @@ __all__ = [
     "reweight", "weighting_decomposition", "rule_reconstruction_check",
     "pool_mean_by_iter", "pair_yield_by_iter", "pref_examples",
     "plot_selection_vs_generation", "plot_pair_yield",
+    # compute axis (GPU-hours per iteration; iso-compute + budget-sweep contrasts)
+    "iteration_compute", "compute_summary", "step_multiplier", "iso_compute_pairs",
+    "iso_compute_contrast", "budget_sweep", "score_by_compute",
     "plotting", "data", "figures", "plots", "stats", "behavior", "training", "pref",
-    "reliability",
+    "reliability", "compute",
 ]

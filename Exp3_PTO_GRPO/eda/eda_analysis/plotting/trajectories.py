@@ -106,8 +106,9 @@ def subscale_trajectory_grid(subscales_long, *, parents: Sequence[str] = ("WAI-S
     near-equal within a model). Here each panel shows one colored line per subscale across
     ``iteration`` (±95% CI), so the reader can see how the components evolve and whether some
     (e.g. Bond / Empathy) climb faster than others (Goal / ChangeTalk). Each arm starts from its
-    own iter-0 base. Arms with fewer than ``min_iters`` scored iterations are omitted (keeps a
-    one-point arm like GRPO_LA5 out of the grid).
+    own iter-0 base. Arms with fewer than ``min_iters`` scored iterations are omitted — a guard
+    against an in-progress arm with too few points to draw. On the current score lake it is a
+    no-op: every arm clears the default ``min_iters=3``.
     """
     if subscales_long is None or subscales_long.empty:
         return None

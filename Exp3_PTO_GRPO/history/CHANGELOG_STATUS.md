@@ -13,6 +13,64 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-08-18 — GRPO LA5 lands; the COMPUTE axis reframes RQ-i and RQ-ii
+
+**Run status.** GRPO LA5 trained iterations 1–5 and was **stopped ~2 minutes into iteration 6**
+(`iteration_6/` holds one optimizer step and tb_logs, no adapter, no checkpoint). Its four new model
+states were scored on **both** graders — 4 states × 8 rubrics × 96 personas = **3,072 calls per
+grader, 0 errors**, ~$4.50, taking spend ~$312 → **~$317**. That completes the grid: **39 scored
+model states**, 39 × 8 × 96 = **29,952 cells per grader**, no thin arm anywhere. RQ-i became a
+K×method comparison for the first time.
+
+**What we believed before this entry, and what changed.**
+
+1. *"GRPO LA5 only reached iteration 5, so the K×method comparison is truncated."* **Superseded by
+   the compute axis.** Reconstructing GPU-hours from artifact mtimes (`eda_analysis/compute.py`, new)
+   shows the two GRPO arms cost **27.08 vs 27.91 GPU-h — 0.970, within 3%**. Iteration 5 is not an
+   early stop for GRPO LA5; it is the arm's *full budget*. Conversely every matched-iteration table
+   hands K=5 ~2× the compute per cell.
+2. *"K=5 costs 2.4–3.0× K=0 per step."* **Wrong — it is ~1.9×** (median ratios 1.96 / 1.96 / 1.91 at
+   iterations 3 / 4 / 5). The old figure came from iteration 1 alone, which ran at
+   `LOOKAHEAD_SUB_BATCH_SIZE=64` and carried 12 API-tail steps > 500 s. Corrected in `CLAUDE.md`;
+   now a rendered artifact (`k_step_multiplier`).
+3. *"Look-ahead never significantly leads."* **True of PTO, false of GRPO.** GRPO K=5 leads on Q1+Q2
+   at iteration 4 on both graders (dz 0.248 primary / 0.374 held-out) and at iteration 5 on the
+   held-out judge (dz 0.429). At matched *budget* it leads by more (dz 0.359 / 0.838) and the `MICI`
+   contrast **reverses sign** relative to the iteration axis (dz −1.339 / −1.228, K=5 far better).
+4. *"PTO's lead over GRPO does not appear until iteration ≥6."* **Primary-oracle only.** On the
+   held-out judge it clears Holm at **iteration 5** (+0.265, dz 0.355, p_holm .014) — the exact
+   point GRPO LA5 stops, which is what made the interaction below measurable rather than
+   extrapolated.
+
+**The new results.**
+
+- **Look-ahead reverses which method wins, and only the held-out grader sees it.** At iteration 5,
+  K=0 → PTO leads (+0.265, dz 0.355, p_holm .014); K=5 → GRPO leads (−0.219, dz 0.377, p_holm .005).
+  Difference-in-differences on the same 96 personas: Q1Q2 dz **0.525**, p_holm **.0001** (Q1 0.473,
+  Q2 0.474, MITI 0.441). **On the primary oracle the same interaction is null** — largest dz 0.211,
+  nothing survives Holm. The grader that *was* the training reward cannot see it.
+- **PTO is 3.4× cheaper.** `PTO_LA0` reaches iteration 10 for **8.1** GPU-h vs `GRPO_LA0`'s **27.9**
+  (27.91 / 8.12 = 3.44) *and* scores higher — PTO dominates on the compute axis, not just on the
+  iteration axis. ⚠ But at matched *budget* (8.1 h, GRPO only at iteration 3) PTO wins the reward
+  (+0.266 / +0.230) while being **worse on MICI** (+0.261 / +0.418), because it is ten iterations
+  deep to GRPO's three.
+- **The GRPO reward gain is partly verbosity.** Coded MI acts per 1,000 therapist characters roughly
+  halve under K=5 at iteration 5 in *both* valences (all coded acts 4.08 → 2.22 primary, dz 0.717;
+  4.97 → 2.59 held-out, dz 0.650) — half as behaviourally dense per word. Verbosity is a
+  training-DEPTH channel, not a look-ahead one: chars/turn `GRPO_LA0` 394 @5 → 905 @10 vs
+  `GRPO_LA5` 678 @5.
+- **Substitution replicates on a second method, denominator-free.** Over-praise as a *share* of
+  MI-inconsistent acts 0.178 → 0.086 (primary, p_holm .0045) / 0.182 → 0.063 (held-out, p_holm
+  <.0001), while the overall MI-inconsistent share is flat or slightly worse. ⚠ The per-turn rate,
+  per-session count and per-1k-character measures **disagree in direction** on GRPO — turns −26%,
+  chars/turn +72% — so only the share is denominator-free.
+
+**Process failures worth remembering.** (a) A bare `render_views.py` renders the **primary oracle
+only**; the held-out judge's subtrees stayed stale for a full render cycle before anyone noticed,
+and a stale judge subtree is *silent*. `--all-judges` is now documented in `eda/README.md`.
+(b) `iteration_6/` read as EMPTY at 09:05 while holding a step written at 08:44 — the documented
+Drive-symlink lag, hit again. Re-check the cloud before concluding a run died.
+
 ## 2026-08-11 — PTO LA5 reaches its endpoint; eight matched iterations say the same thing
 
 **Run status.** PTO LA0 = 10 iters scored; GRPO LA0 = 10 iters (FINISHED, re-scored); **PTO LA5 =

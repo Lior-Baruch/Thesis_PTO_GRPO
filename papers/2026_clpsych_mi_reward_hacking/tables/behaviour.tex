@@ -1,0 +1,31 @@
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+& \multicolumn{2}{c}{\textbf{PTO}} & \multicolumn{2}{c}{\textbf{GRPO}} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+& base & it.\,10 & base & it.\,10 \\
+\midrule
+Turn length (chars)        & 301  & 686   & 266  & 896   \\
+Conversation length (utt.) & 28.4 & 20.4  & 28.8 & 25.2  \\
+Phrase-loop rate           & 0.49 & 0.00  & 0.48 & 0.00  \\
+\midrule
+Questions/turn (regex `?') & 0.93 & 0.55  & 0.83 & \textbf{0.15} \\
+Questions/turn (MITI B3)   & 0.49 & 0.41  & 0.45 & \textbf{0.32} \\
+Affirmations/turn (B6)     & 0.025& 0.142 & 0.029& 0.154 \\
+Complex reflections/turn   & 0.086& 0.105 & 0.093& 0.167 \\
+\midrule
+MICI rate\,$\downarrow$    & 0.21 & 0.49  & 0.21 & \textbf{0.84} \\
+\quad over-praise\,$\downarrow$ & 0.013& 0.299 & 0.019& \textbf{0.698} \\
+\quad advice w/o permission\,$\downarrow$ & 0.12 & 0.16 & 0.13 & 0.14 \\
+\quad confrontation\,$\downarrow$ & 0.007& 0.000 & 0.008& 0.000 \\
+\bottomrule
+\end{tabular}
+\caption{Behavioural change from base to iteration 10, averaged over 96 conversations per
+cell. Rates are per therapist turn. The two question rows are the same construct counted two
+ways and are the paper's central diagnostic: they agree at base and invert by the endpoint
+(Figure~\ref{fig:qcross}). The MICI increase is almost entirely over-praise --- confrontation
+and judging go to zero, advice is flat.}
+\label{tab:behaviour}
+\end{table}

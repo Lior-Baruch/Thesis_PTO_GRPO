@@ -1,0 +1,48 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{The result is not ``DPO beats GRPO''.} It would be easy to read
+\S\ref{sec:gains}--\S\ref{sec:heldout} as a verdict on the loss function. It is not. We probed
+the update directions of both methods directly by re-weighting each method's own candidate
+groups under the \emph{other} method's rule (Appendix~\ref{app:probe}). Swapping the weighting
+rule while holding the data fixed barely moves the update direction (cosine $0.908$ on PTO's
+groups, $0.988$ on GRPO's); holding the rule fixed while varying whose groups are used leaves
+the two as far apart as they were as trained ($0.397$ and $0.324$ corrected, versus $0.317$ as
+trained). At matched look-ahead and a shared oracle, the two losses extract nearly the same
+direction from the same eight completions.
+
+The gap is therefore about \textbf{which states the training data is drawn from}
+(\S\ref{sec:setup}), and that suggests a mechanism the outcome scores alone do not:
+\textbf{GRPO's training prompts drift along with its own policy.} As the policy becomes more
+effusive, the on-policy states it is next trained on are themselves more effusive, and the
+update chooses among candidates continued from an already-drifted prefix. PTO's trunk is
+re-anchored at every step by an oracle selection, which bounds how far its state distribution
+can wander. We offer this as the reading most consistent with our measurements, not a
+demonstrated cause: isolating it needs an arm that reranks states while holding the loss fixed,
+which we did not run.
+
+\paragraph{The hack is a compounding loop, not a strong pull.} Measured on the training data,
+per-iteration \emph{selection} pressure toward affirmation stays small
+($\approx0.01\rightarrow0.10$) while what the policy \emph{generates} moves an order of
+magnitude further ($0.02\rightarrow0.54$ GRPO, $0.04\rightarrow0.57$ PTO; Appendix~\ref{app:probe}).
+A weak, persistently same-signed preference applied each iteration to an already-more-effusive
+policy is enough. By the endpoint the update is choosing between two effusive candidates, which
+is why selection-time contrasts \emph{understate} the drift, why single-iteration diagnostics
+miss it, and why retention --- which compares policies, not candidates --- sees it first.
+
+\paragraph{Practical recommendation.} Whenever an LLM judge supplies the reward, score a
+held-out grader from a different family on states you have already generated and report gain
+retention per iteration. It costs no human annotation, needs no agreement on absolute level, and
+in our runs separated a hacking arm from a non-hacking one four iterations before the reward
+curve did. We would treat a retention series falling below ${\approx}0.7$ and trending down as a
+stop signal, in the spirit of a validation-loss criterion --- though on one experiment that
+threshold is a suggestion, not a calibrated rule. Pair it with a deterministic cross-check of
+any behaviour the judge also counts (Figure~\ref{fig:qcross}): disagreement is itself a signal,
+and nearly free.
+
+\paragraph{For MI specifically.} The endpoint models are more pleasant and less therapeutic:
+they validate more, ask less, and talk longer. A satisfaction-shaped reward selects for a
+satisfaction-shaped therapist. If the goal is MI fidelity, the reward has to contain the
+prohibition. MI-inconsistency and question rate are cheap to score and were, here, only ever
+measured --- putting them in the reward is the natural next experiment, though that also
+removes them from the independent checks.

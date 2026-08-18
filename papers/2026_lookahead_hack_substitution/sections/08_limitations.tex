@@ -1,0 +1,56 @@
+\section*{Limitations}
+\label{sec:limitations}
+
+\paragraph{The aggregate result is grader-dependent, and we report the weaker side.} Our two judges
+agree on the sign and significance of every individual behaviour change and disagree on whether
+those changes net out to fewer violations (Table~\ref{tab:substitution}). We treat the held-out
+judge as decisive because the primary oracle was the training reward, but this is a judgement call,
+not a measurement: a third grader could break the tie either way. What is \emph{not} in question is
+the substitution itself.
+
+\paragraph{One optimiser.} The look-ahead arm runs a full ten iterations only for the
+preference-tree optimiser. The group-relative arm at $K{=}5$ ran five iterations before being
+stopped --- which matched its $K{=}0$ counterpart's \emph{budget} to within 3\% (27.1 vs 27.9
+GPU-hours) rather than its iteration count. A $K \times$ optimiser contrast therefore does exist
+over iterations 0--5, and we exclude it here by scope rather than for want of data: this paper's
+claims are stated at iteration~10, outside that window. Whether the substitution reproduces under
+a different loss family across a full ten iterations is open, and remains the single most valuable
+remaining experiment.
+
+\paragraph{Single run per arm.} Each arm is one training run. The 96 personas give precision
+\emph{within} a run --- which is what every paired contrast here uses --- but there is no
+between-run variance estimate, so we cannot separate the intervention from run-to-run variability
+in where a given seed's policy lands. This is the limitation we would most like to remove and the
+most expensive to remove.
+
+\paragraph{No human coding.} Every behaviour count in this paper is produced by an LLM asked to
+apply a coding scheme. We mitigate with a second judge from a different model family that never
+participated in training, and we report only effects that survive it --- but no MI-trained human
+has coded any of these transcripts, and cross-judge agreement is not the same as validity. Both
+judges could share a systematic misreading of what counts as over-praise or as advice. This
+matters more than usual here, because our headline is precisely a claim about the \emph{relative
+weight} of two violation types.
+
+\paragraph{Ten iterations is long enough to see prevention, not long enough to see a ceiling.} The
+$K{=}5$ arm's over-praise is still creeping upward at the endpoint ($0.47 \to 0.63$ acts per
+session over iterations 8--10) while the $K{=}0$ arm's roughly doubles over the same stretch. We
+can say the channel stayed closed for as long as we ran it, and that the divergence is widening
+rather than converging. We cannot say the $K{=}5$ policy would never get there.
+
+\paragraph{The client is a language model.} Change talk, advice-receptivity and the plausibility of
+a therapist turn are all properties of a simulated client that shares an architecture and a
+training corpus with the grader. A different client could easily make advice-giving a worse route
+than flattery, or vice versa, and the specific substitution we observe should not be expected to
+transfer. The structural claim --- that closing one route reallocated rather than reduced --- is
+what we would expect to transfer, and we have tested it once.
+
+\paragraph{Unseen personas.} The same 96 personas are used for training generation and for
+evaluation. There is no held-out-persona generalisation test, so all effects are within the
+persona distribution the policy was trained against.
+
+\paragraph{Aggregate choice.} Our aggregate is the instrument's own session total over six coded
+behaviours, which weights every violation equally. A clinician might reject that: over-praise and
+advice-without-permission are not equally bad. A severity-weighted aggregate would be preferable,
+and it is exactly the quantity our graders fail to agree on --- the primary oracle rates the
+$K{=}5$ mix more severe at iteration~8 ($\dz{}=-0.59$) while the held-out judge does not
+($\dz{}=-0.11$, $n.s.$), and neither effect persists to the endpoint.

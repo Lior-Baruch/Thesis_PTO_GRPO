@@ -24,6 +24,10 @@ Data (skipped if data absent):
   * ``discover_arms`` finds the LA0 arms; ``load_scores_long`` is non-empty with Q1Q2 present.
   * known Q1Q2 endpoints reproduce (PTO_LA0 final ~= 4.26, GRPO_LA0 final ~= 3.75).
   * persona recovery is an exact 0..n-1 permutation for every iter of every arm.
+  * the compute axis costs every trained iteration, its phases sum, and its iso-compute contrast
+    pairs on persona (not file_index) with the ``stats.py`` sign convention.
+  * every rendered ``<judge>/`` subtree is newer than that judge's newest score — the guard against
+    a bare ``render_views.py`` (primary-only) silently leaving a held-out judge's tables behind.
 Probe (opt-in, heavy — needs sentence-transformers + pref pairs):
   * the PTO Mass-Mean-Probe ``wins_correct`` > 0.5 (the chosen-rejected direction separates pairs).
 """
@@ -53,7 +57,7 @@ _KNOWN_TOL = 0.02
 
 # Submodule names a notebook may qualify a call with (live modules + the figures/plots aliases).
 _SUBMODULES = ("plotting", "plots", "figures", "data",
-               "stats", "behavior", "training", "pref", "exports")
+               "stats", "behavior", "training", "pref", "exports", "compute")
 
 
 # ── check harness ─────────────────────────────────────────────────────────────
@@ -370,6 +374,157 @@ def _c_cross_k() -> str:
     assert checked, "no complete matched iteration to cross-check the K delta against"
     return (f"view {E.RQ_I_VIEW} K={sorted(ks_view)} -> cross-K K={sorted(ks_cross)}, "
             f"exports unmoved, {checked} matched iters agree on delta")
+
+
+def _c_compute_axis() -> str:
+    """The COMPUTE axis: costs must be positive, monotone, and pair on persona.
+
+    This is the newest and least battle-tested frame in the package, and it is the one that can
+    silently invert a headline: an iso-compute contrast reads a DIFFERENT iteration from each arm,
+    so a ``file_index`` join there would pair unrelated conversations (personas are reshuffled
+    ``seed + k + 1`` every iteration). Asserts, in order:
+
+      * every arm on disk gets a cost row, ``cum_gpu_h`` is non-decreasing, and iteration 0 is free;
+      * the phase decomposition adds up (``gen + build + train == gpu_h``);
+      * PTO's cost is recovered at all — its DPO trainer writes no per-step artifact, so its rows
+        come from the TB ``wall_time`` fallback, and a silent regression there would zero PTO out
+        rather than raise;
+      * the iso-compute contrast pairs on ``persona_id`` (checked by construction: the paired n
+        equals the persona count even though iter_a != iter_b);
+      * the sign convention matches ``stats.py`` (+ => arm_a higher).
+    """
+    _discover_or_skip()
+    arms = E.discover_arms()
+    comp = E.iteration_compute(arms)
+    if comp.empty:
+        raise _Skip("no run artifacts readable (Drive symlinks offline?)")
+
+    trained = comp[comp.iteration > 0]
+    assert not trained.empty, "no trained iterations timed"
+    assert (trained.gpu_h > 0).all(), "a trained iteration billed <= 0 GPU-h"
+    assert (comp[comp.iteration == 0].cum_gpu_h == 0).all(), "base state is not free"
+    phase_sum = trained[["gen_h", "build_h", "train_h"]].sum(axis=1)
+    assert np.allclose(phase_sum, trained.gpu_h), "phase decomposition does not sum to gpu_h"
+    for arm, g in comp.groupby("arm"):
+        c = g.sort_values("iteration").cum_gpu_h.to_numpy()
+        assert (np.diff(c) >= -1e-9).all(), f"{arm}: cum_gpu_h is not monotone"
+
+    methods = set(trained.method.unique())
+    if "PTO" in methods:
+        pto = trained[trained.method == "PTO"]
+        assert (pto.build_h > 0).any(), (
+            "PTO rows carry no build_h — the pref-tree phase is its DOMINANT cost, so a zero here "
+            "means the pairs.csv/conversation mtime probe regressed, not that it was free")
+        assert (pto.train_h > 0).all(), "PTO train_h missing — the TB wall_time fallback regressed"
+
+    S = E.notebook_setup(E.EdaConfig(view=E.RQ_I_VIEW, export_group="7_stats", verbose=False))
+    if S.SCORES.empty:
+        return f"{len(trained)} costed iterations; scores absent for the contrast half"
+    KS = E.cross_k_scores(S)
+    pairs_checked = contrast_rows = 0
+    for a, b in (("GRPO_LA5", "GRPO_LA0"), ("PTO_LA5", "PTO_LA0")):
+        if not {a, b} <= set(KS.arm.unique()):
+            continue
+        P = E.iso_compute_pairs(comp, a, b)
+        if P.empty:
+            continue
+        pairs_checked += len(P)
+        T = E.iso_compute_contrast(KS, comp, a, b, metrics=["Q1Q2"])
+        if T.empty:
+            continue
+        contrast_rows += len(T)
+        n_personas = KS[KS.arm == a].persona_id.nunique()
+        off = T[T.iter_a != T.iter_b]
+        assert not off.empty, "no off-diagonal budget match to test persona pairing on"
+        assert (off.n == n_personas).all(), (
+            f"{a} vs {b}: iso-compute paired n={sorted(off.n.unique())} != {n_personas} personas — "
+            "this is what a file_index join across unmatched iterations looks like")
+        # sign convention: + mean_delta must mean arm_a scored higher
+        r = T.iloc[0]
+        ma = KS[(KS.model == r.model_a) & (KS.questionnaire == "Q1Q2")].score.mean()
+        mb = KS[(KS.model == r.model_b) & (KS.questionnaire == "Q1Q2")].score.mean()
+        assert np.sign(r.mean_delta) == np.sign(ma - mb) or abs(ma - mb) < 1e-9, (
+            f"iso-compute sign convention inverted: mean_delta {r.mean_delta:+.4f} vs "
+            f"arm means {ma:.4f} - {mb:.4f}")
+    return (f"{len(trained)} costed iterations across {trained.arm.nunique()} arms; "
+            f"phases sum, cum monotone; {pairs_checked} budget matches, {contrast_rows} "
+            f"contrast rows persona-paired with the sign convention pinned")
+
+
+def _c_render_freshness() -> str:
+    """Every judge's rendered subtree must be newer than that judge's newest score.
+
+    The silent failure this exists for: ``render_views.py`` with no arguments renders the PRIMARY
+    ORACLE ONLY. After a second judge's scores land, its ``<judge>/`` folders keep rendering fine —
+    they just carry the *previous* grid, and nothing says so. That happened on 2026-08-18: the
+    held-out judge's `k_paired_by_method.md` still held 1 iteration of GRPO_LA5 while the primary's
+    held 5, and the only visible symptom was a row count nobody had reason to check.
+
+    Compares, per (view, judge), the newest ``tables/**/<judge>/*.md`` mtime against the newest
+    score CSV for that judge. SKIPs rather than fails when a tree has not been rendered at all
+    (a fresh clone, or a view nobody renders) — the check is for *staleness*, not for absence.
+    """
+    _discover_or_skip()
+    from eda_analysis.constants import EVAL_SCORES, JUDGE_PARTITION, PRIMARY_JUDGE_TAG, judge_label
+    results_root = os.path.join(_EDA_DIR, "results")
+    if not os.path.isdir(results_root):
+        raise _Skip("no results/ tree")
+    if not os.path.isdir(EVAL_SCORES):
+        raise _Skip("score lake not readable")
+
+    # newest score per judge tag (sample the parquet fold when present — walking every CSV is slow
+    # over the Drive mount and the fold is rebuilt from them anyway)
+    newest_score = {}
+    for jd in os.listdir(EVAL_SCORES):
+        if not jd.startswith(JUDGE_PARTITION):
+            continue
+        tag = jd[len(JUDGE_PARTITION):]
+        root = os.path.join(EVAL_SCORES, jd)
+        best = 0.0
+        for dirpath, _dirnames, filenames in os.walk(root):
+            for fn in filenames:
+                if fn.endswith(".csv"):
+                    try:
+                        best = max(best, os.path.getmtime(os.path.join(dirpath, fn)))
+                    except OSError:
+                        pass
+            if best:
+                break                      # one populated level is enough to date the partition
+        if best:
+            newest_score[tag] = best
+    if not newest_score:
+        raise _Skip("no judge partitions on disk")
+
+    stale, checked = [], 0
+    for view in sorted(os.listdir(results_root)):
+        tdir = os.path.join(results_root, view, "tables")
+        if not os.path.isdir(tdir):
+            continue
+        for tag, score_t in newest_score.items():
+            label = judge_label(tag) if tag != PRIMARY_JUDGE_TAG else judge_label("")
+            newest_art = 0.0
+            for dirpath, _d, filenames in os.walk(tdir):
+                if os.path.basename(dirpath) != label:
+                    continue
+                for fn in filenames:
+                    if fn.endswith(".md"):
+                        try:
+                            newest_art = max(newest_art, os.path.getmtime(os.path.join(dirpath, fn)))
+                        except OSError:
+                            pass
+            if not newest_art:
+                continue                   # this judge has never been rendered into this view
+            checked += 1
+            if newest_art < score_t:
+                stale.append(f"{view}/{label} (rendered {int((score_t - newest_art) / 3600)}h "
+                             f"before its newest score)")
+    if not checked:
+        raise _Skip("no rendered judge subtrees to date")
+    assert not stale, (
+        "STALE judge subtree(s): " + "; ".join(stale) +
+        " — a bare `render_views.py` renders the primary oracle ONLY. Re-render with "
+        "`python tools/render_views.py --all-judges`.")
+    return f"{checked} (view, judge) subtrees all newer than their scores"
 
 
 def _c_scores_and_means() -> str:
@@ -803,6 +958,8 @@ def main(argv: List[str] | None = None) -> int:
         _run("arm identity is collision-free", _c_arm_identity_unique, results)
         _run("scores_long + known means", _c_scores_and_means, results)
         _run("cross-K frame (RQ-i)", _c_cross_k, results)
+        _run("compute axis (GPU-hours)", _c_compute_axis, results)
+        _run("render freshness (per judge)", _c_render_freshness, results)
         _run("update probe (both methods)", _c_update_probe, results)
         _run("persona permutation", _c_persona_permutation, results)
         _run("judge dimension routing", _c_judge_dimension, results)

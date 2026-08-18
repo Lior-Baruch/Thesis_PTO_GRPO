@@ -1853,6 +1853,13 @@ def run_one_iteration(
             tb_logger.log_sample_completions(samples, step=end_step, iteration=iteration)
 
     # ── Step 5: Save ──
+    # Append THIS process's contribution before building the metadata. Matters most for PTO:
+    # pref_pair_time_s is 3 s on a resumed iteration that reloaded pairs.csv rather than rebuilding,
+    # which makes the per-process number useless for the arm's dominant phase. The bare *_time_s
+    # fields keep their per-process meaning; read cumulative_* when n_timing_sessions > 1.
+    from _shared.timing import log_session, metadata_fields
+    log_session(iter_dir, generation_s=gen_time, training_s=train_time, pref_pair_s=pref_time,
+                started_at=iter_start_time)
     iter_metadata = {
         **iter_metadata_base,
         "num_conversations": len(completed_states),
@@ -1862,6 +1869,7 @@ def run_one_iteration(
         "generation_time_s": gen_time,
         "pref_pair_time_s": pref_time,
         "training_time_s": train_time,
+        **metadata_fields(iter_dir),
     }
     save_iteration_checkpoint(
         policy=new_policy, tokenizer=tokenizer,

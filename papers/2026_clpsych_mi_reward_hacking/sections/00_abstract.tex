@@ -1,0 +1,26 @@
+\begin{abstract}
+Training a small language model to conduct Motivational Interviewing (MI) against an
+LLM-simulated patient, with a larger LLM filling in validated MI questionnaires as the
+reward, produces gains that look clinically real: over ten iterations a 1B therapist moves
+from below basic competence to the ``good'' band on MITI global relational ratings, with
+large effect sizes on all five global-evaluation instruments. We show that much of this
+improvement is not a therapy skill but a grader-specific one. Behaviourally, both a
+preference-tree (PTO/DPO) and a group-relative (GRPO) optimizer converge on the same drift:
+turns grow $2.3$--$3.4\times$ longer, affirmations rise more than fivefold, MI-inconsistent
+behaviour rises $2.3\times$ (PTO) to $4.0\times$ (GRPO), and literal questions nearly vanish.
+Counting questions two ways is diagnostic: in GRPO the regex rate falls $0.83$ to $0.15$ per
+turn while the grader's own MI question code falls only $0.45$ to $0.32$ --- the oracle keeps
+crediting inquiry that has stopped. To
+quantify how much of the gain survives outside the training signal, we re-score all
+$16{,}896$ evaluation cells with a held-out judge from a different model family that never
+played the patient and never touched training, and report \emph{gain retention}: held-out
+improvement divided by trained-against improvement. At the matched endpoint PTO retains
+$0.80$ [$0.68$, $0.93$] of its Q1 gain and GRPO $0.28$ [$0.06$, $0.43$], with non-overlapping
+intervals; under a grader that never trained the model, GRPO's net ten-iteration Q1 gain is
+$0.19$ points, not the $0.68$ its own reward reports. Retention is an \emph{onset} curve,
+indistinguishable for three iterations before GRPO decays monotonically --- separating the
+arms four iterations before the reward curve does. We argue that gain retention against a
+decoupled judge belongs in any pipeline where an LLM judge supplies the reward, and that in
+clinical dialogue the failure mode deserves a name: the model learns to affirm without
+inquiring.
+\end{abstract}

@@ -1,0 +1,50 @@
+\section{On Its Own Terms, the Loop Works}
+\label{sec:gains}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/trajectory_Q1Q2_gpt-4o-mini.png}
+\caption{Training reward (\QQ{}) by iteration, mean over 96 personas, primary grader. Both
+arms climb; PTO continues to iteration 10 while GRPO peaks at iteration 8 and regresses.
+Shaded bands are bootstrap 95\% intervals.}
+\label{fig:trajectory}
+\end{figure}
+
+\input{tables/main_results}
+
+Both optimizers improve substantially on every instrument, and the improvements are
+statistically unambiguous (Table~\ref{tab:main}; Holm-corrected $p\approx0$ throughout).
+
+\paragraph{Magnitude.} Every global-evaluation rubric is a large effect for PTO, which moves
+the reward \QQ{} from $3.00$ to $4.26$ ($\dz=1.43$). GRPO's endpoint is smaller ($\dz=0.72$),
+understating its trajectory: it reaches $4.08$ at its iteration-8 peak before regressing
+(Figure~\ref{fig:trajectory}). OLS slopes are $0.120$/iteration (PTO) against $0.072$ (GRPO).
+
+\paragraph{Final versus best.} Comparing only final iterations is unfair to GRPO, which
+regresses after iteration~8, so Table~\ref{tab:main} reports the head-to-head both ways. PTO
+leads on the reward under either reading, but the effect halves at best-vs-best (\QQ{} $+0.51$,
+$\dz=0.73$ $\rightarrow$ $+0.18$, $\dz=0.30$), and \textbf{the MITI and MICI gaps vanish}
+($p=0.57$, $0.52$). Q1, MI-SAT, CSQ-8 and WAI-SR still survive Holm at best-vs-best. The
+sycophancy separation is therefore a property of GRPO's \emph{post-peak run-off}, not of its
+best state --- a materially weaker claim than the endpoint numbers alone suggest, and the one
+we defend.
+
+\paragraph{``Best'' is itself grader-dependent.} Selecting each arm's peak by the primary
+oracle puts GRPO at iteration~8; the held-out judge (\S\ref{sec:heldout}) puts it at
+iteration~3. Peak selection performed on the very signal being optimised is not a neutral
+operation --- which is part of this paper's argument rather than an aside.
+
+\paragraph{Absolute anchor.} Effect sizes say the model improved, not whether it became
+competent. MITI 4.2.1 publishes ``fair'' and ``good'' thresholds, which place the endpoint on
+an external scale (Table~\ref{tab:thresholds}): both arms move from below basic competence into
+the fair-to-good band \emph{on the global ratings}, relational crossing ``good'' in both (PTO
+$4.61$, GRPO $4.20$), while \textbf{neither reaches ``good'' on the technique ratios}.
+
+GRPO's technique numbers need care. Its R:Q of $1.43$ formally clears ``fair'', but through the
+denominator: reflections rise modestly (complex $0.093\rightarrow0.167$) while questions fall
+($0.446\rightarrow0.319$), so the ratio improves largely because the therapist stopped asking.
+As a competency claim that is a false positive, and the first sign of what \S\ref{sec:learned}
+documents directly. We use these thresholds descriptively and lean no contrast on them
+(see the caption, and the MITI caveat in \S\ref{sec:heldout}).
+
+\input{tables/thresholds}

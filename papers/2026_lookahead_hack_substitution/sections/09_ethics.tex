@@ -1,0 +1,22 @@
+\section*{Ethics Statement}
+
+No human participants and no clinical data were involved: every conversation in this study is
+between two language models, and every persona is synthetic. Nothing here was deployed to, or
+evaluated with, people seeking care.
+
+The system studied is a research artifact and is not a therapy tool. We want to be explicit that
+this paper's result is a reason for caution rather than reassurance about such systems. A therapist
+model trained this way improves on validated-questionnaire scores while acquiring a behaviour ---
+flattering the client --- that those questionnaires reward and that MI practice treats as a
+failure; and the intervention we tested to remove that behaviour replaced it with unsolicited
+advice, a failure mode that overrides client autonomy and is arguably the one MI exists to avoid.
+An automated evaluation reporting improvement on the instrument would have missed both.
+
+The broader risk we would flag is the use of LLM-scored validated instruments as a training signal
+in mental-health settings without a behavioural audit alongside. Our results suggest such a signal
+can be optimised into a policy that scores well and practises badly, and that fixing the specific
+bad practice one happens to measure does not fix the underlying incentive.
+
+Compute and API cost for this study were modest by contemporary standards (low hundreds of USD in
+inference against hosted models); we report the candidate budgets in \S\ref{sec:setup} so the
+comparison's cost asymmetry is auditable rather than implicit.

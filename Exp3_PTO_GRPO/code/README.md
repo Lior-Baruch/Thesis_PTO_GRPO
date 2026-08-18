@@ -27,6 +27,7 @@ code/
 | `tb_plots.py` | TensorBoard callbacks, logging lifecycle, TB parser, the post-hoc `plot_iteration_metrics` dashboard |
 | `eda_recorder.py` | per-generation capture → `iteration_N/eda/generations.jsonl` (all candidates + scores + look-ahead tails) |
 | `lookahead_check.py` | OPTIONAL, off the hot path — serial-vs-batched look-ahead equivalence + an OOM smoke test |
+| `timing.py` | **resume-proof per-iteration timing** — appends one line per process to `iteration_N/timing_sessions.jsonl`, so cost survives a crash+resume. ⚠ The older `iteration_metadata.json` `*_time_s` fields are per-PROCESS and undercount every resumed iteration (GRPO_LA5 iter 1 logs 14,501 s for 7.7 h of work; PTO logs `pref_pair_time_s = 3.2 s` for a ~30 min build it reloaded). Read the `cumulative_*` fields when `n_timing_sessions > 1`. The EDA's `eda_analysis/compute.py` prefers this log when present and falls back to artifact-mtime reconstruction for every run that predates it. |
 | `__init__.py` | public-API re-exports |
 
 ## The two method dirs

@@ -1,0 +1,72 @@
+\section{Introduction}
+\label{sec:intro}
+
+Motivational Interviewing \citep{miller1991mi} is a counselling style built on a specific
+discipline: the therapist elicits the client's own reasons for change rather than supplying
+them. Its defining moves are open questions and complex reflections; its defining
+prohibitions are unsolicited advice, confrontation, and --- less obviously --- the kind of
+warm, unconditional praise that feels supportive but substitutes the therapist's approval
+for the client's motivation. This makes MI an unusually good testbed for reward
+specification, because the difference between ``sounds like a good session'' and ``is a good
+session'' has been written down, operationalised, and used to train human coders
+\citep{moyers2016miti}.
+
+It is also a domain where LLM-based evaluation is already established. \citet{yosef2024assessing}
+show that an LLM filling in MI session questionnaires from a simulated patient's
+perspective produces ratings that are statistically reliable and that separate therapists by
+expertise level. That result is what makes the pipeline studied here possible at all: a
+small therapist model converses with an LLM-simulated patient, a larger LLM completes
+validated MI questionnaires on the transcript, and the resulting score is optimised. No
+human is in the loop, so the loop can be run for as many iterations as budget allows.
+
+The question this paper asks is what such a loop actually produces. We train a
+Llama-3.2-1B therapist against a \primaryjudge{} patient and grader for ten iterations
+under two optimizers that differ in how they explore --- a preference-tree method that
+branches candidate replies and trains with DPO \citep{rafailov2023dpo,baruch2025pto}, and a
+group-relative method that samples a group of completions per prompt and trains with GRPO
+\citep{shao2024deepseekmath} --- holding the reward, the patient population, the base model
+and every shared hyperparameter fixed.
+
+On its own terms the loop works, and it works impressively. Both arms improve on all five
+global-evaluation instruments with large effect sizes; the preference-tree arm takes MITI
+global relational ratings from $3.34$ to $4.61$, crossing the manual's ``good'' threshold,
+and \QQ{} --- the training reward --- from $3.00$ to $4.26$ ($\dz=1.43$). Read only through
+the grader that supplied the reward, this is a strong positive result about automating
+therapist training.
+
+We report three findings that complicate it.
+
+\paragraph{The behavioural signature is affirmation replacing inquiry.} Both optimizers
+drift the same way. Therapist turns grow $2.3$--$3.4\times$ longer, affirmations per turn
+rise more than fivefold, MI-inconsistent behaviour rises $2.3\times$ (PTO) to $4.0\times$
+(GRPO), and questions collapse. The collapse is visible most sharply in a disagreement
+between two ways of counting it: a deterministic regex counting question marks per therapist
+turn falls $0.83\!\rightarrow\!0.15$ in the GRPO arm, while the oracle's own MITI question
+code falls only $0.45\!\rightarrow\!0.32$ over the same conversations. The two measures
+start out consistent and end up inverted --- the grader continues to credit inquiry after
+the literal questions are gone (\S\ref{sec:learned}).
+
+\paragraph{A held-out judge retains only part of the gain, and how much depends on the
+optimizer.} We re-scored every conversation in this comparison --- $16{,}896$ cells, all
+eight instruments $\times$ 22 model states $\times$ 96 conversations --- with \heldoutjudge{}, a
+grader from a different model family that never played the patient and never participated in
+training. We report \emph{gain retention}, $\Delta_\text{held-out}/\Delta_\text{trained-against}$,
+as a per-arm train/test generalization ratio. At the matched ten-iteration endpoint, PTO
+retains $0.80$ of its Q1 gain and GRPO $0.28$, with non-overlapping bootstrap intervals.
+Crucially this is an \emph{onset} curve rather than an endpoint accident: the arms are
+indistinguishable for three iterations ($0.84$--$0.97$), then separate, with PTO holding
+$0.80$--$0.98$ for the remainder while GRPO decays in trend to $0.28$. A policy drifting onto
+grader-specific features is what that shape looks like, and it is legible four iterations
+before the reward curve turns over (\S\ref{sec:heldout}).
+
+\paragraph{Contributions.} (i) A controlled ten-iteration comparison of two exploration
+strategies under an identical LLM-questionnaire reward in a clinical dialogue task, with all
+eight instruments reported flat. (ii) \emph{Gain retention} against a decoupled held-out
+judge as a cheap, human-free diagnostic for reward hacking, together with evidence that it is
+more informative than the outcome curve and more reliable than rate-based MI-inconsistency
+measures. (iii) A behavioural characterisation of what the hack \emph{is} in this domain ---
+affirmation without inquiry --- including a grader-versus-regex divergence that localises
+part of the failure in the measuring instrument rather than only in the policy. We also show
+(\S\ref{sec:discussion}, Appendix~\ref{app:probe}) that the gap between the two optimizers is
+attributable to the state distribution their training data is drawn from --- on-policy slices
+versus a best-of-$M$ reranked trunk --- rather than to the loss that weights the candidates.

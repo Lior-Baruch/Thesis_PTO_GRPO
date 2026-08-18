@@ -27,7 +27,7 @@ figures as `<name>_final.png` + `<name>_best.png`, tables merged with a `target`
 | `4_Heterogeneity.ipynb` | `4_heterogeneity/` | every metric split by persona trait (`cooperation_level/`, `problem/` subfolders) + endpoint bars final+best |
 | `5_Training.ipynb` | `5_training/` | **`[TRAINING]` only:** TB curves · candidate reward + advantage · degeneration · reward-faithfulness (reliability curve, proxy-vs-eval, PTO margin-by-depth) |
 | `6_Preference.ipynb` | `6_preference/` | **what the training signal pushes toward.** §1–§2 PTO Mass-Mean-Probe over `pairs.csv` (word ranking/drift, direction drift, learn/unlearn, MI concepts, K0-vs-K5). §3 **both methods on one probe** — every candidate carries its method's update weight (DPO ±1 / GRPO standardized advantage, rescaled to a shared per-group size), giving `update_lexical_push` (exact, every group), the audited `update_direction_quality{,_pooled}` (held-out wins + split-half reliability) and `update_direction_cosines` (attenuation-corrected). §4 **training signal → eval move** (`pref_outcome_link/_correlations`, partial-ρ on `train_iter`). §5 **loss vs data** (`weighting_decomposition` — swap the rule on fixed groups), **generation vs selection** (`generation_vs_selection`, `generation_pool_means`), **signal yield** (`training_signal_yield`) and text exhibits (`<arm>_examples`) |
-| `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base + method paired · **best-vs-best method contrast (`method_paired_best`)** · **§4c RQ-i, the K0-vs-K5 contrast — `k_means_by_iter` + `k_paired_by_method` + the one `7_stats/` figure `k_trajectory_Q1Q2`, saved ONLY in `config.RQ_I_VIEW` (`L5`) off a cross-K frame** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
+| `7_Stats.ipynb` | `7_stats/` | all heavy tables: merged main_results (`target` col) · Friedman · merged vs-base + method paired · **best-vs-best method contrast (`method_paired_best`)** · **§4c RQ-i, the K0-vs-K5 contrast — `k_means_by_iter` + `k_paired_by_method` + the one `7_stats/` figure `k_trajectory_Q1Q2`, saved ONLY in `config.RQ_I_VIEW` (`L5`) off a cross-K frame** · **§4e the COMPUTE axis — `compute_by_arm` + `compute_by_iteration` + `iso_compute_contrast` + `budget_sweep` + `k_step_multiplier` + figures `compute_trajectory`/`cost_breakdown`/`budget_sweep`, also `RQ_I_VIEW`-owned** · all-metric slopes · PCA · GRPO iter-9 anomaly check |
 | `8_Measurement_Validity.ipynb` | `8_measurement/` **(no `<judge>/` level)** | **is the ruler trustworthy?** §1 judge reliability (oracle ICC + second-judge agreement + contrast preservation) · §2 multi-judge (variance decomposition, gain retention, all-pairs contrasts, sign-preservation ladder, concordance-vs-effect-size). Reads **every** grader from `data/eval_scores/`, so it is judge-INVARIANT — see "Judge dimension" |
 
 Every section is tagged **`[EVAL]`** (full-conversation oracle scores — the held-out outcome) or
@@ -47,7 +47,7 @@ S    = eda_analysis.notebook_setup(cfg)
 |---|---|---|
 | `all` | every arm (PTO/GRPO × LA0/LA5) | `results/all/…` — **RETIRED as a deliverable (2026-07-27)**: gitignored scratch, still renderable |
 | `L0`  | K=0 arms (`PTO_LA0`, `GRPO_LA0`) | `results/L0/…` |
-| `L5`  | K=5 arms (`PTO_LA5`, `GRPO_LA5`, thin) | `results/L5/…` |
+| `L5`  | K=5 arms (`PTO_LA5` iters 0–10, `GRPO_LA5` iters 0–5 — both fully trained and fully scored on every grader) | `results/L5/…` |
 
 So `results/` holds **two** tracked trees, `L0` and `L5`.
 
@@ -72,10 +72,16 @@ auto-generated **`INDEX.md`** (the artifact map).
 
 ### Regenerate every view
 ```
-python tools/render_views.py            # the tracked views (L0 + L5) × 8 notebooks
+python tools/render_views.py            # the tracked views (L0 + L5) × 8 notebooks — PRIMARY ORACLE ONLY
+python tools/render_views.py --all-judges  # FULL refresh: every view × every judge on disk, in parallel
 python tools/render_views.py L0         # just the L0 view
 python tools/render_views.py L5 --nb 3  # one view, one notebook (--nb takes the notebook/family NUMBER: 3 = 3_Validity_and_Hacking)
 ```
+⚠ **A bare run does NOT refresh the held-out judges' subtrees.** It renders the primary oracle only,
+so after new scores land for a second judge the `<judge>/` folders stay stale until you pass
+`--all-judges` (or `--judge <tag>`). A stale judge subtree is silent — the tables render fine, they
+just carry the previous grid.
+
 `tools/render_views.py` sets `EDA_VIEW` per run and executes each notebook to a throwaway `--output-dir`
 (so the committed notebooks' outputs aren't churned — only the `results/` tree is the deliverable).
 **Committed notebooks are kept output-clean** by `strip_notebook_outputs.py` (zero-dependency): run
@@ -136,7 +142,8 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    `data/eval_scores/judge=<tag>/rep=<r>/` (see "Where the scores live"). The
    `eda_analysis/scoring/registry.py::EXPERIMENTS` registry is **auto-generated from
    `discover_arms()`** (2026-07-11, roadmap #7) — a new run is scoreable as soon as its
-   conversations land; no registry edit. Resume-safe. Score **PCT** + **MICI** with
+   conversations land; no registry edit, and empty in-flight `model_iter_*` dirs (no
+   `conversation_*.csv`) are skipped. Resume-safe. Score **PCT** + **MICI** with
    `QUESTIONNAIRE_FILTER=["PCT","MICI"]`.
 2. **`1_Outcomes.ipynb`** → **`8_Measurement_Validity.ipynb`** in any order (the notebook↔family table above says
    what lives where). Every notebook auto-discovers arms from disk via `eda_analysis.discover_arms()`
@@ -148,7 +155,7 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    behind explicit `RUN_*` flags; writes to `data/eval_scores/judge=<tag>/rep=<r>/`;
    NOT part of `tools/render_views.py`. Backing module: `eda_analysis/scoring/judge.py`. Addresses
    `LIMITATIONS.md` §1–§2 (measured 2026-07-26 with Claude Haiku 4.5 as the second judge).
-   Its **§3 promotes the second judge to a full sweep** — all 29 model states × all 8 rubrics —
+   Its **§3 promotes the second judge to a full sweep** — all 39 model states × all 8 rubrics —
    through `scoring/judge_plan.py` (free pre-flight: rubric-parity gate, coverage plan, cost model)
    and `scoring/judge_batch.py` (Anthropic Message Batches, 50% off, submit/poll/collect).
    **Presentation is split off deliberately:** this notebook only *scores*;
@@ -161,14 +168,17 @@ S.ORACLE_NOISE` as before. Override on the fly: `notebook_setup(cfg, selection="
    > verifies each dropped constraint was restated and that the encodings are otherwise identical.
    > It runs automatically in `python -m eda_analysis._selfcheck`.
    >
-   > **Prompt caching, measured not assumed:** only **Q1 (~1.1k tok) and Q2 (~2.2k tok)** clear
-   > OpenAI's 1,024-token cacheable-prefix minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too
-   > short (403–507 tok); MITI/PCT/MICI interpolate a *per-conversation* utterance count into the
+   > **Prompt caching, measured not assumed** (2026-07-27, by `prefix_report`): caching does **not**
+   > hit on every oracle call — only **Q1 (~1.1k tok) and Q2 (~2.2k tok)** clear OpenAI's
+   > 1,024-token cacheable-prefix minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short
+   > (403–507 tok); MITI/PCT/MICI interpolate a *per-conversation* utterance count into the
    > instructions **ahead of** the rubric, truncating their prefix to 138–206 tok. Haiku 4.5's
    > minimum is 4,096, so a Claude judge never caches — confirmed empirically
-   > (`cached_input_tokens = 0` on every probe call). **This is documented, not fixed** — those
-   > counts are the rate metrics' denominators, and changing the prompt would break comparability
-   > with every conversation already scored, for a discount that still would not materialize.
+   > (`cached_input_tokens = 0` on every probe call). ⚠ **This is documented, not fixed — do NOT
+   > restructure MITI/PCT/MICI to chase the discount:** those interpolated counts are the rate
+   > metrics' denominators, and any prompt edit breaks comparability with every conversation
+   > already scored (**39 × 8 × 96 = 29,952** cells per grader), for a discount that still would
+   > not materialize.
    >
    > **Two quantities that are easy to confuse when costing a sweep** (`prefix_report` returns
    > both): `prefix_tokens_approx` is the *cacheable* prefix and drives the **discount**;
@@ -257,7 +267,7 @@ compares in one glance.
 > **Every judge nests, including the primary (2026-07-28).** Until then the primary rendered *flat*
 > at `<family>/` so that adding a second grader moved no path the thesis already cited. That was the
 > right call while a second judge was a spot check — but once Haiku had scored the same full
-> 22,272-cell grid, a flat primary made the *layout* assert something the project no longer
+> full grid, a flat primary made the *layout* assert something the project no longer
 > believes: that one grader is the default and the other an annex. A figure's path now always names
 > the grader that produced it. (Cost of the change: a one-off rewrite of ~73 `SUMMARY.md` links and
 > the deck builders' path helpers.)
@@ -365,6 +375,17 @@ behind an unchanged public surface.
 - **`score_archive`** — the score lake's parquet fold: `build`-side helpers, the signature-guarded
   read path (`rows_for`, used by `data.iter_conv_rows`), and `fold_status()`. Imports only
   `constants`, so `data` can depend on it without a cycle. See "Where the scores live" above.
+- **`compute`** — the **COMPUTE axis**: GPU-hours per (arm, iteration), reconstructed from artifact
+  mtimes, plus the contrasts that need it (`iteration_compute`, `compute_summary`,
+  `step_multiplier`, `iso_compute_pairs`, `iso_compute_contrast`, `budget_sweep`,
+  `score_by_compute`). Every *other* contrast in this EDA is indexed by iteration, which is not a
+  fixed unit of spend — a K=5 step costs ~1.9x a K=0 step and a whole PTO iteration costs a
+  fraction of a GRPO one, so matched-iteration silently compares unequal budgets.
+  ⚠ Never time a run from `iteration_metadata.json` (its `*_time_s` fields are per-PROCESS and
+  undercount every resumed iteration); ⚠ iso-compute reads a *different* iteration from each arm,
+  so it pairs on `persona_id`, never `file_index`; ⚠ quote `budget_sweep`, not one iso-compute row —
+  the lever's sign is a function of budget. Rendered by `7_Stats` §4e. Imports only `constants`
+  (+ `data`/`stats` lazily), so nothing depends on it and it can be read standalone.
 - **`plotting_style`** — the style/scaffold helpers (Okabe-Ito palette [PTO cool / GRPO warm / Base
   grey], `grid`, `set_style(cfg)`, `clean_label`, `apply_score_axis`, `model_order`, `relabel_*`,
   `add_base_line`, `figure_legend_from`). Re-imported into `plotting`, so `figures.set_style(...)`
@@ -373,7 +394,8 @@ behind an unchanged public surface.
   (the public surface is the flat module's): `outcomes` (per-model bars, `effect_forest`,
   `leaderboard_scorecard` — endpoint figures take `title=`/`selection=` for the final-vs-best
   pairs) · `trajectories` (`trajectory_grid`, `single_metric_trajectory`, subscales,
-  `reward_hack_panel`) · `heterogeneity` (persona splits; `subgroup_endpoint_bars(iter_by_arm=)`
+  `reward_hack_panel`) · `compute` (`compute_trajectory` — score vs cumulative GPU-hours,
+  `budget_sweep_plot`, `cost_breakdown`) · `heterogeneity` (persona splits; `subgroup_endpoint_bars(iter_by_arm=)`
   for best-iteration bars) · `structure` (`reliability_curve`, proxy-vs-eval, diverging
   `rubric_correlation_heatmap`, `factor_loadings_bars`) · `behavior` (the generic wide-frame
   detail grid reused by MITI/MICI/PCT + session shape, MITI thresholds, cross-checks) ·
@@ -456,6 +478,92 @@ behind an unchanged public surface.
   `python -m eda_analysis._selfcheck` after any EDA change (`--fast` runs the 8 structural ones).
 - **`__init__`** — thin re-export hub: re-exports the `constants` leaf + every analysis submodule's
   public names, and the `figures`/`plots` → `plotting` aliases. No definitions of its own.
+
+## Extension points — where each kind of change goes
+
+**Analysis layer (`eda_analysis/` top level) needs NO registry edits** — it auto-discovers arms from
+disk. Extend it by concern:
+
+| Adding | Goes in |
+|---|---|
+| a new rubric | `constants.py::QUESTIONNAIRES` + `data.py` (the `scores_long` backbone) |
+| a new arm naming scheme | `data.py::parse_experiment_name` |
+| new stats | `stats.py` |
+| new figures | the topic module in `plotting/` (+ its `__init__` re-export) |
+| a new VIEW, or a results-layout change | `config.py` (the `view` / `_VIEW_KS` logic) + `exports.py` |
+
+(`figures`/`plots` are still aliased to `plotting`; the data-module aliases
+`discovery`/`personas`/`scores`/`select` were retired — use `eda_analysis.data.*` or the top-level
+re-exports.)
+
+> ⚠ **An arm whose folder name `parse_experiment_name` cannot match is INVISIBLE, silently.**
+> `discover_arms` parses every folder and `continue`s on `None`
+> ([`data.py:299-301`](eda_analysis/data.py#L299)) with no warning — so a trained, paid arm never
+> reaches `Run_Eval`'s auto-generated registry or any of the 8 notebooks, and the EDA looks complete.
+> `_selfcheck` does **not** catch this: its naming check only asserts that the legacy
+> `PTO_Iterative_…_PTgreedy` / `GRPO_Iterative_…_G8` forms (± role-binding suffixes) parse — it never
+> asks whether every folder on disk did. After touching `EXPERIMENT_NAME` or `data.py::_EXP_RE`,
+> compare `len(discover_arms())` against the folder count under
+> `data/{pto,grpo}_Exp3/conversations/full/`.
+
+**Scoring layer ([`eda_analysis/scoring/`](eda_analysis/scoring/) — the `Run_Eval` +
+`Judge_Reliability` backend):**
+
+- **[`scoring/registry.py`](eda_analysis/scoring/registry.py)`::ORACLE_TOKEN_ALIASES`** — new
+  oracle-name aliases go here (`CSQ` vs `CSQ8` vs `CSQ_8`), **not** in `conversations.py`. Lookup is
+  on the uppercased, `-`→`_` form, so keys must be canonical uppercase.
+  `conversations._normalize_oracle_token(strict=True)` raises on an unknown token; the default
+  `strict=False` lets it fall through to the `"Other"` group for backward compat.
+- **`scoring/registry.py::COMPOSITE_METRICS`** — new composites (a mean across several source
+  columns). Currently only `Q1Q2_Mean` (`sources=["Q1_Mean","Q2_Mean"]`, `aggregator="mean"`); the
+  same pattern would produce `MITI_GlobalMean` from the 4 MITI globals.
+- **`scoring/registry.py::EXPERIMENTS`** — the registry of trained-model data locations,
+  **auto-generated at import** by `build_experiments_from_disk()` from
+  `eda_analysis.data.discover_arms()` (2026-07-11). Nothing to edit; new runs are picked up once
+  their conversations land. (If the Drive symlinks are offline the registry is empty and a warning
+  prints.)
+- **[`scoring/judge.py`](eda_analysis/scoring/judge.py)** — add second-judge providers/models here
+  (`JudgeSpec`); output lands in `data/eval_scores/judge=<tag>/rep=<r>/`, never in another grader's
+  partition. **Claude judges:** `json_schema` rejects `minimum`/`maximum`/`minItems`/`maxItems`, so
+  those are folded into `description` — ⚠ **do NOT just drop them**, or the array-shaped rubrics lose
+  their one-score-per-item guarantee. Sonnet 5 / Opus 4.8+ additionally need
+  `thinking={"type":"disabled"}`, or adaptive thinking eats `max_tokens`.
+- **[`scoring/judge_plan.py`](eda_analysis/scoring/judge_plan.py)** (FREE pre-flight, no API) —
+  `check_rubric_parity()` is **the gate before any second-judge spend**: it verifies that every
+  constraint stripped for Claude was restated in `description` and that the two encodings are
+  otherwise structurally identical. It runs automatically in `_selfcheck`. Also `prefix_report()`
+  (which rubrics actually prompt-cache — only Q1/Q2 clear OpenAI's 1,024-token minimum; measured
+  scope + the do-not-fix prohibition under "Run order" §3), `plan_sweep()` (coverage-aware call
+  count, skips conversations whose CSVs already exist), `estimate_cost` / `sweep_report`.
+  ⚠ **Pricing lives in `JUDGE_PRICING` — verify against the billing dashboard before quoting a
+  number.** Its `claude-sonnet-5` row is flagged *intro pricing thru 2026-08-31*, and a model with no
+  row raises rather than guessing.
+- **[`scoring/judge_batch.py`](eda_analysis/scoring/judge_batch.py)** (PAID) — the full-sweep path
+  via **Anthropic Message Batches (50% off)**: `submit_sweep` → `poll_batches` → `collect_batches`,
+  three separate phases with manifests persisted under `data/eval_scores/_batches/` so collection
+  works from a fresh kernel. ⚠ **`custom_id` is an opaque index into that manifest, NEVER an encoded
+  path** — model+metric+oracle overflows the 64-char limit, and a truncation collision would write a
+  score into the wrong model's folder. Anthropic-only by design: the primary judge already has a full
+  rep, and extra reps are cheap enough for the live path.
+- **[`reliability.py`](eda_analysis/reliability.py)** (analysis layer, disk-only) — the FREE read
+  side of `data/eval_scores/`: the ICC / agreement / contrast tables for `8_Measurement_Validity` §1
+  plus the multi-judge layer for its §2 (`variance_components_arm` → arm vs judge-level vs
+  arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `sign_preservation`,
+  `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in
+  `scoring/judge*.py` and the presentation here, so judge results render inside
+  `tools/render_views.py` without spending.
+
+### ⚠ Two things never to do to these numbers
+
+- ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the
+  second judge is held out — that is train-vs-test, not two raters. The level offset is **1.2–1.7
+  points *and* model-dependent**, so averaging applies a silent model-dependent shrinkage to every
+  effect. Combine only **contrasts or standardized quantities**.
+- ⚠ **Pair on `persona_id`, not `file_index`.** The 96 personas are reshuffled every iteration, so a
+  `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it;
+  `dz` and CIs do not. Recover the true persona with `reliability.attach_persona` (the multi-judge
+  read path) or `data.attach_personas` (the frame-level shuffle replay) — **two different real
+  functions, not a typo; do not "unify" them.**
 
 ## Adding a new run
 Train → it writes `conversations/full/<EXP>/model_iter_*` → `Run_Eval` (the registry auto-discovers

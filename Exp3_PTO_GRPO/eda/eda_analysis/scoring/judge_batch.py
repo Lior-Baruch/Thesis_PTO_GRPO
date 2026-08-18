@@ -3,12 +3,13 @@ the **Anthropic Message Batches API** (50% off list price) instead of live strea
 
 Why batch, and why only Anthropic:
 
-- The second-judge sweep is 22,272 calls per rep and has **no latency requirement whatsoever** —
+- The second-judge sweep is one call per (model state x rubric x conversation) — tens of thousands
+  per rep, and growing as arms are added — and has **no latency requirement whatsoever** —
   it feeds an offline EDA. Trading 24h turnaround (usually <1h) for 50% off is free money, and it
   is the single largest cost lever available now that prompt caching is off the table for this
   workload (see ``judge_plan.prefix_report``: 6 of 8 rubrics have a sub-1,024-token prefix, and
   Haiku 4.5's cache minimum is 4,096 — the second judge never caches).
-- The PRIMARY judge already has a complete rep on disk (all 22,272 cells), and the analysis in
+- The PRIMARY judge already has a complete rep on disk (the full grid), and the analysis in
   ``reliability.variance_components`` shows extra reps buy essentially nothing at the arm-mean
   level (rep noise contributes ~0.01 to an arm mean vs ~0.09 from persona sampling). The handful
   of extra reps worth buying are MICI-only and cheap, so they can stay on the existing live async

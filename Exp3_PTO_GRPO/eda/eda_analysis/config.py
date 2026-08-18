@@ -286,13 +286,30 @@ def cross_k_scores(source) -> pd.DataFrame:
     Note an explicit ``cfg.arm_labels`` whitelist is still honoured, so a config that named a single
     arm returns a single arm (the caller asked for that); ``ks`` is the only filter dropped.
     """
-    from . import discover_arms, load_scores_long, add_derived_mitiprof_rows
-    from .data import filter_arms
+    from . import load_scores_long, add_derived_mitiprof_rows
 
     cfg = source.CFG if isinstance(source, Setup) else source
-    arms = filter_arms(discover_arms(include_archived=cfg.include_archived),
-                       methods=cfg.methods, ks=None, modes=cfg.modes, arm_labels=cfg.arm_labels)
+    arms = cross_k_arms(source)
     scores = load_scores_long(arms, attach_persona=cfg.attach_persona)
     if cfg.add_derived_mitiprof and not scores.empty:
         scores = add_derived_mitiprof_rows(scores, arms)
     return scores
+
+
+def cross_k_arms(source) -> list:
+    """The ARMS behind :func:`cross_k_scores` — both K arms of every method the view allows.
+
+    Same filters as :func:`notebook_setup` minus ``ks``. Exposed separately because the RQ-i
+    contrast is not only about rubric scores: the behaviour-channel frame
+    (:func:`~eda_analysis.behavior.channel_scores_long`), the training-side pref frames
+    (:mod:`~eda_analysis.pref`) and anything else arm-driven need the same cross-K arm list, and
+    re-deriving it at each call site is how the filters drift apart.
+
+    Read-only w.r.t. routing, exactly like :func:`cross_k_scores`.
+    """
+    from . import discover_arms
+    from .data import filter_arms
+
+    cfg = source.CFG if isinstance(source, Setup) else source
+    return filter_arms(discover_arms(include_archived=cfg.include_archived),
+                       methods=cfg.methods, ks=None, modes=cfg.modes, arm_labels=cfg.arm_labels)

@@ -565,10 +565,14 @@ def sample_groups(cands: pd.DataFrame, *, max_groups_per_iter: int = 400,
     reproduces the same figures. The default 400 was chosen by measuring, not guessed: split-half
     reliability of the per-iteration direction climbs 0.19 → 0.26 → 0.47 → 0.66 (GRPO) across caps
     50/100/200/400, so 400 is where the per-iteration estimate becomes usable for that method —
-    while embedding all ~223k candidates would cost ~5× more for the next increment. PTO reaches
-    only ~0.19 even uncapped (it has ~400 pairs an iteration, and that IS all of them), which is
-    why its per-iteration readouts carry a reliability caveat and its cross-arm claims use
-    :func:`direction_by_arm`.
+    while embedding all ~223k candidates would cost ~5x more for the next increment. PTO's
+    per-iteration direction reaches only ~0.19 at this cap (PTO_LA5 ~0.30) — and unlike the GRPO
+    figures above that is NOT an uncapped ceiling. ⚠ PTO produces 281–832 pairs an iteration
+    (median 479 for LA0, 610 for LA5), so the cap BITES on 16 of 20 PTO arm-iterations (LA0 6/10,
+    LA5 10/10) and discards 3,530 of 11,351 PTO groups (31%). Its per-iteration readouts therefore
+    carry a reliability caveat that is partly self-inflicted, and its cross-arm claims use
+    :func:`direction_by_arm`; raise the cap before concluding anything about PTO's per-iteration
+    direction.
 
     Prints what it dropped unless ``verbose=False``: a cap that silently shrinks the evidence reads
     as full coverage in the artifact.

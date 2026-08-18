@@ -1,0 +1,38 @@
+\section{Related Work}
+\label{sec:related}
+
+\paragraph{LLM judges as reward.} Replacing human preference labels with model-generated ones
+\citep{christiano2017deeprl,ouyang2022instructgpt} is now routine, via AI feedback
+\citep{guo2024oaif}, self-rewarding loops \citep{yuan2024selfrewarding}, or best-of-$N$
+distillation \citep{pace2024westofn}. Such judges carry systematic biases --- position and
+verbosity \citep{zheng2023judging}, length \citep{dubois2024lengthcontrolled}, self-preference
+\citep{panickssery2024selfpreference}. Our setting inherits all of these and adds a coupling:
+the same model family simulates the patient \emph{and} grades the transcript, so the policy
+optimises a signal produced by its own conversational partner. The held-out judge in
+\S\ref{sec:heldout} controls for exactly that.
+
+\paragraph{Reward hacking and overoptimisation.} Optimising a proxy past the point where it
+tracks the objective is well characterised theoretically \citep{skalse2022defining} and
+empirically for learned reward models \citep{gao2023scaling}. Sycophancy --- agreement and
+praise that raise ratings without improving the response --- is the failure mode closest to
+what we observe \citep{sharma2024sycophancy,perez2023discovering}. What is usually missing is
+a cheap way to \emph{detect} it during a training run without new human labels. Gain
+retention (\S\ref{sec:heldout}) is our attempt at one; it needs a second grader and no
+annotation, and it separates the two arms four iterations before their outcome curves
+diverge.
+
+\paragraph{Tree-structured preference data.} Constructing preferences by branching a dialogue
+and scoring simulated continuations connects to MCTS-guided preference learning
+\citep{xie2024mctsdpo,yu2023promptmcts,yuan2024eurus} and to the preference-tree formulation
+this work builds on \citep{baruch2025pto}, which also introduced a look-ahead depth $K$
+(candidates scored after $K$ further simulated turns). We hold $K=0$ throughout so the
+optimizer is the only variable; the $K$ comparison is reported separately.
+
+\paragraph{MI and computational models of counselling.} MI's coding systems
+\citep{moyers2016miti} give this domain what most dialogue benchmarks lack: an externally
+specified account of which behaviours are correct, with published competency thresholds.
+LLM-simulated patients have been used to train and assess counsellors
+\citep{steenstra2024scaffolding}, \citet{yosef2024assessing} validate the questionnaire-filling
+evaluators we use as the reward, and \citet{chen2025broaden} study LLM therapist behaviour
+beyond aggregate quality. Ours is not a new MI system but a measurement result about what
+happens when such an evaluator is optimised against for long enough.

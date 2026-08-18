@@ -1,0 +1,52 @@
+\section{Setup}
+\label{sec:setup}
+
+\paragraph{Task and agents.} A Llama-3.2-1B therapist (bf16, LoRA) conducts Motivational
+Interviewing against a simulated client. The client and the reward oracle are both
+\primaryjudge{}; the client is conditioned on one of 96 distinct persona prompts varying the
+presenting problem and the degree of cooperativeness. The training reward is the mean of two
+published LLM-evaluator rubrics for session satisfaction and working alliance, scored on the
+conversation so far.
+
+\paragraph{Optimiser.} Both arms use the same iterative preference-tree procedure. At each
+therapist turn the current policy samples $M{=}8$ candidate completions; each is scored by the
+oracle; the best and worst form a preference pair when their scores differ by more than a fixed
+$\tau$; the pairs train a DPO update; the resulting adapter generates the next iteration's data.
+The 96 conversations generated at the start of iteration $n$ are the evaluation set for the policy
+that produced them, so evaluation needs no additional generation.
+
+\paragraph{The manipulation.} The two arms differ in one thing. Under $K{=}0$ the oracle scores
+the conversation prefix plus the candidate turn. Under $K{=}5$ the candidate is first extended by
+five further simulated turns --- client, policy, client, \ldots --- using the same policy, and the
+oracle scores that continuation. Everything else is matched by construction and verified against
+both runs' stored run metadata: sampling temperature $1.2$, $M{=}8$, minimum context length $12$,
+target conversation length, $\tau$, DPO $\beta$, epochs per iteration, and the oracle itself.
+
+Look-ahead is therefore purely a statement about \emph{what context the oracle grades}. It changes
+no loss, no hyperparameter, and no sampling distribution.
+
+\paragraph{Budget.} Matching iterations does not match cost, and the mismatch runs against the
+intervention rather than for it. Across the ten training iterations the $K{=}5$ arm built $7{,}548$
+preference groups and trained on $6{,}416$, against the $K{=}0$ arm's $6{,}240$ and $4{,}935$ ---
+and each $K{=}5$ candidate additionally pays five simulated turns. Iteration-matching is the
+correct scientific control, but it is generous to $K{=}0$ on budget, and it rules out the reading
+that the $K{=}5$ arm hacks less because it saw less training signal: it saw more.
+
+\paragraph{Evaluation.} Every conversation of every model state is scored on eight instruments by
+the training oracle, and independently by \heldoutjudge{}, a model from a different family that
+never played the client and never contributed a training reward. This paper reads two of them: an
+MI-inconsistency coder that counts six specific violations per session (over-praise,
+advice-without-permission, directing, confronting, warning, judging) and rates their severity, and
+the reward rubric itself. Because each iteration reshuffles the same 96 personas, every comparison
+below is \emph{paired on the recovered persona}, not on file order; means survive a file-order
+join but effect sizes and intervals do not.
+
+\paragraph{Statistics.} All contrasts are persona-paired Wilcoxon signed-rank with Cohen's \dz{}
+and Holm correction \emph{within} a family, where a family is one (arm-pair, iteration, channel
+group) --- for instance the six per-session violation counts at iteration~8. Corrections are not
+pooled across iterations; each matched iteration is its own family. We report per-session counts
+as the primary quantity and per-turn rates as secondary, because the two arms differ in turn count
+and a rate can move with the count fixed.
+
+\paragraph{Horizon.} Both arms ran ten training iterations, so all matched comparisons run over
+eleven points, iterations 0--10, with 96 persona-matched conversations per arm at every point.

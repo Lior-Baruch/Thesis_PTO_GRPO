@@ -1,7 +1,8 @@
 """judge_plan.py — PRE-FLIGHT for a multi-judge sweep: rubric parity, coverage planning, and
 cost estimation. **Nothing here calls a paid endpoint**, so it is free to re-run.
 
-The full dual-judge eval is the largest single API purchase left in the thesis (22,272 calls per
+The full dual-judge eval is the largest single API purchase left in the thesis (tens of thousands
+of calls per
 judge per rep). Three things have to be true before that money is spent, and each has a function
 here:
 

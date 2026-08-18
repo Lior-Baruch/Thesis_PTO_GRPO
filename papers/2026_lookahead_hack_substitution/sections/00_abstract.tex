@@ -1,0 +1,31 @@
+\begin{abstract}
+Training a small language model to conduct Motivational Interviewing (MI) against a validated
+questionnaire scored by a larger LLM produces a specific reward hack: the therapist learns to
+flatter. A natural fix is to stop scoring the therapist's turn in isolation and instead score the
+$K$-turn trajectory the turn leads to, so that praise which goes nowhere is exposed. We run that
+intervention as a controlled arm --- same optimiser, same candidate budget, same oracle, $K \in
+\{0, 5\}$ --- over eleven matched training iterations, and evaluate 96 persona-matched
+conversations at each under two independent LLM judges, one of which never participated in
+training.
+%
+Look-ahead works on the channel it targets, and keeps working. Over-praise is $2.42$ acts per
+session lower under $K{=}5$ at the matched endpoint ($d_z{=}0.89$; $d_z{=}1.00$ under the held-out
+judge), the gap is absent for six iterations and then opens and widens, and it is visible upstream
+in what the reward itself selects for. Running to the horizon at which the unmitigated arm's
+flattery compounds fastest shows this is prevention rather than delay.
+%
+It does not follow that the therapist commits fewer MI violations. Unsolicited advice and
+directing rise by close to what flattery gives up: for eight iterations the total number of
+MI-inconsistent acts per session is statistically identical between the arms ($3.45$ vs.\ $3.46$;
+$d_z{=}0.004$, $p{=}.97$). At the endpoint the primary oracle does score the totals apart
+($d_z{=}0.45$, $p{=}.0003$) --- but the held-out judge, which agrees on the sign and significance
+of every individual component, scores the same total null ($d_z{=}0.10$, $p{=}.17$), because it
+weights the substituted behaviour more heavily. The reward being optimised is indifferent
+throughout.
+%
+Two lessons follow, and the second is the one we did not expect. Reward-hacking mitigations must be
+scored on an aggregate nominated before the intervention, not on the channel that motivated them.
+And once an intervention changes the \emph{composition} of a failure rather than its volume,
+aggregate comparisons stop being grader-invariant even when every component is: two judges can
+agree on all the parts and still disagree on the sum.
+\end{abstract}

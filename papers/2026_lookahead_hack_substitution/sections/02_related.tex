@@ -1,0 +1,33 @@
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Reward hacking and proxy gaming.} \todo{cite: Amodei et al. concrete problems; Skalse et
+al. reward hacking definitions; Gao/Schulman/Hilton scaling laws for reward model overoptimisation;
+Pan et al. the effects of reward misspecification.} The consistent finding is that optimising a
+proxy past a point degrades the true objective. Our contribution is narrower and, we think,
+under-reported: what happens to the \emph{composition} of the degradation when a mitigation removes
+one route to it.
+
+\paragraph{Length and sycophancy biases in LLM judges.} \todo{cite: Sharma et al. towards
+understanding sycophancy; Singhal et al. long way to go / length bias in RLHF; Dubois et al.
+length-controlled AlpacaEval; Zheng et al. MT-bench judge biases.} Our flattery result is a
+clinical instance of the sycophancy bias, with the twist that the instruments being gamed are
+published clinical questionnaires rather than generic preference ratings.
+
+\paragraph{Trajectory- and lookahead-based reward.} \todo{cite: our prior preference-tree
+optimisation with look-ahead simulations (ICLR 2025 SSI-FM workshop poster); MCTS-style
+value estimation in dialogue; process- vs outcome-supervision (Lightman et al.).} Look-ahead is
+usually motivated as a variance/credit-assignment improvement. We evaluate it instead as a
+\emph{reward-hacking mitigation}, which is a use it is often informally credited with and, to our
+knowledge, has not been tested as.
+
+\paragraph{NLP for Motivational Interviewing.} \todo{cite: MITI 4.2.1 coding manual; Perez-Rosas
+et al. MI quality; Welivita \& Pu / Shen et al. counselling dialogue generation; the CLPsych
+LLM-evaluator prompts our Q1/Q2 rubrics come from.} Automated MI fidelity coding is an established
+task; our use of it is as an \emph{outcome} for an RL study rather than as the modelling target.
+
+\paragraph{Multi-judge evaluation.} \todo{cite: judge agreement / LLM-as-judge reliability work;
+generalisability theory for rater designs.} We use a held-out judge specifically as a train/test
+split on the reward: the primary grader \emph{was} the training signal, so agreement between the
+two is not inter-rater reliability but a generalisation check, and raw scores must never be pooled
+across them.

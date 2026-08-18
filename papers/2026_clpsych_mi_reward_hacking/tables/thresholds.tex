@@ -1,0 +1,23 @@
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llcccc@{}}
+\toprule
+& & \textbf{R:Q} & \textbf{\%CR} & \textbf{Tech.} & \textbf{Rel.} \\
+\midrule
+\multirow{2}{*}{PTO}  & base    & 0.61\,\xmark & 0.31\,\xmark & 2.92\,\xmark & 3.34\,\xmark \\
+                      & iter 10 & 0.75\,\xmark & 0.36\,\xmark & 3.93\,fair   & \textbf{4.61\,good} \\
+\midrule
+\multirow{2}{*}{GRPO} & base    & 0.70\,\xmark & 0.30\,\xmark & 3.05\,fair   & 3.40\,\xmark \\
+                      & iter 10 & 1.43\,fair$^{*}$ & 0.41\,fair & 3.64\,fair & \textbf{4.20\,good} \\
+\bottomrule
+\end{tabular}
+\caption{Endpoint placed against MITI 4.2.1 competency thresholds. \xmark{} = below ``fair''.
+Both arms cross into ``good'' on the \emph{relational} global; neither reaches ``good'' on the
+\emph{technique} ratios. $^{*}$GRPO's reflection-to-question ratio clears ``fair'' primarily
+by shrinking its denominator (\S\ref{sec:learned}), which is why we treat it as a false
+positive rather than a competency gain. Thresholds are the manual's expert consensus for
+20-minute human sessions --- an anchor, not a certification --- and rest on MITI, whose
+cross-judge dependability is the weakest of the eight instruments.}
+\label{tab:thresholds}
+\end{table}

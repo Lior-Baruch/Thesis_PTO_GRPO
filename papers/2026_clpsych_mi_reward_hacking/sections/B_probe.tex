@@ -1,0 +1,92 @@
+\section{Is the Gap the Loss or the Data?}
+\label{app:probe}
+
+\S\ref{sec:discussion} claims the PTO/GRPO difference is about the data rather than the loss
+family. This appendix gives the measurement behind that claim.
+
+A note on what ``the data differ'' means here, since the candidate distributions are matched by
+construction (\S\ref{sec:setup}): both methods draw $8$ completions from the same policy at the
+same temperature $1.2$ at every branch point. What differs is the \emph{prefix} each group is
+continued from --- an unmodified on-policy slice for GRPO, a trunk of compounding oracle-argmax
+selections for PTO. The comparisons below vary whose recorded groups are used, so ``data'' in
+the table means the states, not the sampler.
+
+\subsection{Putting both updates on one probe}
+Both methods take a group of candidate completions for a prompt, assign each a weight, and step
+along the weighted sum. GRPO's weight is the standardized group advantage
+$(r_g-\mu_g)/\sigma_g$; DPO's is $+1$ on the best candidate and $-1$ on the worst, zero
+elsewhere. Rescaling to a common per-group size therefore puts the two on the same footing: for
+each recorded group we compute the weighted-sum direction in a fixed sentence-embedding space and
+compare directions by cosine.
+
+Any such comparison is attenuated by how well each direction is estimated. We estimate an
+\textbf{attenuation ceiling} by split-half --- the cosine between directions computed from two
+disjoint halves of the same groups --- and report $\text{cosine}/\text{ceiling}$ as the corrected
+agreement. A corrected value of $1.0$ means the two directions agree as well as the data permit.
+
+\subsection{The decomposition}
+The design is a $2\times2$: each method's own groups, weighted by each method's rule.
+
+\begin{center}\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+comparison & cos & ceil & corr. \\
+\midrule
+as trained (rule \emph{and} data differ) & 0.267 & 0.844 & \textbf{0.317} \\
+\midrule
+same data (PTO), rule swapped   & 0.908 & 0.793 & --- \\
+same data (GRPO), rule swapped  & 0.988 & 0.929 & --- \\
+\midrule
+same rule (group-rel.), data differ & 0.356 & 0.896 & \textbf{0.397} \\
+same rule (best/worst), data differ & 0.266 & 0.823 & \textbf{0.324} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The reading is unambiguous. Holding the data fixed and swapping only the weighting rule leaves
+the update direction essentially unchanged ($0.908$ and $0.988$ raw; these exceed their split-half
+ceilings, which is what happens when two directions computed on the \emph{same} groups agree
+better than two halves of those groups agree with each other, so we report them raw and do not
+correct). Holding the rule fixed and varying whose groups are used leaves the methods as far apart
+as they were as trained ($0.397$ and $0.324$, versus $0.317$). At matched look-ahead and a shared
+oracle, DPO and group-relative weighting extract nearly the same direction from the same eight
+completions.
+
+\subsection{Selection pressure versus generated behaviour}
+The same recorded groups let us separate what the update \emph{selects for} from what the policy
+\emph{produces}. Per-iteration selection pressure toward affirmation --- the difference in
+affirmation rate between what the update up-weights and what it down-weights --- runs
+$-0.006\rightarrow+0.086\pm0.008$ (GRPO, iteration 10) and $0.008\rightarrow0.103\pm0.029$
+(PTO, \emph{peaking at iteration 8}; PTO's iteration-10 value falls back to $0.039\pm0.038$ on
+its thinnest group count). Over the same
+iterations, the affirmation rate of what the policy generates moves $0.02\rightarrow0.54$ (GRPO)
+and $0.04\rightarrow0.57$ (PTO), over-praise reaches $0.74$ of GRPO's candidates, and questions
+per completion fall $0.71\rightarrow0.06$. The pressure is an order of magnitude smaller than the
+drift it produces: it is compounding, not strong.
+
+\subsection{Two caveats on this probe}
+\paragraph{Per-iteration embedding directions are noisy.} An earlier version of this analysis
+reported that a per-iteration direction predicts held-out preferences at $0.65\rightarrow0.71$.
+That number was in-sample --- scored on the pairs it was fitted on. Held out, per-iteration PTO
+directions win only $0.47$--$0.59$ with split-half reliability $0.15$--$0.32$. What survives is
+the \emph{pooled} direction (split-half $0.597$ PTO, $0.911$ GRPO) and the exact lexical contrasts
+above, which involve no embedding at all. The table in this appendix uses pooled directions
+only.
+
+\paragraph{PTO's training signal thins.} Branch points built per iteration fall $949\rightarrow410$
+and the $\tau$-filter yield falls $0.82\rightarrow0.69$, so groups that actually contribute a
+gradient fall $782\rightarrow281$, with the best-minus-worst margin decaying
+$0.274\rightarrow0.196$. GRPO trains on $94$--$98\%$ of its groups throughout. A flattening PTO
+curve may therefore be partly a data-starvation curve rather than a convergence curve --- which
+matters for extrapolating beyond ten iterations, though not for the endpoint comparisons in the
+body.
+
+\subsection{Correlational link to the outcome}
+With training iteration partialled out of both sides (the raw correlation is confounded with
+iteration by construction), GRPO's change in MI-inconsistency tracks its affirmation push
+($\rho=0.647$, $p=.043$), its length push ($0.706$, $p=.023$) and its over-praise push ($0.617$,
+$p=.057$); PTO's does not ($-0.492$, n.s.). This is the same direction as the endpoint MICI gap
+($0.84$ vs $0.49$), reached from the training data instead of the outcomes. With $n\leq10$
+iterations per arm and no multiplicity correction, we report it as a mechanism consistent with the
+curves, not as a cause.

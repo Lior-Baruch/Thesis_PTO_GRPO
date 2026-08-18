@@ -41,10 +41,11 @@ only — it is a *floor* on reliability and says nothing about systematic sensit
 wording, item order, or transcript position; a paraphrased-prompt rep would be needed for that.
 (b) **This ICC table is anchor-subset only** — 3 metrics × 4 model states. That is a deliberate
 choice, not a gap: see the rep argument below. The *second-judge* half is no longer subset-limited —
-`Judge_Reliability.ipynb` §3 completed the full 8-rubric × 29-model grid on 2026-07-27
-(**22,272 / 22,272 cells**, $42 batched), so `reliability.filter_complete_cells` now drops nothing
-and every multi-judge number below is computed at full n=96 per cell. Coverage is recorded in
-`multijudge_coverage.md` (232/232 cells).
+`Judge_Reliability.ipynb` §3 completed the full grid and has been kept complete since as new
+model states landed — currently **39 × 8 × 96 = 29,952 / 29,952 cells**, so
+`reliability.filter_complete_cells` drops nothing and every multi-judge number below is computed at
+full n=96 per cell. Coverage is recorded in `multijudge_coverage.md` (39 × 8 = **312/312** model ×
+metric cells). ⚠ Quote the count from that table, not from here — it has been stale twice.
 
 > **Provenance of the sweep** (kept because it explains the guard that is still in the code). The
 > first submission — 9 batches, 21,120 requests — landed only 43%: the Anthropic credit balance ran
@@ -197,8 +198,8 @@ artifact.)*
 > This is consistent with MITI being the rubric with the most judge-dependent construct (behaviour
 > counts and technique ratios rather than a Likert impression) and with the MICI caveat below.
 
-**Coverage as of 2026-07-27:** the second judge now covers **all 8 rubrics × all 29 model states ×
-96 conversations** (22,272/22,272). What remains: still only **one** alternative judge, and the
+**Coverage:** the second judge covers **all 8 rubrics × all 39 model states × 96 conversations**
+(39 × 8 × 96 = **29,952 / 29,952**). What remains: still only **one** alternative judge, and the
 patient simulator is `gpt-4o-mini` in every conversation — this decouples the **grader**, not the
 **generator**. A fully decoupled replication would need the patient re-simulated by another family,
 which means regenerating every conversation (GPU + API), not just re-scoring.
@@ -269,11 +270,64 @@ family (ρ≈0.79–0.94; high PC1 loading), so it does not isolate MI *techniqu
 factor is `MICI ↓` + the MITI ratios (`R:Q`/`%CR`/`%MICO`). Reported as a finding in
 `3_Validity_and_Hacking` §1 rather than hidden.
 
-## 5 · Look-ahead (K=0 vs K=5) is descriptive only
-The LA5 arms are thin (PTO_LA5 = 4 scored iters, GRPO_LA5 = 1), so every K contrast
-(`5_Training` §4, `6_Preference` §2, `7_Stats` §4) is **hypothesis-generating, not inferential**
-— banners mark these in-notebook. The confirmatory PTO-vs-GRPO result is at K=0 and is
-unaffected.
+## 5 · Look-ahead (K=0 vs K=5) — no longer thin, but AXIS-dependent
+Both K=5 arms are now trained and fully scored (PTO_LA5 to iteration 10, GRPO_LA5 to 5), so the K
+contrast is inferential rather than merely descriptive. What replaced thinness as the live caveat
+is that **the answer depends on which axis you match on**:
+
+- At matched **iteration**, K=5 gets ~1.9x the compute per cell (a K=5 optimizer step costs that
+  much more), so the comparison is not budget-neutral.
+- At matched **budget**, the GRPO K contrast on `MICI` **reverses sign** relative to the
+  matched-iteration reading, and the two GRPO arms turn out to have cost the same total GPU-hours
+  (27.1 vs 27.9) despite one running twice the iterations.
+- The lever's sign is a **function of budget**, not a constant: GRPO K=5 is clearly worse at
+  <=18 GPU-h and only draws level at ~23-27 (`7_Stats` §4e `budget_sweep`).
+
+**No sentence about look-ahead is complete without naming its axis.** See `eda_analysis/compute.py`
+and the `7_Stats` §4e artifacts.
+
+## 5b · Three denominators disagree, and only one of them is denominator-free
+Behaviour claims can be stated per therapist TURN, per SESSION, or per unit of therapist LANGUAGE,
+and on this data the three **disagree in direction** for the GRPO K contrast — because both the
+turn count and the turn length move, in method-dependent directions (at PTO's endpoint K=5 takes
+~2.4 *more* therapist turns; at GRPO's it takes ~4.0 *fewer*, while writing ~1.7x longer turns).
+
+Per-1,000-character normalisation is not a fix either: coded MI acts per 1k characters roughly
+halve under GRPO K=5 in **both** valences, so a drop in MI-inconsistency density there is dilution,
+not skill. The only measure with no moving denominator is the **share** of coded acts
+(`k_mici_composition`'s `*_share` columns) — prefer it for any substitution claim, and label every
+rate as a rate.
+
+## 5c · No replicate draw for any trained checkpoint; decoding is unseeded
+Every dz in this EDA treats **one** 96-conversation draw as the model. The only noise floor that
+exists is at the base: four independent draws of the *identical* untrained policy give
+6 pairs x 9 metrics = 54 same-policy contrasts with **0 reaching even uncorrected p < .05**
+(max |dz| 0.128 primary / 0.147 held-out). That floor is measured where sessions are short and
+homogeneous; for trained checkpoints, where turn length swings 279 -> 668 characters, **there is no
+replicate at all**. Contested endpoints (GRPO_LA0 @8 vs @10, GRPO_LA5 @4 vs @5) are single draws,
+and GRPO_LA0's iteration-9 dip has the shape of a bad draw with nothing to distinguish it from a
+real regression.
+
+Related and unrecorded elsewhere: there is **no `torch.manual_seed` / `set_seed`** in `_shared/`,
+`generate_eval_convs.py` or the trainers — only the persona shuffle and the patient API seed are
+seeded. Therapist decoding is therefore not reproducible, which is why a replicate draw needs no
+code change (and why an exact re-run cannot be used as a check).
+
+## 5d · No channel-level reliability, and the weakest instruments carry the channel claims
+`dependability_k1` is **0.553 for MITI** and **0.628 for MICI** — the two least dependable
+instruments in the battery — and they are the ones carrying the substitution/sycophancy results.
+Worse, the MICI ICC is computed on `MICI_Rate` only: there is **no reliability estimate for any
+individual channel** (`MICI_OverPraise`, `MICI_Direct`, `MICI_AdviseNoPermission`), which is exactly
+the granularity the channel claims live at. Repeatability reps exist for **4 model states, all
+K=0, on 3 metrics** — no K=5 state has an ICC, so cross-judge agreement on the entire look-ahead
+arm cannot be benchmarked against a ceiling.
+
+## 5e · The patient distribution is saturated, so every number is in-sample
+`generate_all_permutations(only_expert_therapist=True)` returns exactly
+2 gender x 2 problem x 2 problem_time x 2 tried_to_solve x 3 cooperation_level x 2 age = **96**
+permutations, all of them used. The self-loop makes those same 96 the training rollouts *and* the
+eval set at every iteration. Generalisation to unseen patients is therefore **unmeasured and not
+measurable without authoring new persona prompts** — state it, do not try to estimate it.
 
 ## 6 · Multiplicity is corrected within families, not across
 Holm/BH corrections apply **within** each family (rubrics within one matched contrast, or

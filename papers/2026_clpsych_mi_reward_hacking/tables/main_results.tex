@@ -1,0 +1,49 @@
+\begin{table}[t]
+\centering\small
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{@{}lrrrl@{}}
+\toprule
+& \textbf{base} & \textbf{iter 10} & \textbf{\dz{}} & \\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{PTO} (preference tree $\rightarrow$ DPO)}\\
+\QQ{}   & 3.00 & 4.26 & 1.43 & large \\
+WAI-SR  & 2.85 & 3.50 & 0.97 & large \\
+CSQ-8   & 2.38 & 2.95 & 0.81 & large \\
+MI-SAT  & 2.84 & 3.65 & 0.90 & large \\
+MITI    & 3.13 & 4.27 & 1.35 & large \\
+PCT     & 0.49 & 0.63 & 0.62 & medium \\
+MICI\,$\downarrow$ & 0.21 & 0.49 & 0.78 & \emph{worse} \\
+\midrule
+\multicolumn{5}{@{}l}{\textbf{GRPO} (group-relative); \QQ{} peaks 4.08 @ iter 8}\\
+\QQ{}   & 3.07 & 3.75 & 0.72 & medium \\
+WAI-SR  & 2.89 & 3.44 & 0.84 & large \\
+CSQ-8   & 2.36 & 2.77 & 0.59 & medium \\
+MI-SAT  & 2.86 & 3.48 & 0.66 & medium \\
+MITI    & 3.22 & 3.92 & 0.82 & large \\
+PCT     & 0.49 & 0.57 & 0.36 & small \\
+MICI\,$\downarrow$ & 0.21 & 0.84 & 1.72 & \emph{worse} \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+\textbf{Paired} & \multicolumn{2}{c}{\textbf{final} 10\,v\,10} & \multicolumn{2}{c}{\textbf{best} 10\,v\,8}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}
+PTO${-}$GRPO & $\Delta$ & \dz{} & $\Delta$ & \dz{} \\
+\midrule
+\QQ{}              & $+0.51$ & 0.73    & $+0.18$ & 0.30 \\
+MITI               & $+0.35$ & 0.46    & $+0.04$ & \emph{n.s.} \\
+MICI\,$\downarrow$ & $-0.35$ & $-0.99$ & $-0.04$ & \emph{n.s.} \\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Top:} outcomes versus base, persona-paired over 96 personas, primary grader,
+all Holm $p\approx0$. \dz{} is Cohen's $d$ on paired differences with the conventional
+$0.2/0.5/0.8$ banding. \textbf{MICI is scored so lower is better}, so its large positive \dz{}
+is a deterioration --- the one row contradicting the rest.
+\textbf{Bottom:} the head-to-head, reported \emph{both} ways because comparing only final
+iterations is unfair to GRPO. PTO leads on the reward under either reading, but the effect
+halves at best-vs-best and \textbf{the MITI and MICI gaps vanish} ($p=0.57$, $0.52$) --- the
+sycophancy separation is a property of GRPO's post-peak run-off, not of its best state.}
+\label{tab:main}
+\end{table}

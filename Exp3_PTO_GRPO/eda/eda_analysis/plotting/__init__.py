@@ -18,6 +18,10 @@ Split into topic submodules (2026-07-13; formerly one 935-line ``plotting.py``) 
 - :mod:`.training`      — TRAINING-signal figures (reward distributions, advantage side-by-side).
 - :mod:`.reliability`   — MEASUREMENT-validity figures (oracle ICC, second-judge agreement +
   contrast preservation), from the ``data/eval_scores_by_judge/`` re-scoring tree.
+- :mod:`.compute`       — the COMPUTE axis: score vs cumulative GPU-hours, the budget sweep
+  (does the lever pay at equal spend?), and where each arm's hours go.
+- :mod:`.lookahead`     — RQ-i: the BEHAVIOUR channels the K=0-vs-K=5 reward curve hides
+  (channel trajectories, the select→generate→evaluate mechanism panel, the trade-off forest).
 
 The style/scaffold helpers live in :mod:`eda_analysis.plotting_style` and are re-imported here so
 ``figures.set_style(...)`` / ``figures.grid(...)`` etc. still resolve on this package.
@@ -63,6 +67,13 @@ from .reliability import (  # noqa: F401
     judge_dumbbell, variance_decomposition_bars, gain_retention_bars, concordance_curve,
     retention_trajectory,
 )
+from .lookahead import (  # noqa: F401
+    k_channel_trajectory, k_channel_trajectory_grid, k_mechanism_panel, k_channel_forest,
+    k_cost_benefit,
+)
+from .compute import (  # noqa: F401
+    compute_trajectory, budget_sweep_plot, cost_breakdown,
+)
 
 __all__ = [
     # style helpers (from plotting_style)
@@ -88,4 +99,9 @@ __all__ = [
     "oracle_repeatability_bars", "judge_agreement_scatter", "judge_contrast_bars",
     "judge_dumbbell", "variance_decomposition_bars", "gain_retention_bars", "concordance_curve",
     "retention_trajectory",
+    # lookahead (RQ-i: the behaviour channels the reward curve hides)
+    "k_channel_trajectory", "k_channel_trajectory_grid", "k_mechanism_panel", "k_channel_forest",
+    "k_cost_benefit",
+    # compute (the GPU-hour axis: score vs budget, the budget sweep, the cost breakdown)
+    "compute_trajectory", "budget_sweep_plot", "cost_breakdown",
 ]

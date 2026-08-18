@@ -9,6 +9,53 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-18) — the COMPUTE axis: `eda_analysis/compute.py` + `7_Stats` §4e.**
+
+The EDA had no cost column anywhere. Grepping every `.md` under `results/*/tables/` for
+`gpu|wall.clock|training_time|usd|hours|api_call` returned zero hits, and every contrast in the
+project was indexed by **iteration** — which is not a fixed unit of spend (a K=5 optimizer step
+costs ~1.9× a K=0 one; a whole PTO iteration costs a fraction of a GRPO one). Landed the missing
+x-axis, reconstructed entirely from artifacts already on disk (no new runs, no API):
+
+- **`eda_analysis/compute.py`** — `iteration_compute` (GPU-h per arm × iteration, phase-split into
+  generate / build / train), `compute_summary`, `step_multiplier`, `iso_compute_pairs`,
+  `iso_compute_contrast`, `budget_sweep`, `score_by_compute`.
+- **`eda_analysis/plotting/compute.py`** — `compute_trajectory` (score vs cumulative GPU-h, with
+  iteration numbers annotated so the two axes can be read against each other), `budget_sweep_plot`,
+  `cost_breakdown`.
+- **`7_Stats` §4e** (owned by `RQ_I_VIEW` = `L5`, like §4c/§4d) → tables `compute_by_arm`,
+  `compute_by_iteration`, `iso_compute_contrast`, `budget_sweep`, `k_step_multiplier`; figures
+  `compute_trajectory`, `cost_breakdown`, `budget_sweep`.
+- **Self-check #21, `compute axis (GPU-hours)`** — costs positive, `cum_gpu_h` monotone, phases sum
+  to the total, PTO's rows non-zero (its cost comes from a *different* source than GRPO's, so a
+  regression there would silently zero PTO rather than raise), and the iso-compute contrast pairs on
+  `persona_id` with the `stats.py` sign convention pinned.
+
+**Three measurement decisions, each of which changes the numbers:**
+
+1. **Never time a run from `iteration_metadata.json`.** `training_time_s` / `generation_time_s` /
+   `pref_pair_time_s` are per-PROCESS, so a resumed iteration records only its last session —
+   GRPO_LA5 iteration 1 logs 14,501 s for work spanning 7.7 h, and PTO logs `pref_pair_time_s = 3.2 s`
+   for a ~30 min build it reloaded from `pairs.csv`. Everything is timed from artifact mtimes instead.
+2. **Two timing sources, because the methods write different artifacts.** GRPO writes one
+   `training/completions/*.parquet` per optimizer step; DPOTrainer writes none, so PTO's training is
+   timed from TensorBoard scalar `wall_time`. PTO's *dominant* phase is neither — it is the
+   preference-tree build, recovered as `max(conversation mtime) → pref_pairs/pairs.csv`.
+3. **Resume gaps and Drive mtime rewrites are IMPUTED at the phase median, not dropped or summed.**
+   Dropping undercounts a resumed phase by exactly one interval; summing bills days of idle time
+   (one observed interval was 1,649 h). `n_imputed` reports how often it fired.
+
+**What it changed.** The two GRPO arms turned out **budget-matched to within 3%** (27.08 vs 27.91
+GPU-h) despite one running twice the iterations; `PTO_LA0` reaches iteration 10 for **8.1** GPU-h
+against `GRPO_LA0`'s **27.9** (3.4× cheaper) *and* scores higher; and the GRPO `MICI` K contrast
+**reverses sign** between the two axes. Findings in
+[CHANGELOG_STATUS.md](CHANGELOG_STATUS.md) 2026-08-18.
+
+**Also landed.** `render_views.py --all-judges` documented in `eda/README.md` after a bare render
+left every held-out-judge subtree stale for a full cycle — silently, since stale tables render fine.
+`LIMITATIONS.md` gained §5b–§5e (three disagreeing denominators; no replicate draw for any trained
+checkpoint + unseeded decoding; no channel-level reliability; the saturated 96-persona design).
+
 **Landed (2026-08-10) — PTO LA5 reaches iter 7 and RQ-i turns into a mechanistic negative result.**
 
 The arm resumed on Colab (`NUM_ITERATIONS=8`; cell 1 had been left at `LOOKAHEAD_K=2`, which would

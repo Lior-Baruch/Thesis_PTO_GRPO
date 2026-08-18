@@ -221,10 +221,19 @@ here.)*
 ## 6 · Reward-faithfulness (why MIN_CONV_LENGTH exists)
 
 Separate but related: the **training** reward scores *partial* conversations, but the thesis evaluates
-*full* ones. `5_Training` rebuilds the partial-conv reliability curve on Exp3 data
-(`stats.rank_agreement_by_nturns`, from `generations.jsonl`): short cuts (`n_turns=2`) agree with the
-final-conv ranking only ~0.66–0.73 (barely above chance), clearing 0.8 at ~10 turns, 0.9 at ~30.
-Motivates the `MIN_CONV_LENGTH` knob (drop training slices shorter than N utterances).
+*full* ones.
+
+⚠ **The ~0.66–0.73-at-`n_turns=2` figures are Exp2's**, from the original `Partial_Conv_Oracle_EDA`
+that motivated the knob (clearing 0.8 at ~10 turns and 0.9 at ~30 — the source of the recommended
+MCL values). They are NOT outputs of the Exp3 rebuild and must not be cited as such.
+
+`5_Training` rebuilds the curve **on Exp3 data** (`stats.rank_agreement_by_nturns`, from
+`generations.jsonl`), but MCL=12 means Exp3 has **no slices below 12 turns at all**, so its curve
+starts where Exp2's had already recovered: agreement ≈0.86–0.89 at `n_turns=12`, and from there it
+edges *up* for GRPO (≈0.90 at 50) and *down* for PTO (≈0.76 at 48). Exp3 therefore cannot confirm
+or refute the short-cut finding — it is evidence that the knob is doing its job, not a replication.
+Read the live numbers off `figures/5_training/<judge>/reward_reliability_curve.png` and its
+`_provenance.md` (which arms were drawn), never from prose.
 
 ## 6b · The update-weighted probe (what the training signal pushes toward)
 
@@ -284,6 +293,50 @@ branch point the τ filter left unpaired (logged `chosen`, no `rejected`), which
   A shrinking training set is a candidate explanation for a flattening curve that no outcome figure
   can see.
 
+## 6c · Compute (GPU-hours) — the cost axis every other metric is missing
+
+**Module:** `eda_analysis/compute.py`. **Rendered by:** `7_Stats` §4e into `RQ_I_VIEW` (`L5`).
+
+Every other metric in this file is indexed by **iteration**. An iteration is not a fixed unit of
+spend, so a matched-iteration contrast is not a matched-budget one.
+
+**Definition.** `gpu_h` for one (arm, iteration) = `gen_h + build_h + train_h`, wall-clock on the
+training host (it includes the API latency the GPU sits through, which is what an A100 rental
+actually bills). `cum_gpu_h` at iteration *k* = the sum over iterations 1..*k* — the cost of having
+produced the iter-*k* adapter, i.e. the policy the score lake calls `<Arm>_I{k}`. The base state is
+0 by construction.
+
+| phase | what it is | timed from |
+|---|---|---|
+| `gen_h` | the rollout pass producing `model_iter_{k-1}` | mtime span of that dir's `conversation_*.csv` |
+| `build_h` | **PTO only** — preference-tree branching + oracle scoring | last conversation mtime → `iteration_k/pref_pairs/pairs.csv` |
+| `train_h` | the optimizer loop | GRPO: `training/completions/*.parquet` (one per step) · PTO: TensorBoard scalar `wall_time` |
+
+**Why not the recorded timings.** `iteration_metadata.json`'s `training_time_s`,
+`generation_time_s` and `pref_pair_time_s` are **per-PROCESS**: a resumed iteration records only its
+last session. GRPO_LA5 iteration 1 logs 14,501 s for work spanning 7.7 h; PTO logs
+`pref_pair_time_s = 3.2 s` for a ~30 min build it reloaded from `pairs.csv`. **Never quote them.**
+
+**Gap handling.** Any mtime delta outside `(0, 3600 s)` is a crash/resume boundary or a re-synced
+Google Drive mtime (one observed interval was 1,649 h, another was negative). Each is replaced by
+that phase's own median, so the interval **counts once** — dropping it would undercount a resumed
+phase by exactly one step, summing it would bill days of idle time. `n_imputed` reports the count;
+read it before trusting a single row.
+
+**Derived quantities.**
+- `step_multiplier` — per-step cost ratio K=5 / K=0, **per iteration and deliberately not pooled**:
+  an arm's first iteration can carry a different `LOOKAHEAD_SUB_BATCH_SIZE` and a fatter API tail,
+  which inflates the ratio without being intrinsic to K.
+- `iso_compute_contrast` — two arms at matched `cum_gpu_h`. ⚠ This reads a **different iteration**
+  from each arm, so it pairs on `persona_id`, never `file_index` (personas reshuffle `seed + k + 1`).
+  `budget_ratio` = arm_b's spend / arm_a's; outside ~0.9–1.1 it is not an iso-compute comparison.
+- `budget_sweep` — the same question as a *curve*: at each budget both arms are represented by the
+  best checkpoint reachable within it. ⚠ **Quote the curve, not a point** — on this data the K
+  lever's sign changes with budget.
+
+**Sign convention** matches `stats.py`: `+ mean_delta ⇒ arm_a higher`, so on a `LOWER_IS_BETTER`
+metric a positive delta means arm_a is *worse*.
+
 ## 7 · Judge reliability (is the measuring instrument trustworthy?)
 
 §6 asks whether the *training* reward predicts the *eval* score. This asks whether the eval score
@@ -325,8 +378,12 @@ comparison, so nothing here averages raw scores across judges — level bias is 
 
 ⚠ **One reading rule that belongs with the definitions, not the results.** The sign-preservation
 ladder's thresholds are **absolute**, so read a ladder *down its own rubric*, never across rubrics:
-PCT and MICI sit on a 0–1 scale (and never reach |Δ|≥0.25 at all), while Q1/Q2/WAI-SR/MITI are 1–5
-or 1–7. Only the pooled `all contrasts` row is cross-rubric comparable.
+`PCT` is a genuine 0–1 proportion (`PCT_ChangeProp`) and never reaches |Δ|≥0.25 at all — its
+ladder stops at the ≥0.10 rung. ⚠ **`MICI` is NOT on that scale and does reach the upper rungs:**
+`MICI_Rate` is an unbounded acts-per-therapist-turn rate (observed 0.00–1.71 per conversation), and
+in `L0` it has **48 of 231** contrasts at |Δ|≥0.25 and **15** at ≥0.50, so read its ladder normally.
+The global ratings Q1/Q2/WAI-SR/MI-SAT/MITI are 1–5 and CSQ-8 is 1–4; nothing here is 1–7. Only the
+pooled `all contrasts` row is cross-rubric comparable.
 
 *(The measured values — sign-preservation rates, the variance components, gain retention — are
 owned by [`results/L0/SUMMARY.md`](../results/L0/SUMMARY.md) §7, with the caveats they imply in

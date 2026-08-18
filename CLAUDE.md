@@ -77,13 +77,49 @@ everywhere else keep a pointer.
 | Detailed eval narrative + numbers | `Exp3_PTO_GRPO/eda/results/<view>/SUMMARY.md` | per render |
 | Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/docs/METRICS_REFERENCE.md` | rarely |
 | Measurement / inference limitations (for the write-up) | `Exp3_PTO_GRPO/eda/docs/LIMITATIONS.md` | rarely |
-| **Paper drafts + the claim→artifact ledger** | `papers/README.md`, then each paper's `README.md` + **`NUMBERS.md`** | per draft |
-| Supervisor decks + emails | `Exp3_PTO_GRPO/meetings/README.md` | per meeting |
+| **Paper drafts + the claim→artifact ledger** | [`papers/README.md`](papers/README.md), then each paper's `README.md` + **`NUMBERS.md`**. Live draft: [`papers/2026_clpsych_mi_reward_hacking/`](papers/2026_clpsych_mi_reward_hacking/) (Exp3 `L0`, K=0 only) | per draft |
+| Supervisor decks + emails | [`meetings/README.md`](meetings/README.md) | per meeting |
 | Data/artifact policy (what's gitignored, how it regenerates) | `README.md` § "Data & large artifacts" | rarely |
 | Dated history | `Exp3_PTO_GRPO/history/` — [CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) (status + findings) · [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md) · [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md), behind a stable [index](Exp3_PTO_GRPO/history/CHANGELOG.md). There is no root changelog. | append-only |
 
 ⚠ **Nothing dated belongs in this file or in STATUS.md.** A dated entry is history — it goes to
 `history/`. STATUS.md is rewritten in place; CLAUDE.md describes how things *are*.
+
+## ⚠ Epistemic status of these docs — read before brainstorming
+
+Docs here split by rate of change. They do **not** split by *how the claim was established*, and
+that distinction matters more when generating ideas than when checking facts:
+
+| Tier | Files | What it is |
+|---|---|---|
+| **MEASUREMENT** | `eda/results/<view>/{tables,figures}/**` | auto-generated from the score lake. Numbers only, no interpretation. **The evidence.** |
+| **INTERPRETATION** | `<view>/SUMMARY.md`, `STATUS.md` headline numbers, `LIMITATIONS.md`, this file's results claims, the auto-loaded memories | hand-authored readings *of* the measurements — written in earlier sessions, largely by Claude. **Not independent evidence.** |
+
+**The failure mode this exists to prevent** is a closed loop: an interpretation is written into a
+doc, loads as a prior next session, gets extended rather than re-derived, and after a few rounds
+reads like an established finding while never having been checked against a table. Four such errors
+shipped into a draft before being caught (the "exploration" framing, a retention interval claimed
+disjoint that overlaps, a cell count nobody multiplied out, and a rate quoted from the wrong table).
+**Every one came from prose about tables. The tables were never wrong.**
+
+### Rules that follow
+
+1. **Brainstorming framings, angles or papers: read the TABLES first, cold.** Do not open
+   `SUMMARY.md` / `STATUS.md` / prior drafts until your own candidate framings are written down.
+   Then read the narratives and *diff* — where the two disagree is the anchoring, made visible.
+   Skipping this produces options that are the section headers of `SUMMARY.md` re-indexed, which
+   is retrieval, not brainstorming.
+2. **Any composite number must show its arithmetic** wherever it is quoted
+   (`8 × 39 × 96 = 29,952`, not `29,952`). Atomic-looking numbers do not get audited.
+3. **A number in prose is a claim about a table, not a number.** Before reusing one, open the table
+   it cites — and check it cites the *right* table. (`SUMMARY.md` §4 has quoted the regex question
+   rate while pointing at the oracle-coded one.)
+4. **Interpretive vocabulary needs a mechanism before it ships.** "Exploration", "sharper
+   discrimination", "more decisive" are compressions of something specific; state the specific
+   thing and verify it against config or artifact.
+5. **The docs record what WAS analysed, so what was never analysed is invisible.** A cold table read
+   cannot fix this — tables only exist for questions someone already asked. When brainstorming,
+   explicitly list what is *not* covered by any artifact.
 
 ## Layout
 ```
@@ -93,8 +129,10 @@ Thesis_PTO_GRPO/
 ├── README.md, LICENSE          README also owns the data/artifact policy (no DATA_README)
 ├── Exp{1,2}_*/CLAUDE.md        per-experiment context for the FROZEN experiments only
 ├── Exp3_PTO_GRPO/history/      the only dated history: CHANGELOG_{STATUS,EDA,TRAINER}.md + an index
-├── papers/                     paper drafts — one subfolder per paper. Span experiments, so they
-│                               live at the root. Each carries a NUMBERS.md claim→artifact ledger.
+├── papers/                     paper drafts — one subfolder per paper. Each carries a NUMBERS.md
+│                               claim→artifact ledger.
+├── meetings/                   supervisor decks + emails, one folder per date, + build/ generators.
+│                               Reads eda/results/ artifacts; imported by nothing.
 ├── HF_key.txt, openai_key.txt  duplicated per-experiment-dir, not at root
 ├── requirements.txt, gen_requirements.py
 └── .venv/                      Python 3.13 env
@@ -112,9 +150,11 @@ Thesis_PTO_GRPO/
 # Exp3_PTO_GRPO — the active experiment
 
 Llama-3.2-1B therapist vs gpt-4o-mini patient/oracle. Two methods compared under matched
-look-ahead + oracle. **Hyperparameters matched across the two:** `NUM_ITERATIONS=10`, `MCL=12`,
+look-ahead + oracle. **Hyperparameters matched across the two:** `MCL=12`,
 K ∈ {0,5}, gen temps + API concurrency; PTO's `M` (`NUM_BRANCHES_PER_TURN`)=8 mirrors GRPO's
-`NUM_GENERATIONS`; `DPO_BETA`=0.1 is the DPO loss temperature, **not** GRPO's KL β. bf16
+`NUM_GENERATIONS`; `DPO_BETA`=0.1 is the DPO loss temperature, **not** GRPO's KL β. ⚠ `NUM_ITERATIONS`
+is **not** currently matched (live cell 1: GRPO 6, PTO 8) — it is volatile, so read cell 1 or
+[STATUS.md](STATUS.md), never a number here. bf16
 (`USE_4BIT` toggle). Output dirs `data/pto_Exp3/` and `data/grpo_Exp3/`.
 
 Reward (training) = **Q1 + Q2 only**, matching the ICLR look-ahead paper.
@@ -361,10 +401,12 @@ Exp3_PTO_GRPO/
 ├── figures/       hand-authored METHOD schematics — NOT data-derived, so they live outside
 │                  eda/results/ (no view, no <judge>/ level, no producing notebook).
 │                  build_method_figures.py draws them; captions live in CAPTIONS.md.
-├── history/       the only dated history: CHANGELOG_{STATUS,EDA,TRAINER}.md behind a stable index.
-└── meetings/      supervisor-facing decks + emails ONLY — never imported by code/ or eda/.
-                   → meetings/README.md
+└── history/       the only dated history: CHANGELOG_{STATUS,EDA,TRAINER}.md behind a stable index.
 ```
+
+`meetings/` moved OUT of here to the repo root — decks span experiments and now also present the
+`papers/` drafts, so they sit beside `papers/` rather than inside one experiment. The deck builders
+still read this experiment's `eda/results/`; they resolve it as `REPO/Exp3_PTO_GRPO/`.
 
 ## Exp3 · EDA workflow (short version — full guide in [eda/README.md](Exp3_PTO_GRPO/eda/README.md))
 1. **Score:** `Run_Eval.ipynb` — its `EXPERIMENTS` registry is auto-generated from
@@ -376,9 +418,11 @@ Exp3_PTO_GRPO/
    everything auto-discovers arms from disk — no registry edits anywhere. The **VIEW knob**
    (`all`/`L0`/`L5`) sets both the arm filter and the `results/<view>/` output root; the orthogonal
    **JUDGE knob** selects which grader's scores are read and which `<judge>/` subfolder is written.
-3. **Regenerate:** `python tools/render_views.py` (renders the two tracked views, L0+L5) → `results/<view>/`.
+3. **Regenerate:** `python tools/render_views.py` renders the two tracked views (L0+L5) **on the primary
+   oracle ONLY** — for a full refresh including every held-out judge's `<judge>/` subtree use
+   **`python tools/render_views.py --all-judges`**. → `results/<view>/`.
    The pooled `all` view was RETIRED 2026-07-27 — still renderable, but gitignored scratch, not a deliverable.
-   Run **`python -m eda_analysis._selfcheck`** after any EDA change (19 checks).
+   Run **`python -m eda_analysis._selfcheck`** after any EDA change (22 checks).
 
 The VIEW/JUDGE systems, `EdaConfig`, parquet cache, output-clean policy, and the package module map
 are all documented in [eda/README.md](Exp3_PTO_GRPO/eda/README.md) — not here. Eval **numbers** are
@@ -451,10 +495,20 @@ EDA capture, throughput tuning, and the first-run + ChatML-leak fixes — live i
   is both the DPO audit trail AND the completion marker (reload + skip), and `pref_pairs/_progress.json`
   is a per-step snapshot for mid-build resume (guarded by a config fingerprint incl. τ, which is NOT in
   `EXPERIMENT_NAME`, so a different-τ checkpoint is discarded not mixed).
+  **Checkpoint validity is exactly 3 files** (`HF_TRAINER_FILES` = `adapter_model.safetensors`,
+  `adapter_config.json`, `trainer_state.json`) — the project's own `eda_snapshot.jsonl` /
+  `experiment_metadata.json` are NOT required, so a checkpoint missing only those still resumes.
+  ⚠ `write_run_metadata` **overwrites `run_metadata.json` in place**, so a resume under changed knobs
+  restamps the whole arm, earlier iterations included; copy it aside first if the old values matter.
 - **K-turn look-ahead is batched.** `simulate_lookahead_batch` ([_shared/reward.py](Exp3_PTO_GRPO/code/_shared/reward.py))
   advances all B completions in lock-step — one padded batched `model.generate` per look-ahead turn —
   ~statistically equal to the legacy serial path (validated on GPU, |Δmean|=0.024, 1.5×). Knob
-  `LOOKAHEAD_SUB_BATCH_SIZE` (64 GRPO / 128 PTO on A100-80GB; auto-halves on OOM, kept sticky).
+  `LOOKAHEAD_SUB_BATCH_SIZE` (auto-halves on OOM, kept sticky). GRPO sends
+  `TRAIN_BATCH_SIZE × grad_accum` = 128 completions per optimizer step, so 128 = one chunk per
+  simulated turn. ⚠ **This knob and `LOOKAHEAD_K` live in `LookaheadConfig`, which is not serialised** —
+  they are mirrored onto `TrainingConfig` as audit-only fields so `run_metadata.json` records them.
+  Sub-batch is in no `EXPERIMENT_NAME`, so without that mirror a change leaves no trace and silently
+  makes per-iteration wall-clock non-comparable. Keep the mirror in sync when editing cell 1.
 - **Per-generation EDA capture.** Each iter writes `iteration_N/eda/generations.jsonl` — one branch row
   with nested `candidates[]` (`completion`/`score`/per-questionnaire `sub_scores`/`lookahead.tail`) +
   `chosen_idx`; GRPO one row per group per epoch, PTO one row per branch. Knobs `SAVE_EDA_GENERATIONS`,
@@ -558,9 +612,35 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 disk. Extend it by concern: a new rubric → `eda_analysis/constants.py::QUESTIONNAIRES` + `data.py` (the
 scores backbone); a new arm naming scheme → `data.py::parse_experiment_name`; new stats → `stats.py`; new
 figures → the topic module in `plotting/` (+ its `__init__` re-export); a new VIEW or results-layout change
-→ `config.py` (the `view`/`_VIEW_KS` logic) + `exports.py`. (`figures`/`plots` are still aliased to
+→ `config.py` (the `view`/`_VIEW_KS` logic) + `exports.py`; anything about **what a run COST** →
+`compute.py` (see below). (`figures`/`plots` are still aliased to
 `plotting`; the data-module aliases `discovery`/`personas`/`scores`/`select` were retired — use
 `eda_analysis.data.*` / the top-level re-exports.)
+
+**The COMPUTE axis (`eda_analysis/compute.py`).** Every other contrast in the EDA is
+indexed by **iteration**, which is not a fixed unit of spend — a K=5 step costs ~1.9× a K=0 step and a
+whole PTO iteration costs a fraction of a GRPO one. `compute.py` reconstructs GPU-hours per (arm,
+iteration) from **artifact mtimes** and exposes `iso_compute_contrast` / `budget_sweep` so a lever can be
+read at matched *budget*. Rendered by `7_Stats` §4e into `results/L5/…/7_stats/{compute_by_arm,
+compute_by_iteration,iso_compute_contrast,budget_sweep,k_step_multiplier}` + figures
+`{compute_trajectory,cost_breakdown,budget_sweep}`.
+  - ⚠ **Never time a run from `iteration_metadata.json`.** `training_time_s` / `generation_time_s` /
+    `pref_pair_time_s` are per-PROCESS, so a resumed iteration records only its last session
+    (GRPO_LA5 iter 1 logs 14,501 s for 7.7 h of steps; PTO logs `pref_pair_time_s = 3.2 s` for a
+    ~30 min build it reloaded from `pairs.csv`).
+  - An iteration is billed `generate + build + train`. **`build` is PTO-only and is its DOMINANT
+    phase** (5.7 of PTO_LA0's 8.1 h) — GRPO has no build because its reward computation happens
+    inside the training loop, which is why per-step timings alone cannot compare the two methods.
+  - `train` is timed from `training/completions/*.parquet` for GRPO (one per optimizer step) and
+    from TensorBoard `wall_time` for PTO (DPOTrainer writes no per-step artifact).
+  - Any mtime delta outside `(0, 3600 s)` is a resume gap or a re-synced Drive mtime and is
+    **imputed at the phase median**, so the step counts once rather than being dropped or billing
+    days of idle time. `n_imputed` reports how often that fired.
+  - ⚠ **Iso-compute pairs DIFFERENT iterations across arms**, so `file_index` pairing is invalid
+    there (personas reshuffle `seed + k + 1`); everything in the module pairs on `persona_id`.
+    Pinned by the `compute axis (GPU-hours)` self-check.
+  - ⚠ **Quote `budget_sweep`, not a single iso-compute row** — the lever's sign is a function of
+    budget (GRPO K=5 is clearly worse at ≤18 GPU-h and only draws level at ~23–27).
 
 **Scoring layer (`eda_analysis/scoring/` — the Run_Eval + Judge_Reliability backend):**
 
@@ -573,13 +653,13 @@ figures → the topic module in `plotting/` (+ its `__init__` re-export); a new 
 - **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/eval_scores/`: ICC/agreement/contrast tables for `8_Measurement_Validity` §1, plus the **multi-judge** layer for its §2 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `sign_preservation`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_views.py`.
   - ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the second judge is held out — that is train-vs-test, not two raters. The level offset is 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to every effect. Combine only contrasts or standardized quantities.
   - ⚠ **Pair on `persona_id`, not `file_index`** (`attach_persona`). The 96 personas are reshuffled each iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it; `dz` and CIs do not.
-- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with all 22,272 conversations already scored.
+- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with every conversation already scored (`8 × 39 × 96 = 29,952` cells per grader; read the live count off `results/*/tables/8_measurement/multijudge_coverage.md`).
 
 ## Exp3 · Gotchas
 
 - **HF model-card READMEs** inside `data/grpo_Exp3/runs/.../checkpoint-*/` are auto-generated — DO NOT delete or treat as project docs.
 - **Pref-tree audit trail = resume marker.** PTO_Exp3 writes `iteration_N/pref_pairs/pairs.csv` per iter. Don't delete — it's both the DPO debug trail AND the Step-2 completion marker: its presence makes a restart **reload it and skip the ~41-min build** (see "Training internals" → Resume). The sibling `iteration_N/pref_pairs/_progress.json` is the in-build per-step checkpoint (auto-deleted on success; safe to delete manually to force a clean rebuild).
-  ⚠ **An EMPTY marker is worse than a missing one.** A 1-byte `pairs.csv` makes a resumed iteration reload 0 pairs, skip the build, and run a silent **no-op DPO update** — it looks like success. **Check for empty markers before resuming any arm** (it happened to `iteration_6/` and was caught only by inspection).
+  ⚠ **An EMPTY marker FAILS LOUDLY — it is not a silent no-op.** A 1-byte `pairs.csv` makes a resumed iteration reload 0 pairs and skip the build, but `if not pref_pairs: raise ValueError("… produced 0 pref pairs …")` sits at function-body indentation *after* the reload/build branch ([pto_trainer.py:1788](Exp3_PTO_GRPO/code/PTO_Exp3/pto_trainer.py#L1788)), so both paths hit it before any adapter is written. Delete the file to force a clean rebuild. ⚠ The raise's own guidance ("lower `PREF_FILTER_TAU`") is a **science change mid-arm** — τ is not in `EXPERIMENT_NAME`, so acting on it silently mixes arms; delete the empty marker instead. *(This bullet claimed a "silent no-op DPO update … it looks like success" until 2026-08-17. That was never true of this code — the guard landed 2026-06-03, ~8 weeks before the `iteration_6/` event, and `history/CHANGELOG_STATUS.md:139` correctly says an empty marker "**would have**" caused it. The counterfactual lost its "would have" when it was promoted here.)*
 - **"The conv dir exists" ≠ "the convs exist", AND "the dir reads as empty" ≠ "the run died".** `data/` is a Google Drive Desktop symlink, and the mount can wedge on a single folder — a populated `model_iter_N/` read as 0 files with an intermittent `WinError 1450` while all 96 convs were present in Drive the whole time; a Drive restart fixed it. **Before concluding an arm is unfinished, check the cloud** (the Drive MCP connector lists the folder directly). The alternative was a needless ~50-min regeneration.
 - **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Training internals") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **PTO `branch_id` is trunk DEPTH, not a unique id.** Unlike GRPO's, it repeats across conversations, so any per-branch aggregation must key on `(conversation_id, branch_id)` — pooling on `branch_id` alone mixes unrelated conversations.
@@ -601,7 +681,45 @@ figures → the topic module in `plotting/` (+ its `__init__` re-export); a new 
 - **Local sm_120 import order: `trl` must be imported BEFORE `torch`.** On the local Blackwell GPU, `from trl import …` *after* torch is already imported **segfaults at CUDA init** (a native init-order conflict, exit 139 — not OOM, not a bug in the trainers; Colab is unaffected, which is why the full runs ran there). The trainer modules already import `trl` first; only matters if you run something locally that imports torch/`_shared` first. Verified 2026-06-07.
 - **Local offline smoke:** [code/_local_smoke.py](Exp3_PTO_GRPO/code/_local_smoke.py) — `python _local_smoke.py {stopgen|dpo|grpo|all}`. Tiny, no OpenAI; validates the stop-string bind, the DPO prompt-cap + no-OOM (grad-ckpt+precompute), and a GRPO step on the local GPU (~3 GB peak). Imports `trl` first (see above). All three PASS as of 2026-06-07.
 - **Oracle prompt caching depends on the rubric-first layout.** [questionnaires.py](Exp3_PTO_GRPO/code/questionnaires.py) `get_prompt_eval_questionnaire` puts the fixed instructions + questionnaire rubric FIRST and the variable transcript LAST, so OpenAI's automatic prompt caching hits the ~1,084-token fixed prefix on every oracle call (≈50 % input discount + lower latency — matters for the oracle bill, the binding cost constraint above, even though wall-clock is GPU-bound; see next bullet). The margin over OpenAI's 1,024-token minimum is thin: **don't trim the oracle instructions/rubric or move the transcript ahead of them**, or caching silently stops (verified 2026-06-07: prefix is transcript-independent for Q1). Patient API calls auto-cache too (stable system + growing-history prefix). The therapist's local `model.generate` has **no** cross-call prefix reuse under HF — that would need vLLM (a real build here, not a flag: the look-ahead and *all* of PTO's generation use custom `model.generate`, not TRL's `use_vllm` path).
-- **The run is likely GPU-bound, not API-bound (corrected 2026-06-07).** Earlier notes called the runs "API-bound" — that was inferred from GPU *memory* (17/67 GB), which does NOT measure compute. Lior observes he waits on GPU, not API. Autoregressive `model.generate` on the 1B LoRA policy (GRPO's G=8 completion sampling + K-turn look-ahead; PTO's branch sampling + look-ahead) dominates wall-clock; the `340.6 s / 8 GPU calls` look-ahead line ≈ 30–40 s per batched generate, far above the ~1–2 s of raw 1B/A100 compute → heavy per-step overhead. **Top suspect: the recently-added `STOP_STRINGS` route generation through HF `StopStringCriteria` (runs every step; known multi-× slowdown).** Before optimizing, MEASURE the split (time sampling vs look-ahead-GPU vs look-ahead-API vs backward); the K=0 arms (no look-ahead) running much faster would itself confirm generation is the cost. Faster stop than string-matching: register the two markers as single special tokens + stop on `eos_token_id`.
+- **Where GRPO's wall-clock actually goes (MEASURED 2026-08-17 — supersedes the earlier guesses).**
+  Read per-step times off the mtimes of `iteration_N/training/completions/*.parquet`, not off
+  `iteration_metadata.json`: ⚠ **`training_time_s` is per-PROCESS, so a resumed iteration records
+  only its last session.** LA5 iter 1 logs 14,501 s but spans 108 steps with a 40.54 h gap at step
+  55 — the true cost is **7.69 h**, nearly 2× the recorded figure. Never quote `training_time_s`
+  for an iteration that crashed and resumed.
+  - **K=5 costs ~1.9× K=0 per step** — median ratios **1.96 / 1.96 / 1.91** at iterations 3 / 4 / 5,
+    once `LOOKAHEAD_SUB_BATCH_SIZE` is 128 and the API tail has drained. ⚠ The earlier "2.4–3.0×"
+    figure was **iteration 1 only**, which ran at sub-batch 64 AND carried 12 steps > 500 s; it is
+    superseded. ~1.9× is the physics of 5 extra simulated turns per candidate. Per-step cost is
+    now a rendered artifact (`k_step_multiplier`), so quote it from there, not from prose.
+  - **`STOP_STRINGS` is NOT the multi-× slowdown** the earlier note claimed. Benchmarked locally
+    (bs 8/16/32, 200 tokens, 1B bf16): string stopping costs **1.05–1.18× vs no criteria, and the
+    penalty SHRINKS with batch** — the per-step criterion is a handful of small tensor ops, flat in
+    batch. The real stop-string cost is **per-CALL**, not per-step: `get_vocab()` iteration order is
+    unstable, so `StopStringCriteria`'s internal cache key never hits and it rebuilds a 128k-vocab
+    table on every `generate()` (0.8–1.7 s per build, measured). Memoising the criteria object is
+    bit-identical (same table, same per-step decisions, zero RNG consumed) and worth ~3–6% of an
+    iteration. **Do NOT "fix" it by swapping to token-ID or `eos_token_id` stopping**: the markers
+    are 6-token BPE sequences (`<|im_end|>` → `['<','|','im','_end','|','>']`) and not special
+    tokens, so token-ID stopping matches a strict subset — a science change, and K-asymmetric.
+  - **Bigger batch buys nothing.** TRL already issues ONE `generate()` per optimizer step over the
+    whole `generation_batch_size` (= `per_device × steps_per_generation`), so 64×2 and 128×1 emit
+    the same single call. Worse, `grad_accum` 2→1 is **not** gradient-neutral: TRL divides by it in
+    `_compute_loss` and transformers divides again in `training_step` (fires because GRPOTrainer
+    sets `model_accepts_loss_kwargs=False` and the identity collator leaves `num_items_in_batch`
+    None), so the net scale is 1/gas² and halving gas **doubles** the accumulated gradient — enough
+    to start tripping `max_grad_norm=1.0` on this arm's measured grad norms.
+  - **The one real lever is the look-ahead API latency tail.** Excess-over-floor per step:
+    ~87/135 steps sit at the floor, with 9 steps ~600 s longer — the `openai` default 600 s timeout
+    on the look-ahead patient call. Capping helps (~1.4×) but ⚠ **a short TOTAL budget is
+    dangerous**: exhausting the retry loop freezes a sim, the oracle then scores a truncated
+    transcript, and under `scale_rewards="group"` one frozen sim shifts the mean AND std of its
+    group of 8. The neutral shape is a **short per-attempt timeout with MORE retries** (e.g. 60 s ×
+    ≥12), which lowers the freeze probability below the status quo. K=0 makes no patient calls
+    during training, so anything here is K-asymmetric — record it in `run_metadata.json`.
+  - ⚠ **Wall-clock is a reported number in the look-ahead paper** (the cost-asymmetry argument), so
+    any speedup applied to one arm and not the other must be stamped with the iteration it started
+    at, or the cost multiplier stops being comparable.
 
 ## Hardware
 Local: Windows, RTX 5070 Ti (12 GB VRAM), CUDA 12.8, torch 2.11.0+cu128.

@@ -1,0 +1,99 @@
+\section{Measurement Quality}
+\label{app:measurement}
+
+\input{tables/instruments}
+
+\subsection{Instrument provenance}
+Q1 (5 items, session satisfaction) and Q2 (17 items, working alliance / relational
+communication) are the published LLM-evaluator prompts of \citet{yosef2024assessing}, validated
+\emph{as LLM evaluators} --- their ratings are statistically reliable and separate three levels
+of therapist expertise. Q2 should not be presented as the WAI itself. WAI-SR
+\citep{hatcher2006waisr} and CSQ-8 \citep{larsen1979csq} are classically validated human
+self-report scales, here completed by the oracle in the patient's voice. MITI 4.2
+\citep{moyers2016miti} is the official MI treatment-integrity coding system. MI-SAT is an
+adapted MI-satisfaction survey; PCT (patient change-talk) and MICI (MI-inconsistent behaviour)
+are MITI-style coders written for this study. The derived ratios R:Q, \%CR and \%MICO are
+functions of the MITI behaviour counts and cost nothing extra to compute.
+
+\subsection{Oracle reproducibility}
+The reported evaluation is a single draw per conversation at \texttt{temperature}$=0.1$,
+\texttt{seed}$=42$, which freezes the grader's bias for reproducibility but does not measure
+it. We measured it on an anchor subset (4 model states $\times$ \{Q1, Q2, MICI\} $\times$ 96
+conversations, three further seeded draws compared against the reported one):
+
+\begin{center}\small
+\begin{tabular}{@{}lcc@{}}
+\toprule
+& ICC(2,1) & mean $|\Delta|$ \\
+\midrule
+Q1   & 0.982--0.994 & 0.047--0.070 \\
+Q2   & 0.955--0.992 & 0.076--0.089 \\
+MICI & 0.864--0.943 & 0.037--0.069 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Q1 and Q2 are ``excellent'' by the \citet{koo2016icc} guideline; MICI is ``good''
+\citep{shrout1979icc}. Since every claim is a mean over 96 conversations, this
+per-conversation noise shrinks by ${\approx}\sqrt{96}$ at the level we report --- oracle noise
+contributes ${\approx}0.01$ to an arm mean against ${\approx}0.09$ from persona sampling. That
+ratio is why we bought breadth (all states $\times$ both judges, one draw) rather than depth
+(more draws of fewer cells): a second draw cannot move an arm-level conclusion.
+
+\subsection{Held-out judge: parity and coverage}
+\heldoutjudge{} scored the complete grid: 8 instruments $\times$ 22 model states $\times$ 96
+conversations $=16{,}896$ cells for this comparison, with no partial cells; the same sweep
+covered all 39 model states in the wider project ($29{,}952$ cells). Partial cells were quarantined rather
+than used, because a partial cell's mean is unbiased but not \emph{comparable} --- precision
+differs with $n$, and persona-paired statistics collapse when two arms cover different random
+subsets of personas.
+
+The two graders' rubrics were held structurally identical. Where one provider's structured-output
+schema rejects a constraint the other accepts (numeric bounds and array-length constraints), the
+constraint was restated in the field description rather than dropped, preserving the
+one-score-per-item guarantee on array-shaped rubrics. An automated parity check verifies that
+every stripped constraint was restated and that the encodings are otherwise identical; it runs
+before any scoring is submitted.
+
+\subsection{Variance decomposition}
+Two-way decomposition of arm means into arm, judge, and arm\,$\times$\,judge components:
+
+\begin{center}\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+& \%\,arm & \%\,judge & \%\,a$\times$j & depend. \\
+\midrule
+Q1     & 10.9 & 87.8 & 1.2 & 0.899 \\
+Q2     & 13.2 & 85.5 & 1.3 & 0.911 \\
+WAI-SR & 22.8 & 75.2 & 1.9 & 0.923 \\
+CSQ-8  & 70.6 & 22.5 & 6.9 & 0.911 \\
+MI-SAT & 29.6 & 67.0 & 3.4 & 0.897 \\
+PCT    & 72.0 & 24.5 & 3.5 & 0.953 \\
+MICI   & 45.5 & 48.3 & 6.2 & 0.879 \\
+\textbf{MITI} & \textbf{3.6} & \textbf{94.5} & 1.9 & \textbf{0.652} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+A large \%\,judge is harmless --- it is a level offset that cancels in every contrast. The
+component that would invalidate a ranking is arm\,$\times$\,judge, which stays at $1.2$--$6.9\%$.
+MITI is the outlier not because its interaction is large but because its between-arm signal is
+almost nil, leaving dependability at $0.65$.
+
+\subsection{Sign preservation}
+\begin{center}\small
+\begin{tabular}{@{}lrr@{}}
+\toprule
+subset & $n$ & \% same sign \\
+\midrule
+all contrasts        & 1848 & 88.3 \\
+$|\Delta|\geq0.10$   & 1201 & 94.1 \\
+$|\Delta|\geq0.25$   &  736 & 97.0 \\
+$|\Delta|\geq0.50$   &  352 & 98.9 \\
+judge CI excludes 0  & 1299 & 94.7 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+The monotone ladder is the expected shape: graders disagree where the difference is small and
+agree where it is claimable. Every contrast this paper leans on is in the top band.

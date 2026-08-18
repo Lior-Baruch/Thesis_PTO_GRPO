@@ -169,6 +169,10 @@ def item_short_label(questionnaire: str, item, item_key: str = "") -> str:
 LOWER_IS_BETTER = {
     "MICI", "MICI_Severity", "MICI_Rate", "MICI_Confront_rate", "MICI_AdviseNoPermission_rate",
     "MICI_Warn_rate", "MICI_Direct_rate", "MICI_Judge_rate", "MICI_OverPraise_rate",
+    # The raw per-session COUNTS of the same behaviours carry the same valence as their rates.
+    # Omitting them would silently colour a count bar as unvalenced in any valence-aware figure.
+    "MICI_BehaviorTotal", "MICI_OverPraise", "MICI_AdviseNoPermission", "MICI_Confront",
+    "MICI_Warn", "MICI_Direct", "MICI_Judge",
     "PCT_SustainTalk_prop",
 }
 
@@ -220,6 +224,13 @@ DISPLAY_NAMES = {
     "MICI_Confront_rate": "Confront / turn (MICI)", "MICI_AdviseNoPermission_rate": "Advise w/o permission / turn (MICI)",
     "MICI_Warn_rate": "Warn / turn (MICI)", "MICI_Direct_rate": "Direct/order / turn (MICI)",
     "MICI_Judge_rate": "Judge/label / turn (MICI)", "MICI_OverPraise_rate": "Over-praise / turn (MICI)",
+    # The same MICI behaviours as RAW PER-SESSION COUNTS (the denominator control — see
+    # behavior.MICI_COUNT_CHANNELS). Labelled "/ session" so a count is never read as a rate.
+    "MICI_BehaviorTotal": "MI-Incon. acts / session (MICI)",
+    "MICI_OverPraise": "Over-praise / session (MICI)",
+    "MICI_AdviseNoPermission": "Advise w/o permission / session (MICI)",
+    "MICI_Confront": "Confront / session (MICI)", "MICI_Warn": "Warn / session (MICI)",
+    "MICI_Direct": "Direct/order / session (MICI)", "MICI_Judge": "Judge/label / session (MICI)",
     # PCT (PATIENT change-talk) detail — patient-perspective globals (1-5) + utterance proportions.
     "PCT_Importance": "Importance (PCT)", "PCT_Confidence": "Confidence (PCT)",
     "PCT_Readiness": "Readiness (PCT)", "PCT_GlobalMean": "PCT global mean",
@@ -229,6 +240,14 @@ DISPLAY_NAMES = {
     "q_per_turn": "Questions / turn (regex ?)", "q_per_turn_miti": "Questions / turn (MITI)",
     "mean_turn_len": "Turn length (chars)", "loop": "Degeneration %",
     "conv_len": "Conversation length", "n_th_turns": "Therapist turns",
+    # TRAINING-side lexical features (pref.py). Two families that must never be read as one:
+    # `w_*` = what the update SELECTS FOR within a group (chosen-rejected units, can be negative);
+    # `pool_*` = what the policy GENERATES over every candidate (a level, never negative). The
+    # mechanism panel stacks them, so the labels have to distinguish them at a glance.
+    "w_len": "Selected for: turn length (chars)", "w_question": "Selected for: questions / turn",
+    "w_affirm": "Selected for: affirmation markers", "w_overpraise": "Selected for: over-praise markers",
+    "pool_len": "Generated: turn length (chars)", "pool_question": "Generated: questions / turn",
+    "pool_affirm": "Generated: affirmation markers", "pool_overpraise": "Generated: over-praise markers",
 }
 
 # Readable arm labels: canonical key -> "<method> (K=<k>)".
@@ -331,7 +350,9 @@ RE_EFFUSIVE = re.compile(
 # layout, and there is a single resolver (`Arm.eval_dir`) rather than a primary-vs-other branch.
 # `<Model>` already encodes the method (GRPOExp3_* / PTOExp3_*), so the tree is method-flat.
 #
-# **rep=0 is the full-grid draw for EVERY judge** (29 model states × 8 rubrics × 96 convs) and is
+# **rep=0 is the full-grid draw for EVERY judge** (every scored model state × 8 rubrics × 96 convs;
+# 39 × 8 × 96 = 29,952 cells at the time of writing — read the live count off
+# results/*/tables/8_measurement/multijudge_coverage.md, never from this comment) and is
 # what the EDA reads by default; reps ≥1 are the repeatability draws on the anchor subset. Reps of
 # one judge differ only by scoring seed (`1000+rep` on the OpenAI path; the Anthropic path has no
 # seed and varies by inherent API nondeterminism), so they are exchangeable — which is what makes

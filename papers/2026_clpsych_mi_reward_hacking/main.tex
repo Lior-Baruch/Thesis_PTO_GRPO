@@ -1,0 +1,89 @@
+% =====================================================================
+%  Affirmation Without Inquiry
+%  Reward hacking when an LLM judge trains a Motivational Interviewing therapist
+%  Target: CLPsych / NLP-for-psychology workshop (ACL style), 8-page body
+% =====================================================================
+%
+% COMPILING (MiKTeX, no Perl, no latexmk -- see README.md):
+%     pdflatex main  ->  bibtex main  ->  pdflatex main  ->  pdflatex main
+%   acl.sty + acl_natbib.bst are vendored next to this file. Without them the
+%   preamble falls back to single-column article so the draft still compiles;
+%   if the output is suddenly single-column, that fallback is what fired.
+%
+\documentclass[11pt]{article}
+
+\IfFileExists{acl.sty}{%
+  \usepackage[review]{acl}      % swap to [] for the camera-ready
+}{%
+  \usepackage[margin=1in]{geometry}
+  \usepackage{natbib}
+  \bibliographystyle{plainnat}
+  \typeout{^^J*** acl.sty not found - building in FALLBACK single-column mode. ***^^J}
+}
+
+\usepackage{times}             % REQUIRED: scalable Type 1 fonts. Without this,
+\usepackage{latexsym}          % microtype's font expansion fails on bitmap CM.
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{pifont}            % \ding{55} = the MITI "below threshold" mark
+\usepackage[normalem]{ulem}
+
+% --- draft aids: \todo{...} and \note{...} vanish when \draftfalse -------------
+\newif\ifdraft\drafttrue
+\ifdraft
+  \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+  \newcommand{\note}[1]{\textcolor{blue}{\textit{[#1]}}}
+\else
+  \newcommand{\todo}[1]{}
+  \newcommand{\note}[1]{}
+\fi
+
+% --- shorthands ---------------------------------------------------------------
+\newcommand{\QQ}{Q1{+}Q2}
+\newcommand{\mici}{MICI}
+\newcommand{\dz}{\ensuremath{d_z}}
+\newcommand{\primaryjudge}{\textsc{gpt-4o-mini}}
+\newcommand{\heldoutjudge}{\textsc{Claude Haiku 4.5}}
+\newcommand{\xmark}{\ding{55}}
+
+\title{Affirmation Without Inquiry: Reward Hacking When an LLM Judge\\
+Trains a Motivational Interviewing Therapist}
+
+% \todo{confirm co-author list + order (Kfir Bar, Doron Friedman, Moshe Butman?)
+%       before submission -- kept as a comment so it cannot overflow the title block}
+\author{
+  Lior Baruch \\
+  School of Computer Science \\
+  Reichman University, Herzliya, Israel \\
+  \texttt{lior95bar@gmail.com}
+}
+
+\begin{document}
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_setup}
+\input{sections/04_gains}
+\input{sections/05_learned}
+\input{sections/06_heldout}
+\input{sections/07_discussion}
+\input{sections/08_limitations}
+\input{sections/09_ethics}
+
+\bibliography{refs}
+
+\appendix
+\input{sections/A_measurement}
+\input{sections/B_probe}
+\input{sections/C_repro}
+
+\end{document}

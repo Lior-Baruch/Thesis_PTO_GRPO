@@ -453,22 +453,34 @@ def mici_behavior_by_iter(arms: Optional[List] = None) -> pd.DataFrame:
                        input_roots=eval_input_roots(arms) + conv_input_roots(arms))
 
 
-def _mici_behavior_by_iter_impl(arms) -> pd.DataFrame:
-    mici = load_mici_behavior(arms, attach_persona=False)
+def mici_detail_per_conv(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration, conversation) MICI drill-down: severity + total + 6 per-turn rates.
+
+    The MICI analogue of :func:`miti_detail_per_conv` — joins :func:`load_mici_behavior` with the
+    conversation therapist-turn count and forms ``<behavior>_rate = count / n_th_turns``
+    (mean-of-ratios convention, guarded on ``n_th_turns > 0``). Empty until MICI is scored.
+    Not cached (feeds the cached by-iter builder + the channel frame).
+    """
+    mici = load_mici_behavior(_arms(arms), attach_persona=False)
     if mici.empty:
         return pd.DataFrame()
     text = text_metrics(arms, attach_persona=False)
     keys = ["arm", "iteration", "file_index"]
-    rate_cols: List[str] = []
     if text.empty:
-        merged = mici.copy()
-    else:
-        merged = mici.merge(text[keys + ["n_th_turns"]], on=keys, how="left")
-        nt = merged["n_th_turns"].where(merged["n_th_turns"] > 0)
-        for b in _MICI_RATE_BEHAVIORS:
-            if b in merged.columns:
-                merged[f"{b}_rate"] = merged[b] / nt
-                rate_cols.append(f"{b}_rate")
+        return mici.copy()
+    merged = mici.merge(text[keys + ["n_th_turns"]], on=keys, how="left")
+    nt = merged["n_th_turns"].where(merged["n_th_turns"] > 0)
+    for b in _MICI_RATE_BEHAVIORS:
+        if b in merged.columns:
+            merged[f"{b}_rate"] = merged[b] / nt
+    return merged
+
+
+def _mici_behavior_by_iter_impl(arms) -> pd.DataFrame:
+    merged = mici_detail_per_conv(arms)
+    if merged.empty:
+        return pd.DataFrame()
+    rate_cols = [f"{b}_rate" for b in _MICI_RATE_BEHAVIORS if f"{b}_rate" in merged.columns]
     val_cols = [c for c in ["MICI_Severity", "MICI_Rate"] if c in merged.columns] + rate_cols
     return (merged.groupby(["arm", "method", "K", "iteration"], observed=True)[val_cols]
             .mean().reset_index().sort_values(["arm", "iteration"]))
@@ -508,6 +520,138 @@ def _pct_behavior_by_iter_impl(arms) -> pd.DataFrame:
                             "PCT_GlobalMean", "PCT_ChangeProp"] if c in pct.columns] + prop_cols
     return (pct.groupby(["arm", "method", "K", "iteration"], observed=True)[val_cols]
             .mean().reset_index().sort_values(["arm", "iteration"]))
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  Behavioural CHANNELS — the per-CONVERSATION frame the paired stats run on      ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+# The ``*_by_iter`` frames above answer "where did this arm end up". They are arm MEANS, so
+# nothing built on them can say whether a gap between two arms is real. The channel frame keeps
+# the same quantities at CONVERSATION level, keyed on the recovered ``persona_id``, and reshapes
+# them into exactly the schema :func:`~eda_analysis.data.load_scores_long` emits — so the whole of
+# ``stats.py`` (persona-paired Wilcoxon + dz + bootstrap + Holm, ``paired_k_comparison``,
+# ``k_means_by_iter``, ``paired_method_comparison``, ``main_results_table``) applies unchanged,
+# with no new statistics code. Added 2026-08-16 for the look-ahead × reward-hacking contrast:
+# the headline rubrics had paired tests, the behaviour channels they decompose into did not.
+#
+# ⚠ These are BEHAVIOUR COUNTS AND RATES, not rubric scores. A positive delta is NOT "better" —
+# read the direction off :data:`~eda_analysis.constants.LOWER_IS_BETTER` (every MICI channel is
+# higher = worse) or, for the neutral ones (turn length, conversation length), off nothing at all:
+# they have no valence, which is the point of reporting them beside the valenced ones.
+#
+# ⚠ Channel IDs are the EXISTING column names from the by-iter frames, deliberately — a number
+# quoted from a channel table must be findable in ``mici_behavior_by_iter`` /
+# ``miti_detail_by_iter`` / ``session_shape_by_iter`` under the same name. Labels come from
+# :data:`~eda_analysis.constants.DISPLAY_NAMES`, which already covers all of them.
+
+#: MI-INCONSISTENT channels PER THERAPIST TURN (severity global, total rate, 6 behaviour rates). ↓
+MICI_RATE_CHANNELS = ["MICI_Severity", "MICI_Rate"] + [f"{b}_rate" for b in _MICI_RATE_BEHAVIORS]
+#: The same MI-inconsistent behaviours as RAW PER-SESSION COUNTS — the denominator control. ↓
+#:
+#: ⚠ Not decoration. Every ``*_rate`` channel divides by ``n_th_turns``, and two arms can differ on
+#: a rate with identical counts if one simply took more turns — which two of these arms do. Running
+#: the paired test on counts as well as rates is what separates a behaviour change from a
+#: bookkeeping one, and on this data it changed the conclusion: the over-praise gap survives on
+#: counts (a real substitution), while the MI-inconsistent TOTAL does not move at all.
+MICI_COUNT_CHANNELS = ["MICI_BehaviorTotal"] + list(_MICI_RATE_BEHAVIORS)
+#: MI-CONSISTENT (MITI-coded) channels: the 7 behaviour rates + the 3 proficiency ratios.
+MITI_CHANNELS = [f"{c}_per_turn" for c in _RATE_COUNT_METRICS] + ["RtoQ", "%CR", "%MICO"]
+#: The MITI behaviour counts unnormalized — same denominator control, MI-consistent side.
+MITI_COUNT_CHANNELS = list(_RATE_COUNT_METRICS)
+#: Deterministic, non-LLM session-shape channels — the length/verbosity confound, measured.
+TEXT_CHANNELS = ["mean_turn_len", "q_per_turn", "conv_len", "n_th_turns"]
+
+#: Channels grouped into the families a paired test should be Holm-corrected WITHIN.
+#:
+#: Correcting across all ~40 channels at once treats "over-praise per turn" and "conversation
+#: length" as one hypothesis family, which they are not — it is over-conservative and it mixes
+#: constructs. Each family below is a coherent hypothesis set; run the test per family and label
+#: the rows, so the Holm scope is stated rather than implied.
+BEHAVIOR_CHANNEL_FAMILIES = {
+    "MI-inconsistent (per turn)": MICI_RATE_CHANNELS,
+    "MI-inconsistent (per session)": MICI_COUNT_CHANNELS,
+    "MI-consistent (per turn)": MITI_CHANNELS,
+    "MI-consistent (per session)": MITI_COUNT_CHANNELS,
+    "session shape": TEXT_CHANNELS,
+}
+#: Every behavioural channel, deduplicated, in reporting order.
+BEHAVIOR_CHANNELS = list(dict.fromkeys(c for cs in BEHAVIOR_CHANNEL_FAMILIES.values() for c in cs))
+
+_CHANNEL_ID_KEYS = ["arm", "method", "K", "model", "iteration", "is_base", "file_index"]
+
+
+def channels_per_conv(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:
+    """One row per (arm, iteration, conversation): every :data:`BEHAVIOR_CHANNELS` column.
+
+    Outer-joins :func:`text_metrics`, :func:`load_miti_behavior` (raw counts),
+    :func:`miti_detail_per_conv` (rates + ratios) and :func:`mici_detail_per_conv` (counts +
+    rates) on ``(arm, iteration, file_index)``. Channels whose source questionnaire is unscored
+    are simply absent — callers should intersect with ``df.columns``, never assume the full list.
+    With ``attach_persona`` the recovered ``persona_id`` is attached per arm (the per-iteration
+    shuffle is replayed), which is what makes the frame pairable across arms.
+    """
+    arms = _arms(arms)
+    keys = ["arm", "iteration", "file_index"]
+    parts = [p for p in (text_metrics(arms, attach_persona=False),
+                         load_miti_behavior(arms, attach_persona=False),
+                         miti_detail_per_conv(arms),
+                         mici_detail_per_conv(arms)) if not p.empty]
+    if not parts:
+        return pd.DataFrame()
+    merged = parts[0]
+    for nxt in parts[1:]:
+        dup = [c for c in nxt.columns if c in merged.columns and c not in keys]
+        merged = merged.merge(nxt.drop(columns=dup), on=keys, how="outer")
+    keep = [c for c in _CHANNEL_ID_KEYS if c in merged.columns] + \
+           [c for c in BEHAVIOR_CHANNELS if c in merged.columns]
+    out = merged[keep]
+    return _attach_by_arm(out, arms) if attach_persona else out
+
+
+def channel_scores_long(arms: Optional[List] = None) -> pd.DataFrame:
+    """:func:`channels_per_conv` reshaped into the ``load_scores_long`` schema.
+
+    Columns: ``method, arm, K, oracle, model, iteration, is_base, file_index, persona_id,
+    questionnaire, score`` — where ``questionnaire`` holds the CHANNEL ID. Feed it to any
+    ``stats.py`` entry point that takes ``scores_long``, passing ``metrics=`` explicitly (the
+    default rubric order will not match a channel frame and would silently return nothing)::
+
+        ch = behavior.channel_scores_long(arms)
+        stats.paired_k_comparison(ch, "PTO", metrics=behavior.MICI_CHANNELS)
+
+    Prefer running the test **per family** (:data:`BEHAVIOR_CHANNEL_FAMILIES`) so each Holm
+    correction covers a coherent hypothesis set rather than every channel at once::
+
+        for fam, chans in behavior.BEHAVIOR_CHANNEL_FAMILIES.items():
+            stats.paired_k_comparison(ch, "PTO", metrics=chans).assign(family=fam)
+
+    ``oracle`` is carried from the arm so :func:`~eda_analysis.data.to_wide`'s index is complete;
+    it is a property of the RUN, not of these channels (they are eval-side measurements).
+    Parquet-cached on the eval + conversation CSVs.
+    """
+    arms = _arms(arms)
+    # ⚠ The CHANNEL LIST must be in the cache key. `load_cached`'s signature covers the arms, the
+    # judge and the input CSVs — none of which change when someone edits BEHAVIOR_CHANNELS, so
+    # without this a widened channel set is silently served the old, narrower frame. That happened
+    # once (the per-session count families came back empty after being added) and it fails
+    # quietly: a missing channel reads as "not comparable yet", not as an error.
+    return load_cached("channel_scores_long", arms, lambda: _channel_scores_long_impl(arms),
+                       input_roots=eval_input_roots(arms) + conv_input_roots(arms),
+                       params={"channels": tuple(BEHAVIOR_CHANNELS)})
+
+
+def _channel_scores_long_impl(arms) -> pd.DataFrame:
+    wide = channels_per_conv(arms, attach_persona=True)
+    if wide.empty:
+        return pd.DataFrame()
+    oracle_by_arm = {a.label: a.oracle for a in arms}
+    wide = wide.assign(oracle=wide["arm"].map(oracle_by_arm))
+    id_cols = [c for c in (["method", "arm", "K", "oracle", "model", "iteration", "is_base",
+                            "file_index", "persona_id"]) if c in wide.columns]
+    value_cols = [c for c in BEHAVIOR_CHANNELS if c in wide.columns]
+    long = wide.melt(id_vars=id_cols, value_vars=value_cols,
+                     var_name="questionnaire", value_name="score")
+    return long.dropna(subset=["score"]).reset_index(drop=True)
 
 
 def _attach_by_arm(df: pd.DataFrame, arms) -> pd.DataFrame:

@@ -10,13 +10,35 @@ EDA verified end-to-end: 4,512 convs / 47 models / 9 experiment groups.
 ## Setup
 | Role | Model |
 |---|---|
-| Therapist | Llama-3.2-1B (4-bit NF4 + LoRA via DPO) — quantization matters for score comparability; see the root CLAUDE.md data-lineage warning |
+| Therapist | Llama-3.2-1B (4-bit NF4 + LoRA via DPO) — quantization matters for score comparability; see "Quantization" below |
 | Patient simulator | `gpt-4o-mini-2024-07-18` |
 | Oracle (evaluator) | `gpt-4o-mini-2024-07-18` |
 
 - 96 patient permutations.
 - PTO sweeps at K ∈ {0, 5}, iters labeled V1..V7 per oracle.
 - Reward = chosen oracle's mean score. Filter τ = 0.1 on pref pairs.
+
+### Quantization — why Exp2 and Exp3 absolute scores are not on one axis
+
+⚠ **Exp2 and Exp3 absolute oracle scores are NOT on the same axis — compare WITHIN Exp3 only.**
+The therapist base is the *same* model in both (Llama-3.2-1B); only the generation precision
+differs — **Exp2 generated its conversations in 4-bit NF4, Exp3 in bf16.**
+
+The mechanism is degeneration, not capability. 4-bit induces phrase-loop degeneration in
+**≈9.5% of therapist turns** (they run to the token cap as repeated spam) versus **≈0.3%** in
+bf16 — `9.5 / 0.3 ≈ 32×` more. The oracle floors those turns, which drags the mean down:
+
+| Arm | Q1+Q2 |
+|---|---|
+| Exp2 Base (4-bit, all convs) | ≈ 2.38 |
+| Exp2 Base, clean (non-degenerate) subset | ≈ 2.93 |
+| Exp3 Base (bf16) | ≈ 3.0 |
+
+So the raw gap is `3.0 − 2.38 ≈ 0.62`, but removing the degenerate turns closes it to
+`3.0 − 2.93 ≈ 0.07`. **That is the evidence the gap is a quantization artifact, not a real
+difference in model quality.** To put Exp2 on the same axis as Exp3, its conversations would have
+to be regenerated in bf16 — until then, no cross-experiment level comparison is valid (the root
+[../CLAUDE.md](../CLAUDE.md) § "Data lineage" carries the same warning).
 
 ## GRPO V1 (static) — why it's weak
 The V1 GRPO trainer used a **fixed prompt set** (no per-iter regeneration).

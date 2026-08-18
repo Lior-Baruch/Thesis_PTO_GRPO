@@ -1,0 +1,83 @@
+\section{Setup}
+\label{sec:setup}
+
+\subsection{Task and simulator}
+A therapist policy converses with a simulated patient about a behaviour-change problem
+(smoking, drinking, exercise, diet, and similar). The patient is
+\primaryjudge{}\footnote{\texttt{gpt-4o-mini-2024-07-18} throughout, for the patient, the
+training reward, and the primary evaluation. Fixing one model in all three roles is what
+makes the held-out judge in \S\ref{sec:heldout} necessary.} conditioned on one of \textbf{96
+persona system prompts} crossing problem type with a cooperation level that includes
+explicitly resistant patients. Conversations run until the patient ends the session or a
+turn cap is reached. The therapist is \textbf{Llama-3.2-1B} in bf16 with a LoRA adapter; the
+base model with no adapter is the ``iteration 0'' reference.
+
+The 96 personas are the unit of analysis. Every model state is evaluated on all 96, so all
+contrasts in this paper are \textbf{persona-paired}: arm A's conversation with persona $p$ is
+compared against arm B's conversation with the same persona $p$. Personas are reshuffled
+across iterations, so pairing is done on persona identity rather than file order.
+
+\subsection{Reward and evaluation instruments}
+The \textbf{training reward} is \QQ{}: the mean of two questionnaires from
+\citet{yosef2024assessing} --- Q1, a 5-item session-satisfaction scale, and Q2, a 17-item
+working-alliance/relational-communication scale --- both filled in by the oracle from the
+patient's perspective on the full transcript, on a 1--5 Likert scale. This matches the reward
+used by \citet{baruch2025pto} and is held fixed across both arms.
+
+Evaluation uses eight instruments (Table~\ref{tab:instruments}, Appendix~\ref{app:measurement}).
+Five are \emph{global evaluations} --- \QQ{}, WAI-SR, CSQ-8, MI-SAT and MITI --- which turn out
+to form an empirical halo cluster rather than distinct constructs. Three more were added
+specifically to test whether anything measures outside that cluster: PCT (patient change-talk),
+MICI (MI-\emph{inconsistent} therapist behaviour, \textbf{lower is better}), and the derived
+MITI proficiency ratios R:Q, \%CR and \%MICO. With only the five
+global rubrics, a single principal component explains ${\approx}91\%$ of arm-level variance;
+adding MITI behaviour counts, PCT and MICI drops PC1 to $55.0\%$ (GRPO) / $55.7\%$ (PTO).
+Notably \textbf{PCT does not provide the second factor} --- patient change-talk co-moves with
+the halo rubrics ($\rho\approx0.79$--$0.94$) --- so we report all eight flat and avoid
+describing any subset as an orthogonal axis.
+
+
+\subsection{The two optimizers}
+Both methods are \textbf{iterative}: each iteration regenerates its own training data from
+the current policy, performs an update, swaps in the new adapter, and repeats. The
+conversations generated at the start of iteration $n$ are the output of the iteration-$(n{-}1)$
+policy and serve as that policy's evaluation set, so evaluation is never on stale data.
+
+\paragraph{GRPO.} The policy simulates 96 conversations; each is sliced after every patient
+turn whose conversation-so-far is at least $\mathrm{MCL}$ utterances long, yielding per-turn
+prompts. For each prompt, $G$ completions are sampled, each is scored by the oracle on the
+prompt-plus-completion transcript, and the group-relative advantage
+$A_g=(r_g-\mu_g)/\sigma_g$ drives a clipped policy-gradient update with a KL penalty against
+the iteration-start adapter \citep{schulman2017ppo,shao2024deepseekmath}.
+
+\paragraph{PTO.} The policy grows a preference tree per conversation. Starting from an
+$\mathrm{MCL}$-length prefix, at each therapist turn it samples $M$ candidate completions,
+scores each with the oracle, \emph{appends the best to the trunk} so the choice conditions
+the next branch point, and emits a preference pair
+$(\text{prefix},\ \text{best},\ \text{worst})$ whenever the score margin exceeds a threshold
+$\tau$. The collected pairs train a DPO objective \citep{rafailov2023dpo} against the
+iteration-start adapter as reference. PTO is the framework; DPO is the loss it uses.
+
+\paragraph{What is held fixed.} $M=G=8$ candidates per branch point, drawn from the same policy
+at the same temperature ($1.2$); $\mathrm{MCL}=12$; a 49-utterance data target; 10 iterations;
+2 epochs each; identical patient population, oracle, base model and precision; $K=0$ in both.
+The \emph{candidate} distribution at a branch point is thus matched by construction.
+
+\paragraph{What differs} is worth stating precisely, because the obvious reading --- ``DPO
+versus GRPO'' --- is not what our results support. \emph{(i) The state distribution.} GRPO's
+prompts are slices of an \textbf{unmodified on-policy rollout}: every prefix is a state $\pi_n$
+actually produces. PTO's trunk starts from an on-policy 12-utterance seed and then grows by
+appending the \textbf{oracle-argmax of 8}, a selection that \emph{compounds} because each
+accepted best conditions the next branch point --- so PTO trains on states from a best-of-$M$
+reranked policy, closer in spirit to expert iteration than to exploration. \emph{(ii) The
+weighting rule:} standardized group advantage over all $G$, versus $\pm1$ on the best and worst
+surviving the margin filter. Incidentally the volumes differ too ($752$--$2{,}528$ groups per
+iteration for GRPO; $410$--$949$ branch points for PTO, $281$--$782$ surviving $\tau$).
+Appendix~\ref{app:probe} separates (i) from (ii) empirically.
+
+\subsection{Evaluation protocol}
+All 22 model states (2 arms $\times$ 11, base through iteration 10) are evaluated on all 96
+personas and all 8 instruments. Effect sizes are Cohen's \dz{} on persona-paired differences,
+significance Wilcoxon signed-rank with Holm correction within family, intervals 2{,}000-resample
+bootstraps over personas. Oracle reproducibility is measured, not assumed: ICC(2,1)
+$0.86$--$0.99$ (Appendix~\ref{app:measurement}).

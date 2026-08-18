@@ -1,0 +1,35 @@
+\section*{Ethics Statement}
+
+\paragraph{No human subjects, no clinical data.} Every conversation analysed here is
+synthetic: an LLM-simulated patient built from a persona specification, conversing with a
+language model. No patient records, transcripts, or clinical data of any kind were used, and
+no human participants were involved. The personas describe generic behaviour-change scenarios
+and do not correspond to individuals.
+
+\paragraph{These models must not be deployed.} The systems we train are 1B-parameter models
+that, by our own measurements, end training more MI-inconsistent than they began, with
+over-praise in a majority of therapist turns in one arm and open questions nearly absent.
+Deploying such a model with people seeking help for substance use or other health behaviours
+would be harmful. We report these as measurements of an optimisation procedure, not as
+candidate systems. Nothing here should be read as evidence that automated MI is ready for
+contact with patients.
+
+\paragraph{Why the failure mode is worth publishing.} Sycophancy is a comparatively benign
+failure in a chatbot and a serious one in counselling, where the therapeutic value lies
+specifically in \emph{not} substituting the therapist's approval for the client's own
+motivation. A model optimised for patient-reported satisfaction learns to be agreeable, and
+agreeableness will score well on precisely the instruments a well-meaning developer would
+reach for first. We think the useful contribution is the demonstration that this is
+measurable cheaply and early, before deployment is contemplated.
+
+\paragraph{Reward specification is a safety surface.} \S\ref{sec:learned} shows the drift is
+traceable in part to items in a general-psychotherapy alliance instrument that pay for
+therapist self-disclosure and direction --- behaviours MI does not prescribe. Reusing a
+validated human-report scale as an automated training reward imports its construct
+assumptions into the optimiser, where they are pursued far harder than any human respondent
+would pursue them. We would encourage anyone building such a pipeline to audit the reward
+item by item.
+
+\paragraph{Compute and cost.} Training and evaluation used a single cloud A100 for the
+training runs and API inference for the patient and graders, at ${\approx}\$317$ total API
+spend. No proprietary or personal data was sent to any API; all transcripts are synthetic.

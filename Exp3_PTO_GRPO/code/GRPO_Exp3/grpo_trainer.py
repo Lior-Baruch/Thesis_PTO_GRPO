@@ -171,6 +171,15 @@ class TrainingConfig:
     tb_live_logging: bool = False
     tb_sample_completions_n: int = 8
 
+    # Look-ahead knobs, recorded ONLY so run_metadata.json can be audited. The live values the
+    # reward function uses come from LookaheadConfig (_shared/reward.py), which is not serialised
+    # -- so before 2026-08-17 no run on disk said which sub-batch it ran, and K was recoverable
+    # only from EXPERIMENT_NAME. lookahead_sub_batch_size is NOT in EXPERIMENT_NAME, so without
+    # this it is an invisible setting: changing it leaves no trace and silently makes per-iteration
+    # wall-clock non-comparable. Keep these in sync with the LookaheadConfig the notebook builds.
+    lookahead_k: int = 0
+    lookahead_sub_batch_size: Optional[int] = None
+
     def __post_init__(self):
         # Fail at config construction — before a single GPU-hour or oracle call — if the
         # run name doesn't encode a non-default patient/oracle model. See roles.py.
@@ -782,6 +791,13 @@ def run_one_iteration(
             tb_logger.log_sample_completions(samples, step=end_step, iteration=iteration)
 
     # ── Step 4: Save ──
+    # Append THIS process's contribution before building the metadata, so a resumed iteration's
+    # cumulative_* fields cover every session rather than just the last one. The bare
+    # generation_time_s / training_time_s below stay per-process (unchanged meaning, so nothing
+    # downstream shifts silently) — read the cumulative_* fields when n_timing_sessions > 1.
+    from _shared.timing import log_session, metadata_fields
+    log_session(iter_dir, generation_s=gen_time, training_s=train_time,
+                started_at=iter_start_time)
     iter_metadata = {
         **iter_metadata_base,
         "num_conversations": len(completed_states),
@@ -790,6 +806,7 @@ def run_one_iteration(
         "epochs_per_iteration": cfg.epochs_per_iteration,
         "generation_time_s": gen_time,
         "training_time_s": train_time,
+        **metadata_fields(iter_dir),
     }
     save_iteration_checkpoint(
         policy=new_policy, tokenizer=tokenizer,

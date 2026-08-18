@@ -1,0 +1,66 @@
+\section{Look-ahead closes the channel}
+\label{sec:channel}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/k_overpraise_trajectory_gpt-4o-mini.png}
+  \caption{Over-praise per therapist turn, all four arms, by the training iteration of the policy
+    that generated the conversations. Solid $=$ \Kz{}, dashed $=$ \Kf{}. The two PTO arms are
+    indistinguishable for six iterations and then separate, and the \Kf{} arm never leaves the
+    floor across the full eleven-point horizon. Shading marks the first iteration at which the
+    persona-paired contrast clears Holm correction, read off the test rather than the curve.
+    Higher is worse.}
+  \label{fig:overpraise}
+\end{figure}
+
+Under $K{=}0$ the therapist becomes a flatterer. Over-praise rises from $0.17$ to $3.04$ acts per
+session across ten iterations while confronting, warning and judging all fall to zero --- the
+increase in MI-inconsistency is not a broad decay but a single channel opening.
+
+Under $K{=}5$ that channel stays shut. Figure~\ref{fig:overpraise} shows the two PTO arms tracking
+each other through iteration~5 and separating thereafter. The persona-paired contrast is null for
+six iterations and then large and growing:
+
+\begin{center}\small
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{lrrr}
+\toprule
+iteration & $\Delta$ acts/session & \dz{} & $p_{\text{Holm}}$ \\
+\midrule
+5  & $-0.02$ & $-0.02$ & $1.00$ \\
+6  & $+0.33$ & $+0.25$ & $.052$ \\
+7  & $+1.01$ & $+0.67$ & $4.7{\times}10^{-8}$ \\
+8  & $+1.03$ & $+0.79$ & $5.6{\times}10^{-9}$ \\
+9  & $+2.07$ & $+0.96$ & ${<}10^{-4}$ \\
+10 & $+2.42$ & $+0.89$ & ${<}10^{-4}$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\noindent
+Positive means the \Kz{} policy does more of it. The held-out judge, which never participated in
+training, reports a larger gap in the same direction at every one of these iterations, reaching
+$+3.57$ acts per session at iteration~10 ($\dz{}=1.00$, $p_{\text{Holm}} < 10^{-4}$).
+
+\paragraph{Prevention, not delay.} A shorter run could not have distinguished a mitigation that
+stops the drift from one that merely postpones it. Ours goes to the horizon at which the
+unmitigated arm's flattery is compounding fastest --- over-praise nearly doubles between
+iterations 8 and 10 under \Kz{} --- and across that same stretch the \Kf{} arm moves from $0.47$ to
+$0.63$ acts per session. The channel is closed for as long as we ran it, under both graders.
+
+\paragraph{This is not a denominator effect.} The \Kf{} policy takes about four more therapist
+turns per session, so a per-turn rate could fall with the underlying count unchanged. It does not:
+the contrast above is on raw per-session counts, with no denominator involved.
+
+\paragraph{This is not a data-starvation effect either.} Over the full ten iterations the \Kf{} arm
+built $7{,}548$ preference groups and trained on $6{,}416$, against the \Kz{} arm's $6{,}240$ and
+$4{,}935$. The arm that hacks less is the arm that saw \emph{more} training signal.
+
+\paragraph{The reward the run optimised cannot see any of it.} At the endpoint neither grader
+separates the arms on the objective. Under the primary oracle the sign has even flipped --- the
+\Kf{} arm's \QQ{} mean is nominally the higher of the two ($4.307$ vs.\ $4.260$, $\dz{}=-0.10$,
+$p_{\text{Holm}}{=}.70$) --- and under the held-out judge \Kz{} is nominally ahead
+($2.866$ vs.\ $2.667$, $\dz{}=0.31$, $p_{\text{Holm}}{=}.13$). Both are null. The objective is
+indifferent to a fourfold difference in flattery. An evaluation that stopped at the reward curve
+would conclude look-ahead did nothing; an evaluation that stopped at over-praise would conclude it
+fixed the problem. \S\ref{sec:aggregate} is why neither is right.

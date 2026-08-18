@@ -1,0 +1,31 @@
+\section{Reproducibility}
+\label{app:repro}
+
+\paragraph{Models.} Therapist: \texttt{Llama-3.2-1B}, bf16, LoRA adapters, trained on a single
+A100-80GB. Patient, training reward and primary evaluation: \texttt{gpt-4o-mini-2024-07-18},
+JSON-schema-constrained output, \texttt{temperature}$=0.1$, \texttt{seed}$=42$. Held-out judge:
+\texttt{claude-haiku-4-5}, same rubrics, submitted via batch inference.
+
+\paragraph{Training configuration (identical across arms unless noted).} 10 iterations,
+2 epochs per iteration, $M=G=8$ candidates per branch point / group, minimum conversation
+length 12 utterances, look-ahead $K=0$, 96 conversations generated per iteration,
+DPO $\beta=0.1$ (PTO only), preference margin threshold $\tau$ (PTO only). Each iteration
+regenerates its data from the current policy; the conversations generated at the start of
+iteration $n$ are the evaluation set for the iteration-$(n{-}1)$ policy.
+
+\paragraph{Evaluation.} 22 model states $\times$ 96 personas $\times$ 8 instruments per grader.
+Contrasts are persona-paired; personas are reshuffled each iteration, so pairing is on persona
+identity, not file order. Effect sizes are Cohen's \dz{}; tests are Wilcoxon signed-rank with
+Holm correction within family; intervals are 2{,}000-resample bootstraps over personas.
+
+\paragraph{Cost.} ${\approx}\$317$ total API spend across the project, dominated by oracle
+scoring during training. The full held-out-judge sweep --- $29{,}952$ cells across all 39 project
+model states, of which this paper uses $16{,}896$ --- cost ${\approx}\$42$ using batch inference,
+roughly $13\%$ of the project total for a complete second reading of every result. We note this because the cost of the diagnostic we recommend is small relative to
+the cost of the training it audits.
+
+\paragraph{Artifacts.} All figures and tables in this paper are copied unmodified from a
+tracked analysis tree; a claims ledger maps every number in the draft to the artifact file it
+came from, so a re-render that moves a number identifies every sentence that must change.
+\todo{decide what is released publicly: transcripts + scores are synthetic and releasable;
+confirm adapter release with co-authors}

@@ -1,0 +1,57 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{Nominate the aggregate before the intervention.} Our result is only surprising if the
+channel that motivated the fix is also the channel used to score it. It was, in our first pass, and
+the conclusion we nearly reported --- ``look-ahead reduces the reward hack roughly fourfold'' --- is
+true of over-praise, replicated by a second judge, mechanistically explained at three levels, and
+wrong about the therapist's behaviour. The discipline that catches it is cheap: fix, in advance,
+the aggregate the channel is a component of, and report the intervention against that. Here the
+aggregate was already defined by the instrument (six coded behaviours summing to a session total),
+which is a good argument for using coded behaviour inventories rather than bespoke channel metrics
+as the outcome for a mitigation study.
+
+\paragraph{Channel-level mitigations and the shape of the reward.} A reward that is hackable
+through one route is usually hackable through several, because what makes it hackable is a gap
+between what it measures and what is wanted, not the particular behaviour that exploits the gap.
+Our rubrics measure how the session felt to the client. Flattery moves that; so, on this client
+simulator, does confident advice. Closing the first route leaves the gap and the optimiser
+untouched. On that reading, interventions that change \emph{what the grader sees} --- more context,
+longer trajectories, richer transcripts --- should be expected to redistribute pressure, while
+interventions that change \emph{what the grader is asked} --- adding an explicit MI-adherence
+penalty to the training reward, rather than only to the evaluation --- are the ones with a route to
+reducing the total. We did not test the latter and cannot claim it works.
+
+\paragraph{Changing composition breaks aggregate comparability.} This is the part we did not
+anticipate. Our two graders agree on the sign and the significance of every component of the
+substitution, and disagree on the total, because they weight the substituted behaviour
+differently: the held-out judge charges the $K{=}5$ policy $1.95$ acts of unsolicited advice where
+the primary oracle charges $0.31$. When an intervention shifts \emph{which} failure occurs, the
+aggregate stops being a grader-invariant quantity even though its parts remain ones. The
+uncomfortable implication is that ``score the mitigation on the aggregate'' --- our own first
+lesson --- is necessary but not sufficient: an aggregate over heterogeneous failures inherits
+whatever relative weighting the grader happens to hold, and that weighting is invisible until
+something moves the mix. Reporting the component vector alongside the total is the cheap fix, and
+it is what we do in Table~\ref{tab:substitution}.
+
+\paragraph{Trajectory rewards are not free.} Look-ahead cost more candidates and five extra
+simulated turns each to reach the same iteration, and returned no improvement on the reward and no
+grader-robust reduction in MI-inconsistency. Read strictly, on this task the correct summary is
+that $K{=}5$ was not worth its price. Read more usefully, it did something specific, large and
+verifiable to the reward's preference structure, and that capability may be worth having where the
+target behaviour \emph{is} the aggregate of interest rather than one component of it.
+
+\paragraph{The clinical reading.} From an MI standpoint the substitution is not neutral, even
+though the count is. Over-praise and unsolicited advice are both MI-inconsistent, but they fail
+differently: praise inflates the alliance while doing no therapeutic work, whereas advising without
+permission asserts the therapist's agenda over the client's, which is the failure mode MI was
+formulated against. Our judges disagree on whether the \Kf{} mix is more severe overall
+(\S\ref{sec:aggregate}), so we do not rank them --- but we note that ``same number of violations''
+should not be read as ``same clinical picture'', and that a count-based aggregate is itself an
+approximation a clinician would want to interrogate.
+
+\paragraph{What would change our mind.} A version of this result that reduced the total would have
+to show the aggregate moving with the components, not instead of them. We would also update on a
+second intervention with the same structure --- a different way of changing what the grader sees ---
+producing a genuine aggregate reduction, which would make our result about look-ahead specifically
+rather than about channel-level mitigation generally. We report the narrow claim.

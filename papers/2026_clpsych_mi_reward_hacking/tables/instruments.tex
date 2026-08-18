@@ -1,0 +1,27 @@
+\begin{table}[t]
+\centering\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Instrument} & \textbf{What it measures} & \textbf{View} \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Global evaluation (empirical halo cluster)}}\\
+\QQ{}$^{\dagger}$ & satisfaction $+$ alliance   & patient \\
+WAI-SR   & goal / task / bond alliance         & patient \\
+CSQ-8    & satisfaction with service           & patient \\
+MI-SAT   & satisfaction with MI                & patient \\
+MITI     & MI integrity, 4 globals             & coder \\
+\midrule
+\multicolumn{3}{@{}l}{\emph{Added to test for structure outside the halo}}\\
+PCT      & patient change-talk                 & coder \\
+MICI\,$\downarrow$ & MI-\emph{inconsistent} moves & coder \\
+ratios   & R:Q, \%CR, \%MICO                   & coder \\
+\bottomrule
+\end{tabular}
+\caption{The eight evaluation instruments. $^{\dagger}$\QQ{} is also the \textbf{training
+reward} --- the one instrument the policy explicitly optimises. MICI is the only measure
+where \emph{lower is better}. All are produced by the same oracle on the full transcript;
+the MITI ratios are free functions of the behaviour counts. ``View'' is the perspective the
+oracle adopts. Provenance in Appendix~\ref{app:measurement}.}
+\label{tab:instruments}
+\end{table}

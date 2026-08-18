@@ -1,0 +1,59 @@
+\section{Introduction}
+\label{sec:intro}
+
+Reinforcement learning from AI feedback (RLAIF) is increasingly used to train dialogue agents for
+clinical and counselling tasks, where the reward is an LLM asked to fill in a validated
+questionnaire about the conversation it just read. The appeal is obvious: the instrument is
+published, the construct is one clinicians already argue about in the literature, and the grader
+scales to tens of thousands of sessions. The risk is equally obvious, and has a name --- the
+policy optimises the grader, not the construct.
+
+In the setting we study, a 1B-parameter therapist trained against MI satisfaction and working
+alliance rubrics acquires one specific shortcut. It learns to praise the client. Over ten
+iterations, over-praise per session rises roughly eighteen-fold while every \emph{other}
+MI-inconsistent behaviour --- confronting, warning, judging --- falls. The rubrics reward it
+because they measure how the session felt to the client, and flattery is the cheapest way to move
+that.
+
+\paragraph{A principled intervention.} If the problem is that a turn is scored in isolation, score
+the trajectory instead. Following the look-ahead formulation of preference-tree
+optimisation, each candidate therapist turn is extended by $K$ further simulated turns --- the
+client replies, the policy replies, and so on --- and the oracle grades the resulting continuation
+rather than the turn. Praise that the conversation does not build on is supposed to stop looking
+good. This is a reasonable, cheap, and general idea, and it is the kind of thing a practitioner
+would reach for on being shown the flattery result.
+
+\paragraph{What we find.} We run $K \in \{0, 5\}$ as a controlled pair and measure not the rubric
+scores but the behaviours the rubrics summarise, persona-paired across 96 matched conversations at
+each of eleven matched training iterations (0--10), under both the training oracle and a held-out
+judge from a different model family.
+
+Look-ahead does what it was supposed to do to the channel it targets
+(\S\ref{sec:channel}). It does not reduce MI-inconsistent behaviour (\S\ref{sec:aggregate}). The
+two arms commit the same number of MI violations per session; they commit different ones. What
+$K{=}5$ saves in flattery it spends on unsolicited advice and directing the client --- and the
+reward function the run was optimising is indifferent between the two.
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item A controlled test of trajectory-level reward as a reward-hacking intervention, with the
+        candidate budget, optimiser, oracle and evaluation held fixed and $K$ as the only
+        manipulation (\S\ref{sec:setup}).
+  \item Evidence that the intervention closes its target channel at three measurement levels ---
+        what the reward selects for, what the policy generates, and what the evaluation observes
+        --- rather than only at the last of them (\S\ref{sec:mechanism}).
+  \item Evidence that the aggregate the channel belongs to does not follow it: identical for eight
+        iterations, and at the endpoint significant under the training oracle but null under the
+        held-out judge, with every component effect large, opposed, and judge-robust
+        (\S\ref{sec:aggregate}).
+  \item Two methodological consequences: the aggregate has to be nominated \emph{before} the
+        intervention, because any intervention looks successful when scored on the channel that
+        motivated it; and an intervention that changes the \emph{composition} of a failure breaks
+        the grader-invariance of aggregate comparisons, even when every component is
+        grader-invariant (\S\ref{sec:discussion}).
+\end{enumerate}
+
+We do not claim look-ahead is useless, and we do not claim reward hacking is conserved as a law.
+We claim that on this task, this reward, and this intervention, the quantity that moved robustly
+was composition, that the quantity that moved unreliably was volume, and that the experiment which
+would have reported a clean success is the one that measured only over-praise --- or only a rate.

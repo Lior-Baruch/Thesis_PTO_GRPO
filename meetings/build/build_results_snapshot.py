@@ -19,11 +19,12 @@ from pptx.enum.shapes import MSO_SHAPE
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))       # meetings/build/
-ROOT = os.path.dirname(os.path.dirname(HERE))           # Exp3_PTO_GRPO/
+REPO = os.path.dirname(os.path.dirname(HERE))           # repo root (meetings/ lives here)
+ROOT = os.path.join(REPO, "Exp3_PTO_GRPO")             # the experiment the artifacts come from
 L0F  = os.path.join(ROOT, "eda", "results", "L0", "figures")
 L0T  = os.path.join(ROOT, "eda", "results", "L0", "tables")
 L5F  = os.path.join(ROOT, "eda", "results", "L5", "figures")
-OUT  = os.path.join(ROOT, "meetings", "2026-07-26", "results_snapshot_2026-07-26.pptx")
+OUT  = os.path.join(REPO, "meetings", "2026-07-26", "results_snapshot_2026-07-26.pptx")
 
 # Since 2026-07-28 every grader has its own leaf: results/<view>/figures/<family>/<judge>/<name>.
 # The decks show the PRIMARY grader's figures, so the judge segment is injected here rather than
@@ -148,6 +149,11 @@ def md_table(s, md_path, left, top, width, height, drop=(), keep=None,
     idx = [i for i,h in enumerate(header) if h not in drop]
     disp = [(rename or {}).get(header[i],header[i]) for i in idx]
     data = [[_fmt(header[i], r[i]) for i in idx] for r in body]
+    if not data:
+        raise ValueError(
+            f"md_table: no rows left after keep() on {os.path.basename(md_path)} — the filter "
+            f"matched nothing. Header={header}. This usually means an EDA re-render changed a "
+            f"column's number formatting (e.g. '10.000' -> '10'); fix the keep() predicate.")
     nr, nc = len(data)+1, len(idx)
     gt = s.shapes.add_table(nr,nc,Inches(left),Inches(top),Inches(width),Inches(height)).table
     lens = [max(len(disp[c]), *(len(data[r][c]) for r in range(len(data)))) for c in range(nc)]

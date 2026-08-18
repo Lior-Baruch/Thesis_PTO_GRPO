@@ -10,6 +10,86 @@ The CURRENT behavior these established is summarized in the root [CLAUDE.md](../
 
 ---
 
+## Where GRPO's wall-clock actually goes — measured; three standing hypotheses refuted (2026-08-17)
+
+Prompted by "can we make the training faster?" before resuming the GRPO K=5 arm. Everything below is
+measured, and it **replaced** a CLAUDE.md gotcha that had asserted the opposite from a guess.
+
+**Read per-step times off `iteration_N/training/completions/*.parquet` mtimes, not
+`iteration_metadata.json`.** ⚠ `training_time_s` is per-**PROCESS**, so a resumed iteration records
+only its last session. GRPO LA5 iteration 1 logs 14,501 s but spans 108 steps containing a **40.54 h
+gap at step 55**; the true cost is **7.69 h**, nearly 2× the recorded figure. I first computed the K
+multiplier as 1.60× off that field and had to retract it. Never quote `training_time_s` for an
+iteration that crashed and resumed.
+
+- **K=5 costs 2.4–3.0× K=0 per step** — median 179.6 s vs 74.6 s, mean 261.2 s vs 85.9 s ⇒ look-ahead
+  is **~58–67% of a K=5 iteration**. Even the floor (145 s vs 74.6 s) is ~1.94×, which is the physics
+  of 5 extra simulated turns per candidate, not overhead.
+- **REFUTED: `STOP_STRINGS` is the multi-× slowdown.** Benchmarked locally (bs 8/16/32, 200 tokens, 1B
+  bf16): string stopping costs **1.05–1.18× vs no criteria, and the penalty SHRINKS with batch** — the
+  per-step criterion is a few small tensor ops, flat in batch. The real cost is **per-CALL**:
+  `get_vocab()` iteration order is unstable, so `StopStringCriteria`'s cache key never hits and it
+  rebuilds a 128k-vocab table every `generate()` (0.8–1.7 s per build). Memoising the criteria object
+  is bit-identical and worth ~3–6% of an iteration. ⚠ Do **not** "fix" it by switching to token-ID or
+  `eos_token_id` stopping: the markers are 6-token BPE sequences (`<|im_end|>` →
+  `['<','|','im','_end','|','>']`) and not special tokens, so token-ID stopping matches a strict
+  subset — a science change, and K-asymmetric.
+- **REFUTED: bigger batch buys throughput.** I proposed `TRAIN_BATCH_SIZE` 64→128 with `grad_accum`
+  2→1 as "science-neutral"; verification against the pinned TRL source killed it. TRL already issues
+  ONE `generate()` per optimizer step over the whole `generation_batch_size`
+  (`grpo_config.py:909-911`: unset ⇒ `steps_per_generation = gradient_accumulation_steps`, so
+  64 × 2 = 128 either way). Worse, gas 2→1 is **not** gradient-neutral: TRL divides by gas in
+  `_compute_loss` and transformers divides again in `training_step` (fires because `GRPOTrainer` sets
+  `model_accepts_loss_kwargs=False` and the identity collator leaves `num_items_in_batch` None), so the
+  net scale is 1/gas² and halving gas **doubles** the accumulated gradient — enough to start tripping
+  `max_grad_norm=1.0` on this arm's measured norms.
+- **The one real lever is the look-ahead API latency tail.** ~87/135 steps sit at the floor; 9 steps run
+  ~600 s longer — the `openai` default 600 s timeout on the look-ahead patient call. Capping helps
+  (~1.4×) but ⚠ a short **TOTAL** budget is dangerous: exhausting the retry loop freezes a sim, the
+  oracle then scores a truncated transcript, and under `scale_rewards="group"` one frozen sim shifts
+  both the mean and the std of its group of 8. The neutral shape is a **short per-attempt timeout with
+  MORE retries** (e.g. 60 s × ≥12). K=0 makes no patient calls during training, so anything here is
+  K-asymmetric — record it in `run_metadata.json`.
+
+⚠ **Wall-clock is a reported number in the look-ahead paper** (the cost-asymmetry argument), so any
+speedup applied to one arm and not the other must be stamped with the iteration it started at.
+
+**Still unmeasured:** the split of look-ahead's ~60% between patient-API wait and therapist-GPU
+generation. `_shared/reward.py` already prints it per call (`Look-ahead: N sims × K=… in …s (… GPU
+calls, sub_batch=…)`); it just has never been captured. That number decides whether
+`LOOKAHEAD_SUB_BATCH_SIZE` is worth anything.
+
+## Look-ahead knobs persisted + GRPO LA5 resumed to iteration 6 (2026-08-17)
+
+**The invisible-setting bug.** `lookahead_k` and `lookahead_sub_batch_size` live in `LookaheadConfig`
+(`_shared/reward.py`), which is **never serialised** — `write_run_metadata` snapshots only
+`asdict(TrainingConfig)`. So all four arms' `run_metadata.json` read `sub_batch=None, K=None`: K was
+recoverable from `EXPERIMENT_NAME` (`_LA{K}_`), but **sub-batch is in no name and left no trace**, so
+changing it would silently make per-iteration wall-clock non-comparable. I had also cited "PTO already
+ran sub_batch 128 on an A100" from CLAUDE.md prose and had to retract it — nothing on disk said so.
+**Fix:** `lookahead_k: int = 0` and `lookahead_sub_batch_size: Optional[int] = None` added to
+`TrainingConfig` (audit-only fields — the live values still come from `LookaheadConfig`), and cell 1
+now passes both.
+
+**Config for the resume** (`train_GRPO_Iterative.ipynb` cell 1): `LOOKAHEAD_K` 2 → **5** (load-bearing:
+K is in `EXPERIMENT_NAME`, so at 2 it resolves to a nonexistent `_LA2_` folder and trains a brand-new
+arm from scratch instead of resuming), `NUM_ITERATIONS` 10 → **6**, `LOOKAHEAD_SUB_BATCH_SIZE` 64 →
+**128**. Resumes `iteration_2` from `checkpoint-30`/104.
+
+**Two verification findings worth keeping:**
+- **Checkpoint validity is only 3 files** — `HF_TRAINER_FILES` = `adapter_model.safetensors` +
+  `adapter_config.json` + `trainer_state.json`. `checkpoint-30` lacks `eda_snapshot.jsonl` and
+  `experiment_metadata.json`, which are *not* in that set, so it is valid and resume does **not** fall
+  back to `checkpoint-20` (I claimed it would; wrong).
+- **`write_run_metadata` overwrites in place**, so a resume would restamp the whole arm with the new
+  `num_iterations` and `sub_batch` — including iteration 1, which ran at 64. Pre-resume copy kept as
+  `run_metadata_pre_resume_iter1.json`.
+
+**Also corrected:** a stale cell-1 comment claiming "With grad_accum=1, generation_batch_size =
+TRAIN_BATCH_SIZE = 128" while the live config is 64 × 2. Its derived numbers were right, which is how
+the wrong premise survived — but it invited exactly the gradient-doubling edit refuted above, and it
+asserted wall-clock is API-gated.
+
 ## Generate-only eval pass for an orphaned adapter + an inter-batch VRAM leak (landed 2026-07-30)
 
 **The gap.** `model_iter_k` is produced as Step 1 of iteration `k+1`, so a run that dies between

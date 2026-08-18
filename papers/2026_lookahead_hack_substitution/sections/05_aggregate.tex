@@ -1,0 +1,79 @@
+\section{The aggregate does not follow}
+\label{sec:aggregate}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=\columnwidth]{figures/k_mici_composition_grid_gpt-4o-mini.png}
+  \caption{MI-inconsistent behaviour in per-session counts, so no denominator is involved.
+    Over-praise (top left) collapses under \Kf{} while advice-without-permission (top right) rises
+    to take its place. Solid $=$ \Kz{}, dashed $=$ \Kf{}. Under the primary oracle the totals
+    (bottom left) are identical for eight iterations and then separate as the \Kz{} policy's
+    flattery runs away; under the held-out judge the same separation is not significant
+    (Table~\ref{tab:substitution}).}
+  \label{fig:composition}
+\end{figure}
+
+\begin{table}[t]
+  \centering\small
+  \setlength{\tabcolsep}{3pt}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    & \multicolumn{2}{c}{primary oracle} & \multicolumn{2}{c}{held-out judge} \\
+    \cmidrule(lr){2-3}\cmidrule(lr){4-5}
+    per session, iter.\ 10 & $\Delta$ & \dz{} & $\Delta$ & \dz{} \\
+    \midrule
+    Over-praise            & $+2.42$ & $+0.89^{*}$ & $+3.57$ & $+1.00^{*}$ \\
+    Advice w/o permission  & $-0.31$ & $-0.24$     & $-1.95$ & $-0.71^{*}$ \\
+    Directing              & $-0.38$ & $-0.39^{*}$ & $-0.68$ & $-0.47^{*}$ \\
+    \midrule
+    \textbf{All acts}      & $+1.61$ & $+0.45^{*}$ & $+0.53$ & $+0.10$ \\
+    \bottomrule
+  \end{tabular}
+  \caption{The substitution at the matched endpoint, under both graders. Persona-paired
+    \Kz{}$-$\Kf{}, $n{=}96$; positive means the \Kz{} policy does more of it. ${}^{*}$ survives Holm
+    correction within the seven-channel family. Every \emph{component} keeps its sign and
+    significance across the judge swap. The \emph{total} does not: the primary oracle scores it a
+    medium effect, the held-out judge scores it null.}
+  \label{tab:substitution}
+\end{table}
+
+Look-ahead removes about 2.4 acts of flattery per session at the matched endpoint and adds
+advice-giving and directing in its place. Every component of that trade survives the judge swap
+with its sign and significance intact (Table~\ref{tab:substitution}). What does not survive is the
+bottom line.
+
+\paragraph{Under the primary oracle the totals separate late.} For eight iterations the two arms
+commit the same number of MI-inconsistent acts per session --- $3.448$ vs.\ $3.458$ at iteration~8,
+a paired difference of $-0.01$ with $\dz{}=0.004$ ($p{=}.97$). That is pure substitution and it is
+not a power problem: components of that same total are detected at $\dz{}=0.46$--$0.79$ in the same
+comparison. Then the \Kz{} policy's flattery runs away --- over-praise goes $1.50 \to 2.69 \to
+3.04$ across iterations 8--10 --- and the totals come apart, reaching $4.96$ vs.\ $3.34$ at
+iteration~10 ($\dz{}=0.45$, $p{=}.0003$).
+
+\paragraph{Under the held-out judge they do not.} The same contrast at iteration~10 gives
+$+0.53$ acts, $\dz{}=0.099$, $p{=}.17$ --- and it is null at iterations 8 and 9 as well. The
+disagreement is not about whether the substitution happened; it is about what the substitution is
+worth. Both graders see \Kf{} giving more unsolicited advice, but the held-out judge sees far more
+of it ($-1.95$ acts vs.\ the primary oracle's $-0.31$), and that larger offset consumes the
+flattery K=5 saves.
+
+\paragraph{We therefore claim the substitution and not the reduction.} The primary oracle was the
+training reward; the held-out judge was not, and where the two disagree we report the weaker
+statement. The defensible finding at the endpoint is that look-ahead changed \emph{which} MI
+violations the therapist commits, robustly and by large margins, and that whether this nets out to
+fewer violations is grader-dependent.
+
+\paragraph{A rate would have told a cleaner and less honest story.} Measured per therapist turn
+rather than per session, MI-inconsistency is lower under \Kf{} by a large margin under
+\emph{both} graders ($\dz{}=0.71$ primary, $0.65$ held-out, both $p<10^{-4}$). That looks like the
+clean win the per-session counts refuse to give. It is a denominator effect: at iteration~10 the
+\Kf{} policy takes $14.4$ therapist turns to the \Kz{} policy's $10.2$, so dividing by turns
+flatters the arm that talks longer. The rate is not wrong --- a client does experience violations
+per turn --- but it is not evidence of fewer violations, and reporting it alone would repeat, one
+level up, the mistake of reporting the channel alone.
+
+\paragraph{Composition, not volume.} At iteration~10 over-praise accounts for
+$3.042/4.958 = 61.3\%$ of the \Kz{} policy's violations and $0.625/3.344 = 18.7\%$ of the
+\Kf{} policy's; advice-without-permission accounts for $1.594/4.958 = 32.1\%$ and
+$1.906/3.344 = 57.0\%$ respectively. The two policies fail in different ways. Whether one of them
+fails less often is the question our two graders cannot agree on.

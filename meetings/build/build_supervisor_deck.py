@@ -23,10 +23,11 @@ from pptx.enum.shapes import MSO_SHAPE
 from PIL import Image
 
 HERE = os.path.dirname(os.path.abspath(__file__))       # meetings/build/
-ROOT = os.path.dirname(os.path.dirname(HERE))           # Exp3_PTO_GRPO/
+REPO = os.path.dirname(os.path.dirname(HERE))           # repo root (meetings/ lives here)
+ROOT = os.path.join(REPO, "Exp3_PTO_GRPO")             # the experiment the artifacts come from
 FIG  = os.path.join(ROOT, "eda", "results", "L0", "figures")
 TBL  = os.path.join(ROOT, "eda", "results", "L0", "tables")
-OUT  = os.path.join(ROOT, "meetings", "2026-07-16", "supervisor_meeting_2026-07-16.pptx")
+OUT  = os.path.join(REPO, "meetings", "2026-07-16", "supervisor_meeting_2026-07-16.pptx")
 
 # Since 2026-07-28 every grader has its own leaf: results/<view>/figures/<family>/<judge>/<name>.
 # The decks show the PRIMARY grader's figures, so the judge segment is injected here rather than
@@ -154,6 +155,11 @@ def md_table(s, md_path, left, top, width, height, drop=(), keep=None,
     idx = [i for i,h in enumerate(header) if h not in drop]
     disp = [(rename or {}).get(header[i],header[i]) for i in idx]
     data = [[_fmt(header[i], r[i]) for i in idx] for r in body]
+    if not data:
+        raise ValueError(
+            f"md_table: no rows left after keep() on {os.path.basename(md_path)} — the filter "
+            f"matched nothing. Header={header}. This usually means an EDA re-render changed a "
+            f"column's number formatting (e.g. '10.000' -> '10'); fix the keep() predicate.")
     nr, nc = len(data)+1, len(idx)
     gt = s.shapes.add_table(nr,nc,Inches(left),Inches(top),Inches(width),Inches(height)).table
     # proportional widths
@@ -604,7 +610,7 @@ md_table(s, t("7_stats/method_paired_by_K.md"), 0.45, 1.5, 5.9, 5.1,
    rename={"iteration":"iter","mean_delta":"Δ (PTO−GRPO)"}, fontsize=9.5)
 caption(s,"Q1+Q2, all iterations",0.45,6.7,5.9,align=PP_ALIGN.CENTER,size=10)
 md_table(s, t("7_stats/method_paired_by_K.md"), 6.7, 1.5, 6.2, 5.1,
-   drop=("K","n","iteration"), keep=lambda r: r["iteration"]=="10.000",
+   drop=("K","n","iteration"), keep=lambda r: r["iteration"] in ("10", "10.000"),
    rename={"mean_delta":"Δ (PTO−GRPO)"}, fontsize=9.5)
 caption(s,"All metrics @ iter 10 (+ = PTO higher; MICI − = PTO less inconsistent = good)",6.7,6.7,6.2,align=PP_ALIGN.CENTER,size=10)
 
