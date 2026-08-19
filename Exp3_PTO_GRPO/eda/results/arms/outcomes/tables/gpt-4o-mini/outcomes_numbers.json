@@ -1,0 +1,447 @@
+{
+ "_family": "arms/outcomes",
+ "_name": "outcomes_numbers",
+ "_judge": "gpt-4o-mini",
+ "numbers": {
+  "final.PTO_K0.iteration": {
+   "value": 10,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.Q1+Q2": {
+   "value": 4.26,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.WAI-SR (Working Alliance)": {
+   "value": 3.497,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.945,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 3.653,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.MITI (MI Integrity)": {
+   "value": 4.273,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.63,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 0.491,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "final.PTO_K0.Reflection:Question (MITI)": {
+   "value": 0.75,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.% Complex Reflections (MITI)": {
+   "value": 0.364,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K0.% MI-Consistent (MITI)": {
+   "value": 0.7,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.iteration": {
+   "value": 10,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.Q1+Q2": {
+   "value": 4.307,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.WAI-SR (Working Alliance)": {
+   "value": 3.536,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.953,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.71,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.MITI (MI Integrity)": {
+   "value": 4.258,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.638,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.264,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "final.PTO_K5.Reflection:Question (MITI)": {
+   "value": 0.951,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.% Complex Reflections (MITI)": {
+   "value": 0.369,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.PTO_K5.% MI-Consistent (MITI)": {
+   "value": 0.664,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.iteration": {
+   "value": 10,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.Q1+Q2": {
+   "value": 3.753,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.WAI-SR (Working Alliance)": {
+   "value": 3.438,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.773,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 3.479,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.MITI (MI Integrity)": {
+   "value": 3.922,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.574,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 0.838,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "final.GRPO_K0.Reflection:Question (MITI)": {
+   "value": 1.435,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.% Complex Reflections (MITI)": {
+   "value": 0.414,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K0.% MI-Consistent (MITI)": {
+   "value": 0.833,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.iteration": {
+   "value": 5,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.Q1+Q2": {
+   "value": 4.042,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.WAI-SR (Working Alliance)": {
+   "value": 3.464,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.908,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.559,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.MITI (MI Integrity)": {
+   "value": 4.01,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.578,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.34,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "final.GRPO_K5.Reflection:Question (MITI)": {
+   "value": 0.713,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.% Complex Reflections (MITI)": {
+   "value": 0.3,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "final.GRPO_K5.% MI-Consistent (MITI)": {
+   "value": 0.539,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.iteration": {
+   "value": 10,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.Q1+Q2": {
+   "value": 4.26,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.WAI-SR (Working Alliance)": {
+   "value": 3.497,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.945,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 3.653,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.MITI (MI Integrity)": {
+   "value": 4.273,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.63,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 0.491,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "best.PTO_K0.Reflection:Question (MITI)": {
+   "value": 0.75,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.% Complex Reflections (MITI)": {
+   "value": 0.364,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K0.% MI-Consistent (MITI)": {
+   "value": 0.7,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.iteration": {
+   "value": 10,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.Q1+Q2": {
+   "value": 4.307,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.WAI-SR (Working Alliance)": {
+   "value": 3.536,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.953,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.71,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.MITI (MI Integrity)": {
+   "value": 4.258,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.638,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.264,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "best.PTO_K5.Reflection:Question (MITI)": {
+   "value": 0.951,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.% Complex Reflections (MITI)": {
+   "value": 0.369,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.PTO_K5.% MI-Consistent (MITI)": {
+   "value": 0.664,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.iteration": {
+   "value": 8,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.Q1+Q2": {
+   "value": 4.082,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.WAI-SR (Working Alliance)": {
+   "value": 3.374,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.749,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 3.441,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.MITI (MI Integrity)": {
+   "value": 4.234,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.572,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 0.535,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "best.GRPO_K0.Reflection:Question (MITI)": {
+   "value": 1.043,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.% Complex Reflections (MITI)": {
+   "value": 0.372,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K0.% MI-Consistent (MITI)": {
+   "value": 0.711,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.iteration": {
+   "value": 4,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.Q1+Q2": {
+   "value": 4.12,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.WAI-SR (Working Alliance)": {
+   "value": 3.441,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.921,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.622,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.MITI (MI Integrity)": {
+   "value": 4.083,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.614,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.305,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "best.GRPO_K5.Reflection:Question (MITI)": {
+   "value": 0.696,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.% Complex Reflections (MITI)": {
+   "value": 0.342,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  },
+  "best.GRPO_K5.% MI-Consistent (MITI)": {
+   "value": 0.624,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
+  }
+ }
+}

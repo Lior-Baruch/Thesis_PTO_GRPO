@@ -1,0 +1,167 @@
+{
+ "_family": "arms/training",
+ "_name": "training_numbers",
+ "_judge": "gpt-4o-mini",
+ "numbers": {
+  "advantage.GRPO_LA0.mean_group_range": {
+   "value": 0.2845021201439303,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of the unfiltered best-worst candidate range"
+  },
+  "advantage.GRPO_LA0.mean_group_std": {
+   "value": 0.09538757526276218,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of GRPO within-group reward std"
+  },
+  "advantage.GRPO_LA5.mean_group_range": {
+   "value": 0.47538747433879597,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of the unfiltered best-worst candidate range"
+  },
+  "advantage.GRPO_LA5.mean_group_std": {
+   "value": 0.15670604329817261,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of GRPO within-group reward std"
+  },
+  "advantage.PTO_LA0.mean_group_range": {
+   "value": 0.22981013478300855,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of the unfiltered best-worst candidate range"
+  },
+  "advantage.PTO_LA0.mean_margin": {
+   "value": 0.27860000502501103,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of the tau-filtered chosen-rejected margin"
+  },
+  "advantage.PTO_LA5.mean_group_range": {
+   "value": 0.35510440551124034,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of the unfiltered best-worst candidate range"
+  },
+  "advantage.PTO_LA5.mean_margin": {
+   "value": 0.4028225622997586,
+   "source": "tables/advantage_signal_by_iter.md",
+   "note": "mean over training iterations of the tau-filtered chosen-rejected margin"
+  },
+  "degeneration.GRPO_LA0.max_pct_leak": {
+   "value": 0.0,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.GRPO_LA0.max_pct_empty": {
+   "value": 0.18,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.GRPO_LA0.n_candidates_total": {
+   "value": 136864,
+   "source": "tables/degeneration_scan.md",
+   "note": "scored candidates across training iterations"
+  },
+  "degeneration.GRPO_LA5.max_pct_leak": {
+   "value": 0.0,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.GRPO_LA5.max_pct_empty": {
+   "value": 0.21,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.GRPO_LA5.n_candidates_total": {
+   "value": 59192,
+   "source": "tables/degeneration_scan.md",
+   "note": "scored candidates across training iterations"
+  },
+  "degeneration.PTO_LA0.max_pct_leak": {
+   "value": 0.0,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.PTO_LA0.max_pct_empty": {
+   "value": 0.58,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.PTO_LA0.n_candidates_total": {
+   "value": 49920,
+   "source": "tables/degeneration_scan.md",
+   "note": "scored candidates across training iterations"
+  },
+  "degeneration.PTO_LA5.max_pct_leak": {
+   "value": 0.0,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.PTO_LA5.max_pct_empty": {
+   "value": 0.32,
+   "source": "tables/degeneration_scan.md",
+   "note": "worst training iteration"
+  },
+  "degeneration.PTO_LA5.n_candidates_total": {
+   "value": 60384,
+   "source": "tables/degeneration_scan.md",
+   "note": "scored candidates across training iterations"
+  },
+  "faithfulness.gpt-4o-mini.GRPO_LA0.agreement_at_min_nturns": {
+   "value": 0.8599357257632566,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=41074"
+  },
+  "faithfulness.gpt-4o-mini.GRPO_LA0.agreement_at_max_nturns": {
+   "value": 0.8968232419223459,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=3683"
+  },
+  "faithfulness.gpt-4o-mini.GRPO_LA5.agreement_at_min_nturns": {
+   "value": 0.8637560777957861,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=19744"
+  },
+  "faithfulness.gpt-4o-mini.GRPO_LA5.agreement_at_max_nturns": {
+   "value": 0.9353701527614571,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=851"
+  },
+  "faithfulness.gpt-4o-mini.PTO_LA0.agreement_at_min_nturns": {
+   "value": 0.8647480719022897,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=33323"
+  },
+  "faithfulness.gpt-4o-mini.PTO_LA0.agreement_at_max_nturns": {
+   "value": 0.7561436672967864,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=48 (the longest bin with >= 20 pairs), n_pairs=529"
+  },
+  "faithfulness.gpt-4o-mini.PTO_LA5.agreement_at_min_nturns": {
+   "value": 0.892465830791822,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=35412"
+  },
+  "faithfulness.gpt-4o-mini.PTO_LA5.agreement_at_max_nturns": {
+   "value": 0.8257777777777778,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=48 (the longest bin with >= 20 pairs), n_pairs=1125"
+  },
+  "proxy_vs_eval.gpt-4o-mini.GRPO_LA0.mean_proxy_minus_eval": {
+   "value": -0.14311473366574404,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  },
+  "proxy_vs_eval.gpt-4o-mini.GRPO_LA5.mean_proxy_minus_eval": {
+   "value": -0.13736926461178295,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  },
+  "proxy_vs_eval.gpt-4o-mini.PTO_LA0.mean_proxy_minus_eval": {
+   "value": -0.09934598389786382,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  },
+  "proxy_vs_eval.gpt-4o-mini.PTO_LA5.mean_proxy_minus_eval": {
+   "value": 0.11095124101646978,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  }
+ }
+}

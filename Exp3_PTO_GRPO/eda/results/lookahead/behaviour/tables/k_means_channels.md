@@ -1,0 +1,66 @@
+> **Excerpt — first 60 of 1,584 rows.** The full table is too large to read as markdown, so it lives on sheet `k_means_channels` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="k_means_channels")`.
+
+| judge       | method   | metric                       |   iteration |   mean_K0 |   mean_K5 |   delta |   n_K0 |   n_K5 |
+|:------------|:---------|:-----------------------------|------------:|----------:|----------:|--------:|-------:|-------:|
+| gpt-4o-mini | PTO      | MICI_Severity                |           0 |     3.458 |     3.240 |   0.219 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           1 |     3.000 |     3.250 |  -0.250 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           2 |     3.000 |     3.188 |  -0.188 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           3 |     2.667 |     2.938 |  -0.271 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           4 |     2.406 |     2.854 |  -0.448 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           5 |     2.594 |     2.875 |  -0.281 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           6 |     2.531 |     3.010 |  -0.479 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           7 |     2.479 |     2.719 |  -0.240 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           8 |     2.385 |     2.865 |  -0.479 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |           9 |     2.625 |     2.812 |  -0.188 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Severity                |          10 |     2.635 |     2.823 |  -0.188 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           0 |     0.213 |     0.177 |   0.036 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           1 |     0.209 |     0.222 |  -0.013 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           2 |     0.220 |     0.231 |  -0.010 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           3 |     0.252 |     0.248 |   0.004 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           4 |     0.215 |     0.326 |  -0.111 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           5 |     0.289 |     0.325 |  -0.036 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           6 |     0.318 |     0.320 |  -0.002 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           7 |     0.341 |     0.263 |   0.078 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           8 |     0.349 |     0.290 |   0.059 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |           9 |     0.471 |     0.269 |   0.202 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Rate                    |          10 |     0.491 |     0.264 |   0.228 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           0 |     0.007 |     0.004 |   0.003 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           1 |     0.004 |     0.004 |   0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           2 |     0.004 |     0.005 |  -0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           3 |     0.001 |     0.001 |   0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           4 |     0.000 |     0.004 |  -0.004 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           5 |     0.004 |     0.004 |  -0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           6 |     0.000 |     0.003 |  -0.003 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           7 |     0.000 |     0.005 |  -0.005 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           8 |     0.000 |     0.003 |  -0.003 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |           9 |     0.001 |     0.003 |  -0.002 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Confront_rate           |          10 |     0.000 |     0.006 |  -0.006 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           0 |     0.121 |     0.109 |   0.012 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           1 |     0.126 |     0.139 |  -0.013 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           2 |     0.159 |     0.141 |   0.018 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           3 |     0.174 |     0.170 |   0.004 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           4 |     0.142 |     0.210 |  -0.068 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           5 |     0.188 |     0.224 |  -0.036 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           6 |     0.190 |     0.207 |  -0.017 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           7 |     0.167 |     0.180 |  -0.013 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           8 |     0.161 |     0.180 |  -0.020 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |           9 |     0.165 |     0.168 |  -0.003 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_AdviseNoPermission_rate |          10 |     0.163 |     0.154 |   0.009 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           0 |     0.006 |     0.002 |   0.005 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           1 |     0.005 |     0.000 |   0.005 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           2 |     0.002 |     0.003 |  -0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           3 |     0.000 |     0.001 |  -0.001 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           4 |     0.000 |     0.002 |  -0.002 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           5 |     0.000 |     0.000 |   0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           6 |     0.000 |     0.002 |  -0.002 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           7 |     0.000 |     0.000 |   0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           8 |     0.001 |     0.000 |   0.001 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |           9 |     0.001 |     0.001 |   0.000 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Warn_rate               |          10 |     0.000 |     0.001 |  -0.001 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Direct_rate             |           0 |     0.059 |     0.044 |   0.015 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Direct_rate             |           1 |     0.041 |     0.047 |  -0.006 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Direct_rate             |           2 |     0.033 |     0.058 |  -0.024 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Direct_rate             |           3 |     0.051 |     0.046 |   0.005 |     96 |     96 |
+| gpt-4o-mini | PTO      | MICI_Direct_rate             |           4 |     0.038 |     0.063 |  -0.024 |     96 |     96 |
+
+_... 1,524 further rows in the workbook._

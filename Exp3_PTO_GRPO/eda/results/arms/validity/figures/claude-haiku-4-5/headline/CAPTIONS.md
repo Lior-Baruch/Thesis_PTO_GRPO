@@ -1,0 +1,1 @@
+- **reward_hack_panel** — The reward-hack in one frame — headline copy; canonical: arms/validity/figures/<judge>/reward_hack_panel.png.

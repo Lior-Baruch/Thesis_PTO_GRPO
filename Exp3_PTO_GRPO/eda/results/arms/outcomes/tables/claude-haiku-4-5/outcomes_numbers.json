@@ -1,0 +1,447 @@
+{
+ "_family": "arms/outcomes",
+ "_name": "outcomes_numbers",
+ "_judge": "claude-haiku-4-5",
+ "numbers": {
+  "final.PTO_K0.iteration": {
+   "value": 10,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.Q1+Q2": {
+   "value": 2.866,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.WAI-SR (Working Alliance)": {
+   "value": 2.955,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.809,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 3.073,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.MITI (MI Integrity)": {
+   "value": 2.352,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.633,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 0.825,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "final.PTO_K0.Reflection:Question (MITI)": {
+   "value": 1.227,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.% Complex Reflections (MITI)": {
+   "value": 0.553,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K0.% MI-Consistent (MITI)": {
+   "value": 0.495,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.iteration": {
+   "value": 10,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.Q1+Q2": {
+   "value": 2.667,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.WAI-SR (Working Alliance)": {
+   "value": 2.851,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.807,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.184,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.MITI (MI Integrity)": {
+   "value": 2.148,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.685,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.581,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "final.PTO_K5.Reflection:Question (MITI)": {
+   "value": 1.175,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.% Complex Reflections (MITI)": {
+   "value": 0.688,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.PTO_K5.% MI-Consistent (MITI)": {
+   "value": 0.306,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.iteration": {
+   "value": 10,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.Q1+Q2": {
+   "value": 2.257,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.WAI-SR (Working Alliance)": {
+   "value": 2.669,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.484,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 2.825,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.MITI (MI Integrity)": {
+   "value": 2.099,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.612,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 1.05,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "final.GRPO_K0.Reflection:Question (MITI)": {
+   "value": 1.47,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.% Complex Reflections (MITI)": {
+   "value": 0.232,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K0.% MI-Consistent (MITI)": {
+   "value": 0.768,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.iteration": {
+   "value": 5,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.Q1+Q2": {
+   "value": 2.798,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.WAI-SR (Working Alliance)": {
+   "value": 2.81,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.736,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.097,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.MITI (MI Integrity)": {
+   "value": 2.185,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.622,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.647,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "final.GRPO_K5.Reflection:Question (MITI)": {
+   "value": 0.623,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.% Complex Reflections (MITI)": {
+   "value": 0.63,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "final.GRPO_K5.% MI-Consistent (MITI)": {
+   "value": 0.206,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.iteration": {
+   "value": 9,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.Q1+Q2": {
+   "value": 2.921,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.WAI-SR (Working Alliance)": {
+   "value": 2.944,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.848,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 3.099,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.MITI (MI Integrity)": {
+   "value": 2.396,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.638,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 0.747,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "best.PTO_K0.Reflection:Question (MITI)": {
+   "value": 0.905,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.% Complex Reflections (MITI)": {
+   "value": 0.567,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K0.% MI-Consistent (MITI)": {
+   "value": 0.451,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.iteration": {
+   "value": 7,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.Q1+Q2": {
+   "value": 2.735,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.WAI-SR (Working Alliance)": {
+   "value": 2.808,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.773,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.094,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.MITI (MI Integrity)": {
+   "value": 2.214,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.613,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.581,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "best.PTO_K5.Reflection:Question (MITI)": {
+   "value": 0.827,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.% Complex Reflections (MITI)": {
+   "value": 0.593,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.PTO_K5.% MI-Consistent (MITI)": {
+   "value": 0.277,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.iteration": {
+   "value": 3,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.Q1+Q2": {
+   "value": 2.637,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.WAI-SR (Working Alliance)": {
+   "value": 2.858,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.CSQ-8 (Client Satisfaction)": {
+   "value": 2.699,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.MI-SAT (MI Satisfaction)": {
+   "value": 2.981,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.MITI (MI Integrity)": {
+   "value": 2.383,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.PCT (Patient Change-Talk)": {
+   "value": 0.601,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.MICI (MI-Inconsistency) ↓": {
+   "value": 0.407,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "best.GRPO_K0.Reflection:Question (MITI)": {
+   "value": 0.423,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.% Complex Reflections (MITI)": {
+   "value": 0.34,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K0.% MI-Consistent (MITI)": {
+   "value": 0.414,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.iteration": {
+   "value": 5,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.Q1+Q2": {
+   "value": 2.798,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.WAI-SR (Working Alliance)": {
+   "value": 2.81,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.CSQ-8 (Client Satisfaction)": {
+   "value": 2.736,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.MI-SAT (MI Satisfaction)": {
+   "value": 3.097,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.MITI (MI Integrity)": {
+   "value": 2.185,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.PCT (Patient Change-Talk)": {
+   "value": 0.622,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.MICI (MI-Inconsistency) ↓": {
+   "value": 0.647,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "best.GRPO_K5.Reflection:Question (MITI)": {
+   "value": 0.623,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.% Complex Reflections (MITI)": {
+   "value": 0.63,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  },
+  "best.GRPO_K5.% MI-Consistent (MITI)": {
+   "value": 0.206,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
+  }
+ }
+}

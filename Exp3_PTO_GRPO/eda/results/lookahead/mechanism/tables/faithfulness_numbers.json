@@ -1,0 +1,3506 @@
+{
+ "_family": "lookahead/mechanism",
+ "_name": "faithfulness_numbers",
+ "_judge": null,
+ "numbers": {
+  "selfcheck.max_abs_dev_vs_eda_function": {
+   "value": 0.0,
+   "source": "stats.rank_agreement_by_nturns(BR, primary scores) vs faithfulness_curve point estimates",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.nt12": {
+   "value": {
+    "agreement": 0.865,
+    "ci_lo": 0.852,
+    "ci_hi": 0.877,
+    "n_pairs": 33323
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=12",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.nt20": {
+   "value": {
+    "agreement": 0.825,
+    "ci_lo": 0.803,
+    "ci_hi": 0.846,
+    "n_pairs": 12092
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=20",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.nt30": {
+   "value": {
+    "agreement": 0.764,
+    "ci_lo": 0.721,
+    "ci_hi": 0.805,
+    "n_pairs": 3085
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=30",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.nt40": {
+   "value": {
+    "agreement": 0.758,
+    "ci_lo": 0.689,
+    "ci_hi": 0.821,
+    "n_pairs": 1137
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=40",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.ntall": {
+   "value": {
+    "agreement": 0.836,
+    "ci_lo": 0.819,
+    "ci_hi": 0.851,
+    "n_pairs": 151215
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=all",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.855,
+    "ci_lo": 0.842,
+    "ci_hi": 0.867,
+    "n_pairs": 110952
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.nt22-34": {
+   "value": {
+    "agreement": 0.787,
+    "ci_lo": 0.757,
+    "ci_hi": 0.816,
+    "n_pairs": 32843
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=22-34",
+   "note": ""
+  },
+  "curve.primary.PTO_LA0.iters1-10.nt36-50": {
+   "value": {
+    "agreement": 0.757,
+    "ci_lo": 0.692,
+    "ci_hi": 0.815,
+    "n_pairs": 7420
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=36-50",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.nt12": {
+   "value": {
+    "agreement": 0.892,
+    "ci_lo": 0.883,
+    "ci_hi": 0.901,
+    "n_pairs": 35412
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=12",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.nt20": {
+   "value": {
+    "agreement": 0.852,
+    "ci_lo": 0.833,
+    "ci_hi": 0.868,
+    "n_pairs": 17572
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=20",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.nt30": {
+   "value": {
+    "agreement": 0.812,
+    "ci_lo": 0.779,
+    "ci_hi": 0.843,
+    "n_pairs": 5184
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=30",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.nt40": {
+   "value": {
+    "agreement": 0.804,
+    "ci_lo": 0.757,
+    "ci_hi": 0.849,
+    "n_pairs": 1767
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=40",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.ntall": {
+   "value": {
+    "agreement": 0.863,
+    "ci_lo": 0.849,
+    "ci_hi": 0.876,
+    "n_pairs": 196409
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=all",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.879,
+    "ci_lo": 0.868,
+    "ci_hi": 0.889,
+    "n_pairs": 134566
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.nt22-34": {
+   "value": {
+    "agreement": 0.833,
+    "ci_lo": 0.808,
+    "ci_hi": 0.854,
+    "n_pairs": 50106
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=22-34",
+   "note": ""
+  },
+  "curve.primary.PTO_LA5.iters1-10.nt36-50": {
+   "value": {
+    "agreement": 0.813,
+    "ci_lo": 0.768,
+    "ci_hi": 0.854,
+    "n_pairs": 11737
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=36-50",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.nt12": {
+   "value": {
+    "agreement": 0.86,
+    "ci_lo": 0.848,
+    "ci_hi": 0.872,
+    "n_pairs": 41074
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=12",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.nt20": {
+   "value": {
+    "agreement": 0.874,
+    "ci_lo": 0.859,
+    "ci_hi": 0.888,
+    "n_pairs": 22169
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=20",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.nt30": {
+   "value": {
+    "agreement": 0.874,
+    "ci_lo": 0.855,
+    "ci_hi": 0.892,
+    "n_pairs": 8563
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=30",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.nt40": {
+   "value": {
+    "agreement": 0.882,
+    "ci_lo": 0.856,
+    "ci_hi": 0.906,
+    "n_pairs": 4812
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=40",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.ntall": {
+   "value": {
+    "agreement": 0.873,
+    "ci_lo": 0.861,
+    "ci_hi": 0.884,
+    "n_pairs": 271715
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=all",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.871,
+    "ci_lo": 0.86,
+    "ci_hi": 0.882,
+    "n_pairs": 160844
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.nt22-34": {
+   "value": {
+    "agreement": 0.873,
+    "ci_lo": 0.857,
+    "ci_hi": 0.887,
+    "n_pairs": 74626
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=22-34",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-10.nt36-50": {
+   "value": {
+    "agreement": 0.882,
+    "ci_lo": 0.859,
+    "ci_hi": 0.903,
+    "n_pairs": 36245
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=36-50",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.nt12": {
+   "value": {
+    "agreement": 0.862,
+    "ci_lo": 0.845,
+    "ci_hi": 0.877,
+    "n_pairs": 20034
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=12",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.nt20": {
+   "value": {
+    "agreement": 0.904,
+    "ci_lo": 0.888,
+    "ci_hi": 0.918,
+    "n_pairs": 11356
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=20",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.nt30": {
+   "value": {
+    "agreement": 0.911,
+    "ci_lo": 0.888,
+    "ci_hi": 0.93,
+    "n_pairs": 3742
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=30",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.nt40": {
+   "value": {
+    "agreement": 0.932,
+    "ci_lo": 0.902,
+    "ci_hi": 0.955,
+    "n_pairs": 1499
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=40",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.ntall": {
+   "value": {
+    "agreement": 0.897,
+    "ci_lo": 0.885,
+    "ci_hi": 0.907,
+    "n_pairs": 127649
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=all",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.nt12-20": {
+   "value": {
+    "agreement": 0.885,
+    "ci_lo": 0.872,
+    "ci_hi": 0.898,
+    "n_pairs": 80990
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=12-20",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.nt22-34": {
+   "value": {
+    "agreement": 0.912,
+    "ci_lo": 0.897,
+    "ci_hi": 0.925,
+    "n_pairs": 35565
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=22-34",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA0.iters1-5.nt36-50": {
+   "value": {
+    "agreement": 0.931,
+    "ci_lo": 0.907,
+    "ci_hi": 0.95,
+    "n_pairs": 11094
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=36-50",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.nt12": {
+   "value": {
+    "agreement": 0.864,
+    "ci_lo": 0.847,
+    "ci_hi": 0.879,
+    "n_pairs": 19744
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=12",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.nt20": {
+   "value": {
+    "agreement": 0.892,
+    "ci_lo": 0.875,
+    "ci_hi": 0.909,
+    "n_pairs": 11666
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=20",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.nt30": {
+   "value": {
+    "agreement": 0.897,
+    "ci_lo": 0.871,
+    "ci_hi": 0.921,
+    "n_pairs": 3461
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=30",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.nt40": {
+   "value": {
+    "agreement": 0.924,
+    "ci_lo": 0.89,
+    "ci_hi": 0.954,
+    "n_pairs": 1294
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=40",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.ntall": {
+   "value": {
+    "agreement": 0.89,
+    "ci_lo": 0.875,
+    "ci_hi": 0.903,
+    "n_pairs": 124295
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=all",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.nt12-20": {
+   "value": {
+    "agreement": 0.884,
+    "ci_lo": 0.87,
+    "ci_hi": 0.896,
+    "n_pairs": 81270
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=12-20",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.nt22-34": {
+   "value": {
+    "agreement": 0.895,
+    "ci_lo": 0.876,
+    "ci_hi": 0.912,
+    "n_pairs": 33460
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=22-34",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-5.nt36-50": {
+   "value": {
+    "agreement": 0.919,
+    "ci_lo": 0.889,
+    "ci_hi": 0.946,
+    "n_pairs": 9565
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=36-50",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.nt12": {
+   "value": {
+    "agreement": 0.804,
+    "ci_lo": 0.789,
+    "ci_hi": 0.817,
+    "n_pairs": 33645
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=12",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.nt20": {
+   "value": {
+    "agreement": 0.776,
+    "ci_lo": 0.753,
+    "ci_hi": 0.799,
+    "n_pairs": 12029
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=20",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.nt30": {
+   "value": {
+    "agreement": 0.717,
+    "ci_lo": 0.672,
+    "ci_hi": 0.762,
+    "n_pairs": 3026
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=30",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.nt40": {
+   "value": {
+    "agreement": 0.726,
+    "ci_lo": 0.651,
+    "ci_hi": 0.788,
+    "n_pairs": 1107
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=40",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.ntall": {
+   "value": {
+    "agreement": 0.783,
+    "ci_lo": 0.765,
+    "ci_hi": 0.799,
+    "n_pairs": 151039
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=all",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.797,
+    "ci_lo": 0.782,
+    "ci_hi": 0.811,
+    "n_pairs": 111431
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.nt22-34": {
+   "value": {
+    "agreement": 0.748,
+    "ci_lo": 0.716,
+    "ci_hi": 0.777,
+    "n_pairs": 32383
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=22-34",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA0.iters1-10.nt36-50": {
+   "value": {
+    "agreement": 0.719,
+    "ci_lo": 0.648,
+    "ci_hi": 0.779,
+    "n_pairs": 7225
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=36-50",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.nt12": {
+   "value": {
+    "agreement": 0.817,
+    "ci_lo": 0.8,
+    "ci_hi": 0.832,
+    "n_pairs": 35656
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=12",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.nt20": {
+   "value": {
+    "agreement": 0.78,
+    "ci_lo": 0.758,
+    "ci_hi": 0.8,
+    "n_pairs": 17555
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=20",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.nt30": {
+   "value": {
+    "agreement": 0.77,
+    "ci_lo": 0.733,
+    "ci_hi": 0.802,
+    "n_pairs": 5147
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=30",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.nt40": {
+   "value": {
+    "agreement": 0.775,
+    "ci_lo": 0.726,
+    "ci_hi": 0.823,
+    "n_pairs": 1780
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=40",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.ntall": {
+   "value": {
+    "agreement": 0.794,
+    "ci_lo": 0.776,
+    "ci_hi": 0.81,
+    "n_pairs": 196764
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=all",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.802,
+    "ci_lo": 0.785,
+    "ci_hi": 0.816,
+    "n_pairs": 135091
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.nt22-34": {
+   "value": {
+    "agreement": 0.777,
+    "ci_lo": 0.75,
+    "ci_hi": 0.8,
+    "n_pairs": 49871
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=22-34",
+   "note": ""
+  },
+  "curve.heldout.PTO_LA5.iters1-10.nt36-50": {
+   "value": {
+    "agreement": 0.777,
+    "ci_lo": 0.732,
+    "ci_hi": 0.821,
+    "n_pairs": 11802
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=36-50",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.nt12": {
+   "value": {
+    "agreement": 0.76,
+    "ci_lo": 0.744,
+    "ci_hi": 0.776,
+    "n_pairs": 41575
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=12",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.nt20": {
+   "value": {
+    "agreement": 0.747,
+    "ci_lo": 0.726,
+    "ci_hi": 0.769,
+    "n_pairs": 22210
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=20",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.nt30": {
+   "value": {
+    "agreement": 0.723,
+    "ci_lo": 0.691,
+    "ci_hi": 0.754,
+    "n_pairs": 8499
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=30",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.nt40": {
+   "value": {
+    "agreement": 0.714,
+    "ci_lo": 0.67,
+    "ci_hi": 0.752,
+    "n_pairs": 4744
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=40",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.ntall": {
+   "value": {
+    "agreement": 0.747,
+    "ci_lo": 0.728,
+    "ci_hi": 0.764,
+    "n_pairs": 271969
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=all",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.763,
+    "ci_lo": 0.746,
+    "ci_hi": 0.779,
+    "n_pairs": 161999
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.nt22-34": {
+   "value": {
+    "agreement": 0.726,
+    "ci_lo": 0.701,
+    "ci_hi": 0.75,
+    "n_pairs": 74296
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=22-34",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-10.nt36-50": {
+   "value": {
+    "agreement": 0.715,
+    "ci_lo": 0.676,
+    "ci_hi": 0.751,
+    "n_pairs": 35674
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=36-50",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.nt12": {
+   "value": {
+    "agreement": 0.784,
+    "ci_lo": 0.763,
+    "ci_hi": 0.807,
+    "n_pairs": 20171
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=12",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.nt20": {
+   "value": {
+    "agreement": 0.798,
+    "ci_lo": 0.774,
+    "ci_hi": 0.823,
+    "n_pairs": 11404
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=20",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.nt30": {
+   "value": {
+    "agreement": 0.783,
+    "ci_lo": 0.744,
+    "ci_hi": 0.816,
+    "n_pairs": 3744
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=30",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.nt40": {
+   "value": {
+    "agreement": 0.769,
+    "ci_lo": 0.703,
+    "ci_hi": 0.824,
+    "n_pairs": 1499
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=40",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.ntall": {
+   "value": {
+    "agreement": 0.793,
+    "ci_lo": 0.773,
+    "ci_hi": 0.814,
+    "n_pairs": 128176
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=all",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.nt12-20": {
+   "value": {
+    "agreement": 0.797,
+    "ci_lo": 0.777,
+    "ci_hi": 0.817,
+    "n_pairs": 81459
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=12-20",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.nt22-34": {
+   "value": {
+    "agreement": 0.793,
+    "ci_lo": 0.764,
+    "ci_hi": 0.819,
+    "n_pairs": 35636
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=22-34",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA0.iters1-5.nt36-50": {
+   "value": {
+    "agreement": 0.766,
+    "ci_lo": 0.707,
+    "ci_hi": 0.814,
+    "n_pairs": 11081
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=36-50",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.nt12": {
+   "value": {
+    "agreement": 0.799,
+    "ci_lo": 0.779,
+    "ci_hi": 0.818,
+    "n_pairs": 19867
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=12",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.nt20": {
+   "value": {
+    "agreement": 0.811,
+    "ci_lo": 0.787,
+    "ci_hi": 0.834,
+    "n_pairs": 11685
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=20",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.nt30": {
+   "value": {
+    "agreement": 0.813,
+    "ci_lo": 0.777,
+    "ci_hi": 0.843,
+    "n_pairs": 3439
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=30",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.nt40": {
+   "value": {
+    "agreement": 0.835,
+    "ci_lo": 0.782,
+    "ci_hi": 0.882,
+    "n_pairs": 1273
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=40",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.ntall": {
+   "value": {
+    "agreement": 0.81,
+    "ci_lo": 0.791,
+    "ci_hi": 0.83,
+    "n_pairs": 124299
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=all",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.nt12-20": {
+   "value": {
+    "agreement": 0.807,
+    "ci_lo": 0.787,
+    "ci_hi": 0.827,
+    "n_pairs": 81617
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=12-20",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.nt22-34": {
+   "value": {
+    "agreement": 0.814,
+    "ci_lo": 0.788,
+    "ci_hi": 0.837,
+    "n_pairs": 33286
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=22-34",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-5.nt36-50": {
+   "value": {
+    "agreement": 0.828,
+    "ci_lo": 0.779,
+    "ci_hi": 0.87,
+    "n_pairs": 9396
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=36-50",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter1": {
+   "value": {
+    "agr_K0": 0.809,
+    "agr_K5": 0.805,
+    "delta_K0_minus_K5": 0.004,
+    "d_lo": -0.066,
+    "d_hi": 0.083
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=1",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter2": {
+   "value": {
+    "agr_K0": 0.809,
+    "agr_K5": 0.853,
+    "delta_K0_minus_K5": -0.043,
+    "d_lo": -0.119,
+    "d_hi": 0.033
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=2",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter3": {
+   "value": {
+    "agr_K0": 0.808,
+    "agr_K5": 0.821,
+    "delta_K0_minus_K5": -0.014,
+    "d_lo": -0.086,
+    "d_hi": 0.054
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=3",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter4": {
+   "value": {
+    "agr_K0": 0.821,
+    "agr_K5": 0.866,
+    "delta_K0_minus_K5": -0.044,
+    "d_lo": -0.097,
+    "d_hi": 0.012
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=4",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter5": {
+   "value": {
+    "agr_K0": 0.839,
+    "agr_K5": 0.892,
+    "delta_K0_minus_K5": -0.053,
+    "d_lo": -0.107,
+    "d_hi": -0.002
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=5",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter6": {
+   "value": {
+    "agr_K0": 0.868,
+    "agr_K5": 0.888,
+    "delta_K0_minus_K5": -0.02,
+    "d_lo": -0.067,
+    "d_hi": 0.032
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=6",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter7": {
+   "value": {
+    "agr_K0": 0.877,
+    "agr_K5": 0.867,
+    "delta_K0_minus_K5": 0.011,
+    "d_lo": -0.039,
+    "d_hi": 0.057
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=7",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter8": {
+   "value": {
+    "agr_K0": 0.869,
+    "agr_K5": 0.899,
+    "delta_K0_minus_K5": -0.031,
+    "d_lo": -0.085,
+    "d_hi": 0.017
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=8",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter9": {
+   "value": {
+    "agr_K0": 0.868,
+    "agr_K5": 0.879,
+    "delta_K0_minus_K5": -0.011,
+    "d_lo": -0.068,
+    "d_hi": 0.049
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=9",
+   "note": ""
+  },
+  "k_by_iter.primary.PTO.train_iter10": {
+   "value": {
+    "agr_K0": 0.877,
+    "agr_K5": 0.895,
+    "delta_K0_minus_K5": -0.018,
+    "d_lo": -0.082,
+    "d_hi": 0.042
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=10",
+   "note": ""
+  },
+  "k_by_iter.primary.GRPO.train_iter1": {
+   "value": {
+    "agr_K0": 0.895,
+    "agr_K5": 0.88,
+    "delta_K0_minus_K5": 0.015,
+    "d_lo": -0.026,
+    "d_hi": 0.059
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=1",
+   "note": ""
+  },
+  "k_by_iter.primary.GRPO.train_iter2": {
+   "value": {
+    "agr_K0": 0.887,
+    "agr_K5": 0.899,
+    "delta_K0_minus_K5": -0.012,
+    "d_lo": -0.053,
+    "d_hi": 0.028
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=2",
+   "note": ""
+  },
+  "k_by_iter.primary.GRPO.train_iter3": {
+   "value": {
+    "agr_K0": 0.9,
+    "agr_K5": 0.864,
+    "delta_K0_minus_K5": 0.035,
+    "d_lo": -0.014,
+    "d_hi": 0.082
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=3",
+   "note": ""
+  },
+  "k_by_iter.primary.GRPO.train_iter4": {
+   "value": {
+    "agr_K0": 0.902,
+    "agr_K5": 0.9,
+    "delta_K0_minus_K5": 0.002,
+    "d_lo": -0.028,
+    "d_hi": 0.032
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=4",
+   "note": ""
+  },
+  "k_by_iter.primary.GRPO.train_iter5": {
+   "value": {
+    "agr_K0": 0.898,
+    "agr_K5": 0.909,
+    "delta_K0_minus_K5": -0.011,
+    "d_lo": -0.044,
+    "d_hi": 0.022
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=5",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter1": {
+   "value": {
+    "agr_K0": 0.745,
+    "agr_K5": 0.738,
+    "delta_K0_minus_K5": 0.007,
+    "d_lo": -0.084,
+    "d_hi": 0.093
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=1",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter2": {
+   "value": {
+    "agr_K0": 0.763,
+    "agr_K5": 0.812,
+    "delta_K0_minus_K5": -0.05,
+    "d_lo": -0.135,
+    "d_hi": 0.032
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=2",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter3": {
+   "value": {
+    "agr_K0": 0.799,
+    "agr_K5": 0.75,
+    "delta_K0_minus_K5": 0.049,
+    "d_lo": -0.013,
+    "d_hi": 0.11
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=3",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter4": {
+   "value": {
+    "agr_K0": 0.787,
+    "agr_K5": 0.791,
+    "delta_K0_minus_K5": -0.005,
+    "d_lo": -0.079,
+    "d_hi": 0.068
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=4",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter5": {
+   "value": {
+    "agr_K0": 0.774,
+    "agr_K5": 0.809,
+    "delta_K0_minus_K5": -0.035,
+    "d_lo": -0.095,
+    "d_hi": 0.027
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=5",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter6": {
+   "value": {
+    "agr_K0": 0.796,
+    "agr_K5": 0.854,
+    "delta_K0_minus_K5": -0.058,
+    "d_lo": -0.112,
+    "d_hi": 0.001
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=6",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter7": {
+   "value": {
+    "agr_K0": 0.823,
+    "agr_K5": 0.808,
+    "delta_K0_minus_K5": 0.014,
+    "d_lo": -0.046,
+    "d_hi": 0.075
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=7",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter8": {
+   "value": {
+    "agr_K0": 0.803,
+    "agr_K5": 0.829,
+    "delta_K0_minus_K5": -0.026,
+    "d_lo": -0.095,
+    "d_hi": 0.044
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=8",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter9": {
+   "value": {
+    "agr_K0": 0.775,
+    "agr_K5": 0.807,
+    "delta_K0_minus_K5": -0.032,
+    "d_lo": -0.113,
+    "d_hi": 0.042
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=9",
+   "note": ""
+  },
+  "k_by_iter.heldout.PTO.train_iter10": {
+   "value": {
+    "agr_K0": 0.816,
+    "agr_K5": 0.783,
+    "delta_K0_minus_K5": 0.033,
+    "d_lo": -0.037,
+    "d_hi": 0.113
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=10",
+   "note": ""
+  },
+  "k_by_iter.heldout.GRPO.train_iter1": {
+   "value": {
+    "agr_K0": 0.798,
+    "agr_K5": 0.813,
+    "delta_K0_minus_K5": -0.014,
+    "d_lo": -0.075,
+    "d_hi": 0.048
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=1",
+   "note": ""
+  },
+  "k_by_iter.heldout.GRPO.train_iter2": {
+   "value": {
+    "agr_K0": 0.838,
+    "agr_K5": 0.807,
+    "delta_K0_minus_K5": 0.031,
+    "d_lo": -0.035,
+    "d_hi": 0.099
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=2",
+   "note": ""
+  },
+  "k_by_iter.heldout.GRPO.train_iter3": {
+   "value": {
+    "agr_K0": 0.826,
+    "agr_K5": 0.795,
+    "delta_K0_minus_K5": 0.031,
+    "d_lo": -0.021,
+    "d_hi": 0.084
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=3",
+   "note": ""
+  },
+  "k_by_iter.heldout.GRPO.train_iter4": {
+   "value": {
+    "agr_K0": 0.806,
+    "agr_K5": 0.831,
+    "delta_K0_minus_K5": -0.024,
+    "d_lo": -0.086,
+    "d_hi": 0.036
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=4",
+   "note": ""
+  },
+  "k_by_iter.heldout.GRPO.train_iter5": {
+   "value": {
+    "agr_K0": 0.712,
+    "agr_K5": 0.806,
+    "delta_K0_minus_K5": -0.094,
+    "d_lo": -0.164,
+    "d_hi": -0.02
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=5",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter1": {
+   "value": {
+    "agreement": 0.809,
+    "ci_lo": 0.754,
+    "ci_hi": 0.861,
+    "n_pairs": 26808,
+    "n_convs": 87,
+    "agreement_heldout": 0.745
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=1",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter2": {
+   "value": {
+    "agreement": 0.809,
+    "ci_lo": 0.747,
+    "ci_hi": 0.863,
+    "n_pairs": 19334,
+    "n_convs": 84,
+    "agreement_heldout": 0.763
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=2",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter3": {
+   "value": {
+    "agreement": 0.808,
+    "ci_lo": 0.75,
+    "ci_hi": 0.851,
+    "n_pairs": 20935,
+    "n_convs": 87,
+    "agreement_heldout": 0.799
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=3",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter4": {
+   "value": {
+    "agreement": 0.821,
+    "ci_lo": 0.777,
+    "ci_hi": 0.863,
+    "n_pairs": 14589,
+    "n_convs": 76,
+    "agreement_heldout": 0.787
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=4",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter5": {
+   "value": {
+    "agreement": 0.839,
+    "ci_lo": 0.795,
+    "ci_hi": 0.876,
+    "n_pairs": 14814,
+    "n_convs": 83,
+    "agreement_heldout": 0.774
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=5",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter6": {
+   "value": {
+    "agreement": 0.868,
+    "ci_lo": 0.829,
+    "ci_hi": 0.899,
+    "n_pairs": 13882,
+    "n_convs": 84,
+    "agreement_heldout": 0.796
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=6",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter7": {
+   "value": {
+    "agreement": 0.877,
+    "ci_lo": 0.846,
+    "ci_hi": 0.903,
+    "n_pairs": 11541,
+    "n_convs": 85,
+    "agreement_heldout": 0.823
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=7",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter8": {
+   "value": {
+    "agreement": 0.869,
+    "ci_lo": 0.821,
+    "ci_hi": 0.907,
+    "n_pairs": 11120,
+    "n_convs": 84,
+    "agreement_heldout": 0.803
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=8",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter9": {
+   "value": {
+    "agreement": 0.868,
+    "ci_lo": 0.829,
+    "ci_hi": 0.901,
+    "n_pairs": 9637,
+    "n_convs": 88,
+    "agreement_heldout": 0.775
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=9",
+   "note": ""
+  },
+  "by_iter.PTO_LA0.train_iter10": {
+   "value": {
+    "agreement": 0.877,
+    "ci_lo": 0.829,
+    "ci_hi": 0.92,
+    "n_pairs": 8555,
+    "n_convs": 82,
+    "agreement_heldout": 0.816
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA0, train_iter=10",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter1": {
+   "value": {
+    "agreement": 0.805,
+    "ci_lo": 0.75,
+    "ci_hi": 0.852,
+    "n_pairs": 25256,
+    "n_convs": 85,
+    "agreement_heldout": 0.738
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=1",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter2": {
+   "value": {
+    "agreement": 0.853,
+    "ci_lo": 0.806,
+    "ci_hi": 0.888,
+    "n_pairs": 21883,
+    "n_convs": 83,
+    "agreement_heldout": 0.812
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=2",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter3": {
+   "value": {
+    "agreement": 0.821,
+    "ci_lo": 0.775,
+    "ci_hi": 0.868,
+    "n_pairs": 22832,
+    "n_convs": 87,
+    "agreement_heldout": 0.75
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=3",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter4": {
+   "value": {
+    "agreement": 0.866,
+    "ci_lo": 0.827,
+    "ci_hi": 0.9,
+    "n_pairs": 15443,
+    "n_convs": 85,
+    "agreement_heldout": 0.791
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=4",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter5": {
+   "value": {
+    "agreement": 0.892,
+    "ci_lo": 0.86,
+    "ci_hi": 0.92,
+    "n_pairs": 13589,
+    "n_convs": 85,
+    "agreement_heldout": 0.809
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=5",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter6": {
+   "value": {
+    "agreement": 0.888,
+    "ci_lo": 0.851,
+    "ci_hi": 0.916,
+    "n_pairs": 16236,
+    "n_convs": 88,
+    "agreement_heldout": 0.854
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=6",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter7": {
+   "value": {
+    "agreement": 0.867,
+    "ci_lo": 0.83,
+    "ci_hi": 0.898,
+    "n_pairs": 20981,
+    "n_convs": 91,
+    "agreement_heldout": 0.808
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=7",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter8": {
+   "value": {
+    "agreement": 0.899,
+    "ci_lo": 0.866,
+    "ci_hi": 0.927,
+    "n_pairs": 17762,
+    "n_convs": 87,
+    "agreement_heldout": 0.829
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=8",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter9": {
+   "value": {
+    "agreement": 0.879,
+    "ci_lo": 0.829,
+    "ci_hi": 0.917,
+    "n_pairs": 18654,
+    "n_convs": 92,
+    "agreement_heldout": 0.807
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=9",
+   "note": ""
+  },
+  "by_iter.PTO_LA5.train_iter10": {
+   "value": {
+    "agreement": 0.895,
+    "ci_lo": 0.851,
+    "ci_hi": 0.934,
+    "n_pairs": 23773,
+    "n_convs": 90,
+    "agreement_heldout": 0.783
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=PTO_LA5, train_iter=10",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter1": {
+   "value": {
+    "agreement": 0.895,
+    "ci_lo": 0.867,
+    "ci_hi": 0.918,
+    "n_pairs": 24704,
+    "n_convs": 89,
+    "agreement_heldout": 0.798
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=1",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter2": {
+   "value": {
+    "agreement": 0.887,
+    "ci_lo": 0.858,
+    "ci_hi": 0.91,
+    "n_pairs": 19962,
+    "n_convs": 87,
+    "agreement_heldout": 0.838
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=2",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter3": {
+   "value": {
+    "agreement": 0.9,
+    "ci_lo": 0.871,
+    "ci_hi": 0.921,
+    "n_pairs": 30318,
+    "n_convs": 93,
+    "agreement_heldout": 0.826
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=3",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter4": {
+   "value": {
+    "agreement": 0.902,
+    "ci_lo": 0.881,
+    "ci_hi": 0.921,
+    "n_pairs": 24907,
+    "n_convs": 93,
+    "agreement_heldout": 0.806
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=4",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter5": {
+   "value": {
+    "agreement": 0.898,
+    "ci_lo": 0.87,
+    "ci_hi": 0.921,
+    "n_pairs": 27758,
+    "n_convs": 95,
+    "agreement_heldout": 0.712
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=5",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter6": {
+   "value": {
+    "agreement": 0.891,
+    "ci_lo": 0.859,
+    "ci_hi": 0.917,
+    "n_pairs": 27542,
+    "n_convs": 94,
+    "agreement_heldout": 0.719
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=6",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter7": {
+   "value": {
+    "agreement": 0.848,
+    "ci_lo": 0.795,
+    "ci_hi": 0.889,
+    "n_pairs": 30771,
+    "n_convs": 95,
+    "agreement_heldout": 0.63
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=7",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter8": {
+   "value": {
+    "agreement": 0.836,
+    "ci_lo": 0.785,
+    "ci_hi": 0.879,
+    "n_pairs": 23728,
+    "n_convs": 95,
+    "agreement_heldout": 0.712
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=8",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter9": {
+   "value": {
+    "agreement": 0.879,
+    "ci_lo": 0.843,
+    "ci_hi": 0.915,
+    "n_pairs": 16827,
+    "n_convs": 94,
+    "agreement_heldout": 0.824
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=9",
+   "note": ""
+  },
+  "by_iter.GRPO_LA0.train_iter10": {
+   "value": {
+    "agreement": 0.829,
+    "ci_lo": 0.79,
+    "ci_hi": 0.866,
+    "n_pairs": 45198,
+    "n_convs": 96,
+    "agreement_heldout": 0.699
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA0, train_iter=10",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.train_iter1": {
+   "value": {
+    "agreement": 0.88,
+    "ci_lo": 0.846,
+    "ci_hi": 0.906,
+    "n_pairs": 24149,
+    "n_convs": 88,
+    "agreement_heldout": 0.813
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=1",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.train_iter2": {
+   "value": {
+    "agreement": 0.899,
+    "ci_lo": 0.867,
+    "ci_hi": 0.926,
+    "n_pairs": 23451,
+    "n_convs": 86,
+    "agreement_heldout": 0.807
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=2",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.train_iter3": {
+   "value": {
+    "agreement": 0.864,
+    "ci_lo": 0.82,
+    "ci_hi": 0.903,
+    "n_pairs": 27482,
+    "n_convs": 91,
+    "agreement_heldout": 0.795
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=3",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.train_iter4": {
+   "value": {
+    "agreement": 0.9,
+    "ci_lo": 0.877,
+    "ci_hi": 0.923,
+    "n_pairs": 27279,
+    "n_convs": 94,
+    "agreement_heldout": 0.831
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=4",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.train_iter5": {
+   "value": {
+    "agreement": 0.909,
+    "ci_lo": 0.888,
+    "ci_hi": 0.927,
+    "n_pairs": 21934,
+    "n_convs": 94,
+    "agreement_heldout": 0.806
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=5",
+   "note": ""
+  },
+  "k_summary.primary.PTO.train_iter_1": {
+   "value": {
+    "train_iters": "1",
+    "agr_K0": 0.809,
+    "agr_K5": 0.805,
+    "delta_pooled": 0.004,
+    "dp_lo": -0.066,
+    "dp_hi": 0.083,
+    "delta_iter_mean": 0.004,
+    "di_lo": -0.066,
+    "di_hi": 0.083,
+    "n_iters": 1,
+    "iters_K5_more_faithful": 0,
+    "wilcoxon_over_iters_p": null,
+    "pairs_K0": 26808,
+    "pairs_K5": 25256
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=gpt-4o-mini, method=PTO, cut=train_iter_1",
+   "note": ""
+  },
+  "k_summary.primary.PTO.iters_1-5": {
+   "value": {
+    "train_iters": "1,2,3,4,5",
+    "agr_K0": 0.815,
+    "agr_K5": 0.841,
+    "delta_pooled": -0.025,
+    "dp_lo": -0.056,
+    "dp_hi": 0.007,
+    "delta_iter_mean": -0.03,
+    "di_lo": -0.058,
+    "di_hi": -0.001,
+    "n_iters": 5,
+    "iters_K5_more_faithful": 4,
+    "wilcoxon_over_iters_p": 0.125,
+    "pairs_K0": 96480,
+    "pairs_K5": 99003
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=gpt-4o-mini, method=PTO, cut=iters_1-5",
+   "note": ""
+  },
+  "k_summary.primary.PTO.matched_iters": {
+   "value": {
+    "train_iters": "1,2,3,4,5,6,7,8,9,10",
+    "agr_K0": 0.836,
+    "agr_K5": 0.863,
+    "delta_pooled": -0.027,
+    "dp_lo": -0.049,
+    "dp_hi": -0.007,
+    "delta_iter_mean": -0.022,
+    "di_lo": -0.04,
+    "di_hi": -0.003,
+    "n_iters": 10,
+    "iters_K5_more_faithful": 8,
+    "wilcoxon_over_iters_p": 0.0098,
+    "pairs_K0": 151215,
+    "pairs_K5": 196409
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=gpt-4o-mini, method=PTO, cut=matched_iters",
+   "note": ""
+  },
+  "k_summary.primary.GRPO.train_iter_1": {
+   "value": {
+    "train_iters": "1",
+    "agr_K0": 0.895,
+    "agr_K5": 0.88,
+    "delta_pooled": 0.015,
+    "dp_lo": -0.026,
+    "dp_hi": 0.059,
+    "delta_iter_mean": 0.015,
+    "di_lo": -0.026,
+    "di_hi": 0.059,
+    "n_iters": 1,
+    "iters_K5_more_faithful": 0,
+    "wilcoxon_over_iters_p": null,
+    "pairs_K0": 24704,
+    "pairs_K5": 24149
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=gpt-4o-mini, method=GRPO, cut=train_iter_1",
+   "note": ""
+  },
+  "k_summary.primary.GRPO.iters_1-5": {
+   "value": {
+    "train_iters": "1,2,3,4,5",
+    "agr_K0": 0.897,
+    "agr_K5": 0.89,
+    "delta_pooled": 0.007,
+    "dp_lo": -0.01,
+    "dp_hi": 0.027,
+    "delta_iter_mean": 0.006,
+    "di_lo": -0.011,
+    "di_hi": 0.025,
+    "n_iters": 5,
+    "iters_K5_more_faithful": 2,
+    "wilcoxon_over_iters_p": 0.625,
+    "pairs_K0": 127649,
+    "pairs_K5": 124295
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=gpt-4o-mini, method=GRPO, cut=iters_1-5",
+   "note": ""
+  },
+  "k_summary.primary.GRPO.matched_iters": {
+   "value": {
+    "train_iters": "1,2,3,4,5",
+    "agr_K0": 0.897,
+    "agr_K5": 0.89,
+    "delta_pooled": 0.007,
+    "dp_lo": -0.01,
+    "dp_hi": 0.027,
+    "delta_iter_mean": 0.006,
+    "di_lo": -0.011,
+    "di_hi": 0.025,
+    "n_iters": 5,
+    "iters_K5_more_faithful": 2,
+    "wilcoxon_over_iters_p": 0.625,
+    "pairs_K0": 127649,
+    "pairs_K5": 124295
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters",
+   "note": ""
+  },
+  "k_summary.heldout.PTO.train_iter_1": {
+   "value": {
+    "train_iters": "1",
+    "agr_K0": 0.745,
+    "agr_K5": 0.738,
+    "delta_pooled": 0.007,
+    "dp_lo": -0.084,
+    "dp_hi": 0.093,
+    "delta_iter_mean": 0.007,
+    "di_lo": -0.084,
+    "di_hi": 0.093,
+    "n_iters": 1,
+    "iters_K5_more_faithful": 0,
+    "wilcoxon_over_iters_p": null,
+    "pairs_K0": 25814,
+    "pairs_K5": 24963
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=claude-haiku-4-5, method=PTO, cut=train_iter_1",
+   "note": ""
+  },
+  "k_summary.heldout.PTO.iters_1-5": {
+   "value": {
+    "train_iters": "1,2,3,4,5",
+    "agr_K0": 0.771,
+    "agr_K5": 0.775,
+    "delta_pooled": -0.004,
+    "dp_lo": -0.04,
+    "dp_hi": 0.032,
+    "delta_iter_mean": -0.007,
+    "di_lo": -0.041,
+    "di_hi": 0.03,
+    "n_iters": 5,
+    "iters_K5_more_faithful": 3,
+    "wilcoxon_over_iters_p": 0.8125,
+    "pairs_K0": 95653,
+    "pairs_K5": 98437
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=claude-haiku-4-5, method=PTO, cut=iters_1-5",
+   "note": ""
+  },
+  "k_summary.heldout.PTO.matched_iters": {
+   "value": {
+    "train_iters": "1,2,3,4,5,6,7,8,9,10",
+    "agr_K0": 0.783,
+    "agr_K5": 0.794,
+    "delta_pooled": -0.012,
+    "dp_lo": -0.034,
+    "dp_hi": 0.014,
+    "delta_iter_mean": -0.01,
+    "di_lo": -0.03,
+    "di_hi": 0.014,
+    "n_iters": 10,
+    "iters_K5_more_faithful": 6,
+    "wilcoxon_over_iters_p": 0.4316,
+    "pairs_K0": 151039,
+    "pairs_K5": 196764
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=claude-haiku-4-5, method=PTO, cut=matched_iters",
+   "note": ""
+  },
+  "k_summary.heldout.GRPO.train_iter_1": {
+   "value": {
+    "train_iters": "1",
+    "agr_K0": 0.798,
+    "agr_K5": 0.813,
+    "delta_pooled": -0.014,
+    "dp_lo": -0.075,
+    "dp_hi": 0.048,
+    "delta_iter_mean": -0.014,
+    "di_lo": -0.075,
+    "di_hi": 0.048,
+    "n_iters": 1,
+    "iters_K5_more_faithful": 1,
+    "wilcoxon_over_iters_p": null,
+    "pairs_K0": 24491,
+    "pairs_K5": 23932
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=claude-haiku-4-5, method=GRPO, cut=train_iter_1",
+   "note": ""
+  },
+  "k_summary.heldout.GRPO.iters_1-5": {
+   "value": {
+    "train_iters": "1,2,3,4,5",
+    "agr_K0": 0.793,
+    "agr_K5": 0.81,
+    "delta_pooled": -0.017,
+    "dp_lo": -0.045,
+    "dp_hi": 0.011,
+    "delta_iter_mean": -0.014,
+    "di_lo": -0.043,
+    "di_hi": 0.013,
+    "n_iters": 5,
+    "iters_K5_more_faithful": 3,
+    "wilcoxon_over_iters_p": 1.0,
+    "pairs_K0": 128176,
+    "pairs_K5": 124299
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=claude-haiku-4-5, method=GRPO, cut=iters_1-5",
+   "note": ""
+  },
+  "k_summary.heldout.GRPO.matched_iters": {
+   "value": {
+    "train_iters": "1,2,3,4,5",
+    "agr_K0": 0.793,
+    "agr_K5": 0.81,
+    "delta_pooled": -0.017,
+    "dp_lo": -0.045,
+    "dp_hi": 0.011,
+    "delta_iter_mean": -0.014,
+    "di_lo": -0.043,
+    "di_hi": 0.013,
+    "n_iters": 5,
+    "iters_K5_more_faithful": 3,
+    "wilcoxon_over_iters_p": 1.0,
+    "pairs_K0": 128176,
+    "pairs_K5": 124299
+   },
+   "source": "tables/faithfulness_k_summary.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters",
+   "note": ""
+  },
+  "matched_policy_test.primary.PTO.train_iter_1": {
+   "value": {
+    "n_bins": 19,
+    "bins_K5_more_faithful": 10,
+    "mean_delta": -0.002,
+    "median_delta": -0.001,
+    "wilcoxon_p": 0.7381
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=gpt-4o-mini, method=PTO, cut=train_iter_1",
+   "note": ""
+  },
+  "matched_policy_test.primary.PTO.iters_1-5": {
+   "value": {
+    "n_bins": 19,
+    "bins_K5_more_faithful": 19,
+    "mean_delta": -0.035,
+    "median_delta": -0.028,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=gpt-4o-mini, method=PTO, cut=iters_1-5",
+   "note": ""
+  },
+  "matched_policy_test.primary.PTO.matched_iters": {
+   "value": {
+    "n_bins": 19,
+    "bins_K5_more_faithful": 19,
+    "mean_delta": -0.046,
+    "median_delta": -0.046,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=gpt-4o-mini, method=PTO, cut=matched_iters",
+   "note": ""
+  },
+  "matched_policy_test.primary.GRPO.train_iter_1": {
+   "value": {
+    "n_bins": 20,
+    "bins_K5_more_faithful": 3,
+    "mean_delta": 0.017,
+    "median_delta": 0.014,
+    "wilcoxon_p": 0.0002
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=gpt-4o-mini, method=GRPO, cut=train_iter_1",
+   "note": ""
+  },
+  "matched_policy_test.primary.GRPO.iters_1-5": {
+   "value": {
+    "n_bins": 20,
+    "bins_K5_more_faithful": 3,
+    "mean_delta": 0.011,
+    "median_delta": 0.01,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=gpt-4o-mini, method=GRPO, cut=iters_1-5",
+   "note": ""
+  },
+  "matched_policy_test.primary.GRPO.matched_iters": {
+   "value": {
+    "n_bins": 20,
+    "bins_K5_more_faithful": 3,
+    "mean_delta": 0.011,
+    "median_delta": 0.01,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters",
+   "note": ""
+  },
+  "matched_policy_test.heldout.PTO.train_iter_1": {
+   "value": {
+    "n_bins": 19,
+    "bins_K5_more_faithful": 13,
+    "mean_delta": -0.01,
+    "median_delta": -0.009,
+    "wilcoxon_p": 0.0955
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=claude-haiku-4-5, method=PTO, cut=train_iter_1",
+   "note": ""
+  },
+  "matched_policy_test.heldout.PTO.iters_1-5": {
+   "value": {
+    "n_bins": 19,
+    "bins_K5_more_faithful": 15,
+    "mean_delta": -0.033,
+    "median_delta": -0.025,
+    "wilcoxon_p": 0.0039
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=claude-haiku-4-5, method=PTO, cut=iters_1-5",
+   "note": ""
+  },
+  "matched_policy_test.heldout.PTO.matched_iters": {
+   "value": {
+    "n_bins": 19,
+    "bins_K5_more_faithful": 18,
+    "mean_delta": -0.038,
+    "median_delta": -0.044,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=claude-haiku-4-5, method=PTO, cut=matched_iters",
+   "note": ""
+  },
+  "matched_policy_test.heldout.GRPO.train_iter_1": {
+   "value": {
+    "n_bins": 20,
+    "bins_K5_more_faithful": 17,
+    "mean_delta": -0.039,
+    "median_delta": -0.042,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=claude-haiku-4-5, method=GRPO, cut=train_iter_1",
+   "note": ""
+  },
+  "matched_policy_test.heldout.GRPO.iters_1-5": {
+   "value": {
+    "n_bins": 20,
+    "bins_K5_more_faithful": 20,
+    "mean_delta": -0.036,
+    "median_delta": -0.027,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=claude-haiku-4-5, method=GRPO, cut=iters_1-5",
+   "note": ""
+  },
+  "matched_policy_test.heldout.GRPO.matched_iters": {
+   "value": {
+    "n_bins": 20,
+    "bins_K5_more_faithful": 20,
+    "mean_delta": -0.036,
+    "median_delta": -0.027,
+    "wilcoxon_p": 0.0
+   },
+   "source": "tables/faithfulness_matched_policy_tests.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.train_iter_1.nt12": {
+   "value": {
+    "agr_K0": 0.838,
+    "agr_K5": 0.831,
+    "delta_K0_minus_K5": 0.007,
+    "d_lo": -0.058,
+    "d_hi": 0.068,
+    "pairs_K0": 3656,
+    "pairs_K5": 3474
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=train_iter_1, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.train_iter_1.nt12-20": {
+   "value": {
+    "agr_K0": 0.832,
+    "agr_K5": 0.816,
+    "delta_K0_minus_K5": 0.016,
+    "d_lo": -0.05,
+    "d_hi": 0.079,
+    "pairs_K0": 15661,
+    "pairs_K5": 14755
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=train_iter_1, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.train_iter_1.nt22-34": {
+   "value": {
+    "agr_K0": 0.78,
+    "agr_K5": 0.792,
+    "delta_K0_minus_K5": -0.012,
+    "d_lo": -0.107,
+    "d_hi": 0.096,
+    "pairs_K0": 8029,
+    "pairs_K5": 9185
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=train_iter_1, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.train_iter_1.nt36-50": {
+   "value": {
+    "agr_K0": 0.771,
+    "agr_K5": 0.774,
+    "delta_K0_minus_K5": -0.003,
+    "d_lo": -0.165,
+    "d_hi": 0.183,
+    "pairs_K0": 3118,
+    "pairs_K5": 1316
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=train_iter_1, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.train_iter_1.ntall": {
+   "value": {
+    "agr_K0": 0.809,
+    "agr_K5": 0.805,
+    "delta_K0_minus_K5": 0.004,
+    "d_lo": -0.066,
+    "d_hi": 0.083,
+    "pairs_K0": 26808,
+    "pairs_K5": 25256
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=train_iter_1, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.iters_1-5.nt12": {
+   "value": {
+    "agr_K0": 0.845,
+    "agr_K5": 0.872,
+    "delta_K0_minus_K5": -0.028,
+    "d_lo": -0.052,
+    "d_hi": -0.004,
+    "pairs_K0": 16626,
+    "pairs_K5": 17240
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=iters_1-5, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.iters_1-5.nt12-20": {
+   "value": {
+    "agr_K0": 0.837,
+    "agr_K5": 0.857,
+    "delta_K0_minus_K5": -0.02,
+    "d_lo": -0.045,
+    "d_hi": 0.005,
+    "pairs_K0": 64967,
+    "pairs_K5": 68420
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=iters_1-5, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.iters_1-5.nt22-34": {
+   "value": {
+    "agr_K0": 0.776,
+    "agr_K5": 0.807,
+    "delta_K0_minus_K5": -0.031,
+    "d_lo": -0.081,
+    "d_hi": 0.019,
+    "pairs_K0": 25192,
+    "pairs_K5": 26193
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=iters_1-5, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.iters_1-5.nt36-50": {
+   "value": {
+    "agr_K0": 0.748,
+    "agr_K5": 0.792,
+    "delta_K0_minus_K5": -0.044,
+    "d_lo": -0.144,
+    "d_hi": 0.06,
+    "pairs_K0": 6321,
+    "pairs_K5": 4390
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=iters_1-5, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.iters_1-5.ntall": {
+   "value": {
+    "agr_K0": 0.815,
+    "agr_K5": 0.841,
+    "delta_K0_minus_K5": -0.025,
+    "d_lo": -0.056,
+    "d_hi": 0.007,
+    "pairs_K0": 96480,
+    "pairs_K5": 99003
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=iters_1-5, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.matched_iters.nt12": {
+   "value": {
+    "agr_K0": 0.865,
+    "agr_K5": 0.892,
+    "delta_K0_minus_K5": -0.028,
+    "d_lo": -0.044,
+    "d_hi": -0.012,
+    "pairs_K0": 33323,
+    "pairs_K5": 35412
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=matched_iters, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.matched_iters.nt12-20": {
+   "value": {
+    "agr_K0": 0.855,
+    "agr_K5": 0.879,
+    "delta_K0_minus_K5": -0.023,
+    "d_lo": -0.04,
+    "d_hi": -0.007,
+    "pairs_K0": 110952,
+    "pairs_K5": 134566
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=matched_iters, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.matched_iters.nt22-34": {
+   "value": {
+    "agr_K0": 0.787,
+    "agr_K5": 0.833,
+    "delta_K0_minus_K5": -0.046,
+    "d_lo": -0.082,
+    "d_hi": -0.009,
+    "pairs_K0": 32843,
+    "pairs_K5": 50106
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=matched_iters, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.matched_iters.nt36-50": {
+   "value": {
+    "agr_K0": 0.757,
+    "agr_K5": 0.813,
+    "delta_K0_minus_K5": -0.055,
+    "d_lo": -0.133,
+    "d_hi": 0.019,
+    "pairs_K0": 7420,
+    "pairs_K5": 11737
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=matched_iters, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.primary.PTO.matched_iters.ntall": {
+   "value": {
+    "agr_K0": 0.836,
+    "agr_K5": 0.863,
+    "delta_K0_minus_K5": -0.027,
+    "d_lo": -0.049,
+    "d_hi": -0.007,
+    "pairs_K0": 151215,
+    "pairs_K5": 196409
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=PTO, cut=matched_iters, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.train_iter_1.nt12": {
+   "value": {
+    "agr_K0": 0.846,
+    "agr_K5": 0.831,
+    "delta_K0_minus_K5": 0.015,
+    "d_lo": -0.043,
+    "d_hi": 0.075,
+    "pairs_K0": 3831,
+    "pairs_K5": 3723
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=train_iter_1, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.train_iter_1.nt12-20": {
+   "value": {
+    "agr_K0": 0.875,
+    "agr_K5": 0.863,
+    "delta_K0_minus_K5": 0.012,
+    "d_lo": -0.035,
+    "d_hi": 0.059,
+    "pairs_K0": 15546,
+    "pairs_K5": 15352
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=train_iter_1, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.train_iter_1.nt22-34": {
+   "value": {
+    "agr_K0": 0.916,
+    "agr_K5": 0.9,
+    "delta_K0_minus_K5": 0.017,
+    "d_lo": -0.029,
+    "d_hi": 0.067,
+    "pairs_K0": 6400,
+    "pairs_K5": 6624
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=train_iter_1, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.train_iter_1.nt36-50": {
+   "value": {
+    "agr_K0": 0.956,
+    "agr_K5": 0.934,
+    "delta_K0_minus_K5": 0.022,
+    "d_lo": -0.029,
+    "d_hi": 0.069,
+    "pairs_K0": 2758,
+    "pairs_K5": 2173
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=train_iter_1, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.train_iter_1.ntall": {
+   "value": {
+    "agr_K0": 0.895,
+    "agr_K5": 0.88,
+    "delta_K0_minus_K5": 0.015,
+    "d_lo": -0.026,
+    "d_hi": 0.059,
+    "pairs_K0": 24704,
+    "pairs_K5": 24149
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=train_iter_1, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.iters_1-5.nt12": {
+   "value": {
+    "agr_K0": 0.862,
+    "agr_K5": 0.864,
+    "delta_K0_minus_K5": -0.001,
+    "d_lo": -0.024,
+    "d_hi": 0.022,
+    "pairs_K0": 20034,
+    "pairs_K5": 19744
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=iters_1-5, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.iters_1-5.nt12-20": {
+   "value": {
+    "agr_K0": 0.885,
+    "agr_K5": 0.884,
+    "delta_K0_minus_K5": 0.002,
+    "d_lo": -0.016,
+    "d_hi": 0.021,
+    "pairs_K0": 80990,
+    "pairs_K5": 81270
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=iters_1-5, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.iters_1-5.nt22-34": {
+   "value": {
+    "agr_K0": 0.912,
+    "agr_K5": 0.895,
+    "delta_K0_minus_K5": 0.017,
+    "d_lo": -0.007,
+    "d_hi": 0.041,
+    "pairs_K0": 35565,
+    "pairs_K5": 33460
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=iters_1-5, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.iters_1-5.nt36-50": {
+   "value": {
+    "agr_K0": 0.931,
+    "agr_K5": 0.919,
+    "delta_K0_minus_K5": 0.011,
+    "d_lo": -0.024,
+    "d_hi": 0.047,
+    "pairs_K0": 11094,
+    "pairs_K5": 9565
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=iters_1-5, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.iters_1-5.ntall": {
+   "value": {
+    "agr_K0": 0.897,
+    "agr_K5": 0.89,
+    "delta_K0_minus_K5": 0.007,
+    "d_lo": -0.01,
+    "d_hi": 0.027,
+    "pairs_K0": 127649,
+    "pairs_K5": 124295
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=iters_1-5, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.matched_iters.nt12": {
+   "value": {
+    "agr_K0": 0.862,
+    "agr_K5": 0.864,
+    "delta_K0_minus_K5": -0.001,
+    "d_lo": -0.024,
+    "d_hi": 0.022,
+    "pairs_K0": 20034,
+    "pairs_K5": 19744
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.matched_iters.nt12-20": {
+   "value": {
+    "agr_K0": 0.885,
+    "agr_K5": 0.884,
+    "delta_K0_minus_K5": 0.002,
+    "d_lo": -0.016,
+    "d_hi": 0.021,
+    "pairs_K0": 80990,
+    "pairs_K5": 81270
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.matched_iters.nt22-34": {
+   "value": {
+    "agr_K0": 0.912,
+    "agr_K5": 0.895,
+    "delta_K0_minus_K5": 0.017,
+    "d_lo": -0.007,
+    "d_hi": 0.041,
+    "pairs_K0": 35565,
+    "pairs_K5": 33460
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.matched_iters.nt36-50": {
+   "value": {
+    "agr_K0": 0.931,
+    "agr_K5": 0.919,
+    "delta_K0_minus_K5": 0.011,
+    "d_lo": -0.024,
+    "d_hi": 0.047,
+    "pairs_K0": 11094,
+    "pairs_K5": 9565
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.primary.GRPO.matched_iters.ntall": {
+   "value": {
+    "agr_K0": 0.897,
+    "agr_K5": 0.89,
+    "delta_K0_minus_K5": 0.007,
+    "d_lo": -0.01,
+    "d_hi": 0.027,
+    "pairs_K0": 127649,
+    "pairs_K5": 124295
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.train_iter_1.nt12": {
+   "value": {
+    "agr_K0": 0.765,
+    "agr_K5": 0.768,
+    "delta_K0_minus_K5": -0.003,
+    "d_lo": -0.081,
+    "d_hi": 0.076,
+    "pairs_K0": 3571,
+    "pairs_K5": 3451
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=train_iter_1, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.train_iter_1.nt12-20": {
+   "value": {
+    "agr_K0": 0.764,
+    "agr_K5": 0.746,
+    "delta_K0_minus_K5": 0.018,
+    "d_lo": -0.065,
+    "d_hi": 0.095,
+    "pairs_K0": 15253,
+    "pairs_K5": 14609
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=train_iter_1, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.train_iter_1.nt22-34": {
+   "value": {
+    "agr_K0": 0.718,
+    "agr_K5": 0.724,
+    "delta_K0_minus_K5": -0.007,
+    "d_lo": -0.119,
+    "d_hi": 0.107,
+    "pairs_K0": 7636,
+    "pairs_K5": 9042
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=train_iter_1, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.train_iter_1.nt36-50": {
+   "value": {
+    "agr_K0": 0.716,
+    "agr_K5": 0.739,
+    "delta_K0_minus_K5": -0.023,
+    "d_lo": -0.213,
+    "d_hi": 0.189,
+    "pairs_K0": 2925,
+    "pairs_K5": 1312
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=train_iter_1, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.train_iter_1.ntall": {
+   "value": {
+    "agr_K0": 0.745,
+    "agr_K5": 0.738,
+    "delta_K0_minus_K5": 0.007,
+    "d_lo": -0.084,
+    "d_hi": 0.093,
+    "pairs_K0": 25814,
+    "pairs_K5": 24963
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=train_iter_1, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.iters_1-5.nt12": {
+   "value": {
+    "agr_K0": 0.792,
+    "agr_K5": 0.803,
+    "delta_K0_minus_K5": -0.011,
+    "d_lo": -0.041,
+    "d_hi": 0.021,
+    "pairs_K0": 16656,
+    "pairs_K5": 17263
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=iters_1-5, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.iters_1-5.nt12-20": {
+   "value": {
+    "agr_K0": 0.79,
+    "agr_K5": 0.784,
+    "delta_K0_minus_K5": 0.006,
+    "d_lo": -0.024,
+    "d_hi": 0.038,
+    "pairs_K0": 64849,
+    "pairs_K5": 68220
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=iters_1-5, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.iters_1-5.nt22-34": {
+   "value": {
+    "agr_K0": 0.74,
+    "agr_K5": 0.755,
+    "delta_K0_minus_K5": -0.015,
+    "d_lo": -0.07,
+    "d_hi": 0.038,
+    "pairs_K0": 24688,
+    "pairs_K5": 25875
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=iters_1-5, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.iters_1-5.nt36-50": {
+   "value": {
+    "agr_K0": 0.703,
+    "agr_K5": 0.764,
+    "delta_K0_minus_K5": -0.061,
+    "d_lo": -0.172,
+    "d_hi": 0.047,
+    "pairs_K0": 6116,
+    "pairs_K5": 4342
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=iters_1-5, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.iters_1-5.ntall": {
+   "value": {
+    "agr_K0": 0.771,
+    "agr_K5": 0.775,
+    "delta_K0_minus_K5": -0.004,
+    "d_lo": -0.04,
+    "d_hi": 0.032,
+    "pairs_K0": 95653,
+    "pairs_K5": 98437
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=iters_1-5, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.matched_iters.nt12": {
+   "value": {
+    "agr_K0": 0.804,
+    "agr_K5": 0.817,
+    "delta_K0_minus_K5": -0.013,
+    "d_lo": -0.032,
+    "d_hi": 0.008,
+    "pairs_K0": 33645,
+    "pairs_K5": 35656
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=matched_iters, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.matched_iters.nt12-20": {
+   "value": {
+    "agr_K0": 0.797,
+    "agr_K5": 0.802,
+    "delta_K0_minus_K5": -0.005,
+    "d_lo": -0.025,
+    "d_hi": 0.017,
+    "pairs_K0": 111431,
+    "pairs_K5": 135091
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=matched_iters, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.matched_iters.nt22-34": {
+   "value": {
+    "agr_K0": 0.748,
+    "agr_K5": 0.777,
+    "delta_K0_minus_K5": -0.03,
+    "d_lo": -0.072,
+    "d_hi": 0.01,
+    "pairs_K0": 32383,
+    "pairs_K5": 49871
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=matched_iters, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.matched_iters.nt36-50": {
+   "value": {
+    "agr_K0": 0.719,
+    "agr_K5": 0.777,
+    "delta_K0_minus_K5": -0.057,
+    "d_lo": -0.137,
+    "d_hi": 0.019,
+    "pairs_K0": 7225,
+    "pairs_K5": 11802
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=matched_iters, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.heldout.PTO.matched_iters.ntall": {
+   "value": {
+    "agr_K0": 0.783,
+    "agr_K5": 0.794,
+    "delta_K0_minus_K5": -0.012,
+    "d_lo": -0.034,
+    "d_hi": 0.014,
+    "pairs_K0": 151039,
+    "pairs_K5": 196764
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=PTO, cut=matched_iters, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.train_iter_1.nt12": {
+   "value": {
+    "agr_K0": 0.783,
+    "agr_K5": 0.78,
+    "delta_K0_minus_K5": 0.003,
+    "d_lo": -0.07,
+    "d_hi": 0.076,
+    "pairs_K0": 3808,
+    "pairs_K5": 3713
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=train_iter_1, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.train_iter_1.nt12-20": {
+   "value": {
+    "agr_K0": 0.794,
+    "agr_K5": 0.794,
+    "delta_K0_minus_K5": 0.0,
+    "d_lo": -0.06,
+    "d_hi": 0.064,
+    "pairs_K0": 15430,
+    "pairs_K5": 15286
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=train_iter_1, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.train_iter_1.nt22-34": {
+   "value": {
+    "agr_K0": 0.804,
+    "agr_K5": 0.839,
+    "delta_K0_minus_K5": -0.035,
+    "d_lo": -0.121,
+    "d_hi": 0.038,
+    "pairs_K0": 6352,
+    "pairs_K5": 6535
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=train_iter_1, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.train_iter_1.nt36-50": {
+   "value": {
+    "agr_K0": 0.807,
+    "agr_K5": 0.868,
+    "delta_K0_minus_K5": -0.061,
+    "d_lo": -0.186,
+    "d_hi": 0.054,
+    "pairs_K0": 2709,
+    "pairs_K5": 2111
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=train_iter_1, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.train_iter_1.ntall": {
+   "value": {
+    "agr_K0": 0.798,
+    "agr_K5": 0.813,
+    "delta_K0_minus_K5": -0.014,
+    "d_lo": -0.075,
+    "d_hi": 0.048,
+    "pairs_K0": 24491,
+    "pairs_K5": 23932
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=train_iter_1, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.iters_1-5.nt12": {
+   "value": {
+    "agr_K0": 0.784,
+    "agr_K5": 0.799,
+    "delta_K0_minus_K5": -0.014,
+    "d_lo": -0.045,
+    "d_hi": 0.016,
+    "pairs_K0": 20171,
+    "pairs_K5": 19867
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=iters_1-5, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.iters_1-5.nt12-20": {
+   "value": {
+    "agr_K0": 0.797,
+    "agr_K5": 0.807,
+    "delta_K0_minus_K5": -0.01,
+    "d_lo": -0.037,
+    "d_hi": 0.017,
+    "pairs_K0": 81459,
+    "pairs_K5": 81617
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=iters_1-5, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.iters_1-5.nt22-34": {
+   "value": {
+    "agr_K0": 0.793,
+    "agr_K5": 0.814,
+    "delta_K0_minus_K5": -0.021,
+    "d_lo": -0.056,
+    "d_hi": 0.015,
+    "pairs_K0": 35636,
+    "pairs_K5": 33286
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=iters_1-5, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.iters_1-5.nt36-50": {
+   "value": {
+    "agr_K0": 0.766,
+    "agr_K5": 0.828,
+    "delta_K0_minus_K5": -0.062,
+    "d_lo": -0.129,
+    "d_hi": 0.006,
+    "pairs_K0": 11081,
+    "pairs_K5": 9396
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=iters_1-5, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.iters_1-5.ntall": {
+   "value": {
+    "agr_K0": 0.793,
+    "agr_K5": 0.81,
+    "delta_K0_minus_K5": -0.017,
+    "d_lo": -0.045,
+    "d_hi": 0.011,
+    "pairs_K0": 128176,
+    "pairs_K5": 124299
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=iters_1-5, n_turns=all",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.matched_iters.nt12": {
+   "value": {
+    "agr_K0": 0.784,
+    "agr_K5": 0.799,
+    "delta_K0_minus_K5": -0.014,
+    "d_lo": -0.045,
+    "d_hi": 0.016,
+    "pairs_K0": 20171,
+    "pairs_K5": 19867
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=12",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.matched_iters.nt12-20": {
+   "value": {
+    "agr_K0": 0.797,
+    "agr_K5": 0.807,
+    "delta_K0_minus_K5": -0.01,
+    "d_lo": -0.037,
+    "d_hi": 0.017,
+    "pairs_K0": 81459,
+    "pairs_K5": 81617
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=12-20",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.matched_iters.nt22-34": {
+   "value": {
+    "agr_K0": 0.793,
+    "agr_K5": 0.814,
+    "delta_K0_minus_K5": -0.021,
+    "d_lo": -0.056,
+    "d_hi": 0.015,
+    "pairs_K0": 35636,
+    "pairs_K5": 33286
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=22-34",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.matched_iters.nt36-50": {
+   "value": {
+    "agr_K0": 0.766,
+    "agr_K5": 0.828,
+    "delta_K0_minus_K5": -0.062,
+    "d_lo": -0.129,
+    "d_hi": 0.006,
+    "pairs_K0": 11081,
+    "pairs_K5": 9396
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=36-50",
+   "note": ""
+  },
+  "matched_policy.heldout.GRPO.matched_iters.ntall": {
+   "value": {
+    "agr_K0": 0.793,
+    "agr_K5": 0.81,
+    "delta_K0_minus_K5": -0.017,
+    "d_lo": -0.045,
+    "d_hi": 0.011,
+    "pairs_K0": 128176,
+    "pairs_K5": 124299
+   },
+   "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=all",
+   "note": ""
+  },
+  "by_coop.primary.Cooperative.PTO.delta_K0_minus_K5": {
+   "value": {
+    "all_iters": {
+     "delta": -0.03,
+     "lo": -0.095,
+     "hi": 0.039
+    },
+    "train_iter_1": {
+     "delta": -0.039,
+     "lo": -0.195,
+     "hi": 0.119
+    }
+   },
+   "source": "tables/faithfulness_by_coop.md rows coop=Cooperative, arms PTO_LA0/PTO_LA5 (delta computed from the same replicates)",
+   "note": ""
+  },
+  "by_coop.primary.Cooperative.GRPO.delta_K0_minus_K5": {
+   "value": {
+    "all_iters": {
+     "delta": 0.044,
+     "lo": -0.017,
+     "hi": 0.113
+    },
+    "train_iter_1": {
+     "delta": 0.039,
+     "lo": -0.157,
+     "hi": 0.212
+    }
+   },
+   "source": "tables/faithfulness_by_coop.md rows coop=Cooperative, arms GRPO_LA0/GRPO_LA5 (delta computed from the same replicates)",
+   "note": ""
+  },
+  "by_coop.primary.Warms up.PTO.delta_K0_minus_K5": {
+   "value": {
+    "all_iters": {
+     "delta": 0.006,
+     "lo": -0.049,
+     "hi": 0.062
+    },
+    "train_iter_1": {
+     "delta": 0.097,
+     "lo": -0.116,
+     "hi": 0.3
+    }
+   },
+   "source": "tables/faithfulness_by_coop.md rows coop=Warms up, arms PTO_LA0/PTO_LA5 (delta computed from the same replicates)",
+   "note": ""
+  },
+  "by_coop.primary.Warms up.GRPO.delta_K0_minus_K5": {
+   "value": {
+    "all_iters": {
+     "delta": -0.041,
+     "lo": -0.091,
+     "hi": 0.008
+    },
+    "train_iter_1": {
+     "delta": -0.014,
+     "lo": -0.111,
+     "hi": 0.092
+    }
+   },
+   "source": "tables/faithfulness_by_coop.md rows coop=Warms up, arms GRPO_LA0/GRPO_LA5 (delta computed from the same replicates)",
+   "note": ""
+  },
+  "by_coop.primary.Resistant.PTO.delta_K0_minus_K5": {
+   "value": {
+    "all_iters": {
+     "delta": 0.007,
+     "lo": -0.047,
+     "hi": 0.068
+    },
+    "train_iter_1": {
+     "delta": 0.039,
+     "lo": -0.164,
+     "hi": 0.266
+    }
+   },
+   "source": "tables/faithfulness_by_coop.md rows coop=Resistant, arms PTO_LA0/PTO_LA5 (delta computed from the same replicates)",
+   "note": ""
+  },
+  "by_coop.primary.Resistant.GRPO.delta_K0_minus_K5": {
+   "value": {
+    "all_iters": {
+     "delta": 0.031,
+     "lo": -0.011,
+     "hi": 0.077
+    },
+    "train_iter_1": {
+     "delta": 0.116,
+     "lo": 0.012,
+     "hi": 0.235
+    }
+   },
+   "source": "tables/faithfulness_by_coop.md rows coop=Resistant, arms GRPO_LA0/GRPO_LA5 (delta computed from the same replicates)",
+   "note": ""
+  },
+  "by_coop.primary.Cooperative.PTO_LA0": {
+   "value": {
+    "agreement": 0.69,
+    "ci_lo": 0.639,
+    "ci_hi": 0.74,
+    "n_pairs": 7035,
+    "agr_train_iter_1": 0.741
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Cooperative, arm=PTO_LA0",
+   "note": ""
+  },
+  "by_coop.primary.Cooperative.PTO_LA5": {
+   "value": {
+    "agreement": 0.72,
+    "ci_lo": 0.673,
+    "ci_hi": 0.766,
+    "n_pairs": 7535,
+    "agr_train_iter_1": 0.78
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Cooperative, arm=PTO_LA5",
+   "note": ""
+  },
+  "by_coop.primary.Cooperative.GRPO_LA0": {
+   "value": {
+    "agreement": 0.79,
+    "ci_lo": 0.754,
+    "ci_hi": 0.821,
+    "n_pairs": 16185,
+    "agr_train_iter_1": 0.745
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Cooperative, arm=GRPO_LA0",
+   "note": ""
+  },
+  "by_coop.primary.Cooperative.GRPO_LA5": {
+   "value": {
+    "agreement": 0.745,
+    "ci_lo": 0.689,
+    "ci_hi": 0.794,
+    "n_pairs": 7595,
+    "agr_train_iter_1": 0.706
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Cooperative, arm=GRPO_LA5",
+   "note": ""
+  },
+  "by_coop.primary.Warms up.PTO_LA0": {
+   "value": {
+    "agreement": 0.721,
+    "ci_lo": 0.679,
+    "ci_hi": 0.759,
+    "n_pairs": 15343,
+    "agr_train_iter_1": 0.685
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Warms up, arm=PTO_LA0",
+   "note": ""
+  },
+  "by_coop.primary.Warms up.PTO_LA5": {
+   "value": {
+    "agreement": 0.715,
+    "ci_lo": 0.672,
+    "ci_hi": 0.751,
+    "n_pairs": 22035,
+    "agr_train_iter_1": 0.588
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Warms up, arm=PTO_LA5",
+   "note": ""
+  },
+  "by_coop.primary.Warms up.GRPO_LA0": {
+   "value": {
+    "agreement": 0.776,
+    "ci_lo": 0.745,
+    "ci_hi": 0.804,
+    "n_pairs": 33565,
+    "agr_train_iter_1": 0.824
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Warms up, arm=GRPO_LA0",
+   "note": ""
+  },
+  "by_coop.primary.Warms up.GRPO_LA5": {
+   "value": {
+    "agreement": 0.817,
+    "ci_lo": 0.777,
+    "ci_hi": 0.85,
+    "n_pairs": 16625,
+    "agr_train_iter_1": 0.839
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Warms up, arm=GRPO_LA5",
+   "note": ""
+  },
+  "by_coop.primary.Resistant.PTO_LA0": {
+   "value": {
+    "agreement": 0.688,
+    "ci_lo": 0.649,
+    "ci_hi": 0.73,
+    "n_pairs": 31643,
+    "agr_train_iter_1": 0.668
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Resistant, arm=PTO_LA0",
+   "note": ""
+  },
+  "by_coop.primary.Resistant.PTO_LA5": {
+   "value": {
+    "agreement": 0.681,
+    "ci_lo": 0.64,
+    "ci_hi": 0.72,
+    "n_pairs": 33982,
+    "agr_train_iter_1": 0.629
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Resistant, arm=PTO_LA5",
+   "note": ""
+  },
+  "by_coop.primary.Resistant.GRPO_LA0": {
+   "value": {
+    "agreement": 0.791,
+    "ci_lo": 0.765,
+    "ci_hi": 0.814,
+    "n_pairs": 39436,
+    "agr_train_iter_1": 0.853
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Resistant, arm=GRPO_LA0",
+   "note": ""
+  },
+  "by_coop.primary.Resistant.GRPO_LA5": {
+   "value": {
+    "agreement": 0.76,
+    "ci_lo": 0.718,
+    "ci_hi": 0.794,
+    "n_pairs": 17243,
+    "agr_train_iter_1": 0.738
+   },
+   "source": "tables/faithfulness_by_coop.md row coop=Resistant, arm=GRPO_LA5",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter0": {
+   "value": {
+    "proxy_mean": 3.42,
+    "eval_mean_primary": 3.0,
+    "gap_primary": 0.42,
+    "n_branch_points": 949,
+    "mean_n_turns": 25.62,
+    "eval_mean_heldout": 1.83
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=0",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter1": {
+   "value": {
+    "proxy_mean": 3.456,
+    "eval_mean_primary": 3.264,
+    "gap_primary": 0.193,
+    "n_branch_points": 772,
+    "mean_n_turns": 24.15,
+    "eval_mean_heldout": 2.072
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=1",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter2": {
+   "value": {
+    "proxy_mean": 3.661,
+    "eval_mean_primary": 3.466,
+    "gap_primary": 0.195,
+    "n_branch_points": 787,
+    "mean_n_turns": 23.82,
+    "eval_mean_heldout": 2.199
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=2",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter3": {
+   "value": {
+    "proxy_mean": 3.778,
+    "eval_mean_primary": 3.815,
+    "gap_primary": -0.037,
+    "n_branch_points": 647,
+    "mean_n_turns": 23.34,
+    "eval_mean_heldout": 2.48
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=3",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter4": {
+   "value": {
+    "proxy_mean": 3.861,
+    "eval_mean_primary": 4.008,
+    "gap_primary": -0.146,
+    "n_branch_points": 600,
+    "mean_n_turns": 21.63,
+    "eval_mean_heldout": 2.68
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=4",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter5": {
+   "value": {
+    "proxy_mean": 3.889,
+    "eval_mean_primary": 4.014,
+    "gap_primary": -0.126,
+    "n_branch_points": 591,
+    "mean_n_turns": 22.05,
+    "eval_mean_heldout": 2.752
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=5",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter6": {
+   "value": {
+    "proxy_mean": 3.999,
+    "eval_mean_primary": 4.154,
+    "gap_primary": -0.155,
+    "n_branch_points": 521,
+    "mean_n_turns": 21.7,
+    "eval_mean_heldout": 2.85
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=6",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter7": {
+   "value": {
+    "proxy_mean": 4.101,
+    "eval_mean_primary": 4.129,
+    "gap_primary": -0.028,
+    "n_branch_points": 517,
+    "mean_n_turns": 21.95,
+    "eval_mean_heldout": 2.813
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=7",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter8": {
+   "value": {
+    "proxy_mean": 4.109,
+    "eval_mean_primary": 4.221,
+    "gap_primary": -0.112,
+    "n_branch_points": 446,
+    "mean_n_turns": 20.68,
+    "eval_mean_heldout": 2.895
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=8",
+   "note": ""
+  },
+  "levels.PTO_LA0.eval_iter9": {
+   "value": {
+    "proxy_mean": 4.171,
+    "eval_mean_primary": 4.238,
+    "gap_primary": -0.068,
+    "n_branch_points": 410,
+    "mean_n_turns": 20.13,
+    "eval_mean_heldout": 2.921
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA0, eval_iter=9",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter0": {
+   "value": {
+    "proxy_mean": 3.499,
+    "eval_mean_primary": 3.003,
+    "gap_primary": 0.496,
+    "n_branch_points": 890,
+    "mean_n_turns": 24.44,
+    "eval_mean_heldout": 1.834
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=0",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter1": {
+   "value": {
+    "proxy_mean": 3.681,
+    "eval_mean_primary": 3.181,
+    "gap_primary": 0.501,
+    "n_branch_points": 837,
+    "mean_n_turns": 24.8,
+    "eval_mean_heldout": 2.012
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=1",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter2": {
+   "value": {
+    "proxy_mean": 3.781,
+    "eval_mean_primary": 3.308,
+    "gap_primary": 0.473,
+    "n_branch_points": 816,
+    "mean_n_turns": 23.57,
+    "eval_mean_heldout": 2.063
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=2",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter3": {
+   "value": {
+    "proxy_mean": 3.981,
+    "eval_mean_primary": 3.674,
+    "gap_primary": 0.306,
+    "n_branch_points": 613,
+    "mean_n_turns": 21.6,
+    "eval_mean_heldout": 2.35
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=3",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter4": {
+   "value": {
+    "proxy_mean": 4.037,
+    "eval_mean_primary": 3.888,
+    "gap_primary": 0.149,
+    "n_branch_points": 468,
+    "mean_n_turns": 17.79,
+    "eval_mean_heldout": 2.557
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=4",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter5": {
+   "value": {
+    "proxy_mean": 4.089,
+    "eval_mean_primary": 4.017,
+    "gap_primary": 0.073,
+    "n_branch_points": 663,
+    "mean_n_turns": 22.7,
+    "eval_mean_heldout": 2.579
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=5",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter6": {
+   "value": {
+    "proxy_mean": 4.158,
+    "eval_mean_primary": 3.897,
+    "gap_primary": 0.261,
+    "n_branch_points": 807,
+    "mean_n_turns": 24.23,
+    "eval_mean_heldout": 2.507
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=6",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter7": {
+   "value": {
+    "proxy_mean": 4.305,
+    "eval_mean_primary": 4.085,
+    "gap_primary": 0.22,
+    "n_branch_points": 767,
+    "mean_n_turns": 24.6,
+    "eval_mean_heldout": 2.735
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=7",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter8": {
+   "value": {
+    "proxy_mean": 4.259,
+    "eval_mean_primary": 4.144,
+    "gap_primary": 0.115,
+    "n_branch_points": 761,
+    "mean_n_turns": 24.27,
+    "eval_mean_heldout": 2.71
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=8",
+   "note": ""
+  },
+  "levels.PTO_LA5.eval_iter9": {
+   "value": {
+    "proxy_mean": 4.434,
+    "eval_mean_primary": 4.197,
+    "gap_primary": 0.236,
+    "n_branch_points": 926,
+    "mean_n_turns": 25.29,
+    "eval_mean_heldout": 2.734
+   },
+   "source": "tables/faithfulness_levels.md row arm=PTO_LA5, eval_iter=9",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter0": {
+   "value": {
+    "proxy_mean": 3.234,
+    "eval_mean_primary": 3.067,
+    "gap_primary": 0.168,
+    "n_branch_points": 1794,
+    "mean_n_turns": 25.83,
+    "eval_mean_heldout": 1.861
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=0",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter1": {
+   "value": {
+    "proxy_mean": 3.201,
+    "eval_mean_primary": 3.269,
+    "gap_primary": -0.068,
+    "n_branch_points": 770,
+    "mean_n_turns": 23.91,
+    "eval_mean_heldout": 2.074
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=1",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter2": {
+   "value": {
+    "proxy_mean": 3.395,
+    "eval_mean_primary": 3.359,
+    "gap_primary": 0.035,
+    "n_branch_points": 2004,
+    "mean_n_turns": 25.76,
+    "eval_mean_heldout": 2.107
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=2",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter3": {
+   "value": {
+    "proxy_mean": 3.778,
+    "eval_mean_primary": 3.993,
+    "gap_primary": -0.216,
+    "n_branch_points": 1680,
+    "mean_n_turns": 23.57,
+    "eval_mean_heldout": 2.637
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=3",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter4": {
+   "value": {
+    "proxy_mean": 3.848,
+    "eval_mean_primary": 4.004,
+    "gap_primary": -0.156,
+    "n_branch_points": 1950,
+    "mean_n_turns": 26.06,
+    "eval_mean_heldout": 2.55
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=4",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter5": {
+   "value": {
+    "proxy_mean": 3.855,
+    "eval_mean_primary": 3.972,
+    "gap_primary": -0.116,
+    "n_branch_points": 1488,
+    "mean_n_turns": 26.43,
+    "eval_mean_heldout": 2.487
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=5",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter6": {
+   "value": {
+    "proxy_mean": 4.048,
+    "eval_mean_primary": 3.966,
+    "gap_primary": 0.082,
+    "n_branch_points": 2122,
+    "mean_n_turns": 27.25,
+    "eval_mean_heldout": 2.371
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=6",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter7": {
+   "value": {
+    "proxy_mean": 4.085,
+    "eval_mean_primary": 4.074,
+    "gap_primary": 0.011,
+    "n_branch_points": 1306,
+    "mean_n_turns": 25.85,
+    "eval_mean_heldout": 2.565
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=7",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter8": {
+   "value": {
+    "proxy_mean": 3.986,
+    "eval_mean_primary": 4.082,
+    "gap_primary": -0.096,
+    "n_branch_points": 1332,
+    "mean_n_turns": 22.84,
+    "eval_mean_heldout": 2.617
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=8",
+   "note": ""
+  },
+  "levels.GRPO_LA0.eval_iter9": {
+   "value": {
+    "proxy_mean": 4.082,
+    "eval_mean_primary": 3.807,
+    "gap_primary": 0.275,
+    "n_branch_points": 2662,
+    "mean_n_turns": 29.1,
+    "eval_mean_heldout": 2.002
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA0, eval_iter=9",
+   "note": ""
+  },
+  "levels.GRPO_LA5.eval_iter0": {
+   "value": {
+    "proxy_mean": 3.08,
+    "eval_mean_primary": 2.963,
+    "gap_primary": 0.116,
+    "n_branch_points": 895,
+    "mean_n_turns": 25.4,
+    "eval_mean_heldout": 1.834
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=0",
+   "note": ""
+  },
+  "levels.GRPO_LA5.eval_iter1": {
+   "value": {
+    "proxy_mean": 3.472,
+    "eval_mean_primary": 3.272,
+    "gap_primary": 0.2,
+    "n_branch_points": 1314,
+    "mean_n_turns": 26.2,
+    "eval_mean_heldout": 2.046
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=1",
+   "note": ""
+  },
+  "levels.GRPO_LA5.eval_iter2": {
+   "value": {
+    "proxy_mean": 3.637,
+    "eval_mean_primary": 3.435,
+    "gap_primary": 0.201,
+    "n_branch_points": 1872,
+    "mean_n_turns": 25.25,
+    "eval_mean_heldout": 2.142
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=2",
+   "note": ""
+  },
+  "levels.GRPO_LA5.eval_iter3": {
+   "value": {
+    "proxy_mean": 3.828,
+    "eval_mean_primary": 3.862,
+    "gap_primary": -0.034,
+    "n_branch_points": 1814,
+    "mean_n_turns": 24.56,
+    "eval_mean_heldout": 2.586
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=3",
+   "note": ""
+  },
+  "levels.GRPO_LA5.eval_iter4": {
+   "value": {
+    "proxy_mean": 4.132,
+    "eval_mean_primary": 4.12,
+    "gap_primary": 0.012,
+    "n_branch_points": 1504,
+    "mean_n_turns": 22.61,
+    "eval_mean_heldout": 2.784
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=4",
+   "note": ""
+  },
+  "levels_rho.PTO_LA0.primary": {
+   "value": {
+    "spearman_rho": 0.988,
+    "spearman_p": 0.0,
+    "pearson_r": 0.968,
+    "n_iters": 10,
+    "mean_gap": 0.014
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=PTO_LA0, eval_grader=gpt-4o-mini",
+   "note": ""
+  },
+  "levels_rho.PTO_LA0.heldout": {
+   "value": {
+    "spearman_rho": 0.988,
+    "spearman_p": 0.0,
+    "pearson_r": 0.968,
+    "n_iters": 10,
+    "mean_gap": 1.295
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=PTO_LA0, eval_grader=claude-haiku-4-5",
+   "note": ""
+  },
+  "levels_rho.PTO_LA5.primary": {
+   "value": {
+    "spearman_rho": 0.976,
+    "spearman_p": 0.0,
+    "pearson_r": 0.973,
+    "n_iters": 10,
+    "mean_gap": 0.283
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=PTO_LA5, eval_grader=gpt-4o-mini",
+   "note": ""
+  },
+  "levels_rho.PTO_LA5.heldout": {
+   "value": {
+    "spearman_rho": 0.952,
+    "spearman_p": 0.0,
+    "pearson_r": 0.972,
+    "n_iters": 10,
+    "mean_gap": 1.615
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=PTO_LA5, eval_grader=claude-haiku-4-5",
+   "note": ""
+  },
+  "levels_rho.GRPO_LA0.primary": {
+   "value": {
+    "spearman_rho": 0.612,
+    "spearman_p": 0.06,
+    "pearson_r": 0.915,
+    "n_iters": 10,
+    "mean_gap": -0.008
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=GRPO_LA0, eval_grader=gpt-4o-mini",
+   "note": ""
+  },
+  "levels_rho.GRPO_LA0.heldout": {
+   "value": {
+    "spearman_rho": 0.321,
+    "spearman_p": 0.3655,
+    "pearson_r": 0.62,
+    "n_iters": 10,
+    "mean_gap": 1.424
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=GRPO_LA0, eval_grader=claude-haiku-4-5",
+   "note": ""
+  },
+  "levels_rho.GRPO_LA5.primary": {
+   "value": {
+    "spearman_rho": 1.0,
+    "spearman_p": 0.0,
+    "pearson_r": 0.981,
+    "n_iters": 5,
+    "mean_gap": 0.099
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=GRPO_LA5, eval_grader=gpt-4o-mini",
+   "note": ""
+  },
+  "levels_rho.GRPO_LA5.heldout": {
+   "value": {
+    "spearman_rho": 1.0,
+    "spearman_p": 0.0,
+    "pearson_r": 0.96,
+    "n_iters": 5,
+    "mean_gap": 1.351
+   },
+   "source": "tables/faithfulness_levels_rho.md row arm=GRPO_LA5, eval_grader=claude-haiku-4-5",
+   "note": ""
+  },
+  "bootstrap": {
+   "value": {
+    "B": 1000,
+    "seed": 12345,
+    "cluster": "conversation within (arm, eval_iter)"
+   },
+   "source": "module constants",
+   "note": ""
+  },
+  "caveats": {
+   "value": [
+    "proxy_score is the training oracle's score by construction; it cannot be re-graded, so the held-out-judge tables change only the EVAL side.",
+    "PTO greedy trunks share only the first MCL=12 utterances with the eval conversation; beyond n_turns=12 the PTO prefix follows the best-of-M trunk, so PTO's curve mixes cut length with trunk divergence (GRPO prefixes are exact slices).",
+    "GRPO branch rows include the policy drifting within an iteration (2 epochs) and ~3-10% eval-split groups scored at iteration end; PTO rows come from the frozen iter-start policy.",
+    "GRPO_LA5 is right-censored at train_iter 5; K reads for GRPO use the iters 1-5 series / cuts.",
+    "Pairs within a cell are not independent (each conversation enters n-1 pairs) — CIs come from the conversation-level cluster bootstrap, not from n_pairs.",
+    "Wilcoxon over n_turns bins treats correlated bins as observations — descriptive only.",
+    "GRPO_LA5 iteration 1 captured only its second epoch (the run resumed after a crash and the recorder flushes once per iteration)."
+   ],
+   "source": "module docstring",
+   "note": ""
+  },
+  "n_branch_rows": {
+   "value": 38295,
+   "source": "training.load_branch_reliability(which='chosen') row count",
+   "note": ""
+  },
+  "n_branch_rows_joined_primary": {
+   "value": 38295,
+   "source": "inner join to gpt-4o-mini eval Q1Q2 on (arm, eval_iter, conversation_id)",
+   "note": ""
+  },
+  "n_branch_rows_joined_heldout": {
+   "value": 38295,
+   "source": "inner join to claude-haiku-4-5 eval Q1Q2 on (arm, eval_iter, conversation_id)",
+   "note": ""
+  },
+  "meta": {
+   "value": {
+    "metric": "Q1Q2",
+    "arms": [
+     "PTO_LA0",
+     "PTO_LA5",
+     "GRPO_LA0",
+     "GRPO_LA5"
+    ],
+    "judges": [
+     "gpt-4o-mini",
+     "claude-haiku-4-5"
+    ],
+    "primary": "gpt-4o-mini",
+    "promoted_from": "papers/2026_lookahead_pto_grpo/analysis/reward_faithfulness.py (2026-08-18)"
+   },
+   "source": "module constants",
+   "note": ""
+  }
+ }
+}

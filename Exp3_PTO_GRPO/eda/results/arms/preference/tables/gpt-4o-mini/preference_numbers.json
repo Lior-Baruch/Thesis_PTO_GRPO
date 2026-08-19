@@ -1,0 +1,137 @@
+{
+ "_family": "arms/preference",
+ "_name": "preference_numbers",
+ "_judge": "gpt-4o-mini",
+ "numbers": {
+  "sanity.PTO_LA0.mean_cos_candidates_vs_pairs": {
+   "value": 0.9313269435408362,
+   "source": "(printed in section 3d)",
+   "note": "cosine between the generations.jsonl-derived and pairs.csv-derived per-iteration DPO directions, mean over iterations"
+  },
+  "sanity.PTO_LA5.mean_cos_candidates_vs_pairs": {
+   "value": 0.9120080747389784,
+   "source": "(printed in section 3d)",
+   "note": "cosine between the generations.jsonl-derived and pairs.csv-derived per-iteration DPO directions, mean over iterations"
+  },
+  "probe.GRPO_LA0.pooled_wins_holdout": {
+   "value": 0.5972500000000001,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "held-out win rate of the per-arm pooled update direction"
+  },
+  "probe.GRPO_LA0.pooled_split_half_cos": {
+   "value": 0.911252576567204,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "split-half cosine of the per-arm pooled update direction"
+  },
+  "probe.GRPO_LA5.pooled_wins_holdout": {
+   "value": 0.609,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "held-out win rate of the per-arm pooled update direction"
+  },
+  "probe.GRPO_LA5.pooled_split_half_cos": {
+   "value": 0.9119939729938733,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "split-half cosine of the per-arm pooled update direction"
+  },
+  "probe.PTO_LA0.pooled_wins_holdout": {
+   "value": 0.565822011446544,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "held-out win rate of the per-arm pooled update direction"
+  },
+  "probe.PTO_LA0.pooled_split_half_cos": {
+   "value": 0.5969173889506516,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "split-half cosine of the per-arm pooled update direction"
+  },
+  "probe.PTO_LA5.pooled_wins_holdout": {
+   "value": 0.55,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "held-out win rate of the per-arm pooled update direction"
+  },
+  "probe.PTO_LA5.pooled_split_half_cos": {
+   "value": 0.7169009961886701,
+   "source": "tables/update_direction_quality_pooled.md",
+   "note": "split-half cosine of the per-arm pooled update direction"
+  },
+  "cosine.GRPO_LA0_vs_GRPO_LA5.corrected": {
+   "value": 0.8425413069178551,
+   "source": "tables/update_direction_cosines.md",
+   "note": "attenuation-corrected cosine between the two arms' pooled update directions"
+  },
+  "cosine.GRPO_LA0_vs_PTO_LA0.corrected": {
+   "value": 0.31645858005833616,
+   "source": "tables/update_direction_cosines.md",
+   "note": "attenuation-corrected cosine between the two arms' pooled update directions"
+  },
+  "cosine.GRPO_LA0_vs_PTO_LA5.corrected": {
+   "value": 0.3593821122820962,
+   "source": "tables/update_direction_cosines.md",
+   "note": "attenuation-corrected cosine between the two arms' pooled update directions"
+  },
+  "cosine.GRPO_LA5_vs_PTO_LA0.corrected": {
+   "value": 0.14790803234915834,
+   "source": "tables/update_direction_cosines.md",
+   "note": "attenuation-corrected cosine between the two arms' pooled update directions"
+  },
+  "cosine.GRPO_LA5_vs_PTO_LA5.corrected": {
+   "value": 0.7385106053938268,
+   "source": "tables/update_direction_cosines.md",
+   "note": "attenuation-corrected cosine between the two arms' pooled update directions"
+  },
+  "cosine.PTO_LA0_vs_PTO_LA5.corrected": {
+   "value": 0.1977696747133663,
+   "source": "tables/update_direction_cosines.md",
+   "note": "attenuation-corrected cosine between the two arms' pooled update directions"
+  },
+  "decomposition.K0.as_trained_cosine_corrected": {
+   "value": 0.31645858005833616,
+   "source": "tables/weighting_decomposition.md",
+   "note": "PTO_LA0 vs GRPO_LA0 pooled update directions, attenuation-corrected"
+  },
+  "decomposition.K5.as_trained_cosine_corrected": {
+   "value": 0.7385106053938268,
+   "source": "tables/weighting_decomposition.md",
+   "note": "PTO_LA5 vs GRPO_LA5 pooled update directions, attenuation-corrected"
+  },
+  "yield.GRPO_LA0.min_yield_rate": {
+   "value": 0.9375,
+   "source": "tables/training_signal_yield.md",
+   "note": "lowest per-iteration share of built groups that produced a gradient"
+  },
+  "yield.GRPO_LA0.groups_trained_total": {
+   "value": 15726,
+   "source": "tables/training_signal_yield.md",
+   "note": "gradient groups summed over training iterations"
+  },
+  "yield.GRPO_LA5.min_yield_rate": {
+   "value": 0.9746621621621622,
+   "source": "tables/training_signal_yield.md",
+   "note": "lowest per-iteration share of built groups that produced a gradient"
+  },
+  "yield.GRPO_LA5.groups_trained_total": {
+   "value": 6851,
+   "source": "tables/training_signal_yield.md",
+   "note": "gradient groups summed over training iterations"
+  },
+  "yield.PTO_LA0.min_yield_rate": {
+   "value": 0.6853658536585366,
+   "source": "tables/training_signal_yield.md",
+   "note": "lowest per-iteration share of built groups that produced a gradient"
+  },
+  "yield.PTO_LA0.groups_trained_total": {
+   "value": 4935,
+   "source": "tables/training_signal_yield.md",
+   "note": "gradient groups summed over training iterations"
+  },
+  "yield.PTO_LA5.min_yield_rate": {
+   "value": 0.6663066954643628,
+   "source": "tables/training_signal_yield.md",
+   "note": "lowest per-iteration share of built groups that produced a gradient"
+  },
+  "yield.PTO_LA5.groups_trained_total": {
+   "value": 6416,
+   "source": "tables/training_signal_yield.md",
+   "note": "gradient groups summed over training iterations"
+  }
+ }
+}

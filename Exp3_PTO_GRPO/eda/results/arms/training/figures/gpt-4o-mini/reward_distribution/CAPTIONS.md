@@ -1,0 +1,4 @@
+- **GRPO_LA0** — GRPO (K=0): per-candidate training-reward distribution per training iteration (partial-conv training oracle gpt-4o-mini, not the full-conv eval).
+- **GRPO_LA5** — GRPO (K=5): per-candidate training-reward distribution per training iteration (partial-conv training oracle gpt-4o-mini, not the full-conv eval).
+- **PTO_LA0** — PTO (K=0): per-candidate training-reward distribution per training iteration (partial-conv training oracle gpt-4o-mini, not the full-conv eval).
+- **PTO_LA5** — PTO (K=5): per-candidate training-reward distribution per training iteration (partial-conv training oracle gpt-4o-mini, not the full-conv eval).

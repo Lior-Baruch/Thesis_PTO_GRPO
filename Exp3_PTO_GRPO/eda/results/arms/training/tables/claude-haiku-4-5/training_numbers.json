@@ -1,0 +1,67 @@
+{
+ "_family": "arms/training",
+ "_name": "training_numbers",
+ "_judge": "claude-haiku-4-5",
+ "numbers": {
+  "faithfulness.claude-haiku-4-5.GRPO_LA0.agreement_at_min_nturns": {
+   "value": 0.7598797354179194,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=41575"
+  },
+  "faithfulness.claude-haiku-4-5.GRPO_LA0.agreement_at_max_nturns": {
+   "value": 0.7188799556418076,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=3607"
+  },
+  "faithfulness.claude-haiku-4-5.GRPO_LA5.agreement_at_min_nturns": {
+   "value": 0.7988121004681129,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=19867"
+  },
+  "faithfulness.claude-haiku-4-5.GRPO_LA5.agreement_at_max_nturns": {
+   "value": 0.8361244019138756,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=836"
+  },
+  "faithfulness.claude-haiku-4-5.PTO_LA0.agreement_at_min_nturns": {
+   "value": 0.8037152622975182,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=33645"
+  },
+  "faithfulness.claude-haiku-4-5.PTO_LA0.agreement_at_max_nturns": {
+   "value": 0.7027027027027027,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=48 (the longest bin with >= 20 pairs), n_pairs=518"
+  },
+  "faithfulness.claude-haiku-4-5.PTO_LA5.agreement_at_min_nturns": {
+   "value": 0.817057437738389,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=35656"
+  },
+  "faithfulness.claude-haiku-4-5.PTO_LA5.agreement_at_max_nturns": {
+   "value": 0.7805092186128183,
+   "source": "tables/reward_reliability_by_nturns_long.md",
+   "note": "n_turns=48 (the longest bin with >= 20 pairs), n_pairs=1139"
+  },
+  "proxy_vs_eval.claude-haiku-4-5.GRPO_LA0.mean_proxy_minus_eval": {
+   "value": 1.2892627173146483,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  },
+  "proxy_vs_eval.claude-haiku-4-5.GRPO_LA5.mean_proxy_minus_eval": {
+   "value": 1.1145425000940996,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  },
+  "proxy_vs_eval.claude-haiku-4-5.PTO_LA0.mean_proxy_minus_eval": {
+   "value": 1.1823268102197833,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  },
+  "proxy_vs_eval.claude-haiku-4-5.PTO_LA5.mean_proxy_minus_eval": {
+   "value": 1.4424095743498033,
+   "source": "tables/faithfulness_proxy_vs_eval.md",
+   "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
+  }
+ }
+}
