@@ -230,7 +230,7 @@ def _notebook_symbol_refs() -> dict:
 
     Scans every live notebook: ``notebooks/<top>/`` for each ``config.FAMILIES`` top, plus
     ``notebooks/scoring/``. (The pre-reorg ``notebooks/analysis/`` folder and its legacy scan were
-    removed with the 2026-08-18 reorg; git keeps them at ``b09eb6f``.)
+    removed with the 2026-08-18 reorg; they live in the 2026-08-19 archival bundle.)
     """
     from eda_analysis.config import FAMILIES
     # ``(?<![\w.])`` — the submodule name must not itself be an attribute: ``plotting.lookahead.k_did``

@@ -78,7 +78,7 @@ sections/              00_abstract 01_intro 02_related 03_setup 04_reward 05_cos
 analysis/              the paper's FROZEN FIXTURE (see analysis/README.md): analysis/out/*.json = one
                        ledger per retired generator (every quotable number, with its source table),
                        _findings_digest.txt (findings, caveats, paper-use), _appendix_rows.tex. The nine
-                       generators (analysis/*.py) were retired 2026-08-18 — they live in git at b09eb6f and
+                       generators (analysis/*.py) were retired 2026-08-18 — they live in git at abe5cb3 and
                        were promoted into eda_analysis.{lookahead,transfer,compute,tails,dispersion,
                        faithfulness,crossgen,replication,instruments} + the family notebooks under
                        Exp3_PTO_GRPO/eda/notebooks/{lookahead,compute}/. Nothing under analysis/ regenerates;

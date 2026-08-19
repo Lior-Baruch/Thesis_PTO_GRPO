@@ -3,7 +3,7 @@ instruments.py — K-turn look-ahead read on instruments OUTSIDE the training re
 
 Promoted (2026-08-18) from the look-ahead paper's generator
 ``papers/2026_lookahead_pto_grpo/analysis/held_out_instruments.py`` (paper-local script; its outputs
-were frozen at commit b09eb6f, 2026-08-18). Its frozen outputs —
+were frozen at commit abe5cb3, 2026-08-18). Its frozen outputs —
 ``papers/2026_lookahead_pto_grpo/tables/held_out_instruments_*.csv`` and
 ``analysis/out/held_out_instruments.json`` — are the FIXTURE these functions reproduce (means /
 dz / p exactly; bootstrap CI bounds within ~0.02, because the paper seeded its bootstrap with 0
@@ -796,7 +796,7 @@ def instruments_numbers(*, wai: pd.DataFrame, wai_k: pd.DataFrame, fig_wai: pd.D
                         source=f"tables/{table_prefix}_pct.md (judge={j}, method={method}, metric={m})")
 
     # ── crosscheck vs the tracked EDA (pre-reorg results/L5/tables/7_stats/gpt-4o-mini/k_paired_by_method.md,
-    #    commit b09eb6f): PCT (=ChangeProp) PTO iter 6 +0.006/dz .037; GRPO iter 4 -0.062/-0.321;
+    #    commit abe5cb3): PCT (=ChangeProp) PTO iter 6 +0.006/dz .037; GRPO iter 4 -0.062/-0.321;
     #    Q1Q2 PTO iter 6 +0.257/dz .417.
     cc = {}
     p6 = pct[(pct.judge == plabel) & (pct.method == "PTO") & (pct.metric == "PCT_ChangeProp") & (pct.iteration == 6)]
@@ -815,7 +815,7 @@ def instruments_numbers(*, wai: pd.DataFrame, wai_k: pd.DataFrame, fig_wai: pd.D
     if cc:
         put("crosscheck.tracked_k_paired_by_method", cc,
             source="pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/7_stats/gpt-4o-mini/k_paired_by_method.md "
-                   "(commit b09eb6f) — now results/lookahead/reward/tables/k_paired_by_method.md")
+                   "(commit abe5cb3) — now results/lookahead/reward/tables/k_paired_by_method.md")
 
     # ── Q2
     Q2L, Q2K = q2["q2items_long"], q2["q2items_kcontrast"]
@@ -875,7 +875,7 @@ def instruments_numbers(*, wai: pd.DataFrame, wai_k: pd.DataFrame, fig_wai: pd.D
         put("crosscheck.tracked_q2_item_deltas.PTO_LA5_item3_final_primary",
             {"mine": {"base": _fmt3(c.base), "gain": _fmt3(c.gain)}, "tracked": {"base": 2.135, "delta": 1.135}},
             source="pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/2_questionnaires/gpt-4o-mini/q2_item_deltas.md "
-                   "(commit b09eb6f) — now results/arms/questionnaires/tables/gpt-4o-mini/q2_item_deltas.md")
+                   "(commit abe5cb3) — now results/arms/questionnaires/tables/gpt-4o-mini/q2_item_deltas.md")
 
     # ── heterogeneity
     for _, r in hetero.iterrows():

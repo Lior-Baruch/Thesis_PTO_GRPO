@@ -35,7 +35,7 @@ the ICLR conversations re-scored under the modern oracle, … are rendered by th
 behaviour,mechanism,replication}/`, `results/compute/cost/`; notebooks under
 `eda/notebooks/{lookahead,compute}/`, modules `eda_analysis.{lookahead,transfer,compute,tails,
 dispersion,faithfulness,crossgen,replication,instruments}`). The paper's own `analysis/*.py`
-generators, which first produced those numbers, were retired on 2026-08-18 (git `b09eb6f`) once
+generators, which first produced those numbers, were retired on 2026-08-18 (git `abe5cb3`) once
 promoted; the paper carries their output as a **frozen fixture** (`analysis/out/*.json` ledgers +
 `tables/*.md|csv`, seed-0 bootstrap CIs) that the EDA self-check asserts against, and its
 `NUMBERS.md` maps every claim to the tracked results path (fixture name in parentheses).

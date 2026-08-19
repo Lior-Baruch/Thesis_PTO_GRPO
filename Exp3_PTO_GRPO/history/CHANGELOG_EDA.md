@@ -9,6 +9,18 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-19) — the repo's history loses 606 MB of superseded renders.**
+`Exp3_PTO_GRPO/eda/results` was removed from every past commit with `git-filter-repo`: it was 606 MB
+of the 671 MB packed repo, almost all of it superseded figure generations (including the retired
+`L0`/`all` trees). The current tree was re-added unchanged in `b44213c` — **HEAD content verified
+byte-identical, 1,046 tracked files with the same blob hashes** — so the packed repo went
+**671 MB -> ~135 MB**. Every commit SHA changed (`b09eb6f` -> `abe5cb3`, `7b0fb9d` -> `fbdd11d`,
+`b7b44ac` -> `82b9f18`); the doc/memory references were repointed. The complete pre-rewrite history
+is preserved in an archival bundle on Drive
+(`_git_archive/Thesis_PTO_GRPO_prerewrite_2026-08-19_b7b44ac.bundle`, 643 MB, `git bundle verify`
+clean) — that is now the ONLY place the pre-reorg `results/L0|L5` renders exist. Everything under
+`results/` regenerates from `tools/render_results.py` regardless.
+
 **Landed (2026-08-18, evening) — the EDA is reorganised by RESEARCH QUESTION; VIEW/L0/L5 retired.**
 `results/` is now `{arms,lookahead,method,compute,measurement}/<family>/{figures,tables}/[<judge>/]`
 (+ `schematics/`, `METRICS_REFERENCE.md`, `LIMITATIONS.md` at the results root). `arms/*` shows all four
@@ -23,7 +35,7 @@ verified against the paper's frozen fixture (only bootstrap-CI third decimals mo
 measurement tables now pool all 39 states, so their pooled rates changed by design: sign preservation
 88.4 % over 5,928 contrasts). Self-check = 23 checks (family map 1:1, exports routing, paper-fixture
 anchors). Also: `code/tools/` (smoke + generate-only tool moved), `Exp3_PTO_GRPO/README.md` (new map),
-`eda/README.md` rewritten with the old->new migration table. Last pre-reorg commit: `b09eb6f`.
+`eda/README.md` rewritten with the old->new migration table. Last pre-reorg commit: `abe5cb3` (`b09eb6f` before the 2026-08-19 history rewrite).
 Two peak-flag/caption bugs fixed on the way (the `peak -> regresses` flag fired on lower-is-better MICI;
 L5 captions described K=0 phenomena in a K=5 view).
 

@@ -718,9 +718,17 @@ and the measurement/inference limitations in [`results/LIMITATIONS.md`](results/
 ## Migration (2026-08-18) — old → new
 
 The results tree was reorganised by research question (the design note that guided it was a scratch
-file, never committed — this table is the record). **Commit `b09eb6f` is the last pre-reorg
+file, never committed — this table is the record). **Commit `abe5cb3` (was `b09eb6f` before the 2026-08-19 history rewrite) is the last pre-reorg
 state** — check it out to re-run anything that read the retired `L0`/`L5` tree (the deck builders
-written before that date, the paper's own `analysis/*.py` generators). `L0/`, `L5/`, the `VIEW`
+written before that date, the paper's own `analysis/*.py` generators). ⚠ **Its `results/` renders are
+NOT there:** on 2026-08-19 the repo's history was rewritten (`git-filter-repo`) to drop
+`Exp3_PTO_GRPO/eda/results` from every past commit — 606 MB of the 671 MB packed repo was superseded
+figure generations. Git now holds exactly one copy of the tree (the current one, re-added in
+`b44213c`), and **every pre-rewrite commit, including the whole `L0`/`L5` render history, is
+preserved in an archival bundle** at
+`G:\My Drive\Thesis_PTO_GRPO\_git_archive\Thesis_PTO_GRPO_prerewrite_2026-08-19_b7b44ac.bundle`
+(`git clone <bundle>` restores it read-only). The rewrite changed every commit SHA; content at HEAD
+was verified byte-identical (1,046 tracked files, same blob hashes). `L0/`, `L5/`, the `VIEW`
 knob, `RQ_I_VIEW`, `render_views.py` (`EDA_VIEW`) and `EdaConfig(view=, export_group=)` are gone;
 `lookahead/` owns cross-K.
 

@@ -464,7 +464,7 @@ def default_selection_dirs() -> List[str]:
     (all four arms in one table; the training-side rows exist only under the primary oracle).
 
     Before the 2026-08-18 reorg these were two per-K files under ``results/{L0,L5}/tables/6_preference/``
-    (git keeps that tree at ``b09eb6f``); the notebook that calls this falls back to any directory
+    (that tree lives only in the 2026-08-19 archival bundle, not in git history); the notebook that calls this falls back to any directory
     list you pass explicitly, so a re-render of ``arms/preference`` is the only prerequisite.
     """
     R = _results_dir()

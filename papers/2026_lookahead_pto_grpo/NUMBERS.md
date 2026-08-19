@@ -2,7 +2,7 @@
 Every quantitative claim in the draft -> the exact artifact it came from: the tracked EDA table under Exp3_PTO_GRPO/eda/results/<family>/tables/ (named first in each source cell), with the paper's frozen fixture table (tables/*.md|csv, its analysis/out/*.json ledger key, or the analysis/out/_findings_digest.txt 'caveats'/'digest' entry) in parentheses. Sign convention for K contrasts: tables report K=0 minus K=5 (+ => K=0 higher). Graders: gpt-4o-mini = the training oracle; claude-haiku-4-5 = held out. GRPO K=5 is right-censored at iteration 5.
 
 **Provenance (2026-08-18).** The numbers in the text were computed by the paper-local generators
-`analysis/*.py` (retired at commit b09eb6f; see `analysis/README.md`) and are kept here as a FROZEN
+`analysis/*.py` (retired at commit `abe5cb3`; see `analysis/README.md`) and are kept here as a FROZEN
 FIXTURE: `analysis/out/*.json` + `tables/*.md|csv`, bootstrap CIs at seed 0. Those generators were
 promoted into the tracked EDA (`eda_analysis.{lookahead,transfer,compute,tails,dispersion,faithfulness,
 crossgen,replication,instruments}` + the family notebooks), which reproduces every one of them under

@@ -2494,7 +2494,7 @@
      }
     }
    },
-   "source": "pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/7_stats/gpt-4o-mini/k_paired_by_method.md (commit b09eb6f) — now results/lookahead/reward/tables/k_paired_by_method.md",
+   "source": "pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/7_stats/gpt-4o-mini/k_paired_by_method.md (commit abe5cb3) — now results/lookahead/reward/tables/k_paired_by_method.md",
    "note": ""
   },
   "q2.item1.gain.primary.PTO_LA0": {
@@ -3478,7 +3478,7 @@
      "delta": 1.135
     }
    },
-   "source": "pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/2_questionnaires/gpt-4o-mini/q2_item_deltas.md (commit b09eb6f) — now results/arms/questionnaires/tables/gpt-4o-mini/q2_item_deltas.md",
+   "source": "pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/2_questionnaires/gpt-4o-mini/q2_item_deltas.md (commit abe5cb3) — now results/arms/questionnaires/tables/gpt-4o-mini/q2_item_deltas.md",
    "note": ""
   },
   "hetero.primary.PTO.Q1Q2.matched_final.Cooperative": {

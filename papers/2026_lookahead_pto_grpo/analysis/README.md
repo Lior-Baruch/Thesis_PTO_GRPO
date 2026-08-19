@@ -21,7 +21,7 @@ bootstrap CI bounds may differ in the third decimal because the EDA bootstraps a
 ## Where the code went
 
 The nine generators (`analysis/*.py` + `_common.py`) were retired on 2026-08-18. They live in git
-at commit `b09eb6f` (the last pre-reorg state) and were promoted, one module each, into the tracked
+at commit `abe5cb3` (the last pre-reorg state) and were promoted, one module each, into the tracked
 EDA package `Exp3_PTO_GRPO/eda/eda_analysis/`:
 
 | Retired generator | Promoted to | Renders into `eda/results/…` |

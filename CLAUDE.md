@@ -413,7 +413,8 @@ Exp3_PTO_GRPO/
 ```
 
 (`figures/` — the schematics' old home — and `eda/docs/` moved into `eda/results/` on 2026-08-18;
-the last pre-reorg state is commit `b09eb6f`.)
+the last pre-reorg state is commit `abe5cb3`; its *code and docs* only — the pre-reorg
+`results/L0|L5` renders live solely in the archival bundle `G:\My Drive\Thesis_PTO_GRPO\_git_archive\Thesis_PTO_GRPO_prerewrite_2026-08-19_b7b44ac.bundle`.)
 
 `meetings/` moved OUT of here to the repo root — decks span experiments and now also present the
 `papers/` drafts, so they sit beside `papers/` rather than inside one experiment. The deck builders

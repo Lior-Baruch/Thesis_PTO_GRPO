@@ -25,7 +25,8 @@ Nothing here is imported by `code/` or `eda/` — it only *reads* the generated 
 > `build_status_deck_2026-08-18.py`) reads the **retired** `Exp3_PTO_GRPO/eda/results/L0|L5/…`
 > tree (`<view>/figures|tables/<N_family>/<judge>/`) and the method schematics at
 > `Exp3_PTO_GRPO/figures/` (now `eda/results/schematics/`). Both are recoverable at commit
-> **`b09eb6f`** (the last pre-reorg state) — check it out to re-run one of those builders; **do
+> **`abe5cb3`** (the last pre-reorg state — code and docs; the pre-reorg `results/` renders are in
+> the archival bundle, not in git) — check it out to re-run one of those builders; **do
 > not edit past builders** to chase the new paths (they are records of what was shown). New builders
 > read `Exp3_PTO_GRPO/eda/results/<top>/<sub>/{figures,tables}/[<judge>/]…` — per-arm figures under
 > `arms/*` (a `<judge>/` leaf), cross-K / method / compute / measurement artifacts under
@@ -125,7 +126,7 @@ Use the repo `.venv` python — the system python has neither `python-pptx` nor 
 
 The scripts read PNGs and markdown tables straight out of `../Exp3_PTO_GRPO/eda/results/` — the
 pre-2026-08-18 builders from the retired `<view>/…` tree (see the note at the top; check out
-`b09eb6f` to re-run them), new builders from `<top>/<sub>/…` — so a deck is only as current as the
+`abe5cb3` to re-run them), new builders from `<top>/<sub>/…` — so a deck is only as current as the
 last render (`render_results.py` now; `render_views.py` before). If a figure moved or was renamed by
 an EDA refactor, the script fails loudly at `add_picture` and writes nothing — the file on disk is
 never half-updated.
