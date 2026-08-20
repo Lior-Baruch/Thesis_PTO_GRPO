@@ -294,9 +294,47 @@ def arm_label(arm: str) -> str:
     return f"{m.group(1)} (K={m.group(2)})" if m else arm
 
 
+def k_of(arm: str) -> int:
+    """Look-ahead K parsed out of an arm label; ``0`` for anything unparseable (incl. ``"Base"``).
+
+    THE canonical parse. It lived in ten places across the analysis and plotting modules with five
+    mutually inconsistent bodies — ``endswith("LA5")`` (reads a hypothetical K=3 arm as K=0),
+    ``int(arm.split("_LA")[1])`` (raises on ``"Base"``), and three regex/split variants. Since K is
+    both a *style* key (solid vs dashed) and a *grouping* key, disagreeing parses meant a new K arm
+    would be mis-styled in some figures and mis-grouped in others, silently rather than loudly.
+    """
+    m = _ARM_RE.match(arm or "")
+    return int(m.group(2)) if m else 0
+
+
+def method_of(arm: str) -> str:
+    """``"PTO"`` / ``"GRPO"`` parsed out of an arm label; ``""`` when it is neither."""
+    m = _ARM_RE.match(arm or "")
+    return m.group(1) if m else ""
+
+
 # Patient-characteristic columns recovered per persona.
 PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
                 "tried_to_solve", "cooperation_level"]
+
+# Display labels + plot order for the `cooperation_level` persona trait (32 personas per level).
+# ⚠ ONE canonical copy on purpose. This map was duplicated into four modules and had already
+# DRIFTED: `replication.py` rendered StartLowAndChangesToHigh as "WarmsUp" with a Resistant-first
+# order while `faithfulness`/`instruments`/`plotting.heterogeneity` used "Warms up" with the
+# reverse — so the same persona stratum shipped under two spellings, both of them inside
+# `results/lookahead/INDEX.md`, and any join keyed on the label broke across families.
+COOP_LABEL = {"High": "Cooperative", "StartLowAndChangesToHigh": "Warms up", "Low": "Resistant"}
+COOP_ORDER = ["Cooperative", "Warms up", "Resistant"]
+
+# Column-name slug for the same three strata. ⚠ An IDENTIFIER must not be a display string —
+# conflating the two is exactly how the drift above happened, because `replication.py` built
+# column names like ``share_ge45_{label}`` and so could not change its label without renaming
+# columns. The slug is the historical no-space form, so ``n_WarmsUp`` / ``share_ge45_WarmsUp``
+# stay byte-comparable with the frozen paper table
+# (papers/2026_lookahead_pto_grpo/tables/session_shape_stability_ceiling.md) while the *displayed*
+# label converges with every other family.
+COOP_SLUG = {"Cooperative": "Cooperative", "Warms up": "WarmsUp", "Resistant": "Resistant"}
+
 
 
 # THE resampling seed for every bootstrap in the EDA — `stats.bootstrap_ci` AND the CI bands

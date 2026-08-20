@@ -56,6 +56,33 @@ FAMILIES: Dict[str, List[str]] = {
 # rendered once per judge on disk). Everything else is judge-invariant: cross-grader by design.
 PER_JUDGE_TOPS = frozenset({"arms"})
 
+#: Families that read ANOTHER family's **rendered artifacts** (not just the score lake), as
+#: ``reader -> (producer, ...)``.
+#:
+#: ⚠ This is a render-ORDER constraint, and without it a from-clean run races. ``tools/
+#: render_results.py`` schedules units of ``(top, judge)`` in a thread pool, so ``lookahead`` and
+#: ``arms`` run concurrently — and ``lookahead/behaviour`` copies the tracked preference tables
+#: (``update_lexical_push`` / ``generation_pool_means``) out of ``arms/preference``. When the pool
+#: happens to reach the reader first the notebook dies on a missing file; when it does not, the
+#: render passes. Observed both ways on the same machine minutes apart.
+#:
+#: Keep this map tiny. A family here is a family that is NOT self-contained; the better fix for a
+#: new entry is usually to compute the value rather than re-read a rendered table.
+FAMILY_READS: Dict[str, Tuple[str, ...]] = {
+    "lookahead/behaviour": ("arms/preference",),
+}
+
+
+def producer_tops(families: List[str]) -> set:
+    """Tops that must finish BEFORE the given families render (see :data:`FAMILY_READS`)."""
+    out = set()
+    for fam in families:
+        for producer in FAMILY_READS.get(fam, ()):
+            top = producer.split("/")[0]
+            if top != fam.split("/")[0]:          # same-top order is the unit's own sequence
+                out.add(top)
+    return out
+
 
 def all_families() -> List[str]:
     """Every ``"<top>/<sub>"`` family in :data:`FAMILIES` order."""

@@ -92,6 +92,7 @@ import pandas as pd
 from scipy import stats as sps
 
 from .constants import BOOT_SEED, RE_AFFIRM, RE_EFFUSIVE
+from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
 __all__ = [
     "TailAudit", "tail_audit_frames", "tail_audit_by_iter", "tail_cues_by_iter",
@@ -410,7 +411,11 @@ def _audit_one_arm(arm, verbose: bool = True):
     if verbose:
         print(f"  [tails] {arm.label}: load_generations(keep_tail=True) …")
     g = T.load_generations([arm], keep_tail=True)
-    T.clear_generations_memo()                        # bound memory: one arm's tails at a time
+    # Bound memory to one arm's tails — but drop ONLY the entry this call added. The old
+    # `clear_generations_memo()` emptied the process-wide memo, so any later `load_generations`
+    # in the same kernel (render_results.py shares one kernel across a whole top) paid a fresh
+    # ~17 s full-tree parse. Harmless in today's cell order; a landmine for the next cell.
+    T._GENERATIONS_MEMO.pop((T._arm_memo_key([arm]), True), None)
     n_all = len(g)
     n_eval_phase = int((g["phase"] == "eval").sum()) if len(g) else 0
     g = g[(g["phase"] != "eval")].copy() if len(g) else g
@@ -807,18 +812,7 @@ def api_ratio(api_df: pd.DataFrame) -> pd.DataFrame:
 
 # ── ledger ─────────────────────────────────────────────────────────────────────
 
-def _clean(v):
-    if isinstance(v, dict):
-        return {str(k): _clean(x) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
-        return [_clean(x) for x in v]
-    if isinstance(v, (np.floating, np.integer)):
-        v = v.item()
-    if isinstance(v, float) and np.isnan(v):
-        return None
-    if isinstance(v, np.bool_):
-        return bool(v)
-    return v
+_clean = json_scalar          # one definition — see eda_analysis/ledger.py
 
 
 def tails_numbers(arms=None, *, audit: Optional[TailAudit] = None, api: Optional[pd.DataFrame] = None,

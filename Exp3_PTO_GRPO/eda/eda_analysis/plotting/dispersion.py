@@ -23,13 +23,15 @@ from ..plotting_style import arm_palette
 __all__ = ["K_STYLE", "dispersion_fig", "tau_fig"]
 
 # Solid + circle = K=0, dashed + square = K=5 (survives greyscale; the palette carries the method).
-K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+from ._shared import K_STYLE  # noqa: F401  (one definition; see _shared)
+from ..constants import k_of as _k_of_canonical  # noqa: E402
 _ARMS = ["PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5"]
 _GRADER = "training oracle (gpt-4o-mini)"
 
 
 def _k_of(arm: str) -> int:
-    return int(arm.split("_LA")[1])
+    """Re-export of :func:`eda_analysis.constants.k_of` (THE canonical arm parse)."""
+    return _k_of_canonical(arm)
 
 
 def dispersion_fig(by_iter: pd.DataFrame, expectation: pd.DataFrame, *,

@@ -32,14 +32,15 @@ __all__ = ["K_STYLE", "wai_fig", "hetero_fig"]
 # K=0 solid + circle (+ plain bars), K=5 dashed + square (+ hatched bars) — the same encoding as
 # plotting/lookahead.py and plotting/compute.py, so the K contrast survives greyscale printing
 # while the arm palette (PTO cool / GRPO warm) still carries the method.
-K_STYLE = {0: {"ls": "-", "marker": "o", "hatch": ""},
-           5: {"ls": "--", "marker": "s", "hatch": "//"}}
+from ._shared import K_STYLE_HATCHED as K_STYLE  # noqa: F401  (one definition; see _shared)
+from ..constants import k_of as _k_of_canonical  # noqa: E402
 
 _ARM_ORDER = ["PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5"]
 
 
 def _k_of(arm: str) -> int:
-    return int(arm.split("_LA")[1].split("_")[0])
+    """Re-export of :func:`eda_analysis.constants.k_of` (THE canonical arm parse)."""
+    return _k_of_canonical(arm)
 
 
 def _judges(df: pd.DataFrame) -> list:

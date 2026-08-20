@@ -853,7 +853,7 @@
     "ci_lo": -5.8234375,
     "ci_hi": 1.136718749999993,
     "p": 0.14096425824181028,
-    "p_holm": 0.5638570329672411
+    "p_holm": 0.7048212912090513
    },
    "source": "tables/session_shape.md row method=GRPO metric=conv_len iteration=1",
    "note": ""
@@ -898,7 +898,7 @@
     "ci_lo": 1.4473958333333334,
     "ci_hi": 8.03125,
     "p": 0.009711135924095875,
-    "p_holm": 0.04855567962047938
+    "p_holm": 0.05826681554457525
    },
    "source": "tables/session_shape.md row method=GRPO metric=conv_len iteration=4",
    "note": ""
@@ -913,9 +913,24 @@
     "ci_lo": 5.030989583333334,
     "ci_hi": 11.062760416666665,
     "p": 5.480370037431543e-06,
-    "p_holm": 3.288222022458926e-05
+    "p_holm": 3.8362590262020796e-05
    },
    "source": "tables/session_shape.md row method=GRPO metric=conv_len iteration=5",
+   "note": ""
+  },
+  "shape.GRPO.conv_len.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 32.291666666666664,
+    "mean_K5": 28.802083333333332,
+    "mean_delta": 3.4895833333333335,
+    "dz": 0.1789474443890441,
+    "ci_lo": -0.3130208333333333,
+    "ci_hi": 7.177864583333329,
+    "p": 0.1509372176027024,
+    "p_holm": 0.7048212912090513
+   },
+   "source": "tables/session_shape.md row method=GRPO metric=conv_len iteration=6",
    "note": ""
   },
   "shape.GRPO.n_th_turns.iter0": {
@@ -943,7 +958,7 @@
     "ci_lo": -2.8854166666666665,
     "ci_hi": 0.5940104166666652,
     "p": 0.13782710779750024,
-    "p_holm": 0.551308431190001
+    "p_holm": 0.6891355389875011
    },
    "source": "tables/session_shape.md row method=GRPO metric=n_th_turns iteration=1",
    "note": ""
@@ -988,7 +1003,7 @@
     "ci_lo": 0.7390625000000001,
     "ci_hi": 4.03125,
     "p": 0.009413187365574721,
-    "p_holm": 0.047065936827873606
+    "p_holm": 0.05647912419344833
    },
    "source": "tables/session_shape.md row method=GRPO metric=n_th_turns iteration=4",
    "note": ""
@@ -1003,9 +1018,24 @@
     "ci_lo": 2.4895833333333335,
     "ci_hi": 5.510416666666667,
     "p": 5.607091461038284e-06,
-    "p_holm": 3.3642548766229704e-05
+    "p_holm": 3.9249640227267987e-05
    },
    "source": "tables/session_shape.md row method=GRPO metric=n_th_turns iteration=5",
+   "note": ""
+  },
+  "shape.GRPO.n_th_turns.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 16.177083333333332,
+    "mean_K5": 14.427083333333334,
+    "mean_delta": 1.75,
+    "dz": 0.17989537807370237,
+    "ci_lo": -0.14635416666666665,
+    "ci_hi": 3.5835937499999986,
+    "p": 0.14112337836050917,
+    "p_holm": 0.6891355389875011
+   },
+   "source": "tables/session_shape.md row method=GRPO metric=n_th_turns iteration=6",
    "note": ""
   },
   "shape.GRPO.mean_turn_len.iter0": {
@@ -1098,6 +1128,21 @@
    "source": "tables/session_shape.md row method=GRPO metric=mean_turn_len iteration=5",
    "note": ""
   },
+  "shape.GRPO.mean_turn_len.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 446.1476739150765,
+    "mean_K5": 698.4078525914174,
+    "mean_delta": -252.26017867634096,
+    "dz": -0.8487343990420662,
+    "ci_lo": -312.3598273118693,
+    "ci_hi": -194.18630500517241,
+    "p": 2.349289323217871e-10,
+    "p_holm": 1.6445025262525095e-09
+   },
+   "source": "tables/session_shape.md row method=GRPO metric=mean_turn_len iteration=6",
+   "note": ""
+  },
   "shape.GRPO.q_per_turn.iter0": {
    "value": {
     "n": 96,
@@ -1188,6 +1233,21 @@
    "source": "tables/session_shape.md row method=GRPO metric=q_per_turn iteration=5",
    "note": ""
   },
+  "shape.GRPO.q_per_turn.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 0.2685915843963697,
+    "mean_K5": 0.8089928857886566,
+    "mean_delta": -0.5404013013922869,
+    "dz": -0.8546786712108577,
+    "ci_lo": -0.6755080241457315,
+    "ci_hi": -0.4171947561179242,
+    "p": 9.7181992049303e-13,
+    "p_holm": 6.80273944345121e-12
+   },
+   "source": "tables/session_shape.md row method=GRPO metric=q_per_turn iteration=6",
+   "note": ""
+  },
   "shape.GRPO.loop.iter0": {
    "value": {
     "n": 96,
@@ -1243,7 +1303,7 @@
     "ci_lo": -0.14583333333333334,
     "ci_hi": -0.03125,
     "p": 0.0046777349810472576,
-    "p_holm": 0.028066409886283547
+    "p_holm": 0.0327441448673308
    },
    "source": "tables/session_shape.md row method=GRPO metric=loop iteration=3",
    "note": ""
@@ -1276,6 +1336,21 @@
     "p_holm": 0.7864960352514251
    },
    "source": "tables/session_shape.md row method=GRPO metric=loop iteration=5",
+   "note": ""
+  },
+  "shape.GRPO.loop.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 0.07291666666666667,
+    "mean_K5": 0.0,
+    "mean_delta": 0.07291666666666667,
+    "dz": 0.278984582017977,
+    "ci_lo": 0.030989583333333348,
+    "ci_hi": 0.125,
+    "p": 0.0081509715935027,
+    "p_holm": 0.048905829561016204
+   },
+   "source": "tables/session_shape.md row method=GRPO metric=loop iteration=6",
    "note": ""
   },
   "levels.PTO_LA0": {
@@ -1350,19 +1425,19 @@
   "levels.GRPO_LA5": {
    "value": {
     "arm": "GRPO_LA5",
-    "final_iteration": 5,
+    "final_iteration": 6,
     "conv_len_base": 28.291666666666668,
-    "conv_len_final": 22.572916666666668,
-    "conv_len_change": -5.71875,
+    "conv_len_final": 28.802083333333332,
+    "conv_len_change": 0.5104166666666643,
     "n_th_turns_base": 14.239583333333334,
-    "n_th_turns_final": 11.3125,
-    "n_th_turns_change": -2.927083333333334,
+    "n_th_turns_final": 14.427083333333334,
+    "n_th_turns_change": 0.1875,
     "mean_turn_len_base": 279.0363477452129,
-    "mean_turn_len_final": 668.342794652524,
-    "mean_turn_len_change": 389.30644690731117,
+    "mean_turn_len_final": 698.4078525914174,
+    "mean_turn_len_change": 419.3715048462045,
     "q_per_turn_base": 0.7404490892556875,
-    "q_per_turn_final": 0.690551951851904,
-    "q_per_turn_change": -0.04989713740378354,
+    "q_per_turn_final": 0.8089928857886566,
+    "q_per_turn_change": 0.06854379653296905,
     "loop_base": 0.4895833333333333,
     "loop_final": 0.0,
     "loop_change": -0.4895833333333333
@@ -1430,64 +1505,64 @@
    "source": "tables/length_kcontrast.md row contrast='PTO iter 10' metric=mean_turn_len",
    "note": ""
   },
-  "length_endpoint.GRPO.iter5.conv_len": {
+  "length_endpoint.GRPO.iter6.conv_len": {
    "value": {
-    "contrast": "GRPO iter 5",
+    "contrast": "GRPO iter 6",
     "method": "GRPO",
-    "iteration": 5,
+    "iteration": 6,
     "metric": "conv_len",
-    "mean_K0": 30.677083333333332,
-    "mean_K5": 22.572916666666668,
-    "K5_minus_K0": -8.104166666666666,
-    "mean_delta_K0_minus_K5": 8.104166666666666,
-    "dz": 0.5305148231163583,
-    "ci_lo": 5.030989583333334,
-    "ci_hi": 11.062760416666665,
-    "p": 5.480370037431543e-06,
-    "p_holm": 3.288222022458926e-05,
+    "mean_K0": 32.291666666666664,
+    "mean_K5": 28.802083333333332,
+    "K5_minus_K0": -3.4895833333333335,
+    "mean_delta_K0_minus_K5": 3.4895833333333335,
+    "dz": 0.1789474443890441,
+    "ci_lo": -0.3130208333333333,
+    "ci_hi": 7.177864583333329,
+    "p": 0.1509372176027024,
+    "p_holm": 0.7048212912090513,
     "n": 96
    },
-   "source": "tables/length_kcontrast.md row contrast='GRPO iter 5' metric=conv_len",
+   "source": "tables/length_kcontrast.md row contrast='GRPO iter 6' metric=conv_len",
    "note": ""
   },
-  "length_endpoint.GRPO.iter5.n_th_turns": {
+  "length_endpoint.GRPO.iter6.n_th_turns": {
    "value": {
-    "contrast": "GRPO iter 5",
+    "contrast": "GRPO iter 6",
     "method": "GRPO",
-    "iteration": 5,
+    "iteration": 6,
     "metric": "n_th_turns",
-    "mean_K0": 15.34375,
-    "mean_K5": 11.3125,
-    "K5_minus_K0": -4.03125,
-    "mean_delta_K0_minus_K5": 4.03125,
-    "dz": 0.527660313003281,
-    "ci_lo": 2.4895833333333335,
-    "ci_hi": 5.510416666666667,
-    "p": 5.607091461038284e-06,
-    "p_holm": 3.3642548766229704e-05,
+    "mean_K0": 16.177083333333332,
+    "mean_K5": 14.427083333333334,
+    "K5_minus_K0": -1.75,
+    "mean_delta_K0_minus_K5": 1.75,
+    "dz": 0.17989537807370237,
+    "ci_lo": -0.14635416666666665,
+    "ci_hi": 3.5835937499999986,
+    "p": 0.14112337836050917,
+    "p_holm": 0.6891355389875011,
     "n": 96
    },
-   "source": "tables/length_kcontrast.md row contrast='GRPO iter 5' metric=n_th_turns",
+   "source": "tables/length_kcontrast.md row contrast='GRPO iter 6' metric=n_th_turns",
    "note": ""
   },
-  "length_endpoint.GRPO.iter5.mean_turn_len": {
+  "length_endpoint.GRPO.iter6.mean_turn_len": {
    "value": {
-    "contrast": "GRPO iter 5",
+    "contrast": "GRPO iter 6",
     "method": "GRPO",
-    "iteration": 5,
+    "iteration": 6,
     "metric": "mean_turn_len",
-    "mean_K0": 461.78669439796073,
-    "mean_K5": 668.342794652524,
-    "K5_minus_K0": 206.55610025456335,
-    "mean_delta_K0_minus_K5": -206.55610025456335,
-    "dz": -0.8147258877229051,
-    "ci_lo": -259.0180505027894,
-    "ci_hi": -155.74378672035434,
-    "p": 3.347494605272622e-10,
-    "p_holm": 2.0084967631635732e-09,
+    "mean_K0": 446.1476739150765,
+    "mean_K5": 698.4078525914174,
+    "K5_minus_K0": 252.26017867634096,
+    "mean_delta_K0_minus_K5": -252.26017867634096,
+    "dz": -0.8487343990420662,
+    "ci_lo": -312.3598273118693,
+    "ci_hi": -194.18630500517241,
+    "p": 2.349289323217871e-10,
+    "p_holm": 1.6445025262525095e-09,
     "n": 96
    },
-   "source": "tables/length_kcontrast.md row contrast='GRPO iter 5' metric=mean_turn_len",
+   "source": "tables/length_kcontrast.md row contrast='GRPO iter 6' metric=mean_turn_len",
    "note": ""
   },
   "selection.PTO_LA5.w_len_series": {
@@ -2148,10 +2223,10 @@
    "value": {
     "train_iter_first": 1,
     "pool_len_first": 327.041,
-    "train_iter_last": 5,
-    "pool_len_last": 585.004,
-    "pool_overpraise_last": 0.012,
-    "pool_affirm_last": 0.046
+    "train_iter_last": 6,
+    "pool_len_last": 817.119,
+    "pool_overpraise_last": 0.015,
+    "pool_affirm_last": 0.072
    },
    "source": "tables/selection.md rows arm=GRPO_LA5 (from generation_pool_means.md)",
    "note": ""
@@ -2244,6 +2319,24 @@
     "n_groups": 1396
    },
    "source": "tables/selection.md row arm=GRPO_LA5 train_iter=5",
+   "note": ""
+  },
+  "selection.GRPO_LA5.train_iter6": {
+   "value": {
+    "w_len": 10.345,
+    "w_len_se": 5.356,
+    "w_overpraise": 0.006,
+    "w_overpraise_se": 0.003,
+    "w_affirm": -0.0,
+    "w_affirm_se": 0.007,
+    "w_question": 0.056,
+    "w_question_se": 0.024,
+    "pool_len": 817.119,
+    "pool_overpraise": 0.015,
+    "pool_affirm": 0.072,
+    "n_groups": 1107
+   },
+   "source": "tables/selection.md row arm=GRPO_LA5 train_iter=6",
    "note": ""
   },
   "selection.pool_len_contrast": {

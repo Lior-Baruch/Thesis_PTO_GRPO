@@ -430,7 +430,22 @@ against.
   Likert-item rubric; item text source of truth = `code/questionnaires.py`),
   `DISPLAY_NAMES`/`ARM_LABELS`, `display_label`/`short_label`/`arm_label`/`item_short_label`,
   the shared `RE_AFFIRM` cue, `BOOT_SEED`, the judge tag helpers (`set_active_judge`,
-  `active_judge`, `judge_dirname`, `PRIMARY_JUDGE_TAG`).
+  `active_judge`, `judge_dirname`, `PRIMARY_JUDGE_TAG`), **the canonical arm parse**
+  (`k_of`/`method_of`) and the **persona cooperation labels** (`COOP_LABEL`/`COOP_ORDER` +
+  `COOP_SLUG`). ⚠ The last two were duplicated across the promoted modules and had already drifted
+  — five different `k_of` bodies (one read a hypothetical K=3 arm as K=0, another raised on
+  `"Base"`), and `replication` rendered `"WarmsUp"` where three others said `"Warms up"`, shipping
+  the same persona stratum under two spellings inside one `INDEX.md`. `COOP_SLUG` exists because
+  that module built COLUMN NAMES out of the display label: identifiers keep the historical
+  no-space form (`share_ge45_WarmsUp`, cited by the frozen paper table) while the label displayed
+  in figures is the canonical one.
+- **`ledger`** — a second LEAF (numpy + stdlib, no package imports): the quotable-numbers
+  primitives every `*_numbers.json` writer needs — `json_scalar` (recursive numpy→JSON, NaN→None),
+  `ledger_entry` (the `{value, source, note}` record `exports.save_numbers` writes and each
+  paper's `NUMBERS.md` cites), `round3`. ⚠ These arrived as private copies in eight modules when
+  the paper generators were promoted, and had diverged on `np.bool_` — three converted it, two
+  folded it into `.item()`, one ignored it — so the same value serialized three ways depending on
+  which ledger wrote it. Deliberately NOT in `constants`, whose docstring promises stdlib-only.
 - **`config`** — `FAMILIES` (top → subs) + `PER_JUDGE_TOPS`, `split_family`/`is_per_judge`/
   `all_families`, `EdaConfig` (the single control surface, incl. `family` + `judge` + PNG/xlsx
   defaults) + `notebook_setup(cfg)` → `Setup` (`S.FAMILY`, `S.JUDGE`, `S.RESULTS_DIR`, `S.CFG`, …),
@@ -614,7 +629,7 @@ disk. Extend it by concern:
 
 | Adding | Goes in |
 |---|---|
-| **a new family** (a new question) | one entry in `config.py::FAMILIES` (+ `PER_JUDGE_TOPS` if its artifacts are produced by one grader) + one notebook `notebooks/<top>/<sub>.ipynb` following the cell-1 contract; `_selfcheck`'s `family map` asserts the two stay 1:1, `render_results.py` iterates the dict, `build_index` picks the folder up. A new **top** also gets a hand-authored `results/<top>/SUMMARY.md` |
+| **a new family** (a new question) | one entry in `config.py::FAMILIES` (+ `PER_JUDGE_TOPS` if its artifacts are produced by one grader) + one notebook `notebooks/<top>/<sub>.ipynb` following the cell-1 contract; `_selfcheck`'s `family map` asserts the two stay 1:1, `render_results.py` iterates the dict, `build_index` picks the folder up. A new **top** also gets a hand-authored `results/<top>/SUMMARY.md`. ⚠ If the new notebook READS another family's rendered artifacts (rather than the score lake), add it to `config.py::FAMILY_READS` — `render_results.py` schedules units of `(top, judge)` concurrently, so an undeclared cross-top read races and fails intermittently |
 | a new rubric | `constants.py::QUESTIONNAIRES` + `data.py` (the `scores_long` backbone) |
 | a new judge | `scoring/judge.py` (`JudgeSpec`) — its scores land in `data/eval_scores/judge=<tag>/rep=<r>/`; `arms/*` picks it up on the next bare render, `scores_by_judge` returns it to every judge-invariant notebook (columns are suffixed `_<label>` once there is more than one held-out grader) |
 | a new arm naming scheme | `data.py::parse_experiment_name` |

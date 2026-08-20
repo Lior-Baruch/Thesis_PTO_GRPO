@@ -24,7 +24,7 @@ from ..plotting_style import arm_palette
 __all__ = ["K_STYLE", "faithfulness_fig"]
 
 # Solid + circle = K=0, dashed + square = K=5 (survives greyscale; the palette carries the method).
-K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+from ._shared import K_STYLE  # noqa: F401  (one definition; see _shared)
 _METHODS = ["PTO", "GRPO"]
 
 

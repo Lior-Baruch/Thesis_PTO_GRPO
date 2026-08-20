@@ -362,6 +362,28 @@
    "source": "tables/dispersion_by_iter.md row arm=GRPO_LA5 train_iter=5",
    "note": ""
   },
+  "by_iter.GRPO_LA5.iter6": {
+   "value": {
+    "n_groups": 1120,
+    "sd_mean": 0.12540284538776977,
+    "sd_median": 0.0984615859378907,
+    "margin_mean": 0.3717752100840337,
+    "margin_median": 0.2882352941176478,
+    "margin_over_sd": 2.9646473246634324,
+    "mean_group_ratio": 2.9368543790619213,
+    "winner_z": 1.4710673333035034,
+    "null_margin_over_sd": 2.9189853428562085,
+    "null_winner_z": 1.2223948679848582,
+    "frac_sd_zero": 0.011607142857142858,
+    "frac_groups_floored": 0.0008928571428571428,
+    "frac_groups_nan_cand": 0.0,
+    "yield_tau0.10": 0.8705357142857143,
+    "reward_median": 4.1764705882352935,
+    "reward_iqr": 1.2294117647058824
+   },
+   "source": "tables/dispersion_by_iter.md row arm=GRPO_LA5 train_iter=6",
+   "note": ""
+  },
   "by_iter.PTO_LA0.iter1": {
    "value": {
     "n_groups": 949,
@@ -1260,33 +1282,61 @@
    "source": "tables/dispersion_ratios.md row method=GRPO train_iter=5",
    "note": "margin_ratio = 0.372/0.246 = 1.510; sd_ratio = 0.124/0.083 = 1.488; ratio_of_ratios = 1.510/1.488 = 1.014"
   },
+  "ratios.GRPO.iter6": {
+   "value": {
+    "n_groups_K0": 1376,
+    "n_groups_K5": 1120,
+    "margin_K0": 0.2342510259917921,
+    "margin_K5": 0.3717752100840337,
+    "margin_ratio": 1.5870803916865674,
+    "margin_ratio_lo": 1.4882085038400912,
+    "margin_ratio_hi": 1.69444281784949,
+    "sd_K0": 0.079531870229489,
+    "sd_K5": 0.12540284538776977,
+    "sd_ratio": 1.5767621838380035,
+    "sd_ratio_lo": 1.4827891570131722,
+    "sd_ratio_hi": 1.6811343885388985,
+    "ratio_of_ratios": 1.0065439214323675,
+    "ror_lo": 0.9942617523174507,
+    "ror_hi": 1.0190507398472495,
+    "margin_over_sd_K0": 2.945373034933812,
+    "margin_over_sd_K5": 2.9646473246634324,
+    "winner_z_K0": 1.4386539049635325,
+    "winner_z_K5": 1.4710673333035034,
+    "winner_z_diff": 0.03241342833997085,
+    "winner_z_diff_lo": -0.015698121018894135,
+    "winner_z_diff_hi": 0.0784512586003517
+   },
+   "source": "tables/dispersion_ratios.md row method=GRPO train_iter=6",
+   "note": "margin_ratio = 0.372/0.234 = 1.587; sd_ratio = 0.125/0.080 = 1.577; ratio_of_ratios = 1.587/1.577 = 1.007"
+  },
   "ratios.GRPO.iterpooled": {
    "value": {
-    "n_groups_K0": 7856,
-    "n_groups_K5": 6944,
-    "margin_K0": 0.3002710554690308,
-    "margin_K5": 0.46949630658715097,
-    "margin_ratio": 1.563574970134188,
-    "margin_ratio_lo": 1.523346599209362,
-    "margin_ratio_hi": 1.6068855659853278,
-    "sd_K0": 0.1006691818503841,
-    "sd_K5": 0.1548705965964541,
-    "sd_ratio": 1.5384111974469492,
-    "sd_ratio_lo": 1.498974187591435,
-    "sd_ratio_hi": 1.5796030299132047,
-    "ratio_of_ratios": 1.0163569874744796,
-    "ror_lo": 1.0113460229109754,
-    "ror_hi": 1.0220243435541567,
-    "margin_over_sd_K0": 2.9827505295046275,
-    "margin_over_sd_K5": 3.0315393425552317,
-    "winner_z_K0": 1.4212759638448673,
-    "winner_z_K5": 1.5223897696719855,
-    "winner_z_diff": 0.10111380582711815,
-    "winner_z_diff_lo": 0.08263609386240589,
-    "winner_z_diff_hi": 0.11949534853725423
+    "n_groups_K0": 9232,
+    "n_groups_K5": 8064,
+    "margin_K0": 0.2904309817514527,
+    "margin_K5": 0.45592393207282916,
+    "margin_ratio": 1.5698185135875184,
+    "margin_ratio_lo": 1.5304655633431237,
+    "margin_ratio_hi": 1.610801246133718,
+    "sd_K0": 0.09751873332456612,
+    "sd_K5": 0.15077785337302574,
+    "sd_ratio": 1.5461424511247523,
+    "sd_ratio_lo": 1.5080057449736406,
+    "sd_ratio_hi": 1.5856890543720215,
+    "ratio_of_ratios": 1.0153129890751935,
+    "ror_lo": 1.0105293887351332,
+    "ror_hi": 1.0203587165297956,
+    "margin_over_sd_K0": 2.978207077247687,
+    "margin_over_sd_K5": 3.0238123296852444,
+    "winner_z_K0": 1.4238197936299861,
+    "winner_z_K5": 1.5152505466184656,
+    "winner_z_diff": 0.09143075298847947,
+    "winner_z_diff_lo": 0.07403945562886369,
+    "winner_z_diff_hi": 0.10920991720079705
    },
    "source": "tables/dispersion_ratios.md row method=GRPO train_iter=pooled",
-   "note": "margin_ratio = 0.469/0.300 = 1.564; sd_ratio = 0.155/0.101 = 1.538; ratio_of_ratios = 1.564/1.538 = 1.016"
+   "note": "margin_ratio = 0.456/0.290 = 1.570; sd_ratio = 0.151/0.098 = 1.546; ratio_of_ratios = 1.570/1.546 = 1.015"
   },
   "tau.rescale_factor_iter1_sd_ratio": {
    "value": 1.5303083010776792,
@@ -2296,21 +2346,21 @@
      1.015085068614132,
      1.042173457315893
     ],
-    "pooled_margin_ratio": 1.563574970134188,
-    "pooled_sd_ratio": 1.5384111974469492,
-    "pooled_ratio_of_ratios": 1.0163569874744796,
+    "pooled_margin_ratio": 1.5698185135875184,
+    "pooled_sd_ratio": 1.5461424511247523,
+    "pooled_ratio_of_ratios": 1.0153129890751935,
     "pooled_ror_ci": [
-     1.0113460229109754,
-     1.0220243435541567
+     1.0105293887351332,
+     1.0203587165297956
     ],
-    "n_iters_ror_ci_covers_1": 2,
-    "n_iters": 5,
+    "n_iters_ror_ci_covers_1": 3,
+    "n_iters": 6,
     "margin_over_sd_range_K0": [
-     2.9647289491979385,
+     2.945373034933812,
      3.00784857929836
     ],
     "margin_over_sd_range_K5": [
-     3.0076562104624784,
+     2.9646473246634324,
      3.0639391961658786
     ],
     "iid_expectation": 3.1538010105562297,
@@ -2346,8 +2396,8 @@
     ],
     "grader": "training oracle (gpt-4o-mini)",
     "grpo_la5_censored_at_train_iter": 5,
-    "n_candidates_loaded": 306360,
-    "n_groups": 37068,
+    "n_candidates_loaded": 315736,
+    "n_groups": 38188,
     "seed_default": 12345,
     "promoted_from": "papers/2026_lookahead_pto_grpo/analysis/dispersion_by_k.py (2026-08-18)",
     "seed": 12345

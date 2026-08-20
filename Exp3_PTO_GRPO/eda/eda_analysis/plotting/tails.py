@@ -29,7 +29,7 @@ from ..plotting_style import arm_palette
 __all__ = ["K_STYLE", "tail_audit_fig", "api_calls_fig"]
 
 # K=0 solid + circle, K=5 dashed + square. Other K fall back to dash-dot + triangle.
-K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+from ._shared import K_STYLE  # noqa: F401  (one definition; see _shared)
 _K_FALLBACK = {"ls": "-.", "marker": "^"}
 _METHOD_ORDER = {"PTO": 0, "GRPO": 1}
 

@@ -649,10 +649,9 @@ def _label_of(metric: str) -> str:
     return DISPLAY_NAMES.get(metric, metric)
 
 
-def _wide(scores_long: pd.DataFrame, metric: str) -> pd.DataFrame:
-    """``persona_id x model`` matrix for one metric (NaN where unscored) — the pairing unit."""
-    d = scores_long[scores_long["questionnaire"] == metric]
-    return d.pivot_table(index="persona_id", columns="model", values="score", aggfunc="mean")
+# The persona pivot is THE pairing primitive (see the file_index gotcha in CLAUDE.md); one
+# definition so a fix to the pairing cannot land in one copy and not the other.
+from .lookahead import wide_by_persona as _wide  # noqa: E402
 
 
 def _primary_label(judges: Sequence[str]) -> str:

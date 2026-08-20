@@ -33,7 +33,7 @@ from ..plotting_style import arm_palette
 __all__ = ["K_STYLE", "crossgen_fig"]
 
 # K=0 solid + circle, K=5 dashed + square — survives greyscale printing; colour carries the arm.
-K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+from ._shared import K_STYLE  # noqa: F401  (one definition; see _shared)
 
 _ITERS = list(range(1, 8))
 _TITLES = {"gpt-3.5": "GPT-3.5 (original ICLR oracle)",

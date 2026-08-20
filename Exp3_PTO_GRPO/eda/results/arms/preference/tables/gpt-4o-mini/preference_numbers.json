@@ -24,12 +24,12 @@
    "note": "split-half cosine of the per-arm pooled update direction"
   },
   "probe.GRPO_LA5.pooled_wins_holdout": {
-   "value": 0.609,
+   "value": 0.6020833333333333,
    "source": "tables/update_direction_quality_pooled.md",
    "note": "held-out win rate of the per-arm pooled update direction"
   },
   "probe.GRPO_LA5.pooled_split_half_cos": {
-   "value": 0.9119939729938733,
+   "value": 0.9197559813486732,
    "source": "tables/update_direction_quality_pooled.md",
    "note": "split-half cosine of the per-arm pooled update direction"
   },
@@ -54,7 +54,7 @@
    "note": "split-half cosine of the per-arm pooled update direction"
   },
   "cosine.GRPO_LA0_vs_GRPO_LA5.corrected": {
-   "value": 0.8425413069178551,
+   "value": 0.835170511586959,
    "source": "tables/update_direction_cosines.md",
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
@@ -69,12 +69,12 @@
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
   "cosine.GRPO_LA5_vs_PTO_LA0.corrected": {
-   "value": 0.14790803234915834,
+   "value": 0.1310519620416612,
    "source": "tables/update_direction_cosines.md",
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
   "cosine.GRPO_LA5_vs_PTO_LA5.corrected": {
-   "value": 0.7385106053938268,
+   "value": 0.7495613209850349,
    "source": "tables/update_direction_cosines.md",
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
@@ -89,7 +89,7 @@
    "note": "PTO_LA0 vs GRPO_LA0 pooled update directions, attenuation-corrected"
   },
   "decomposition.K5.as_trained_cosine_corrected": {
-   "value": 0.7385106053938268,
+   "value": 0.7495613209850349,
    "source": "tables/weighting_decomposition.md",
    "note": "PTO_LA5 vs GRPO_LA5 pooled update directions, attenuation-corrected"
   },
@@ -109,7 +109,7 @@
    "note": "lowest per-iteration share of built groups that produced a gradient"
   },
   "yield.GRPO_LA5.groups_trained_total": {
-   "value": 6851,
+   "value": 7958,
    "source": "tables/training_signal_yield.md",
    "note": "gradient groups summed over training iterations"
   },

@@ -100,8 +100,9 @@ METRIC = "Q1Q2"
 METHODS = ["PTO", "GRPO"]
 ARMS = ["PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5"]
 COARSE = [("12-20", 12, 20), ("22-34", 22, 34), ("36-50", 36, 50)]
-COOP_LABEL = {"High": "Cooperative", "StartLowAndChangesToHigh": "Warms up", "Low": "Resistant"}
-COOP_ORDER = ["Cooperative", "Warms up", "Resistant"]
+from .constants import COOP_LABEL, COOP_ORDER  # noqa: E402,F401
+from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
+from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 CUTS = ["train_iter_1", "iters_1-5", "matched_iters"]
 # series = (arm, iteration-range label, eval_iters subset or None). GRPO_LA0 appears twice: its
 # full support (1-10) and the 1-5 subset matched to GRPO_LA5's censored support (like-for-like).
@@ -165,7 +166,8 @@ def _method_of(arm: str) -> str:
 
 
 def _k_of(arm: str) -> int:
-    return int(arm.split("_LA")[1])
+    """Re-export of :func:`eda_analysis.constants.k_of`."""
+    return _k_of_canonical(arm)
 
 
 # ── data ─────────────────────────────────────────────────────────────────────
@@ -765,26 +767,14 @@ def proxy_levels(data, scores_by_judge=None, **kw) -> Tuple[pd.DataFrame, pd.Dat
 
 # ── 5) ledger ────────────────────────────────────────────────────────────────
 
-def _num(v):
-    if isinstance(v, dict):
-        return {k: _num(x) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
-        return [_num(x) for x in v]
-    if isinstance(v, (np.floating, np.integer)):
-        v = v.item()
-    if isinstance(v, float) and np.isnan(v):
-        return None
-    if isinstance(v, np.bool_):
-        return bool(v)
-    return v
+_num = json_scalar            # one definition — see eda_analysis/ledger.py
 
 
 def _put(d: dict, key: str, value, *, source: str = "", note: str = "") -> None:
-    d[key] = {"value": _num(value), "source": source, "note": note}
+    d[key] = ledger_entry(value, source, note)
 
 
-def _r3(x, nd=3):
-    return None if x is None or (isinstance(x, float) and np.isnan(x)) else round(float(x), nd)
+_r3 = round3
 
 
 def faithfulness_numbers(fd: FaithfulnessData, *, curve: pd.DataFrame, by_iter: pd.DataFrame,

@@ -82,6 +82,7 @@ import numpy as np
 import pandas as pd
 
 from .constants import BOOT_SEED
+from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
 __all__ = [
     "GROUP_KEYS", "TAU_TRAINER", "TAUS", "M_BRANCHES", "ARMS", "GRADER",
@@ -420,22 +421,11 @@ def tau_sensitivity(source, *, gens: Optional[pd.DataFrame] = None, taus: Sequen
 
 
 # ── 5. ledger ────────────────────────────────────────────────────────────────────────────────
-def _num(v):
-    if isinstance(v, dict):
-        return {k: _num(x) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
-        return [_num(x) for x in v]
-    if isinstance(v, (np.floating, np.integer)):
-        v = v.item()
-    if isinstance(v, float) and np.isnan(v):
-        return None
-    if isinstance(v, (np.bool_,)):
-        return bool(v)
-    return v
+_num = json_scalar            # one definition — see eda_analysis/ledger.py
 
 
 def _put(d: dict, key: str, value, *, source: str = "", note: str = "") -> None:
-    d[key] = {"value": _num(value), "source": source, "note": note}
+    d[key] = ledger_entry(value, source, note)
 
 
 def dispersion_numbers(by_iter: pd.DataFrame, ratios: pd.DataFrame, tau: pd.DataFrame,

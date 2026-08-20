@@ -71,7 +71,8 @@ NB_ROOT = os.path.join(EDA_DIR, "notebooks")               # notebooks/<top>/<su
 if EDA_DIR not in sys.path:
     sys.path.insert(0, EDA_DIR)
 
-from eda_analysis.config import FAMILIES, PER_JUDGE_TOPS, all_families  # noqa: E402
+from eda_analysis.config import (FAMILIES, PER_JUDGE_TOPS, all_families,  # noqa: E402
+                                 producer_tops)
 
 KERNEL = "thesis-venv313"
 TIMEOUT = 1800  # seconds per notebook (the preference embedding cell is the slow one)
@@ -309,14 +310,35 @@ def main(argv=None) -> int:
                 return [(top, f) for f in fams if not run_one(top, f, d, judge)]
         return run_unit(top, fams, judge)
 
+    # ── schedule in WAVES so a family that reads another top's rendered artifacts runs after it ──
+    # Units are (top, judge) and the pool runs them concurrently, so without this a from-clean
+    # render races: lookahead/behaviour copies tables out of arms/preference and dies on a missing
+    # file whenever the pool reaches the reader first. config.FAMILY_READS declares the constraint.
+    waves = []
+    remaining = list(units)
+    done_tops = set()
+    while remaining:
+        ready = [u for u in remaining if producer_tops(u[2]) <= done_tops]
+        if not ready:                       # a cycle in FAMILY_READS — run the rest and let it fail
+            print(f"[render] WARNING: unsatisfiable FAMILY_READS order for "
+                  f"{[u[0] for u in remaining]}; rendering them anyway", flush=True)
+            ready = remaining
+        waves.append(ready)
+        done_tops |= {u[0] for u in ready}
+        remaining = [u for u in remaining if u not in ready]
+    if len(waves) > 1:
+        print(f"[render] {len(waves)} wave(s) to honour cross-top reads: "
+              f"{[sorted({u[0] for u in w}) for w in waves]}", flush=True)
+
     failures = []
-    if jobs == 1:
-        for unit in units:
-            failures += render_unit(unit)
-    else:
-        with cf.ThreadPoolExecutor(max_workers=jobs) as ex:
-            for fails in ex.map(render_unit, units):
-                failures += fails
+    for wave in waves:
+        if jobs == 1:
+            for unit in wave:
+                failures += render_unit(unit)
+        else:
+            with cf.ThreadPoolExecutor(max_workers=jobs) as ex:
+                for fails in ex.map(render_unit, wave):
+                    failures += fails
 
     print("\n" + "=" * 60)
     if failures:

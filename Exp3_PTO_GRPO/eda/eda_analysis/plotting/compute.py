@@ -60,19 +60,17 @@ __all__ = [
     "budget_sweep_grid", "trajectory_by_compute",
 ]
 
-# Solid = K=0, dashed = K=5. If plotting_style grows a package-wide K_STYLE this defers to it.
-try:  # pragma: no cover - depends on a sibling module another author may extend
-    from ..plotting_style import K_STYLE  # type: ignore
-except ImportError:
-    K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+# Solid = K=0, dashed = K=5 — the one definition lives in ._shared. (This used to try/except an
+# import of ``plotting_style.K_STYLE``, a name that module never defined, so the fallback was the
+# only live branch; _shared is where the deferral actually landed.)
+from ._shared import K_STYLE  # noqa: F401
+from ..constants import k_of as _k_of_canonical  # noqa: E402
 _K_STYLE = K_STYLE           # back-compat alias for the pre-2026-08-18 private name
-
-_LA_RE = re.compile(r"_LA(\d+)$")
 
 
 def _k_of(arm: str) -> int:
-    m = _LA_RE.search(arm or "")
-    return int(m.group(1)) if m else 0
+    """Re-export of :func:`eda_analysis.constants.k_of` (THE canonical arm parse)."""
+    return _k_of_canonical(arm)
 
 
 def _kstyle(arm: str) -> dict:

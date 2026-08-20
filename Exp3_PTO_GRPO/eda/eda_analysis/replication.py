@@ -95,8 +95,12 @@ SHAPE_UNITS = {"conv_len": "utterances / conversation", "n_th_turns": "therapist
                "loop": "share of conversations with a verbatim-repeated therapist turn"}
 LENGTH_METRICS = ["conv_len", "n_th_turns", "mean_turn_len"]
 STAB_METRICS = ["Q1", "Q2", "Q1Q2"]
-COOP_LABEL = {"Low": "Resistant", "High": "Cooperative", "StartLowAndChangesToHigh": "WarmsUp"}
-COOP_ORDER = ["Resistant", "WarmsUp", "Cooperative"]
+# ⚠ was a private copy that had DRIFTED from the other three ("WarmsUp" vs "Warms up", and a
+# Resistant-first order) -- the same persona stratum shipped under two spellings, both inside
+# results/lookahead/INDEX.md. Now the one canonical map.
+from .constants import COOP_LABEL, COOP_ORDER, COOP_SLUG  # noqa: E402,F401
+from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
+from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
 # Caption fragments (verbatim from the paper generator) — the notebook composes captions from them.
 SIGN = "Sign: + => K=0 higher (K0 - K5)."
@@ -106,11 +110,13 @@ ITER0 = "Iteration 0 = two INDEPENDENT base draws (same base policy) — a free 
 
 
 def k_of(arm: str) -> int:
-    return int(arm.split("_LA")[1])
+    """Re-export of :func:`eda_analysis.constants.k_of`."""
+    return _k_of_canonical(arm)
 
 
 def method_of(arm: str) -> str:
-    return arm.split("_")[0]
+    """Re-export of :func:`eda_analysis.constants.method_of`."""
+    return _method_of_canonical(arm)
 
 
 # ── helpers ──────────────────────────────────────────────────────────────────
@@ -440,11 +446,15 @@ def ceiling(scores_by_judge: Dict[str, pd.DataFrame], *, metric: str = "Q1Q2") -
                    "share_ge45_all": float((s["score"] >= 4.5).mean()), "share_eq5_all": float((s["score"] == 5).mean())}
             for cl in COOP_ORDER:
                 v = s.loc[s["coop"] == cl, "score"].to_numpy(float)
-                row[f"n_{cl}"] = int(v.size)
-                row[f"mean_{cl}"] = float(v.mean()) if v.size else np.nan
-                row[f"sd_{cl}"] = float(v.std(ddof=1)) if v.size > 1 else np.nan
-                row[f"share_ge45_{cl}"] = float((v >= 4.5).mean()) if v.size else np.nan
-                row[f"share_eq5_{cl}"] = float((v == 5).mean()) if v.size else np.nan
+                # Filter on the display LABEL, name the column with the SLUG — the column names
+                # are an interface (the notebook selects them by name and the frozen paper table
+                # carries them), so they must not move when the label does.
+                slug = COOP_SLUG[cl]
+                row[f"n_{slug}"] = int(v.size)
+                row[f"mean_{slug}"] = float(v.mean()) if v.size else np.nan
+                row[f"sd_{slug}"] = float(v.std(ddof=1)) if v.size > 1 else np.nan
+                row[f"share_ge45_{slug}"] = float((v >= 4.5).mean()) if v.size else np.nan
+                row[f"share_eq5_{slug}"] = float((v == 5).mean()) if v.size else np.nan
             rows.append(row)
     return pd.DataFrame(rows).sort_values(["judge", "arm", "iteration"]).reset_index(drop=True)
 
@@ -525,20 +535,10 @@ def selection_table(source_dir: Union[None, str, Sequence[str]] = None) -> pd.Da
 # 4. The numbers ledger
 # ═════════════════════════════════════════════════════════════════════════════
 
-def _clean(v):
-    if isinstance(v, dict):
-        return {k: _clean(x) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
-        return [_clean(x) for x in v]
-    if isinstance(v, (np.floating, np.integer, np.bool_)):
-        v = v.item()
-    if isinstance(v, float) and np.isnan(v):
-        return None
-    return v
+_clean = json_scalar          # one definition — see eda_analysis/ledger.py
 
 
-def _entry(value, source: str = "", note: str = "") -> dict:
-    return {"value": _clean(value), "source": source, "note": note}
+_entry = ledger_entry
 
 
 def replication_numbers(*, shape: Optional[pd.DataFrame] = None, levels: Optional[pd.DataFrame] = None,

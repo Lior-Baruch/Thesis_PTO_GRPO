@@ -30,12 +30,14 @@ from ..plotting_style import arm_palette
 __all__ = ["K_STYLE", "shape_fig", "sd_fig"]
 
 # K=0 solid + circle, K=5 dashed + square — survives greyscale printing; colour carries the arm.
-K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+from ._shared import K_STYLE  # noqa: F401  (one definition; see _shared)
+from ..constants import k_of as _k_of_canonical  # noqa: E402
 _FOUR_ARMS = ["PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5"]
 
 
 def _k_of(arm: str) -> int:
-    return 5 if arm.endswith("LA5") else 0
+    """Re-export of :func:`eda_analysis.constants.k_of` (THE canonical arm parse)."""
+    return _k_of_canonical(arm)
 
 
 def _traj(ax, lvl: pd.DataFrame, metric: str, ylabel: str, title: str, arms, pal):

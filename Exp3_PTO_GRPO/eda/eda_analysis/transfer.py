@@ -55,7 +55,7 @@ import numpy as np
 import pandas as pd
 
 from .lookahead import (RUBRICS, RATE_METRICS, METHODS, favours, holm_within, model_name,
-                        wide_by_persona, k_of, method_of, _nan_none)
+                        wide_by_persona, k_of, method_of, _nan_none, _present_metrics)
 from .stats import paired_arrays
 
 __all__ = [
@@ -116,9 +116,9 @@ def _last_iters(long: pd.DataFrame) -> Dict[str, int]:
             for arm in ARMS if (long["arm"] == arm).any()}
 
 
-def _present(long: pd.DataFrame, metrics: Optional[Sequence[str]]) -> list:
-    have = set(long["questionnaire"].unique())
-    return [m for m in (RUBRICS if metrics is None else metrics) if m in have]
+# `lookahead._present_metrics` is this function, and also guards the empty-frame case this copy
+# did not. Aliased rather than renamed at the call sites so the local name stays stable.
+_present = _present_metrics
 
 
 # ── 1. cross-K pairs ──────────────────────────────────────────────────────────

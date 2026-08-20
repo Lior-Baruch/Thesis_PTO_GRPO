@@ -5,10 +5,10 @@
  "numbers": {
   "ratio.GRPO_per_iter_K5_over_K0": {
    "value": {
-    "num": 5.416,
+    "num": 4.569,
     "den": 2.791,
-    "ratio": 1.941,
-    "arithmetic": "5.416/2.791=1.94"
+    "ratio": 1.637,
+    "arithmetic": "4.569/2.791=1.64"
    },
    "source": "tables/compute_by_arm.md",
    "note": ""
@@ -35,10 +35,10 @@
   },
   "ratio.GRPO_over_PTO_per_iter_K5": {
    "value": {
-    "num": 5.416,
+    "num": 4.569,
     "den": 1.968,
-    "ratio": 2.752,
-    "arithmetic": "5.416/1.968=2.75"
+    "ratio": 2.321,
+    "arithmetic": "4.569/1.968=2.32"
    },
    "source": "tables/compute_by_arm.md",
    "note": ""
@@ -55,10 +55,10 @@
   },
   "ratio.GRPO_LA5_total_over_PTO_LA5_total": {
    "value": {
-    "num": 27.078,
+    "num": 31.981,
     "den": 19.681,
-    "ratio": 1.376,
-    "arithmetic": "27.078/19.681=1.38"
+    "ratio": 1.625,
+    "arithmetic": "31.981/19.681=1.62"
    },
    "source": "tables/compute_by_arm.md",
    "note": ""
@@ -75,10 +75,10 @@
   },
   "ratio.GRPO_LA5_5iters_over_GRPO_LA0_10iters": {
    "value": {
-    "num": 27.078,
+    "num": 31.981,
     "den": 27.906,
-    "ratio": 0.97,
-    "arithmetic": "27.078/27.906=0.97"
+    "ratio": 1.146,
+    "arithmetic": "31.981/27.906=1.15"
    },
    "source": "tables/compute_by_arm.md",
    "note": ""
@@ -105,10 +105,10 @@
   },
   "ratio_floor.GRPO_LA5_total_over_PTO_LA5_total": {
    "value": {
-    "num": 27.415,
+    "num": 32.317,
     "den": 21.083,
-    "ratio": 1.3,
-    "arithmetic": "27.415/21.083=1.30"
+    "ratio": 1.533,
+    "arithmetic": "32.317/21.083=1.53"
    },
    "source": "tables/compute_by_arm.md (total_gpu_h_floor)",
    "note": "generation floor applied (max of mtime span and recorded generation_time_s); headline ratios are ratio.*"
@@ -133,18 +133,18 @@
   },
   "by_arm.GRPO_LA5": {
    "value": {
-    "last_iter": 5,
-    "n_iters": 5,
-    "gen_h": 0.422,
+    "last_iter": 7,
+    "n_iters": 7,
+    "gen_h": 0.617,
     "build_h": 0.0,
-    "train_h": 26.656,
-    "total_gpu_h": 27.078,
-    "gpu_h_per_iter": 5.416,
-    "median_step_s": 155.788,
+    "train_h": 31.364,
+    "total_gpu_h": 31.981,
+    "gpu_h_per_iter": 4.569,
+    "median_step_s": 160.719,
     "n_imputed": 2,
     "build_share": 0.0,
-    "train_share": 0.984,
-    "total_gpu_h_floor": 27.415
+    "train_share": 0.981,
+    "total_gpu_h_floor": 32.317
    },
    "source": "tables/compute_by_arm.md",
    "note": ""
@@ -436,6 +436,40 @@
     "gen_h_meta": 0.212,
     "gen_h_floor": 0.212,
     "cum_gpu_h_floor": 27.415
+   },
+   "source": "tables/compute_by_iteration.md",
+   "note": ""
+  },
+  "by_iteration.GRPO_LA5.I6": {
+   "value": {
+    "gen_h": 0.094,
+    "build_h": 0.0,
+    "train_h": 3.355,
+    "gpu_h": 3.449,
+    "cum_gpu_h": 30.528,
+    "n_steps": 70,
+    "median_step_s": 170.32,
+    "n_imputed": 0,
+    "gen_h_meta": 0.0,
+    "gen_h_floor": 0.094,
+    "cum_gpu_h_floor": 30.864
+   },
+   "source": "tables/compute_by_iteration.md",
+   "note": ""
+  },
+  "by_iteration.GRPO_LA5.I7": {
+   "value": {
+    "gen_h": 0.1,
+    "build_h": 0.0,
+    "train_h": 1.353,
+    "gpu_h": 1.453,
+    "cum_gpu_h": 31.981,
+    "n_steps": 30,
+    "median_step_s": 160.719,
+    "n_imputed": 0,
+    "gen_h_meta": null,
+    "gen_h_floor": 0.1,
+    "cum_gpu_h_floor": 32.317
    },
    "source": "tables/compute_by_iteration.md",
    "note": ""
@@ -843,8 +877,8 @@
   "step_multiplier.I6": {
    "value": {
     "GRPO_median_step_s_K0": 78.049,
-    "GRPO_median_step_s_K5": null,
-    "GRPO_step_ratio": null,
+    "GRPO_median_step_s_K5": 170.32,
+    "GRPO_step_ratio": 2.182,
     "PTO_build_ratio": 3.264,
     "PTO_iter_ratio": 3.831,
     "PTO_dpo_step_ratio": 1.02
@@ -855,8 +889,8 @@
   "step_multiplier.I7": {
    "value": {
     "GRPO_median_step_s_K0": 79.323,
-    "GRPO_median_step_s_K5": null,
-    "GRPO_step_ratio": null,
+    "GRPO_median_step_s_K5": 160.719,
+    "GRPO_step_ratio": 2.026,
     "PTO_build_ratio": 3.581,
     "PTO_iter_ratio": 2.686,
     "PTO_dpo_step_ratio": 1.012
@@ -1691,6 +1725,50 @@
    "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
    "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
   },
+  "sweep.gpt-4o-mini.GRPO_K.Q1Q2_to_Q1Q2.budget_30.53h": {
+   "value": {
+    "best_iter_a": 4,
+    "best_iter_b": 8,
+    "model_a": "GRPOExp3_LA5_I4",
+    "model_b": "GRPOExp3_LA0_I8",
+    "mean_a": 4.12,
+    "mean_b": 4.082,
+    "n": 96,
+    "mean_delta": 0.038,
+    "dz": 0.074,
+    "ci": [
+     -0.066,
+     0.137
+    ],
+    "p": 0.7885,
+    "p_holm": 0.8136,
+    "delta_K0_minus_K5": -0.038
+   },
+   "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.gpt-4o-mini.GRPO_K.Q1Q2_to_Q1Q2.budget_31.98h": {
+   "value": {
+    "best_iter_a": 4,
+    "best_iter_b": 8,
+    "model_a": "GRPOExp3_LA5_I4",
+    "model_b": "GRPOExp3_LA0_I8",
+    "mean_a": 4.12,
+    "mean_b": 4.082,
+    "n": 96,
+    "mean_delta": 0.038,
+    "dz": 0.074,
+    "ci": [
+     -0.066,
+     0.137
+    ],
+    "p": 0.7885,
+    "p_holm": 0.8136,
+    "delta_K0_minus_K5": -0.038
+   },
+   "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
   "sweep.gpt-4o-mini.GRPO_K.MICI_to_MICI.budget_7.8h": {
    "value": {
     "best_iter_a": 1,
@@ -1801,6 +1879,50 @@
    "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
    "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
   },
+  "sweep.gpt-4o-mini.GRPO_K.MICI_to_MICI.budget_30.53h": {
+   "value": {
+    "best_iter_a": 2,
+    "best_iter_b": 2,
+    "model_a": "GRPOExp3_LA5_I2",
+    "model_b": "GRPOExp3_LA0_I2",
+    "mean_a": 0.228,
+    "mean_b": 0.169,
+    "n": 96,
+    "mean_delta": 0.058,
+    "dz": 0.222,
+    "ci": [
+     0.006,
+     0.109
+    ],
+    "p": 0.0766,
+    "p_holm": 0.1533,
+    "delta_K0_minus_K5": -0.058
+   },
+   "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.gpt-4o-mini.GRPO_K.MICI_to_MICI.budget_31.98h": {
+   "value": {
+    "best_iter_a": 2,
+    "best_iter_b": 2,
+    "model_a": "GRPOExp3_LA5_I2",
+    "model_b": "GRPOExp3_LA0_I2",
+    "mean_a": 0.228,
+    "mean_b": 0.169,
+    "n": 96,
+    "mean_delta": 0.058,
+    "dz": 0.222,
+    "ci": [
+     0.006,
+     0.109
+    ],
+    "p": 0.0766,
+    "p_holm": 0.1533,
+    "delta_K0_minus_K5": -0.058
+   },
+   "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
   "sweep.gpt-4o-mini.GRPO_K.Q1Q2_to_MICI.budget_7.8h": {
    "value": {
     "best_iter_a": 1,
@@ -1890,6 +2012,50 @@
    "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
   },
   "sweep.gpt-4o-mini.GRPO_K.Q1Q2_to_MICI.budget_27.08h": {
+   "value": {
+    "best_iter_a": 4,
+    "best_iter_b": 8,
+    "model_a": "GRPOExp3_LA5_I4",
+    "model_b": "GRPOExp3_LA0_I8",
+    "mean_a": 0.305,
+    "mean_b": 0.535,
+    "n": 96,
+    "mean_delta": -0.23,
+    "dz": -0.774,
+    "ci": [
+     -0.289,
+     -0.169
+    ],
+    "p": 0.0,
+    "p_holm": 0.0,
+    "delta_K0_minus_K5": 0.23
+   },
+   "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.gpt-4o-mini.GRPO_K.Q1Q2_to_MICI.budget_30.53h": {
+   "value": {
+    "best_iter_a": 4,
+    "best_iter_b": 8,
+    "model_a": "GRPOExp3_LA5_I4",
+    "model_b": "GRPOExp3_LA0_I8",
+    "mean_a": 0.305,
+    "mean_b": 0.535,
+    "n": 96,
+    "mean_delta": -0.23,
+    "dz": -0.774,
+    "ci": [
+     -0.289,
+     -0.169
+    ],
+    "p": 0.0,
+    "p_holm": 0.0,
+    "delta_K0_minus_K5": 0.23
+   },
+   "source": "tables/budget_sweep_GRPO_K_gpt-4o-mini.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.gpt-4o-mini.GRPO_K.Q1Q2_to_MICI.budget_31.98h": {
    "value": {
     "best_iter_a": 4,
     "best_iter_b": 8,
@@ -3626,6 +3792,50 @@
    "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
    "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
   },
+  "sweep.claude-haiku-4-5.GRPO_K.Q1Q2_to_Q1Q2.budget_30.53h": {
+   "value": {
+    "best_iter_a": 5,
+    "best_iter_b": 3,
+    "model_a": "GRPOExp3_LA5_I5",
+    "model_b": "GRPOExp3_LA0_I3",
+    "mean_a": 2.798,
+    "mean_b": 2.637,
+    "n": 96,
+    "mean_delta": 0.161,
+    "dz": 0.31,
+    "ci": [
+     0.064,
+     0.26
+    ],
+    "p": 0.0067,
+    "p_holm": 0.0201,
+    "delta_K0_minus_K5": -0.161
+   },
+   "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.claude-haiku-4-5.GRPO_K.Q1Q2_to_Q1Q2.budget_31.98h": {
+   "value": {
+    "best_iter_a": 5,
+    "best_iter_b": 3,
+    "model_a": "GRPOExp3_LA5_I5",
+    "model_b": "GRPOExp3_LA0_I3",
+    "mean_a": 2.798,
+    "mean_b": 2.637,
+    "n": 96,
+    "mean_delta": 0.161,
+    "dz": 0.31,
+    "ci": [
+     0.064,
+     0.26
+    ],
+    "p": 0.0067,
+    "p_holm": 0.0201,
+    "delta_K0_minus_K5": -0.161
+   },
+   "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
   "sweep.claude-haiku-4-5.GRPO_K.MICI_to_MICI.budget_7.8h": {
    "value": {
     "best_iter_a": 1,
@@ -3736,6 +3946,50 @@
    "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
    "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
   },
+  "sweep.claude-haiku-4-5.GRPO_K.MICI_to_MICI.budget_30.53h": {
+   "value": {
+    "best_iter_a": 1,
+    "best_iter_b": 2,
+    "model_a": "GRPOExp3_LA5_I1",
+    "model_b": "GRPOExp3_LA0_I2",
+    "mean_a": 0.362,
+    "mean_b": 0.309,
+    "n": 96,
+    "mean_delta": 0.053,
+    "dz": 0.122,
+    "ci": [
+     -0.034,
+     0.135
+    ],
+    "p": 0.2327,
+    "p_holm": 0.2327,
+    "delta_K0_minus_K5": -0.053
+   },
+   "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.claude-haiku-4-5.GRPO_K.MICI_to_MICI.budget_31.98h": {
+   "value": {
+    "best_iter_a": 1,
+    "best_iter_b": 2,
+    "model_a": "GRPOExp3_LA5_I1",
+    "model_b": "GRPOExp3_LA0_I2",
+    "mean_a": 0.362,
+    "mean_b": 0.309,
+    "n": 96,
+    "mean_delta": 0.053,
+    "dz": 0.122,
+    "ci": [
+     -0.034,
+     0.135
+    ],
+    "p": 0.2327,
+    "p_holm": 0.2327,
+    "delta_K0_minus_K5": -0.053
+   },
+   "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
   "sweep.claude-haiku-4-5.GRPO_K.Q1Q2_to_MICI.budget_7.8h": {
    "value": {
     "best_iter_a": 1,
@@ -3825,6 +4079,50 @@
    "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
   },
   "sweep.claude-haiku-4-5.GRPO_K.Q1Q2_to_MICI.budget_27.08h": {
+   "value": {
+    "best_iter_a": 5,
+    "best_iter_b": 3,
+    "model_a": "GRPOExp3_LA5_I5",
+    "model_b": "GRPOExp3_LA0_I3",
+    "mean_a": 0.647,
+    "mean_b": 0.407,
+    "n": 96,
+    "mean_delta": 0.239,
+    "dz": 0.763,
+    "ci": [
+     0.177,
+     0.302
+    ],
+    "p": 0.0,
+    "p_holm": 0.0,
+    "delta_K0_minus_K5": -0.239
+   },
+   "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.claude-haiku-4-5.GRPO_K.Q1Q2_to_MICI.budget_30.53h": {
+   "value": {
+    "best_iter_a": 5,
+    "best_iter_b": 3,
+    "model_a": "GRPOExp3_LA5_I5",
+    "model_b": "GRPOExp3_LA0_I3",
+    "mean_a": 0.647,
+    "mean_b": 0.407,
+    "n": 96,
+    "mean_delta": 0.239,
+    "dz": 0.763,
+    "ci": [
+     0.177,
+     0.302
+    ],
+    "p": 0.0,
+    "p_holm": 0.0,
+    "delta_K0_minus_K5": -0.239
+   },
+   "source": "tables/budget_sweep_GRPO_K_claude-haiku-4-5.md",
+   "note": "mean_delta = arm_a - arm_b; K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher)."
+  },
+  "sweep.claude-haiku-4-5.GRPO_K.Q1Q2_to_MICI.budget_31.98h": {
    "value": {
     "best_iter_a": 5,
     "best_iter_b": 3,
@@ -4817,7 +5115,7 @@
     "contrast": "GRPO_K",
     "arm_a": "GRPO_LA5",
     "arm_b": "GRPO_LA0",
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "best_iter_a": 4,
     "best_iter_b": 8,
     "mean_delta": 0.038,
@@ -4897,7 +5195,7 @@
     "contrast": "GRPO_K",
     "arm_a": "GRPO_LA5",
     "arm_b": "GRPO_LA0",
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "best_iter_a": 5,
     "best_iter_b": 3,
     "mean_delta": 0.161,
@@ -4953,7 +5251,7 @@
   },
   "crossjudge_verdict.GRPO_K.select_claude-haiku-4-5.eval_claude-haiku-4-5": {
    "value": {
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "best_iter_a": 5,
     "best_iter_b": 3,
     "mean_delta": 0.161,
@@ -4972,7 +5270,7 @@
   },
   "crossjudge_verdict.GRPO_K.select_claude-haiku-4-5.eval_gpt-4o-mini": {
    "value": {
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "best_iter_a": 5,
     "best_iter_b": 3,
     "mean_delta": 0.048,
@@ -4991,7 +5289,7 @@
   },
   "crossjudge_verdict.GRPO_K.select_gpt-4o-mini.eval_claude-haiku-4-5": {
    "value": {
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "best_iter_a": 4,
     "best_iter_b": 8,
     "mean_delta": 0.166,
@@ -5010,7 +5308,7 @@
   },
   "crossjudge_verdict.GRPO_K.select_gpt-4o-mini.eval_gpt-4o-mini": {
    "value": {
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "best_iter_a": 4,
     "best_iter_b": 8,
     "mean_delta": 0.038,
@@ -5655,6 +5953,38 @@
    "source": "tables/budget_sweep_crossjudge.md",
    "note": ""
   },
+  "crossjudge.GRPO_K.select_gpt-4o-mini.eval_claude-haiku-4-5.budget_30.53h": {
+   "value": {
+    "best_iter_a": 4,
+    "best_iter_b": 8,
+    "mean_delta": 0.166,
+    "dz": 0.266,
+    "ci": [
+     0.042,
+     0.289
+    ],
+    "p": 0.0116,
+    "p_holm": 0.0349
+   },
+   "source": "tables/budget_sweep_crossjudge.md",
+   "note": ""
+  },
+  "crossjudge.GRPO_K.select_gpt-4o-mini.eval_claude-haiku-4-5.budget_31.98h": {
+   "value": {
+    "best_iter_a": 4,
+    "best_iter_b": 8,
+    "mean_delta": 0.166,
+    "dz": 0.266,
+    "ci": [
+     0.042,
+     0.289
+    ],
+    "p": 0.0116,
+    "p_holm": 0.0349
+   },
+   "source": "tables/budget_sweep_crossjudge.md",
+   "note": ""
+  },
   "crossjudge.GRPO_K.select_claude-haiku-4-5.eval_gpt-4o-mini.budget_7.8h": {
    "value": {
     "best_iter_a": 1,
@@ -5720,6 +6050,38 @@
    "note": ""
   },
   "crossjudge.GRPO_K.select_claude-haiku-4-5.eval_gpt-4o-mini.budget_27.08h": {
+   "value": {
+    "best_iter_a": 5,
+    "best_iter_b": 3,
+    "mean_delta": 0.048,
+    "dz": 0.102,
+    "ci": [
+     -0.047,
+     0.14
+    ],
+    "p": 0.0627,
+    "p_holm": 0.1254
+   },
+   "source": "tables/budget_sweep_crossjudge.md",
+   "note": ""
+  },
+  "crossjudge.GRPO_K.select_claude-haiku-4-5.eval_gpt-4o-mini.budget_30.53h": {
+   "value": {
+    "best_iter_a": 5,
+    "best_iter_b": 3,
+    "mean_delta": 0.048,
+    "dz": 0.102,
+    "ci": [
+     -0.047,
+     0.14
+    ],
+    "p": 0.0627,
+    "p_holm": 0.1254
+   },
+   "source": "tables/budget_sweep_crossjudge.md",
+   "note": ""
+  },
+  "crossjudge.GRPO_K.select_claude-haiku-4-5.eval_gpt-4o-mini.budget_31.98h": {
    "value": {
     "best_iter_a": 5,
     "best_iter_b": 3,
@@ -8915,6 +9277,46 @@
    "source": "tables/iso_channels.md",
    "note": ""
   },
+  "iso_channels.GRPO_K.text.conv_len.iterA6_iterB10": {
+   "value": {
+    "cum_gpu_h_a": 30.53,
+    "cum_gpu_h_b": 27.91,
+    "budget_ratio": 0.914,
+    "n": 96,
+    "mean_delta_K5_minus_K0": 3.604,
+    "dz": 0.26,
+    "ci": [
+     0.917,
+     6.407
+    ],
+    "p": 0.0263,
+    "p_holm": 0.0263,
+    "direction": "count (no valence)",
+    "iso_ok": true
+   },
+   "source": "tables/iso_channels.md",
+   "note": ""
+  },
+  "iso_channels.GRPO_K.text.mean_turn_len.iterA6_iterB10": {
+   "value": {
+    "cum_gpu_h_a": 30.53,
+    "cum_gpu_h_b": 27.91,
+    "budget_ratio": 0.914,
+    "n": 96,
+    "mean_delta_K5_minus_K0": -197.303,
+    "dz": -1.353,
+    "ci": [
+     -225.898,
+     -167.325
+    ],
+    "p": 0.0,
+    "p_holm": 0.0,
+    "direction": "count (no valence)",
+    "iso_ok": true
+   },
+   "source": "tables/iso_channels.md",
+   "note": ""
+  },
   "iso_channels.PTO_K.claude-haiku-4-5.MICI_OverPraise.iterA1_iterB2": {
    "value": {
     "cum_gpu_h_a": 2.17,
@@ -11208,7 +11610,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.521,
     "mean_b_K0": 3.875,
     "n": 96,
@@ -11229,7 +11631,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.043,
     "mean_b_K0": 0.369,
     "n": 96,
@@ -11250,7 +11652,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 2.281,
     "mean_b_K0": 1.49,
     "n": 96,
@@ -11271,7 +11673,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.203,
     "mean_b_K0": 0.142,
     "n": 96,
@@ -11292,7 +11694,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 3.562,
     "mean_b_K0": 5.646,
     "n": 96,
@@ -11313,7 +11715,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.594,
     "mean_b_K0": 1.208,
     "n": 96,
@@ -11334,7 +11736,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.038,
     "mean_b_K0": 0.095,
     "n": 96,
@@ -11355,7 +11757,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 25.781,
     "mean_b_K0": 24.115,
     "n": 96,
@@ -11376,7 +11778,7 @@
    "value": {
     "iter_a": 4,
     "iter_b": 8,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 450.511,
     "mean_b_K0": 822.193,
     "n": 96,
@@ -11544,7 +11946,7 @@
    "value": {
     "iter_a": 5,
     "iter_b": 3,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.438,
     "mean_b_K0": 0.531,
     "n": 96,
@@ -11565,7 +11967,7 @@
    "value": {
     "iter_a": 5,
     "iter_b": 3,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.039,
     "mean_b_K0": 0.04,
     "n": 96,
@@ -11586,7 +11988,7 @@
    "value": {
     "iter_a": 5,
     "iter_b": 3,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 5.615,
     "mean_b_K0": 4.26,
     "n": 96,
@@ -11607,7 +12009,7 @@
    "value": {
     "iter_a": 5,
     "iter_b": 3,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.51,
     "mean_b_K0": 0.32,
     "n": 96,
@@ -11628,7 +12030,7 @@
    "value": {
     "iter_a": 5,
     "iter_b": 3,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 7.135,
     "mean_b_K0": 5.448,
     "n": 96,
@@ -11649,7 +12051,7 @@
    "value": {
     "iter_a": 5,
     "iter_b": 3,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.302,
     "mean_b_K0": 0.99,
     "n": 96,
@@ -11670,7 +12072,7 @@
    "value": {
     "iter_a": 5,
     "iter_b": 3,
-    "budget_gpu_h": 27.08,
+    "budget_gpu_h": 31.98,
     "mean_a_K5": 0.025,
     "mean_b_K0": 0.07,
     "n": 96,
@@ -12614,8 +13016,32 @@
   },
   "api.GRPO_LA5.iter6": {
    "value": {
-    "row_kind": "final eval pass",
+    "row_kind": "iteration",
     "eval_convs_of": "model_iter_5",
+    "n_steps": 70.0,
+    "n_groups_logged": 1120,
+    "log_coverage": 1.0,
+    "n_groups": 1120,
+    "n_candidates": 8960,
+    "n_candidates_eval_phase": 416,
+    "oracle_calls_train": 18752,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 286.865528,
+    "patient_calls_eval_convs": 1081,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 23256,
+    "patient_calls_total": 24337,
+    "therapist_gens_tail": 13965,
+    "eval_conv_len_mean": 22.572916666666668,
+    "eval_ended_by_patient": 92
+   },
+   "source": "tables/api_calls.md row arm=GRPO_LA5 train_iter=6",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter7": {
+   "value": {
+    "row_kind": "final eval pass",
+    "eval_convs_of": "model_iter_6",
     "n_steps": null,
     "n_groups_logged": 0,
     "log_coverage": 1.0,
@@ -12625,15 +13051,15 @@
     "oracle_calls_train": 0,
     "oracle_retries": 0,
     "oracle_input_Mchars": 0.0,
-    "patient_calls_eval_convs": 1081,
+    "patient_calls_eval_convs": 1380,
     "patient_calls_trunk": 0,
     "patient_calls_tail": 0,
-    "patient_calls_total": 1081,
+    "patient_calls_total": 1380,
     "therapist_gens_tail": 0,
-    "eval_conv_len_mean": 22.572916666666668,
-    "eval_ended_by_patient": 92
+    "eval_conv_len_mean": 28.802083333333332,
+    "eval_ended_by_patient": 81
    },
-   "source": "tables/api_calls.md row arm=GRPO_LA5 train_iter=6",
+   "source": "tables/api_calls.md row arm=GRPO_LA5 train_iter=7",
    "note": ""
   },
   "api_ratio.PTO.iters_1-5_(matched).oracle_calls_train": {
@@ -12847,77 +13273,77 @@
   },
   "api_ratio.GRPO.all_matched_iters.oracle_calls_train": {
    "value": {
-    "iters": "1,2,3,4,5",
-    "K0_sum": 143548.0,
-    "K5_sum": 141237.0,
-    "K5_over_K0": 0.983900855462981,
-    "arithmetic": "141,237 / 143,548"
+    "iters": "1,2,3,4,5,6",
+    "K0_sum": 175664.0,
+    "K5_sum": 159989.0,
+    "K5_over_K0": 0.9107671463703434,
+    "arithmetic": "159,989 / 175,664"
    },
    "source": "tables/api_ratio.md row method=GRPO window=all matched iters quantity=oracle_calls_train",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.oracle_input_Mchars": {
    "value": {
-    "iters": "1,2,3,4,5",
-    "K0_sum": 1117.442618,
-    "K5_sum": 1519.8080442162163,
-    "K5_over_K0": 1.3600770363818504,
-    "arithmetic": "1,519.8 / 1,117.4"
+    "iters": "1,2,3,4,5,6",
+    "K0_sum": 1404.7960024651163,
+    "K5_sum": 1806.6735722162164,
+    "K5_over_K0": 1.286075393897684,
+    "arithmetic": "1,806.7 / 1,404.8"
    },
    "source": "tables/api_ratio.md row method=GRPO window=all matched iters quantity=oracle_input_Mchars",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.patient_calls_total": {
    "value": {
-    "iters": "1,2,3,4,5",
-    "K0_sum": 6879.0,
-    "K5_sum": 197239.0,
-    "K5_over_K0": 28.672626835295826,
-    "arithmetic": "197,239 / 6,879"
+    "iters": "1,2,3,4,5,6",
+    "K0_sum": 8351.0,
+    "K5_sum": 221576.0,
+    "K5_over_K0": 26.532870314932342,
+    "arithmetic": "221,576 / 8,351"
    },
    "source": "tables/api_ratio.md row method=GRPO window=all matched iters quantity=patient_calls_total",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.patient_calls_tail": {
    "value": {
-    "iters": "1,2,3,4,5",
+    "iters": "1,2,3,4,5,6",
     "K0_sum": 0.0,
-    "K5_sum": 190499.0,
+    "K5_sum": 213755.0,
     "K5_over_K0": null,
-    "arithmetic": "190,499 / 0"
+    "arithmetic": "213,755 / 0"
    },
    "source": "tables/api_ratio.md row method=GRPO window=all matched iters quantity=patient_calls_tail",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.n_candidates": {
    "value": {
-    "iters": "1,2,3,4,5",
-    "K0_sum": 68864.0,
-    "K5_sum": 66304.0,
-    "K5_over_K0": 0.9628252788104089,
-    "arithmetic": "66,304 / 68,864"
+    "iters": "1,2,3,4,5,6",
+    "K0_sum": 83712.0,
+    "K5_sum": 75264.0,
+    "K5_over_K0": 0.8990825688073395,
+    "arithmetic": "75,264 / 83,712"
    },
    "source": "tables/api_ratio.md row method=GRPO window=all matched iters quantity=n_candidates",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.total_api_calls": {
    "value": {
-    "iters": "1,2,3,4,5",
-    "K0_sum": 150427.0,
-    "K5_sum": 338476.0,
-    "K5_over_K0": 2.250101378077074,
-    "arithmetic": "338,476 / 150,427"
+    "iters": "1,2,3,4,5,6",
+    "K0_sum": 184015.0,
+    "K5_sum": 381565.0,
+    "K5_over_K0": 2.0735537863761104,
+    "arithmetic": "381,565 / 184,015"
    },
    "source": "tables/api_ratio.md row method=GRPO window=all matched iters quantity=total_api_calls",
    "note": ""
   },
   "api_ratio.GRPO.all_K5_iters.patient_calls_tail_per_candidate": {
    "value": {
-    "iters": "1,2,3,4,5",
+    "iters": "1,2,3,4,5,6",
     "K0_sum": 0.0,
-    "K5_sum": 2.873114744208494,
+    "K5_sum": 2.8400696215986394,
     "K5_over_K0": null,
-    "arithmetic": "190,499 / 66,304 candidates"
+    "arithmetic": "213,755 / 75,264 candidates"
    },
    "source": "tables/api_ratio.md row method=GRPO window=all K5 iters quantity=patient_calls_tail_per_candidate",
    "note": ""
@@ -12960,11 +13386,11 @@
   },
   "api_totals.GRPO_LA5": {
    "value": {
-    "iters": 5,
-    "oracle_calls_train": 141237,
-    "oracle_input_Mchars": 1519.8080442162163,
-    "patient_calls_total": 198320,
-    "n_candidates": 70614,
+    "iters": 6,
+    "oracle_calls_train": 159989,
+    "oracle_input_Mchars": 1806.6735722162164,
+    "patient_calls_total": 222956,
+    "n_candidates": 79990,
     "arithmetic": "column sums over all rows of the arm incl. the final eval pass"
    },
    "source": "tables/api_calls.md column sums for arm=GRPO_LA5",

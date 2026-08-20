@@ -50,6 +50,8 @@ import pandas as pd
 
 from .constants import LOWER_IS_BETTER as _LIB
 from .stats import holm, paired_arrays
+from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
+from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
 __all__ = [
     "RUBRICS", "FIVE_POINT", "RATE_METRICS", "TEXT_CHANNELS", "FIG_CHANNELS", "METHODS",
@@ -90,13 +92,16 @@ def model_name(method: str, K: int, it: int) -> str:
 
 
 def k_of(arm: str) -> int:
-    """``"PTO_LA5" -> 5``."""
-    return int(str(arm).split("_LA")[1])
+    """``"PTO_LA5" -> 5``. Re-export of :func:`eda_analysis.constants.k_of` (THE canonical parse).
+
+    Kept importable here because ``transfer``/``crossgen`` already import it from this module.
+    """
+    return _k_of_canonical(arm)
 
 
 def method_of(arm: str) -> str:
-    """``"GRPO_LA0" -> "GRPO"``."""
-    return str(arm).split("_")[0]
+    """``"GRPO_LA0" -> "GRPO"``. Re-export of :func:`eda_analysis.constants.method_of`."""
+    return _method_of_canonical(arm)
 
 
 def stars(p) -> str:
@@ -589,14 +594,7 @@ def endpoint_contrasts(scores_by_judge: Mapping[str, pd.DataFrame], *, pairs=Non
 
 # ── 6. the ledger ─────────────────────────────────────────────────────────────
 
-def _nan_none(v):
-    if isinstance(v, (np.floating, np.integer)):
-        v = v.item()
-    if isinstance(v, float) and np.isnan(v):
-        return None
-    if isinstance(v, (np.bool_,)):
-        return bool(v)
-    return v
+_nan_none = json_scalar       # one definition — see eda_analysis/ledger.py
 
 
 def _row(r, cols):

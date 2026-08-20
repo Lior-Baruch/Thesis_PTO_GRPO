@@ -147,6 +147,19 @@ def _c_family_map() -> str:
         top, sub = C.split_family(f)
         assert f"{top}/{sub}" == f
         assert C.is_per_judge(f) == (top in C.PER_JUDGE_TOPS)
+    # FAMILY_READS is a render-ORDER constraint (a family reading another top's rendered artifacts).
+    # A typo here does not raise — it silently stops ordering the unit, and the race it was added to
+    # prevent comes back intermittently. So pin: real families both sides, and no cycle.
+    for reader, producers in C.FAMILY_READS.items():
+        assert reader in fams, f"FAMILY_READS reader {reader!r} is not a family"
+        for prod in producers:
+            assert prod in fams, f"FAMILY_READS producer {prod!r} (of {reader!r}) is not a family"
+            assert prod != reader, f"FAMILY_READS: {reader!r} reads itself"
+    _seen, _order = set(), list(C.FAMILY_READS)
+    for reader in _order:                      # one hop is enough for the shapes we allow
+        for prod in C.FAMILY_READS.get(reader, ()):
+            assert reader not in C.FAMILY_READS.get(prod, ()),                 f"FAMILY_READS cycle: {reader!r} <-> {prod!r}"
+    assert C.producer_tops(["arms/preference"]) == set(), "a producer must not depend on its reader"
     for junk in ("", "arms", "arms/", "arms/nope", "nope/outcomes", "a/b/c"):
         try:
             C.split_family(junk)

@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 240 rows.** The full table is too large to read as markdown, so it lives on sheet `iso_channels` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="iso_channels")`.
+> **Excerpt — first 60 of 242 rows.** The full table is too large to read as markdown, so it lives on sheet `iso_channels` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="iso_channels")`.
 
 | contrast   | judge                     | metric                       | channel                                | direction                 |   iter_a |   iter_b |   cum_gpu_h_a |   cum_gpu_h_b |   budget_ratio | iso_ok   | model_a        | model_b         |   n |   mean_delta |     dz |    ci_lo |    ci_hi |     p |   p_holm |   delta_K0_minus_K5 |   dz_K0_minus_K5 |
 |:-----------|:--------------------------|:-----------------------------|:---------------------------------------|:--------------------------|---------:|---------:|--------------:|--------------:|---------------:|:---------|:---------------|:----------------|----:|-------------:|-------:|---------:|---------:|------:|---------:|--------------------:|-----------------:|
@@ -63,4 +63,4 @@
 | PTO_K      | gpt-4o-mini               | MICI_BehaviorTotal           | MI-Incon. acts / session (MICI)        | lower=better              |        7 |       10 |        14.600 |         8.120 |          0.556 | False    | PTOExp3_LA5_I7 | PTOExp3_LA0_I10 |  96 |       -2.104 | -0.655 |   -2.802 |   -1.448 | 0.000 |    0.000 |               2.104 |            0.655 |
 | PTO_K      | gpt-4o-mini               | B6_AF                        | Affirmations (MITI)                    | higher=more MI-consistent |        7 |       10 |        14.600 |         8.120 |          0.556 | False    | PTOExp3_LA5_I7 | PTOExp3_LA0_I10 |  96 |       -1.156 | -0.602 |   -1.521 |   -0.771 | 0.000 |    0.000 |               1.156 |            0.602 |
 
-_... 180 further rows in the workbook._
+_... 182 further rows in the workbook._

@@ -71,6 +71,7 @@ from scipy import stats as sps
 
 from .constants import EVAL_SCORES, PRIMARY_JUDGE_TAG, WORKSPACE_ROOT
 from .stats import holm, paired_arrays
+from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
 __all__ = [
     "ICLR_TABLE1", "ITERS", "N_PERSONAS", "EXP1_DIR", "CROSSGEN_ROOT", "GRADER_GPT4OMINI",
@@ -554,20 +555,10 @@ def crossgen_all(judge_tag: str = PRIMARY_JUDGE_TAG, *, alignment: bool = True) 
     )
 
 
-def _clean(v):
-    if isinstance(v, dict):
-        return {k: _clean(x) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
-        return [_clean(x) for x in v]
-    if isinstance(v, (np.floating, np.integer, np.bool_)):
-        v = v.item()
-    if isinstance(v, float) and np.isnan(v):
-        return None
-    return v
+_clean = json_scalar          # one definition — see eda_analysis/ledger.py
 
 
-def _entry(value, source: str = "", note: str = "") -> dict:
-    return {"value": _clean(value), "source": source, "note": note}
+_entry = ledger_entry
 
 
 def crossgen_numbers(F: dict, *, table_prefix: str = "tables/crossgen_") -> dict:

@@ -97,8 +97,9 @@ WAI_MEASURES = ["Task", "Goal", "Bond", "bond_excess", "WAI_total"]
 _WAI_TOTAL_ITEMS = "WAI_total_items"          # internal name of the item-derived total
 _WAI_INTERNAL = ["Task", "Goal", "Bond", "bond_excess", _WAI_TOTAL_ITEMS]
 
-COOP_LABEL = {"High": "Cooperative", "StartLowAndChangesToHigh": "Warms up", "Low": "Resistant"}
-COOP_ORDER = ["Cooperative", "Warms up", "Resistant"]
+from .constants import COOP_LABEL, COOP_ORDER  # noqa: E402,F401
+from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
+from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
 PCT_METRICS = ["PCT_ChangeProp", "PCT_GlobalMean", "PCT_Importance", "PCT_Confidence",
                "PCT_Readiness", "PCT_ChangeTalk", "PCT_SustainTalk", "PCT_Neutral",
@@ -123,7 +124,8 @@ CENSOR_NOTE = "GRPO_LA5 is right-censored at iteration 5 (PTO arms and GRPO_LA0 
 
 # ── small helpers ─────────────────────────────────────────────────────────────
 def _k_of(arm: str) -> int:
-    return int(arm.split("_LA")[1].split("_")[0])
+    """Re-export of :func:`eda_analysis.constants.k_of`."""
+    return _k_of_canonical(arm)
 
 
 def _method_of(arm: str) -> str:
@@ -190,27 +192,11 @@ def _by_judge(by_judge: Dict[str, object], key: str) -> Dict[str, pd.DataFrame]:
     return out
 
 
-def _fmt3(x):
-    if x is None:
-        return None
-    try:
-        xf = float(x)
-    except (TypeError, ValueError):
-        return x
-    return None if np.isnan(xf) else round(xf, 3)
+_fmt3 = round3
 
 
-def _clean(v):
-    """JSON-friendly copy (numpy scalars -> Python, NaN -> None)."""
-    if isinstance(v, dict):
-        return {k: _clean(x) for k, x in v.items()}
-    if isinstance(v, (list, tuple)):
-        return [_clean(x) for x in v]
-    if isinstance(v, (np.floating, np.integer)):
-        v = v.item()
-    if isinstance(v, float) and np.isnan(v):
-        return None
-    return v
+_clean = json_scalar          # one definition — see eda_analysis/ledger.py
+#   ⚠ this copy had NO np.bool_ branch, so a bool could reach json.dumps raw.
 
 
 # ── endpoints ─────────────────────────────────────────────────────────────────

@@ -2541,7 +2541,7 @@
     "ci_lo": -5.84375,
     "ci_hi": 1.0315104166666653,
     "p": 0.14096425824181028,
-    "p_holm": 0.5638570329672411,
+    "p_holm": 0.7048212912090513,
     "sig": ""
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=conv_len iteration=1",
@@ -2589,8 +2589,8 @@
     "ci_lo": 1.3223958333333334,
     "ci_hi": 8.260416666666666,
     "p": 0.009711135924095875,
-    "p_holm": 0.04855567962047938,
-    "sig": "*"
+    "p_holm": 0.05826681554457525,
+    "sig": ""
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=conv_len iteration=4",
    "note": ""
@@ -2605,10 +2605,26 @@
     "ci_lo": 4.979166666666667,
     "ci_hi": 11.1875,
     "p": 5.480370037431543e-06,
-    "p_holm": 3.288222022458926e-05,
+    "p_holm": 3.8362590262020796e-05,
     "sig": "***"
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=conv_len iteration=5",
+   "note": ""
+  },
+  "channel_text.grpo.conv_len.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 32.291666666666664,
+    "mean_K5": 28.802083333333332,
+    "mean_delta": 3.4895833333333335,
+    "dz": 0.1789474443890441,
+    "ci_lo": -0.52109375,
+    "ci_hi": 7.292708333333328,
+    "p": 0.1509372176027024,
+    "p_holm": 0.7048212912090513,
+    "sig": ""
+   },
+   "source": "channel_k_frames['channels_text'] row method=GRPO metric=conv_len iteration=6",
    "note": ""
   },
   "channel_text.grpo.n_th_turns.iter0": {
@@ -2637,7 +2653,7 @@
     "ci_lo": -2.90625,
     "ci_hi": 0.5210937499999986,
     "p": 0.13782710779750024,
-    "p_holm": 0.551308431190001,
+    "p_holm": 0.6891355389875011,
     "sig": ""
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=n_th_turns iteration=1",
@@ -2685,8 +2701,8 @@
     "ci_lo": 0.6869791666666667,
     "ci_hi": 4.145833333333333,
     "p": 0.009413187365574721,
-    "p_holm": 0.047065936827873606,
-    "sig": "*"
+    "p_holm": 0.05647912419344833,
+    "sig": ""
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=n_th_turns iteration=4",
    "note": ""
@@ -2701,10 +2717,26 @@
     "ci_lo": 2.478385416666667,
     "ci_hi": 5.572916666666667,
     "p": 5.607091461038284e-06,
-    "p_holm": 3.3642548766229704e-05,
+    "p_holm": 3.9249640227267987e-05,
     "sig": "***"
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=n_th_turns iteration=5",
+   "note": ""
+  },
+  "channel_text.grpo.n_th_turns.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 16.177083333333332,
+    "mean_K5": 14.427083333333334,
+    "mean_delta": 1.75,
+    "dz": 0.17989537807370237,
+    "ci_lo": -0.2604166666666667,
+    "ci_hi": 3.6361979166666623,
+    "p": 0.14112337836050917,
+    "p_holm": 0.6891355389875011,
+    "sig": ""
+   },
+   "source": "channel_k_frames['channels_text'] row method=GRPO metric=n_th_turns iteration=6",
    "note": ""
   },
   "channel_text.grpo.mean_turn_len.iter0": {
@@ -2803,6 +2835,22 @@
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=mean_turn_len iteration=5",
    "note": ""
   },
+  "channel_text.grpo.mean_turn_len.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 446.1476739150764,
+    "mean_K5": 698.4078525914174,
+    "mean_delta": -252.26017867634096,
+    "dz": -0.8487343990420662,
+    "ci_lo": -312.6665227406544,
+    "ci_hi": -192.44485721763562,
+    "p": 2.349289323217871e-10,
+    "p_holm": 1.6445025262525095e-09,
+    "sig": "***"
+   },
+   "source": "channel_k_frames['channels_text'] row method=GRPO metric=mean_turn_len iteration=6",
+   "note": ""
+  },
   "channel_text.grpo.q_per_turn.iter0": {
    "value": {
     "n": 96,
@@ -2899,6 +2947,22 @@
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=q_per_turn iteration=5",
    "note": ""
   },
+  "channel_text.grpo.q_per_turn.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 0.2685915843963697,
+    "mean_K5": 0.8089928857886566,
+    "mean_delta": -0.5404013013922869,
+    "dz": -0.8546786712108578,
+    "ci_lo": -0.671209891611472,
+    "ci_hi": -0.41869045049712694,
+    "p": 9.7181992049303e-13,
+    "p_holm": 6.80273944345121e-12,
+    "sig": "***"
+   },
+   "source": "channel_k_frames['channels_text'] row method=GRPO metric=q_per_turn iteration=6",
+   "note": ""
+  },
   "channel_text.grpo.loop.iter0": {
    "value": {
     "n": 96,
@@ -2957,7 +3021,7 @@
     "ci_lo": -0.14583333333333334,
     "ci_hi": -0.03125,
     "p": 0.0046777349810472576,
-    "p_holm": 0.028066409886283547,
+    "p_holm": 0.0327441448673308,
     "sig": "*"
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=loop iteration=3",
@@ -2993,6 +3057,22 @@
     "sig": ""
    },
    "source": "channel_k_frames['channels_text'] row method=GRPO metric=loop iteration=5",
+   "note": ""
+  },
+  "channel_text.grpo.loop.iter6": {
+   "value": {
+    "n": 96,
+    "mean_K0": 0.07291666666666667,
+    "mean_K5": 0.0,
+    "mean_delta": 0.07291666666666667,
+    "dz": 0.27898458201797705,
+    "ci_lo": 0.020833333333333332,
+    "ci_hi": 0.12526041666666524,
+    "p": 0.0081509715935027,
+    "p_holm": 0.048905829561016204,
+    "sig": "*"
+   },
+   "source": "channel_k_frames['channels_text'] row method=GRPO metric=loop iteration=6",
    "note": ""
   },
   "channel_summary.grpo.%CR.claude-haiku-4-5": {
@@ -5045,14 +5125,14 @@
   },
   "channel_summary.grpo.conv_len.text (judge-invariant)": {
    "value": {
-    "n_iters": 6,
-    "n_sig_K0_higher": 2,
+    "n_iters": 7,
+    "n_sig_K0_higher": 1,
     "n_sig_K5_higher": 0,
-    "n_sig_K0_better": 2,
+    "n_sig_K0_better": 1,
     "n_sig_K5_better": 0,
-    "iters_sig_K0_higher": "4,5",
+    "iters_sig_K0_higher": "5",
     "iters_sig_K5_higher": "",
-    "mean_delta_iters1toN": 2.1,
+    "mean_delta_iters1toN": 2.3315972222222223,
     "max_abs_dz": 0.5305148231163582,
     "max_abs_dz_iter": 5
    },
@@ -5061,14 +5141,14 @@
   },
   "channel_summary.grpo.loop.text (judge-invariant)": {
    "value": {
-    "n_iters": 6,
-    "n_sig_K0_higher": 0,
+    "n_iters": 7,
+    "n_sig_K0_higher": 1,
     "n_sig_K5_higher": 1,
-    "n_sig_K0_better": 0,
+    "n_sig_K0_better": 1,
     "n_sig_K5_better": 1,
-    "iters_sig_K0_higher": "",
+    "iters_sig_K0_higher": "6",
     "iters_sig_K5_higher": "3",
-    "mean_delta_iters1toN": -0.002083333333333333,
+    "mean_delta_iters1toN": 0.010416666666666666,
     "max_abs_dz": 0.29993686204286596,
     "max_abs_dz_iter": 3
    },
@@ -5077,30 +5157,30 @@
   },
   "channel_summary.grpo.mean_turn_len.text (judge-invariant)": {
    "value": {
-    "n_iters": 6,
+    "n_iters": 7,
     "n_sig_K0_higher": 0,
-    "n_sig_K5_higher": 3,
+    "n_sig_K5_higher": 4,
     "n_sig_K0_better": 0,
-    "n_sig_K5_better": 3,
+    "n_sig_K5_better": 4,
     "iters_sig_K0_higher": "",
-    "iters_sig_K5_higher": "3,4,5",
-    "mean_delta_iters1toN": -86.09290694354698,
-    "max_abs_dz": 0.8147258877229051,
-    "max_abs_dz_iter": 5
+    "iters_sig_K5_higher": "3,4,5,6",
+    "mean_delta_iters1toN": -113.78745223234597,
+    "max_abs_dz": 0.8487343990420662,
+    "max_abs_dz_iter": 6
    },
    "source": "channel_k_frames['channels_summary'] row judge=text (judge-invariant) method=GRPO metric=mean_turn_len",
    "note": ""
   },
   "channel_summary.grpo.n_th_turns.text (judge-invariant)": {
    "value": {
-    "n_iters": 6,
-    "n_sig_K0_higher": 2,
+    "n_iters": 7,
+    "n_sig_K0_higher": 1,
     "n_sig_K5_higher": 0,
-    "n_sig_K0_better": 2,
+    "n_sig_K0_better": 1,
     "n_sig_K5_better": 0,
-    "iters_sig_K0_higher": "4,5",
+    "iters_sig_K0_higher": "5",
     "iters_sig_K5_higher": "",
-    "mean_delta_iters1toN": 1.0458333333333334,
+    "mean_delta_iters1toN": 1.1631944444444444,
     "max_abs_dz": 0.527660313003281,
     "max_abs_dz_iter": 5
    },
@@ -5109,16 +5189,16 @@
   },
   "channel_summary.grpo.q_per_turn.text (judge-invariant)": {
    "value": {
-    "n_iters": 6,
+    "n_iters": 7,
     "n_sig_K0_higher": 0,
-    "n_sig_K5_higher": 2,
+    "n_sig_K5_higher": 3,
     "n_sig_K0_better": 0,
-    "n_sig_K5_better": 2,
+    "n_sig_K5_better": 3,
     "iters_sig_K0_higher": "",
-    "iters_sig_K5_higher": "4,5",
-    "mean_delta_iters1toN": -0.1715702263966814,
-    "max_abs_dz": 0.6052263659739052,
-    "max_abs_dz_iter": 5
+    "iters_sig_K5_higher": "4,5,6",
+    "mean_delta_iters1toN": -0.2330420722292823,
+    "max_abs_dz": 0.8546786712108578,
+    "max_abs_dz_iter": 6
    },
    "source": "channel_k_frames['channels_summary'] row judge=text (judge-invariant) method=GRPO metric=q_per_turn",
    "note": ""

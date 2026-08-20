@@ -61,7 +61,8 @@ __all__ = [
 #: Solid + circle = K=0, dashed + square = K=5, so the K contrast survives greyscale printing and
 #: the arm palette still carries the method (PTO cool / GRPO warm). Marker differs too — greyscale
 #: + colourblind. The one place the K line style is defined (the paper's ``C.K_STYLE``).
-K_STYLE = {0: {"ls": "-", "marker": "o"}, 5: {"ls": "--", "marker": "s"}}
+from ._shared import K_STYLE  # noqa: F401  (one definition; see _shared)
+from ..constants import k_of as _k_of_canonical  # noqa: E402
 _K_STYLE = K_STYLE   # back-compat alias
 
 #: The four Exp3 arms in palette / legend order.
@@ -73,7 +74,8 @@ _LOWER_BETTER = set(LOWER_IS_BETTER) | {"MICI"}
 
 
 def _k_of(arm: str) -> int:
-    return 5 if arm.endswith("LA5") else 0
+    """Re-export of :func:`eda_analysis.constants.k_of` (THE canonical arm parse)."""
+    return _k_of_canonical(arm)
 
 
 def _style(arm: str) -> dict:
