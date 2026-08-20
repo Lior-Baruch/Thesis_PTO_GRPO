@@ -72,7 +72,7 @@ if EDA_DIR not in sys.path:
     sys.path.insert(0, EDA_DIR)
 
 from eda_analysis.config import (FAMILIES, PER_JUDGE_TOPS, all_families,  # noqa: E402
-                                 producer_tops)
+                                 producer_tops, families_for_judge)
 
 KERNEL = "thesis-venv313"
 TIMEOUT = 1800  # seconds per notebook (the preference embedding cell is the slow one)
@@ -210,7 +210,12 @@ def plan_units(tops, families, judges):
             continue
         if top in PER_JUDGE_TOPS:
             for j in judges:
-                units.append((top, j, present))
+                # A training-side family has no held-out analogue (config.PRIMARY_ONLY_FAMILIES);
+                # scheduling it per judge launches a notebook that writes nothing.
+                fams_j = families_for_judge(present, j)
+                if not fams_j:
+                    continue
+                units.append((top, j, fams_j))
         else:
             units.append((top, "", present))
     return units

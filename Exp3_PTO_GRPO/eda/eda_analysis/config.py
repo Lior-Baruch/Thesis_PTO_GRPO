@@ -73,6 +73,33 @@ FAMILY_READS: Dict[str, Tuple[str, ...]] = {
 }
 
 
+#: Families inside a :data:`PER_JUDGE_TOPS` top that are nevertheless produced ONLY under the
+#: primary oracle, as ``family -> reason``. ``arms/preference`` is training-side: its inputs are
+#: the candidate rewards in ``generations.jsonl`` and the PTO ``pairs.csv``, both of which record
+#: the TRAINING oracle's own selection — there is no held-out analogue to re-read, so its notebook
+#: guards every cell on ``S.JUDGE == ""`` and the held-out pass writes nothing.
+#:
+#: Declaring it here is what lets the scheduler skip that empty pass instead of paying a notebook
+#: launch to produce no artifact. ⚠ It is NOT a big win — the wasted pass measures ~1.7 s — the
+#: point is that the scope becomes a fact in the table rather than something only the notebook's
+#: internal guard knows.
+PRIMARY_ONLY_FAMILIES: Dict[str, str] = {
+    "arms/preference": "training-side: the training oracle IS the grader (generations.jsonl / pairs.csv)",
+}
+
+
+def judge_scope(family: str) -> str:
+    """``"per_judge"`` | ``"primary_only"`` | ``"invariant"`` for one family."""
+    if family in PRIMARY_ONLY_FAMILIES:
+        return "primary_only"
+    return "per_judge" if is_per_judge(family) else "invariant"
+
+
+def families_for_judge(families: Sequence[str], judge: str) -> List[str]:
+    """Filter a unit's family list to those that render under *judge* (``""`` = primary)."""
+    return [f for f in families if judge == "" or judge_scope(f) != "primary_only"]
+
+
 def producer_tops(families: List[str]) -> set:
     """Tops that must finish BEFORE the given families render (see :data:`FAMILY_READS`)."""
     out = set()
@@ -344,7 +371,7 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
 
 
 def cross_k_arms(source) -> list:
-    """The ARMS behind :func:`cross_k_scores` — both K arms of every method the config allows.
+    """Both K arms of every method the config allows — the arm list a K contrast needs.
 
     Same filters as :func:`notebook_setup` minus ``ks``. With the post-reorg default (``ks=None`` =
     every arm) this is normally the SAME list as ``S.ARMS``; it only differs when a config set an
@@ -363,29 +390,11 @@ def cross_k_arms(source) -> list:
                        methods=cfg.methods, ks=None, modes=cfg.modes, arm_labels=cfg.arm_labels)
 
 
-def cross_k_scores(source) -> pd.DataFrame:
-    """Scores for BOTH look-ahead arms of every method — an explicit ``ks`` filter dropped.
-
-    Rebuilds ``scores_long`` with ``ks=None`` and *everything else* — method/mode/label filters,
-    judge + rep, persona attachment, derived MITI-proficiency rows — taken from the active config.
-    Since the 2026-08-18 reorg the default arm filter is already every arm, so with a default
-    config this returns the SAME frame as ``S.SCORES``; it widens only when the config narrowed
-    ``ks``. (Before the reorg it was the escape hatch that let a K-specific ``L0``/``L5`` view
-    compute the K contrast at all.)
-
-    ``source`` is the :class:`Setup` returned by :func:`notebook_setup` (or a bare
-    :class:`EdaConfig`). **Read-only w.r.t. routing**: the active judge and the export root are left
-    exactly as :func:`notebook_setup` set them. An explicit ``cfg.arm_labels`` whitelist is still
-    honoured; ``ks`` is the only filter dropped.
-    """
-    from . import load_scores_long, add_derived_mitiprof_rows
-
-    cfg = source.CFG if isinstance(source, Setup) else source
-    arms = cross_k_arms(source)
-    scores = load_scores_long(arms, attach_persona=cfg.attach_persona)
-    if cfg.add_derived_mitiprof and not scores.empty:
-        scores = add_derived_mitiprof_rows(scores, arms)
-    return scores
+# ``cross_k_scores`` lived here until it became a no-op. It was the VIEW-era escape hatch that let
+# a K-specific L0/L5 view compute the K contrast at all; the 2026-08-18 reorg made every arm the
+# default, so it returned ``S.SCORES`` unchanged and no notebook called it. ``cross_k_arms`` below
+# is the live half. To widen a config that deliberately narrowed ``ks``, ask for the arms and load:
+#     arms = cross_k_arms(S); scores = load_scores_long(arms, attach_persona=S.CFG.attach_persona)
 
 
 def scores_by_judge(source, judges: Optional[Sequence[str]] = None) -> Dict[str, pd.DataFrame]:

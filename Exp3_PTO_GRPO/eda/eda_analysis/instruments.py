@@ -569,7 +569,7 @@ def hetero_kcontrast(scores_by_judge: Dict[str, pd.DataFrame], *,
                      primary: Optional[str] = None) -> pd.DataFrame:
     """K0−K5 contrast WITHIN patient cooperation level (fixture ``held_out_instruments_hetero``).
 
-    ``scores_by_judge`` = ``{judge_label: scores_long}`` (``cross_k_scores`` / ``scores_by_judge``
+    ``scores_by_judge`` = ``{judge_label: scores_long}`` (``scores_by_judge``
     output — persona characteristics attached, ``cooperation_level`` present). Strata: ``High →
     Cooperative``, ``StartLowAndChangesToHigh → Warms up``, ``Low → Resistant`` (32 personas each)
     + an ``All`` reference row (96 personas). Two targets per method: ``matched_final`` (PTO iter

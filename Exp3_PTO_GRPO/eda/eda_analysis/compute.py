@@ -289,6 +289,19 @@ def iteration_compute(arms: Optional[List] = None, *,
     key = "|".join(sorted(f"{a.label}:{a.exp_name}" for a in arms)) + f"@{gap_cutoff_s}"
     if key in _MEMO:
         return _MEMO[key].copy()
+    # Process-local memo above, cross-process parquet cache below: render_results.py runs six
+    # separate kernels, so the memo alone re-paid this ~5.5 s Drive walk + TensorBoard reload in
+    # every one of them.
+    from .data import load_cached, runs_input_roots, RUN_SIGNATURE_EXTS
+    cached = load_cached("iteration_compute", list(arms),
+                         lambda: _iteration_compute_impl(arms, gap_cutoff_s=gap_cutoff_s),
+                         input_roots=runs_input_roots(arms),
+                         params={"gap_cutoff_s": gap_cutoff_s}, exts=RUN_SIGNATURE_EXTS)
+    _MEMO[key] = cached.copy()
+    return cached.copy()
+
+
+def _iteration_compute_impl(arms, *, gap_cutoff_s: float = GAP_CUTOFF_S) -> pd.DataFrame:
 
     rows = []
     for arm in arms:
@@ -371,8 +384,7 @@ def iteration_compute(arms: Optional[List] = None, *,
 
     df = df.sort_values(["arm", "iteration"]).reset_index(drop=True)
     df["cum_gpu_h"] = df.groupby("arm")["gpu_h"].cumsum()
-    _MEMO[key] = df.copy()
-    return df
+    return df                     # memo + parquet cache are the caller's (iteration_compute)
 
 
 def compute_summary(comp: pd.DataFrame) -> pd.DataFrame:

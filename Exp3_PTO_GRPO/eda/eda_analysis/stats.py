@@ -211,7 +211,7 @@ def k_means_by_iter(scores_long: pd.DataFrame, method: str = "PTO",
     96 personas it equals the paired ``mean_delta`` exactly — pairing changes the standard error,
     not the mean — so read the *dz*/*p* off :func:`paired_k_comparison`, never off this table.
     Needs a scores frame holding BOTH K arms: under a K-specific view build it with
-    :func:`~eda_analysis.config.cross_k_scores`.
+    :func:`~eda_analysis.config.cross_k_arms` + ``load_scores_long``.
     """
     arm_lo, arm_hi = f"{method}_LA{K_lo}", f"{method}_LA{K_hi}"
     sub = scores_long[scores_long["arm"].isin([arm_lo, arm_hi])]

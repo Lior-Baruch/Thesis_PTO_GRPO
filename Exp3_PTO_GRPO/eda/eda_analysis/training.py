@@ -134,9 +134,23 @@ def load_branch_reliability(arms: Optional[List] = None, *, which: str = "chosen
     ``which`` selects the per-branch proxy: ``"chosen"`` (the candidate the policy kept; the trajectory
     it actually took), ``"max"``, or ``"mean"`` over candidates.
     Columns: ``arm, method, K, train_iter, eval_iter, conversation_id, n_turns, proxy_score``.
+
+    Parquet-cached on the RUN artifacts (``generations.jsonl`` et al., so ``exts`` must be
+    ``RUN_SIGNATURE_EXTS`` — the default ``.csv`` would watch files this never reads and go stale
+    without a miss). The frame is a few thousand rows; the parse behind it is ~17 s of an 879 MB
+    tree, paid once per process before this and now once per content change.
     """
+    from .data import load_cached, runs_input_roots, RUN_SIGNATURE_EXTS
+    arms_l = _arm_runs(arms)
+    return load_cached("branch_reliability", arms_l,
+                       lambda: _load_branch_reliability_impl(arms_l, which=which),
+                       input_roots=runs_input_roots(arms_l), params={"which": which},
+                       exts=RUN_SIGNATURE_EXTS)
+
+
+def _load_branch_reliability_impl(arms, *, which: str = "chosen") -> pd.DataFrame:
     rows = []
-    for arm in _arm_runs(arms):
+    for arm in arms:
         for fp in sorted(glob.glob(os.path.join(arm.runs_dir, "iteration_*", "eda", "generations.jsonl"))):
             with open(fp, encoding="utf-8") as f:
                 for line in f:

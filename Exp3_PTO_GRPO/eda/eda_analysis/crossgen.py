@@ -146,7 +146,18 @@ def load_crossgen(judge_tag: str = PRIMARY_JUDGE_TAG, *, oracle_token: str = ORA
     "Final Score". Only conversations scored on BOTH metrics are kept.
     """
     manifest = manifest or exp1_manifest()
+    from .data import load_cached
     root = os.path.join(CROSSGEN_ROOT, f"judge={judge_tag or PRIMARY_JUDGE_TAG}", f"rep={int(rep)}")
+    roots = [os.path.join(root, f"metric={m}", f"oracle={oracle_token}", model)
+             for model in manifest for m in ("Q1", "Q2")]
+    return load_cached("crossgen_scores", [],
+                       lambda: _load_crossgen_impl(manifest, root, oracle_token),
+                       input_roots=roots,
+                       params={"judge": judge_tag or PRIMARY_JUDGE_TAG, "rep": int(rep),
+                               "oracle": oracle_token})
+
+
+def _load_crossgen_impl(manifest, root, oracle_token) -> pd.DataFrame:
     rows = []
     for model, (arm, it, _) in manifest.items():
         per_metric = {}
@@ -176,6 +187,12 @@ def load_exp1_gpt35(manifest: Optional[dict] = None) -> pd.DataFrame:
     :func:`load_crossgen` so the two graders can be handled symmetrically.
     """
     manifest = manifest or exp1_manifest()
+    from .data import load_cached
+    return load_cached("exp1_gpt35", [], lambda: _load_exp1_gpt35_impl(manifest),
+                       input_roots=[d for (_a, _i, d) in manifest.values()])
+
+
+def _load_exp1_gpt35_impl(manifest) -> pd.DataFrame:
     rows = []
     for model, (arm, it, d) in manifest.items():
         for i in range(N_PERSONAS):

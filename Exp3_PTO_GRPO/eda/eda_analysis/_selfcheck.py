@@ -36,7 +36,7 @@ Data (skipped if data absent):
   * ``discover_arms`` — the LA0 arms are found.
   * ``arm identity is collision-free`` — no two arms share a score-lake folder; writer == reader.
   * ``scores_long + known means`` — Q1Q2 present; PTO_LA0 final ≈ 4.26, GRPO_LA0 final ≈ 3.75.
-  * ``cross-K frame`` — ``cross_k_scores`` widens-or-equals the K set and never moves the export root.
+  * ``cross-K frame`` — widening a narrowed ``ks`` config never moves the export root.
   * ``compute axis (GPU-hours)`` — every trained iteration costed; phases sum; iso-compute pairs on
     persona with the ``stats.py`` sign convention.
   * ``paper fixture anchors`` — the paper's frozen numbers
@@ -471,7 +471,7 @@ def _c_update_probe() -> str:
 
 
 def _c_cross_k() -> str:
-    """``cross_k_scores`` must widen-or-equal the READ without moving the WRITE.
+    """Widening a narrowed ``ks`` config must not move the export root.
 
     Since the 2026-08-18 reorg the default arm filter is every arm, so on a default config the
     cross-K frame EQUALS ``S.SCORES`` (asserted); on a config that narrowed ``ks`` it must WIDEN
@@ -487,22 +487,32 @@ def _c_cross_k() -> str:
     if S.SCORES.empty:
         raise _Skip("no scores on disk")
     try:
+        def _widen(setup):
+            """The two lines the retired ``cross_k_scores`` wrapper was."""
+            arms = E.cross_k_arms(setup)
+            sc = E.load_scores_long(arms, attach_persona=setup.CFG.attach_persona)
+            if setup.CFG.add_derived_mitiprof and not sc.empty:
+                sc = E.add_derived_mitiprof_rows(sc, arms)
+            return sc
+
         root_before = exports.family_root(), exports._fig_dir(None)
         ks_S = set(S.SCORES.K.unique())
-        cross = E.cross_k_scores(S)
+        cross = _widen(S)
         root_after = exports.family_root(), exports._fig_dir(None)
-        assert root_before == root_after, f"cross_k_scores moved the export root: {root_before} -> {root_after}"
+        assert root_before == root_after, f"widening moved the export root: {root_before} -> {root_after}"
         ks_cross = set(cross.K.unique())
         assert ks_S <= ks_cross, f"cross-K frame narrowed K: {sorted(ks_S)} -> {sorted(ks_cross)}"
         assert cross.shape == S.SCORES.shape, (
-            f"default config (every arm): cross_k_scores should equal S.SCORES, got "
+            f"default config (every arm): the widened frame should equal S.SCORES, got "
             f"{cross.shape} vs {S.SCORES.shape}")
         assert exports.active_family() == "lookahead/reward", "export family drifted"
+        assert not hasattr(E, "cross_k_scores"), \
+            "cross_k_scores is retired (a no-op since the reorg) — do not re-export it"
 
         # A narrowed config must widen back to both K arms, still without moving the root.
         S5 = _setup_quiet(E.EdaConfig(family="lookahead/reward", ks=[5], verbose=False))
         ks_view = set(S5.SCORES.K.unique())
-        cross5 = E.cross_k_scores(S5)
+        cross5 = _widen(S5)
         assert ks_view == {5}, f"ks=[5] config should hold ONE K, holds {sorted(ks_view)}"
         assert ks_view < set(cross5.K.unique()), "cross-K frame did not widen a ks=[5] config"
         assert (exports.family_root(), exports._fig_dir(None)) == root_before, \
@@ -575,7 +585,7 @@ def _c_compute_axis() -> str:
     E.exports.set_family("")
     if S.SCORES.empty:
         return f"{len(trained)} costed iterations; scores absent for the contrast half"
-    KS = E.cross_k_scores(S)
+    KS = S.SCORES                      # default config already holds every arm
     pairs_checked = contrast_rows = 0
     for a, b in (("GRPO_LA5", "GRPO_LA0"), ("PTO_LA5", "PTO_LA0")):
         if not {a, b} <= set(KS.arm.unique()):

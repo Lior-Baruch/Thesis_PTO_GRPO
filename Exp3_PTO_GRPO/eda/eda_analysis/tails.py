@@ -261,6 +261,18 @@ def grpo_steps(arm) -> Dict[int, int]:
 
 
 def stream_record_stats(arm) -> pd.DataFrame:
+    """Parquet-cached wrapper — see :func:`_stream_record_stats_impl`.
+
+    Cached on the RUN artifacts (``exts=RUN_SIGNATURE_EXTS``: this reads ``generations.jsonl``,
+    which the default ``.csv`` signature would not watch). ~40 output rows from a multi-hundred-MB
+    parse, and ``render_results.py`` runs six kernels, so the in-process memo alone re-paid it.
+    """
+    from .data import load_cached, runs_input_roots, RUN_SIGNATURE_EXTS
+    return load_cached("stream_record_stats", [arm], lambda: _stream_record_stats_impl(arm),
+                       input_roots=runs_input_roots([arm]), exts=RUN_SIGNATURE_EXTS)
+
+
+def _stream_record_stats_impl(arm) -> pd.DataFrame:
     """Second (light) pass over an arm's ``generations.jsonl``: record-level fields
     :func:`~eda_analysis.training.load_generations` drops — prefix chars + oracle retries + per-
     candidate char sizes — aggregated per ``(train_iter, phase)``. No text is retained.
@@ -325,6 +337,13 @@ def stream_record_stats(arm) -> pd.DataFrame:
 
 
 def eval_conv_stats(arm) -> pd.DataFrame:
+    """Parquet-cached wrapper — see :func:`_eval_conv_stats_impl`."""
+    from .data import load_cached, conv_input_roots
+    return load_cached("eval_conv_stats", [arm], lambda: _eval_conv_stats_impl(arm),
+                       input_roots=conv_input_roots([arm]))
+
+
+def _eval_conv_stats_impl(arm) -> pd.DataFrame:
     """Per ``model_iter`` of one arm: patient/therapist turn + char counts, mean conversation length
     and the session-end reasons (``session_ended_by``: patient / therapist / none), read from the
     eval conversation CSVs. The eval convs generated at the start of iteration ``n`` are

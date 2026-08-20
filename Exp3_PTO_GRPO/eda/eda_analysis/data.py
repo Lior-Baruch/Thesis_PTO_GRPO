@@ -88,13 +88,64 @@ def conv_input_roots(arms) -> List[str]:
     return [a.conv_dir(k) for a in arms for k in a.iters if a.conv_dir(k)]
 
 
-def _content_signature(roots) -> str:
-    """blake2b over every ``*.csv`` under ``roots`` as (name, size, mtime_ns) — content-sensitive.
+def runs_input_roots(arms) -> List[str]:
+    """Per-iteration RUN directories — the training-side artifact roots.
+
+    Covers ``runs/<mode>/<exp>/iteration_N/{,eda/,training/completions/}``: the
+    ``generations.jsonl`` capture, the PTO ``pref_pairs/pairs.csv`` audit trail, the per-step
+    completion parquets ``compute`` times off, and ``iteration_metadata.json``. Pair it with
+    ``exts=RUN_SIGNATURE_EXTS`` — the default ``(".csv",)`` would watch only PTO's pairs.csv and
+    miss every jsonl and parquet, i.e. cache a stale frame silently.
+
+    Directories are listed non-recursively (matching ``_content_signature``), so each level a
+    caller depends on is named explicitly rather than inferred.
+    """
+    out = []
+    for a in arms:
+        rd = getattr(a, "runs_dir", None)
+        if not rd or not os.path.isdir(rd):
+            continue
+        try:
+            iters = sorted(d.path for d in os.scandir(rd)
+                           if d.is_dir() and d.name.startswith("iteration_"))
+        except OSError:
+            continue
+        for it in iters:
+            out.append(it)
+            out.append(os.path.join(it, "eda"))
+            out.append(os.path.join(it, "pref_pairs"))
+            out.append(os.path.join(it, "training", "completions"))
+    return out
+
+
+#: File types :func:`runs_input_roots` must watch (jsonl capture, PTO pairs, step parquets, meta).
+RUN_SIGNATURE_EXTS = (".jsonl", ".csv", ".parquet", ".json")
+
+
+#: Default file types the cache signature watches. ``load_cached`` callers that read something
+#: else (``generations.jsonl``, the per-step ``completions/*.parquet``) pass their own ``exts`` —
+#: see :func:`runs_input_roots`.
+SIGNATURE_EXTS = (".csv",)
+
+
+def _content_signature(roots, exts=SIGNATURE_EXTS) -> str:
+    """blake2b over every file matching *exts* under ``roots`` as (name, size, mtime_ns).
 
     On Windows ``os.scandir`` caches stat in the directory scan, so this is cheap even over the
     ~37k eval+conv CSVs. A rewritten file changes its size/mtime → new digest → cache miss.
+
+    ⚠ ``exts`` is part of the digest. That is deliberate: two callers watching the same directory
+    for different file types must not share a key, or one would be served the other's frame — and
+    a directory holding only ``.csv`` would otherwise give identical digests for different ``exts``.
+
+    ⚠ Mixing ``exts`` into the hash means the digest changed when this parameter was added, so
+    every cache entry written before it was invalidated ONCE and rebuilt on the next run. That is
+    the correct direction to fail (rebuild, never serve stale) and it is a one-off; digests are
+    stable from here.
     """
     h = hashlib.blake2b(digest_size=16)
+    exts = tuple(exts)
+    h.update(("exts=" + ",".join(sorted(exts)) + "\n").encode())
     for root in sorted(set(r for r in roots if r)):
         h.update(root.encode())
         h.update(b"|")
@@ -103,7 +154,7 @@ def _content_signature(roots) -> str:
             continue
         try:
             entries = sorted((e for e in os.scandir(root)
-                              if e.is_file() and e.name.endswith(".csv")), key=lambda e: e.name)
+                              if e.is_file() and e.name.endswith(exts)), key=lambda e: e.name)
         except OSError:
             h.update(b"err\n")
             continue
@@ -116,11 +167,16 @@ def _content_signature(roots) -> str:
     return h.hexdigest()
 
 
-def load_cached(name: str, arms, builder, *, input_roots, params: Optional[dict] = None):
+def load_cached(name: str, arms, builder, *, input_roots, params: Optional[dict] = None,
+                exts=SIGNATURE_EXTS):
     """Return ``builder()``, memoized to ``.eda_cache/<name>__<armkey>__<contentkey>.parquet``.
 
-    ``input_roots`` = directories whose CSV ``(name, size, mtime)`` define the content signature
-    (use :func:`eval_input_roots` / :func:`conv_input_roots`). Distinct arm-subsets (e.g. a K=0-only
+    ``input_roots`` = directories whose files define the content signature (use
+    :func:`eval_input_roots` / :func:`conv_input_roots` / :func:`runs_input_roots`). ``exts``
+    selects which file types in those roots are watched — the default ``(".csv",)`` suits the
+    score/conversation loaders; a training-side loader reading ``generations.jsonl`` or the step
+    parquets MUST pass :data:`RUN_SIGNATURE_EXTS`, or its frame is keyed on files it never reads
+    and goes stale without a miss. Distinct arm-subsets (e.g. a K=0-only
     config vs the all-arms default) coexist via a separate ``armkey``; a re-score changes
     ``contentkey`` and the write prunes only the SAME arm-subset's stale file. Bypassed when :func:`cache_enabled` is False; a parquet
     round-trip failure degrades to an uncached build.
@@ -135,7 +191,7 @@ def load_cached(name: str, arms, builder, *, input_roots, params: Optional[dict]
     arm_sig += f"||judge={active_judge()}:{active_judge_rep()}"
     arm_sig += "||" + repr(sorted((params or {}).items()))
     arm_key = hashlib.blake2b(arm_sig.encode(), digest_size=8).hexdigest()
-    content_key = _content_signature(input_roots)
+    content_key = _content_signature(input_roots, exts)
     path = os.path.join(_CACHE_DIR, f"{name}__{arm_key}__{content_key}.parquet")
     if os.path.exists(path):
         try:
@@ -622,8 +678,16 @@ def load_subscales(arms: Optional[List] = None) -> pd.DataFrame:
 
     One row per (arm, iteration, file_index, parent questionnaire, subscale) -> score.
     Used by the familiar 'subscales' view; complements the headline-mean `scores_long`.
+
+    Parquet-cached like its siblings :func:`load_scores_long` / :func:`load_items` — it was the
+    one score-lake loader still re-reading the eval CSVs on every call (~4.7 s cold per grader).
     """
     arms = discover_arms() if arms is None else arms
+    return load_cached("subscales", arms, lambda: _load_subscales_impl(arms),
+                       input_roots=eval_input_roots(arms))
+
+
+def _load_subscales_impl(arms) -> pd.DataFrame:
     rows = []
     for arm in arms:
         for k in arm.iters:

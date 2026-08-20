@@ -20,7 +20,7 @@ Conventions (restate them in every caption):
   MICI and every ``MICI_*`` channel are lower-is-better, so there ``+`` means K=0 is WORSE.
 * **Pairing unit: ``persona_id``** (the 96 patient personas recur in every model state; the trainer
   reshuffles them each iteration, so ``file_index`` is not a pairing key). Frames must carry
-  ``persona_id`` — :func:`~eda_analysis.config.scores_by_judge` / ``cross_k_scores`` attach it.
+  ``persona_id`` — :func:`~eda_analysis.config.scores_by_judge` attaches it.
 * **Iteration 0 = two INDEPENDENT base draws** (the K=0 arm's base vs the K=5 arm's base): a free
   noise-floor row, computed with the same machinery. Never drop it silently — it is the reference
   the trained rows are read against.

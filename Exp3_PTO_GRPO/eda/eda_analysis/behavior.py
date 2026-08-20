@@ -212,9 +212,22 @@ def question_rate_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
 
 # ── 2. Regex text metrics from conversations ─────────────────────────────────
 def text_metrics(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:
-    """Per (arm, iteration, conversation) text behavior metrics from the transcripts."""
+    """Per (arm, iteration, conversation) text behavior metrics from the transcripts.
+
+    Parquet-cached: this walks every conversation CSV (~3,840 files over the Drive symlink, ~53 s
+    warm) and its aggregate ``session_shape_by_iter`` was already cached — but the raw frame was
+    not, so each caller that wanted per-conversation rows paid the full walk again.
+    """
+    arms = _arms(arms)
+    return load_cached("text_metrics", arms,
+                       lambda: _text_metrics_impl(arms, attach_persona=attach_persona),
+                       input_roots=conv_input_roots(arms),
+                       params={"attach_persona": attach_persona})
+
+
+def _text_metrics_impl(arms, *, attach_persona: bool = True) -> pd.DataFrame:
     rows = []
-    for arm in _arms(arms):
+    for arm in arms:
         for k in arm.iters:
             cdir = arm.conv_dir(k)
             if not cdir or not os.path.isdir(cdir):

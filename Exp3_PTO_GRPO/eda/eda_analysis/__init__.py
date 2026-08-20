@@ -39,7 +39,7 @@ from .constants import (  # noqa: E402,F401
 
 # ── Public API re-exports ──────────────────────────────────────────────────────
 # Control surface (EdaConfig + the one-call notebook_setup) — config.py absorbed the old notebook.py.
-from .config import (EdaConfig, notebook_setup, Setup, cross_k_scores, cross_k_arms,  # noqa: E402
+from .config import (EdaConfig, notebook_setup, Setup, cross_k_arms,  # noqa: E402
                      scores_by_judge, FAMILIES, PER_JUDGE_TOPS)
 # Data layer (discovery + personas + scores + select all merged into data.py).
 from .data import (  # noqa: E402
@@ -173,7 +173,7 @@ __all__ = [
     "WARMTH_RUBRICS", "EXTRA_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
     "MITI_THRESHOLDS", "Q1_ITEM_SHORT", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS", "ITEM_QUESTIONNAIRES",
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label", "item_short_label",
-    "EdaConfig", "notebook_setup", "Setup", "cross_k_scores", "cross_k_arms",
+    "EdaConfig", "notebook_setup", "Setup", "cross_k_arms",
     "scores_by_judge", "FAMILIES", "PER_JUDGE_TOPS",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",
     "canonical_personas", "persona_order", "attach_personas",
