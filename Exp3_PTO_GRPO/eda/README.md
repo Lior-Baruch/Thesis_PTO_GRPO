@@ -439,6 +439,15 @@ against.
   that module built COLUMN NAMES out of the display label: identifiers keep the historical
   no-space form (`share_ge45_WarmsUp`, cited by the frozen paper table) while the label displayed
   in figures is the canonical one.
+- **`data`'s parquet cache now covers the training side too.** `load_cached` takes an ``exts``
+  argument and `data.runs_input_roots()` names the per-iteration run directories, so the loaders
+  promoted with the paper generators are memoised like the score loaders: `behavior.text_metrics`
+  (30.5 s → 0.09), `training.load_branch_reliability` (18.0 → 0.17), `tails.eval_conv_stats`
+  (9.9 → 0.03), `crossgen.load_crossgen` (9.6 → 0.08), `tails.stream_record_stats` (5.7 → 0.05),
+  `compute.iteration_compute` (4.5 → 0.15), `data.load_subscales` (4.9 → 0.52). ⚠ A loader that
+  reads `generations.jsonl` or the step parquets MUST pass `RUN_SIGNATURE_EXTS`; keyed on the
+  default `.csv` it would go stale **without ever missing**. ⚠ `exts` is part of the digest, so
+  adding it invalidated every pre-existing cache entry once (rebuild, never stale).
 - **`ledger`** — a second LEAF (numpy + stdlib, no package imports): the quotable-numbers
   primitives every `*_numbers.json` writer needs — `json_scalar` (recursive numpy→JSON, NaN→None),
   `ledger_entry` (the `{value, source, note}` record `exports.save_numbers` writes and each

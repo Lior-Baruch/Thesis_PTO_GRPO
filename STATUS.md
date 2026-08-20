@@ -6,24 +6,30 @@ things stand*, not *how they got here*. When an entry stops being current, move 
 [Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) rather than
 appending a new dated paragraph beneath the old one.
 
-**Last updated 2026-08-19.**
+**Last updated 2026-08-20.**
 
-## Run status — all four arms trained and fully scored
+## Run status — all four arms trained; ONE state generated but unscored
 
-| Arm | Iterations | Scored (both graders) | GPU-h |
+| Arm | Trained | Scored (both graders) | GPU-h |
 |---|---|---|---|
 | **PTO LA0** | 1–10 | ✅ 0–10 | **8.1** |
 | **PTO LA5** | 1–10 | ✅ 0–10 | **19.7** |
 | **GRPO LA0** | 1–10 | ✅ 0–10 | **27.9** |
-| **GRPO LA5** | 1–5 (stopped) | ✅ 0–5 | **27.1** |
+| **GRPO LA5** | **1–7** | ✅ 0–5 · ⚠ **`I6` unscored** | **32.0** |
 
-**39 scored model states** (11 + 6 + 11 + 11), and the score lake is a **full grid on both graders** —
-39 × 8 rubrics × 96 personas = **29,952 cells each**. No arm is thin any more; RQ-i is a real
-K×method comparison.
+**39 scored model states** (11 + 6 + 11 + 11) — a **full grid on both graders**,
+39 × 8 rubrics × 96 personas = **29,952 cells each**.
 
-GRPO LA5 was stopped **~2 minutes into iteration 6**: `iteration_6/` holds one optimizer step
-(`completions_00001.parquet`) and tb_logs, no adapter and no checkpoint. Nothing depends on it —
-`model_iter_5` is the last complete policy — but a resume restarts iteration 6 from step 1.
+⚠ **GRPO LA5 resumed past iteration 5 and is now 7 iterations deep** (31.98 GPU-h — it is no
+longer budget-matched to GRPO LA0's 27.91; the "budget-matched to within 3%" reading below was
+true at iteration 5 and is now stale by ~15%). `model_iter_6` conversations exist on disk and
+`discover_arms` picks them up, so the registry holds **40** states against 39 scored: exactly one
+gap, **`GRPOExp3_LA5_I6`**.
+
+**Scoring it costs ~$1.1** (1 state × 8 rubrics × 96 = 768 calls per grader; ~$0.4 primary live +
+~$0.7 Haiku batched). Until it is scored, every K contrast silently stops at iteration 5 while the
+compute axis reports 7 trained iterations — read `compute_by_arm.md` and the scored coverage
+together, not one for the other.
 
 ## Where the artifacts live
 
@@ -42,9 +48,12 @@ its notebook. Regenerate with `python eda/tools/render_results.py` (see
 `eda_analysis/compute.py` reconstructs GPU-hours per iteration from artifact
 mtimes, and it reframes the whole comparison. **Owner: `eda/results/compute/cost/tables/{compute_by_arm,iso_compute_contrast,budget_sweep_<contrast>_<judge>}.md`; figure `compute/cost/figures/compute_trajectory.png`.**
 
-- **The two GRPO arms are budget-matched to within 3%** — 27.08 vs 27.91 GPU-h — despite one
-  running twice the iterations. "GRPO LA5 only reached iteration 5" is a statement about iteration
-  count, **not about spend**, and every matched-*iteration* table hands K=5 ~2× the compute per cell.
+- **A matched-*iteration* table hands K=5 ~2× the compute per cell**, because a K=5 step costs
+  ~1.9× a K=0 one. ⚠ **The "two GRPO arms are budget-matched to within 3%" reading is now STALE.**
+  It was true while GRPO LA5 stood at iteration 5 (27.08 vs 27.91 GPU-h); the arm has since
+  resumed to iteration 7 and costs **31.98** — ~15% MORE than its K=0 sibling, not 3% less. Any
+  iso-compute claim written before 2026-08-20 assumed the matched budget; re-derive it from
+  `compute_by_arm.md` rather than quoting the old figure.
 - **PTO LA0 reaches iteration 10 for 8.1 GPU-h — 27.91 / 8.12 = 3.4× cheaper than GRPO LA0's ten.**
   It also scores higher. On the compute axis PTO dominates GRPO outright; that is a stronger claim
   than the matched-iteration one and it is not grader-dependent.

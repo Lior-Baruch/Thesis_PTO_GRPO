@@ -9,6 +9,63 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-20) — the promotion's leftovers: one definition each, one cache, one render order.**
+
+Two commits (`f35b96d`, `ee685bd`) closing out what promoting the eight paper generators into the
+package (2026-08-18) left behind. The deleted `analysis/_common.py` had one of each helper; the
+package had ended up with eight, and two had already drifted.
+
+**Duplication collapsed.** 7 JSON cleaners + 5 ledger wrappers + 3 rounders → the new
+**`eda_analysis/ledger.py`** leaf (numpy + stdlib only, so any module imports it top-level;
+deliberately NOT `constants`, whose docstring promises stdlib-only). 8 `K_STYLE` copies →
+`plotting/_shared.py`. 10 `k_of`/`_k_of` variants + 4 persona-label maps → `constants`. Local names
+are preserved as aliases, so no call site and no `__all__` entry moved.
+
+**Two drifts that had already shipped.**
+- `replication.py` rendered `StartLowAndChangesToHigh` as `"WarmsUp"` (Resistant-first) while three
+  other modules said `"Warms up"` (Cooperative-first) — the same persona stratum in 4 artifacts vs
+  9, **both spellings inside `results/lookahead/INDEX.md`**. Root cause: an identifier built from a
+  display string (`share_ge45_{label}`), so the label could not change without renaming columns.
+  Fixed with `constants.COOP_SLUG` — identifiers keep the historical no-space form (the notebook
+  selects `share_ge45_WarmsUp` by name; the frozen paper table carries it), labels converge.
+- The eight ledger cleaners disagreed on `np.bool_`: three converted it, two folded it into
+  `.item()`, `instruments` ignored it and could leak a raw `np.bool_` into JSON.
+- Five `k_of` bodies disagreed too: `endswith("LA5")` reads a hypothetical K=3 arm as K=0,
+  `int(arm.split("_LA")[1])` raises on `"Base"`.
+
+**A real render race, pre-existing.** `lookahead/behaviour` copies tables out of `arms/preference`,
+but `render_results.py` schedules `(top, judge)` units into one thread pool — so a from-clean
+render fails intermittently (observed failing, then passing, minutes apart). Declared in
+**`config.FAMILY_READS`** and scheduled in **waves**; the map is pinned by the `family map`
+self-check so a typo cannot silently disable the ordering.
+
+**Caching the loaders the promotion left uncached.** The promoted modules had been stand-alone
+scripts, so each loaded its own data outside `load_cached`. Measured cold → warm, outputs identical:
+`text_metrics` 30.5→0.09 s, `load_branch_reliability` 18.0→0.17, `eval_conv_stats` 9.9→0.03,
+`load_crossgen` 9.6→0.08, `stream_record_stats` 5.7→0.05, `iteration_compute` 4.5→0.15,
+`load_subscales` 4.9→0.52. This matters more than wall-clock suggests: the renderer runs six
+kernels, so a process-local memo is re-paid in each.
+The enabler is `_content_signature(roots, exts)` + `runs_input_roots()`. ⚠ `exts` is mixed INTO the
+digest on purpose (two callers watching one directory for different file types must not share a
+key), which invalidated every pre-existing cache entry once — failing in the safe direction.
+⚠ A `.jsonl`-backed frame keyed on `.csv` mtimes would go stale WITHOUT ever missing; training-side
+loaders must pass `RUN_SIGNATURE_EXTS`.
+
+**Retired.** `cross_k_scores` — a VIEW-era escape hatch the reorg turned into a no-op (returned
+`S.SCORES` unchanged; zero notebook callers). `cross_k_arms` stays. Its self-check keeps every
+assertion and gained one pinning the retirement. `config.PRIMARY_ONLY_FAMILIES` records that
+`arms/preference` is training-side, so no held-out pass is scheduled for it (22 → 21 notebook
+executions). ⚠ Measured, that wasted pass was **1.7 s** and only ONE family is affected — the
+larger per-family `judge_scope` redesign the review proposed does not earn its risk at that price.
+
+**Verification protocol (reusable).** Diffing against the committed `results/` was useless: that
+baseline had been rendered with `ks=[5]` (2 arms, 19,263 rows) where a bare run uses 4 (44,271).
+Instead: render the tree twice — once at HEAD's code, once with the change — and diff the two
+renders. First commit: 3 of 603 artifacts differed (column ORDER in `lookahead/replication/ceiling`
+only). Second: 0 of 603. Self-check 24/24 throughout, incl. `paper fixture anchors`.
+
+---
+
 **Landed (2026-08-19) — the repo's history loses 606 MB of superseded renders.**
 `Exp3_PTO_GRPO/eda/results` was removed from every past commit with `git-filter-repo`: it was 606 MB
 of the 671 MB packed repo, almost all of it superseded figure generations (including the retired
