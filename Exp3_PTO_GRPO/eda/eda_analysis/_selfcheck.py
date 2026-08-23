@@ -14,7 +14,7 @@ structural half still guards a machine without the Drive mount. A check may also
 known, expected gap (e.g. a notebook a later phase of the 2026-08-18 reorg has not landed yet, or
 an anchor whose module is not importable) — which is reported but does not fail the run.
 
-Checks (23; 12 structural + 11 data, + 1 opt-in probe)
+Checks (26; 12 structural + 14 data, + 1 opt-in probe)
 ------------------------------------------------------
 Structural (always, no disk):
   * ``import + __all__ resolve`` — package imports; every ``__all__`` name resolves.
@@ -56,6 +56,17 @@ Data (skipped if data absent):
   * ``judge dimension routing`` — the JUDGE axis routes reads AND writes and restores the primary.
   * ``score fold (parquet read path)`` — the fold equals the CSVs and refuses a tampered signature.
   * ``multi-judge analysis`` — variance components in range; sign preservation runs end-to-end.
+  * ``score coverage (disk vs lake)`` — every discovered model state is fully scored, on every
+    metric, by every grader on disk. WARNS (never fails) on a gap: an unscored state is the normal
+    condition between a training run and a scoring run. Catches the class that is invisible to
+    every other check — conversations present, scores absent — which silently truncates a contrast
+    while the compute axis still reports the full trained range (``GRPOExp3_LA5_I6``).
+  * ``doc drift (prose vs tables)`` — the numeric-claim docs are audited against the artifacts:
+    every ``a x b x c = d`` evaluates, and every cited artifact path resolves (both FAIL); a cited
+    table newer than its citing doc WARNS. ``history/`` and ``papers/archive/`` are exempt from
+    liveness, as are citations after a provenance marker ("formerly", "ported from") — those cite
+    the past on purpose. Does NOT catch a claim that is arithmetically fine but wrong about the
+    world; that needs ``score coverage`` and a human.
 Probe (opt-in, heavy — needs sentence-transformers + pref pairs):
   * ``PTO preference probe`` — Mass-Mean-Probe ``wins_correct`` > 0.5.
 """
@@ -1405,6 +1416,248 @@ def _c_arm_identity_unique() -> str:
     return f"{len(seen)} unique model names, {n} write/read pairs agree"
 
 
+def _c_score_coverage() -> str:
+    """Every discovered model state is fully scored, on every metric, by every grader on disk.
+
+    The one thing ``discover_arms`` + the score lake could never tell you jointly: a state whose
+    conversations exist but whose scores do not. It is invisible to every other check — the arm
+    discovers fine, the scores that DO exist load fine — so a contrast just silently stops an
+    iteration early while the compute axis keeps reporting the full trained range.
+    ``GRPOExp3_LA5_I6`` sat that way and was found by hand.
+
+    Deliberately a ``_Warn``, never a ``FAIL``: an unscored state is the NORMAL condition between
+    a training run finishing and a scoring run starting, so a run mid-flight must not break the
+    harness. It is a standing reminder, not a broken invariant.
+
+    Directory listings only — no conversation frames, no parquet, no API. That is what keeps it
+    cheap enough to sit in the default pass. ``judge_plan.plan_sweep`` answers the same question
+    per-conversation when you are about to spend money; this is the free structural half.
+    """
+    arms = _discover_or_skip()
+    from .constants import PRIMARY_JUDGE_TAG, judge_dirname
+    from .reliability import second_judge_tags
+    from .scoring.judge import judge_out_dir
+    from .scoring.registry import EVAL_QUESTIONNAIRE_DIRS
+
+    tags = [PRIMARY_JUDGE_TAG] + list(second_judge_tags())
+    n_states = n_complete = 0
+    gaps: List[Tuple[str, int, str]] = []
+    for a in arms:
+        for k in a.iters:
+            n_states += 1
+            model, oracle, want = a.model_name(k), a.eval_oracle_label(k), a.n_personas
+            short = []
+            for tag in tags:
+                for qname, mdir in EVAL_QUESTIONNAIRE_DIRS.items():
+                    d = judge_out_dir(tag, 0, mdir, oracle, model)
+                    have = len([f for f in os.listdir(d) if f.endswith(".csv")]) \
+                        if os.path.isdir(d) else 0
+                    if have < want:
+                        short.append(f"{judge_dirname(tag)}/{qname} {have}/{want}")
+            if short:
+                gaps.append((model, len(short), short[0]))
+            else:
+                n_complete += 1
+
+    n_cells = len(EVAL_QUESTIONNAIRE_DIRS) * len(tags)
+    head = (f"{n_complete}/{n_states} states complete "
+            f"({len(EVAL_QUESTIONNAIRE_DIRS)} metrics x {len(tags)} judges)")
+    if gaps:
+        detail = "; ".join(f"{m} ({n}/{n_cells} cells short, e.g. {ex})" for m, n, ex in gaps[:3])
+        more = f" (+{len(gaps) - 3} more)" if len(gaps) > 3 else ""
+        raise _Warn(f"{head} — UNSCORED: {detail}{more}")
+    return head
+
+
+# ── doc drift (prose vs tables) ───────────────────────────────────────────────
+# The docs that carry numeric claims. Everything else in the repo is prose or generated.
+_DOC_NAMES = re.compile(r"(STATUS|SUMMARY|LIMITATIONS|NUMBERS|METRICS_REFERENCE|CLAUDE)\.md$")
+
+_DRIFT_NUM = r"\d[\d,]*(?:\.\d+)?"
+# A term may trail up to two bare words, because the convention writes the units inline:
+# "39 x 8 rubrics x 96 personas = 29,952".
+_DRIFT_TERM = _DRIFT_NUM + r"(?:\s+[a-zA-Z][a-zA-Z-]*){0,2}"
+_DRIFT_OPS = "×*/÷+−-"
+# `=` and `≈` only. `~` is not a relation here: "clears 0.8/0.9 at ~10 turns" is not an equation.
+# The whitespace before the relation is mandatory, or "3/10 carry K=0" parses as "3/10 = 0".
+_DRIFT_ARITH = re.compile(
+    r"(?<![\w.])(" + _DRIFT_TERM + r")"
+    r"((?:\s*[" + _DRIFT_OPS + r"]\s*" + _DRIFT_TERM + r"){1,5})"
+    r"\s+([=≈])\s*[$]?(" + _DRIFT_NUM + r")\s*(%?)"
+)
+_DRIFT_SPLIT = re.compile(r"\s*([" + _DRIFT_OPS + r"])\s*")
+_DRIFT_LEAD = re.compile(r"^(" + _DRIFT_NUM + r")")
+
+_DRIFT_SEG = r"[A-Za-z0-9_.\-]+"
+_DRIFT_PATH = (r"(?:" + _DRIFT_SEG + r"/){1,8}" + _DRIFT_SEG
+               + r"\.(?:md|png|json|csv|xlsx|py|ipynb|parquet)")
+_DRIFT_CODE = re.compile(r"`(" + _DRIFT_PATH + r")`")
+_DRIFT_LINK = re.compile(r"\]\((" + _DRIFT_PATH + r")(?:#[^)]*)?\)")
+_DRIFT_INREPO = re.compile(r"(^|/)(results|eda|papers|code|history|Exp\d)")
+# A citation introduced by one of these is ABOUT the past. A dead target is CORRECT there —
+# "*Ported from `results/L0/SUMMARY.md`*" and "(formerly `results/L5/...`)" are both real usages.
+_DRIFT_PROVENANCE = re.compile(
+    r"(formerly|ported from|there is no|retired|superseded|renamed from|moved (from|out of)|"
+    r"pre-reorg|used to|no longer|was at|old )", re.I)
+
+
+def _drift_val(term: str):
+    m = _DRIFT_LEAD.match(term.strip())
+    return None if not m else float(m.group(1).replace(",", ""))
+
+
+def _drift_tol(stated_txt: str, rel: str) -> float:
+    """A DECIMAL gets one unit in its last displayed place — the docs both round and truncate
+    (0.613554 is written 0.613). An INTEGER under ``=`` must be EXACT: a 1-unit band would make
+    every off-by-one invisible, and an integer cell count is exactly what this audits."""
+    s = stated_txt.replace(",", "")
+    t = (10 ** -len(s.split(".")[1])) if "." in s else 1e-9
+    return max(t, abs(float(s)) * 0.05) if rel != "=" else t
+
+
+def _drift_chain(terms: List[float], ops: List[str]):
+    acc = terms[0]
+    for op, v in zip(ops, terms[1:]):
+        if op in "×*":
+            acc *= v
+        elif op in "/÷":
+            if v == 0:
+                return None
+            acc /= v
+        elif op == "+":
+            acc += v
+        else:
+            acc -= v
+    return acc
+
+
+def _drift_arithmetic(text: str) -> List[str]:
+    """Every ``a x b x c = d`` / ``a / b = c`` in the prose actually evaluates."""
+    bad = []
+    for m in _DRIFT_ARITH.finditer(text):
+        first, rest, rel, stated_txt, pct = m.groups()
+        v0 = _drift_val(first)
+        if v0 is None:
+            continue
+        parts = [p for p in _DRIFT_SPLIT.split(rest) if p.strip()]
+        ops: List[str] = []
+        terms: List[float] = [v0]
+        i, broke = 0, False
+        while i + 1 < len(parts):
+            v = _drift_val(parts[i + 1])
+            if v is None:
+                broke = True
+                break
+            ops.append(parts[i])
+            terms.append(v)
+            i += 2
+        if broke or not ops:
+            continue
+        stated = float(stated_txt.replace(",", ""))
+        tol = _drift_tol(stated_txt, rel)
+        # A right-SUFFIX of the chain may be the actual claim: the prose often prepends an
+        # unrelated number ("~$1.6 + 5 x 96 x 8 = 3,840 scoring calls").
+        hit = False
+        for s in range(len(terms) - 1):
+            acc = _drift_chain(terms[s:], ops[s:])
+            if acc is None:
+                continue
+            if any(abs(c - stated) <= tol for c in ((acc, acc * 100.0) if pct else (acc,))):
+                hit = True
+                break
+        if not hit:
+            full = _drift_chain(terms, ops)
+            got = "n/a" if full is None else f"{full:g}"
+            bad.append(f"{m.group(0).strip()!r} computes {got}")
+    return bad
+
+
+def _drift_paths(path: str, text: str, bases: List[str]):
+    """Cited artifact paths that resolve, split from those that do not."""
+    doc_dir = os.path.dirname(path)
+    dead, live, seen = [], [], set()
+    for rx in (_DRIFT_CODE, _DRIFT_LINK):
+        for m in rx.finditer(text):
+            cited = m.group(1)
+            if not _DRIFT_INREPO.search(cited) or cited in seen:
+                continue
+            if _DRIFT_PROVENANCE.search(text[max(0, m.start() - 60):m.start()]):
+                continue
+            seen.add(cited)
+            hit = None
+            for base in [doc_dir] + bases:
+                p = os.path.normpath(os.path.join(base, cited))
+                if os.path.exists(p):
+                    hit = p
+                    break
+            (live if hit else dead).append((cited, hit))
+    return dead, live
+
+
+def _c_doc_drift() -> str:
+    """Prose about tables is audited against the tables — the failure class that reaches drafts.
+
+    CLAUDE.md's own epistemic rules say it: "a number in prose is a claim about a table, not a
+    number", and composite numbers must show their arithmetic. Both are conventions no tool
+    enforced. Three mechanical halves of that:
+
+    1. **Arithmetic** — every ``a x b x c = d`` in the docs evaluates. FAILS. This is the "cell
+       count nobody multiplied out" class.
+    2. **Path liveness** — every cited artifact path resolves. FAILS. This is the class the
+       2026-08-18 reorg created wholesale: ``results/L0/...`` and ``eda/docs/...`` citations that
+       outlived their targets. ``history/`` and ``papers/archive/`` are EXEMPT — they are records
+       *of* the past by design, so a dead target there is correct, as it is after a provenance
+       marker ("formerly", "ported from", "there is no").
+    3. **Freshness** — a cited table newer than the doc citing it. WARNS only: mtimes are a weak
+       signal (a fresh clone rewrites them all), so this is a nudge, not an invariant. It extends
+       ``render freshness (per judge)`` one hop: scores -> renders -> docs.
+
+    ⚠ What this does NOT catch: a claim that is arithmetically fine and cites a live path but is
+    still WRONG about the world (a trained-iteration count that disagrees with the adapters on
+    disk, two cost figures inconsistent with each other across documents). Those need
+    ``score coverage`` and a human. This check narrows the surface; it does not close it.
+    """
+    from .constants import WORKSPACE_ROOT
+    repo = os.path.dirname(WORKSPACE_ROOT)
+    if not os.path.exists(os.path.join(repo, "CLAUDE.md")):
+        raise _Skip(f"repo root not resolvable from WORKSPACE_ROOT ({repo})")
+    bases = [repo, WORKSPACE_ROOT, os.path.join(WORKSPACE_ROOT, "eda")]
+    exempt = ("history" + os.sep, os.sep + "archive" + os.sep)
+
+    docs = []
+    for root, dirs, files in os.walk(repo):
+        dirs[:] = [d for d in dirs if d not in (".venv", ".git", "__pycache__", "node_modules")]
+        docs += [os.path.join(root, f) for f in files if _DOC_NAMES.search(f)]
+    if not docs:
+        raise _Skip("no numeric-claim docs found")
+
+    math_errs, dead_errs, stale = [], [], []
+    for d in sorted(docs):
+        with io.open(d, encoding="utf-8", errors="replace") as fh:
+            text = fh.read()
+        rel = os.path.relpath(d, repo)
+        math_errs += [f"{rel}: {e}" for e in _drift_arithmetic(text)]
+        if any(x in d for x in exempt):
+            continue
+        dead, live = _drift_paths(d, text, bases)
+        dead_errs += [f"{rel} -> {c}" for c, _ in dead]
+        doc_m = os.path.getmtime(d)
+        for cited, resolved in live:
+            if "results/" in cited.replace("\\", "/") and os.path.getmtime(resolved) > doc_m:
+                stale.append(f"{rel} -> {cited}")
+
+    hard = math_errs + dead_errs
+    if hard:
+        raise AssertionError(
+            f"{len(math_errs)} bad arithmetic, {len(dead_errs)} dead citations: "
+            + "; ".join(hard[:4]) + (f" (+{len(hard) - 4} more)" if len(hard) > 4 else ""))
+    head = f"{len(docs)} docs: arithmetic + citations clean"
+    if stale:
+        raise _Warn(f"{head}; {len(stale)} cited table(s) newer than the citing doc: "
+                    + "; ".join(stale[:3]))
+    return head
+
+
 def main(argv: List[str] | None = None) -> int:
     argv = argv if argv is not None else sys.argv[1:]
     fast = "--fast" in argv
@@ -1442,6 +1695,8 @@ def main(argv: List[str] | None = None) -> int:
         _run("judge dimension routing", _c_judge_dimension, results)
         _run("score fold (parquet read path)", _c_score_fold, results)
         _run("multi-judge analysis", _c_multi_judge, results)
+        _run("score coverage (disk vs lake)", _c_score_coverage, results)
+        _run("doc drift (prose vs tables)", _c_doc_drift, results)
     if probe:
         _run("PTO preference probe", _c_probe, results)
 

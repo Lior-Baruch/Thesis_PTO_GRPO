@@ -615,7 +615,7 @@ against.
   `submit_sweep` → `poll_batches` → `collect_batches`, three phases with disk-persisted manifests so
   a fresh kernel can collect; plus `probe_usage` for a measured token profile) · `local_server`
   (vLLM as a `JudgeSpec` — see "Adding a third grader").
-- **`_selfcheck`** — the guard, **23 checks** (12 structural + 11 data + 1 opt-in probe): package
+- **`_selfcheck`** — the guard, **26 checks** (12 structural + 14 data + 1 opt-in probe): package
   invariants + `__all__`, the **family map** (every `FAMILIES` entry ↔ `notebooks/<top>/<sub>.ipynb`;
   `PER_JUDGE_TOPS ⊂ FAMILIES`), `EdaConfig` round-trip, the scoring surface, notebook symbol refs,
   the cache round-trip, the second-judge rubric-parity gate, the cross-judge artifact layout, exports

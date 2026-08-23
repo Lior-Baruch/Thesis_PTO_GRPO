@@ -54,6 +54,10 @@ wandb/
 
 # === Meeting decks / local presentation artifacts ===
 *.pptx
+# Slide PNG dumps from export_pdf.ps1 -Png: a local eyeballing aid, regenerable from the .pptx,
+# and ~14 MB for an 85-slide deck. The tracked record of a meeting is its PDF (+ email draft) —
+# the same rule meetings/archive/ already follows.
+meetings/**/*_png/
 
 # === OS / IDE / Claude local ===
 .DS_Store

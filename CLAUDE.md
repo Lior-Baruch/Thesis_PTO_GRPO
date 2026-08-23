@@ -27,12 +27,12 @@ Three controlled comparisons, all live in Exp3:
 | **Patient prompts** | V1 (cooperative) | V3 (less cooperative) | V3 |
 | **Oracle output** | V1 (regex; Q1+Q2 only) | V5 (JSON schema; 6 questionnaires) | V5 + PCT/MITI-style coders → **8 instruments** |
 | **PTO** | K ∈ {0, 5}, 7 iters | 4 oracles × K ∈ {0, 5} | **PTO_Exp3** (iterative; lean sibling of GRPO_Exp3, controlled hyperparams matched) |
-| **GRPO** | — | V1 (static prompts, weak baseline) | **GRPO_Exp3** (iterative) — both methods share `code/_shared/` |
+| **GRPO** | — | V1 — ⚠ **buggy; results VOID, not a baseline** | **GRPO_Exp3** (iterative) — both methods share `code/_shared/` |
 | **MCL filter** | — | — | **Wired in both PTO_Exp3 and GRPO_Exp3.** Encoded in `EXPERIMENT_NAME`. |
 | **Training reward** | mean(Q1, Q2) | chosen oracle | Q1+Q2 only (matches Exp1) |
 | **Eval reward** | Q1, Q2 | per-oracle | **all 8 rubrics** — the 6 questionnaires + `PCT` + `MICI` (added 2026-06-14) |
 | **EDA shape** | `Conv_EDA.ipynb` | + per-Q CSVs, `pref_emb/` | `eda_analysis/` package (analysis top level + `scoring/` subpackage backing `Run_Eval`) + one notebook per results **family** `notebooks/<top>/<sub>.ipynb` — `arms/*` (per-arm descriptives, all four arms, per judge), `lookahead/*` (K=0 vs K=5), `method/contrast`, `compute/cost`, `measurement/validity` (final-vs-best endpoint pairs); per-generation `iteration_N/eda/generations.jsonl` |
-| **Convs / models** | (paper figures) | 4,512 / 47 | scored on both graders — **live counts in [STATUS.md](STATUS.md)** |
+| **Convs / models** | (paper figures) | 4,512 / 47 — ⚠ **includes the void GRPO states; the PTO-only subset is smaller** | scored on both graders — **live counts in [STATUS.md](STATUS.md)** |
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
@@ -49,7 +49,12 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
 ## Methods (one line each)
 - **PTO V1** (Exp1) = original preference-tree exploration + K look-ahead + DPO. Published.
-- **GRPO V1** (Exp2) = static prompt set, weak baseline.
+- **GRPO V1** (Exp2) = static prompt set. ⚠ **The run had a BUG — its scores are void.** Not a weak
+  baseline, not a comparison point, not evidence about GRPO: nothing. Never quote, plot or present
+  them, and never build a cross-experiment "GRPO started weak and improved" arc on them. **The
+  PTO-vs-GRPO comparison exists only in Exp3**, where both methods are iterative, share
+  `code/_shared/`, and have matched hyperparameters — which is what makes it controlled and Exp2's
+  not. Exp1 and Exp2 are **PTO-only** in every write-up and deck.
 - **GRPO_Exp3** = current policy simulates 96 convs → per-turn prompts (MCL filter) → GRPO update with optional K-turn look-ahead. Convs double as eval.
 - **PTO_Exp3** = per-turn branching (`M` candidates) → K-turn look-ahead + oracle → τ-filtered (chosen, rejected) pref pairs → DPO update. Lean sibling of GRPO_Exp3. **Two `PREF_TREE_MODE`s:** `greedy` (default, true PTO — start from an MCL-length prefix sliced off the step-1 conv and grow ONE trunk by appending the best-of-M completion at each therapist turn, so the choice feeds the next branch point) and `independent` (branch each patient turn of a pre-recorded conv, no feedback). Mode baked into `EXPERIMENT_NAME`.
 
@@ -110,7 +115,7 @@ disjoint that overlaps, a cell count nobody multiplied out, and a rate quoted fr
    Skipping this produces options that are the section headers of `SUMMARY.md` re-indexed, which
    is retrieval, not brainstorming.
 2. **Any composite number must show its arithmetic** wherever it is quoted
-   (`8 × 39 × 96 = 29,952`, not `29,952`). Atomic-looking numbers do not get audited.
+   (`8 × 40 × 96 = 30,720`, not `30,720`). Atomic-looking numbers do not get audited.
 3. **A number in prose is a claim about a table, not a number.** Before reusing one, open the table
    it cites — and check it cites the *right* table. (`SUMMARY.md` §4 has quoted the regex question
    rate while pointing at the oracle-coded one.)
@@ -120,23 +125,6 @@ disjoint that overlaps, a cell count nobody multiplied out, and a rate quoted fr
 5. **The docs record what WAS analysed, so what was never analysed is invisible.** A cold table read
    cannot fix this — tables only exist for questions someone already asked. When brainstorming,
    explicitly list what is *not* covered by any artifact.
-
-## Layout
-```
-Thesis_PTO_GRPO/
-├── CLAUDE.md                   (this file — cross-experiment map + the full Exp3 context)
-├── STATUS.md                   run status + headline numbers + cost + next step (the volatile tier)
-├── README.md, LICENSE          README also owns the data/artifact policy (no DATA_README)
-├── Exp{1,2}_*/CLAUDE.md        per-experiment context for the FROZEN experiments only
-├── Exp3_PTO_GRPO/history/      the only dated history: CHANGELOG_{STATUS,EDA,TRAINER}.md + an index
-├── papers/                     paper drafts — one subfolder per paper. Each carries a NUMBERS.md
-│                               claim→artifact ledger.
-├── meetings/                   supervisor decks + emails, one folder per date, + build/ generators.
-│                               Reads eda/results/ artifacts; imported by nothing.
-├── HF_key.txt, openai_key.txt  duplicated per-experiment-dir, not at root
-├── requirements.txt, gen_requirements.py
-└── .venv/                      Python 3.13 env
-```
 
 ## Conventions
 - **Each experiment dir is self-contained.** Its own `code/`, `data/`, `eda/`, local `system_prompts_builder.py`+`questionnaires.py` (versions diverge across experiments — never share a root-level module). Within Exp3, both helpers live ONCE at `code/` root; the EDA package imports the same files via a `sys.path` prepend.
@@ -176,21 +164,6 @@ sections below.
 **Single canonical copies.** `system_prompts_builder.py` and `questionnaires.py` live ONLY at
 `code/` root — `eda/eda_analysis/constants.py` (the package's leaf, imported by everything incl.
 `scoring/`) prepends `code/` to `sys.path` so they import the same canonical files. No drift.
-
-## Exp3 · Trainer pattern
-
-Both trainers (`code/GRPO_Exp3/`, `code/PTO_Exp3/`) follow the same shape:
-
-```
-<METHOD>_Exp3/
-├── train_<METHOD>_Iterative.ipynb   thicker — per-iteration orchestration visible
-└── <method>_trainer.py              <Method>Config + run_one_iteration + run_final_eval + write_run_metadata + build_wandb_ctx
-                                     (named per method — grpo_trainer.py / pto_trainer.py — so `from <m>_trainer` can't collide in a shared kernel)
-```
-
-with the per-iteration loop composed *visibly in the notebook* (no black-box
-`run_iterative_training` call). Helpers shared across both methods live in
-[Exp3_PTO_GRPO/code/_shared/](Exp3_PTO_GRPO/code/_shared/).
 
 ## Exp3 · Algorithms (PTO + look-ahead, GRPO + look-ahead)
 
@@ -441,7 +414,7 @@ still read this experiment's `eda/results/`; they resolve it as `REPO/Exp3_PTO_G
    `--family lookahead/reward`, `--judge <tag>` (`--judge ""` = primary only), `--list`. → `results/<top>/<sub>/`.
    Hand-authored files (`results/<top>/SUMMARY.md`, `METRICS_REFERENCE.md`, `LIMITATIONS.md`,
    `schematics/`) are never touched.
-   Run **`python -m eda_analysis._selfcheck`** after any EDA change (23 checks; `--fast` = the 12
+   Run **`python -m eda_analysis._selfcheck`** after any EDA change (26 checks; `--fast` = the 12
    structural ones).
 
 The FAMILY/JUDGE systems, `EdaConfig`, the exports API (`save_fig`/`save_table`/`save_numbers`/
@@ -581,12 +554,6 @@ Experiment root resolution:
 
 ### Auth (trainer only — `init_openai_client` / `authenticate` in [_shared/runtime.py](Exp3_PTO_GRPO/code/_shared/runtime.py))
 
-| Secret | Colab | Local |
-|---|---|---|
-| OpenAI | `userdata["OPENAI_API_KEY"]` → env → file | env (`OPENAI_API_KEY`) → file |
-| HF token | `userdata["huggingface"]` → env → file | env (`HF_TOKEN`/`HUGGINGFACE_TOKEN`) → file |
-| W&B | `userdata["wandb"]` | env `WANDB_API_KEY` |
-
 HF token IS used locally — Llama-3.2-1B is gated.
 
 ### Sync (Colab ↔ local)
@@ -685,7 +652,7 @@ budget_sweep_crossjudge{,_verdicts},iso_channels{,_selected},api_calls,api_ratio
 - **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/eval_scores/`: ICC/agreement/contrast tables for `measurement/validity.ipynb` §1, plus the **multi-judge** layer for its §2 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `sign_preservation`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_results.py`.
   - ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the second judge is held out — that is train-vs-test, not two raters. The level offset is 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to every effect. Combine only contrasts or standardized quantities.
   - ⚠ **Pair on `persona_id`, not `file_index`** (`attach_persona`). The 96 personas are reshuffled each iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it; `dz` and CIs do not.
-- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with every conversation already scored (`8 × 39 × 96 = 29,952` cells per grader; read the live count off `results/measurement/validity/tables/multijudge_coverage.md`).
+- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with every conversation already scored (`8 × 40 × 96 = 30,720` cells per grader; read the live count off `results/measurement/validity/tables/multijudge_coverage.md`).
 
 ## Exp3 · Gotchas
 

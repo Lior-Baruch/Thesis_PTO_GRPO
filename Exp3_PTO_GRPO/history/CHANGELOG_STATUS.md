@@ -13,6 +13,147 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-08-21 — GRPO LA5 stopped, not stalled; I6 lands and moves two headline claims
+
+**The arm is not training.** GRPO LA5 has written nothing since 2026-08-20 12:09 UTC. Yesterday's
+entry recorded it as "extended, in flight toward iteration 10"; that reading is retired. Iteration 7
+needs `max_steps = 106` and has **40** persisted steps (37.7%), no `adapter/`.
+
+Four Colab sessions attempted iteration 7, and the failure is **two distinct failures**, reconstructed
+from the four TB event files in `iteration_7/training/tb_logs/` (one per VM) against what landed, plus
+the W&B logs at `code/GRPO_Exp3/wandb/run-*_iter7/files/output.log`:
+
+| # | started (UTC) | host | trained | persisted |
+|---|---|---|---|---|
+| 1 | 08-19 14:22 | `252f11bc05b1` | steps 1–**103** | 1–30 |
+| 2 | 08-20 08:38 | `38c8e9447bf8` | 0 | 0 |
+| 3 | 08-20 10:39 | `7393ee7109e2` | 0 | 0 |
+| 4 | 08-20 11:42 | `60b484945ba8` | steps 31–**99** | 31–40 |
+
+- **Failure A — the OpenAI organization spend cap actually bound.** Sessions 2 and 3 died at their
+  first optimizer step: **384 of 395 log lines** are
+  `Error code: 429 … 'code': 'organization_spend_limit_exceeded'`, on both patient and oracle calls,
+  ending `Oracle batch: 0/128 succeeded (0%), 128 rewards → None`. Cleared by ~11:42. The "cost
+  constraint (binding)" section had been a projection since it was written; on 2026-08-20 it stopped
+  being one.
+- **Failure B — Drive stopped accepting NEW file creations while appends kept working.** Sessions 1
+  and 4 both logged `Oracle batch: 128/128 succeeded (100%)` — no API problem — and their TB streams
+  kept flushing scalars for 3 h 28 m and 2 h 47 m past the last parquet. Lost: 103 − 30 = 73 and
+  99 − 40 = 59, i.e. **132 optimizer steps ≈ 6.25 h of K=5 GRPO training computed and discarded**.
+  Session 1 reached step 103 of 106 — three steps short — and banked none of it. **No artifact names
+  the cause.** Persistence yield per session: 30 / 0 / 0 / 10.
+
+**`GRPOExp3_LA5_I6` was scored on both graders on 2026-08-20** (8 × 96 = 768 cells per grader,
+0 errors), taking the lake from 39 to 40 states: 40 × 8 × 96 = **30,720** cells per grader.
+`_selfcheck` now reports `40/40 states complete`.
+
+**A full re-render ran 2026-08-21** (6 units / 21 notebook executions, no failures, 2,460 s), so the
+"one scoring pass behind" warning is retired. Two things it did **not** fix:
+
+- **33 rendered files still assert "GRPO_LA5 is right-censored at iteration 5 (27.08 GPU-h)"** — a
+  hardcoded `CENSOR_NOTE` in eight modules (`compute.py:636,1190`, `faithfulness.py:130`,
+  `instruments.py:122`, `lookahead.py:84`, `replication.py:108`, `transfer.py:75`,
+  `plotting/tails.py:54`). `compute_by_arm.md` now prints `n_iters 7 / 32.424` beside a caption
+  saying 27.08. The data is right; the auto-generated prose next to it is not.
+- **`faithfulness.py:110`'s `SERIES` is asymmetric** — `GRPO_LA0` "1-5" is pinned to
+  `frozenset({0,1,2,3,4})` while `GRPO_LA5` "1-5" is `None` (full support). With
+  `iteration_6/eda/generations.jsonl` present (1,172 rows), the column *labelled* 1-5 pools 1–6 for
+  GRPO_LA5 only: 141,487 pairs vs GRPO_LA0's 128,176. A wrong value, not a caption.
+
+**Two headline claims moved.**
+
+1. **"The primary oracle cannot see the K×method interaction" is RETIRED.** It was an iteration-≤5
+   statement. At iteration 6 the primary DiD on Q1Q2 is 0.188 − (−0.332) = **+0.520, dz 0.605,
+   p_holm .000**; the held-out is +0.876, dz 0.754. The held-out is still 0.876/0.520 = **1.68×**
+   larger, so "the second judge sees it more sharply" survives — "the training grader is blind to
+   it" does not.
+2. **Iteration 6 makes the K lever unambiguous and opposite by optimizer**, significant on *both*
+   graders in *both* methods (sign + = K=0 higher): PTO +0.257 (dz 0.42) primary / +0.343 (dz 0.51)
+   held-out; GRPO −0.263 (dz −0.42) / −0.533 (dz −0.55). And **GRPO K=5 @6 is the top held-out
+   "final" row of all four arms** (2.903 vs PTO K=0's 2.866) and the best GRPO state on the primary
+   (4.229 vs GRPO K=0's best 4.082).
+
+**What STATUS.md said before today, and why it was wrong.**
+
+1. **"GRPO LA5 … 30.5 and climbing", "+7 in flight".** It is not climbing; it stopped. Also
+   "costs **31.98** — ~15% MORE than its K=0 sibling" was stale *and* self-contradictory with the
+   same file's own 32.42 four lines earlier. Live: 30.528 through the last adapter
+   (30.528/27.906 = **+9.4%**) and 32.424 billed (**+16.2%**).
+2. **"`compute_by_arm.md` should report the iteration count that actually has adapters."** It does
+   not, and that is coded behaviour, not a render bug: `compute.py` has **no adapter gate** (it
+   excludes only at `< 3` timed steps), so it reports `last_iter 7, n_iters 7` against six adapters
+   and understates `gpu_h_per_iter` by (5.088 − 4.632)/5.088 = **9.0%**.
+3. **Retention "1.08 [0.94, 1.27] vs 0.73 [0.57, 0.92], disjoint".** Matched no artifact. The cited
+   `k_retention_summary.md` says **1.048 [0.913, 1.223] vs 0.786 [0.587, 1.003]**, `cis_disjoint =
+   False`; the 1.08 comes from `transfer.xlsx` under a *different* reference kind, and disjointness
+   holds under only 2 of 5 conventions. The parenthetical "(own-base + shared-reference kinds)" was
+   also false — that table is own-base only.
+4. **"MITI dependability 0.55 and MICI 0.63."** Neither appears in any table. At n_arms = 40,
+   `multijudge_variance_components.md` gives `dependability_k1` **MITI 0.622 / MICI 0.845** — MICI is
+   much better than the standing caveat claimed.
+5. **"88.4% of all 5,928 arm×metric contrasts."** 5,928 = 8 × C(39,2). At 40 states it is
+   8 × C(40,2) = 8 × 780 = **6,240**, and 88.5% (ladder 88.5 / 94.5 / 97.4 / 99.5).
+6. **"~$4.50 to score four states."** The double-discounted row. On the file's own $2.08/state basis
+   it is 4 × $2.08 = **$8.32**. Relatedly, **"~$1.2 primary, batched"** in the replicate estimate is
+   unachievable — `judge_batch.py` raises "Batch path is Anthropic-only".
+7. **"Drive Desktop rewrites mtimes on sync, so the new CSVs do not read as recent."** False — the
+   I6 CSVs were the newest files on disk. The render-freshness check's blindness has exactly one
+   cause, the `os.walk` early `break`, not two.
+8. **"~$317 spent."** No billing artifact exists anywhere in the repo, and the same commit's meeting
+   deck says ≈$351. A re-derivation off `api_calls.md` puts the training-oracle line alone near $400.
+   Recorded as unverifiable rather than corrected.
+
+Also noted: **`_selfcheck` clobbers two provenance banners.** `_setup_quiet` (`_selfcheck.py:366`,
+called at `:497/:524/:595`) guards against *creating* a phantom `_provenance.md` for an unrendered
+family but not against *overwriting* a real one, so after any selfcheck run
+`results/lookahead/reward/figures/_provenance.md` describes the check's narrow `ks=[5]`, 2-arm,
+20,414-row probe instead of the render's 4-arm frame — and shows up as an unexplained git diff.
+`_provenance.md` is a marker for neither mtime nor content.
+
+And: **CLAUDE.md:412 and eda/README.md:618 still say "23 checks"**; the suite is **26**
+(12 structural + 14 data + 1 opt-in probe), per `_selfcheck.py:17` and a live run (25 passed,
+1 skipped).
+
+## 2026-08-20 — drift becomes machine-checkable; three STATUS.md claims corrected; GRPO LA5 extended
+
+**Two guards added to `_selfcheck` (23 → 26 checks; the docstring's own count was already off by
+one, claiming "12 structural + 11 data" against 12 actual data checks).**
+
+- **`score coverage (disk vs lake)`** — walks `discover_arms()` against the score lake by directory
+  listing and names any state with conversations but no scores. WARNs, never FAILs: an unscored
+  state is the normal condition between a training run and a scoring run. It independently
+  re-found `GRPOExp3_LA5_I6` (39/40 states complete), which until now had been noticed by hand.
+- **`doc drift (prose vs tables)`** — audits the 15 numeric-claim docs: every `a × b × c = d`
+  evaluates and every cited artifact path resolves (both FAIL); a cited table newer than its citing
+  doc WARNs. `history/` and `papers/archive/` are exempt from liveness, as are citations after a
+  provenance marker ("formerly", "ported from") — those cite the past deliberately. Validated
+  against 26 adversarial cases before wiring, because a check only ever seen passing is untested.
+  ⚠ It does **not** catch a claim that is arithmetically fine and cites a live path but is wrong
+  about the world; two of the three corrections below are exactly that class.
+
+**What STATUS.md said before today, and why it was wrong.**
+
+1. **"GRPO LA5 trained 1–7, 32.0 GPU-h."** Adapters exist for iterations 1–6; `iteration_7/` holds
+   training artifacts but no `adapter/`, which is how `resolve_start_state` defines "not done". The
+   32.0 (31.98) figure counted that *partial* iteration — `compute.py` bills any iteration with
+   training artifacts, and iteration 7 had 40 steps against 70–112 for a completed one. Cumulative
+   through the last completed adapter is **30.53**; including the partial it is 32.42, and both
+   move while the run advances.
+2. **"Scoring `I6` costs ~$1.1 (~$0.7 Haiku)."** Inconsistent with the same file's replicate
+   estimate of $8.7 Haiku for exactly 5× the cells. On the receipt basis the file itself mandates,
+   `$42 / 22,272 = $0.001886` per cell, so 768 cells is `768 × 0.001886 = $1.45` and the true
+   all-in figure is **~$1.85**. The $0.7 was the wrong one. Neither figure was written as an
+   equation, which is why the new arithmetic check could not have caught it.
+3. **"Not recommended: extending GRPO LA5 to iteration 10."** The run is doing exactly that, on
+   Colab, toward its configured `num_iterations = 10`. The advice was sound and is now moot; the
+   ~50-vs-28 GPU-h asymmetry it warned about is a cost to absorb rather than a decision to make,
+   and it means the compute axis needs **re-deriving**, not merely re-rendering.
+
+Also settled: the replicate draw's isolation scheme (`conversations/replicate/` via `--conv-dir`,
+lake folder `GRPOExp3_LA0_rep1_I10` with the draw marker as an infix *before* the `_I{k}` tail).
+Writing a replicate into `conversations/full/` would collide with the primary, because
+`model_iter_10` matches inside `model_iter_10_rep1_TT…` and one silently wins by glob order.
+
 ## 2026-08-18 — the look-ahead paper: two drafts retired, one live draft built, six cross-K findings
 
 The two 2026 drafts (`2026_clpsych_mi_reward_hacking`, K=0 only; `2026_lookahead_hack_substitution`,
