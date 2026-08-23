@@ -152,12 +152,15 @@ def miti_threshold_table(prof_df) -> Optional[pd.DataFrame]:
 
 
 def question_rate_crosscheck(cross_df, *, palette=None):
-    """Question rate: deterministic ``?``/turn (solid) vs oracle MITI ``B3_Q``/turn (dashed), per arm.
+    """Deterministic ``?``-marks/turn (solid) vs oracle MITI ``B3_Q`` acts/turn (dashed), per arm.
 
-    Takes :func:`behavior.question_rate_crosscheck` (both columns already unit-harmonized to
-    questions-per-therapist-turn). Overlays both measures per arm on ONE axis so the reader sees
-    they track each other (cross-validation) and where they diverge (e.g. GRPO late). ``None`` if
-    unscored/empty.
+    Takes :func:`behavior.question_rate_crosscheck`. Same denominator (therapist turns), different
+    numerators — ⚠ **marks are not acts**, and the mark side sits 1.4-2.3x higher in 3 of the 4
+    arms at every iteration, so read the two lines as a direction cross-check (both fall
+    everywhere), not as an agreement check on the levels. The only ordering flip is GRPO_LA0 from
+    iteration 5 on.
+    The mark side's own confounds (stacking, turn length) are decomposed in the ``session_shape``
+    question grid, not here. ``None`` if unscored/empty.
     """
     if cross_df is None or cross_df.empty:
         return None
@@ -167,11 +170,12 @@ def question_rate_crosscheck(cross_df, *, palette=None):
         g = g.sort_values("iteration")
         col = pal.get(arm, "#777777")
         ax.plot(g.iteration, g.q_per_turn, marker="o", color=col, ls="-",
-                label=f"{arm_label(arm)} — regex ?/turn")
+                label=f"{arm_label(arm)} — '?' marks/turn")
         ax.plot(g.iteration, g.q_per_turn_miti, marker="s", ms=4, color=col, ls="--",
-                label=f"{arm_label(arm)} — oracle Q/turn")
-    ax.set_title("Question rate: deterministic ?-count vs oracle MITI count (unit-harmonized cross-check)")
-    ax.set_xlabel("training iteration"); ax.set_ylabel("questions per therapist turn")
+                label=f"{arm_label(arm)} — oracle acts/turn")
+    ax.set_title("Questions two ways: literal '?' marks vs oracle-coded question acts "
+                 "(same denominator, different numerators)")
+    ax.set_xlabel("training iteration"); ax.set_ylabel("per therapist turn")
     ax.legend(fontsize=7, ncol=2, frameon=True)
     fig.tight_layout()
     return fig

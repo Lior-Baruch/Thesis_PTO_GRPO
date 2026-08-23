@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 630 rows.** The full table is too large to read as markdown, so it lives on sheet `iso_compute_contrast` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="iso_compute_contrast")`.
+> **Excerpt — first 60 of 648 rows.** The full table is too large to read as markdown, so it lives on sheet `iso_compute_contrast` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="iso_compute_contrast")`.
 
 | judge       | arm_a    | arm_b    |   iter_a |   iter_b |   cum_gpu_h_a |   cum_gpu_h_b |   budget_ratio | metric   |   n |   mean_delta |     dz |     p |   p_holm |
 |:------------|:---------|:---------|---------:|---------:|--------------:|--------------:|---------------:|:---------|----:|-------------:|-------:|------:|---------:|
@@ -47,20 +47,20 @@
 | gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        5 |       10 |        27.080 |        27.910 |          1.031 | Q1Q2     |  96 |        0.289 |  0.359 | 0.003 |    0.019 |
 | gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        5 |       10 |        27.080 |        27.910 |          1.031 | Q2       |  96 |        0.197 |  0.262 | 0.111 |    0.553 |
 | gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        5 |       10 |        27.080 |        27.910 |          1.031 | WAI-SR   |  96 |        0.025 |  0.043 | 0.597 |    1.000 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | CSQ-8    |  96 |        0.161 |  0.291 | 0.006 |    0.016 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | MI-SAT   |  96 |        0.203 |  0.335 | 0.002 |    0.007 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | MICI     |  96 |       -0.556 | -1.646 | 0.000 |    0.000 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | MITI     |  96 |        0.328 |  0.419 | 0.000 |    0.002 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | PCT      |  96 |        0.051 |  0.280 | 0.005 |    0.016 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | Q1       |  96 |        0.594 |  0.717 | 0.000 |    0.000 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | Q1Q2     |  96 |        0.476 |  0.644 | 0.000 |    0.000 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | Q2       |  96 |        0.359 |  0.514 | 0.000 |    0.000 |
+| gpt-4o-mini | GRPO_LA5 | GRPO_LA0 |        6 |       10 |        30.530 |        27.910 |          0.914 | WAI-SR   |  96 |        0.104 |  0.190 | 0.447 |    0.447 |
 | gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | CSQ-8    |  96 |       -0.076 | -0.115 | 0.320 |    1.000 |
 | gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | MI-SAT   |  96 |       -0.080 | -0.093 | 0.297 |    1.000 |
 | gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | MICI     |  96 |       -0.018 | -0.067 | 0.564 |    1.000 |
 | gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | MITI     |  96 |        0.055 |  0.058 | 0.918 |    1.000 |
 | gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | PCT      |  96 |       -0.021 | -0.090 | 0.336 |    1.000 |
 | gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | Q1       |  96 |       -0.004 | -0.005 | 0.647 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | Q1Q2     |  96 |       -0.005 | -0.006 | 0.550 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | Q2       |  96 |       -0.007 | -0.007 | 0.549 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        1 |        1 |         0.920 |         2.610 |          2.846 | WAI-SR   |  96 |       -0.081 | -0.113 | 0.355 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        2 |        1 |         1.930 |         2.610 |          1.353 | CSQ-8    |  96 |        0.049 |  0.081 | 0.295 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        2 |        1 |         1.930 |         2.610 |          1.353 | MI-SAT   |  96 |        0.083 |  0.099 | 0.360 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        2 |        1 |         1.930 |         2.610 |          1.353 | MICI     |  96 |       -0.007 | -0.026 | 0.728 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        2 |        1 |         1.930 |         2.610 |          1.353 | MITI     |  96 |        0.214 |  0.243 | 0.022 |    0.199 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        2 |        1 |         1.930 |         2.610 |          1.353 | PCT      |  96 |        0.011 |  0.048 | 0.656 |    1.000 |
-| gpt-4o-mini | PTO_LA0  | GRPO_LA0 |        2 |        1 |         1.930 |         2.610 |          1.353 | Q1       |  96 |        0.229 |  0.241 | 0.023 |    0.199 |
 
-_... 570 further rows in the workbook._
+_... 588 further rows in the workbook._

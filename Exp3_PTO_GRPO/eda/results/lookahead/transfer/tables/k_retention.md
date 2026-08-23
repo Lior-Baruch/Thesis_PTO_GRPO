@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 1,134 rows.** The full table is too large to read as markdown, so it lives on sheet `k_retention` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="k_retention")`.
+> **Excerpt — first 60 of 1,170 rows.** The full table is too large to read as markdown, so it lives on sheet `k_retention` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="k_retention")`.
 
 | arm      | method   |   K |   iteration | metric   | ref_kind              | reference        | ref_is_own_base   |   n |   delta_primary |   delta_judge |   retention |   retention_ci_lo |   retention_ci_hi | same_sign   |   min_primary_delta |
 |:---------|:---------|----:|------------:|:---------|:----------------------|:-----------------|:------------------|----:|----------------:|--------------:|------------:|------------------:|------------------:|:------------|--------------------:|
@@ -63,4 +63,4 @@
 | GRPO_LA0 | GRPO     |   0 |           3 | MI-SAT   | eda_view_PTO_LA0_base | PTOExp3_LA0_Base | False             |  96 |           0.589 |         0.517 |       0.879 |             0.700 |             1.129 | True        |               0.150 |
 | GRPO_LA0 | GRPO     |   0 |           4 | MI-SAT   | eda_view_PTO_LA0_base | PTOExp3_LA0_Base | False             |  96 |           0.573 |         0.431 |       0.752 |             0.560 |             0.950 | True        |               0.150 |
 
-_... 1,074 further rows in the workbook._
+_... 1,110 further rows in the workbook._

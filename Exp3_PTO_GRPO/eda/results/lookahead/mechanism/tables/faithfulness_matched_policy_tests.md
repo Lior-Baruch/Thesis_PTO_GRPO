@@ -5,10 +5,10 @@
 | gpt-4o-mini      | PTO      | matched_iters |       19 |                      19 |                       0 |      -0.0457 |        -0.0461 |       0.0000 |       0.0000 |
 | gpt-4o-mini      | GRPO     | train_iter_1  |       20 |                       3 |                      17 |       0.0170 |         0.0145 |      14.0000 |       0.0002 |
 | gpt-4o-mini      | GRPO     | iters_1-5     |       20 |                       3 |                      17 |       0.0107 |         0.0098 |       6.0000 |       0.0000 |
-| gpt-4o-mini      | GRPO     | matched_iters |       20 |                       7 |                      13 |       0.0034 |         0.0064 |      61.0000 |       0.1054 |
+| gpt-4o-mini      | GRPO     | matched_iters |       20 |                      20 |                       0 |      -0.0213 |        -0.0204 |       0.0000 |       0.0000 |
 | claude-haiku-4-5 | PTO      | train_iter_1  |       19 |                      13 |                       6 |      -0.0097 |        -0.0087 |      53.0000 |       0.0955 |
 | claude-haiku-4-5 | PTO      | iters_1-5     |       19 |                      15 |                       4 |      -0.0327 |        -0.0245 |      26.0000 |       0.0039 |
 | claude-haiku-4-5 | PTO      | matched_iters |       19 |                      18 |                       1 |      -0.0383 |        -0.0443 |       1.0000 |       0.0000 |
 | claude-haiku-4-5 | GRPO     | train_iter_1  |       20 |                      17 |                       3 |      -0.0390 |        -0.0416 |       8.0000 |       0.0000 |
 | claude-haiku-4-5 | GRPO     | iters_1-5     |       20 |                      20 |                       0 |      -0.0356 |        -0.0275 |       0.0000 |       0.0000 |
-| claude-haiku-4-5 | GRPO     | matched_iters |       20 |                      20 |                       0 |      -0.0570 |        -0.0537 |       0.0000 |       0.0000 |
+| claude-haiku-4-5 | GRPO     | matched_iters |       20 |                      20 |                       0 |      -0.0887 |        -0.0906 |       0.0000 |       0.0000 |

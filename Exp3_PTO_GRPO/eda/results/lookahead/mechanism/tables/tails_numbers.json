@@ -16,11 +16,11 @@
   },
   "rows.GRPO_LA5": {
    "value": {
-    "all": 68568,
-    "eval_phase_dropped": 4056,
+    "all": 92616,
+    "eval_phase_dropped": 5576,
     "not_simulated_dropped": 0,
     "unscored_dropped": 0,
-    "analysed": 64512
+    "analysed": 87040
    },
    "source": "tails.tail_audit_frames row filter over generations.jsonl",
    "note": ""
@@ -450,26 +450,74 @@
    "source": "lookahead/mechanism/tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=6",
    "note": ""
   },
+  "by_iter.GRPO_LA5.7": {
+   "value": {
+    "n_groups": 1056,
+    "n_candidates": 8448,
+    "log_coverage": 0.6226415094339622,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.17956912878787878,
+    "ended_early_ci_lo": 0.17128314393939395,
+    "ended_early_ci_hi": 0.18773970170454546,
+    "realized_turns_mean": 4.409919507575758,
+    "patient_closed_share": 0.15897253787878787,
+    "therapist_stalled_share": 0.0003551136363636364,
+    "no_tail_share": 0.016571969696969696,
+    "full_share": 0.8204308712121212,
+    "full_closed_at_turn5_share": 0.10546875,
+    "wrapup_cue_rate_patient_closed": 0.9054355919583023,
+    "wrapup_cue_rate_full_open": 0.2816225165562914,
+    "tail_chars_mean": 3256.999171401515,
+    "tail_loop_rate": 0.0,
+    "cand_floored_rate": 0.0
+   },
+   "source": "lookahead/mechanism/tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=7",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.8": {
+   "value": {
+    "n_groups": 1760,
+    "n_candidates": 14080,
+    "log_coverage": 1.0,
+    "n_unscored_dropped": 0,
+    "ended_early_rate": 0.17428977272727272,
+    "ended_early_ci_lo": 0.16846413352272727,
+    "ended_early_ci_hi": 0.18089488636363638,
+    "realized_turns_mean": 4.428267045454546,
+    "patient_closed_share": 0.1510653409090909,
+    "therapist_stalled_share": 0.0004971590909090909,
+    "no_tail_share": 0.013352272727272727,
+    "full_share": 0.8257102272727272,
+    "full_closed_at_turn5_share": 0.08586647727272727,
+    "wrapup_cue_rate_patient_closed": 0.8594264221908792,
+    "wrapup_cue_rate_full_open": 0.25160794854564655,
+    "tail_chars_mean": 3533.4649147727273,
+    "tail_loop_rate": 0.00014204545454545454,
+    "cand_floored_rate": 7.102272727272727e-05
+   },
+   "source": "lookahead/mechanism/tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=8",
+   "note": ""
+  },
   "by_iter.GRPO_LA5.pooled": {
    "value": {
-    "n_groups": 8064,
-    "n_candidates": 64512,
-    "log_coverage": 0.8571428571428571,
+    "n_groups": 10880,
+    "n_candidates": 87040,
+    "log_coverage": 0.845771144278607,
     "n_unscored_dropped": 0,
-    "ended_early_rate": 0.20768229166666666,
-    "ended_early_ci_lo": 0.20455031622023812,
-    "ended_early_ci_hi": 0.2109068855406746,
-    "realized_turns_mean": 4.303369915674603,
-    "patient_closed_share": 0.17565724206349206,
-    "therapist_stalled_share": 0.0004495287698412698,
-    "no_tail_share": 0.022321428571428572,
-    "full_share": 0.7923177083333334,
-    "full_closed_at_turn5_share": 0.10418216765873016,
-    "wrapup_cue_rate_patient_closed": 0.8783974585245323,
-    "wrapup_cue_rate_full_open": 0.129322190435429,
-    "tail_chars_mean": 1941.0428137400793,
-    "tail_loop_rate": 0.07380022321428571,
-    "cand_floored_rate": 0.00040302579365079363
+    "ended_early_rate": 0.19955193014705883,
+    "ended_early_ci_lo": 0.19686264935661765,
+    "ended_early_ci_hi": 0.20217141544117648,
+    "realized_turns_mean": 4.333915441176471,
+    "patient_closed_share": 0.17005974264705884,
+    "therapist_stalled_share": 0.00044806985294117645,
+    "no_tail_share": 0.0203125,
+    "full_share": 0.8004480698529411,
+    "full_closed_at_turn5_share": 0.10134420955882353,
+    "wrapup_cue_rate_patient_closed": 0.8781245777597622,
+    "wrapup_cue_rate_full_open": 0.16537387017255548,
+    "tail_chars_mean": 2326.365682444853,
+    "tail_loop_rate": 0.05472196691176471,
+    "cand_floored_rate": 0.0003102022058823529
    },
    "source": "lookahead/mechanism/tables/tail_audit_by_iter.md row arm=GRPO_LA5 train_iter=pooled",
    "note": ""
@@ -847,7 +895,7 @@
     "ci_lo": -0.08911220144623504,
     "ci_hi": -0.056657232590005685,
     "p": 4.710887563625182e-19,
-    "p_holm": 2.826532538175109e-18,
+    "p_holm": 3.7687100509001455e-18,
     "rho_dev_vs_realized_turns": 0.1328961749493882,
     "rho_dev_vs_tail_chars": 0.2050537226734196,
     "z_ee_mean": -0.22242651393266283,
@@ -950,30 +998,86 @@
    "source": "lookahead/mechanism/tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=6",
    "note": ""
   },
+  "within_group.GRPO_LA5.7": {
+   "value": {
+    "n_groups": 1056,
+    "n_groups_both": 415,
+    "delta_ee_minus_full": -0.03766126691640507,
+    "dz": -0.285643845063465,
+    "ci_lo": -0.05011091171408318,
+    "ci_hi": -0.024160943775100346,
+    "p": 1.7736299489952856e-18,
+    "p_holm": 1.0641779693971714e-17,
+    "rho_dev_vs_realized_turns": 0.1885219377316306,
+    "rho_dev_vs_tail_chars": 0.10947630400200814,
+    "z_ee_mean": -0.40741799482047075,
+    "z_full_mean": 0.16397483137748362,
+    "base_ee_rate": 0.17956912878787878,
+    "p_chosen_is_ee": 0.12878787878787878,
+    "chosen_minus_base": -0.05078125,
+    "chosen_minus_base_ci_lo": -0.06486742424242423,
+    "chosen_minus_base_ci_hi": -0.03703835227272728,
+    "p_chosen_given_ee": 0.08965062623599208,
+    "p_chosen_given_full": 0.13273697879093926,
+    "rr_chosen_ee_vs_full": 0.675400533088762,
+    "rr_ci_lo": 0.5916179314599205,
+    "rr_ci_hi": 0.7558829253045515
+   },
+   "source": "lookahead/mechanism/tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=7",
+   "note": ""
+  },
+  "within_group.GRPO_LA5.8": {
+   "value": {
+    "n_groups": 1760,
+    "n_groups_both": 685,
+    "delta_ee_minus_full": -0.04404851867754395,
+    "dz": -0.1874850698825379,
+    "ci_lo": -0.06446679905538857,
+    "ci_hi": -0.029498050972213672,
+    "p": 5.595466007677643e-19,
+    "p_holm": 3.91682620537435e-18,
+    "rho_dev_vs_realized_turns": 0.168128668640229,
+    "rho_dev_vs_tail_chars": 0.09930370077151907,
+    "z_ee_mean": -0.29197844498171155,
+    "z_full_mean": 0.1383393265052238,
+    "base_ee_rate": 0.17428977272727272,
+    "p_chosen_is_ee": 0.1409090909090909,
+    "chosen_minus_base": -0.03338068181818182,
+    "chosen_minus_base_ci_lo": -0.04496093749999999,
+    "chosen_minus_base_ci_hi": -0.021944247159090907,
+    "p_chosen_given_ee": 0.10105949470252648,
+    "p_chosen_given_full": 0.13005332874591433,
+    "rr_chosen_ee_vs_full": 0.7770619612510403,
+    "rr_ci_lo": 0.7049174070654503,
+    "rr_ci_hi": 0.8491617061269521
+   },
+   "source": "lookahead/mechanism/tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=8",
+   "note": ""
+  },
   "within_group.GRPO_LA5.pooled": {
    "value": {
-    "n_groups": 8064,
-    "n_groups_both": 3427,
-    "delta_ee_minus_full": -0.04924143336937925,
-    "dz": -0.25331310952645864,
-    "ci_lo": -0.05576856304237481,
-    "ci_hi": -0.04288802179757224,
-    "p": 2.000107128728581e-60,
+    "n_groups": 10880,
+    "n_groups_both": 4527,
+    "delta_ee_minus_full": -0.047394091721070994,
+    "dz": -0.24139047509307393,
+    "ci_lo": -0.05335000818308323,
+    "ci_hi": -0.041780293727829085,
+    "p": 1.0383948067295687e-89,
     "p_holm": null,
-    "rho_dev_vs_realized_turns": 0.11324925181205558,
-    "rho_dev_vs_tail_chars": 0.1294476334132933,
-    "z_ee_mean": -0.18956780188019254,
-    "z_full_mean": 0.11128973657178837,
-    "base_ee_rate": 0.20768229166666666,
-    "p_chosen_is_ee": 0.16927083333333334,
-    "chosen_minus_base": -0.038411458333333315,
-    "chosen_minus_base_ci_lo": -0.04444366939484127,
-    "chosen_minus_base_ci_hi": -0.03284582713293651,
-    "p_chosen_given_ee": 0.10188087774294671,
-    "p_chosen_given_full": 0.13105998356614626,
-    "rr_chosen_ee_vs_full": 0.7773606784524524,
-    "rr_ci_lo": 0.7451561682951892,
-    "rr_ci_hi": 0.8078739160647911
+    "rho_dev_vs_realized_turns": 0.1252801493013998,
+    "rho_dev_vs_tail_chars": 0.1218806608342542,
+    "z_ee_mean": -0.22367370889240198,
+    "z_full_mean": 0.11986578602272545,
+    "base_ee_rate": 0.19955193014705883,
+    "p_chosen_is_ee": 0.16075367647058825,
+    "chosen_minus_base": -0.03879825367647058,
+    "chosen_minus_base_ci_lo": -0.04359030330882352,
+    "chosen_minus_base_ci_hi": -0.033684512867647065,
+    "p_chosen_given_ee": 0.10069664344521849,
+    "p_chosen_given_full": 0.13105883366106413,
+    "rr_chosen_ee_vs_full": 0.768331600643064,
+    "rr_ci_lo": 0.7407764178261943,
+    "rr_ci_hi": 0.7981925071564838
    },
    "source": "lookahead/mechanism/tables/tail_audit_within_group.md row arm=GRPO_LA5 train_iter=pooled",
    "note": ""
@@ -1233,17 +1337,47 @@
    "source": "lookahead/mechanism/tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=6",
    "note": ""
   },
+  "cues.GRPO_LA5.7": {
+   "value": {
+    "cand_q_per_turn": 0.5065104166666666,
+    "tail_th_q_per_turn": 0.5184399044839479,
+    "cand_affirm_rate": 0.08558238636363637,
+    "tail_th_affirm_rate": 0.07031042716901034,
+    "cand_effusive_rate": 0.029947916666666668,
+    "tail_th_effusive_rate": 0.06394269036879809,
+    "cand_len_chars": 876.1705729166666,
+    "tail_th_turn_len_chars": 908.5393340408597,
+    "tail_loop_rate": 0.0
+   },
+   "source": "lookahead/mechanism/tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=7",
+   "note": ""
+  },
+  "cues.GRPO_LA5.8": {
+   "value": {
+    "cand_q_per_turn": 0.7240767045454546,
+    "tail_th_q_per_turn": 0.7947556615017879,
+    "cand_affirm_rate": 0.10078125,
+    "tail_th_affirm_rate": 0.10405244338498212,
+    "cand_effusive_rate": 0.04943181818181818,
+    "tail_th_effusive_rate": 0.08216130313865713,
+    "cand_len_chars": 947.6311789772727,
+    "tail_th_turn_len_chars": 967.3664680174811,
+    "tail_loop_rate": 0.00014204545454545454
+   },
+   "source": "lookahead/mechanism/tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=8",
+   "note": ""
+  },
   "cues.GRPO_LA5.pooled": {
    "value": {
-    "cand_q_per_turn": 0.636780753968254,
-    "tail_th_q_per_turn": 0.6747087741797585,
-    "cand_affirm_rate": 0.04521639384920635,
-    "tail_th_affirm_rate": 0.03445726906772113,
-    "cand_effusive_rate": 0.006990947420634921,
-    "tail_th_effusive_rate": 0.007899611698906345,
-    "cand_len_chars": 474.34739273313494,
-    "tail_th_turn_len_chars": 440.20096362794345,
-    "tail_loop_rate": 0.07380022321428571
+    "cand_q_per_turn": 0.6382582720588236,
+    "tail_th_q_per_turn": 0.6790729692519505,
+    "cand_affirm_rate": 0.05812270220588235,
+    "tail_th_affirm_rate": 0.04948534714482397,
+    "cand_effusive_rate": 0.01608455882352941,
+    "tail_th_effusive_rate": 0.025693306234839047,
+    "cand_len_chars": 589.9084903492648,
+    "tail_th_turn_len_chars": 573.4824493542254,
+    "tail_loop_rate": 0.05472196691176471
    },
    "source": "lookahead/mechanism/tables/tail_audit_cues_by_iter.md row arm=GRPO_LA5 train_iter=pooled",
    "note": ""
@@ -1322,72 +1456,72 @@
   },
   "score_by_realized_turns.GRPO_LA5.pooled.rt0": {
    "value": {
-    "n": 1440,
-    "dev_mean": -0.06532679738562093,
-    "dev_lo": -0.0824594056372549,
-    "dev_hi": -0.04987380004084969,
-    "score_mean": 3.168517156862745,
-    "p_chosen": 0.07430555555555556
+    "n": 1768,
+    "dev_mean": -0.056496207080117114,
+    "dev_lo": -0.07078472268432259,
+    "dev_hi": -0.042403180729305295,
+    "score_mean": 3.255735959542188,
+    "p_chosen": 0.08257918552036199
    },
    "source": "lookahead/mechanism/tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=0",
    "note": ""
   },
   "score_by_realized_turns.GRPO_LA5.pooled.rt1": {
    "value": {
-    "n": 6930,
-    "dev_mean": -0.009460253798489091,
-    "dev_lo": -0.013319224280621336,
-    "dev_hi": -0.0064483357737034125,
-    "score_mean": 3.9597292250233433,
-    "p_chosen": 0.09971139971139971
+    "n": 9007,
+    "dev_mean": -0.011861934181910793,
+    "dev_lo": -0.01475369443047563,
+    "dev_hi": -0.009132059868468307,
+    "score_mean": 4.019416924091719,
+    "p_chosen": 0.09648051515487954
    },
    "source": "lookahead/mechanism/tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=1",
    "note": ""
   },
   "score_by_realized_turns.GRPO_LA5.pooled.rt2": {
    "value": {
-    "n": 281,
-    "dev_mean": -0.07541867280720116,
-    "dev_lo": -0.09492804061126231,
-    "dev_hi": -0.057185014130207226,
-    "score_mean": 2.3846765752564374,
-    "p_chosen": 0.03558718861209965
+    "n": 340,
+    "dev_mean": -0.07649437716262975,
+    "dev_lo": -0.09431217560553631,
+    "dev_hi": -0.05815484429065744,
+    "score_mean": 2.560778546712803,
+    "p_chosen": 0.03529411764705882
    },
    "source": "lookahead/mechanism/tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=2",
    "note": ""
   },
   "score_by_realized_turns.GRPO_LA5.pooled.rt3": {
    "value": {
-    "n": 4431,
-    "dev_mean": -0.0005436297741845366,
-    "dev_lo": -0.0046074241307897425,
-    "dev_hi": 0.003713782906527556,
-    "score_mean": 3.948325301684655,
-    "p_chosen": 0.12209433536447754
+    "n": 5834,
+    "dev_mean": -0.0012432192623363847,
+    "dev_lo": -0.004985657101373271,
+    "dev_hi": 0.002011200820746554,
+    "score_mean": 4.010655588941096,
+    "p_chosen": 0.11930065135413095
    },
    "source": "lookahead/mechanism/tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=3",
    "note": ""
   },
   "score_by_realized_turns.GRPO_LA5.pooled.rt4": {
    "value": {
-    "n": 316,
-    "dev_mean": -0.10256422189128815,
-    "dev_lo": -0.1239967074646314,
-    "dev_hi": -0.07924126256515264,
-    "score_mean": 2.4134959046909907,
-    "p_chosen": 0.05063291139240506
+    "n": 420,
+    "dev_mean": -0.08886029411764705,
+    "dev_lo": -0.1070280112044818,
+    "dev_hi": -0.06891189600840336,
+    "score_mean": 2.6278571428571422,
+    "p_chosen": 0.06190476190476191
    },
    "source": "lookahead/mechanism/tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=4",
    "note": ""
   },
   "score_by_realized_turns.GRPO_LA5.pooled.rt5": {
    "value": {
-    "n": 51114,
-    "dev_mean": 0.004218842426041902,
-    "dev_lo": 0.0026589001459252537,
-    "dev_hi": 0.005910820881351715,
-    "score_mean": 3.4231934844603407,
-    "p_chosen": 0.13105998356614626
+    "n": 69671,
+    "dev_mean": 0.003980251298751188,
+    "dev_lo": 0.0025942412532178527,
+    "dev_hi": 0.005251564179374149,
+    "score_mean": 3.597127338828629,
+    "p_chosen": 0.13105883366106413
    },
    "source": "lookahead/mechanism/tables/tail_audit_score_by_realized_turns.md row arm=GRPO_LA5 train_iter=pooled realized_turns=5",
    "note": ""
@@ -2330,8 +2464,56 @@
   },
   "api.GRPO_LA5.iter7": {
    "value": {
-    "row_kind": "final eval pass",
+    "row_kind": "iteration",
     "eval_convs_of": "model_iter_6",
+    "n_steps": 106.0,
+    "n_groups_logged": 1056,
+    "log_coverage": 0.6226415094339622,
+    "n_groups": 1696,
+    "n_candidates": 13568,
+    "n_candidates_eval_phase": 1285,
+    "oracle_calls_train": 29706,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 538.7375061212122,
+    "patient_calls_eval_convs": 1380,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 40338,
+    "patient_calls_total": 41718,
+    "therapist_gens_tail": 25536,
+    "eval_conv_len_mean": 28.802083333333332,
+    "eval_ended_by_patient": 81
+   },
+   "source": "compute/cost/tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=7",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter8": {
+   "value": {
+    "row_kind": "iteration",
+    "eval_convs_of": "model_iter_7",
+    "n_steps": 110.0,
+    "n_groups_logged": 1760,
+    "log_coverage": 1.0,
+    "n_groups": 1760,
+    "n_candidates": 14080,
+    "n_candidates_eval_phase": 720,
+    "oracle_calls_train": 29600,
+    "oracle_retries": 0,
+    "oracle_input_Mchars": 625.022314,
+    "patient_calls_eval_convs": 1420,
+    "patient_calls_trunk": 0,
+    "patient_calls_tail": 40236,
+    "patient_calls_total": 41656,
+    "therapist_gens_tail": 25573,
+    "eval_conv_len_mean": 29.635416666666668,
+    "eval_ended_by_patient": 80
+   },
+   "source": "compute/cost/tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=8",
+   "note": ""
+  },
+  "api.GRPO_LA5.iter9": {
+   "value": {
+    "row_kind": "final eval pass",
+    "eval_convs_of": "model_iter_8",
     "n_steps": null,
     "n_groups_logged": 0,
     "log_coverage": 1.0,
@@ -2341,15 +2523,15 @@
     "oracle_calls_train": 0,
     "oracle_retries": 0,
     "oracle_input_Mchars": 0.0,
-    "patient_calls_eval_convs": 1380,
+    "patient_calls_eval_convs": 1564,
     "patient_calls_trunk": 0,
     "patient_calls_tail": 0,
-    "patient_calls_total": 1380,
+    "patient_calls_total": 1564,
     "therapist_gens_tail": 0,
-    "eval_conv_len_mean": 28.802083333333332,
-    "eval_ended_by_patient": 81
+    "eval_conv_len_mean": 32.645833333333336,
+    "eval_ended_by_patient": 67
    },
-   "source": "compute/cost/tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=7",
+   "source": "compute/cost/tables/tail_audit_api_calls.md row arm=GRPO_LA5 train_iter=9",
    "note": ""
   },
   "api_ratio.PTO.iters_1-5_(matched).oracle_calls_train": {
@@ -2563,77 +2745,77 @@
   },
   "api_ratio.GRPO.all_matched_iters.oracle_calls_train": {
    "value": {
-    "iters": "1,2,3,4,5,6",
-    "K0_sum": 175664.0,
-    "K5_sum": 159989.0,
-    "K5_over_K0": 0.9107671463703434,
-    "arithmetic": "159,989 / 175,664"
+    "iters": "1,2,3,4,5,6,7,8",
+    "K0_sum": 238552.0,
+    "K5_sum": 219295.0,
+    "K5_over_K0": 0.9192754619537878,
+    "arithmetic": "219,295 / 238,552"
    },
    "source": "compute/cost/tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=oracle_calls_train",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.oracle_input_Mchars": {
    "value": {
-    "iters": "1,2,3,4,5,6",
-    "K0_sum": 1404.7960024651163,
-    "K5_sum": 1806.6735722162164,
-    "K5_over_K0": 1.286075393897684,
-    "arithmetic": "1,806.7 / 1,404.8"
+    "iters": "1,2,3,4,5,6,7,8",
+    "K0_sum": 2029.5438080035779,
+    "K5_sum": 2970.4333923374284,
+    "K5_over_K0": 1.4635965878752748,
+    "arithmetic": "2,970.4 / 2,029.5"
    },
    "source": "compute/cost/tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=oracle_input_Mchars",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.patient_calls_total": {
    "value": {
-    "iters": "1,2,3,4,5,6",
-    "K0_sum": 8351.0,
-    "K5_sum": 221576.0,
-    "K5_over_K0": 26.532870314932342,
-    "arithmetic": "221,576 / 8,351"
+    "iters": "1,2,3,4,5,6,7,8",
+    "K0_sum": 11279.0,
+    "K5_sum": 304950.0,
+    "K5_over_K0": 27.03697136270946,
+    "arithmetic": "304,950 / 11,279"
    },
    "source": "compute/cost/tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=patient_calls_total",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.patient_calls_tail": {
    "value": {
-    "iters": "1,2,3,4,5,6",
+    "iters": "1,2,3,4,5,6,7,8",
     "K0_sum": 0.0,
-    "K5_sum": 213755.0,
+    "K5_sum": 294329.0,
     "K5_over_K0": null,
-    "arithmetic": "213,755 / 0"
+    "arithmetic": "294,329 / 0"
    },
    "source": "compute/cost/tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=patient_calls_tail",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.n_candidates": {
    "value": {
-    "iters": "1,2,3,4,5,6",
-    "K0_sum": 83712.0,
-    "K5_sum": 75264.0,
-    "K5_over_K0": 0.8990825688073395,
-    "arithmetic": "75,264 / 83,712"
+    "iters": "1,2,3,4,5,6,7,8",
+    "K0_sum": 113920.0,
+    "K5_sum": 102912.0,
+    "K5_over_K0": 0.903370786516854,
+    "arithmetic": "102,912 / 113,920"
    },
    "source": "compute/cost/tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=n_candidates",
    "note": ""
   },
   "api_ratio.GRPO.all_matched_iters.total_api_calls": {
    "value": {
-    "iters": "1,2,3,4,5,6",
-    "K0_sum": 184015.0,
-    "K5_sum": 381565.0,
-    "K5_over_K0": 2.0735537863761104,
-    "arithmetic": "381,565 / 184,015"
+    "iters": "1,2,3,4,5,6,7,8",
+    "K0_sum": 249831.0,
+    "K5_sum": 524245.0,
+    "K5_over_K0": 2.098398517397761,
+    "arithmetic": "524,245 / 249,831"
    },
    "source": "compute/cost/tables/tail_audit_api_ratio.md row method=GRPO window=all matched iters quantity=total_api_calls",
    "note": ""
   },
   "api_ratio.GRPO.all_K5_iters.patient_calls_tail_per_candidate": {
    "value": {
-    "iters": "1,2,3,4,5,6",
+    "iters": "1,2,3,4,5,6,7,8",
     "K0_sum": 0.0,
-    "K5_sum": 2.8400696215986394,
+    "K5_sum": 2.8600066075870645,
     "K5_over_K0": null,
-    "arithmetic": "213,755 / 75,264 candidates"
+    "arithmetic": "294,329 / 102,912 candidates"
    },
    "source": "compute/cost/tables/tail_audit_api_ratio.md row method=GRPO window=all K5 iters quantity=patient_calls_tail_per_candidate",
    "note": ""
@@ -2676,11 +2858,11 @@
   },
   "api_totals.GRPO_LA5": {
    "value": {
-    "iters": 6,
-    "oracle_calls_train": 159989,
-    "oracle_input_Mchars": 1806.6735722162164,
-    "patient_calls_total": 222956,
-    "n_candidates": 79990,
+    "iters": 8,
+    "oracle_calls_train": 219295,
+    "oracle_input_Mchars": 2970.4333923374284,
+    "patient_calls_total": 306514,
+    "n_candidates": 109643,
     "arithmetic": "column sums over all rows of the arm incl. the final eval pass"
    },
    "source": "compute/cost/tables/tail_audit_api_calls.md column sums for arm=GRPO_LA5",
@@ -2694,9 +2876,9 @@
      "eval_ended_none": 260
     },
     "GRPO_LA5": {
-     "eval_ended_by_patient": 537,
+     "eval_ended_by_patient": 684,
      "eval_ended_by_therapist": 3,
-     "eval_ended_none": 132
+     "eval_ended_none": 177
     },
     "PTO_LA0": {
      "eval_ended_by_patient": 871,

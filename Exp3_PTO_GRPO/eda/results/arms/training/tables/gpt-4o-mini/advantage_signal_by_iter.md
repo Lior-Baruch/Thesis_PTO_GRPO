@@ -16,6 +16,8 @@
 | GRPO_LA5 | GRPO     |            4 |       0.144 |         0.434 |           0.007 |  nan     |         nan     |   nan     |
 | GRPO_LA5 | GRPO     |            5 |       0.126 |         0.380 |           0.008 |  nan     |         nan     |   nan     |
 | GRPO_LA5 | GRPO     |            6 |       0.125 |         0.371 |           0.011 |  nan     |         nan     |   nan     |
+| GRPO_LA5 | GRPO     |            7 |       0.104 |         0.311 |           0.053 |  nan     |         nan     |   nan     |
+| GRPO_LA5 | GRPO     |            8 |       0.114 |         0.339 |           0.064 |  nan     |         nan     |   nan     |
 | PTO_LA0  | PTO      |            1 |     nan     |         0.274 |         nan     |    0.322 |           0.276 |   782.000 |
 | PTO_LA0  | PTO      |            2 |     nan     |         0.250 |         nan     |    0.299 |           0.259 |   618.000 |
 | PTO_LA0  | PTO      |            3 |     nan     |         0.244 |         nan     |    0.295 |           0.259 |   620.000 |

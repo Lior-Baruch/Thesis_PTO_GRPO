@@ -6,7 +6,15 @@ Two complementary, cross-validating sources:
    simple/complex reflections (B4_SR/B5_CR), affirmations (B6_AF), persuasion (B2_Persuade),
    plus the global empathy/change-talk/partnership ratings, and the R:Q ratio.
 2. **Deterministic text metrics** (from the conversations): therapist-turn length, verbatim
-   repetition loops (degeneration), questions/turn, conversation length.
+   repetition loops (degeneration), the ``?``-mark question family, conversation length.
+
+⚠ The question family is FOUR columns, not one, and they answer different questions:
+``q_per_turn`` (marks / therapist turn — the historical metric, frozen because
+``replication.SHAPE_METRICS`` and the paper fixture depend on it), ``q_turn_rate`` x
+``q_per_q_turn`` (does it ask at all x how many it stacks when it does), and ``q_per_sentence``
+(density at fixed speech volume, since ``sents_per_turn`` nearly triples across training). A
+cross-arm or cross-iteration claim about "questions" made from ``q_per_turn`` alone is confounded
+on both axes — see the block comment above :func:`text_metrics` for the measurements.
 
 The structural text metrics are cheap, deterministic, non-LLM cross-checks: they catch
 degeneration loops the MITI counts miss and independently confirm the oracle tally (validated:
@@ -25,6 +33,7 @@ import re
 from collections import Counter
 from typing import List, Optional
 
+import numpy as np
 import pandas as pd
 
 from .constants import RE_AFFIRM, RE_EFFUSIVE
@@ -173,20 +182,34 @@ def overpraise_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
 
 
 def question_rate_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
-    """Per (arm, iteration): the deterministic regex question rate ``q_per_turn`` (``?``-count per
-    therapist turn) beside the oracle-derived ``q_per_turn_miti`` (MITI ``B3_Q`` / therapist turns).
+    """Per (arm, iteration): the deterministic ``?``-mark rate ``q_per_turn`` beside the
+    oracle-derived ``q_per_turn_miti`` (MITI ``B3_Q`` / therapist turns), plus the
+    ``q_turn_rate`` x ``q_per_q_turn`` decomposition of the deterministic side.
 
-    Unit-harmonized cross-check: both are questions-per-therapist-turn, one syntactic (literal
-    ``?``), one the professional MITI question count — so they should track each other, and their
-    late divergence (e.g. GRPO, when praise-heavy turns stop carrying a literal ``?``) is itself
-    informative. Averages per-conversation ratios (mean-of-ratios). Returns an empty frame (no rows)
-    until MITI is scored. Columns: arm, method, K, iteration, q_per_turn, q_per_turn_miti.
+    Same DENOMINATOR (therapist turns), different NUMERATORS: literal ``?`` marks vs oracle-coded
+    question ACTS. They are not two measurements of one quantity, so read the levels with care —
+    ⚠ **the deterministic side runs 1.4-2.3x HIGHER than the oracle side in 3 of the 4 arms at
+    every iteration** (median 1.7x; GRPO_LA0 base 0.83 marks vs 0.45 acts), because a turn stacking
+    three ``?`` contributes 3 marks but is not 3 acts, and because the oracle does not credit every
+    ``?``-bearing sentence as a question. The direction of travel is what cross-validates: both
+    fall over training in every arm.
+
+    ⚠ The divergence that DOES flip the ordering is **GRPO_LA0 from iteration 5 on** (0.324 vs
+    0.361, widening to 0.151 vs 0.319 by iteration 10) — one arm's late behaviour, where the marks
+    collapse while the oracle still codes question function. Do not state that as the general
+    signature: it does not happen in GRPO_LA5, PTO_LA0 or PTO_LA5, where the deterministic side
+    stays the higher of the two throughout. (This docstring claimed the general "regex << MITI"
+    reading until 2026-08-23; the table it describes never supported it.)
+
+    Averages per-conversation ratios (mean-of-ratios). Returns an empty frame (no rows) until MITI
+    is scored. Columns: arm, method, K, iteration, q_per_turn, q_per_turn_miti, q_turn_rate,
+    q_per_q_turn.
     """
     text = text_metrics(arms, attach_persona=False)
     miti = load_miti_behavior(arms, attach_persona=False)
     if text.empty or miti.empty:
-        return pd.DataFrame(columns=["arm", "method", "K", "iteration",
-                                     "q_per_turn", "q_per_turn_miti"])
+        return pd.DataFrame(columns=["arm", "method", "K", "iteration", "q_per_turn",
+                                     "q_per_turn_miti", "q_turn_rate", "q_per_q_turn"])
     keys = ["arm", "iteration", "file_index"]
     merged = text.merge(miti[keys + ["B3_Q"]], on=keys, how="inner")
     # Sanity guard: the two rates MUST be built on the same per-conversation rows, else we would be
@@ -201,18 +224,70 @@ def question_rate_crosscheck(arms: Optional[List] = None) -> pd.DataFrame:
         _w.warn(f"question_rate_crosscheck: inner-join kept {len(merged)}/{n_joinable} conv rows "
                 f"(<90%) — check MITI-eval vs conversation file_index alignment.", stacklevel=2)
     merged = merged[merged["n_th_turns"] > 0].copy()
-    # Same denominator (n_th_turns) for both → the only difference is the numerator: literal '?' count
-    # (q_per_turn) vs oracle question-function count (B3_Q). A widening gap (regex << MITI) is the
-    # real affirmation/advice drift signature (declarative prompts carry no '?'), NOT a unit error.
+    # Same denominator (n_th_turns) for both → the only difference is the numerator: literal '?'
+    # MARKS (q_per_turn) vs oracle question ACTS (B3_Q). Marks > acts almost everywhere (see the
+    # docstring); the one place the ordering flips is GRPO_LA0 iter>=5. Carrying q_turn_rate and
+    # q_per_q_turn alongside makes the mark side auditable: a fall in q_per_turn that is entirely
+    # q_per_q_turn is unstacking, not a drop in asking, and would not be expected to move B3_Q.
     merged["q_per_turn_miti"] = merged["B3_Q"] / merged["n_th_turns"]
+    cols = ["q_per_turn", "q_per_turn_miti", "q_turn_rate", "q_per_q_turn"]
     return (merged.groupby(["arm", "method", "K", "iteration"], observed=True)
-            [["q_per_turn", "q_per_turn_miti"]]
+            [[c for c in cols if c in merged.columns]]
             .mean().reset_index().sort_values(["arm", "iteration"]))
 
 
-# ── 2. Regex text metrics from conversations ─────────────────────────────────
+# ── 2. Deterministic '?' text metrics from conversations ─────────────────────
+# NAMING: these are called "regex" metrics by history; the QUESTION metrics are literally
+# ``str.count("?")`` — the actual regexes here are the lex_* affirmation/over-praise cues.
+#
+# Sentence split for the length-normalized question density. Deliberately crude (terminal
+# punctuation + whitespace): MEASURED on GRPO_LA0 iters 0/10 and GRPO_LA5 iter 5 (96 convs each,
+# same mean-of-ratios convention as the frames), '?'-marks/turn vs question-TERMINATED-
+# sentences/turn is 0.829/0.820, 0.151/0.145, 0.691/0.688 — within 0.4-4.0% — and a '?' off a
+# sentence boundary occurs in 0.13-0.52% of turns. So the literal mark is already a clean
+# sentence-level question detector on this corpus and a real parser would buy nothing; the
+# splitter exists only to give the DENOMINATOR (see _QDECOMP_NOTE).
+_SENT_SPLIT = re.compile(r"(?<=[.!?])\s+")
+
+
+def _n_sentences(t: str) -> int:
+    return sum(1 for p in _SENT_SPLIT.split(t.strip()) if p)
+
+
+# Why q_per_turn alone is not enough (MEASURED 2026-08-23; every figure below is a
+# session_shape_by_iter cell, so it can be audited against the rendered table rather than trusted):
+#
+#   1. INCIDENCE vs INTENSITY. ``q_per_q_turn`` (marks per ASKING turn) is 1.24 at GRPO_LA0 iter 0,
+#      1.14 at its iter 10, but 1.65 at GRPO_LA5 iter 5 — question STACKING is arm-dependent, so a
+#      cross-arm q_per_turn gap is partly a gap in how many questions get crammed into one turn
+#      rather than in how often the therapist asks. It changes readings: LA5@5 vs LA0@0 is 0.691 vs
+#      0.829 on q_per_turn (-17%) but 0.397 vs 0.649 on q_turn_rate (-39%). ``q_turn_rate`` (share
+#      of turns carrying >=1 '?') and ``q_per_q_turn`` separate the two.
+#      ⚠ ``q_per_turn == q_turn_rate * q_per_q_turn`` EXACTLY per conversation (verified, max
+#      |diff| 1.8e-15 over 4,032 convs), but NOT after the mean-of-ratios average over
+#      conversations (mean of products != product of means; the residual reaches 0.105, median
+#      0.016). Quote the components, don't reconstruct the product.
+#   2. THE DENOMINATOR MOVES. Sentences per therapist turn go 4.18 (base) -> 10.55 (GRPO_LA0
+#      iter 10), a 2.5x inflation: the turns become monologues (a sampled iter-10 turn runs 1,048
+#      chars with zero '?'). So q_per_turn 0.829 -> 0.151 mixes "asks less" with "says more".
+#      ``q_per_sentence`` holds the speech volume fixed; ``sents_per_turn`` is that volume,
+#      reported so the confound is visible rather than inferred. (behavior_by_iter already applies
+#      this same argument one level up, normalizing the MITI counts by therapist turns — the turn
+#      itself is now what inflated.)
+#
+# ``q_per_turn`` stays as-is: it is in replication.SHAPE_METRICS and feeds the frozen paper
+# fixture (the `paper fixture anchors` self-check), so these are ADDITIONS, not a redefinition.
+_QDECOMP_NOTE = "q_per_turn = q_turn_rate x q_per_q_turn (exact per conversation, not after averaging)"
+
+
 def text_metrics(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:
     """Per (arm, iteration, conversation) text behavior metrics from the transcripts.
+
+    Question metrics come in four flavours, all from the literal ``?`` over therapist turns only:
+    ``q_per_turn`` (marks / turn, the historical one), its ``q_turn_rate`` x ``q_per_q_turn``
+    incidence-intensity decomposition, and the length-normalized ``q_per_sentence`` (with
+    ``sents_per_turn`` as the moving denominator). See :data:`_QDECOMP_NOTE` and the block comment
+    above for why the per-turn rate alone is confounded.
 
     Parquet-cached: this walks every conversation CSV (~3,840 files over the Drive symlink, ~53 s
     warm) and its aggregate ``session_shape_by_iter`` was already cached — but the raw frame was
@@ -257,15 +332,27 @@ def _turn_metrics(th: List[str]) -> dict:
     # headline _BEHAVIOR_METRICS — see module docstring).
     if not th:
         return {"n_th_turns": 0, "mean_turn_len": 0.0, "max_repeat": 0, "loop": False,
-                "q_per_turn": 0.0, "lex_affirm_marker_rate": 0.0, "lex_overpraise_marker_rate": 0.0}
+                "q_per_turn": 0.0, "q_turn_rate": 0.0, "q_per_q_turn": np.nan,
+                "sents_per_turn": 0.0, "q_per_sentence": np.nan,
+                "lex_affirm_marker_rate": 0.0, "lex_overpraise_marker_rate": 0.0}
     counts = Counter(t.strip() for t in th)
     n = len(th)
+    q = [t.count("?") for t in th]
+    n_q_turns = sum(1 for c in q if c)
+    n_sents = sum(_n_sentences(t) for t in th)
     return {
         "n_th_turns": n,
         "mean_turn_len": sum(len(t) for t in th) / n,
         "max_repeat": max(counts.values()),
         "loop": max(counts.values()) >= 2,
-        "q_per_turn": sum(t.count("?") for t in th) / n,
+        "q_per_turn": sum(q) / n,
+        # Incidence x intensity decomposition of q_per_turn — see _QDECOMP_NOTE.
+        "q_turn_rate": n_q_turns / n,
+        "q_per_q_turn": (sum(q) / n_q_turns) if n_q_turns else np.nan,
+        # Length-normalized denominator: turns carry 2.5x more sentences by the end of training
+        # (4.18 -> 10.55, GRPO_LA0), so the per-TURN rate confounds "asks less" with "says more".
+        "sents_per_turn": n_sents / n,
+        "q_per_sentence": (sum(q) / n_sents) if n_sents else np.nan,
         "lex_affirm_marker_rate": sum(bool(_RE_AFFIRM.search(t)) for t in th) / n,
         "lex_overpraise_marker_rate": sum(bool(_RE_EFFUSIVE.search(t)) for t in th) / n,
     }
@@ -391,7 +478,11 @@ def _miti_detail_by_iter_impl(arms) -> pd.DataFrame:
 
 
 # ── Session shape (deterministic text metrics, per iteration) ─────────────────────
-_SESSION_SHAPE_METRICS = ["mean_turn_len", "q_per_turn", "loop", "conv_len", "n_th_turns"]
+_SESSION_SHAPE_METRICS = ["mean_turn_len", "q_per_turn", "loop", "conv_len", "n_th_turns",
+                          # the decomposition + the length-normalized density (see _QDECOMP_NOTE):
+                          # mean_turn_len rising IS the confound q_per_sentence controls for, so
+                          # the two belong in the same exported frame.
+                          "q_turn_rate", "q_per_q_turn", "sents_per_turn", "q_per_sentence"]
 
 
 def session_shape_by_iter(arms: Optional[List] = None) -> pd.DataFrame:

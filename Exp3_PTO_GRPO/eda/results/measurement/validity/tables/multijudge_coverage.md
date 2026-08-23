@@ -17,6 +17,7 @@
 | CSQ-8    | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | CSQ-8    | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | CSQ-8    | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| CSQ-8    | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | CSQ-8    | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | CSQ-8    | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | CSQ-8    | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |
@@ -56,6 +57,7 @@
 | MI-SAT   | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | MI-SAT   | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | MI-SAT   | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| MI-SAT   | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | MI-SAT   | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | MI-SAT   | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | MI-SAT   | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |
@@ -95,6 +97,7 @@
 | MICI     | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | MICI     | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | MICI     | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| MICI     | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | MICI     | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | MICI     | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | MICI     | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |
@@ -134,6 +137,7 @@
 | MITI     | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | MITI     | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | MITI     | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| MITI     | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | MITI     | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | MITI     | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | MITI     | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |
@@ -173,6 +177,7 @@
 | PCT      | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | PCT      | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | PCT      | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| PCT      | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | PCT      | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | PCT      | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | PCT      | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |
@@ -212,6 +217,7 @@
 | Q1       | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | Q1       | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | Q1       | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| Q1       | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | Q1       | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | Q1       | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | Q1       | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |
@@ -251,6 +257,7 @@
 | Q2       | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | Q2       | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | Q2       | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| Q2       | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | Q2       | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | Q2       | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | Q2       | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |
@@ -290,6 +297,7 @@
 | WAI-SR   | GRPOExp3_LA5_I3   |         96 |           96 | 100.000 | True       |
 | WAI-SR   | GRPOExp3_LA5_I4   |         96 |           96 | 100.000 | True       |
 | WAI-SR   | GRPOExp3_LA5_I5   |         96 |           96 | 100.000 | True       |
+| WAI-SR   | GRPOExp3_LA5_I6   |         96 |           96 | 100.000 | True       |
 | WAI-SR   | PTOExp3_LA0_Base  |         96 |           96 | 100.000 | True       |
 | WAI-SR   | PTOExp3_LA0_I1    |         96 |           96 | 100.000 | True       |
 | WAI-SR   | PTOExp3_LA0_I10   |         96 |           96 | 100.000 | True       |

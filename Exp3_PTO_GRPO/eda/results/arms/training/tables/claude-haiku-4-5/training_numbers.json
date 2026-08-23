@@ -14,14 +14,14 @@
    "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=3607"
   },
   "faithfulness.claude-haiku-4-5.GRPO_LA5.agreement_at_min_nturns": {
-   "value": 0.8040124095139607,
+   "value": 0.8120329902720993,
    "source": "tables/reward_reliability_by_nturns_long.md",
-   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=24175"
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=28372"
   },
   "faithfulness.claude-haiku-4-5.GRPO_LA5.agreement_at_max_nturns": {
-   "value": 0.835909631391201,
+   "value": 0.8242811501597445,
    "source": "tables/reward_reliability_by_nturns_long.md",
-   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=841"
+   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=939"
   },
   "faithfulness.claude-haiku-4-5.PTO_LA0.agreement_at_min_nturns": {
    "value": 0.8037152622975182,
@@ -49,7 +49,7 @@
    "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
   },
   "proxy_vs_eval.claude-haiku-4-5.GRPO_LA5.mean_proxy_minus_eval": {
-   "value": 1.1074999834875936,
+   "value": 1.1220972642042184,
    "source": "tables/faithfulness_proxy_vs_eval.md",
    "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
   },

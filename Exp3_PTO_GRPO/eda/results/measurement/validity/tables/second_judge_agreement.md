@@ -17,6 +17,7 @@
 | CSQ-8    | GRPOExp3_LA5_I3   |  96 |       0.888 |          0.896 |                     -0.150 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | CSQ-8    | GRPOExp3_LA5_I4   |  96 |       0.886 |          0.885 |                     -0.118 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | CSQ-8    | GRPOExp3_LA5_I5   |  96 |       0.903 |          0.884 |                     -0.172 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| CSQ-8    | GRPOExp3_LA5_I6   |  96 |       0.893 |          0.879 |                     -0.060 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | CSQ-8    | PTOExp3_LA0_Base  |  96 |       0.885 |          0.863 |                     -0.342 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | CSQ-8    | PTOExp3_LA0_I1    |  96 |       0.923 |          0.921 |                     -0.130 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | CSQ-8    | PTOExp3_LA0_I10   |  96 |       0.924 |          0.928 |                     -0.137 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
@@ -56,6 +57,7 @@
 | MI-SAT   | GRPOExp3_LA5_I3   |  96 |       0.937 |          0.936 |                     -0.453 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MI-SAT   | GRPOExp3_LA5_I4   |  96 |       0.920 |          0.935 |                     -0.472 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MI-SAT   | GRPOExp3_LA5_I5   |  96 |       0.951 |          0.960 |                     -0.462 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| MI-SAT   | GRPOExp3_LA5_I6   |  96 |       0.911 |          0.913 |                     -0.450 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MI-SAT   | PTOExp3_LA0_Base  |  96 |       0.906 |          0.881 |                     -0.373 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MI-SAT   | PTOExp3_LA0_I1    |  96 |       0.947 |          0.927 |                     -0.306 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MI-SAT   | PTOExp3_LA0_I10   |  96 |       0.918 |          0.937 |                     -0.580 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
@@ -95,6 +97,7 @@
 | MICI     | GRPOExp3_LA5_I3   |  96 |       0.644 |          0.676 |                      0.210 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MICI     | GRPOExp3_LA5_I4   |  96 |       0.353 |          0.414 |                      0.257 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MICI     | GRPOExp3_LA5_I5   |  96 |       0.501 |          0.517 |                      0.306 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| MICI     | GRPOExp3_LA5_I6   |  96 |       0.286 |          0.339 |                      0.294 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MICI     | PTOExp3_LA0_Base  |  96 |       0.549 |          0.470 |                      0.151 |         0.934 |       0.929 | measured both judges          |     0.931 |             59.000 |
 | MICI     | PTOExp3_LA0_I1    |  96 |       0.549 |          0.535 |                      0.151 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MICI     | PTOExp3_LA0_I10   |  96 |       0.301 |          0.256 |                      0.334 |         0.864 |       0.815 | measured both judges          |     0.839 |             35.900 |
@@ -134,6 +137,7 @@
 | MITI     | GRPOExp3_LA5_I3   |  96 |       0.741 |          0.744 |                     -1.615 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MITI     | GRPOExp3_LA5_I4   |  96 |       0.595 |          0.602 |                     -1.805 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MITI     | GRPOExp3_LA5_I5   |  96 |       0.733 |          0.662 |                     -1.826 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| MITI     | GRPOExp3_LA5_I6   |  96 |       0.643 |          0.661 |                     -1.906 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MITI     | PTOExp3_LA0_Base  |  96 |       0.812 |          0.836 |                     -1.294 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MITI     | PTOExp3_LA0_I1    |  96 |       0.813 |          0.830 |                     -1.378 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | MITI     | PTOExp3_LA0_I10   |  96 |       0.424 |          0.446 |                     -1.922 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
@@ -173,6 +177,7 @@
 | PCT      | GRPOExp3_LA5_I3   |  96 |       0.964 |          0.941 |                      0.043 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | PCT      | GRPOExp3_LA5_I4   |  96 |       0.947 |          0.939 |                      0.037 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | PCT      | GRPOExp3_LA5_I5   |  96 |       0.954 |          0.951 |                      0.044 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| PCT      | GRPOExp3_LA5_I6   |  96 |       0.954 |          0.947 |                      0.052 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | PCT      | PTOExp3_LA0_Base  |  96 |       0.957 |          0.958 |                      0.031 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | PCT      | PTOExp3_LA0_I1    |  96 |       0.947 |          0.948 |                      0.054 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | PCT      | PTOExp3_LA0_I10   |  96 |       0.929 |          0.942 |                      0.003 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
@@ -212,6 +217,7 @@
 | Q1       | GRPOExp3_LA5_I3   |  96 |       0.877 |          0.853 |                     -1.283 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q1       | GRPOExp3_LA5_I4   |  96 |       0.841 |          0.800 |                     -1.285 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q1       | GRPOExp3_LA5_I5   |  96 |       0.941 |          0.902 |                     -1.177 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| Q1       | GRPOExp3_LA5_I6   |  96 |       0.877 |          0.854 |                     -1.302 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q1       | PTOExp3_LA0_Base  |  96 |       0.843 |          0.886 |                     -1.250 |         0.991 |       0.973 | measured both judges          |     0.982 |             85.800 |
 | Q1       | PTOExp3_LA0_I1    |  96 |       0.869 |          0.906 |                     -1.258 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q1       | PTOExp3_LA0_I10   |  96 |       0.877 |          0.892 |                     -1.500 |         0.982 |       0.951 | measured both judges          |     0.966 |             90.800 |
@@ -251,6 +257,7 @@
 | Q2       | GRPOExp3_LA5_I3   |  96 |       0.845 |          0.863 |                     -1.268 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q2       | GRPOExp3_LA5_I4   |  96 |       0.705 |          0.749 |                     -1.387 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q2       | GRPOExp3_LA5_I5   |  96 |       0.780 |          0.798 |                     -1.311 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| Q2       | GRPOExp3_LA5_I6   |  96 |       0.706 |          0.745 |                     -1.349 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q2       | PTOExp3_LA0_Base  |  96 |       0.862 |          0.865 |                     -1.091 |         0.992 |       0.962 | measured both judges          |     0.977 |             88.200 |
 | Q2       | PTOExp3_LA0_I1    |  96 |       0.874 |          0.864 |                     -1.126 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | Q2       | PTOExp3_LA0_I10   |  96 |       0.810 |          0.833 |                     -1.287 |         0.955 |       0.963 | measured both judges          |     0.959 |             84.500 |
@@ -290,6 +297,7 @@
 | WAI-SR   | GRPOExp3_LA5_I3   |  96 |       0.935 |          0.945 |                     -0.549 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | WAI-SR   | GRPOExp3_LA5_I4   |  96 |       0.884 |          0.899 |                     -0.589 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | WAI-SR   | GRPOExp3_LA5_I5   |  96 |       0.921 |          0.924 |                     -0.654 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
+| WAI-SR   | GRPOExp3_LA5_I6   |  96 |       0.920 |          0.919 |                     -0.582 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | WAI-SR   | PTOExp3_LA0_Base  |  96 |       0.887 |          0.899 |                     -0.727 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | WAI-SR   | PTOExp3_LA0_I1    |  96 |       0.938 |          0.930 |                     -0.550 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |
 | WAI-SR   | PTOExp3_LA0_I10   |  96 |       0.931 |          0.915 |                     -0.543 |       nan     |     nan     | no ICC measured for this cell |   nan     |            nan     |

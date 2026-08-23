@@ -14,12 +14,12 @@
    "note": "mean over training iterations of GRPO within-group reward std"
   },
   "advantage.GRPO_LA5.mean_group_range": {
-   "value": 0.457991201512672,
+   "value": 0.42475036418344747,
    "source": "tables/advantage_signal_by_iter.md",
    "note": "mean over training iterations of the unfiltered best-worst candidate range"
   },
   "advantage.GRPO_LA5.mean_group_std": {
-   "value": 0.1514031771877792,
+   "value": 0.1408333471306679,
    "source": "tables/advantage_signal_by_iter.md",
    "note": "mean over training iterations of GRPO within-group reward std"
   },
@@ -69,7 +69,7 @@
    "note": "worst training iteration"
   },
   "degeneration.GRPO_LA5.n_candidates_total": {
-   "value": 68568,
+   "value": 92616,
    "source": "tables/degeneration_scan.md",
    "note": "scored candidates across training iterations"
   },
@@ -114,14 +114,14 @@
    "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=3683"
   },
   "faithfulness.gpt-4o-mini.GRPO_LA5.agreement_at_min_nturns": {
-   "value": 0.8743062220923924,
+   "value": 0.875998003992016,
    "source": "tables/reward_reliability_by_nturns_long.md",
-   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=23963"
+   "note": "n_turns=12 (the shortest scored cut, = MCL), n_pairs=28056"
   },
   "faithfulness.gpt-4o-mini.GRPO_LA5.agreement_at_max_nturns": {
-   "value": 0.935672514619883,
+   "value": 0.9417989417989417,
    "source": "tables/reward_reliability_by_nturns_long.md",
-   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=855"
+   "note": "n_turns=50 (the longest bin with >= 20 pairs), n_pairs=945"
   },
   "faithfulness.gpt-4o-mini.PTO_LA0.agreement_at_min_nturns": {
    "value": 0.8647480719022897,
@@ -149,7 +149,7 @@
    "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
   },
   "proxy_vs_eval.gpt-4o-mini.GRPO_LA5.mean_proxy_minus_eval": {
-   "value": -0.14307191193724336,
+   "value": -0.13920350610390494,
    "source": "tables/faithfulness_proxy_vs_eval.md",
    "note": "mean over iterations of (training proxy - full-conv eval Q1Q2); > 0 = proxy over-rates"
   },

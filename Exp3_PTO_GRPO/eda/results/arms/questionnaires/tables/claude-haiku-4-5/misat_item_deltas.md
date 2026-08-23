@@ -6,12 +6,12 @@
 | final    | GRPO_LA0 |      4 | Easy to use   |         |            10 |  3.188 |   0.396 |
 | final    | GRPO_LA0 |      5 | Worth time    |         |            10 |  2.427 |   0.333 |
 | final    | GRPO_LA0 |      6 | Likely change |         |            10 |  2.521 |   0.271 |
-| final    | GRPO_LA5 |      1 | Helpful       |         |             5 |  2.385 |   0.635 |
-| final    | GRPO_LA5 |      2 | Enjoyable     |         |             5 |  2.073 |   0.677 |
-| final    | GRPO_LA5 |      3 | Interesting   |         |             5 |  2.375 |   0.656 |
-| final    | GRPO_LA5 |      4 | Easy to use   |         |             5 |  3.052 |   0.667 |
-| final    | GRPO_LA5 |      5 | Worth time    |         |             5 |  2.323 |   0.708 |
-| final    | GRPO_LA5 |      6 | Likely change |         |             5 |  2.427 |   0.604 |
+| final    | GRPO_LA5 |      1 | Helpful       |         |             6 |  2.385 |   0.823 |
+| final    | GRPO_LA5 |      2 | Enjoyable     |         |             6 |  2.073 |   0.823 |
+| final    | GRPO_LA5 |      3 | Interesting   |         |             6 |  2.375 |   0.771 |
+| final    | GRPO_LA5 |      4 | Easy to use   |         |             6 |  3.052 |   0.688 |
+| final    | GRPO_LA5 |      5 | Worth time    |         |             6 |  2.323 |   0.896 |
+| final    | GRPO_LA5 |      6 | Likely change |         |             6 |  2.427 |   0.760 |
 | final    | PTO_LA0  |      1 | Helpful       |         |            10 |  2.458 |   0.542 |
 | final    | PTO_LA0  |      2 | Enjoyable     |         |            10 |  2.010 |   0.719 |
 | final    | PTO_LA0  |      3 | Interesting   |         |            10 |  2.396 |   0.552 |
@@ -30,12 +30,12 @@
 | best     | GRPO_LA0 |      4 | Easy to use   |         |             3 |  3.188 |   0.458 |
 | best     | GRPO_LA0 |      5 | Worth time    |         |             3 |  2.427 |   0.458 |
 | best     | GRPO_LA0 |      6 | Likely change |         |             3 |  2.521 |   0.396 |
-| best     | GRPO_LA5 |      1 | Helpful       |         |             5 |  2.385 |   0.635 |
-| best     | GRPO_LA5 |      2 | Enjoyable     |         |             5 |  2.073 |   0.677 |
-| best     | GRPO_LA5 |      3 | Interesting   |         |             5 |  2.375 |   0.656 |
-| best     | GRPO_LA5 |      4 | Easy to use   |         |             5 |  3.052 |   0.667 |
-| best     | GRPO_LA5 |      5 | Worth time    |         |             5 |  2.323 |   0.708 |
-| best     | GRPO_LA5 |      6 | Likely change |         |             5 |  2.427 |   0.604 |
+| best     | GRPO_LA5 |      1 | Helpful       |         |             6 |  2.385 |   0.823 |
+| best     | GRPO_LA5 |      2 | Enjoyable     |         |             6 |  2.073 |   0.823 |
+| best     | GRPO_LA5 |      3 | Interesting   |         |             6 |  2.375 |   0.771 |
+| best     | GRPO_LA5 |      4 | Easy to use   |         |             6 |  3.052 |   0.688 |
+| best     | GRPO_LA5 |      5 | Worth time    |         |             6 |  2.323 |   0.896 |
+| best     | GRPO_LA5 |      6 | Likely change |         |             6 |  2.427 |   0.760 |
 | best     | PTO_LA0  |      1 | Helpful       |         |             9 |  2.458 |   0.615 |
 | best     | PTO_LA0  |      2 | Enjoyable     |         |             9 |  2.010 |   0.729 |
 | best     | PTO_LA0  |      3 | Interesting   |         |             9 |  2.396 |   0.562 |

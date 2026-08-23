@@ -8,7 +8,7 @@
     "PTO_LA0": 10,
     "PTO_LA5": 10,
     "GRPO_LA0": 10,
-    "GRPO_LA5": 5
+    "GRPO_LA5": 6
    },
    "source": "data: max scored iteration per arm (both graders agree)",
    "note": ""
@@ -18,7 +18,7 @@
     "PTO_LA0": 10,
     "PTO_LA5": 10,
     "GRPO_LA0": 8,
-    "GRPO_LA5": 4
+    "GRPO_LA5": 6
    },
    "source": "eda_analysis.data.best_iteration_by_arm on primary Q1Q2",
    "note": ""
@@ -26,14 +26,14 @@
   "matched_endpoint": {
    "value": {
     "PTO": 10,
-    "GRPO": 5
+    "GRPO": 6
    },
    "source": "min(END[LA0], END[LA5]) per method",
    "note": ""
   },
   "wai.subscale_map_check.primary": {
    "value": {
-    "n_convs": 3744,
+    "n_convs": 3840,
     "max_abs_diff_items_vs_lake": 0.0
    },
    "source": "in-module check: WAI-SR standard map (Task 1,2,10,12 / Goal 4,6,8,11 / Bond 3,5,7,9) vs eval_scores WAI_{Task,Goal,Bond}_Mean (code/questionnaires.py map)",
@@ -41,7 +41,7 @@
   },
   "wai.subscale_map_check.heldout": {
    "value": {
-    "n_convs": 3744,
+    "n_convs": 3840,
     "max_abs_diff_items_vs_lake": 0.0
    },
    "source": "in-module check: WAI-SR standard map (Task 1,2,10,12 / Goal 4,6,8,11 / Bond 3,5,7,9) vs eval_scores WAI_{Task,Goal,Bond}_Mean (code/questionnaires.py map)",
@@ -103,20 +103,20 @@
   },
   "wai.endpoint.primary.GRPO_LA5": {
    "value": {
-    "Task": 3.393,
-    "Goal": 3.266,
-    "Bond": 3.732,
-    "bond_excess": 0.402,
-    "WAI_total": 3.464,
-    "Task_gain": 0.661,
-    "Goal_gain": 0.635,
-    "Bond_gain": 0.523,
-    "bond_excess_gain": -0.125,
-    "WAI_total_gain": 0.607,
-    "iteration": 5,
+    "Task": 3.516,
+    "Goal": 3.307,
+    "Bond": 3.805,
+    "bond_excess": 0.393,
+    "WAI_total": 3.543,
+    "Task_gain": 0.784,
+    "Goal_gain": 0.677,
+    "Bond_gain": 0.596,
+    "bond_excess_gain": -0.134,
+    "WAI_total_gain": 0.686,
+    "iteration": 6,
     "n": 96
    },
-   "source": "tables/wai_subscales.md row judge=gpt-4o-mini arm=GRPO_LA5 iteration=5",
+   "source": "tables/wai_subscales.md row judge=gpt-4o-mini arm=GRPO_LA5 iteration=6",
    "note": ""
   },
   "wai.kcontrast.primary.PTO.bond_excess.iter10": {
@@ -254,75 +254,79 @@
    "source": "tables/wai_kcontrast.md (judge=gpt-4o-mini, method=PTO, measure=WAI_total)",
    "note": ""
   },
-  "wai.kcontrast.primary.GRPO.bond_excess.iter5": {
+  "wai.kcontrast.primary.GRPO.bond_excess.iter6": {
    "value": {
-    "mean_K0": 0.551,
-    "mean_K5": 0.402,
-    "mean_delta": 0.148,
-    "dz": 0.277,
-    "ci_lo": 0.042,
-    "ci_hi": 0.257,
-    "p": 0.012,
-    "p_holm": 0.069,
+    "mean_K0": 0.535,
+    "mean_K5": 0.393,
+    "mean_delta": 0.142,
+    "dz": 0.242,
+    "ci_lo": 0.03,
+    "ci_hi": 0.26,
+    "p": 0.014,
+    "p_holm": 0.085,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=bond_excess iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=bond_excess iteration=6",
    "note": ""
   },
   "wai.kcontrast.primary.GRPO.bond_excess.n_iters_holm_sig": {
    "value": {
     "n_sig": 0,
-    "n_iters": 5,
+    "n_iters": 6,
     "iters_sig": [],
     "sign_of_sig": []
    },
    "source": "tables/wai_kcontrast.md (judge=gpt-4o-mini, method=GRPO, measure=bond_excess)",
    "note": ""
   },
-  "wai.kcontrast.primary.GRPO.Bond.iter5": {
+  "wai.kcontrast.primary.GRPO.Bond.iter6": {
    "value": {
-    "mean_K0": 3.576,
-    "mean_K5": 3.732,
-    "mean_delta": -0.156,
-    "dz": -0.278,
-    "ci_lo": -0.268,
-    "ci_hi": -0.055,
-    "p": 0.012,
-    "p_holm": 0.075,
+    "mean_K0": 3.654,
+    "mean_K5": 3.805,
+    "mean_delta": -0.151,
+    "dz": -0.313,
+    "ci_lo": -0.247,
+    "ci_hi": -0.057,
+    "p": 0.005,
+    "p_holm": 0.032,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=Bond iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=Bond iteration=6",
    "note": ""
   },
   "wai.kcontrast.primary.GRPO.Bond.n_iters_holm_sig": {
    "value": {
-    "n_sig": 0,
-    "n_iters": 5,
-    "iters_sig": [],
-    "sign_of_sig": []
+    "n_sig": 1,
+    "n_iters": 6,
+    "iters_sig": [
+     6
+    ],
+    "sign_of_sig": [
+     "K5>K0"
+    ]
    },
    "source": "tables/wai_kcontrast.md (judge=gpt-4o-mini, method=GRPO, measure=Bond)",
    "note": ""
   },
-  "wai.kcontrast.primary.GRPO.Goal.iter5": {
+  "wai.kcontrast.primary.GRPO.Goal.iter6": {
    "value": {
-    "mean_K0": 2.971,
-    "mean_K5": 3.266,
-    "mean_delta": -0.294,
-    "dz": -0.439,
-    "ci_lo": -0.43,
-    "ci_hi": -0.172,
-    "p": 0.0,
-    "p_holm": 0.001,
+    "mean_K0": 3.102,
+    "mean_K5": 3.307,
+    "mean_delta": -0.206,
+    "dz": -0.306,
+    "ci_lo": -0.341,
+    "ci_hi": -0.078,
+    "p": 0.019,
+    "p_holm": 0.117,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=Goal iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=Goal iteration=6",
    "note": ""
   },
   "wai.kcontrast.primary.GRPO.Goal.n_iters_holm_sig": {
    "value": {
     "n_sig": 1,
-    "n_iters": 5,
+    "n_iters": 6,
     "iters_sig": [
      5
     ],
@@ -333,30 +337,32 @@
    "source": "tables/wai_kcontrast.md (judge=gpt-4o-mini, method=GRPO, measure=Goal)",
    "note": ""
   },
-  "wai.kcontrast.primary.GRPO.Task.iter5": {
+  "wai.kcontrast.primary.GRPO.Task.iter6": {
    "value": {
-    "mean_K0": 3.078,
-    "mean_K5": 3.393,
-    "mean_delta": -0.315,
-    "dz": -0.458,
-    "ci_lo": -0.453,
-    "ci_hi": -0.19,
+    "mean_K0": 3.135,
+    "mean_K5": 3.516,
+    "mean_delta": -0.38,
+    "dz": -0.561,
+    "ci_lo": -0.513,
+    "ci_hi": -0.253,
     "p": 0.0,
     "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=Task iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=Task iteration=6",
    "note": ""
   },
   "wai.kcontrast.primary.GRPO.Task.n_iters_holm_sig": {
    "value": {
-    "n_sig": 2,
-    "n_iters": 5,
+    "n_sig": 3,
+    "n_iters": 6,
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
+     "K5>K0",
      "K5>K0",
      "K5>K0"
     ]
@@ -364,29 +370,31 @@
    "source": "tables/wai_kcontrast.md (judge=gpt-4o-mini, method=GRPO, measure=Task)",
    "note": ""
   },
-  "wai.kcontrast.primary.GRPO.WAI_total.iter5": {
+  "wai.kcontrast.primary.GRPO.WAI_total.iter6": {
    "value": {
-    "mean_K0": 3.208,
-    "mean_K5": 3.464,
-    "mean_delta": -0.255,
-    "dz": -0.446,
-    "ci_lo": -0.368,
-    "ci_hi": -0.15,
+    "mean_K0": 3.297,
+    "mean_K5": 3.543,
+    "mean_delta": -0.246,
+    "dz": -0.468,
+    "ci_lo": -0.346,
+    "ci_hi": -0.146,
     "p": 0.0,
-    "p_holm": 0.0,
+    "p_holm": 0.001,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=WAI_total iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=gpt-4o-mini method=GRPO measure=WAI_total iteration=6",
    "note": ""
   },
   "wai.kcontrast.primary.GRPO.WAI_total.n_iters_holm_sig": {
    "value": {
-    "n_sig": 1,
-    "n_iters": 5,
+    "n_sig": 2,
+    "n_iters": 6,
     "iters_sig": [
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
+     "K5>K0",
      "K5>K0"
     ]
    },
@@ -449,20 +457,20 @@
   },
   "wai.endpoint.heldout.GRPO_LA5": {
    "value": {
-    "Task": 2.951,
-    "Goal": 2.599,
-    "Bond": 2.88,
-    "bond_excess": 0.105,
-    "WAI_total": 2.81,
-    "Task_gain": 0.685,
-    "Goal_gain": 0.721,
-    "Bond_gain": 0.529,
-    "bond_excess_gain": -0.174,
-    "WAI_total_gain": 0.645,
-    "iteration": 5,
+    "Task": 3.076,
+    "Goal": 2.789,
+    "Bond": 3.016,
+    "bond_excess": 0.083,
+    "WAI_total": 2.96,
+    "Task_gain": 0.81,
+    "Goal_gain": 0.911,
+    "Bond_gain": 0.664,
+    "bond_excess_gain": -0.197,
+    "WAI_total_gain": 0.795,
+    "iteration": 6,
     "n": 96
    },
-   "source": "tables/wai_subscales.md row judge=claude-haiku-4-5 arm=GRPO_LA5 iteration=5",
+   "source": "tables/wai_subscales.md row judge=claude-haiku-4-5 arm=GRPO_LA5 iteration=6",
    "note": ""
   },
   "wai.kcontrast.heldout.PTO.bond_excess.iter10": {
@@ -612,50 +620,54 @@
    "source": "tables/wai_kcontrast.md (judge=claude-haiku-4-5, method=PTO, measure=WAI_total)",
    "note": ""
   },
-  "wai.kcontrast.heldout.GRPO.bond_excess.iter5": {
+  "wai.kcontrast.heldout.GRPO.bond_excess.iter6": {
    "value": {
-    "mean_K0": 0.234,
-    "mean_K5": 0.105,
-    "mean_delta": 0.129,
-    "dz": 0.212,
-    "ci_lo": 0.014,
-    "ci_hi": 0.249,
-    "p": 0.037,
-    "p_holm": 0.22,
+    "mean_K0": 0.342,
+    "mean_K5": 0.083,
+    "mean_delta": 0.259,
+    "dz": 0.406,
+    "ci_lo": 0.13,
+    "ci_hi": 0.382,
+    "p": 0.0,
+    "p_holm": 0.001,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=bond_excess iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=bond_excess iteration=6",
    "note": ""
   },
   "wai.kcontrast.heldout.GRPO.bond_excess.n_iters_holm_sig": {
    "value": {
-    "n_sig": 0,
-    "n_iters": 5,
-    "iters_sig": [],
-    "sign_of_sig": []
+    "n_sig": 1,
+    "n_iters": 6,
+    "iters_sig": [
+     6
+    ],
+    "sign_of_sig": [
+     "K0>K5"
+    ]
    },
    "source": "tables/wai_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, measure=bond_excess)",
    "note": ""
   },
-  "wai.kcontrast.heldout.GRPO.Bond.iter5": {
+  "wai.kcontrast.heldout.GRPO.Bond.iter6": {
    "value": {
-    "mean_K0": 2.857,
-    "mean_K5": 2.88,
-    "mean_delta": -0.023,
-    "dz": -0.041,
-    "ci_lo": -0.135,
-    "ci_hi": 0.086,
-    "p": 0.802,
-    "p_holm": 1.0,
+    "mean_K0": 2.93,
+    "mean_K5": 3.016,
+    "mean_delta": -0.086,
+    "dz": -0.149,
+    "ci_lo": -0.203,
+    "ci_hi": 0.029,
+    "p": 0.129,
+    "p_holm": 0.644,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=Bond iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=Bond iteration=6",
    "note": ""
   },
   "wai.kcontrast.heldout.GRPO.Bond.n_iters_holm_sig": {
    "value": {
     "n_sig": 1,
-    "n_iters": 5,
+    "n_iters": 6,
     "iters_sig": [
      3
     ],
@@ -666,55 +678,61 @@
    "source": "tables/wai_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, measure=Bond)",
    "note": ""
   },
-  "wai.kcontrast.heldout.GRPO.Goal.iter5": {
+  "wai.kcontrast.heldout.GRPO.Goal.iter6": {
    "value": {
-    "mean_K0": 2.536,
-    "mean_K5": 2.599,
-    "mean_delta": -0.062,
-    "dz": -0.079,
-    "ci_lo": -0.221,
-    "ci_hi": 0.096,
-    "p": 0.499,
-    "p_holm": 1.0,
+    "mean_K0": 2.549,
+    "mean_K5": 2.789,
+    "mean_delta": -0.24,
+    "dz": -0.251,
+    "ci_lo": -0.424,
+    "ci_hi": -0.047,
+    "p": 0.005,
+    "p_holm": 0.037,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=Goal iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=Goal iteration=6",
    "note": ""
   },
   "wai.kcontrast.heldout.GRPO.Goal.n_iters_holm_sig": {
    "value": {
-    "n_sig": 0,
-    "n_iters": 5,
-    "iters_sig": [],
-    "sign_of_sig": []
+    "n_sig": 1,
+    "n_iters": 6,
+    "iters_sig": [
+     6
+    ],
+    "sign_of_sig": [
+     "K5>K0"
+    ]
    },
    "source": "tables/wai_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, measure=Goal)",
    "note": ""
   },
-  "wai.kcontrast.heldout.GRPO.Task.iter5": {
+  "wai.kcontrast.heldout.GRPO.Task.iter6": {
    "value": {
-    "mean_K0": 2.708,
-    "mean_K5": 2.951,
-    "mean_delta": -0.242,
-    "dz": -0.371,
-    "ci_lo": -0.372,
-    "ci_hi": -0.117,
-    "p": 0.001,
-    "p_holm": 0.007,
+    "mean_K0": 2.625,
+    "mean_K5": 3.076,
+    "mean_delta": -0.451,
+    "dz": -0.593,
+    "ci_lo": -0.594,
+    "ci_hi": -0.299,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=Task iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=Task iteration=6",
    "note": ""
   },
   "wai.kcontrast.heldout.GRPO.Task.n_iters_holm_sig": {
    "value": {
-    "n_sig": 2,
-    "n_iters": 5,
+    "n_sig": 3,
+    "n_iters": 6,
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
+     "K5>K0",
      "K5>K0",
      "K5>K0"
     ]
@@ -722,27 +740,31 @@
    "source": "tables/wai_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, measure=Task)",
    "note": ""
   },
-  "wai.kcontrast.heldout.GRPO.WAI_total.iter5": {
+  "wai.kcontrast.heldout.GRPO.WAI_total.iter6": {
    "value": {
     "mean_K0": 2.701,
-    "mean_K5": 2.81,
-    "mean_delta": -0.109,
-    "dz": -0.194,
-    "ci_lo": -0.22,
-    "ci_hi": -0.007,
-    "p": 0.119,
-    "p_holm": 0.596,
+    "mean_K5": 2.96,
+    "mean_delta": -0.259,
+    "dz": -0.392,
+    "ci_lo": -0.389,
+    "ci_hi": -0.128,
+    "p": 0.001,
+    "p_holm": 0.004,
     "n": 96
    },
-   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=WAI_total iteration=5",
+   "source": "tables/wai_kcontrast.md row judge=claude-haiku-4-5 method=GRPO measure=WAI_total iteration=6",
    "note": ""
   },
   "wai.kcontrast.heldout.GRPO.WAI_total.n_iters_holm_sig": {
    "value": {
-    "n_sig": 0,
-    "n_iters": 5,
-    "iters_sig": [],
-    "sign_of_sig": []
+    "n_sig": 1,
+    "n_iters": 6,
+    "iters_sig": [
+     6
+    ],
+    "sign_of_sig": [
+     "K5>K0"
+    ]
    },
    "source": "tables/wai_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, measure=WAI_total)",
    "note": ""
@@ -837,61 +859,61 @@
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.gpt-4o-mini.GRPO_LA0.iter5.Task": {
+  "wai.fig_gain.gpt-4o-mini.GRPO_LA0.iter6.Task": {
    "value": {
-    "gain": 0.279,
-    "ci_lo": 0.135,
-    "ci_hi": 0.422,
+    "gain": 0.336,
+    "ci_lo": 0.174,
+    "ci_hi": 0.49,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.gpt-4o-mini.GRPO_LA0.iter5.Goal": {
-   "value": {
-    "gain": 0.273,
-    "ci_lo": 0.135,
-    "ci_hi": 0.411,
-    "n": 96
-   },
-   "source": "tables/wai_fig_data.md / figures/wai.png",
-   "note": ""
-  },
-  "wai.fig_gain.gpt-4o-mini.GRPO_LA0.iter5.Bond": {
+  "wai.fig_gain.gpt-4o-mini.GRPO_LA0.iter6.Goal": {
    "value": {
     "gain": 0.404,
-    "ci_lo": 0.276,
-    "ci_hi": 0.534,
+    "ci_lo": 0.26,
+    "ci_hi": 0.544,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.gpt-4o-mini.GRPO_LA5.iter5.Task": {
+  "wai.fig_gain.gpt-4o-mini.GRPO_LA0.iter6.Bond": {
    "value": {
-    "gain": 0.661,
-    "ci_lo": 0.518,
-    "ci_hi": 0.831,
+    "gain": 0.482,
+    "ci_lo": 0.354,
+    "ci_hi": 0.602,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.gpt-4o-mini.GRPO_LA5.iter5.Goal": {
+  "wai.fig_gain.gpt-4o-mini.GRPO_LA5.iter6.Task": {
    "value": {
-    "gain": 0.635,
+    "gain": 0.784,
+    "ci_lo": 0.633,
+    "ci_hi": 0.945,
+    "n": 96
+   },
+   "source": "tables/wai_fig_data.md / figures/wai.png",
+   "note": ""
+  },
+  "wai.fig_gain.gpt-4o-mini.GRPO_LA5.iter6.Goal": {
+   "value": {
+    "gain": 0.677,
+    "ci_lo": 0.521,
+    "ci_hi": 0.844,
+    "n": 96
+   },
+   "source": "tables/wai_fig_data.md / figures/wai.png",
+   "note": ""
+  },
+  "wai.fig_gain.gpt-4o-mini.GRPO_LA5.iter6.Bond": {
+   "value": {
+    "gain": 0.596,
     "ci_lo": 0.49,
-    "ci_hi": 0.797,
-    "n": 96
-   },
-   "source": "tables/wai_fig_data.md / figures/wai.png",
-   "note": ""
-  },
-  "wai.fig_gain.gpt-4o-mini.GRPO_LA5.iter5.Bond": {
-   "value": {
-    "gain": 0.523,
-    "ci_lo": 0.427,
-    "ci_hi": 0.635,
+    "ci_hi": 0.708,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
@@ -987,61 +1009,61 @@
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.claude-haiku-4-5.GRPO_LA0.iter5.Task": {
+  "wai.fig_gain.claude-haiku-4-5.GRPO_LA0.iter6.Task": {
    "value": {
-    "gain": 0.393,
-    "ci_lo": 0.253,
-    "ci_hi": 0.526,
+    "gain": 0.31,
+    "ci_lo": 0.138,
+    "ci_hi": 0.474,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.claude-haiku-4-5.GRPO_LA0.iter5.Goal": {
+  "wai.fig_gain.claude-haiku-4-5.GRPO_LA0.iter6.Goal": {
    "value": {
-    "gain": 0.565,
-    "ci_lo": 0.406,
-    "ci_hi": 0.716,
+    "gain": 0.578,
+    "ci_lo": 0.357,
+    "ci_hi": 0.784,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.claude-haiku-4-5.GRPO_LA0.iter5.Bond": {
+  "wai.fig_gain.claude-haiku-4-5.GRPO_LA0.iter6.Bond": {
    "value": {
-    "gain": 0.477,
-    "ci_lo": 0.362,
-    "ci_hi": 0.591,
+    "gain": 0.549,
+    "ci_lo": 0.414,
+    "ci_hi": 0.682,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.claude-haiku-4-5.GRPO_LA5.iter5.Task": {
+  "wai.fig_gain.claude-haiku-4-5.GRPO_LA5.iter6.Task": {
    "value": {
-    "gain": 0.685,
-    "ci_lo": 0.542,
-    "ci_hi": 0.844,
+    "gain": 0.81,
+    "ci_lo": 0.656,
+    "ci_hi": 0.971,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.claude-haiku-4-5.GRPO_LA5.iter5.Goal": {
+  "wai.fig_gain.claude-haiku-4-5.GRPO_LA5.iter6.Goal": {
    "value": {
-    "gain": 0.721,
-    "ci_lo": 0.562,
-    "ci_hi": 0.893,
+    "gain": 0.911,
+    "ci_lo": 0.766,
+    "ci_hi": 1.049,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
    "note": ""
   },
-  "wai.fig_gain.claude-haiku-4-5.GRPO_LA5.iter5.Bond": {
+  "wai.fig_gain.claude-haiku-4-5.GRPO_LA5.iter6.Bond": {
    "value": {
-    "gain": 0.529,
-    "ci_lo": 0.396,
-    "ci_hi": 0.664,
+    "gain": 0.664,
+    "ci_lo": 0.539,
+    "ci_hi": 0.794,
     "n": 96
    },
    "source": "tables/wai_fig_data.md / figures/wai.png",
@@ -1392,60 +1414,62 @@
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=PTO, metric=PCT_BehaviorTotal)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_ChangeProp.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_ChangeProp.iter6": {
    "value": {
-    "mean_K0": 0.522,
-    "mean_K5": 0.578,
-    "mean_delta": -0.056,
-    "dz": -0.309,
-    "ci_lo": -0.092,
-    "ci_hi": -0.022,
-    "p": 0.003,
-    "p_holm": 0.017,
+    "mean_K0": 0.53,
+    "mean_K5": 0.625,
+    "mean_delta": -0.096,
+    "dz": -0.455,
+    "ci_lo": -0.137,
+    "ci_hi": -0.056,
+    "p": 0.0,
+    "p_holm": 0.001,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_ChangeProp iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_ChangeProp iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_ChangeProp.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_ChangeProp)",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_ChangeProp.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.062,
-    "dz": -0.321,
-    "p": 0.002,
-    "p_holm": 0.013
+    "iteration": 6,
+    "mean_delta": -0.096,
+    "dz": -0.455,
+    "p": 0.0,
+    "p_holm": 0.001
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_ChangeProp)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_GlobalMean.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_GlobalMean.iter6": {
    "value": {
-    "mean_K0": 3.253,
-    "mean_K5": 3.486,
-    "mean_delta": -0.233,
-    "dz": -0.353,
-    "ci_lo": -0.358,
-    "ci_hi": -0.104,
-    "p": 0.002,
-    "p_holm": 0.009,
+    "mean_K0": 3.264,
+    "mean_K5": 3.656,
+    "mean_delta": -0.392,
+    "dz": -0.572,
+    "ci_lo": -0.531,
+    "ci_hi": -0.26,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_GlobalMean iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_GlobalMean iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_GlobalMean.holm_sig_iters": {
@@ -1453,213 +1477,223 @@
     "iters_sig": [
      3,
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_GlobalMean)",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_GlobalMean.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.278,
-    "dz": -0.445,
+    "iteration": 6,
+    "mean_delta": -0.392,
+    "dz": -0.572,
     "p": 0.0,
     "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_GlobalMean)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_Importance.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_Importance.iter6": {
    "value": {
     "mean_K0": 3.427,
-    "mean_K5": 3.677,
-    "mean_delta": -0.25,
-    "dz": -0.315,
-    "ci_lo": -0.406,
-    "ci_hi": -0.094,
-    "p": 0.003,
-    "p_holm": 0.013,
+    "mean_K5": 3.885,
+    "mean_delta": -0.458,
+    "dz": -0.568,
+    "ci_lo": -0.615,
+    "ci_hi": -0.302,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Importance iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Importance iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_Importance.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Importance)",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_Importance.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.312,
-    "dz": -0.412,
+    "iteration": 6,
+    "mean_delta": -0.458,
+    "dz": -0.568,
     "p": 0.0,
-    "p_holm": 0.001
+    "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Importance)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_Confidence.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_Confidence.iter6": {
    "value": {
-    "mean_K0": 2.938,
-    "mean_K5": 3.094,
-    "mean_delta": -0.156,
-    "dz": -0.275,
-    "ci_lo": -0.271,
-    "ci_hi": -0.052,
-    "p": 0.009,
-    "p_holm": 0.045,
+    "mean_K0": 2.906,
+    "mean_K5": 3.208,
+    "mean_delta": -0.302,
+    "dz": -0.519,
+    "ci_lo": -0.417,
+    "ci_hi": -0.188,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Confidence iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Confidence iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_Confidence.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Confidence)",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_Confidence.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.198,
-    "dz": -0.384,
+    "iteration": 6,
+    "mean_delta": -0.302,
+    "dz": -0.519,
     "p": 0.0,
-    "p_holm": 0.003
+    "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Confidence)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_Readiness.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_Readiness.iter6": {
    "value": {
-    "mean_K0": 3.396,
-    "mean_K5": 3.688,
-    "mean_delta": -0.292,
-    "dz": -0.335,
-    "ci_lo": -0.458,
-    "ci_hi": -0.125,
-    "p": 0.001,
-    "p_holm": 0.007,
+    "mean_K0": 3.458,
+    "mean_K5": 3.875,
+    "mean_delta": -0.417,
+    "dz": -0.462,
+    "ci_lo": -0.594,
+    "ci_hi": -0.25,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Readiness iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Readiness iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_Readiness.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Readiness)",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_Readiness.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.323,
-    "dz": -0.363,
-    "p": 0.001,
-    "p_holm": 0.004
+    "iteration": 6,
+    "mean_delta": -0.417,
+    "dz": -0.462,
+    "p": 0.0,
+    "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Readiness)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_ChangeTalk.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_ChangeTalk.iter6": {
    "value": {
-    "mean_K0": 5.885,
-    "mean_K5": 5.323,
-    "mean_delta": 0.562,
-    "dz": 0.154,
-    "ci_lo": -0.25,
-    "ci_hi": 1.292,
-    "p": 0.086,
-    "p_holm": 0.514,
+    "mean_K0": 6.406,
+    "mean_K5": 7.583,
+    "mean_delta": -1.177,
+    "dz": -0.207,
+    "ci_lo": -2.302,
+    "ci_hi": -0.062,
+    "p": 0.066,
+    "p_holm": 0.464,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_ChangeTalk iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_ChangeTalk iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_ChangeTalk.holm_sig_iters": {
    "value": {
     "iters_sig": [],
     "sign_of_sig": [],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_ChangeTalk)",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_ChangeTalk.max_abs_dz": {
    "value": {
-    "iteration": 3,
-    "mean_delta": -0.812,
-    "dz": -0.186,
-    "p": 0.22,
-    "p_holm": 0.659
+    "iteration": 6,
+    "mean_delta": -1.177,
+    "dz": -0.207,
+    "p": 0.066,
+    "p_holm": 0.464
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_ChangeTalk)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_SustainTalk.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_SustainTalk.iter6": {
    "value": {
-    "mean_K0": 6.906,
-    "mean_K5": 4.5,
-    "mean_delta": 2.406,
-    "dz": 0.514,
-    "ci_lo": 1.49,
-    "ci_hi": 3.427,
-    "p": 0.0,
-    "p_holm": 0.0,
+    "mean_K0": 6.562,
+    "mean_K5": 4.927,
+    "mean_delta": 1.635,
+    "dz": 0.302,
+    "ci_lo": 0.593,
+    "ci_hi": 2.75,
+    "p": 0.007,
+    "p_holm": 0.034,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_SustainTalk iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_SustainTalk iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_SustainTalk.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K0>K5",
+     "K0>K5",
      "K0>K5"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_SustainTalk)",
    "note": ""
@@ -1675,32 +1709,34 @@
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_SustainTalk)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_Neutral.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_Neutral.iter6": {
    "value": {
-    "mean_K0": 2.542,
-    "mean_K5": 1.438,
-    "mean_delta": 1.104,
-    "dz": 0.487,
-    "ci_lo": 0.656,
-    "ci_hi": 1.562,
+    "mean_K0": 3.146,
+    "mean_K5": 1.865,
+    "mean_delta": 1.281,
+    "dz": 0.46,
+    "ci_lo": 0.74,
+    "ci_hi": 1.834,
     "p": 0.0,
     "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Neutral iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_Neutral iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_Neutral.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K0>K5",
+     "K0>K5",
      "K0>K5"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Neutral)",
    "note": ""
@@ -1716,19 +1752,19 @@
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_Neutral)",
    "note": ""
   },
-  "pct.kcontrast.primary.GRPO.PCT_BehaviorTotal.iter5": {
+  "pct.kcontrast.primary.GRPO.PCT_BehaviorTotal.iter6": {
    "value": {
-    "mean_K0": 15.333,
-    "mean_K5": 11.26,
-    "mean_delta": 4.073,
-    "dz": 0.533,
-    "ci_lo": 2.521,
-    "ci_hi": 5.625,
-    "p": 0.0,
-    "p_holm": 0.0,
+    "mean_K0": 16.115,
+    "mean_K5": 14.375,
+    "mean_delta": 1.74,
+    "dz": 0.178,
+    "ci_lo": -0.281,
+    "ci_hi": 3.646,
+    "p": 0.15,
+    "p_holm": 0.644,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_BehaviorTotal iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=PCT_BehaviorTotal iteration=6",
    "note": ""
   },
   "pct.kcontrast.primary.GRPO.PCT_BehaviorTotal.holm_sig_iters": {
@@ -1739,7 +1775,7 @@
     "sign_of_sig": [
      "K0>K5"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=gpt-4o-mini, method=GRPO, metric=PCT_BehaviorTotal)",
    "note": ""
@@ -2102,270 +2138,282 @@
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=PTO, metric=PCT_BehaviorTotal)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_ChangeProp.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_ChangeProp.iter6": {
    "value": {
-    "mean_K0": 0.555,
-    "mean_K5": 0.622,
-    "mean_delta": -0.067,
-    "dz": -0.373,
-    "ci_lo": -0.104,
-    "ci_hi": -0.033,
-    "p": 0.001,
-    "p_holm": 0.003,
+    "mean_K0": 0.554,
+    "mean_K5": 0.677,
+    "mean_delta": -0.123,
+    "dz": -0.543,
+    "ci_lo": -0.167,
+    "ci_hi": -0.08,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_ChangeProp iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_ChangeProp iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_ChangeProp.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_ChangeProp)",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_ChangeProp.max_abs_dz": {
    "value": {
-    "iteration": 5,
-    "mean_delta": -0.067,
-    "dz": -0.373,
-    "p": 0.001,
-    "p_holm": 0.003
+    "iteration": 6,
+    "mean_delta": -0.123,
+    "dz": -0.543,
+    "p": 0.0,
+    "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_ChangeProp)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_GlobalMean.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_GlobalMean.iter6": {
    "value": {
-    "mean_K0": 2.948,
-    "mean_K5": 3.17,
-    "mean_delta": -0.222,
-    "dz": -0.316,
-    "ci_lo": -0.365,
-    "ci_hi": -0.087,
-    "p": 0.005,
-    "p_holm": 0.026,
+    "mean_K0": 2.903,
+    "mean_K5": 3.368,
+    "mean_delta": -0.465,
+    "dz": -0.586,
+    "ci_lo": -0.622,
+    "ci_hi": -0.312,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_GlobalMean iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_GlobalMean iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_GlobalMean.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_GlobalMean)",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_GlobalMean.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.292,
-    "dz": -0.417,
+    "iteration": 6,
+    "mean_delta": -0.465,
+    "dz": -0.586,
     "p": 0.0,
-    "p_holm": 0.002
+    "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_GlobalMean)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_Importance.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_Importance.iter6": {
    "value": {
-    "mean_K0": 3.125,
-    "mean_K5": 3.271,
-    "mean_delta": -0.146,
-    "dz": -0.201,
-    "ci_lo": -0.292,
-    "ci_hi": -0.01,
-    "p": 0.052,
-    "p_holm": 0.261,
+    "mean_K0": 3.083,
+    "mean_K5": 3.458,
+    "mean_delta": -0.375,
+    "dz": -0.462,
+    "ci_lo": -0.531,
+    "ci_hi": -0.219,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Importance iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Importance iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_Importance.holm_sig_iters": {
    "value": {
     "iters_sig": [
-     4
+     4,
+     6
     ],
     "sign_of_sig": [
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Importance)",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_Importance.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.208,
-    "dz": -0.282,
-    "p": 0.008,
-    "p_holm": 0.046
+    "iteration": 6,
+    "mean_delta": -0.375,
+    "dz": -0.462,
+    "p": 0.0,
+    "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Importance)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_Confidence.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_Confidence.iter6": {
    "value": {
-    "mean_K0": 2.625,
-    "mean_K5": 2.865,
-    "mean_delta": -0.24,
-    "dz": -0.339,
-    "ci_lo": -0.375,
-    "ci_hi": -0.104,
-    "p": 0.002,
-    "p_holm": 0.008,
+    "mean_K0": 2.531,
+    "mean_K5": 3.042,
+    "mean_delta": -0.51,
+    "dz": -0.612,
+    "ci_lo": -0.677,
+    "ci_hi": -0.354,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Confidence iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Confidence iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_Confidence.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Confidence)",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_Confidence.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.333,
-    "dz": -0.483,
+    "iteration": 6,
+    "mean_delta": -0.51,
+    "dz": -0.612,
     "p": 0.0,
     "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Confidence)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_Readiness.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_Readiness.iter6": {
    "value": {
     "mean_K0": 3.094,
-    "mean_K5": 3.375,
-    "mean_delta": -0.281,
-    "dz": -0.287,
-    "ci_lo": -0.469,
-    "ci_hi": -0.094,
-    "p": 0.005,
-    "p_holm": 0.026,
+    "mean_K5": 3.604,
+    "mean_delta": -0.51,
+    "dz": -0.488,
+    "ci_lo": -0.719,
+    "ci_hi": -0.312,
+    "p": 0.0,
+    "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Readiness iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Readiness iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_Readiness.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K5>K0",
+     "K5>K0",
      "K5>K0"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Readiness)",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_Readiness.max_abs_dz": {
    "value": {
-    "iteration": 4,
-    "mean_delta": -0.333,
-    "dz": -0.352,
-    "p": 0.001,
-    "p_holm": 0.007
+    "iteration": 6,
+    "mean_delta": -0.51,
+    "dz": -0.488,
+    "p": 0.0,
+    "p_holm": 0.0
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Readiness)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_ChangeTalk.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_ChangeTalk.iter6": {
    "value": {
-    "mean_K0": 5.792,
-    "mean_K5": 5.542,
-    "mean_delta": 0.25,
-    "dz": 0.063,
-    "ci_lo": -0.594,
-    "ci_hi": 1.01,
-    "p": 0.331,
-    "p_holm": 1.0,
+    "mean_K0": 6.365,
+    "mean_K5": 8.01,
+    "mean_delta": -1.646,
+    "dz": -0.269,
+    "ci_lo": -2.845,
+    "ci_hi": -0.447,
+    "p": 0.015,
+    "p_holm": 0.106,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_ChangeTalk iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_ChangeTalk iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_ChangeTalk.holm_sig_iters": {
    "value": {
     "iters_sig": [],
     "sign_of_sig": [],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_ChangeTalk)",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_ChangeTalk.max_abs_dz": {
    "value": {
-    "iteration": 3,
-    "mean_delta": -0.656,
-    "dz": -0.13,
-    "p": 0.466,
-    "p_holm": 1.0
+    "iteration": 6,
+    "mean_delta": -1.646,
+    "dz": -0.269,
+    "p": 0.015,
+    "p_holm": 0.106
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_ChangeTalk)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_SustainTalk.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_SustainTalk.iter6": {
    "value": {
-    "mean_K0": 6.177,
-    "mean_K5": 4.031,
-    "mean_delta": 2.146,
-    "dz": 0.505,
-    "ci_lo": 1.344,
-    "ci_hi": 3.073,
-    "p": 0.0,
-    "p_holm": 0.0,
+    "mean_K0": 5.698,
+    "mean_K5": 4.25,
+    "mean_delta": 1.448,
+    "dz": 0.295,
+    "ci_lo": 0.458,
+    "ci_hi": 2.385,
+    "p": 0.001,
+    "p_holm": 0.004,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_SustainTalk iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_SustainTalk iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_SustainTalk.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K0>K5",
+     "K0>K5",
      "K0>K5"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_SustainTalk)",
    "note": ""
@@ -2381,32 +2429,34 @@
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_SustainTalk)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_Neutral.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_Neutral.iter6": {
    "value": {
-    "mean_K0": 3.365,
-    "mean_K5": 1.688,
-    "mean_delta": 1.677,
-    "dz": 0.543,
-    "ci_lo": 1.052,
-    "ci_hi": 2.302,
+    "mean_K0": 4.052,
+    "mean_K5": 2.115,
+    "mean_delta": 1.938,
+    "dz": 0.532,
+    "ci_lo": 1.239,
+    "ci_hi": 2.667,
     "p": 0.0,
     "p_holm": 0.0,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Neutral iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_Neutral iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_Neutral.holm_sig_iters": {
    "value": {
     "iters_sig": [
      4,
-     5
+     5,
+     6
     ],
     "sign_of_sig": [
      "K0>K5",
+     "K0>K5",
      "K0>K5"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Neutral)",
    "note": ""
@@ -2422,19 +2472,19 @@
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_Neutral)",
    "note": ""
   },
-  "pct.kcontrast.heldout.GRPO.PCT_BehaviorTotal.iter5": {
+  "pct.kcontrast.heldout.GRPO.PCT_BehaviorTotal.iter6": {
    "value": {
-    "mean_K0": 15.333,
-    "mean_K5": 11.26,
-    "mean_delta": 4.073,
-    "dz": 0.533,
-    "ci_lo": 2.521,
-    "ci_hi": 5.625,
-    "p": 0.0,
-    "p_holm": 0.0,
+    "mean_K0": 16.115,
+    "mean_K5": 14.375,
+    "mean_delta": 1.74,
+    "dz": 0.178,
+    "ci_lo": -0.281,
+    "ci_hi": 3.646,
+    "p": 0.15,
+    "p_holm": 0.617,
     "n": 96
    },
-   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_BehaviorTotal iteration=5",
+   "source": "tables/pct_kcontrast.md row judge=claude-haiku-4-5 method=GRPO metric=PCT_BehaviorTotal iteration=6",
    "note": ""
   },
   "pct.kcontrast.heldout.GRPO.PCT_BehaviorTotal.holm_sig_iters": {
@@ -2445,7 +2495,7 @@
     "sign_of_sig": [
      "K0>K5"
     ],
-    "n_iters": 5
+    "n_iters": 6
    },
    "source": "tables/pct_kcontrast.md (judge=claude-haiku-4-5, method=GRPO, metric=PCT_BehaviorTotal)",
    "note": ""
@@ -2542,12 +2592,12 @@
   "q2.item1.gain.primary.GRPO_LA5": {
    "value": {
     "base": 3.042,
-    "target": 3.771,
-    "gain": 0.729,
-    "ci_lo": 0.583,
-    "ci_hi": 0.885,
-    "dz": 0.926,
-    "target_iter": 5,
+    "target": 3.823,
+    "gain": 0.781,
+    "ci_lo": 0.615,
+    "ci_hi": 0.948,
+    "dz": 0.921,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=gpt-4o-mini arm=GRPO_LA5 item=1",
@@ -2568,16 +2618,16 @@
    "source": "tables/q2_items.md row judge=gpt-4o-mini item=1 (PTO columns)",
    "note": ""
   },
-  "q2.item1.kcontrast.primary.GRPO.iter5": {
+  "q2.item1.kcontrast.primary.GRPO.iter6": {
    "value": {
-    "mean_K0": 3.75,
-    "mean_K5": 3.771,
-    "k_delta": -0.021,
-    "dz": -0.051,
-    "ci_lo": -0.104,
-    "ci_hi": 0.062,
-    "p": 0.617,
-    "p_holm": 1.0,
+    "mean_K0": 3.708,
+    "mean_K5": 3.823,
+    "k_delta": -0.115,
+    "dz": -0.24,
+    "ci_lo": -0.208,
+    "ci_hi": -0.021,
+    "p": 0.022,
+    "p_holm": 0.277,
     "n": 96
    },
    "source": "tables/q2_items.md row judge=gpt-4o-mini item=1 (GRPO columns)",
@@ -2628,12 +2678,12 @@
   "q2.item2.gain.primary.GRPO_LA5": {
    "value": {
     "base": 2.604,
-    "target": 3.708,
-    "gain": 1.104,
-    "ci_lo": 0.927,
-    "ci_hi": 1.282,
-    "dz": 1.168,
-    "target_iter": 5,
+    "target": 3.854,
+    "gain": 1.25,
+    "ci_lo": 1.073,
+    "ci_hi": 1.438,
+    "dz": 1.299,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=gpt-4o-mini arm=GRPO_LA5 item=2",
@@ -2654,15 +2704,15 @@
    "source": "tables/q2_items.md row judge=gpt-4o-mini item=2 (PTO columns)",
    "note": ""
   },
-  "q2.item2.kcontrast.primary.GRPO.iter5": {
+  "q2.item2.kcontrast.primary.GRPO.iter6": {
    "value": {
-    "mean_K0": 3.75,
-    "mean_K5": 3.708,
-    "k_delta": 0.042,
-    "dz": 0.055,
-    "ci_lo": -0.104,
-    "ci_hi": 0.177,
-    "p": 0.584,
+    "mean_K0": 3.823,
+    "mean_K5": 3.854,
+    "k_delta": -0.031,
+    "dz": -0.034,
+    "ci_lo": -0.219,
+    "ci_hi": 0.146,
+    "p": 0.764,
     "p_holm": 1.0,
     "n": 96
    },
@@ -2714,12 +2764,12 @@
   "q2.item3.gain.primary.GRPO_LA5": {
    "value": {
     "base": 2.167,
-    "target": 2.896,
-    "gain": 0.729,
-    "ci_lo": 0.604,
-    "ci_hi": 0.865,
-    "dz": 1.084,
-    "target_iter": 5,
+    "target": 3.094,
+    "gain": 0.927,
+    "ci_lo": 0.792,
+    "ci_hi": 1.062,
+    "dz": 1.325,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=gpt-4o-mini arm=GRPO_LA5 item=3",
@@ -2740,15 +2790,15 @@
    "source": "tables/q2_items.md row judge=gpt-4o-mini item=3 (PTO columns)",
    "note": ""
   },
-  "q2.item3.kcontrast.primary.GRPO.iter5": {
+  "q2.item3.kcontrast.primary.GRPO.iter6": {
    "value": {
-    "mean_K0": 2.885,
-    "mean_K5": 2.896,
-    "k_delta": -0.01,
-    "dz": -0.017,
-    "ci_lo": -0.135,
-    "ci_hi": 0.104,
-    "p": 0.869,
+    "mean_K0": 3.01,
+    "mean_K5": 3.094,
+    "k_delta": -0.083,
+    "dz": -0.116,
+    "ci_lo": -0.229,
+    "ci_hi": 0.062,
+    "p": 0.245,
     "p_holm": 1.0,
     "n": 96
    },
@@ -2800,12 +2850,12 @@
   "q2.item10.gain.primary.GRPO_LA5": {
    "value": {
     "base": 2.302,
-    "target": 3.25,
-    "gain": 0.948,
-    "ci_lo": 0.802,
-    "ci_hi": 1.104,
-    "dz": 1.249,
-    "target_iter": 5,
+    "target": 3.344,
+    "gain": 1.042,
+    "ci_lo": 0.885,
+    "ci_hi": 1.198,
+    "dz": 1.291,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=gpt-4o-mini arm=GRPO_LA5 item=10",
@@ -2826,16 +2876,16 @@
    "source": "tables/q2_items.md row judge=gpt-4o-mini item=10 (PTO columns)",
    "note": ""
   },
-  "q2.item10.kcontrast.primary.GRPO.iter5": {
+  "q2.item10.kcontrast.primary.GRPO.iter6": {
    "value": {
-    "mean_K0": 3.104,
-    "mean_K5": 3.25,
-    "k_delta": -0.146,
-    "dz": -0.231,
-    "ci_lo": -0.271,
-    "ci_hi": -0.021,
-    "p": 0.027,
-    "p_holm": 0.453,
+    "mean_K0": 3.146,
+    "mean_K5": 3.344,
+    "k_delta": -0.198,
+    "dz": -0.269,
+    "ci_lo": -0.344,
+    "ci_hi": -0.042,
+    "p": 0.01,
+    "p_holm": 0.141,
     "n": 96
    },
    "source": "tables/q2_items.md row judge=gpt-4o-mini item=10 (GRPO columns)",
@@ -2909,11 +2959,11 @@
   },
   "q2.groups.primary.GRPO_LA5": {
    "value": {
-    "self_disclosure_1_2_3_10_mean_gain": 0.878,
-    "emotional_3_10_mean_gain": 0.839,
-    "other_13_items_mean_gain": 1.142,
-    "all_17_mean_gain": 1.08,
-    "rank_of_item3": 17,
+    "self_disclosure_1_2_3_10_mean_gain": 1.0,
+    "emotional_3_10_mean_gain": 0.984,
+    "other_13_items_mean_gain": 1.317,
+    "all_17_mean_gain": 1.242,
+    "rank_of_item3": 16,
     "rank_of_item10": 15,
     "top3_items": [
      17,
@@ -2922,11 +2972,11 @@
     ],
     "bottom3_items": [
      10,
-     1,
-     3
+     3,
+     1
     ]
    },
-   "source": "tables/q2_items.md (judge=gpt-4o-mini, column GRPO_LA5_gain@5)",
+   "source": "tables/q2_items.md (judge=gpt-4o-mini, column GRPO_LA5_gain@6)",
    "note": ""
   },
   "q2.kcontrast_summary.primary.PTO": {
@@ -2945,14 +2995,20 @@
   },
   "q2.kcontrast_summary.primary.GRPO": {
    "value": {
-    "iteration": 5,
-    "n_items_holm_sig": 0,
-    "items_sig": [],
-    "sign_of_sig": [],
-    "mean_k_delta_all17": -0.021,
-    "mean_k_delta_selfdisc": -0.034,
-    "mean_k_delta_emotional_3_10": -0.078,
-    "mean_k_delta_other13": -0.017
+    "iteration": 6,
+    "n_items_holm_sig": 2,
+    "items_sig": [
+     13,
+     17
+    ],
+    "sign_of_sig": [
+     "K5>K0",
+     "K5>K0"
+    ],
+    "mean_k_delta_all17": -0.137,
+    "mean_k_delta_selfdisc": -0.107,
+    "mean_k_delta_emotional_3_10": -0.141,
+    "mean_k_delta_other13": -0.147
    },
    "source": "tables/q2_items.md (judge=gpt-4o-mini, GRPO columns)",
    "note": ""
@@ -3002,12 +3058,12 @@
   "q2.item1.gain.heldout.GRPO_LA5": {
    "value": {
     "base": 2.156,
-    "target": 2.802,
-    "gain": 0.646,
-    "ci_lo": 0.49,
-    "ci_hi": 0.802,
-    "dz": 0.813,
-    "target_iter": 5,
+    "target": 2.885,
+    "gain": 0.729,
+    "ci_lo": 0.562,
+    "ci_hi": 0.896,
+    "dz": 0.856,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=claude-haiku-4-5 arm=GRPO_LA5 item=1",
@@ -3028,16 +3084,16 @@
    "source": "tables/q2_items.md row judge=claude-haiku-4-5 item=1 (PTO columns)",
    "note": ""
   },
-  "q2.item1.kcontrast.heldout.GRPO.iter5": {
+  "q2.item1.kcontrast.heldout.GRPO.iter6": {
    "value": {
-    "mean_K0": 2.688,
-    "mean_K5": 2.802,
-    "k_delta": -0.115,
-    "dz": -0.15,
-    "ci_lo": -0.271,
-    "ci_hi": 0.032,
-    "p": 0.144,
-    "p_holm": 0.576,
+    "mean_K0": 2.698,
+    "mean_K5": 2.885,
+    "k_delta": -0.188,
+    "dz": -0.214,
+    "ci_lo": -0.365,
+    "ci_hi": -0.01,
+    "p": 0.039,
+    "p_holm": 0.044,
     "n": 96
    },
    "source": "tables/q2_items.md row judge=claude-haiku-4-5 item=1 (GRPO columns)",
@@ -3088,12 +3144,12 @@
   "q2.item2.gain.heldout.GRPO_LA5": {
    "value": {
     "base": 1.625,
-    "target": 2.177,
-    "gain": 0.552,
-    "ci_lo": 0.438,
-    "ci_hi": 0.677,
-    "dz": 0.9,
-    "target_iter": 5,
+    "target": 2.25,
+    "gain": 0.625,
+    "ci_lo": 0.5,
+    "ci_hi": 0.75,
+    "dz": 1.008,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=claude-haiku-4-5 arm=GRPO_LA5 item=2",
@@ -3114,16 +3170,16 @@
    "source": "tables/q2_items.md row judge=claude-haiku-4-5 item=2 (PTO columns)",
    "note": ""
   },
-  "q2.item2.kcontrast.heldout.GRPO.iter5": {
+  "q2.item2.kcontrast.heldout.GRPO.iter6": {
    "value": {
-    "mean_K0": 2.094,
-    "mean_K5": 2.177,
-    "k_delta": -0.083,
-    "dz": -0.123,
-    "ci_lo": -0.219,
-    "ci_hi": 0.052,
-    "p": 0.228,
-    "p_holm": 0.683,
+    "mean_K0": 2.042,
+    "mean_K5": 2.25,
+    "k_delta": -0.208,
+    "dz": -0.307,
+    "ci_lo": -0.344,
+    "ci_hi": -0.073,
+    "p": 0.004,
+    "p_holm": 0.016,
     "n": 96
    },
    "source": "tables/q2_items.md row judge=claude-haiku-4-5 item=2 (GRPO columns)",
@@ -3174,12 +3230,12 @@
   "q2.item3.gain.heldout.GRPO_LA5": {
    "value": {
     "base": 1.542,
-    "target": 1.844,
-    "gain": 0.302,
-    "ci_lo": 0.146,
-    "ci_hi": 0.469,
-    "dz": 0.367,
-    "target_iter": 5,
+    "target": 2.031,
+    "gain": 0.49,
+    "ci_lo": 0.344,
+    "ci_hi": 0.656,
+    "dz": 0.606,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=claude-haiku-4-5 arm=GRPO_LA5 item=3",
@@ -3200,14 +3256,14 @@
    "source": "tables/q2_items.md row judge=claude-haiku-4-5 item=3 (PTO columns)",
    "note": ""
   },
-  "q2.item3.kcontrast.heldout.GRPO.iter5": {
+  "q2.item3.kcontrast.heldout.GRPO.iter6": {
    "value": {
-    "mean_K0": 2.271,
-    "mean_K5": 1.844,
-    "k_delta": 0.427,
-    "dz": 0.445,
-    "ci_lo": 0.24,
-    "ci_hi": 0.625,
+    "mean_K0": 2.521,
+    "mean_K5": 2.031,
+    "k_delta": 0.49,
+    "dz": 0.455,
+    "ci_lo": 0.271,
+    "ci_hi": 0.698,
     "p": 0.0,
     "p_holm": 0.001,
     "n": 96
@@ -3260,12 +3316,12 @@
   "q2.item10.gain.heldout.GRPO_LA5": {
    "value": {
     "base": 1.302,
-    "target": 1.688,
-    "gain": 0.385,
-    "ci_lo": 0.25,
-    "ci_hi": 0.531,
-    "dz": 0.517,
-    "target_iter": 5,
+    "target": 1.854,
+    "gain": 0.552,
+    "ci_lo": 0.406,
+    "ci_hi": 0.698,
+    "dz": 0.748,
+    "target_iter": 6,
     "n": 96
    },
    "source": "tables/q2_items_long.md row judge=claude-haiku-4-5 arm=GRPO_LA5 item=10",
@@ -3286,16 +3342,16 @@
    "source": "tables/q2_items.md row judge=claude-haiku-4-5 item=10 (PTO columns)",
    "note": ""
   },
-  "q2.item10.kcontrast.heldout.GRPO.iter5": {
+  "q2.item10.kcontrast.heldout.GRPO.iter6": {
    "value": {
-    "mean_K0": 1.969,
-    "mean_K5": 1.688,
-    "k_delta": 0.281,
-    "dz": 0.272,
-    "ci_lo": 0.083,
+    "mean_K0": 2.115,
+    "mean_K5": 1.854,
+    "k_delta": 0.26,
+    "dz": 0.222,
+    "ci_lo": 0.021,
     "ci_hi": 0.479,
-    "p": 0.013,
-    "p_holm": 0.076,
+    "p": 0.022,
+    "p_holm": 0.044,
     "n": 96
    },
    "source": "tables/q2_items.md row judge=claude-haiku-4-5 item=10 (GRPO columns)",
@@ -3369,16 +3425,16 @@
   },
   "q2.groups.heldout.GRPO_LA5": {
    "value": {
-    "self_disclosure_1_2_3_10_mean_gain": 0.471,
-    "emotional_3_10_mean_gain": 0.344,
-    "other_13_items_mean_gain": 0.897,
-    "all_17_mean_gain": 0.797,
+    "self_disclosure_1_2_3_10_mean_gain": 0.599,
+    "emotional_3_10_mean_gain": 0.521,
+    "other_13_items_mean_gain": 1.02,
+    "all_17_mean_gain": 0.921,
     "rank_of_item3": 17,
     "rank_of_item10": 16,
     "top3_items": [
      7,
-     12,
-     17
+     17,
+     16
     ],
     "bottom3_items": [
      2,
@@ -3386,7 +3442,7 @@
      3
     ]
    },
-   "source": "tables/q2_items.md (judge=claude-haiku-4-5, column GRPO_LA5_gain@5)",
+   "source": "tables/q2_items.md (judge=claude-haiku-4-5, column GRPO_LA5_gain@6)",
    "note": ""
   },
   "q2.kcontrast_summary.heldout.PTO": {
@@ -3433,24 +3489,38 @@
   },
   "q2.kcontrast_summary.heldout.GRPO": {
    "value": {
-    "iteration": 5,
-    "n_items_holm_sig": 10,
+    "iteration": 6,
+    "n_items_holm_sig": 17,
     "items_sig": [
+     1,
+     2,
      3,
      4,
      5,
      6,
+     7,
      8,
+     9,
+     10,
      11,
      12,
+     13,
      14,
+     15,
      16,
      17
     ],
     "sign_of_sig": [
+     "K5>K0",
+     "K5>K0",
      "K0>K5",
      "K5>K0",
      "K5>K0",
+     "K5>K0",
+     "K5>K0",
+     "K5>K0",
+     "K5>K0",
+     "K0>K5",
      "K5>K0",
      "K5>K0",
      "K5>K0",
@@ -3459,10 +3529,10 @@
      "K5>K0",
      "K5>K0"
     ],
-    "mean_k_delta_all17": -0.172,
-    "mean_k_delta_selfdisc": 0.128,
-    "mean_k_delta_emotional_3_10": 0.354,
-    "mean_k_delta_other13": -0.264
+    "mean_k_delta_all17": -0.347,
+    "mean_k_delta_selfdisc": 0.089,
+    "mean_k_delta_emotional_3_10": 0.375,
+    "mean_k_delta_other13": -0.481
    },
    "source": "tables/q2_items.md (judge=claude-haiku-4-5, GRPO columns)",
    "note": ""
@@ -3939,18 +4009,18 @@
   },
   "hetero.primary.GRPO.Q1Q2.matched_final.Cooperative": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 4.767,
-    "mean_K5": 4.797,
-    "mean_delta": -0.03,
-    "dz": -0.129,
-    "ci_lo": -0.114,
-    "ci_hi": 0.045,
-    "p": 0.918,
-    "p_holm": 1.0,
-    "share_K0_ge_4.5": 0.875,
+    "mean_K0": 4.567,
+    "mean_K5": 4.854,
+    "mean_delta": -0.287,
+    "dz": -0.55,
+    "ci_lo": -0.48,
+    "ci_hi": -0.117,
+    "p": 0.014,
+    "p_holm": 0.027,
+    "share_K0_ge_4.5": 0.625,
     "share_K5_ge_4.5": 1.0
    },
    "source": "tables/hetero_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=Q1Q2 target=matched_final cooperation=Cooperative",
@@ -3958,36 +4028,36 @@
   },
   "hetero.primary.GRPO.Q1Q2.matched_final.Warms_up": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 4.086,
-    "mean_K5": 4.29,
-    "mean_delta": -0.204,
-    "dz": -0.557,
-    "ci_lo": -0.326,
-    "ci_hi": -0.089,
-    "p": 0.007,
-    "p_holm": 0.02,
-    "share_K0_ge_4.5": 0.031,
-    "share_K5_ge_4.5": 0.0
+    "mean_K0": 4.12,
+    "mean_K5": 4.424,
+    "mean_delta": -0.304,
+    "dz": -0.731,
+    "ci_lo": -0.444,
+    "ci_hi": -0.162,
+    "p": 0.001,
+    "p_holm": 0.002,
+    "share_K0_ge_4.5": 0.125,
+    "share_K5_ge_4.5": 0.312
    },
    "source": "tables/hetero_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=Q1Q2 target=matched_final cooperation=Warms up",
    "note": ""
   },
   "hetero.primary.GRPO.Q1Q2.matched_final.Resistant": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 3.063,
-    "mean_K5": 3.038,
-    "mean_delta": 0.025,
-    "dz": 0.032,
-    "ci_lo": -0.24,
-    "ci_hi": 0.284,
-    "p": 0.784,
-    "p_holm": 1.0,
+    "mean_K0": 3.21,
+    "mean_K5": 3.409,
+    "mean_delta": -0.199,
+    "dz": -0.231,
+    "ci_lo": -0.486,
+    "ci_hi": 0.088,
+    "p": 0.203,
+    "p_holm": 0.203,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -3996,19 +4066,19 @@
   },
   "hetero.primary.GRPO.Q1Q2.matched_final.All": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 96,
-    "mean_K0": 3.972,
-    "mean_K5": 4.042,
-    "mean_delta": -0.07,
-    "dz": -0.135,
-    "ci_lo": -0.169,
-    "ci_hi": 0.026,
-    "p": 0.122,
+    "mean_K0": 3.966,
+    "mean_K5": 4.229,
+    "mean_delta": -0.263,
+    "dz": -0.422,
+    "ci_lo": -0.389,
+    "ci_hi": -0.135,
+    "p": 0.0,
     "p_holm": null,
-    "share_K0_ge_4.5": 0.302,
-    "share_K5_ge_4.5": 0.333
+    "share_K0_ge_4.5": 0.25,
+    "share_K5_ge_4.5": 0.438
    },
    "source": "tables/hetero_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=Q1Q2 target=matched_final cooperation=All",
    "note": ""
@@ -4016,14 +4086,14 @@
   "hetero.primary.GRPO.Q1Q2.own_best.Cooperative": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 4.92,
-    "mean_K5": 4.752,
-    "mean_delta": 0.168,
-    "dz": 1.584,
-    "ci_lo": 0.131,
-    "ci_hi": 0.206,
+    "mean_K5": 4.854,
+    "mean_delta": 0.066,
+    "dz": 0.784,
+    "ci_lo": 0.04,
+    "ci_hi": 0.096,
     "p": 0.0,
     "p_holm": 0.0,
     "share_K0_ge_4.5": 1.0,
@@ -4035,18 +4105,18 @@
   "hetero.primary.GRPO.Q1Q2.own_best.Warms_up": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 4.031,
-    "mean_K5": 4.247,
-    "mean_delta": -0.216,
-    "dz": -0.391,
-    "ci_lo": -0.417,
-    "ci_hi": -0.046,
-    "p": 0.04,
-    "p_holm": 0.079,
+    "mean_K5": 4.424,
+    "mean_delta": -0.393,
+    "dz": -0.709,
+    "ci_lo": -0.601,
+    "ci_hi": -0.231,
+    "p": 0.0,
+    "p_holm": 0.0,
     "share_K0_ge_4.5": 0.062,
-    "share_K5_ge_4.5": 0.0
+    "share_K5_ge_4.5": 0.312
    },
    "source": "tables/hetero_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=Q1Q2 target=own_best cooperation=Warms up",
    "note": ""
@@ -4054,16 +4124,16 @@
   "hetero.primary.GRPO.Q1Q2.own_best.Resistant": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 3.296,
-    "mean_K5": 3.36,
-    "mean_delta": -0.064,
-    "dz": -0.103,
-    "ci_lo": -0.282,
-    "ci_hi": 0.148,
-    "p": 0.454,
-    "p_holm": 0.454,
+    "mean_K5": 3.409,
+    "mean_delta": -0.113,
+    "dz": -0.135,
+    "ci_lo": -0.407,
+    "ci_hi": 0.171,
+    "p": 0.638,
+    "p_holm": 0.638,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -4073,35 +4143,35 @@
   "hetero.primary.GRPO.Q1Q2.own_best.All": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 96,
     "mean_K0": 4.082,
-    "mean_K5": 4.12,
-    "mean_delta": -0.038,
-    "dz": -0.074,
-    "ci_lo": -0.137,
-    "ci_hi": 0.066,
-    "p": 0.789,
+    "mean_K5": 4.229,
+    "mean_delta": -0.147,
+    "dz": -0.241,
+    "ci_lo": -0.263,
+    "ci_hi": -0.029,
+    "p": 0.021,
     "p_holm": null,
     "share_K0_ge_4.5": 0.354,
-    "share_K5_ge_4.5": 0.333
+    "share_K5_ge_4.5": 0.438
    },
    "source": "tables/hetero_kcontrast.md row judge=gpt-4o-mini method=GRPO metric=Q1Q2 target=own_best cooperation=All",
    "note": ""
   },
   "hetero.primary.GRPO.MICI.matched_final.Cooperative": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.262,
-    "mean_K5": 0.334,
-    "mean_delta": -0.072,
-    "dz": -0.273,
-    "ci_lo": -0.167,
-    "ci_hi": 0.018,
-    "p": 0.217,
-    "p_holm": 0.651,
+    "mean_K0": 0.247,
+    "mean_K5": 0.279,
+    "mean_delta": -0.032,
+    "dz": -0.139,
+    "ci_lo": -0.112,
+    "ci_hi": 0.05,
+    "p": 0.432,
+    "p_holm": 1.0,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4110,17 +4180,17 @@
   },
   "hetero.primary.GRPO.MICI.matched_final.Warms_up": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.305,
-    "mean_K5": 0.366,
-    "mean_delta": -0.061,
-    "dz": -0.211,
-    "ci_lo": -0.156,
-    "ci_hi": 0.031,
-    "p": 0.276,
-    "p_holm": 0.651,
+    "mean_K0": 0.284,
+    "mean_K5": 0.301,
+    "mean_delta": -0.017,
+    "dz": -0.066,
+    "ci_lo": -0.103,
+    "ci_hi": 0.071,
+    "p": 0.688,
+    "p_holm": 1.0,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4129,17 +4199,17 @@
   },
   "hetero.primary.GRPO.MICI.matched_final.Resistant": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.265,
-    "mean_K5": 0.321,
-    "mean_delta": -0.056,
-    "dz": -0.243,
-    "ci_lo": -0.137,
-    "ci_hi": 0.02,
-    "p": 0.318,
-    "p_holm": 0.651,
+    "mean_K0": 0.233,
+    "mean_K5": 0.264,
+    "mean_delta": -0.031,
+    "dz": -0.169,
+    "ci_lo": -0.091,
+    "ci_hi": 0.029,
+    "p": 0.383,
+    "p_holm": 1.0,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4148,16 +4218,16 @@
   },
   "hetero.primary.GRPO.MICI.matched_final.All": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 96,
-    "mean_K0": 0.277,
-    "mean_K5": 0.34,
-    "mean_delta": -0.063,
-    "dz": -0.243,
-    "ci_lo": -0.118,
-    "ci_hi": -0.013,
-    "p": 0.044,
+    "mean_K0": 0.255,
+    "mean_K5": 0.281,
+    "mean_delta": -0.027,
+    "dz": -0.119,
+    "ci_lo": -0.071,
+    "ci_hi": 0.017,
+    "p": 0.236,
     "p_holm": null,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
@@ -4168,14 +4238,14 @@
   "hetero.primary.GRPO.MICI.own_best.Cooperative": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.694,
-    "mean_K5": 0.318,
-    "mean_delta": 0.376,
-    "dz": 1.196,
-    "ci_lo": 0.268,
-    "ci_hi": 0.481,
+    "mean_K5": 0.279,
+    "mean_delta": 0.416,
+    "dz": 1.641,
+    "ci_lo": 0.331,
+    "ci_hi": 0.5,
     "p": 0.0,
     "p_holm": 0.0,
     "share_K0_ge_4.5": null,
@@ -4187,16 +4257,16 @@
   "hetero.primary.GRPO.MICI.own_best.Warms_up": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.523,
-    "mean_K5": 0.292,
-    "mean_delta": 0.231,
-    "dz": 0.803,
-    "ci_lo": 0.133,
-    "ci_hi": 0.335,
-    "p": 0.0,
-    "p_holm": 0.0,
+    "mean_K5": 0.301,
+    "mean_delta": 0.222,
+    "dz": 0.691,
+    "ci_lo": 0.112,
+    "ci_hi": 0.333,
+    "p": 0.001,
+    "p_holm": 0.002,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4206,16 +4276,16 @@
   "hetero.primary.GRPO.MICI.own_best.Resistant": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.388,
-    "mean_K5": 0.305,
-    "mean_delta": 0.083,
-    "dz": 0.391,
-    "ci_lo": 0.014,
-    "ci_hi": 0.157,
-    "p": 0.11,
-    "p_holm": 0.11,
+    "mean_K5": 0.264,
+    "mean_delta": 0.124,
+    "dz": 0.597,
+    "ci_lo": 0.055,
+    "ci_hi": 0.196,
+    "p": 0.003,
+    "p_holm": 0.003,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4225,14 +4295,14 @@
   "hetero.primary.GRPO.MICI.own_best.All": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 96,
     "mean_K0": 0.535,
-    "mean_K5": 0.305,
-    "mean_delta": 0.23,
-    "dz": 0.774,
-    "ci_lo": 0.169,
-    "ci_hi": 0.289,
+    "mean_K5": 0.281,
+    "mean_delta": 0.254,
+    "dz": 0.879,
+    "ci_lo": 0.196,
+    "ci_hi": 0.313,
     "p": 0.0,
     "p_holm": null,
     "share_K0_ge_4.5": null,
@@ -4243,17 +4313,17 @@
   },
   "hetero.primary.GRPO.PCT.matched_final.Cooperative": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.843,
-    "mean_K5": 0.83,
-    "mean_delta": 0.014,
-    "dz": 0.119,
-    "ci_lo": -0.025,
-    "ci_hi": 0.053,
-    "p": 0.299,
-    "p_holm": 0.342,
+    "mean_K0": 0.887,
+    "mean_K5": 0.857,
+    "mean_delta": 0.03,
+    "dz": 0.28,
+    "ci_lo": -0.005,
+    "ci_hi": 0.067,
+    "p": 0.234,
+    "p_holm": 0.234,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4262,15 +4332,15 @@
   },
   "hetero.primary.GRPO.PCT.matched_final.Warms_up": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.51,
-    "mean_K5": 0.628,
-    "mean_delta": -0.119,
-    "dz": -0.896,
-    "ci_lo": -0.165,
-    "ci_hi": -0.077,
+    "mean_K0": 0.496,
+    "mean_K5": 0.656,
+    "mean_delta": -0.161,
+    "dz": -0.996,
+    "ci_lo": -0.218,
+    "ci_hi": -0.11,
     "p": 0.0,
     "p_holm": 0.0,
     "share_K0_ge_4.5": null,
@@ -4281,17 +4351,17 @@
   },
   "hetero.primary.GRPO.PCT.matched_final.Resistant": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.214,
-    "mean_K5": 0.277,
-    "mean_delta": -0.063,
-    "dz": -0.257,
-    "ci_lo": -0.147,
-    "ci_hi": 0.018,
-    "p": 0.171,
-    "p_holm": 0.342,
+    "mean_K0": 0.206,
+    "mean_K5": 0.362,
+    "mean_delta": -0.156,
+    "dz": -0.576,
+    "ci_lo": -0.247,
+    "ci_hi": -0.064,
+    "p": 0.004,
+    "p_holm": 0.008,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4300,16 +4370,16 @@
   },
   "hetero.primary.GRPO.PCT.matched_final.All": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 96,
-    "mean_K0": 0.522,
-    "mean_K5": 0.578,
-    "mean_delta": -0.056,
-    "dz": -0.309,
-    "ci_lo": -0.092,
-    "ci_hi": -0.022,
-    "p": 0.003,
+    "mean_K0": 0.53,
+    "mean_K5": 0.625,
+    "mean_delta": -0.096,
+    "dz": -0.455,
+    "ci_lo": -0.137,
+    "ci_hi": -0.056,
+    "p": 0.0,
     "p_holm": null,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
@@ -4320,16 +4390,16 @@
   "hetero.primary.GRPO.PCT.own_best.Cooperative": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.866,
-    "mean_K5": 0.849,
-    "mean_delta": 0.016,
-    "dz": 0.184,
-    "ci_lo": -0.014,
-    "ci_hi": 0.046,
-    "p": 0.453,
-    "p_holm": 0.49,
+    "mean_K5": 0.857,
+    "mean_delta": 0.009,
+    "dz": 0.093,
+    "ci_lo": -0.024,
+    "ci_hi": 0.042,
+    "p": 0.838,
+    "p_holm": 0.943,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4339,16 +4409,16 @@
   "hetero.primary.GRPO.PCT.own_best.Warms_up": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.535,
-    "mean_K5": 0.607,
-    "mean_delta": -0.073,
-    "dz": -0.414,
-    "ci_lo": -0.136,
-    "ci_hi": -0.014,
-    "p": 0.003,
-    "p_holm": 0.008,
+    "mean_K5": 0.656,
+    "mean_delta": -0.122,
+    "dz": -0.715,
+    "ci_lo": -0.187,
+    "ci_hi": -0.07,
+    "p": 0.0,
+    "p_holm": 0.0,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4358,16 +4428,16 @@
   "hetero.primary.GRPO.PCT.own_best.Resistant": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.315,
-    "mean_K5": 0.384,
-    "mean_delta": -0.07,
-    "dz": -0.217,
-    "ci_lo": -0.18,
-    "ci_hi": 0.038,
-    "p": 0.245,
-    "p_holm": 0.49,
+    "mean_K5": 0.362,
+    "mean_delta": -0.047,
+    "dz": -0.133,
+    "ci_lo": -0.17,
+    "ci_hi": 0.073,
+    "p": 0.472,
+    "p_holm": 0.943,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -4377,15 +4447,15 @@
   "hetero.primary.GRPO.PCT.own_best.All": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 96,
     "mean_K0": 0.572,
-    "mean_K5": 0.614,
-    "mean_delta": -0.042,
-    "dz": -0.192,
-    "ci_lo": -0.086,
-    "ci_hi": 0.002,
-    "p": 0.04,
+    "mean_K5": 0.625,
+    "mean_delta": -0.053,
+    "dz": -0.224,
+    "ci_lo": -0.098,
+    "ci_hi": -0.004,
+    "p": 0.013,
     "p_holm": null,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
@@ -4851,17 +4921,17 @@
   },
   "hetero.heldout.GRPO.Q1Q2.matched_final.Cooperative": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 3.18,
-    "mean_K5": 3.452,
-    "mean_delta": -0.273,
-    "dz": -0.356,
-    "ci_lo": -0.541,
-    "ci_hi": -0.024,
-    "p": 0.246,
-    "p_holm": 0.316,
+    "mean_K0": 2.788,
+    "mean_K5": 3.506,
+    "mean_delta": -0.718,
+    "dz": -0.617,
+    "ci_lo": -1.124,
+    "ci_hi": -0.304,
+    "p": 0.003,
+    "p_holm": 0.009,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -4870,17 +4940,17 @@
   },
   "hetero.heldout.GRPO.Q1Q2.matched_final.Warms_up": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 2.574,
-    "mean_K5": 3.05,
-    "mean_delta": -0.476,
-    "dz": -0.589,
-    "ci_lo": -0.752,
-    "ci_hi": -0.216,
-    "p": 0.003,
-    "p_holm": 0.01,
+    "mean_K0": 2.528,
+    "mean_K5": 3.085,
+    "mean_delta": -0.556,
+    "dz": -0.542,
+    "ci_lo": -0.921,
+    "ci_hi": -0.21,
+    "p": 0.016,
+    "p_holm": 0.019,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -4889,17 +4959,17 @@
   },
   "hetero.heldout.GRPO.Q1Q2.matched_final.Resistant": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 1.706,
-    "mean_K5": 1.891,
-    "mean_delta": -0.185,
-    "dz": -0.324,
-    "ci_lo": -0.389,
-    "ci_hi": 0.008,
-    "p": 0.158,
-    "p_holm": 0.316,
+    "mean_K0": 1.795,
+    "mean_K5": 2.119,
+    "mean_delta": -0.324,
+    "dz": -0.543,
+    "ci_lo": -0.541,
+    "ci_hi": -0.13,
+    "p": 0.01,
+    "p_holm": 0.019,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -4908,16 +4978,16 @@
   },
   "hetero.heldout.GRPO.Q1Q2.matched_final.All": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 96,
-    "mean_K0": 2.487,
-    "mean_K5": 2.798,
-    "mean_delta": -0.311,
-    "dz": -0.429,
-    "ci_lo": -0.455,
-    "ci_hi": -0.173,
-    "p": 0.001,
+    "mean_K0": 2.371,
+    "mean_K5": 2.903,
+    "mean_delta": -0.533,
+    "dz": -0.553,
+    "ci_lo": -0.733,
+    "ci_hi": -0.342,
+    "p": 0.0,
     "p_holm": null,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
@@ -4928,16 +4998,16 @@
   "hetero.heldout.GRPO.Q1Q2.own_best.Cooperative": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 3.463,
-    "mean_K5": 3.297,
-    "mean_delta": 0.166,
-    "dz": 0.275,
-    "ci_lo": -0.04,
-    "ci_hi": 0.365,
-    "p": 0.135,
-    "p_holm": 0.135,
+    "mean_K5": 3.506,
+    "mean_delta": -0.043,
+    "dz": -0.07,
+    "ci_lo": -0.253,
+    "ci_hi": 0.174,
+    "p": 0.39,
+    "p_holm": 0.39,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -4947,16 +5017,16 @@
   "hetero.heldout.GRPO.Q1Q2.own_best.Warms_up": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 2.487,
-    "mean_K5": 2.934,
-    "mean_delta": -0.447,
-    "dz": -0.686,
-    "ci_lo": -0.663,
-    "ci_hi": -0.229,
-    "p": 0.001,
-    "p_holm": 0.003,
+    "mean_K5": 3.085,
+    "mean_delta": -0.598,
+    "dz": -1.197,
+    "ci_lo": -0.768,
+    "ci_hi": -0.432,
+    "p": 0.0,
+    "p_holm": 0.0,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -4966,16 +5036,16 @@
   "hetero.heldout.GRPO.Q1Q2.own_best.Resistant": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 1.902,
-    "mean_K5": 2.12,
-    "mean_delta": -0.218,
-    "dz": -0.474,
-    "ci_lo": -0.379,
-    "ci_hi": -0.067,
-    "p": 0.016,
-    "p_holm": 0.032,
+    "mean_K5": 2.119,
+    "mean_delta": -0.217,
+    "dz": -0.431,
+    "ci_lo": -0.401,
+    "ci_hi": -0.054,
+    "p": 0.04,
+    "p_holm": 0.079,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
    },
@@ -4985,15 +5055,15 @@
   "hetero.heldout.GRPO.Q1Q2.own_best.All": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 96,
     "mean_K0": 2.617,
-    "mean_K5": 2.784,
-    "mean_delta": -0.166,
-    "dz": -0.266,
-    "ci_lo": -0.289,
-    "ci_hi": -0.042,
-    "p": 0.012,
+    "mean_K5": 2.903,
+    "mean_delta": -0.286,
+    "dz": -0.489,
+    "ci_lo": -0.397,
+    "ci_hi": -0.171,
+    "p": 0.0,
     "p_holm": null,
     "share_K0_ge_4.5": 0.0,
     "share_K5_ge_4.5": 0.0
@@ -5003,17 +5073,17 @@
   },
   "hetero.heldout.GRPO.MICI.matched_final.Cooperative": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.652,
-    "mean_K5": 0.519,
-    "mean_delta": 0.133,
-    "dz": 0.371,
-    "ci_lo": 0.007,
-    "ci_hi": 0.255,
-    "p": 0.017,
-    "p_holm": 0.052,
+    "mean_K0": 0.625,
+    "mean_K5": 0.421,
+    "mean_delta": 0.205,
+    "dz": 0.622,
+    "ci_lo": 0.087,
+    "ci_hi": 0.319,
+    "p": 0.002,
+    "p_holm": 0.006,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5022,17 +5092,17 @@
   },
   "hetero.heldout.GRPO.MICI.matched_final.Warms_up": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.636,
-    "mean_K5": 0.71,
+    "mean_K0": 0.585,
+    "mean_K5": 0.658,
     "mean_delta": -0.073,
-    "dz": -0.259,
-    "ci_lo": -0.169,
-    "ci_hi": 0.021,
-    "p": 0.144,
-    "p_holm": 0.144,
+    "dz": -0.244,
+    "ci_lo": -0.172,
+    "ci_hi": 0.024,
+    "p": 0.304,
+    "p_holm": 0.607,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5041,17 +5111,17 @@
   },
   "hetero.heldout.GRPO.MICI.matched_final.Resistant": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.598,
-    "mean_K5": 0.711,
-    "mean_delta": -0.114,
-    "dz": -0.348,
-    "ci_lo": -0.219,
-    "ci_hi": 0.001,
-    "p": 0.07,
-    "p_holm": 0.14,
+    "mean_K0": 0.624,
+    "mean_K5": 0.646,
+    "mean_delta": -0.022,
+    "dz": -0.067,
+    "ci_lo": -0.133,
+    "ci_hi": 0.094,
+    "p": 0.538,
+    "p_holm": 0.607,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5060,16 +5130,16 @@
   },
   "hetero.heldout.GRPO.MICI.matched_final.All": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 96,
-    "mean_K0": 0.629,
-    "mean_K5": 0.647,
-    "mean_delta": -0.018,
-    "dz": -0.053,
-    "ci_lo": -0.087,
-    "ci_hi": 0.048,
-    "p": 0.636,
+    "mean_K0": 0.612,
+    "mean_K5": 0.575,
+    "mean_delta": 0.037,
+    "dz": 0.108,
+    "ci_lo": -0.031,
+    "ci_hi": 0.102,
+    "p": 0.319,
     "p_holm": null,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
@@ -5080,14 +5150,14 @@
   "hetero.heldout.GRPO.MICI.own_best.Cooperative": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 1.036,
-    "mean_K5": 0.453,
-    "mean_delta": 0.584,
-    "dz": 1.463,
-    "ci_lo": 0.448,
-    "ci_hi": 0.724,
+    "mean_K5": 0.421,
+    "mean_delta": 0.615,
+    "dz": 1.84,
+    "ci_lo": 0.502,
+    "ci_hi": 0.737,
     "p": 0.0,
     "p_holm": 0.0,
     "share_K0_ge_4.5": null,
@@ -5099,16 +5169,16 @@
   "hetero.heldout.GRPO.MICI.own_best.Warms_up": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.836,
-    "mean_K5": 0.615,
-    "mean_delta": 0.22,
-    "dz": 0.816,
-    "ci_lo": 0.127,
-    "ci_hi": 0.305,
-    "p": 0.0,
-    "p_holm": 0.0,
+    "mean_K5": 0.658,
+    "mean_delta": 0.177,
+    "dz": 0.545,
+    "ci_lo": 0.064,
+    "ci_hi": 0.29,
+    "p": 0.006,
+    "p_holm": 0.007,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5118,16 +5188,16 @@
   "hetero.heldout.GRPO.MICI.own_best.Resistant": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.823,
-    "mean_K5": 0.618,
-    "mean_delta": 0.205,
-    "dz": 0.638,
-    "ci_lo": 0.098,
-    "ci_hi": 0.325,
-    "p": 0.001,
-    "p_holm": 0.001,
+    "mean_K5": 0.646,
+    "mean_delta": 0.177,
+    "dz": 0.605,
+    "ci_lo": 0.073,
+    "ci_hi": 0.279,
+    "p": 0.004,
+    "p_holm": 0.007,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5137,14 +5207,14 @@
   "hetero.heldout.GRPO.MICI.own_best.All": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 96,
     "mean_K0": 0.898,
-    "mean_K5": 0.562,
-    "mean_delta": 0.336,
-    "dz": 0.898,
-    "ci_lo": 0.262,
-    "ci_hi": 0.41,
+    "mean_K5": 0.575,
+    "mean_delta": 0.323,
+    "dz": 0.857,
+    "ci_lo": 0.25,
+    "ci_hi": 0.399,
     "p": 0.0,
     "p_holm": null,
     "share_K0_ge_4.5": null,
@@ -5155,17 +5225,17 @@
   },
   "hetero.heldout.GRPO.PCT.matched_final.Cooperative": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.962,
-    "mean_K5": 0.955,
-    "mean_delta": 0.007,
-    "dz": 0.097,
-    "ci_lo": -0.018,
-    "ci_hi": 0.031,
-    "p": 0.396,
-    "p_holm": 0.396,
+    "mean_K5": 0.975,
+    "mean_delta": -0.013,
+    "dz": -0.185,
+    "ci_lo": -0.035,
+    "ci_hi": 0.011,
+    "p": 0.401,
+    "p_holm": 0.401,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5174,17 +5244,17 @@
   },
   "hetero.heldout.GRPO.PCT.matched_final.Warms_up": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.523,
-    "mean_K5": 0.662,
-    "mean_delta": -0.139,
-    "dz": -0.786,
-    "ci_lo": -0.199,
-    "ci_hi": -0.082,
+    "mean_K0": 0.512,
+    "mean_K5": 0.735,
+    "mean_delta": -0.223,
+    "dz": -1.08,
+    "ci_lo": -0.293,
+    "ci_hi": -0.154,
     "p": 0.0,
-    "p_holm": 0.001,
+    "p_holm": 0.0,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5193,17 +5263,17 @@
   },
   "hetero.heldout.GRPO.PCT.matched_final.Resistant": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 32,
-    "mean_K0": 0.179,
-    "mean_K5": 0.25,
-    "mean_delta": -0.07,
-    "dz": -0.306,
-    "ci_lo": -0.147,
-    "ci_hi": 0.007,
-    "p": 0.108,
-    "p_holm": 0.217,
+    "mean_K0": 0.188,
+    "mean_K5": 0.323,
+    "mean_delta": -0.135,
+    "dz": -0.454,
+    "ci_lo": -0.238,
+    "ci_hi": -0.036,
+    "p": 0.025,
+    "p_holm": 0.049,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5212,16 +5282,16 @@
   },
   "hetero.heldout.GRPO.PCT.matched_final.All": {
    "value": {
-    "iter_K0": 5,
-    "iter_K5": 5,
+    "iter_K0": 6,
+    "iter_K5": 6,
     "n": 96,
-    "mean_K0": 0.555,
-    "mean_K5": 0.622,
-    "mean_delta": -0.067,
-    "dz": -0.373,
-    "ci_lo": -0.104,
-    "ci_hi": -0.033,
-    "p": 0.001,
+    "mean_K0": 0.554,
+    "mean_K5": 0.677,
+    "mean_delta": -0.123,
+    "dz": -0.543,
+    "ci_lo": -0.167,
+    "ci_hi": -0.08,
+    "p": 0.0,
     "p_holm": null,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
@@ -5232,16 +5302,16 @@
   "hetero.heldout.GRPO.PCT.own_best.Cooperative": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.992,
-    "mean_K5": 0.964,
-    "mean_delta": 0.029,
-    "dz": 0.466,
-    "ci_lo": 0.008,
-    "ci_hi": 0.049,
-    "p": 0.022,
-    "p_holm": 0.045,
+    "mean_K5": 0.975,
+    "mean_delta": 0.018,
+    "dz": 0.399,
+    "ci_lo": 0.004,
+    "ci_hi": 0.034,
+    "p": 0.041,
+    "p_holm": 0.082,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5251,16 +5321,16 @@
   "hetero.heldout.GRPO.PCT.own_best.Warms_up": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.521,
-    "mean_K5": 0.638,
-    "mean_delta": -0.117,
-    "dz": -0.518,
-    "ci_lo": -0.199,
-    "ci_hi": -0.04,
-    "p": 0.002,
-    "p_holm": 0.005,
+    "mean_K5": 0.735,
+    "mean_delta": -0.214,
+    "dz": -1.24,
+    "ci_lo": -0.278,
+    "ci_hi": -0.159,
+    "p": 0.0,
+    "p_holm": 0.0,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5270,16 +5340,16 @@
   "hetero.heldout.GRPO.PCT.own_best.Resistant": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 32,
     "mean_K0": 0.275,
-    "mean_K5": 0.351,
-    "mean_delta": -0.076,
-    "dz": -0.262,
-    "ci_lo": -0.171,
-    "ci_hi": 0.024,
-    "p": 0.071,
-    "p_holm": 0.071,
+    "mean_K5": 0.323,
+    "mean_delta": -0.048,
+    "dz": -0.143,
+    "ci_lo": -0.165,
+    "ci_hi": 0.062,
+    "p": 0.487,
+    "p_holm": 0.487,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
    },
@@ -5289,15 +5359,15 @@
   "hetero.heldout.GRPO.PCT.own_best.All": {
    "value": {
     "iter_K0": 8,
-    "iter_K5": 4,
+    "iter_K5": 6,
     "n": 96,
     "mean_K0": 0.596,
-    "mean_K5": 0.651,
-    "mean_delta": -0.055,
-    "dz": -0.247,
-    "ci_lo": -0.097,
-    "ci_hi": -0.01,
-    "p": 0.006,
+    "mean_K5": 0.677,
+    "mean_delta": -0.081,
+    "dz": -0.343,
+    "ci_lo": -0.123,
+    "ci_hi": -0.035,
+    "p": 0.001,
     "p_holm": null,
     "share_K0_ge_4.5": null,
     "share_K5_ge_4.5": null
@@ -5426,19 +5496,19 @@
       "n": 32
      }
     },
-    "GRPO_LA5.iter5": {
+    "GRPO_LA5.iter6": {
      "Cooperative": {
-      "mean": 4.797,
+      "mean": 4.854,
       "share_ge_4.5": 1.0,
       "n": 32
      },
      "Warms up": {
-      "mean": 4.29,
-      "share_ge_4.5": 0.0,
+      "mean": 4.424,
+      "share_ge_4.5": 0.312,
       "n": 32
      },
      "Resistant": {
-      "mean": 3.038,
+      "mean": 3.409,
       "share_ge_4.5": 0.0,
       "n": 32
      }
@@ -5568,19 +5638,19 @@
       "n": 32
      }
     },
-    "GRPO_LA5.iter5": {
+    "GRPO_LA5.iter6": {
      "Cooperative": {
-      "mean": 3.452,
+      "mean": 3.506,
       "share_ge_4.5": 0.0,
       "n": 32
      },
      "Warms up": {
-      "mean": 3.05,
+      "mean": 3.085,
       "share_ge_4.5": 0.0,
       "n": 32
      },
      "Resistant": {
-      "mean": 1.891,
+      "mean": 2.119,
       "share_ge_4.5": 0.0,
       "n": 32
      }

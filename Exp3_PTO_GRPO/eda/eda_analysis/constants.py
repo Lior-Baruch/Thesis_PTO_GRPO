@@ -186,8 +186,10 @@ DISPLAY_NAMES = {
     #   • Every oracle-MITI-coded metric carries a trailing "(MITI)" so the source instrument is
     #     unambiguous and identical across panels (fixes the old behavior_drift asymmetry where only
     #     Questions/Empathy were tagged while Reflections/Affirmations/Persuasion read bare).
-    #   • Deterministic (non-LLM) text metrics carry their OWN source tag instead ("regex ?",
-    #     "Degeneration %") — never "(MITI)".
+    #   • Deterministic (non-LLM) text metrics carry their OWN source tag instead ("'?' marks",
+    #     "Degeneration %") — never "(MITI)". They also never say "Questions": the '?' family
+    #     counts MARKS, and only B3_Q* counts question ACTS (they differ by 1.4-2.3x — see
+    #     behavior.question_rate_crosscheck), so one word for both invites the wrong reading.
     #   • Standalone questionnaires keep their validated-instrument acronym up-front + a gloss.
     # Display layer only — these NEVER rename the underlying data keys.
     #
@@ -237,7 +239,12 @@ DISPLAY_NAMES = {
     "PCT_ChangeProp": "Change-Talk proportion (PCT)", "PCT_ChangeTalk_prop": "% Change Talk (PCT)",
     "PCT_SustainTalk_prop": "% Sustain Talk (PCT)", "PCT_Neutral_prop": "% Neutral (PCT)",
     # Deterministic text metrics — NOT MITI; each carries its own source tag.
-    "q_per_turn": "Questions / turn (regex ?)", "q_per_turn_miti": "Questions / turn (MITI)",
+    # ⚠ The '?' family is str.count("?"), NOT a regex, and NOT a per-turn question flag — labels
+    # say "'?' marks" so a stacked-question turn is never read as several asking turns. Only
+    # q_per_turn_miti counts question ACTS. See behavior.py's _QDECOMP_NOTE block.
+    "q_per_turn": "'?' marks / turn", "q_per_turn_miti": "Questions / turn (MITI)",
+    "q_turn_rate": "Turns with a question (share)", "q_per_q_turn": "'?' marks / asking turn",
+    "q_per_sentence": "'?' marks / sentence", "sents_per_turn": "Sentences / turn",
     "mean_turn_len": "Turn length (chars)", "loop": "Degeneration %",
     "conv_len": "Conversation length", "n_th_turns": "Therapist turns",
     # TRAINING-side lexical features (pref.py). Two families that must never be read as one:

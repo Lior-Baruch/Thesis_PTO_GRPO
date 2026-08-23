@@ -59,59 +59,59 @@
    "note": "PTO_LA0 at its best iteration (10) - GRPO_LA0 at its best (8), each selected under this grader; + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.iteration": {
-   "value": 5,
+   "value": 6,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.mean_delta": {
-   "value": -0.02499999999999995,
+   "value": -0.3318627450980392,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.dz": {
-   "value": -0.042975820501790524,
+   "value": -0.43683887125590887,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.p_holm": {
-   "value": 1.0,
+   "value": 1.0554404304689341e-05,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.iter_pto": {
    "value": 10,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (4), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.iter_grpo": {
-   "value": 4,
+   "value": 6,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (4), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.mean_delta": {
-   "value": 0.18688725490196087,
+   "value": 0.07775735294117643,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (4), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.dz": {
-   "value": 0.3244036321805169,
+   "value": 0.13292480041607302,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (4), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.p_holm": {
-   "value": 5.80170720762206e-05,
+   "value": 1.0,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (4), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (4), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K0.Q1Q2.iteration": {
    "value": 10,
@@ -169,59 +169,59 @@
    "note": "PTO_LA0 at its best iteration (9) - GRPO_LA0 at its best (3), each selected under this grader; + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.iteration": {
-   "value": 5,
+   "value": 6,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.mean_delta": {
-   "value": -0.21887254901960781,
+   "value": -0.3965686274509805,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.dz": {
-   "value": -0.3768552099222429,
+   "value": -0.5991447617876667,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.p_holm": {
-   "value": 0.004592379680411868,
+   "value": 1.5469619987528742e-06,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (5); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.iter_pto": {
    "value": 7,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (5), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.iter_grpo": {
-   "value": 5,
+   "value": 6,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (5), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.mean_delta": {
-   "value": -0.062377450980392136,
+   "value": -0.16801470588235298,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (5), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.dz": {
-   "value": -0.11357179327435718,
+   "value": -0.3523723595071022,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (5), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.p_holm": {
-   "value": 1.0,
+   "value": 0.009151182900204039,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (5), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (5), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
   },
   "meta.sign": {
    "value": "+ => PTO higher (on MICI, lower = better, + => PTO worse)",

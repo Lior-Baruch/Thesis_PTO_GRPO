@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 1,296 rows.** The full table is too large to read as markdown, so it lives on sheet `k_paired_channels` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="k_paired_channels")`.
+> **Excerpt — first 60 of 1,440 rows.** The full table is too large to read as markdown, so it lives on sheet `k_paired_channels` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="k_paired_channels")`.
 
 | judge       | method   | family                     |   iteration | metric                       |   n |   mean_delta |      dz |       p |   p_holm |
 |:------------|:---------|:---------------------------|------------:|:-----------------------------|----:|-------------:|--------:|--------:|---------:|
@@ -63,4 +63,4 @@
 | gpt-4o-mini | PTO      | MI-inconsistent (per turn) |           7 | MICI_Confront_rate           |  96 |       -0.005 |  -0.220 |   0.042 |    0.169 |
 | gpt-4o-mini | PTO      | MI-inconsistent (per turn) |           7 | MICI_AdviseNoPermission_rate |  96 |       -0.013 |  -0.082 |   0.451 |    0.902 |
 
-_... 1,236 further rows in the workbook._
+_... 1,380 further rows in the workbook._

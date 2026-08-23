@@ -105,7 +105,7 @@
 | gpt-4o-mini      | GRPO     | Q1Q2     |           3 |     3.993 |     3.862 |   0.132 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q1Q2     |           4 |     4.004 |     4.120 |  -0.115 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q1Q2     |           5 |     3.972 |     4.042 |  -0.070 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | Q1Q2     |           6 |     3.966 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | Q1Q2     |           6 |     3.966 |     4.229 |  -0.263 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q1Q2     |           7 |     4.074 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | Q1Q2     |           8 |     4.082 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | Q1Q2     |           9 |     3.808 |   nan     | nan     |     96 |      0 |
@@ -116,7 +116,7 @@
 | gpt-4o-mini      | GRPO     | WAI-SR   |           3 |     3.301 |     3.320 |  -0.019 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | WAI-SR   |           4 |     3.292 |     3.441 |  -0.149 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | WAI-SR   |           5 |     3.208 |     3.463 |  -0.255 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | WAI-SR   |           6 |     3.297 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | WAI-SR   |           6 |     3.297 |     3.542 |  -0.246 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | WAI-SR   |           7 |     3.318 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | WAI-SR   |           8 |     3.374 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | WAI-SR   |           9 |     3.088 |   nan     | nan     |     96 |      0 |
@@ -127,7 +127,7 @@
 | gpt-4o-mini      | GRPO     | CSQ-8    |           3 |     2.811 |     2.831 |  -0.019 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | CSQ-8    |           4 |     2.751 |     2.921 |  -0.169 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | CSQ-8    |           5 |     2.715 |     2.908 |  -0.193 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | CSQ-8    |           6 |     2.710 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | CSQ-8    |           6 |     2.710 |     2.935 |  -0.225 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | CSQ-8    |           7 |     2.756 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | CSQ-8    |           8 |     2.749 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | CSQ-8    |           9 |     2.486 |   nan     | nan     |     96 |      0 |
@@ -138,7 +138,7 @@
 | gpt-4o-mini      | GRPO     | MI-SAT   |           3 |     3.425 |     3.490 |  -0.064 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MI-SAT   |           4 |     3.410 |     3.622 |  -0.212 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MI-SAT   |           5 |     3.321 |     3.559 |  -0.238 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | MI-SAT   |           6 |     3.306 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | MI-SAT   |           6 |     3.306 |     3.682 |  -0.377 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MI-SAT   |           7 |     3.418 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | MI-SAT   |           8 |     3.441 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | MI-SAT   |           9 |     3.050 |   nan     | nan     |     96 |      0 |
@@ -149,7 +149,7 @@
 | gpt-4o-mini      | GRPO     | MITI     |           3 |     3.938 |     3.865 |   0.073 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MITI     |           4 |     4.039 |     4.083 |  -0.044 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MITI     |           5 |     3.940 |     4.010 |  -0.070 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | MITI     |           6 |     4.010 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | MITI     |           6 |     4.010 |     4.250 |  -0.240 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MITI     |           7 |     4.102 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | MITI     |           8 |     4.234 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | MITI     |           9 |     3.938 |   nan     | nan     |     96 |      0 |
@@ -160,7 +160,7 @@
 | gpt-4o-mini      | GRPO     | PCT      |           3 |     0.544 |     0.580 |  -0.036 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | PCT      |           4 |     0.552 |     0.614 |  -0.062 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | PCT      |           5 |     0.522 |     0.578 |  -0.056 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | PCT      |           6 |     0.530 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | PCT      |           6 |     0.530 |     0.625 |  -0.096 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | PCT      |           7 |     0.550 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | PCT      |           8 |     0.572 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | PCT      |           9 |     0.450 |   nan     | nan     |     96 |      0 |
@@ -171,7 +171,7 @@
 | gpt-4o-mini      | GRPO     | MICI     |           3 |     0.230 |     0.308 |  -0.077 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MICI     |           4 |     0.251 |     0.305 |  -0.054 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MICI     |           5 |     0.277 |     0.340 |  -0.063 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | MICI     |           6 |     0.255 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | MICI     |           6 |     0.255 |     0.281 |  -0.027 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | MICI     |           7 |     0.270 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | MICI     |           8 |     0.535 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | MICI     |           9 |     0.350 |   nan     | nan     |     96 |      0 |
@@ -182,7 +182,7 @@
 | gpt-4o-mini      | GRPO     | Q1       |           3 |     3.935 |     3.806 |   0.129 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q1       |           4 |     3.898 |     4.100 |  -0.202 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q1       |           5 |     3.869 |     3.987 |  -0.119 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | Q1       |           6 |     3.810 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | Q1       |           6 |     3.810 |     4.200 |  -0.390 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q1       |           7 |     3.946 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | Q1       |           8 |     3.935 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | Q1       |           9 |     3.529 |   nan     | nan     |     96 |      0 |
@@ -193,7 +193,7 @@
 | gpt-4o-mini      | GRPO     | Q2       |           3 |     4.051 |     3.917 |   0.134 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q2       |           4 |     4.111 |     4.140 |  -0.029 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q2       |           5 |     4.075 |     4.096 |  -0.021 |     96 |     96 |
-| gpt-4o-mini      | GRPO     | Q2       |           6 |     4.121 |   nan     | nan     |     96 |      0 |
+| gpt-4o-mini      | GRPO     | Q2       |           6 |     4.121 |     4.258 |  -0.137 |     96 |     96 |
 | gpt-4o-mini      | GRPO     | Q2       |           7 |     4.202 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | Q2       |           8 |     4.229 |   nan     | nan     |     96 |      0 |
 | gpt-4o-mini      | GRPO     | Q2       |           9 |     4.086 |   nan     | nan     |     96 |      0 |
@@ -303,7 +303,7 @@
 | claude-haiku-4-5 | GRPO     | Q1Q2     |           3 |     2.637 |     2.586 |   0.051 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q1Q2     |           4 |     2.550 |     2.784 |  -0.233 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q1Q2     |           5 |     2.487 |     2.798 |  -0.311 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | Q1Q2     |           6 |     2.370 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | Q1Q2     |           6 |     2.370 |     2.903 |  -0.533 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q1Q2     |           7 |     2.565 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | Q1Q2     |           8 |     2.617 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | Q1Q2     |           9 |     2.002 |   nan     | nan     |     96 |      0 |
@@ -314,7 +314,7 @@
 | claude-haiku-4-5 | GRPO     | WAI-SR   |           3 |     2.858 |     2.772 |   0.086 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | WAI-SR   |           4 |     2.780 |     2.852 |  -0.072 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | WAI-SR   |           5 |     2.700 |     2.810 |  -0.109 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | WAI-SR   |           6 |     2.701 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | WAI-SR   |           6 |     2.701 |     2.960 |  -0.259 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | WAI-SR   |           7 |     2.808 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | WAI-SR   |           8 |     2.895 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | WAI-SR   |           9 |     2.337 |   nan     | nan     |     96 |      0 |
@@ -325,7 +325,7 @@
 | claude-haiku-4-5 | GRPO     | CSQ-8    |           3 |     2.699 |     2.681 |   0.018 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | CSQ-8    |           4 |     2.559 |     2.802 |  -0.243 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | CSQ-8    |           5 |     2.599 |     2.736 |  -0.137 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | CSQ-8    |           6 |     2.497 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | CSQ-8    |           6 |     2.497 |     2.875 |  -0.378 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | CSQ-8    |           7 |     2.624 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | CSQ-8    |           8 |     2.681 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | CSQ-8    |           9 |     2.120 |   nan     | nan     |     96 |      0 |
@@ -336,7 +336,7 @@
 | claude-haiku-4-5 | GRPO     | MI-SAT   |           3 |     2.981 |     3.037 |  -0.056 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MI-SAT   |           4 |     2.894 |     3.149 |  -0.255 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MI-SAT   |           5 |     2.868 |     3.097 |  -0.229 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | MI-SAT   |           6 |     2.707 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | MI-SAT   |           6 |     2.707 |     3.233 |  -0.526 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MI-SAT   |           7 |     2.887 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | MI-SAT   |           8 |     2.917 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | MI-SAT   |           9 |     2.378 |   nan     | nan     |     96 |      0 |
@@ -347,7 +347,7 @@
 | claude-haiku-4-5 | GRPO     | MITI     |           3 |     2.383 |     2.250 |   0.133 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MITI     |           4 |     2.281 |     2.279 |   0.003 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MITI     |           5 |     2.086 |     2.185 |  -0.099 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | MITI     |           6 |     2.141 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | MITI     |           6 |     2.141 |     2.344 |  -0.203 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MITI     |           7 |     2.190 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | MITI     |           8 |     2.219 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | MITI     |           9 |     1.979 |   nan     | nan     |     96 |      0 |
@@ -358,7 +358,7 @@
 | claude-haiku-4-5 | GRPO     | PCT      |           3 |     0.601 |     0.623 |  -0.022 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | PCT      |           4 |     0.586 |     0.651 |  -0.065 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | PCT      |           5 |     0.555 |     0.622 |  -0.067 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | PCT      |           6 |     0.554 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | PCT      |           6 |     0.554 |     0.677 |  -0.123 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | PCT      |           7 |     0.583 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | PCT      |           8 |     0.596 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | PCT      |           9 |     0.463 |   nan     | nan     |     96 |      0 |
@@ -369,7 +369,7 @@
 | claude-haiku-4-5 | GRPO     | MICI     |           3 |     0.407 |     0.518 |  -0.111 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MICI     |           4 |     0.508 |     0.562 |  -0.054 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MICI     |           5 |     0.629 |     0.647 |  -0.018 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | MICI     |           6 |     0.612 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | MICI     |           6 |     0.612 |     0.575 |   0.036 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | MICI     |           7 |     0.655 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | MICI     |           8 |     0.898 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | MICI     |           9 |     0.696 |   nan     | nan     |     96 |      0 |
@@ -380,7 +380,7 @@
 | claude-haiku-4-5 | GRPO     | Q1       |           3 |     2.577 |     2.523 |   0.054 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q1       |           4 |     2.446 |     2.815 |  -0.369 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q1       |           5 |     2.360 |     2.810 |  -0.450 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | Q1       |           6 |     2.179 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | Q1       |           6 |     2.179 |     2.898 |  -0.719 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q1       |           7 |     2.390 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | Q1       |           8 |     2.325 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | Q1       |           9 |     1.694 |   nan     | nan     |     96 |      0 |
@@ -391,7 +391,7 @@
 | claude-haiku-4-5 | GRPO     | Q2       |           3 |     2.696 |     2.649 |   0.047 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q2       |           4 |     2.655 |     2.752 |  -0.097 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q2       |           5 |     2.613 |     2.785 |  -0.172 |     96 |     96 |
-| claude-haiku-4-5 | GRPO     | Q2       |           6 |     2.562 |   nan     | nan     |     96 |      0 |
+| claude-haiku-4-5 | GRPO     | Q2       |           6 |     2.562 |     2.909 |  -0.347 |     96 |     96 |
 | claude-haiku-4-5 | GRPO     | Q2       |           7 |     2.741 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | Q2       |           8 |     2.909 |   nan     | nan     |     96 |      0 |
 | claude-haiku-4-5 | GRPO     | Q2       |           9 |     2.311 |   nan     | nan     |     96 |      0 |

@@ -12,18 +12,18 @@
 | final    | GRPO_LA0 |     10 | Tasks help change         |         |            10 |  2.344 |   0.396 |
 | final    | GRPO_LA0 |     11 | Understand good changes   |         |            10 |  1.969 |   0.302 |
 | final    | GRPO_LA0 |     12 | Way of working correct    |         |            10 |  2.167 |   0.250 |
-| final    | GRPO_LA5 |      1 | Clear change              |         |             5 |  2.323 |   0.667 |
-| final    | GRPO_LA5 |      2 | New ways                  |         |             5 |  2.312 |   0.698 |
-| final    | GRPO_LA5 |      3 | Therapist likes me        |         |             5 |  2.354 |   0.542 |
-| final    | GRPO_LA5 |      4 | Collaborate goals         |         |             5 |  1.875 |   0.729 |
-| final    | GRPO_LA5 |      5 | Mutual respect            |         |             5 |  2.354 |   0.542 |
-| final    | GRPO_LA5 |      6 | Working toward goals      |         |             5 |  1.875 |   0.719 |
-| final    | GRPO_LA5 |      7 | Appreciates me            |         |             5 |  2.333 |   0.521 |
-| final    | GRPO_LA5 |      8 | Agree important work      |         |             5 |  1.875 |   0.729 |
-| final    | GRPO_LA5 |      9 | Cares despite disapproval |         |             5 |  2.365 |   0.510 |
-| final    | GRPO_LA5 |     10 | Tasks help change         |         |             5 |  2.302 |   0.677 |
-| final    | GRPO_LA5 |     11 | Understand good changes   |         |             5 |  1.885 |   0.708 |
-| final    | GRPO_LA5 |     12 | Way of working correct    |         |             5 |  2.125 |   0.698 |
+| final    | GRPO_LA5 |      1 | Clear change              |         |             6 |  2.323 |   0.771 |
+| final    | GRPO_LA5 |      2 | New ways                  |         |             6 |  2.312 |   0.802 |
+| final    | GRPO_LA5 |      3 | Therapist likes me        |         |             6 |  2.354 |   0.667 |
+| final    | GRPO_LA5 |      4 | Collaborate goals         |         |             6 |  1.875 |   0.906 |
+| final    | GRPO_LA5 |      5 | Mutual respect            |         |             6 |  2.354 |   0.698 |
+| final    | GRPO_LA5 |      6 | Working toward goals      |         |             6 |  1.875 |   0.906 |
+| final    | GRPO_LA5 |      7 | Appreciates me            |         |             6 |  2.333 |   0.656 |
+| final    | GRPO_LA5 |      8 | Agree important work      |         |             6 |  1.875 |   0.906 |
+| final    | GRPO_LA5 |      9 | Cares despite disapproval |         |             6 |  2.365 |   0.635 |
+| final    | GRPO_LA5 |     10 | Tasks help change         |         |             6 |  2.302 |   0.812 |
+| final    | GRPO_LA5 |     11 | Understand good changes   |         |             6 |  1.885 |   0.927 |
+| final    | GRPO_LA5 |     12 | Way of working correct    |         |             6 |  2.125 |   0.854 |
 | final    | PTO_LA0  |      1 | Clear change              |         |            10 |  2.281 |   0.677 |
 | final    | PTO_LA0  |      2 | New ways                  |         |            10 |  2.271 |   0.688 |
 | final    | PTO_LA0  |      3 | Therapist likes me        |         |            10 |  2.281 |   0.917 |
@@ -60,18 +60,18 @@
 | best     | GRPO_LA0 |     10 | Tasks help change         |         |             3 |  2.344 |   0.542 |
 | best     | GRPO_LA0 |     11 | Understand good changes   |         |             3 |  1.969 |   0.760 |
 | best     | GRPO_LA0 |     12 | Way of working correct    |         |             3 |  2.167 |   0.656 |
-| best     | GRPO_LA5 |      1 | Clear change              |         |             5 |  2.323 |   0.667 |
-| best     | GRPO_LA5 |      2 | New ways                  |         |             5 |  2.312 |   0.698 |
-| best     | GRPO_LA5 |      3 | Therapist likes me        |         |             5 |  2.354 |   0.542 |
-| best     | GRPO_LA5 |      4 | Collaborate goals         |         |             5 |  1.875 |   0.729 |
-| best     | GRPO_LA5 |      5 | Mutual respect            |         |             5 |  2.354 |   0.542 |
-| best     | GRPO_LA5 |      6 | Working toward goals      |         |             5 |  1.875 |   0.719 |
-| best     | GRPO_LA5 |      7 | Appreciates me            |         |             5 |  2.333 |   0.521 |
-| best     | GRPO_LA5 |      8 | Agree important work      |         |             5 |  1.875 |   0.729 |
-| best     | GRPO_LA5 |      9 | Cares despite disapproval |         |             5 |  2.365 |   0.510 |
-| best     | GRPO_LA5 |     10 | Tasks help change         |         |             5 |  2.302 |   0.677 |
-| best     | GRPO_LA5 |     11 | Understand good changes   |         |             5 |  1.885 |   0.708 |
-| best     | GRPO_LA5 |     12 | Way of working correct    |         |             5 |  2.125 |   0.698 |
+| best     | GRPO_LA5 |      1 | Clear change              |         |             6 |  2.323 |   0.771 |
+| best     | GRPO_LA5 |      2 | New ways                  |         |             6 |  2.312 |   0.802 |
+| best     | GRPO_LA5 |      3 | Therapist likes me        |         |             6 |  2.354 |   0.667 |
+| best     | GRPO_LA5 |      4 | Collaborate goals         |         |             6 |  1.875 |   0.906 |
+| best     | GRPO_LA5 |      5 | Mutual respect            |         |             6 |  2.354 |   0.698 |
+| best     | GRPO_LA5 |      6 | Working toward goals      |         |             6 |  1.875 |   0.906 |
+| best     | GRPO_LA5 |      7 | Appreciates me            |         |             6 |  2.333 |   0.656 |
+| best     | GRPO_LA5 |      8 | Agree important work      |         |             6 |  1.875 |   0.906 |
+| best     | GRPO_LA5 |      9 | Cares despite disapproval |         |             6 |  2.365 |   0.635 |
+| best     | GRPO_LA5 |     10 | Tasks help change         |         |             6 |  2.302 |   0.812 |
+| best     | GRPO_LA5 |     11 | Understand good changes   |         |             6 |  1.885 |   0.927 |
+| best     | GRPO_LA5 |     12 | Way of working correct    |         |             6 |  2.125 |   0.854 |
 | best     | PTO_LA0  |      1 | Clear change              |         |             9 |  2.281 |   0.719 |
 | best     | PTO_LA0  |      2 | New ways                  |         |             9 |  2.271 |   0.729 |
 | best     | PTO_LA0  |      3 | Therapist likes me        |         |             9 |  2.281 |   0.906 |

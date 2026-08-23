@@ -51,23 +51,23 @@
 | gpt-4o-mini      | GRPO_LA0 |     15 | treated me as equal     | Non-judgment/equality |            10 |  96 |  3.396 |    4.229 |  0.833 |        0.562 |        1.125 |     0.581 |    0.000 |
 | gpt-4o-mini      | GRPO_LA0 |     16 | made me feel cared for  | Warmth/closeness      |            10 |  96 |  3.281 |    3.938 |  0.656 |        0.385 |        0.938 |     0.467 |    0.000 |
 | gpt-4o-mini      | GRPO_LA0 |     17 | made me feel close      | Warmth/closeness      |            10 |  96 |  3.198 |    3.875 |  0.677 |        0.406 |        0.948 |     0.485 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |             5 |  96 |  3.042 |    3.771 |  0.729 |        0.583 |        0.885 |     0.926 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |             5 |  96 |  2.604 |    3.708 |  1.104 |        0.927 |        1.282 |     1.168 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |             5 |  96 |  2.167 |    2.896 |  0.729 |        0.604 |        0.865 |     1.084 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |             5 |  96 |  3.156 |    4.208 |  1.052 |        0.896 |        1.219 |     1.274 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      5 | understood me           | Empathy/understanding |             5 |  96 |  3.177 |    4.177 |  1.000 |        0.833 |        1.188 |     1.090 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |             5 |  96 |  2.688 |    3.792 |  1.104 |        0.906 |        1.302 |     1.082 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |             5 |  96 |  3.417 |    4.500 |  1.083 |        0.865 |        1.312 |     0.928 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |             5 |  96 |  3.406 |    4.531 |  1.125 |        0.917 |        1.354 |     0.991 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |      9 | took charge             | Direction/control     |             5 |  96 |  2.677 |    3.802 |  1.125 |        0.917 |        1.333 |     1.053 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |             5 |  96 |  2.302 |    3.250 |  0.948 |        0.802 |        1.104 |     1.249 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |             5 |  96 |  3.417 |    4.531 |  1.115 |        0.906 |        1.344 |     0.977 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |             5 |  96 |  3.406 |    4.531 |  1.125 |        0.917 |        1.354 |     0.991 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |             5 |  96 |  2.979 |    3.958 |  0.979 |        0.760 |        1.208 |     0.850 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |             5 |  96 |  3.385 |    4.646 |  1.260 |        0.990 |        1.562 |     0.851 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |             5 |  96 |  3.260 |    4.542 |  1.281 |        1.021 |        1.542 |     0.917 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |             5 |  96 |  3.135 |    4.417 |  1.281 |        1.021 |        1.552 |     0.912 |    0.000 |
-| gpt-4o-mini      | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |             5 |  96 |  3.052 |    4.365 |  1.312 |        1.073 |        1.573 |     1.009 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |             6 |  96 |  3.042 |    3.823 |  0.781 |        0.615 |        0.948 |     0.921 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |             6 |  96 |  2.604 |    3.854 |  1.250 |        1.073 |        1.438 |     1.299 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |             6 |  96 |  2.167 |    3.094 |  0.927 |        0.792 |        1.062 |     1.325 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |             6 |  96 |  3.156 |    4.333 |  1.177 |        1.010 |        1.354 |     1.334 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      5 | understood me           | Empathy/understanding |             6 |  96 |  3.177 |    4.281 |  1.104 |        0.927 |        1.292 |     1.154 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |             6 |  96 |  2.688 |    4.125 |  1.438 |        1.250 |        1.646 |     1.418 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |             6 |  96 |  3.417 |    4.562 |  1.146 |        0.927 |        1.375 |     0.987 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |             6 |  96 |  3.406 |    4.625 |  1.219 |        1.000 |        1.448 |     1.065 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |      9 | took charge             | Direction/control     |             6 |  96 |  2.677 |    4.042 |  1.365 |        1.156 |        1.573 |     1.267 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |             6 |  96 |  2.302 |    3.344 |  1.042 |        0.885 |        1.198 |     1.291 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |             6 |  96 |  3.417 |    4.656 |  1.240 |        1.021 |        1.469 |     1.087 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |             6 |  96 |  3.406 |    4.656 |  1.250 |        1.031 |        1.479 |     1.103 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |             6 |  96 |  2.979 |    4.302 |  1.323 |        1.114 |        1.532 |     1.172 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |             6 |  96 |  3.385 |    4.781 |  1.396 |        1.115 |        1.698 |     0.919 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |             6 |  96 |  3.260 |    4.708 |  1.448 |        1.177 |        1.740 |     0.989 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |             6 |  96 |  3.135 |    4.604 |  1.469 |        1.188 |        1.750 |     1.044 |    0.000 |
+| gpt-4o-mini      | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |             6 |  96 |  3.052 |    4.594 |  1.542 |        1.281 |        1.813 |     1.133 |    0.000 |
 | claude-haiku-4-5 | PTO_LA0  |      1 | sense of who he was     | Self-disclosure       |            10 |  96 |  2.188 |    3.094 |  0.906 |        0.729 |        1.073 |     1.055 |    0.000 |
 | claude-haiku-4-5 | PTO_LA0  |      2 | revealed his thinking   | Self-disclosure       |            10 |  96 |  1.635 |    2.354 |  0.719 |        0.594 |        0.833 |     1.177 |    0.000 |
 | claude-haiku-4-5 | PTO_LA0  |      3 | shared his feelings     | Self-disclosure       |            10 |  96 |  1.479 |    3.208 |  1.729 |        1.542 |        1.906 |     1.921 |    0.000 |
@@ -119,20 +119,20 @@
 | claude-haiku-4-5 | GRPO_LA0 |     15 | treated me as equal     | Non-judgment/equality |            10 |  96 |  2.510 |    2.833 |  0.323 |        0.167 |        0.479 |     0.397 |    0.000 |
 | claude-haiku-4-5 | GRPO_LA0 |     16 | made me feel cared for  | Warmth/closeness      |            10 |  96 |  1.781 |    2.448 |  0.667 |        0.510 |        0.833 |     0.844 |    0.000 |
 | claude-haiku-4-5 | GRPO_LA0 |     17 | made me feel close      | Warmth/closeness      |            10 |  96 |  1.729 |    2.115 |  0.385 |        0.250 |        0.521 |     0.538 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |             5 |  96 |  2.156 |    2.802 |  0.646 |        0.490 |        0.802 |     0.813 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |             5 |  96 |  1.625 |    2.177 |  0.552 |        0.438 |        0.677 |     0.900 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |             5 |  96 |  1.542 |    1.844 |  0.302 |        0.146 |        0.469 |     0.367 |    0.001 |
-| claude-haiku-4-5 | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |             5 |  96 |  1.990 |    2.750 |  0.760 |        0.625 |        0.906 |     1.033 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      5 | understood me           | Empathy/understanding |             5 |  96 |  2.083 |    2.990 |  0.906 |        0.729 |        1.083 |     1.040 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |             5 |  96 |  1.917 |    2.719 |  0.802 |        0.656 |        0.948 |     1.052 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |             5 |  96 |  1.948 |    3.042 |  1.094 |        0.917 |        1.281 |     1.176 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |             5 |  96 |  1.854 |    2.792 |  0.938 |        0.781 |        1.104 |     1.095 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |      9 | took charge             | Direction/control     |             5 |  96 |  1.500 |    2.365 |  0.865 |        0.719 |        1.021 |     1.095 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |             5 |  96 |  1.302 |    1.688 |  0.385 |        0.250 |        0.531 |     0.517 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |             5 |  96 |  2.677 |    3.677 |  1.000 |        0.812 |        1.198 |     1.039 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |             5 |  96 |  2.667 |    3.667 |  1.000 |        0.812 |        1.198 |     1.016 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |             5 |  96 |  1.812 |    2.750 |  0.938 |        0.781 |        1.104 |     1.111 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |             5 |  96 |  2.844 |    3.604 |  0.760 |        0.604 |        0.927 |     0.961 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |             5 |  96 |  2.427 |    3.052 |  0.625 |        0.469 |        0.781 |     0.796 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |             5 |  96 |  1.740 |    2.719 |  0.979 |        0.833 |        1.135 |     1.233 |    0.000 |
-| claude-haiku-4-5 | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |             5 |  96 |  1.708 |    2.708 |  1.000 |        0.844 |        1.167 |     1.218 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |             6 |  96 |  2.156 |    2.885 |  0.729 |        0.562 |        0.896 |     0.856 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |             6 |  96 |  1.625 |    2.250 |  0.625 |        0.500 |        0.750 |     1.008 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |             6 |  96 |  1.542 |    2.031 |  0.490 |        0.344 |        0.656 |     0.606 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |             6 |  96 |  1.990 |    2.927 |  0.938 |        0.781 |        1.094 |     1.183 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      5 | understood me           | Empathy/understanding |             6 |  96 |  2.083 |    3.073 |  0.990 |        0.823 |        1.156 |     1.161 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |             6 |  96 |  1.917 |    2.917 |  1.000 |        0.854 |        1.157 |     1.280 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |             6 |  96 |  1.948 |    3.208 |  1.260 |        1.083 |        1.438 |     1.405 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |             6 |  96 |  1.854 |    2.896 |  1.042 |        0.875 |        1.219 |     1.166 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |      9 | took charge             | Direction/control     |             6 |  96 |  1.500 |    2.469 |  0.969 |        0.823 |        1.115 |     1.298 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |             6 |  96 |  1.302 |    1.854 |  0.552 |        0.406 |        0.698 |     0.748 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |             6 |  96 |  2.677 |    3.635 |  0.958 |        0.781 |        1.146 |     1.020 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |             6 |  96 |  2.667 |    3.646 |  0.979 |        0.792 |        1.167 |     1.018 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |             6 |  96 |  1.812 |    2.927 |  1.115 |        0.958 |        1.281 |     1.320 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |             6 |  96 |  2.844 |    3.656 |  0.812 |        0.667 |        0.979 |     1.017 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |             6 |  96 |  2.427 |    3.208 |  0.781 |        0.615 |        0.948 |     0.921 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |             6 |  96 |  1.740 |    2.948 |  1.208 |        1.062 |        1.354 |     1.576 |    0.000 |
+| claude-haiku-4-5 | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |             6 |  96 |  1.708 |    2.917 |  1.208 |        1.052 |        1.365 |     1.523 |    0.000 |

@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 315 rows.** The full table is too large to read as markdown, so it lives on sheet `pref_outcome_link` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="pref_outcome_link")`.
+> **Excerpt — first 60 of 324 rows.** The full table is too large to read as markdown, so it lives on sheet `pref_outcome_link` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="pref_outcome_link")`.
 
 | arm      | method   |   K |   train_iter |   n_groups |   n_candidates |    w_len |   w_len_se |   w_question |   w_question_se |   w_affirm |   w_affirm_se |   w_overpraise |   w_overpraise_se |   cat_Affirmation |   cat_ChangeTalk |   cat_OpenQuestion |   cat_Reflection |   cat_SustainTalk |   cat_TherapistActions |   dir_cos_prev |   wins_correct |   split_half_cos | metric   |   delta_mean |     dz |     p |   n_paired |
 |:---------|:---------|----:|-------------:|-----------:|---------------:|---------:|-----------:|-------------:|----------------:|-----------:|--------------:|---------------:|------------------:|------------------:|-----------------:|-------------------:|-----------------:|------------------:|-----------------------:|---------------:|---------------:|-----------------:|:---------|-------------:|-------:|------:|-----------:|
@@ -63,4 +63,4 @@
 | GRPO_LA0 | GRPO     |   0 |            7 |       1965 |          15556 |   33.881 |      7.335 |       -0.032 |           0.013 |      0.026 |         0.006 |          0.022 |             0.004 |             0.045 |            0.001 |              0.029 |           -0.028 |            -0.021 |                  0.041 |          0.247 |          0.615 |            0.296 | MITI     |        0.091 |  0.181 | 0.073 |         96 |
 | GRPO_LA0 | GRPO     |   0 |            7 |       1965 |          15556 |   33.881 |      7.335 |       -0.032 |           0.013 |      0.026 |         0.006 |          0.022 |             0.004 |             0.045 |            0.001 |              0.029 |           -0.028 |            -0.021 |                  0.041 |          0.247 |          0.615 |            0.296 | PCT      |        0.021 |  0.124 | 0.270 |         96 |
 
-_... 255 further rows in the workbook._
+_... 264 further rows in the workbook._
