@@ -1213,9 +1213,12 @@ def _c_timing_logs() -> str:
     cost that cannot be recovered afterwards. A completed iteration (``adapter/`` present) with no
     log therefore FAILS: the compute family would report it as free.
 
-    ``n_sessions > 1`` means the iteration was resumed. That WARNS -- it is a normal event, but it
-    is also the flag any cost table must carry, because for such an iteration every per-PROCESS
-    number in ``iteration_metadata.json`` is an undercount.
+    ``n_sessions_production > 1`` means the iteration was resumed. That WARNS -- it is a normal
+    event, but it is also the flag any cost table must carry, because for such an iteration every
+    per-PROCESS number in ``iteration_metadata.json`` is an undercount. ⚠ It is the PRODUCTION
+    session count, not ``n_sessions``: the post-loop final-eval pass appends an ``eval_gen_s``-only
+    session to the last training iteration of every healthy arm, so the raw count would warn on
+    every completed arm and the warning would stop meaning anything.
     """
     from core.timing import cumulative_seconds
 
@@ -1230,11 +1233,13 @@ def _c_timing_logs() -> str:
             completed += 1
             totals = cumulative_seconds(arm.iteration_dir(iteration))
             sessions = int(totals.get("n_sessions", 0) or 0)
+            production = int(totals.get("n_sessions_production", 0) or 0)
             if sessions == 0:
                 unlogged.append(f"{arm.label}/iteration_{iteration}")
-            elif sessions > 1:
-                resumed.append(f"{arm.label}/iteration_{iteration} ({sessions} sessions, "
-                               f"{totals['total_s'] / 3600.0:.1f} GPU-h)")
+            elif production > 1:
+                resumed.append(f"{arm.label}/iteration_{iteration} ({production} production "
+                               f"session(s) of {sessions}, "
+                               f"{totals['production_s'] / 3600.0:.1f} GPU-h)")
     if not completed:
         raise _Skip("no completed iteration (none has an adapter/ yet)")
     assert not unlogged, (

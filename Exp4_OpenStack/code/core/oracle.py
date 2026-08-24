@@ -279,7 +279,12 @@ class OracleConfig:
         max_concurrency: Advisory record of the bound the caller's ``AsyncPrimitives`` was built
             with. This module does not create semaphores; it uses the one it is handed.
         min_success_ratio: Floor below which ``core/reward.py`` aborts training. Read here, acted
-            on there -- see :func:`batch_success_ratio`.
+            on there -- see :func:`batch_success_ratio`. It is the LAST line of defence, not the
+            only one: an individual failure is repaired per-group by
+            ``core.reward.rewards_for_trl`` (the candidate takes its siblings' mean, so it carries
+            ~zero advantage). What this floor still catches is the case that repair cannot fix --
+            a grader failing often enough that the *surviving* scores are a biased subset of the
+            candidates, which no substitution can undo.
     """
 
     binding: RoleBinding
@@ -585,8 +590,11 @@ async def score_conversation(client,
         Falling back to "score with whatever came back" would mean the reward's *definition*
         changes based on which calls happened to fail, and it fails soft: a grader that struggles
         with exactly one rubric produces a run whose reward is quietly a different quantity.
-        ``None`` is the loud option: TRL converts it to NaN and skips the sample, and a batch with
-        too many of them trips ``min_success_ratio`` in ``core/reward.py``.
+        ``None`` is the loud option: it means "not graded", never "graded badly". ⚠ It must NOT
+        reach TRL -- the pinned trl 1.4.0 maps ``None`` to NaN and then ``nansum``s it to 0.0,
+        i.e. optimises it as the worst possible completion. ``core.reward.rewards_for_trl``
+        substitutes the candidate's group mean before the vector leaves the reward fn, and a
+        batch with too many failures still trips ``min_success_ratio`` in ``core/reward.py``.
 
         Rubrics are scored **sequentially** for one conversation, matching Exp3. Concurrency comes
         from scoring many conversations at once (:func:`score_conversations_batch`), which keeps

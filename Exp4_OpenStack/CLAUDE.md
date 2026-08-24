@@ -175,7 +175,7 @@ class ServeSpec:
     model: str
     port: int = 8000
     gpu_memory_utilization: float = 0.25
-    max_model_len: int = 8192
+    max_model_len: int = 16384             # NOT an escape hatch — see § VRAM budget
     dtype: str = "bfloat16"
     extra_args: Tuple[str, ...] = ()
 
@@ -388,8 +388,14 @@ The validation ladder (kept from Exp3, unchanged): the returned `questionnaire_i
 request, `len(scores)` must equal the item count, every score must be an `int` inside
 `[scale_min, scale_max]`. Then `mean_score = mean(scores)` per questionnaire, and the reward is the
 **unweighted mean across questionnaires** — so Q1 (5 items) and Q2 (17 items) carry equal weight.
-⚠ **If any single questionnaire fails, that candidate's `score` is `None`** (TRL turns it into NaN
-and skips the sample).
+⚠ **If any single questionnaire fails, that candidate's `score` is `None`** — "not graded", never
+"graded badly". ⚠ **`None` must never reach TRL.** The pinned `trl==1.4.0` maps it to NaN
+(`grpo_trainer.py:1259`) and then reduces with `nansum` (`:2145`), which turns NaN into **0.0** —
+so an ungraded candidate would be optimised as the worst possible completion and would re-scale the
+advantages of all G−1 siblings. `core.reward.rewards_for_trl` therefore substitutes the candidate's
+**group mean** (advantage ≈ 0, group mean unchanged) before the vector is returned, and records the
+substitution as `reward_used` on the EDA candidate. PTO keeps the raw `None` and excludes such a
+candidate from the τ comparison.
 
 ⚠ **The rubric-first prompt layout in `questionnaires.py` is load-bearing.** Fixed instructions +
 rubric FIRST, transcript LAST — that is what vLLM's prefix caching (and OpenAI's, on an API arm)
@@ -400,6 +406,8 @@ reuses across every call. Never move the transcript ahead of the rubric.
 ```python
 def make_reward_fn(model, tokenizer, client, oracle_cfg, la_cfg, primitives, *,
                    recorder=None, sp_therapist=None) -> Callable
+def rewards_for_trl(candidates, num_generations) -> List[Optional[float]]
+        # per-group repair of an ungraded candidate (see the oracle section's None warning)
 ```
 
 The TRL reward callable: cleans completions, floors degenerate ones to `REWARD_FLOOR`, runs
@@ -423,6 +431,12 @@ One JSONL row per branch — prefix stored **once**, candidates nested:
  "chosen_idx": 2}
 ```
 
+`score` is the RAW grader result (`null` = the oracle failed). A candidate also carries
+`reward_used` **only when the number GRPO optimised differs from it** — i.e. the group-mean
+substitution above. `group_mean` / `group_std` are TRL's own reduction of that vector (surviving
+`null` at 0.0, **sample** SD, ddof=1), so `sign(reward_used − group_mean)` reconstructs the sign of
+the advantage.
+
 Reconstruct a scored text as `prefix + "\n\n[THERAPIST]: " + completion + (tail or "")`.
 `snapshot_to(path)` / `load_from(path)` support checkpoint-resume (HF fast-forwards skipped batches
 **without re-invoking the reward fn**, so the recorder must be restored from the checkpoint).
@@ -435,14 +449,25 @@ per-branch aggregation must key on `(conversation_id, branch_id)`.
 Ported from Exp3 `_shared/timing.py`, one change: `PHASE_KEYS` gains an eval-generation phase.
 
 ```python
-PHASE_KEYS = ("generation_s", "pref_pair_s", "training_s", "eval_gen_s")
+PHASE_KEYS            = ("generation_s", "pref_pair_s", "training_s", "eval_gen_s")
+PRODUCTION_PHASE_KEYS = ("generation_s", "pref_pair_s", "training_s")   # the COST axis
 def log_session(iter_dir, *, generation_s=0.0, training_s=0.0, pref_pair_s=0.0,
                 eval_gen_s=0.0, started_at=None, note="") -> dict
-def cumulative_seconds(iter_dir) -> Dict[str, float]      # + total_s, n_sessions
+def cumulative_seconds(iter_dir) -> Dict[str, float]
+        # + total_s, production_s, n_sessions, n_sessions_production
 def metadata_fields(iter_dir) -> Dict[str, float]         # cumulative_* to splat into metadata
 ```
 
-`n_sessions > 1` ⟺ the iteration was resumed ⟺ any per-process number for it is wrong.
+`n_sessions_production > 1` ⟺ the iteration was resumed ⟺ any per-process number for it is wrong.
+⚠ **Not `n_sessions > 1`.** The post-loop final-eval pass logs an `eval_gen_s`-only session against
+`iteration_{N}` (and every `tools/generate_convs.py` repair appends another), so the raw session
+count reports the last iteration of *every healthy arm* as resumed.
+
+⚠ **Bill compute on `production_s`, never `total_s`.** State `j`'s conversations are generated at
+the start of iteration `j+1`, so its measurement falls outside the `1..j` cumulative sum — for
+every state but the last, whose eval pass has no next iteration and is logged against
+`iteration_N`. Summing `total_s` prices exactly one point per arm — the endpoint every budget sweep
+is read at — under a different rule, shifted right by a whole generation pass.
 
 ### `code/tools/vllm_serve.py`
 

@@ -25,6 +25,7 @@ multiply the file by G::
      "candidates": [
        {"idx": 0, "completion": "...", "score": 3.4|None,
         "sub_scores": {"1": 3.0, "2": 3.8}|None,
+        "reward_used": 3.3,                               # only when != score (GRPO substitution)
         "role": "chosen"|"rejected"|"neither"|None,       # PTO only
         "oracle": {"success": true, "attempts": 1},
         "lookahead": {"tail": "..."|None, "realized_turns": 5, "ended_early": false}|None}, ...]}
@@ -145,13 +146,20 @@ def build_candidate(
     lookahead: Optional[Dict[str, Any]] = None,
     oracle_success: Optional[bool] = None,
     oracle_attempts: Optional[int] = None,
+    reward_used: Optional[float] = None,
 ) -> Dict[str, Any]:
     """Build one nested candidate dict in the schema above.
 
     Args:
-        score: the reward the trainer USED -- i.e. the oracle score, except a degenerate
-            completion floored to ``oracle.REWARD_FLOOR``. Keep ``sub_scores`` raw-oracle, so a
-            floored row is identifiable as ``score == floor`` with per-questionnaire scores absent.
+        score: the RAW oracle score, except a degenerate completion floored to
+            ``oracle.REWARD_FLOOR``, and ``None`` when the grader failed. Keep ``sub_scores``
+            raw-oracle, so a floored row is identifiable as ``score == floor`` with
+            per-questionnaire scores absent.
+        reward_used: the number the trainer actually optimised, when it differs from *score*.
+            GRPO only, and in practice only for a failed grader call whose group mean
+            ``core.reward.rewards_for_trl`` substituted -- trl 1.4.0 has no way to drop a sample,
+            so ``None`` would be optimised as 0.0. Absent when it equals *score*; a consumer
+            wanting "what was optimised" reads ``reward_used`` falling back to ``score``.
         role: PTO only -- "chosen" | "rejected" | "neither". ``"rejected"`` is what
             :meth:`EDARecorder.aggregate` counts as "a preference pair was emitted at this branch",
             so set it only when the tau filter actually passed.
@@ -165,6 +173,8 @@ def build_candidate(
         "score": score,
         "sub_scores": sub_scores,
     }
+    if reward_used is not None:
+        cand["reward_used"] = float(reward_used)
     if role is not None:
         cand["role"] = role
     if oracle_success is not None or oracle_attempts is not None:
@@ -451,14 +461,39 @@ class EDARecorder:
         self.records = recs
         return len(recs)
 
+    def next_group_branch_id(self) -> int:
+        """The first GRPO ``branch_id`` that does not collide with anything already buffered.
+
+        GRPO's ``branch_id`` is a running prompt-group counter that must be unique within the
+        iteration -- the EDA keys per-branch aggregation on ``(conversation_id, branch_id)``, so a
+        repeat silently pools two unrelated prompt-groups into one. The counter lives in the
+        reward closure, which is rebuilt from scratch on a mid-iteration resume while
+        :meth:`load_from` restores the pre-crash rows; without seeding it from those rows the
+        post-resume groups restart at 0 and collide with them.
+
+        Returns:
+            ``max(branch_id over the buffered GRPO rows) + 1``, or 0 when there are none. PTO rows
+            are ignored: their ``branch_id`` is trunk DEPTH, not a counter, and a GRPO iteration
+            never buffers any.
+        """
+        best = -1
+        for rec in self.records:
+            if not _is_grpo_branch(rec):
+                continue
+            bid = _as_float(rec.get("branch_id"))
+            if bid is not None:
+                best = max(best, int(bid))
+        return best + 1
+
     # ── aggregates (per-iteration TensorBoard scalars) ───────────────────────
 
     def aggregate(self) -> Tuple[Dict[str, float], List[float]]:
         """Summarize the buffer into ``(scalars, scores)`` for per-iteration logging.
 
         ``scalars`` is a flat ``{tag: float}`` a TB writer can splat; ``scores`` is the flat list
-        of usable candidate rewards for a histogram -- None and NaN (a failed oracle call, which
-        TRL turns into NaN and skips) are excluded, so the mean is over what actually scored.
+        of usable candidate rewards for a histogram -- None and NaN (a failed oracle call) are
+        excluded, so the mean is over what the grader actually returned rather than over the
+        group-mean stand-in ``core.reward.rewards_for_trl`` hands TRL for such a candidate.
 
         Keys are emitted ONLY when the recorded rows support them, never as zeros:
 

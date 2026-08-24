@@ -131,9 +131,11 @@ __all__ = [
     # Constants
     "ROLE_THERAPIST",
     "ROLE_PATIENT",
-    "PAIR_COLUMNS_COMMON",
-    "BRANCH_COLUMN_GREEDY",
-    "BRANCH_COLUMN_INDEPENDENT",
+    "PAIR_COLUMNS",
+    "BRANCH_ID_COLUMN",
+    "BRANCH_KIND_COLUMN",
+    "BRANCH_KIND_GREEDY",
+    "BRANCH_KIND_INDEPENDENT",
     # Results
     "IterationResult",
     # Preference-pair construction
@@ -176,18 +178,26 @@ ROLE_PATIENT = "patient"
 
 _NEXT_SPEAKER = {ROLE_THERAPIST: ROLE_PATIENT, ROLE_PATIENT: ROLE_THERAPIST}
 
-#: Columns every pair carries, in ``pairs.csv`` order.
-PAIR_COLUMNS_COMMON = (
-    "prompt", "chosen", "rejected", "chosen_score", "rejected_score",
-    "conversation_id", "persona_id",
+#: Every column a pair carries, in ``pairs.csv`` order. This IS the read-side contract: the EDA's
+#: ``eda_analysis.data.PREF_PAIR_COLUMNS`` names the same fields, and the analysis outlives any one
+#: run, so the writer spells them the reader's way rather than the other way round.
+PAIR_COLUMNS = (
+    "prompt", "chosen", "rejected", "chosen_score", "rejected_score", "margin",
+    "conversation_id", "persona_id", "branch_id", "branch_kind",
 )
 
-#: The branch-position column, which DIFFERS BY MODE and is the one thing a reader of ``pairs.csv``
-#: must branch on. ``greedy`` records trunk DEPTH (utterances of the trunk when the branch point
-#: was reached); ``independent`` records the index of the patient turn in the pre-recorded
-#: conversation. Neither is unique on its own -- key on ``(conversation_id, <branch column>)``.
-BRANCH_COLUMN_GREEDY = "branch_depth"
-BRANCH_COLUMN_INDEPENDENT = "branch_turn_index"
+#: The branch position. ONE column name in both modes -- what differs is its MEANING, and that is
+#: recorded explicitly in :data:`BRANCH_KIND_COLUMN` rather than encoded in the column's spelling
+#: (which is how the writer and the EDA drifted apart: an analysis keyed on the documented
+#: ``branch_id`` found no such column the moment real pairs existed).
+#: ⚠ Not unique on its own in EITHER mode -- key on ``(conversation_id, branch_id)``.
+BRANCH_ID_COLUMN = "branch_id"
+BRANCH_KIND_COLUMN = "branch_kind"
+
+#: ``greedy``: trunk DEPTH -- utterances of the trunk when the branch point was reached.
+BRANCH_KIND_GREEDY = "trunk_depth"
+#: ``independent``: the index of the patient turn in the pre-recorded conversation.
+BRANCH_KIND_INDEPENDENT = "patient_turn_index"
 
 #: Mode tokens as ``PTOTrainingConfig.pref_tree_mode`` spells them (the arm name uses ``indep``).
 _MODE_GREEDY = "greedy"
@@ -480,12 +490,20 @@ def write_pairs_csv(pairs: Sequence[Dict[str, Any]], path: str) -> str:
 
         An empty ``pairs`` still writes a file, on purpose: the marker means "the build ran", and
         the zero-pairs guard in :func:`run_one_iteration` is what turns that into a loud failure.
+
+        Columns are forced into :data:`PAIR_COLUMNS` order (extras kept after), so the header does
+        not depend on dict insertion order at the two build sites and the EDA's read-side contract
+        holds for both modes.
     """
     parent = os.path.dirname(path)
     if parent:
         os.makedirs(parent, exist_ok=True)
+    frame = pd.DataFrame(list(pairs))
+    if not frame.empty:
+        lead = [c for c in PAIR_COLUMNS if c in frame.columns]
+        frame = frame[lead + [c for c in frame.columns if c not in set(lead)]]
     tmp = path + ".tmp"
-    pd.DataFrame(list(pairs)).to_csv(tmp, index=False)
+    frame.to_csv(tmp, index=False)
     os.replace(tmp, path)
     return path
 
@@ -500,8 +518,8 @@ def reload_pairs_csv(path: str) -> List[Dict[str, Any]]:
     Notes:
         ``keep_default_na=False`` is required, not stylistic: without it pandas turns an empty
         ``chosen``/``rejected`` string into ``NaN`` (a float), and DPO would be handed a float
-        where it expects text. The two score columns and ``persona_id`` are coerced back to
-        numbers; ``conversation_id`` stays a string (``"pers07"``).
+        where it expects text. The score columns, ``margin`` and ``persona_id`` / ``branch_id`` are
+        coerced back to numbers; ``conversation_id`` stays a string (``"pers07"``).
     """
     try:
         df = pd.read_csv(path, keep_default_na=False)
@@ -510,13 +528,13 @@ def reload_pairs_csv(path: str) -> List[Dict[str, Any]]:
 
     records = df.to_dict("records")
     for rec in records:
-        for key in ("chosen_score", "rejected_score"):
+        for key in ("chosen_score", "rejected_score", "margin"):
             if rec.get(key, "") != "":
                 try:
                     rec[key] = float(rec[key])
                 except (TypeError, ValueError):
                     pass
-        for key in ("persona_id", BRANCH_COLUMN_GREEDY, BRANCH_COLUMN_INDEPENDENT):
+        for key in ("persona_id", BRANCH_ID_COLUMN):
             if rec.get(key, "") != "":
                 try:
                     rec[key] = int(float(rec[key]))
@@ -859,9 +877,11 @@ async def _grow_therapist_depth(
                 "rejected": block[worst_idx].completion,
                 "chosen_score": best_score,
                 "rejected_score": worst_score,
+                "margin": float(best_score) - float(worst_score),
                 "conversation_id": trunk.conv.conversation_id,
                 "persona_id": int(trunk.conv.persona_id),
-                BRANCH_COLUMN_GREEDY: int(branch_depth),
+                BRANCH_ID_COLUMN: int(branch_depth),
+                BRANCH_KIND_COLUMN: BRANCH_KIND_GREEDY,
             })
 
         # The greedy feedback: the chosen completion becomes the context of the NEXT branch point.
@@ -943,8 +963,9 @@ async def grow_preference_trees_batch(
         patient_seed: forwarded to the patient calls; servers that ignore it are unaffected.
 
     Returns:
-        A flat list of pair dicts (the same shape the independent path returns, except for the
-        branch-position column -- see :data:`BRANCH_COLUMN_GREEDY`).
+        A flat list of pair dicts, :data:`PAIR_COLUMNS` -- the same shape the independent path
+        returns, with ``branch_id`` carrying trunk DEPTH and ``branch_kind`` saying so
+        (:data:`BRANCH_KIND_GREEDY`).
 
     Raises:
         RuntimeError: propagated from the shared scoring path when the oracle success rate falls
@@ -1114,8 +1135,9 @@ async def build_pref_pairs_for_conversation(
             conversation.
 
     Returns:
-        Pair dicts carrying :data:`BRANCH_COLUMN_INDEPENDENT` (the patient turn's index) instead of
-        greedy's trunk depth.
+        Pair dicts, :data:`PAIR_COLUMNS` -- same shape as greedy's, with ``branch_id`` carrying the
+        patient turn's index instead of a trunk depth and ``branch_kind`` saying so
+        (:data:`BRANCH_KIND_INDEPENDENT`).
 
     Notes:
         **The final patient turn is skipped.** It has no following therapist turn in the recorded
@@ -1198,9 +1220,11 @@ async def build_pref_pairs_for_conversation(
                 "rejected": scored[worst_idx].completion,
                 "chosen_score": best_score,
                 "rejected_score": worst_score,
+                "margin": float(best_score) - float(worst_score),
                 "conversation_id": state.conversation_id,
                 "persona_id": int(state.persona_id),
-                BRANCH_COLUMN_INDEPENDENT: int(i),
+                BRANCH_ID_COLUMN: int(i),
+                BRANCH_KIND_COLUMN: BRANCH_KIND_INDEPENDENT,
             })
 
     return pairs

@@ -76,6 +76,7 @@ from core.recorder import PHASE_GROUP, build_branch_record, build_candidate
 __all__ = [
     "CandidateScore",
     "make_reward_fn",
+    "rewards_for_trl",
     "score_pref_candidates",
 ]
 
@@ -105,10 +106,15 @@ class CandidateScore:
 
     Attributes:
         completion: the CLEANED completion (``""`` marks a degenerate turn).
-        score: the reward the trainer should use -- the oracle's unweighted mean across
-            questionnaires, or :data:`~core.oracle.REWARD_FLOOR` when :attr:`degenerate`, or
-            ``None`` when the oracle failed. ``None`` is passed through untouched: TRL turns it
-            into NaN and skips the sample, and PTO must not rank on a fabricated number.
+        score: the RAW result -- the oracle's unweighted mean across questionnaires, or
+            :data:`~core.oracle.REWARD_FLOOR` when :attr:`degenerate`, or ``None`` when the
+            oracle failed. ``None`` means "not graded", never "graded badly", and PTO must not
+            rank on a fabricated number -- it excludes such a candidate from the tau comparison.
+            ⚠ GRPO cannot pass ``None`` to TRL: the pinned trl 1.4.0 turns it into NaN and then
+            ``nansum``s it to **0.0**, i.e. trains on it as the worst possible completion. The
+            reward vector handed to TRL is therefore built by :func:`rewards_for_trl`, which
+            substitutes the group mean; :attr:`score` itself stays raw so the EDA can still tell
+            a failure from a floor.
         sub_scores: ``{questionnaire id (str): mean}``, or ``None``. Kept RAW-oracle, so a floored
             row is identifiable as ``score == REWARD_FLOOR`` with ``sub_scores is None``.
         success: did the oracle return a usable score for every requested questionnaire.
@@ -134,7 +140,13 @@ class CandidateScore:
     scored_text: str
     lookahead: Optional[Dict[str, Any]]
 
-    def to_record(self, idx: int, *, role: Optional[str] = None) -> Dict[str, Any]:
+    def to_record(
+        self,
+        idx: int,
+        *,
+        role: Optional[str] = None,
+        reward_used: Optional[float] = None,
+    ) -> Dict[str, Any]:
         """Render this candidate as a nested :mod:`core.recorder` candidate dict.
 
         Args:
@@ -142,6 +154,10 @@ class CandidateScore:
             role: PTO only -- ``"chosen"`` / ``"rejected"`` / ``"neither"``. Set ``"rejected"``
                 only when the tau filter actually passed, because that is what the recorder
                 counts as "a preference pair was emitted here".
+            reward_used: GRPO only -- the number actually handed to TRL, when it differs from
+                :attr:`score` (i.e. this candidate's oracle call failed and
+                :func:`rewards_for_trl` substituted its group's mean). Leave ``None`` when the
+                two agree; the key is then absent and the EDA falls back to ``score``.
 
         Notes:
             Both methods build their EDA rows through this, so a GRPO candidate and a PTO
@@ -156,6 +172,7 @@ class CandidateScore:
             lookahead=self.lookahead,
             oracle_success=self.success,
             oracle_attempts=self.attempts,
+            reward_used=reward_used,
         )
 
 
@@ -384,6 +401,67 @@ async def _score_candidates(
 # =============================================================================
 
 
+def rewards_for_trl(
+    candidates: Sequence[CandidateScore],
+    num_generations: int,
+) -> List[Optional[float]]:
+    """The reward vector to hand TRL: a failed candidate takes its group's mean.
+
+    ``None`` cannot be forwarded to the pinned ``trl==1.4.0``. Its ``GRPOTrainer`` maps ``None``
+    to ``torch.nan`` (``grpo_trainer.py:1259``) and then reduces the per-function rewards with
+    ``nansum`` (``:2145``) -- and ``nansum`` of an all-NaN row is **0.0**, not NaN. A candidate
+    nobody graded therefore enters the group as the worst possible completion: with G=8 and real
+    scores around 3.3, one failed sibling drops the group mean to 2.89 and inflates the group SD
+    from ~0.20 to ~1.18, which is enough to flip the sign of a genuinely-worst sibling's
+    advantage. The failure is silent -- ``min_success_ratio`` is a batch-level floor and one
+    hiccup in 128 never trips it.
+
+    Substituting the group mean is the minimal-perturbation repair: the failed candidate gets
+    advantage ~0 (it is trained neither toward nor away from), the group mean is unchanged, and
+    the group SD moves only by the ddof shrinkage of one duplicated point.
+
+    Args:
+        candidates: the scored candidates, in TRL's order (G-consecutive blocks per prompt).
+        num_generations: TRL's ``G``.
+
+    Returns:
+        One reward per candidate, in order. ``None`` survives only where an ENTIRE group failed
+        (there is no sibling mean to borrow); TRL then floors all G to 0.0, which is a constant
+        group and so contributes no gradient, and it logs its own all-None warning. The list is
+        also returned unchanged when the batch is not divisible by ``G`` -- the same refusal to
+        guess at groups that :func:`_record_grpo_groups` makes.
+    """
+    out: List[Optional[float]] = [c.score for c in candidates]
+    G = max(1, int(num_generations))
+    n = len(out)
+    if n == 0 or n % G != 0:
+        if n:
+            print(
+                f"{_LOG}WARNING: {n} rewards not divisible by G={G}; cannot recover groups, so a "
+                f"failed candidate cannot borrow its siblings' mean and TRL will floor it to 0.0"
+            )
+        return out
+
+    n_sub = 0
+    for start in range(0, n, G):
+        block = out[start:start + G]
+        good = [v for v in block if v is not None]
+        if not good or len(good) == G:
+            continue
+        fill = statistics.fmean(good)
+        for j in range(G):
+            if block[j] is None:
+                out[start + j] = fill
+                n_sub += 1
+    if n_sub:
+        print(
+            f"{_LOG}WARNING: {n_sub}/{n} candidates had no oracle score; each took its group's "
+            f"mean so it carries ~zero advantage (trl 1.4.0 would otherwise reward it as 0.0). "
+            f"The substitution is recorded per candidate as `reward_used` in generations.jsonl"
+        )
+    return out
+
+
 def _record_grpo_groups(
     recorder,
     *,
@@ -394,6 +472,7 @@ def _record_grpo_groups(
     was_training: bool,
     transcripts: Sequence[str],
     candidates: Sequence[CandidateScore],
+    rewards: Sequence[Optional[float]],
     conversation_ids: Optional[Sequence[Any]],
     persona_ids: Optional[Sequence[Any]],
 ) -> None:
@@ -402,11 +481,14 @@ def _record_grpo_groups(
     TRL hands the reward fn G-consecutive completions per prompt, so group ``g`` occupies
     ``[g*G, (g+1)*G)``. The prefix is identical across a group, hence stored once on the row;
     ``group_mean`` / ``group_std`` are the statistics the group-relative advantage was computed
-    from, so ``sign(score - group_mean)`` is recoverable from the EDA alone.
+    from, so ``sign(reward_used - group_mean)`` is recoverable from the EDA alone.
 
     Args:
         group_base: mutable ``{"n": int}`` carried across every call within an iteration, so
-            ``branch_id`` is unique over the iteration's many reward-fn invocations.
+            ``branch_id`` is unique over the iteration's many reward-fn invocations. Seed it from
+            the reloaded snapshot on a mid-iteration resume, or the ids restart at 0 and collide.
+        rewards: the vector actually returned to TRL (:func:`rewards_for_trl` output), parallel
+            to *candidates*.
 
     Notes:
         **A batch that is not divisible by G is skipped with a warning, never regrouped.** A
@@ -414,8 +496,13 @@ def _record_grpo_groups(
         were never siblings -- silently wrong EDA is worse than a missing row, and losing EDA rows
         must never take down a multi-hour training run.
 
-        Group statistics are computed over the group's non-``None`` scores (population SD,
-        ddof=0), matching TRL's NaN-aware group reduction and :meth:`EDARecorder.aggregate`.
+        **Group statistics are TRL's, not a prettier version of them.** They are computed over
+        the whole block of G with any surviving ``None`` at 0.0 (trl 1.4.0's ``nansum``, see
+        :func:`rewards_for_trl`) and with the SAMPLE SD (ddof=1), because that is what
+        ``torch.Tensor.std`` defaults to at ``grpo_trainer.py:2151``. Using the population SD
+        over only the graded siblings -- the obvious-looking choice -- overstates every
+        reconstructed advantage by ``sqrt(G/(G-1))`` = 6.9% at G=8, and gets the SIGN wrong on any
+        group that contained a substitution.
     """
     G = max(1, int(num_generations))
     n = len(candidates)
@@ -427,13 +514,22 @@ def _record_grpo_groups(
             f"records for this call rather than risking a mis-grouped row"
         )
         return
+    if len(rewards) != n:
+        print(
+            f"{_LOG}WARNING: EDA: {len(rewards)} rewards for {n} candidates; skipping the group "
+            f"records for this call rather than pairing a score with the wrong candidate"
+        )
+        return
 
     base = group_base["n"]
     for grp in range(n // G):
         start = grp * G
         block = list(candidates[start:start + G])
+        block_rewards = list(rewards[start:start + G])
+        # Exactly the vector TRL reduces: a None that no sibling could fill is floored to 0.0
+        # by its nansum, so the recorded statistics say so instead of hiding it.
+        used = [0.0 if r is None else float(r) for r in block_rewards]
         valid = [(c.score, j) for j, c in enumerate(block) if c.score is not None]
-        values = [v for v, _ in valid]
         record = build_branch_record(
             phase=PHASE_GROUP,
             iteration=iteration,
@@ -445,11 +541,20 @@ def _record_grpo_groups(
             ),
             branch_id=base + grp,
             prefix=_at(transcripts, start, None),
-            candidates=[c.to_record(j) for j, c in enumerate(block)],
+            candidates=[
+                c.to_record(
+                    j,
+                    reward_used=(
+                        block_rewards[j] if c.score is None and block_rewards[j] is not None
+                        else None
+                    ),
+                )
+                for j, c in enumerate(block)
+            ],
             chosen_idx=(max(valid)[1] if valid else None),
             epoch=epoch,
-            group_mean=(statistics.fmean(values) if values else None),
-            group_std=(statistics.pstdev(values) if values else None),
+            group_mean=statistics.fmean(used),
+            group_std=(statistics.stdev(used) if len(used) > 1 else 0.0),
         )
         if not was_training:
             # TRL puts the policy in eval mode for evaluate(); those groups never produced a
@@ -472,6 +577,7 @@ def make_reward_fn(
     iteration: int = 0,
     num_generations: int = 1,
     lookahead_state: Optional[LookaheadState] = None,
+    branch_id_start: Optional[int] = None,
 ) -> Callable:
     """Build the async reward callable TRL's ``GRPOTrainer`` calls once per optimizer step.
 
@@ -496,11 +602,22 @@ def make_reward_fn(
         lookahead_state: the iteration's :class:`~core.lookahead.LookaheadState`. One is created
             if omitted; pass your own only when the same iteration also runs look-ahead outside
             this closure.
+        branch_id_start: first EDA ``branch_id`` this closure may use. Leave ``None`` on a fresh
+            iteration (it then continues from whatever *recorder* already holds, i.e. 0). ⚠ On a
+            MID-ITERATION RESUME this must be past the reloaded snapshot's ids, or the
+            post-resume groups restart at 0 and collide with the pre-crash rows in the same
+            ``generations.jsonl`` -- and ``(conversation_id, branch_id)``, the key the EDA
+            prescribes for every per-branch aggregation, would then pool two unrelated
+            prompt-groups. :meth:`~core.recorder.EDARecorder.next_group_branch_id` computes it,
+            and is the default when a *recorder* is given.
 
     Returns:
         ``async def reward_fn(prompts, completions, transcript, **kwargs) -> List[Optional[float]]``,
-        one reward per completion, in order. ``None`` entries are passed through untouched -- TRL
-        converts them to NaN and skips those samples. The state object is attached to the returned
+        one reward per completion, in order. An ungraded candidate does NOT come back as ``None``:
+        :func:`rewards_for_trl` gives it its group's mean first, because trl 1.4.0 floors a
+        ``None`` to 0.0 rather than skipping it. ``None`` survives only when an entire group
+        failed, where TRL's flooring is harmless (a constant group has no advantage) and its own
+        all-None warning fires. The state object is attached to the returned
         callable as ``reward_fn.lookahead_state``, so after training the trainer can read
         ``.sub_batch`` (and ``.oom_events``) into ``run_metadata.json`` -- the sub-batch is in no
         ``EXPERIMENT_NAME``, so a halving leaves no other trace and per-iteration wall-clock
@@ -534,8 +651,13 @@ def make_reward_fn(
             "simulated continuation is drawn from a different prompt distribution than training."
         )
 
-    # Running prompt-group offset, so branch_id stays unique across the iteration's many calls.
-    group_base: Dict[str, int] = {"n": 0}
+    # Running prompt-group offset, so branch_id stays unique across the iteration's many calls
+    # AND across a mid-iteration resume, where this closure is rebuilt but the recorder is
+    # reloaded from the checkpoint snapshot. Seeded past whatever the recorder already holds.
+    if branch_id_start is None:
+        _next = getattr(recorder, "next_group_branch_id", None)
+        branch_id_start = int(_next()) if callable(_next) else 0
+    group_base: Dict[str, int] = {"n": max(0, int(branch_id_start))}
     # ONE state for the whole iteration: this is what makes the look-ahead's OOM sub-batch
     # halving sticky across optimizer steps. A per-call state would re-pay the OOM on every one
     # of the iteration's ~135 steps.
@@ -580,6 +702,10 @@ def make_reward_fn(
 
         # In-memory only. The caller flushes once per iteration -- the Colab output dir is a
         # Drive-FUSE mount and this is the hot path.
+        # Built BEFORE the recorder call: the EDA row must carry the group statistics TRL will
+        # actually reduce, not a tidier set computed from the raw oracle scores.
+        rewards = rewards_for_trl(candidates, num_generations)
+
         if recorder is not None and getattr(recorder, "enabled", False):
             trainer_state = kwargs.get("trainer_state")
             epoch = getattr(trainer_state, "epoch", None) if trainer_state is not None else None
@@ -592,11 +718,12 @@ def make_reward_fn(
                 was_training=was_training,
                 transcripts=list(transcript),
                 candidates=candidates,
+                rewards=rewards,
                 conversation_ids=kwargs.get("conversation_id"),
                 persona_ids=kwargs.get("persona_id"),
             )
 
-        return [c.score for c in candidates]
+        return rewards
 
     # Exposed so the trainer can stamp the realized sub-batch into run_metadata.json.
     reward_fn.lookahead_state = la_state

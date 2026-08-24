@@ -49,6 +49,7 @@ from typing import Dict, List, Optional
 __all__ = [
     "SESSIONS_FILENAME",
     "PHASE_KEYS",
+    "PRODUCTION_PHASE_KEYS",
     "sessions_path",
     "log_session",
     "read_sessions",
@@ -64,6 +65,18 @@ SESSIONS_FILENAME = "timing_sessions.jsonl"
 #: inflate a total. ``metadata_fields`` derives its output names from this tuple, so one edit here
 #: is enough to carry a new phase all the way through to ``iteration_metadata.json``.
 PHASE_KEYS = ("generation_s", "pref_pair_s", "training_s", "eval_gen_s")
+
+#: The subset of :data:`PHASE_KEYS` that is a cost of PRODUCING a policy, as opposed to a cost of
+#: MEASURING one. ``eval_gen_s`` is the odd one out and is deliberately excluded here.
+#:
+#: A state's conversations are generated at the START of the next iteration, so state ``j``'s
+#: measurement is billed to iteration ``j+1`` and falls outside the ``1..j`` cumulative sum -- for
+#: every state except the last. The post-loop final-eval pass has no iteration ``N+1`` to be billed
+#: to and logs itself against ``iteration_N``, so summing ``total_s`` would price exactly one point
+#: per arm -- the endpoint every budget sweep is read at -- under a different rule from all the
+#: others, and shift it right by a whole generation pass. Sum ``production_s`` for cost, and read
+#: ``eval_gen_s`` separately as the measurement axis.
+PRODUCTION_PHASE_KEYS = ("generation_s", "pref_pair_s", "training_s")
 
 
 def sessions_path(iter_dir: str) -> str:
@@ -149,23 +162,48 @@ def read_sessions(iter_dir: str) -> List[dict]:
 
 
 def cumulative_seconds(iter_dir: str) -> Dict[str, float]:
-    """Phase totals summed over every session, plus ``total_s`` and ``n_sessions``.
+    """Phase totals summed over every session, plus the four derived counters below.
 
-    ``n_sessions > 1`` means the iteration was resumed. That is the flag any cost analysis wants:
-    it marks every iteration whose wall-clock span includes time nobody was computing, so a span
-    read off directory mtimes would be an overestimate and any single process's own numbers an
-    underestimate.
+    Returns:
+        One key per :data:`PHASE_KEYS`, plus
+
+        * ``total_s`` -- every phase, measurement included;
+        * ``production_s`` -- :data:`PRODUCTION_PHASE_KEYS` only, i.e. what it cost to PRODUCE
+          this iteration's policy. **This is the cost axis**; see the constant's note;
+        * ``n_sessions`` -- how many processes appended a line at all;
+        * ``n_sessions_production`` -- how many of them did production work.
+
+    Notes:
+        ⚠ **Resume is ``n_sessions_production > 1``, not ``n_sessions > 1``.** The post-loop
+        final-eval pass appends a second session to the LAST training iteration of every arm, and
+        every ``tools/generate_convs.py`` repair appends another -- so the plain session count
+        reports the last iteration of a perfectly healthy arm as resumed, which then tells a
+        reader that its per-process numbers are undercounts when they are not.
+
+        A genuinely resumed iteration is still the flag any cost analysis wants: its wall-clock
+        span includes time nobody was computing, so a span read off directory mtimes would be an
+        overestimate and any single process's own numbers an underestimate.
     """
     sessions = read_sessions(iter_dir)
     totals = {k: 0.0 for k in PHASE_KEYS}
+    n_production = 0
     for s in sessions:
         for k in PHASE_KEYS:
             try:
                 totals[k] += float(s.get(k) or 0.0)
             except (TypeError, ValueError):
                 continue
+        for k in PRODUCTION_PHASE_KEYS:
+            try:
+                if float(s.get(k) or 0.0) > 0.0:
+                    n_production += 1
+                    break
+            except (TypeError, ValueError):
+                continue
     totals["total_s"] = sum(totals[k] for k in PHASE_KEYS)
+    totals["production_s"] = sum(totals[k] for k in PRODUCTION_PHASE_KEYS)
     totals["n_sessions"] = float(len(sessions))
+    totals["n_sessions_production"] = float(n_production)
     return totals
 
 

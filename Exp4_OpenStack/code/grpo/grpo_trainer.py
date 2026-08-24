@@ -1284,10 +1284,15 @@ def run_one_iteration(
     if resume_checkpoint and iteration == start_iteration and recorder.enabled:
         n_loaded = recorder.load_from(os.path.join(resume_checkpoint, EDA_SNAPSHOT_FILENAME))
         if n_loaded:
+            # make_reward_fn seeds its prompt-group counter from the recorder, so the post-resume
+            # branch_ids continue past these rows instead of restarting at 0 and colliding with
+            # them in the same generations.jsonl -- (conversation_id, branch_id) is the key the
+            # EDA aggregates on, and a repeat pools two unrelated groups silently.
             print(
                 f"{_LOG}Reloaded {n_loaded} EDA branch rows from "
                 f"{os.path.basename(resume_checkpoint)} (HF fast-forwards skipped batches without "
-                f"re-invoking the reward fn, so these would otherwise be lost)"
+                f"re-invoking the reward fn, so these would otherwise be lost); "
+                f"branch_id resumes at {recorder.next_group_branch_id()}"
             )
 
     # The adapter is attached AFTER generation so model_iter_0 really is the untrained base, and

@@ -178,7 +178,7 @@ GENERATION_COLUMNS: Tuple[str, ...] = ARM_KEY_COLUMNS + (
     "iteration", "state_index", "model_state", "phase", "epoch",
     "conversation_id", "persona_id", "branch_id",
     "group_mean", "group_std", "chosen_idx",
-    "candidate_idx", "is_chosen", "candidate_role", "score",
+    "candidate_idx", "is_chosen", "candidate_role", "score", "reward_used",
     "oracle_success", "oracle_attempts",
     "lookahead_tail", "lookahead_realized_turns", "lookahead_ended_early",
     "completion", "prefix",
@@ -188,7 +188,9 @@ GENERATION_COLUMNS: Tuple[str, ...] = ARM_KEY_COLUMNS + (
 #: trainer phase appears here the moment it is added there.
 TIMING_COLUMNS: Tuple[str, ...] = ARM_KEY_COLUMNS + (
     "iteration", "state_index", "model_state",
-) + tuple(PHASE_KEYS) + ("total_s", "n_sessions", "resumed")
+) + tuple(PHASE_KEYS) + (
+    "total_s", "production_s", "n_sessions", "n_sessions_production", "resumed",
+)
 
 #: :func:`load_pref_pairs`. Beyond the identity columns this is the shape CLAUDE.md documents
 #: for ``pairs.csv``; the reader passes through whatever columns the file actually has, so a
@@ -211,10 +213,12 @@ _COLUMN_DTYPES: Dict[str, str] = {
     "phase": "object", "epoch": "float64", "branch_id": "int64",
     "group_mean": "float64", "group_std": "float64", "chosen_idx": "float64",
     "candidate_idx": "int64", "is_chosen": "bool", "candidate_role": "object",
+    "reward_used": "float64",
     "oracle_success": "object", "oracle_attempts": "float64",
     "lookahead_tail": "object", "lookahead_realized_turns": "float64",
     "lookahead_ended_early": "object", "completion": "object", "prefix": "object",
-    "total_s": "float64", "n_sessions": "int64", "resumed": "bool",
+    "total_s": "float64", "production_s": "float64",
+    "n_sessions": "int64", "n_sessions_production": "int64", "resumed": "bool",
     "pair_index": "int64", "prompt": "object", "chosen": "object", "rejected": "object",
     "chosen_score": "float64", "rejected_score": "float64", "margin": "float64",
 }
@@ -1036,8 +1040,14 @@ def load_generations(arm: Arm, n: int, *, include_prefix: bool = True) -> pd.Dat
         The exact text the oracle scored is
         ``prefix + "\\n\\n[THERAPIST]: " + completion + (lookahead_tail or "")``.
 
-        ``score`` is the reward the trainer USED -- a degenerate completion appears as the reward
-        floor with its ``sub_score_*`` columns empty, which is how a floored row is identified.
+        ``score`` is the RAW grader result -- a degenerate completion appears as the reward floor
+        with its ``sub_score_*`` columns empty (which is how a floored row is identified), and a
+        failed oracle call appears as NaN. ``reward_used`` is what the trainer OPTIMISED: equal to
+        ``score`` except where GRPO substituted the candidate's group mean for a failed call
+        (``core.reward.rewards_for_trl``), so ``reward_used != score`` isolates exactly those.
+        Reconstruct a GRPO advantage as ``(reward_used - group_mean) / group_std``; those two are
+        recorded as TRL computed them (sample SD, ddof=1), not as a pstdev over the graded
+        siblings.
     """
     path = arm.paths.generations_path(n)
     if not os.path.isfile(path):
@@ -1078,6 +1088,10 @@ def load_generations(arm: Arm, n: int, *, include_prefix: bool = True) -> pd.Dat
                 "is_chosen": (chosen_idx is not None and int(idx) == int(chosen_idx)),
                 "candidate_role": candidate.get("role"),
                 "score": candidate.get("score"),
+                # What the trainer actually optimised. Written only when it differs from
+                # `score` (GRPO's group-mean stand-in for a failed grader call), so the
+                # fallback is what makes this column total.
+                "reward_used": candidate.get("reward_used", candidate.get("score")),
                 "oracle_success": oracle.get("success"),
                 "oracle_attempts": oracle.get("attempts"),
                 "lookahead_tail": lookahead.get("tail"),
@@ -1107,16 +1121,26 @@ def load_timing(arms: Optional[Sequence[Arm]] = None) -> pd.DataFrame:
 
     Returns:
         Columns :data:`TIMING_COLUMNS` -- one row per iteration folder, with one column per
-        phase in ``core.timing.PHASE_KEYS`` plus ``total_s``, ``n_sessions`` and ``resumed``.
-        Empty and correctly typed when no timing log exists.
+        phase in ``core.timing.PHASE_KEYS`` plus ``total_s``, ``production_s``, ``n_sessions``,
+        ``n_sessions_production`` and ``resumed``. Empty and correctly typed when no timing log
+        exists.
 
     Notes:
-        **``n_sessions > 1`` means the iteration was RESUMED** (``resumed`` is the same fact as
-        a bool). That flag is the one to surface in any cost table: for such an iteration every
-        per-PROCESS field in ``iteration_metadata.json`` is an UNDERCOUNT, because it records
-        only the last session. This is the Exp3 defect that made a 7.7 h iteration report
-        14,501 s and cost 1,336 lines of mtime archaeology to undo. The append-only log summed
-        here is the correct number; do not mix the two sources in one table.
+        **Bill cost on ``production_s``, not ``total_s``.** ``total_s`` includes ``eval_gen_s``,
+        the post-loop generate-only pass that MEASURES the final policy. Every other state's
+        measurement is billed to the NEXT iteration and so falls outside a ``1..n`` cumulative
+        sum; the final one has no next iteration and is logged against ``iteration_N``. Summing
+        ``total_s`` therefore prices exactly one point per arm -- the endpoint every budget sweep
+        is read at -- under a different rule from all the others.
+
+        **``resumed`` is ``n_sessions_production > 1``, NOT ``n_sessions > 1``.** That same
+        final-eval pass appends a second session to the last training iteration of every healthy
+        arm, and each ``tools/generate_convs.py`` repair appends another; deriving the flag from
+        the raw session count reports every completed arm as interrupted. For a genuinely resumed
+        iteration every per-PROCESS field in ``iteration_metadata.json`` is an UNDERCOUNT, because
+        it records only the last session. This is the Exp3 defect that made a 7.7 h iteration
+        report 14,501 s and cost 1,336 lines of mtime archaeology to undo. The append-only log
+        summed here is the correct number; do not mix the two sources in one table.
 
         An iteration that recorded nothing (a phase that never called ``log_session``) shows
         zeros, not NaN -- ``cumulative_seconds`` sums an empty log to 0.0. A row of all-zero
@@ -1130,6 +1154,7 @@ def load_timing(arms: Optional[Sequence[Arm]] = None) -> pd.DataFrame:
         for iteration in arm.iterations_on_disk():
             totals = cumulative_seconds(arm.iteration_dir(iteration))
             n_sessions = int(totals.get("n_sessions", 0) or 0)
+            n_production = int(totals.get("n_sessions_production", 0) or 0)
             state_index = max(iteration - 1, 0)
             rows.append({
                 **key,
@@ -1138,8 +1163,10 @@ def load_timing(arms: Optional[Sequence[Arm]] = None) -> pd.DataFrame:
                 "model_state": arm.model_state(state_index),
                 **{phase: float(totals.get(phase, 0.0) or 0.0) for phase in PHASE_KEYS},
                 "total_s": float(totals.get("total_s", 0.0) or 0.0),
+                "production_s": float(totals.get("production_s", 0.0) or 0.0),
                 "n_sessions": n_sessions,
-                "resumed": n_sessions > 1,
+                "n_sessions_production": n_production,
+                "resumed": n_production > 1,
             })
     if not rows:
         return _empty_frame(TIMING_COLUMNS)
