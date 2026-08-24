@@ -608,14 +608,40 @@ GRPO data "pref data".
 
 ## Status
 
-Implementation in progress. Nothing has been trained yet. Phase gates:
+**Code complete and locally gated. Nothing has been trained; no `data/` exists yet.**
 
-| Phase | Gate |
-|---|---|
-| 0 Scaffold | `smoke.py naming` — grid of arm names round-trips through the parser |
-| 1 Serving | `smoke.py roles` on Colab — chat + json_schema per binding, no thinking tokens, kill→restart, real weights GiB |
-| 2 Convs + oracle | 96-conv base pass vs the Gemma patient; full sanity report passes hard gates |
-| 3 GRPO | mini-arm trains, resumes mid-iteration, `generations.jsonl` valid, prompts/step = 16 |
-| 4 PTO | mini-arm trains; `pairs.csv`/`_progress.json` resume semantics verified |
-| 5 EDA | `_selfcheck --fast` passes; `render_results.py` renders every family; second Run_Eval = 0 calls |
-| 6 First real arm | full GRPO K=0 arm on Colab, $0 API |
+| Phase | Gate | State |
+|---|---|---|
+| 0 Scaffold | `smoke.py naming` — arm names round-trip through the parser | ✅ 24 checks |
+| — | `smoke.py config` · `convs` · `vram` | ✅ 26 · 27 · 7 checks |
+| — | `smoke.py stopgen` · `dpo` · `grpo` — real TRL steps on the local 12 GB card | ✅ 3 · 4 · 3 checks |
+| 5 EDA | `_selfcheck --fast`; every family renders on an empty lake | ✅ 14 passed, 0 failed |
+| 1 Serving | `smoke.py roles` on Colab — chat + json_schema per binding, **no thinking tokens**, kill→restart, real weights GiB | ⬜ needs Colab + vLLM |
+| 2 Convs + oracle | 96-conv base pass vs the Gemma patient; full `oracle_sanity` report passes its hard gates | ⬜ |
+| 3 GRPO | mini-arm trains, resumes mid-iteration, `generations.jsonl` valid, prompts/step = 16 | ⬜ |
+| 4 PTO | mini-arm trains; `pairs.csv` / `_progress.json` resume semantics verified | ⬜ |
+| 6 First real arm | full GRPO K=0 arm on Colab, $0 API | ⬜ |
+
+Everything runnable without Colab is green: **94 smoke checks** (GPU parts included) plus the EDA
+self-check. `dpo` runs a real `DPOTrainer` and `grpo` a real `GRPOTrainer` step whose completion
+lengths come back well under the cap, which is the anti-degeneracy stack working rather than merely
+wired up.
+
+### Next session — start here
+
+1. **Re-run the adversarial audit.** It was stopped mid-fix so the session could end cleanly; three
+   findings landed (see the `718e0b9` commit message) and the rest are unapplied. The script is
+   `wf4_verify.js`; re-running it from scratch is fine and cheap relative to a wasted Colab session.
+2. **Then Colab, in this order** — do not jump to a full arm:
+   `smoke.py roles` → `oracle_sanity` (full, not `--quick`) → a 2-iteration mini-arm → a real arm.
+3. **Before any of that**, on Colab: push `code/` to Drive (additively), add the `huggingface`
+   Colab secret, accept the **Gemma license** on HF as well as Llama's, and uncomment the install
+   cell — **vLLM first**, then the pinned training stack, then restart the kernel.
+
+⚠ **The two things most likely to bite, both unverified because nothing has run on Colab yet:**
+the `enable_thinking` kwarg is a convention borrowed from other models and a wrong key fails
+*silently* (vLLM passes `chat_template_kwargs` into the Jinja render, where an unknown name is just
+an unused variable) — `smoke.py roles` is the only thing that catches it; and Gemma-4-E2B may
+honour the JSON schema perfectly while returning near-constant scores, which would write valid
+parquet and produce contrast tables that read as findings — that is what `oracle_sanity`'s
+degeneracy gate exists for.
