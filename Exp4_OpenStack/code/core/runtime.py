@@ -601,6 +601,45 @@ _IMPORT_ORDER_MESSAGE = (
     f"Set {SKIP_IMPORT_ORDER_ENV_VAR}=1 to bypass this check on a non-Blackwell local GPU."
 )
 
+_PYARROW_ORDER_MESSAGE = (
+    "Import order violation: torch is already imported but datasets/pyarrow is not.\n"
+    "\n"
+    "MEASURED on the local RTX 5070 Ti (sm_120): `import torch, datasets` and "
+    "`import trl, torch, datasets` both die with a Windows access violation (exit 139) inside "
+    "pyarrow.dataset, while `import datasets, torch` and `import trl, datasets, torch` are fine. "
+    "pyarrow and torch each initialise native runtimes, and the survivor is whichever goes first "
+    "-- the same class of conflict as the trl one above, a different pair of libraries.\n"
+    "\n"
+    "This is easy to miss because the TRAINERS do not hit it: they pull pandas (and therefore "
+    "pyarrow) in through core.* before their own `import torch`. That is an accident of import "
+    "order, not a design, and it holds only until someone reorders those lines. tools/smoke.py "
+    "had no such accident and segfaulted before reaching its first check.\n"
+    "\n"
+    "Fix: import datasets BEFORE torch. The full safe order is:\n"
+    "\n"
+    "    import trl          # first  -- native CUDA init\n"
+    "    import datasets     # second -- native pyarrow init\n"
+    "    import torch        # third\n"
+    "\n"
+    "In a notebook, restart the kernel and re-run: an already-imported torch cannot be unwound.\n"
+    "\n"
+    f"Set {SKIP_IMPORT_ORDER_ENV_VAR}=1 to bypass this check on a local GPU that does not "
+    "reproduce it."
+)
+
+
+def _module_installed(name: str) -> bool:
+    """Is *name* importable, WITHOUT importing it.
+
+    ``find_spec`` reads metadata only, so this cannot itself create the import-order condition the
+    caller is about to assert on.
+    """
+    import importlib.util
+    try:
+        return importlib.util.find_spec(name) is not None
+    except (ImportError, ValueError):
+        return False
+
 
 def assert_import_order() -> None:
     """Fail loudly on the local import order that segfaults at CUDA init.
@@ -625,6 +664,12 @@ def assert_import_order() -> None:
         return
     if "torch" in sys.modules and "trl" not in sys.modules:
         raise RuntimeError(_IMPORT_ORDER_MESSAGE)
+    # Second native-init pair, same failure signature (exit 139), different libraries. Asserted
+    # only when datasets is actually installed: a host without it cannot trip the conflict, and
+    # find_spec answers that without importing anything.
+    if ("torch" in sys.modules and "datasets" not in sys.modules
+            and _module_installed("datasets")):
+        raise RuntimeError(_PYARROW_ORDER_MESSAGE)
 
 
 # +----------------------------------------------------------------------------+

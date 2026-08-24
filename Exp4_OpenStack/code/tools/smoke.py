@@ -74,6 +74,22 @@ try:  # noqa: SIM105 - the fallback needs a comment, so contextlib.suppress woul
 except ImportError:
     trl = None  # type: ignore[assignment]
 
+# datasets SECOND -- also ahead of torch, and for the same class of reason. MEASURED on the local
+# RTX 5070 Ti (sm_120): `import torch, datasets` and `import trl, torch, datasets` both die with a
+# Windows access violation (exit 139) inside `pyarrow.dataset`, while `import datasets, torch` and
+# `import trl, datasets, torch` are fine. pyarrow and torch each load native runtimes, and the
+# survivor is whichever initialises first.
+#
+# The trainers happen to be safe already -- they pull pandas (and therefore pyarrow) in through
+# core.* before their own `import torch`. That is luck, not design: it survives only as long as
+# nobody reorders those imports. This file has no such accident, which is exactly why `smoke.py
+# dpo` segfaulted before reaching a single check. Importing it here makes the ordering explicit
+# and gives `assert_import_order` something true to assert.
+try:  # noqa: SIM105
+    import datasets  # noqa: F401  (imported for its side effect on native init order)
+except ImportError:
+    datasets = None  # type: ignore[assignment]
+
 import argparse
 import json
 import subprocess
@@ -1563,9 +1579,17 @@ def cmd_stopgen(sec: Section, args: argparse.Namespace) -> None:
     stopped = _generate(["."])
     n_unstopped = len(tokenizer.encode(unstopped, add_special_tokens=False))
     n_stopped = len(tokenizer.encode(stopped, add_special_tokens=False))
-    sec.check(n_stopped < n_unstopped and stopped.rstrip().endswith("."),
+    # HF's StopStringCriteria is evaluated AFTER a token is appended, so generation stops on the
+    # token FOLLOWING the one that completed the stop string: with stop=["."] the decode comes back
+    # as "...my smoking.<", not "...my smoking.". Asserting endswith(".") therefore fails on a
+    # working bind. What the bind actually guarantees is that the stop string was REACHED and
+    # generation was cut there -- so require the marker to be present, the output to be shorter,
+    # and the overshoot past the marker to be at most one token's worth of characters.
+    tail_after_stop = stopped.split(".", 1)[1] if "." in stopped else stopped
+    sec.check(n_stopped < n_unstopped and "." in stopped and len(tail_after_stop.strip()) <= 8,
               "stop_strings reaches generate() through patch_generate (the bind works)",
-              f"{n_unstopped} tokens unstopped -> {n_stopped} with stop=['.']")
+              f"{n_unstopped} tokens unstopped -> {n_stopped} with stop=['.'], "
+              f"overshoot past the marker: {tail_after_stop.strip()!r}")
 
     chatml = _generate(STOP_STRINGS)
     cleaned = clean_completion(chatml)

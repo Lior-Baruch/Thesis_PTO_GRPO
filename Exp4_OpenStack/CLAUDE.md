@@ -477,8 +477,26 @@ spiky side.
 1. flat globals (cell 1) → 2. runtime detect + auth → 3. **`serve_roles()` — before any torch
 import** → 4. `import trl` **then** torch/model build → 5. visible orchestration loop.
 
-⚠ Step 4's order is not stylistic: on the local Blackwell card, `import trl` *after* torch
-segfaults at CUDA init (exit 139). Colab is unaffected.
+⚠ Step 4's order is not stylistic, and there are **two** native-init conflicts on the local
+Blackwell card (sm_120), both with the same signature — exit 139, a Windows access violation, no
+Python traceback, nothing to catch:
+
+| order | result |
+|---|---|
+| `import torch, trl` | segfault (CUDA init) |
+| `import torch, datasets` | segfault (inside `pyarrow.dataset`) |
+| `import trl, torch, datasets` | segfault (pyarrow) |
+| **`import trl, datasets, torch`** | **OK** |
+
+So the safe order is **trl → datasets → torch**. Both are measured, not inferred.
+
+⚠ **The trainers were only accidentally safe.** They pull pandas — and therefore pyarrow — in
+through `core.*` before their own `import torch`, so the pyarrow conflict never fired. That is an
+accident of import order that survives exactly until someone reorders those lines;
+`tools/smoke.py` had no such accident and segfaulted before reaching its first check. Both are now
+explicit, and `core.runtime.assert_import_order()` asserts **both** pairs (it inspects
+`sys.modules` and uses `find_spec`, so it never imports anything itself). Colab is unaffected by
+either.
 
 ## VRAM budget
 

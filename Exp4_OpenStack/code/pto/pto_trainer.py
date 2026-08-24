@@ -89,9 +89,14 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+# datasets SECOND, still ahead of torch: pyarrow and torch each initialise native
+# runtimes and whichever goes first wins. MEASURED locally -- `import torch, datasets`
+# is an access violation (exit 139) inside pyarrow.dataset. This module used to be safe
+# only because core.* pulled pandas in first; that was luck, so it is now explicit.
 import pandas as pd
-import torch
 from datasets import Dataset
+
+import torch
 from peft import PeftModel
 
 from core.concurrency import AsyncPrimitives, run_async

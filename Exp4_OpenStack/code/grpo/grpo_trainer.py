@@ -90,8 +90,13 @@ assert_import_order()
 # trl FIRST -- see the module docstring. Everything below it pulls torch in transitively.
 from trl import GRPOConfig, GRPOTrainer  # noqa: E402  (must precede torch on local sm_120)
 
-import torch  # noqa: E402
+# datasets SECOND, still ahead of torch: pyarrow and torch each initialise native
+# runtimes and whichever goes first wins. MEASURED locally -- `import torch, datasets`
+# is an access violation (exit 139) inside pyarrow.dataset. This module used to be safe
+# only because core.* pulled pandas in first; that was luck, so it is now explicit.
 from datasets import Dataset  # noqa: E402
+
+import torch  # noqa: E402
 from transformers import TrainerCallback  # noqa: E402
 
 from core.config import (  # noqa: E402
