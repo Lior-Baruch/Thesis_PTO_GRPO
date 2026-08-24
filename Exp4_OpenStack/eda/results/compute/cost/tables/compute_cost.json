@@ -1,0 +1,21 @@
+{
+ "_family": "compute/cost",
+ "_name": "compute_cost",
+ "numbers": {
+  "cost.source": {
+   "value": "runs/<ARM>/iteration_<N>/timing_sessions.jsonl",
+   "source": "tables/compute_by_iteration.md",
+   "note": "the trainer's append-only per-phase log, summed over sessions. Exp4 does NO mtime reconstruction."
+  },
+  "cost.api_usd": {
+   "value": 0.0,
+   "source": "",
+   "note": "the default stack serves every role from one local vLLM server; GPU-hours are the whole cost"
+  },
+  "cost.state_billing": {
+   "value": "state N = sum(iterations 1..N)",
+   "source": "",
+   "note": "cost of PRODUCING the policy; measurement is billed to N+1"
+  }
+ }
+}

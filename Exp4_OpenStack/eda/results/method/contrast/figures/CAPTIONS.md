@@ -1,0 +1,3 @@
+- **endpoint_distribution** -- No matched method pair to draw distributions for.
+- **method_contrast_forest** -- No method contrast to plot yet. NO DATA YET -- no scored conversations for these arms. Generate a PTO arm and a GRPO arm at the same K, run notebooks/scoring/Run_Eval.ipynb, and re-render.
+- **method_gap_by_state_gemma4E2B** -- No method contrast for grader gemma4E2B.

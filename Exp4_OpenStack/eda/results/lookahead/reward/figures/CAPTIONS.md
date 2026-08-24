@@ -1,0 +1,2 @@
+- **k_contrast_forest** -- No K contrast to plot yet. NO DATA YET -- no scored conversations for these arms. Generate the K=0 and K=5 arms of an optimizer, run notebooks/scoring/Run_Eval.ipynb, and re-render.
+- **k_effect_by_state_gemma4E2B** -- No K contrast for grader gemma4E2B.

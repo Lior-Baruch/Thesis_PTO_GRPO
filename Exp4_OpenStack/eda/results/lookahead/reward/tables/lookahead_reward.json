@@ -1,0 +1,31 @@
+{
+ "_family": "lookahead/reward",
+ "_name": "lookahead_reward",
+ "numbers": {
+  "rqi.sign_convention": {
+   "value": "mean_delta = score(K_hi) - score(K_lo); gain = sign_of(metric) * mean_delta",
+   "source": "tables/k_contrast_endpoint.md",
+   "note": "positive gain = the higher-K arm was BETTER, on every instrument"
+  },
+  "rqi.pairing_unit": {
+   "value": "persona_id",
+   "source": "",
+   "note": "repeated measures; the same 96 personas face every arm"
+  },
+  "rqi.multiplicity": {
+   "value": "Holm-Bonferroni within grader",
+   "source": "tables/k_contrast_endpoint.md",
+   "note": "family = that grader's rows (instruments x optimizers)"
+  },
+  "rqi.pairs": {
+   "value": [],
+   "source": "",
+   "note": ""
+  },
+  "rqi.matched_states": {
+   "value": {},
+   "source": "tables/k_contrast_endpoint.md",
+   "note": "highest trained state both arms scored on every instrument"
+  }
+ }
+}

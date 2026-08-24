@@ -1,0 +1,1 @@
+> **EMPTY TABLE.** The producing notebook saved `compute_by_arm` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.

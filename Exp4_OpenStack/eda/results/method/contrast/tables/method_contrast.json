@@ -1,0 +1,36 @@
+{
+ "_family": "method/contrast",
+ "_name": "method_contrast",
+ "numbers": {
+  "rqii.sign_convention": {
+   "value": "mean_delta = score(PTO) - score(GRPO); gain = sign_of(metric) * mean_delta",
+   "source": "tables/method_contrast_endpoint.md",
+   "note": "positive gain = PTO was BETTER, on every instrument"
+  },
+  "rqii.pairing_unit": {
+   "value": "persona_id",
+   "source": "",
+   "note": "repeated measures; the same 96 personas face both methods"
+  },
+  "rqii.multiplicity": {
+   "value": "Holm-Bonferroni within grader",
+   "source": "tables/method_contrast_endpoint.md",
+   "note": "family = that grader's rows (instruments x look-ahead depths)"
+  },
+  "rqii.matched_on": {
+   "value": "iteration",
+   "source": "",
+   "note": "NOT matched on spend: PTO's preference build is a phase GRPO does not have, so the same iteration is a different price. compute/cost holds the budget-matched reading."
+  },
+  "rqii.pairs": {
+   "value": [],
+   "source": "",
+   "note": ""
+  },
+  "rqii.matched_states": {
+   "value": {},
+   "source": "tables/method_contrast_endpoint.md",
+   "note": "highest trained state both arms scored on every instrument"
+  }
+ }
+}

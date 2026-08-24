@@ -1,0 +1,3 @@
+- **endpoint_best_gemma4E2B** -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E2B, best state, Q1Q2)
+- **endpoint_final_gemma4E2B** -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E2B, final state, Q1Q2)
+- **trajectory_gemma4E2B** -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E2B)

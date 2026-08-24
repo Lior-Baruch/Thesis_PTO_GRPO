@@ -1,0 +1,33 @@
+{
+ "_family": "arms/outcomes",
+ "_name": "outcomes",
+ "numbers": {
+  "coverage.judges": {
+   "value": [
+    "gemma4E2B"
+   ],
+   "source": "tables/coverage.md",
+   "note": "graders present in the score lake"
+  },
+  "coverage.arms": {
+   "value": [],
+   "source": "tables/coverage.md",
+   "note": "arm display labels; key on experiment_name for data"
+  },
+  "coverage.metrics": {
+   "value": [],
+   "source": "tables/coverage.md",
+   "note": ""
+  },
+  "coverage.scored_rows": {
+   "value": 0,
+   "source": "tables/coverage.md",
+   "note": "one row per (arm, state, persona, instrument, grader)"
+  },
+  "focus.metric": {
+   "value": "Q1Q2",
+   "source": "",
+   "note": "the training-reward axis"
+  }
+ }
+}
