@@ -172,6 +172,19 @@ FIXTURE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)),
 #: JSON, the prompt hitting a refusal template); passing is not the same as being good.
 MIN_SCORE_SD = 0.25
 
+#: Valid scores a rubric needs before the spread gate is allowed to BLOCK a run.
+#:
+#: Below this the gate has no power and false-fails honest graders. Measured: in ``--quick`` mode
+#: (2 transcripts) a healthy grader returned the same Q1 mean for both conversations, sd 0.000,
+#: and was refused -- two conversations scoring alike is ordinary, not evidence of a template.
+#:
+#: The cost of getting this wrong is asymmetric and not symmetric-looking. A gate that blocks real
+#: work teaches whoever hits it to pass ``--force`` or delete the call, and then it is not
+#: protecting the full pre-flight run either, which is the one that matters. So below this size the
+#: spread check is REPORTED and not enforced, while schema compliance stays hard at any size (a
+#: malformed response is malformed whether you saw two of them or two hundred).
+MIN_N_FOR_SPREAD_GATE = 5
+
 #: Schema compliance demanded of every requested rubric. 1.0, not 0.99: a partial rate is not a
 #: slightly worse grader, it is missingness correlated with conversation difficulty (see the module
 #: docstring), and a mean over the survivors is a biased number that no error will ever mention.
@@ -1020,6 +1033,9 @@ def check_gates(report: SanityReport) -> Tuple[bool, List[str]]:
                 f"[spread] {metric.label} ({scope}): fewer than 2 valid scores, so spread cannot "
                 f"be evaluated. A grader that cannot be checked for degeneracy is not cleared."
             )
+        elif metric.n_ok < MIN_N_FOR_SPREAD_GATE:
+            # Reported by format_report, deliberately NOT blocking: see MIN_N_FOR_SPREAD_GATE.
+            continue
         elif metric.sd < MIN_SCORE_SD:
             ref_sd = "n/a" if metric.reference_sd is None else f"{metric.reference_sd:.2f}"
             reasons.append(
@@ -1156,15 +1172,31 @@ def format_report(report: SanityReport) -> str:
 
     lines.append("")
     lines.append("HARD GATES (block the run)")
+
+    # Rubrics whose spread was measured but deliberately not enforced, because at this sample size
+    # the check cannot tell a template apart from two conversations that simply scored alike.
+    unenforced = [m for m in report.metrics
+                  if m.sd is not None and m.n_ok < MIN_N_FOR_SPREAD_GATE]
+
     if passed:
         pooled_note = " and on the pooled reward" if report.pooled is not None else ""
         lines.append(f"  [PASS] schema_valid_rate == {REQUIRED_SCHEMA_VALID_RATE:.3f} "
                      f"on every rubric")
-        lines.append(f"  [PASS] per-conversation sd >= {MIN_SCORE_SD:.2f} on every rubric"
-                     f"{pooled_note}")
+        if unenforced:
+            lines.append(f"  [n/a ] per-conversation sd NOT enforced: only {unenforced[0].n_ok} "
+                         f"scored conversation(s), below the {MIN_N_FOR_SPREAD_GATE} this check "
+                         f"needs to mean anything")
+        else:
+            lines.append(f"  [PASS] per-conversation sd >= {MIN_SCORE_SD:.2f} on every rubric"
+                         f"{pooled_note}")
     else:
         for reason in reasons:
             lines.append(f"  [FAIL] {reason}")
+
+    if unenforced:
+        low = ", ".join(f"{m.label} sd {m.sd:.3f}" for m in unenforced)
+        lines.append(f"         spread observed but not enforced ({low}). A degenerate grader can "
+                     f"pass at this size -- run the FULL gate (drop --quick) before any real arm.")
 
     lines.append("")
     lines.append("SOFT (reported, never blocking)")
