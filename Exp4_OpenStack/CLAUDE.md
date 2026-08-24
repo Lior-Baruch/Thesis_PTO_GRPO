@@ -616,8 +616,11 @@ GRPO data "pref data".
 | — | `smoke.py config` · `convs` · `vram` | ✅ 26 · 27 · 7 checks |
 | — | `smoke.py stopgen` · `dpo` · `grpo` — real TRL steps on the local 12 GB card | ✅ 3 · 4 · 3 checks |
 | 5 EDA | `_selfcheck --fast`; every family renders on an empty lake | ✅ 14 passed, 0 failed |
+| 2 Oracle path | request carries a real `json_schema`; validation ladder accepts a good answer, **rejects a short array and prose**; aggregation is the unweighted mean across rubrics | ✅ vs `tools/fake_oracle_server.py` |
+| 2 Sanity gate | passes a healthy grader, **fails a degenerate one** (exit 1) | ✅ both directions |
+| 2 Generation | base policy + patient endpoint → `pers<PID>.csv` → reader round-trip → oracle score | ✅ full loop, local GPU |
 | 1 Serving | `smoke.py roles` on Colab — chat + json_schema per binding, **no thinking tokens**, kill→restart, real weights GiB | ⬜ needs Colab + vLLM |
-| 2 Convs + oracle | 96-conv base pass vs the Gemma patient; full `oracle_sanity` report passes its hard gates | ⬜ |
+| 2 Real grader | 96-conv base pass vs the real Gemma patient; full `oracle_sanity` against the real Gemma oracle | ⬜ |
 | 3 GRPO | mini-arm trains, resumes mid-iteration, `generations.jsonl` valid, prompts/step = 16 | ⬜ |
 | 4 PTO | mini-arm trains; `pairs.csv` / `_progress.json` resume semantics verified | ⬜ |
 | 6 First real arm | full GRPO K=0 arm on Colab, $0 API | ⬜ |
@@ -626,6 +629,24 @@ Everything runnable without Colab is green: **94 smoke checks** (GPU parts inclu
 self-check. `dpo` runs a real `DPOTrainer` and `grpo` a real `GRPOTrainer` step whose completion
 lengths come back well under the cap, which is the anti-degeneracy stack working rather than merely
 wired up.
+
+**What [tools/fake_oracle_server.py](code/tools/fake_oracle_server.py) buys.** It is a test double
+for the *endpoint*, so the plumbing between Exp4 and the wire is verifiable with no vLLM, no Colab
+and no GPU for the oracle half. Proven against it: the request really does carry a `json_schema`
+with the right item count and bounds; the thinking-off `extra_body` reaches the wire; the
+validation ladder rejects a short `scores` array and rejects prose instead of coercing either into
+a number; and the reward is the unweighted mean across rubrics. Then, with the same double standing
+in as the patient and the real Llama on the local card, a generate-only pass produced
+`pers<PID>.csv` files that round-trip through the reader into the oracle transcript format and
+score — the whole loop, end to end.
+
+⚠ **This proves the plumbing, not the grader.** A healthy-shaped double says nothing about whether
+Gemma-4-E2B can actually measure MI quality. That is what the real `oracle_sanity` run on Colab is
+for, and it remains the gate that must pass before any arm.
+
+The reason the double is worth keeping: a *real* grader that happens to be healthy cannot tell you
+whether the degeneracy gate would have caught a bad one. Pointing `--policy degenerate` at it is
+the only way to test the gate itself, and that check now runs in about a second.
 
 ### Next session — start here
 
