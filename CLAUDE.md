@@ -36,6 +36,14 @@ Three controlled comparisons, all live in Exp3:
 
 Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 
+**Side project — [Exp4_OpenStack/](Exp4_OpenStack/).** The same PTO-vs-GRPO + look-ahead comparison
+on a **fully open model stack**: oracle and patient are `google/gemma-4-E2B-it` behind a local vLLM
+OpenAI-compatible server, so an arm costs **$0 in API** — the constraint that stopped GRPO_LA5 in
+Exp3. Not a thesis chapter unless the results earn it. It is **self-contained and additive**: its
+own spec, contract and status live in [Exp4_OpenStack/CLAUDE.md](Exp4_OpenStack/CLAUDE.md), nothing
+in this file describes it, and no Exp3 file was modified for it.
+⚠ **Exp3 and Exp4 scores are not on the same axis** — different grader. Compare within Exp4 only.
+
 ## Data lineage
 - **Exp1 → Exp2:** independent re-implementation. Stronger oracle, harder patients, JSON-schema rubric, more questionnaires. No data flow.
 - **Exp2 → Exp3:** independent re-implementation — **Exp3 is a complete, fresh experiment that shares no data with Exp2** (both PTO_Exp3 and GRPO_Exp3 generate all their own convs from scratch each iteration; see the Exp3 self-loop below).
@@ -85,6 +93,7 @@ everywhere else keep a pointer.
 | **Paper drafts + the claim→artifact ledger** | [`papers/README.md`](papers/README.md), then each paper's `README.md` + **`NUMBERS.md`**. Live draft: [`papers/2026_lookahead_pto_grpo/`](papers/2026_lookahead_pto_grpo/) (all four arms, both graders, both cost axes; the EDA's `lookahead/` and `compute/` families own the cross-K numbers — the paper's `NUMBERS.md` maps each claim to its `eda/results/<family>/tables/…` path and carries the retired generators' output as a frozen fixture under `analysis/out/` + `tables/`). Retired drafts live tracked under `papers/archive/` | per draft |
 | Supervisor decks + emails | [`meetings/README.md`](meetings/README.md) | per meeting |
 | Data/artifact policy (what's gitignored, how it regenerates) | `README.md` § "Data & large artifacts" | rarely |
+| **Everything about the Exp4 side project** (spec, module contract, naming grammar, data layout, phase gates) | [`Exp4_OpenStack/CLAUDE.md`](Exp4_OpenStack/CLAUDE.md) | its own cadence |
 | Dated history | `Exp3_PTO_GRPO/history/` — [CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) (status + findings) · [CHANGELOG_EDA.md](Exp3_PTO_GRPO/history/CHANGELOG_EDA.md) · [CHANGELOG_TRAINER.md](Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md), behind a stable [index](Exp3_PTO_GRPO/history/CHANGELOG.md). There is no root changelog. | append-only |
 
 ⚠ **Nothing dated belongs in this file or in STATUS.md.** A dated entry is history — it goes to
