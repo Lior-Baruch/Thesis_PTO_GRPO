@@ -1173,8 +1173,11 @@ def estimate_calls(plan: pd.DataFrame,
             return out
         uncached = max(token_profile.input_tokens - token_profile.cached_input_tokens, 0.0)
         cached = token_profile.cached_input_tokens
-        if cached and token_profile.input_tokens < pricing.min_cache_tokens:
-            # The prefix is shorter than the vendor's minimum, so it caches silently not at all.
+        if cached and token_profile.cached_input_tokens < pricing.min_cache_tokens:
+            # The minimum is on the CACHEABLE PREFIX, not on the whole prompt: a 6k-token call
+            # whose fixed rubric prefix is 1.1k caches nothing at Anthropic's 4,096 floor. Testing
+            # input_tokens here would hand a long-transcript call a discount the vendor never
+            # gives, and suppress the note that says so.
             uncached, cached = token_profile.input_tokens, 0.0
             out["notes"].append(
                 f"prefix below {tag}'s {pricing.min_cache_tokens}-token cache minimum: "

@@ -116,6 +116,7 @@ from core.lookahead import LookaheadState  # noqa: E402
 from core.policy import (  # noqa: E402
     attach_lora,
     list_hf_checkpoints,
+    list_iteration_checkpoints,
     patch_generate,
     validate_iteration_checkpoint,
 )
@@ -1500,8 +1501,27 @@ def run_final_eval(
         phase, because that is the iteration whose adapter produced these conversations. It is a
         separate phase key precisely so a cost analysis can exclude it from training cost without
         losing it.
+
+    Raises:
+        RuntimeError: when ``iteration_{NUM_ITERATIONS}/adapter/`` does not exist -- i.e. the loop
+            did not finish. The label is the MODEL STATE, so on a short arm this would file an
+            earlier policy's conversations as the final state and, via ``log_session``, mint an
+            ``iteration_N/`` directory the EDA then reads as a real, zero-cost iteration.
     """
     label = int(cfg.num_iterations)
+    completed = list_iteration_checkpoints(paths.run_dir)
+    last_done = completed[-1][0] if completed else 0
+    if last_done != label:
+        raise RuntimeError(
+            f"run_final_eval would label these conversations model_iter_{label}, but the last "
+            f"COMPLETED iteration of {cfg.experiment_name} is {last_done} "
+            f"({'no iteration finished' if not completed else f'iteration_{last_done}/adapter/'})."
+            f" The label names the generating POLICY, so this pass would file iteration "
+            f"{last_done}'s output as state {label} and mint an iteration_{label}/ directory that "
+            f"the compute axis prices as a real, zero-cost iteration. Finish the loop, or set "
+            f"NUM_ITERATIONS={last_done}. To measure a partial arm on purpose, use "
+            f"tools/generate_convs.py, which refuses exactly this mismatch."
+        )
     start = time.time()
 
     print("\n" + "=" * 78)

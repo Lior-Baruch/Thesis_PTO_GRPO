@@ -30,7 +30,10 @@ single ``max_length`` under ``truncation_mode='keep_start'``, which drops the EN
 i.e. it would slice the RESPONSE off and leave a pair whose chosen and rejected are both empty.
 Every prompt is therefore PRE-capped here with
 ``core.conversations.build_truncated_training_prompt`` (drop-oldest), and ``max_length`` is set to
-``max_prompt_tokens + max_completion_length`` so ``keep_start`` can never bite. When the truncator
+``max_prompt_tokens + max_completion_length + DPO_FRAMING_HEADROOM_TOKENS`` so ``keep_start`` can
+never bite -- the headroom is there because TRL frames both halves before the collator sees them
+(a BOS on the prompt, an EOS appended to chosen/rejected), so the two configured numbers alone are
+two tokens short of the worst case. When the truncator
 returns ``None`` (even one most-recent turn exceeds the budget) the pair is skipped -- but in
 ``greedy`` mode the trunk still advances, because freezing a trunk over an unrenderable prompt
 would silently shorten every later branch point on it.
@@ -115,7 +118,12 @@ from core.conversations import (
 )
 from core.lookahead import LookaheadConfig, LookaheadState
 from core.oracle import OracleConfig
-from core.policy import generate_therapist_batch, list_hf_checkpoints, patch_generate
+from core.policy import (
+    generate_therapist_batch,
+    list_hf_checkpoints,
+    list_iteration_checkpoints,
+    patch_generate,
+)
 from core.recorder import (
     PHASE_INDEPENDENT,
     PHASE_TREE,
@@ -136,6 +144,7 @@ __all__ = [
     "BRANCH_KIND_COLUMN",
     "BRANCH_KIND_GREEDY",
     "BRANCH_KIND_INDEPENDENT",
+    "DPO_FRAMING_HEADROOM_TOKENS",
     # Results
     "IterationResult",
     # Preference-pair construction
@@ -198,6 +207,15 @@ BRANCH_KIND_COLUMN = "branch_kind"
 BRANCH_KIND_GREEDY = "trunk_depth"
 #: ``independent``: the index of the patient turn in the pre-recorded conversation.
 BRANCH_KIND_INDEPENDENT = "patient_turn_index"
+
+#: Slack added to ``DPOConfig.max_length`` on top of ``max_prompt_tokens + max_completion_length``.
+#: TRL frames both halves after this module has measured them -- ``_prepare_dataset`` tokenizes the
+#: prompt through ``processing_class(text=...)`` (default ``add_special_tokens=True``, so BOS) and
+#: ``add_eos`` appends EOS to ``chosen``/``rejected`` -- which is +2 tokens neither configured knob
+#: describes. The rest absorbs detokenize->retokenize drift at the prompt/completion boundary.
+#: Without it, ``truncation_mode='keep_start'`` silently slices the end off the longest pairs, EOS
+#: included, which is exactly the failure the pre-cap exists to prevent.
+DPO_FRAMING_HEADROOM_TOKENS = 8
 
 #: Mode tokens as ``PTOTrainingConfig.pref_tree_mode`` spells them (the arm name uses ``indep``).
 _MODE_GREEDY = "greedy"
@@ -1513,10 +1531,19 @@ def build_dpo_config(
         **``max_length`` is the only length cap TRL 1.4.0 has.** ``max_prompt_length`` and
         ``max_completion_length`` were removed, and the single remaining cap truncates with
         ``truncation_mode='keep_start'``, which drops the END -- the response. It is set here to
-        ``max_prompt_tokens + max_completion_length`` and every prompt is pre-capped to
-        ``max_prompt_tokens`` by ``build_truncated_training_prompt``, so the two together make
-        ``keep_start`` unreachable. Changing either half re-arms the failure, and it is silent:
-        the pairs still train, on empty completions.
+        ``max_prompt_tokens + max_completion_length + DPO_FRAMING_HEADROOM_TOKENS`` and every
+        prompt is pre-capped to ``max_prompt_tokens`` by ``build_truncated_training_prompt``, so
+        the three together make ``keep_start`` unreachable. Changing any of them re-arms the
+        failure, and it is silent: the pairs still train, on truncated completions.
+
+        The headroom is not slack. TRL frames both halves AFTER this module has measured them:
+        ``_prepare_dataset`` tokenizes the prompt with ``processing_class(text=...)``, whose
+        default ``add_special_tokens=True`` prepends BOS, and ``add_eos`` appends the EOS the DPO
+        loss is supposed to score to ``chosen``/``rejected``. That is +2 tokens the configured
+        numbers do not describe, plus a token or two of detokenize->retokenize drift at the
+        prompt/completion boundary -- so a deep branch point that lands exactly at
+        ``max_prompt_tokens`` paired with a completion that ran to the token cap would have its
+        last tokens sliced off BOTH sides of the pair, on precisely the longest contexts.
 
         **``per_device_train_batch_size`` is the memory lever, and 2 is not a placeholder.** DPO
         materialises full-SEQUENCE LM-head logits over a 128k vocab for four forward passes
@@ -1551,8 +1578,10 @@ def build_dpo_config(
         gradient_accumulation_steps=int(train_cfg.gradient_accumulation_steps),
         learning_rate=float(train_cfg.learning_rate),
         num_train_epochs=int(train_cfg.epochs_per_iteration),
-        # See the Warning above: this is the ONLY length cap in TRL 1.4.0.
-        max_length=int(gen_cfg.max_prompt_tokens) + int(train_cfg.max_completion_length),
+        # See the Warning above: this is the ONLY length cap in TRL 1.4.0, and the two configured
+        # halves are 2 tokens short of what TRL actually feeds the collator (BOS + appended EOS).
+        max_length=(int(gen_cfg.max_prompt_tokens) + int(train_cfg.max_completion_length)
+                    + DPO_FRAMING_HEADROOM_TOKENS),
         beta=float(train_cfg.dpo_beta),
         loss_type=str(train_cfg.dpo_loss_type),
         bf16=True,
@@ -2186,6 +2215,10 @@ def run_final_eval(
 
     Raises:
         ValueError: no patient binding could be resolved.
+        RuntimeError: ``iteration_{NUM_ITERATIONS}/adapter/`` does not exist -- i.e. the loop did
+            not finish. The label is the MODEL STATE, so on a short arm this would file an earlier
+            policy's conversations as the final state and, via ``log_session``, mint an
+            ``iteration_N/`` directory the EDA then reads as a real, zero-cost iteration.
 
     Notes:
         Timed as ``eval_gen_s`` against the LAST iteration's directory, so the arm's total cost is
@@ -2204,6 +2237,20 @@ def run_final_eval(
         )
 
     final_state = int(train_cfg.num_iterations)
+    completed = list_iteration_checkpoints(paths.run_dir)
+    last_done = completed[-1][0] if completed else 0
+    if last_done != final_state:
+        raise RuntimeError(
+            f"run_final_eval would label these conversations model_iter_{final_state}, but the "
+            f"last COMPLETED iteration of {train_cfg.experiment_name} is {last_done} "
+            f"({'no iteration finished' if not completed else f'iteration_{last_done}/adapter/'})."
+            f" The label names the generating POLICY, so this pass would file iteration "
+            f"{last_done}'s output as state {final_state} and mint an iteration_{final_state}/ "
+            f"directory that the compute axis prices as a real, zero-cost iteration. Finish the "
+            f"loop, or set NUM_ITERATIONS={last_done}. To measure a partial arm on purpose, use "
+            f"tools/generate_convs.py, which refuses exactly this mismatch."
+        )
+
     conv_dir = paths.ensure_conv_dir(final_state)
     started = time.time()
 

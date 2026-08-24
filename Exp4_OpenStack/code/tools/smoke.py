@@ -1615,6 +1615,7 @@ def cmd_dpo(sec: Section, args: argparse.Namespace) -> None:
     from trl import DPOConfig, DPOTrainer
 
     from core.conversations import build_truncated_training_prompt, turns_to_messages
+    from pto.pto_trainer import DPO_FRAMING_HEADROOM_TOKENS
 
     tokenizer, model = _load_smoke_policy(sec, args)
 
@@ -1645,7 +1646,9 @@ def cmd_dpo(sec: Section, args: argparse.Namespace) -> None:
         "num_train_epochs": 1,
         "learning_rate": 1e-4,
         "beta": 0.1,
-        "max_length": _MAX_PROMPT_TOKENS + _MAX_RESPONSE_TOKENS,
+        # The shipped formula, headroom included: TRL prepends BOS to the prompt and appends EOS
+        # to chosen/rejected AFTER the pre-cap, so the two configured halves alone are 2 short.
+        "max_length": _MAX_PROMPT_TOKENS + _MAX_RESPONSE_TOKENS + DPO_FRAMING_HEADROOM_TOKENS,
         "bf16": True,
         "gradient_checkpointing": True,
         "gradient_checkpointing_kwargs": {"use_reentrant": False},

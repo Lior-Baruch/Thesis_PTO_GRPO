@@ -199,6 +199,7 @@ def build_branch_record(
     epoch: Optional[float] = None,
     group_mean: Optional[float] = None,
     group_std: Optional[float] = None,
+    eval_pass: bool = False,
 ) -> Dict[str, Any]:
     """Build one branch row (prefix once, candidates nested).
 
@@ -211,6 +212,10 @@ def build_branch_record(
             GRPO. Never assume it is unique on its own.
         group_mean / group_std: GRPO only -- the group statistics TRL's advantage was computed
             from. Leaving them ``None`` on a PTO row is what keeps the GRPO scalars honest.
+        eval_pass: True for a group scored during TRL's ``evaluate()`` -- held-out prompts, policy
+            in eval mode, no gradient. Written on EVERY row (never omitted) so a reader can filter
+            on it without having to know that absence means False: an aggregate that pools the two
+            reports a blend of on-policy and held-out candidates under a training-only name.
     """
     return {
         "phase": phase,
@@ -219,6 +224,7 @@ def build_branch_record(
         "persona_id": (None if persona_id is None else int(persona_id)),
         "branch_id": int(branch_id),
         "epoch": (None if epoch is None else float(epoch)),
+        "eval_pass": bool(eval_pass),
         "prefix": prefix,
         "group_mean": group_mean,
         "group_std": group_std,
@@ -505,17 +511,29 @@ class EDARecorder:
         * PTO rows only -- ``pto/branch_points``, ``pto/pref_pair_count``, ``pto/tau_filter_rate``
         * GRPO rows only -- ``grpo/num_groups``, and when group stats are present
           ``grpo/group_reward_std_mean``, ``grpo/frac_zero_std``
+        * when TRL's ``evaluate()`` also scored groups -- ``eda/eval_n_branches``,
+          ``eda/eval_n_candidates`` and, when they scored, ``eda/eval_mean_candidate_reward``,
+          ``eda/eval_reward_std``, ``eda/eval_oracle_success_rate``
 
         A GRPO run emits no ``pto/*`` key at all (and vice versa): a zero would be indistinguishable
         from "the tau filter rejected everything", which is a real and alarming state.
 
         Notes:
-            ``eda/reward_std`` is the population SD (ddof=0) pooled across ALL candidates in the
-            iteration -- it is NOT the mean within-group SD that drives GRPO's advantages; that is
-            ``grpo/group_reward_std_mean``. ``grpo/frac_zero_std`` is the fraction of groups whose
-            eight siblings all scored identically, i.e. groups that contributed no gradient signal.
+            **Every non-``eval_*`` key, and the returned ``scores``, cover the GRADIENT-BEARING
+            rows only** -- rows whose ``eval_pass`` is False. With an eval split, TRL calls the
+            reward function during ``evaluate()`` too (once per eval prompt per epoch), and those
+            groups never produced a gradient; pooling them would report a blend of on-policy and
+            held-out candidates under names every reader takes to mean "what the optimizer saw".
+            The eval half is kept, under the ``eda/eval_*`` prefix.
+
+            ``eda/reward_std`` is the population SD (ddof=0) pooled across ALL training candidates
+            in the iteration -- it is NOT the mean within-group SD that drives GRPO's advantages;
+            that is ``grpo/group_reward_std_mean``. ``grpo/frac_zero_std`` is the fraction of groups
+            whose eight siblings all scored identically, i.e. groups that contributed no gradient
+            signal.
         """
-        branches = self.records
+        branches = [b for b in self.records if not b.get("eval_pass")]
+        eval_branches = [b for b in self.records if b.get("eval_pass")]
         cands = [c for b in branches for c in (b.get("candidates") or [])]
         n_cands = len(cands)
 
@@ -563,6 +581,23 @@ class EDARecorder:
             if stds:
                 scalars["grpo/group_reward_std_mean"] = _mean(stds)
                 scalars["grpo/frac_zero_std"] = _mean([1.0 if v == 0.0 else 0.0 for v in stds])
+
+        # The held-out half, reported separately rather than pooled or dropped. Emitted only when
+        # evaluate() actually ran, so an arm with no eval split carries no dead key.
+        if eval_branches:
+            eval_cands = [c for b in eval_branches for c in (b.get("candidates") or [])]
+            scalars["eda/eval_n_branches"] = float(len(eval_branches))
+            scalars["eda/eval_n_candidates"] = float(len(eval_cands))
+            eval_scores = [
+                v for v in (_as_float(c.get("score")) for c in eval_cands) if v is not None
+            ]
+            if eval_scores:
+                scalars["eda/eval_mean_candidate_reward"] = _mean(eval_scores)
+                scalars["eda/eval_reward_std"] = _pstdev(eval_scores)
+            if eval_cands:
+                scalars["eda/eval_oracle_success_rate"] = _mean(
+                    [1.0 if _candidate_success(c) else 0.0 for c in eval_cands]
+                )
 
         return scalars, scores
 

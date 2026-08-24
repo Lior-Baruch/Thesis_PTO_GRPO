@@ -1489,6 +1489,23 @@ def _roles_errors(roles: RolesConfig, seen: Optional[set] = None) -> List[str]:
     errs: List[str] = []
     for role, binding in roles.as_dict().items():
         errs.extend(_binding_errors(binding, role, seen))
+
+    # Both trainers thread exactly ONE async client through run_one_iteration and use it for the
+    # oracle AND every patient call (conversation turns and look-ahead alike). A split stack is
+    # therefore not expressible: whichever endpoint the client was built from would receive both
+    # roles' requests, so one of them asks a server for a model it does not serve -- 404 per turn,
+    # retried max_retries times, and only after the base model has been downloaded and loaded.
+    # The arm-name grammar CAN spell a split stack; the v1 trainers cannot run one. Refuse it at
+    # config time. (The judge is exempt: it is never called by a trainer -- the EDA builds its own
+    # client from RolesConfig.judge.)
+    if (roles.oracle.provider, roles.oracle.base_url) != (roles.patient.provider,
+                                                          roles.patient.base_url):
+        errs.append(
+            f"oracle ({roles.oracle.provider} @ {roles.oracle.base_url}) and patient "
+            f"({roles.patient.provider} @ {roles.patient.base_url}) resolve to different "
+            f"endpoints. run_one_iteration takes ONE client and uses it for both roles, so one of "
+            f"them would be sent to the wrong server. Bind both to the same endpoint."
+        )
     return errs
 
 

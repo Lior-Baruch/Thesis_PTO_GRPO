@@ -555,11 +555,12 @@ def _record_grpo_groups(
             epoch=epoch,
             group_mean=statistics.fmean(used),
             group_std=(statistics.stdev(used) if len(used) > 1 else 0.0),
-        )
-        if not was_training:
             # TRL puts the policy in eval mode for evaluate(); those groups never produced a
-            # gradient. Absent by default so a run with no eval split carries no dead key.
-            record["eval_pass"] = True
+            # gradient. Written on EVERY row, True or False -- an absent key is a key nobody
+            # filters on, and pooling the two halves silently blends held-out candidates into
+            # every per-iteration aggregate (see EDARecorder.aggregate).
+            eval_pass=not was_training,
+        )
         recorder.append(record)
     group_base["n"] = base + n // G
 

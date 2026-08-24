@@ -175,7 +175,7 @@ CONVERSATION_COLUMNS: Tuple[str, ...] = ARM_KEY_COLUMNS + (
 
 #: :func:`load_generations` -- one row per CANDIDATE. ``sub_score_<qid>`` columns are appended.
 GENERATION_COLUMNS: Tuple[str, ...] = ARM_KEY_COLUMNS + (
-    "iteration", "state_index", "model_state", "phase", "epoch",
+    "iteration", "state_index", "model_state", "phase", "epoch", "eval_pass",
     "conversation_id", "persona_id", "branch_id",
     "group_mean", "group_std", "chosen_idx",
     "candidate_idx", "is_chosen", "candidate_role", "score", "reward_used",
@@ -1040,6 +1040,12 @@ def load_generations(arm: Arm, n: int, *, include_prefix: bool = True) -> pd.Dat
         The exact text the oracle scored is
         ``prefix + "\\n\\n[THERAPIST]: " + completion + (lookahead_tail or "")``.
 
+        **``eval_pass`` splits the frame.** With a GRPO eval split, TRL calls the reward function
+        during ``evaluate()`` as well, once per held-out prompt per epoch; those rows are captured
+        here too and are True. They never produced a gradient, so any statement about "what the
+        optimizer saw" must filter them out -- pooling the two answers a different question at a
+        blend ratio nobody chose.
+
         ``score`` is the RAW grader result -- a degenerate completion appears as the reward floor
         with its ``sub_score_*`` columns empty (which is how a floored row is identified), and a
         failed oracle call appears as NaN. ``reward_used`` is what the trainer OPTIMISED: equal to
@@ -1065,6 +1071,10 @@ def load_generations(arm: Arm, n: int, *, include_prefix: bool = True) -> pd.Dat
             "model_state": arm.model_state(state_index),
             "phase": record.get("phase"),
             "epoch": record.get("epoch"),
+            # True for a group scored during TRL's evaluate(): held-out prompt, no gradient.
+            # Total on every row the current trainer writes; the fallback covers a capture from
+            # before the flag was written unconditionally.
+            "eval_pass": bool(record.get("eval_pass", False)),
             "conversation_id": record.get("conversation_id"),
             "persona_id": record.get("persona_id"),
             "branch_id": record.get("branch_id"),

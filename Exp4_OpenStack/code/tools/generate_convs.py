@@ -847,6 +847,41 @@ def _check_state_matches_adapter(model_iter: int, adapter: Optional[str], *,
           f"tree. {fix}")
 
 
+def _check_patient_matches_arm(binding, arm: Optional[Any], *, canonical: bool) -> None:
+    """Refuse to file conversations produced against a DIFFERENT patient as the arm's own.
+
+    The arm name encodes the patient as ``Pat<tag>``, and every conversation under
+    ``data/conversations/<EXP_NAME>/`` is read back as that arm's data -- scored by ``Run_Eval``,
+    plotted as a point on the arm's trajectory, differenced against its other model states. A
+    ``--patient-model`` / ``--patient-provider`` override that is not reflected in the folder name
+    therefore measures one model state against a different environment than every other state of
+    the same arm, and nothing downstream can detect it: the folder is complete, the CSVs are valid,
+    and the trajectory simply moves.
+
+    This is the patient-side twin of :func:`_check_state_matches_adapter`, and it is enforced under
+    the same rule: only the CANONICAL tree is protected, because ``--conv-dir`` is the caller
+    saying the output is not the arm's own state folder.
+
+    Note that the grammar encodes the patient MODEL, not the provider, so a same-model swap across
+    providers (local vLLM vs the vendor API) passes this check -- the arm name cannot express it.
+    Record it in the pass's note if it matters.
+    """
+    if arm is None or binding.tag == arm.patient_tag:
+        return
+
+    message = (f"--exp-name names patient {arm.patient_tag!r} but this pass would generate against "
+               f"{binding.model!r} [{binding.provider}] (tag {binding.tag!r}), so the "
+               f"conversations would be filed, scored and plotted as the arm's own data.")
+    fix = ("Drop the --patient-model/--patient-provider override, or use the --exp-name whose "
+           "Pat<tag> matches the patient you want.")
+
+    if canonical:
+        raise SystemExit(f"REFUSING TO START. {message}\n  {fix}\n  (Or pass --conv-dir to write "
+                         f"outside the arm's own conversations tree, where this is your call.)")
+    print(f"  !! {message}\n  !! Allowed because --conv-dir puts the output outside the arm's "
+          f"tree. {fix}")
+
+
 def _check_arm_name(exp_name: str, *, canonical: bool) -> Optional[Any]:
     """Decode *exp_name*; a non-arm name is fatal only when writing into the canonical tree.
 
@@ -931,6 +966,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     binding = resolve_patient_binding(config, model=args.patient_model,
                                       provider=args.patient_provider, base_url=args.base_url)
+    _check_patient_matches_arm(binding, arm, canonical=canonical)
     binding = resolve_patient_endpoint(binding, fatal=not args.dry_run)
 
     budget = plan_vram_budget(batch_size)

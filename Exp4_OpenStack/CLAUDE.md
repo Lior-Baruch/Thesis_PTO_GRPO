@@ -102,6 +102,15 @@ PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E2B_Patgemma4E2B
 GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E2B          # oracle flipped to the OpenAI API
 ```
 
+⚠ **The grammar can spell a SPLIT stack; the v1 trainers cannot run one.** Both trainers thread a
+single async client through `run_one_iteration` and use it for the oracle *and* every patient call,
+so `validate_config` (`core.config._roles_errors`) refuses a bundle whose oracle and patient differ
+in `(provider, base_url)` — otherwise one of the two roles is silently sent to a server that does
+not host its model, 404s per turn, and only after the base model has loaded. The third example
+above is therefore a legal *name* that needs its patient moved to the same endpoint before it is a
+runnable *arm*. An all-vendor stack (oracle **and** patient on the OpenAI API) is fine; so is the
+all-open default. The judge is exempt — no trainer calls it; the EDA builds its own client.
+
 - **Role tags are ALWAYS present** (unlike Exp3, where a suffix appeared only for non-default
   bindings — a subtlety that existed to protect 50k already-written CSVs. Exp4 has no legacy lake).
 - `QTAG` ∈ `Q1Q2 | Q1 | Q2 | WAI | CSQ8 | MISAT | MITI` — derived from `QUESTIONNAIRE_IDS`.
@@ -425,7 +434,7 @@ One JSONL row per branch — prefix stored **once**, candidates nested:
 
 ```json
 {"phase": "group|tree|independent", "iteration": 3, "conversation_id": "...", "persona_id": 7,
- "branch_id": 0, "prefix": "...",
+ "branch_id": 0, "eval_pass": false, "prefix": "...",
  "candidates": [{"completion": "...", "score": 3.4, "sub_scores": {"1": 3.0, "2": 3.8},
                  "lookahead": {"tail": "...", "realized_turns": 5, "ended_early": false}}],
  "chosen_idx": 2}
@@ -443,6 +452,13 @@ Reconstruct a scored text as `prefix + "\n\n[THERAPIST]: " + completion + (tail 
 
 ⚠ **`branch_id` is trunk DEPTH for PTO, not a unique id** — it repeats across conversations. Any
 per-branch aggregation must key on `(conversation_id, branch_id)`.
+
+⚠ **`eval_pass` is written on EVERY row** (never omitted). With a GRPO eval split, TRL calls the
+reward function during `evaluate()` too — held-out prompts, policy in eval mode, no gradient — and
+those groups land in the same `generations.jsonl`. `EDARecorder.aggregate()` reports the
+gradient-bearing rows under the existing keys and the held-out half under `eda/eval_*`; the EDA's
+`load_generations` returns the flag as a column. Anything that pools the two answers a different
+question at a blend ratio nobody chose.
 
 ### `code/core/timing.py`
 
@@ -599,7 +615,11 @@ halving `gas` **doubles** the accumulated gradient. `per_device_train_batch_size
 
 ⚠ **PTO must pre-cap its DPO prompt.** TRL 1.4.0's `DPOConfig` dropped `max_prompt_length` and caps
 prompt+completion with one `max_length` under `truncation_mode='keep_start'` — which slices the
-**response** off. Hence `build_truncated_training_prompt` + `max_length = max_prompt + max_completion`.
+**response** off. Hence `build_truncated_training_prompt` + `max_length = max_prompt +
+max_completion + DPO_FRAMING_HEADROOM_TOKENS`. The headroom is load-bearing, not slack: TRL frames
+both halves after the pre-cap has measured them (BOS prepended by its `processing_class(text=...)`
+call, EOS appended to `chosen`/`rejected` by `add_eos`), so the two configured numbers alone are
+two tokens short of the worst case and `keep_start` would still bite the longest pairs.
 
 ## Vocabulary
 

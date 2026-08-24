@@ -343,12 +343,19 @@ def _resolve_judge(judge: str, rep: int, *, verbose: bool = True) -> str:
     notebook over it would make the EDA unusable exactly when someone is checking whether scoring
     worked.
 
+    An EXPLICIT tag that is not on disk raises; the IMPLICIT default falls back to the first
+    grader present. Every notebook's cell 1 passes ``""``, and every family loads through
+    ``scores_by_judge`` (all graders, no judge level), so a lake whose only grader is not the
+    default is a perfectly analysable lake -- raising there would fail all four notebooks and
+    leave ``render_results.py`` with nothing rendered over data that is fine.
+
     Raises:
-        ValueError: when the lake has partitions but not this one. That is a typo, and the failure
-            it prevents is silent: the loader would find no files and every family would render an
-            empty frame that looks like an unscored arm.
+        ValueError: when a judge was named explicitly and the lake has partitions but not that
+            one. That is a typo, and the failure it prevents is silent: the loader would find no
+            files and every family would render an empty frame that looks like an unscored arm.
     """
-    tag = (judge or "").strip().strip("/\\") or DEFAULT_JUDGE_TAG
+    requested = (judge or "").strip().strip("/\\")
+    tag = requested or DEFAULT_JUDGE_TAG
     on_disk = available_judge_tags()
 
     if not on_disk:
@@ -361,10 +368,20 @@ def _resolve_judge(judge: str, rep: int, *, verbose: bool = True) -> str:
         return tag
 
     if tag not in on_disk:
-        raise ValueError(
-            f"unknown judge {tag!r}; graders present in the score lake: {on_disk}. "
-            f"(A judge tag is a directory name -- see constants.judge_tag.)"
-        )
+        if requested:
+            raise ValueError(
+                f"unknown judge {tag!r}; graders present in the score lake: {on_disk}. "
+                f"(A judge tag is a directory name -- see constants.judge_tag.)"
+            )
+        # Nobody asked for this tag -- it is just the default. Use what is actually there.
+        tag = on_disk[0]
+        if verbose:
+            print(
+                f"  [notebook_setup] NOTE: the default grader {DEFAULT_JUDGE_TAG!r} has no "
+                f"partition in the score lake; using judge={tag!r} instead (present: {on_disk}). "
+                f"Only the arms/* leaf name depends on this -- every other family reads all "
+                f"graders."
+            )
 
     reps = available_judge_reps(tag)
     if reps and int(rep) not in reps and verbose:

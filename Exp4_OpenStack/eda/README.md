@@ -283,8 +283,11 @@ fixes upstream:
   thing: a memo of *built frames*, not a re-fold of the lake.)
 - **No mtime forensics for compute.** The trainer appends per-phase wall-clock to
   `runs/<ARM>/iteration_<N>/timing_sessions.jsonl`, so `compute/cost` reads a log instead of
-  reconstructing GPU-hours from artifact mtimes. `n_sessions > 1` means the iteration was resumed —
-  exactly the case Exp3's per-process fields got wrong.
+  reconstructing GPU-hours from artifact mtimes. `n_sessions_production > 1` means the iteration was
+  resumed — exactly the case Exp3's per-process fields got wrong. ⚠ **Not `n_sessions > 1`:** the
+  post-loop final-eval pass appends an eval-gen-only session to each arm's LAST iteration (and every
+  `tools/generate_convs.py` repair appends another), so the raw session count reports every healthy
+  arm as resumed — a caveat attached to precisely the endpoint every budget sweep is read at.
 - **No `oracle=` path level.** Role tags are always encoded in `EXPERIMENT_NAME`, so the training
   oracle is already inside the arm name.
 
