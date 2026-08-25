@@ -1,0 +1,109 @@
+\section{Why it might work --- and what we could not show}
+\label{sec:mechanism}
+
+This section is deliberately weaker than the three before it, and it reports a negative result
+about our own preferred explanation. The obvious mechanism for look-ahead is that it makes the
+training reward a better proxy for the session outcome. We can measure that proxy quality directly.
+It does improve over the run --- and the one cut that could establish the mechanism does not
+support it.
+
+\subsection{The faithfulness statistic}
+
+The training reward scores a \emph{partial} conversation; the evaluation scores the whole session.
+The gap between them is measurable as pairwise rank agreement: among candidate turns compared
+within one (arm, iteration, conversation-length) cell, how often does the training reward order
+them the way the full-session score eventually does? Chance is $0.5$; intervals are
+conversation-level cluster bootstraps.
+
+\subsection{Over the run, the $\Kf$ signal is more faithful}
+
+Pooled over the ten iterations both arms reached, agreement is $0.909$ $[0.900, 0.917]$ under $\Kf$
+against $0.873$ $[0.861, 0.884]$ under $\Kz$ on the training oracle, and $0.800$ against $0.747$ on
+the held-out judge; both differences have intervals excluding zero, and $\Kf$ is the more faithful
+arm at 7 of 10 iterations under both graders.
+
+\textbf{Two qualifications travel with that number.} First, the iteration-level Wilcoxon test ---
+with the ten iterations, rather than the branch pairs, as the unit of observation --- does
+\emph{not} clear $.05$ ($p = .084$ primary, $p = .193$ held out). The pooled interval treats branch
+pairs as independent and is the more permissive of the two, so we describe the difference as small
+and consistent rather than significant. Second, and more importantly, at iteration $n$ the two arms
+are \emph{different policies}, generating \emph{different conversations}. This comparison therefore
+measures a joint property of the scoring rule and of the trajectory the scoring rule put the policy
+on. It cannot separate them, and so it cannot establish a mechanism.
+
+\subsection{At a matched policy, the effect disappears}
+
+There is exactly one cut in this design where the scoring rule is close to the only difference: the
+first iteration, where both arms start from the same base policy and differ only in whether five
+simulated turns were appended before the oracle saw each candidate.
+
+At that cut, \textbf{nothing is detectable}. All four deltas straddle zero (training oracle: $+0.015$
+$[-0.026, 0.059]$ for GRPO; held-out judge: $-0.014$ $[-0.075, 0.048]$), and the per-length-bin
+breakdown points in \emph{opposite directions on the two graders} --- 17 of 20 bins favour $\Kz$
+under the training oracle, 17 of 20 favour $\Kf$ under the held-out judge. A sign that flips with
+the grader is the shape of no effect, not of a small one.
+
+We therefore report the proxy-quality mechanism as \textbf{unsupported}. Look-ahead's benefit is
+not explained by the $K{=}5$ reward being a better-calibrated ranker of candidate turns at a fixed
+policy. The matched-policy cut is also the weakest-powered one --- a single model state per arm,
+and only approximately matched, since the policy drifts within the iteration under $K$-specific
+rewards --- so this is an absence of evidence rather than evidence of absence. It is not, however,
+a result we can quietly omit while quoting the pooled row.
+
+\subsection{Nor does it work by sharpening the group}
+
+A second candidate mechanism is that look-ahead spreads the eight siblings' rewards further apart,
+better conditioning the group-relative advantage. It does spread them: the mean best-minus-worst
+margin within a group is $1.300\times$ larger under $\Kf$ $([1.275, 1.326])$. But the within-group
+standard deviation grows by almost exactly the same factor $(1.293\times, [1.267, 1.317])$, and
+GRPO divides the advantage by that standard deviation. The ratio of the two ratios is $1.006$
+$([1.002, 1.010])$ --- a pure rescaling, which the advantage normalisation absorbs.
+
+Look-ahead changes \emph{which} candidate the group prefers, not how confidently it prefers it.
+
+One iteration inverts the level of this, and it is worth stating rather than burying in the pooled
+row. At training iteration 10 the margin ratio drops to $0.679$ --- $\Kf$'s within-group margins
+are \emph{smaller} than $\Kz$'s there. Both sides move: $\Kz$'s mean margin jumps from $0.248$ to
+$0.339$ while $\Kf$'s falls from $0.268$ to $0.230$. The $\Kz$ jump coincides exactly with the
+iteration in which its over-praise rate explodes (§\ref{sec:behaviour}: the judge-free marker goes
+from $0.093$ to $0.671$ between iterations 9 and 10), which is what a group containing both
+flattering and non-flattering candidates would do to a grader that rewards flattery --- the pool
+splits and the best-worst gap widens. The $\Kf$ decline is the mirror image: a converging policy
+whose eight samples the oracle scores increasingly alike.
+
+Crucially this does \emph{not} break the rescaling result. At that same iteration the
+ratio-of-ratios is $0.964$ --- margin and standard deviation still move together, as they do at
+every other iteration. What inverts is the level of dispersion in each arm, not the coupling
+between spread and margin that the advantage normalisation absorbs. We offer the over-praise
+account as consistent with the timing, not as demonstrated: a single iteration, and we have no
+manipulation that separates the two.
+
+\subsection{Nor by pushing somewhere else}
+
+The third candidate is the most intuitive: perhaps look-ahead simply points the update in a
+different direction. It does not, or at least not much. Writing each iteration's update direction
+as the advantage-weighted sum of its candidates' sentence embeddings,
+$\operatorname{normalise}(\sum_g w_g \cdot \mathrm{emb}(t_g))$ with $w_g$ the standardised
+group-relative advantage that actually scales each completion's gradient, the two arms' pooled
+directions have a cosine of $0.804$ --- $0.851$ once divided by the attenuation ceiling that two
+split-half-noisy estimates can reach at all. The $\Kz$ and $\Kf$ policies are pushed along
+substantially the \emph{same} semantic direction.
+
+That is the sharpest form of the puzzle this paper leaves open. The same optimizer, pushed in
+nearly the same direction, with a reward that is not measurably better conditioned and not
+measurably more faithful at a fixed policy, nevertheless ends more than twice as far from base.
+What differs is \emph{which} of eight siblings is preferred at each step --- a small, repeated
+difference in selection, compounded over ten iterations of a loop that regenerates its own training
+data from the policy it just updated. We can show the compounding in the outcome
+(§\ref{sec:reward}) and in the behaviour (§\ref{sec:behaviour}); we cannot, with this design,
+isolate it.
+
+\subsection{What is left}
+
+The honest position is that we have measured \emph{what} look-ahead changes --- the reward's
+horizon, and through it the behaviour the policy converges on (§\ref{sec:behaviour}) --- without
+isolating the pathway from the first to the second. The two mechanisms we could test are the two we
+ruled out. What remains, and what this design cannot reach, is the possibility that the benefit
+accrues through the trajectory of policies the lever induces rather than through any fixed-policy
+property of the reward. Testing that needs a cut this experiment does not contain: the same policy
+trained under both rewards for several iterations with the reward horizon swapped mid-run.

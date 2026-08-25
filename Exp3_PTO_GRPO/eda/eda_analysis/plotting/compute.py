@@ -26,9 +26,9 @@ fixture):
   column): Q1Q2 mean ± SEM over the 96 personas vs cumulative GPU-h, four arms, iteration 0 at
   0 h, last point labelled with its iteration.
 - :func:`cost_breakdown_by_iteration` — ``fig_breakdown``: stacked generate / build / train
-  GPU-h per iteration, one panel per arm, with the two known caveats annotated (PTO_LA5's
-  generation of I1-I5 lands in I6 because its conversation mtimes were batch-flushed; GRPO_LA5 is
-  right-censored at I5).
+  GPU-h per iteration, one panel per arm, with PTO_LA5's known mtime caveat annotated (its
+  generation of I1-I5 lands in I6 because its conversation mtimes were batch-flushed) and any
+  short arm's right-censoring annotated at ITS OWN last iteration, read off the frame.
 - :func:`cost_breakdown` dispatches on its input: an :func:`~eda_analysis.compute.iteration_compute`
   frame (has ``iteration``) -> :func:`cost_breakdown_by_iteration`; a
   :func:`~eda_analysis.compute.compute_summary` frame -> :func:`cost_breakdown_by_arm` (the
@@ -188,11 +188,15 @@ def cost_breakdown_by_arm(summary: pd.DataFrame, *, figsize=(7.6, 4.0)):
     return fig
 
 
-#: The two known per-iteration cost artefacts, annotated on the breakdown panels (the paper's
+#: The known per-iteration cost ARTEFACTS, annotated on the breakdown panels (the paper's
 #: ``fig_breakdown``). Keyed by arm; ``(x, y_frac_of_ymax, text)``. Left as data so a future run
 #: without the artefact simply drops the entry.
+#:
+#: ⚠ Censoring is NOT in here. It used to be - ``"right-censored (stopped at I5)"`` pinned at
+#: ``x=7.9`` - and it went stale four iterations before anyone noticed, because where an arm stops
+#: is a property of the data, not of a caption. :func:`cost_breakdown_by_iteration` now DERIVES
+#: that annotation for any arm ending before the shared x-axis, at that arm's own last iteration.
 BREAKDOWN_NOTES = {
-    "GRPO_LA5": (7.9, 0.38, "right-censored\n(stopped at I5)"),
     "PTO_LA5": (3.2, 0.53, "gen of I1–I5 lands in I6\n(flushed conv mtimes)"),
 }
 
@@ -206,10 +210,11 @@ def cost_breakdown_by_iteration(comp: pd.DataFrame, *, arms: Optional[Sequence[s
     ``comp`` is :func:`eda_analysis.compute.iteration_compute` output. Phase encoding: train =
     solid arm colour; build = arm colour, light; generate = white + arm-colour hatch. Each panel's
     title carries the arm's total (``Σ h``). ``notes`` (default :data:`BREAKDOWN_NOTES`)
-    annotates the known artefacts — PTO_LA5's I1-I5 generation landing in I6 (batch-flushed conv
-    mtimes) and GRPO_LA5's right-censoring at I5. All panels share the x-ticks ``1..max_iter``
-    (default = the largest trained iteration across the arms) so the censoring is VISIBLE as
-    empty slots rather than a narrower axis.
+    annotates the known artefacts — today just PTO_LA5's I1-I5 generation landing in I6
+    (batch-flushed conv mtimes). All panels share the x-ticks ``1..max_iter`` (default = the
+    largest trained iteration across the arms) so the censoring is VISIBLE as empty slots rather
+    than a narrower axis, and any arm that stops short is labelled "right-censored (stops at
+    I<n>)" over its own empty slots — ``n`` read off ``comp``, never hard-coded.
     """
     if comp is None or comp.empty:
         return None
@@ -246,6 +251,14 @@ def cost_breakdown_by_iteration(comp: pd.DataFrame, *, arms: Optional[Sequence[s
         if arm in notes:
             x, yf, txt = notes[arm]
             ax.text(x, yf * ymax, txt, ha="center", va="center", fontsize=6.5, color="0.3")
+        # Censoring is DERIVED: an arm whose last iteration falls short of the shared axis gets the
+        # label centred over its own empty slots. Never a hard-coded arm or iteration (see
+        # BREAKDOWN_NOTES) - that is exactly the assertion that went stale.
+        last_it = int(d["iteration"].max()) if len(d) else 0
+        if last_it < n_it:
+            ax.text((last_it + n_it) / 2 + 0.5, 0.38 * ymax,
+                    f"right-censored\n(stops at I{last_it})", ha="center", va="center",
+                    fontsize=6.5, color="0.3")
     axes[0].set_ylabel("GPU-hours per iteration", fontsize=9)
     handles = [Patch(facecolor="white", edgecolor="0.4", hatch="////", label="generate"),
                Patch(facecolor="0.4", alpha=0.45, label="build (PTO only)"),
@@ -365,7 +378,7 @@ def trajectory_by_compute(scores_by_judge: Dict[str, pd.DataFrame], comp: pd.Dat
     ``scores_by_judge`` = ``{judge_label: scores_long}`` (primary first by convention); ``comp`` =
     :func:`~eda_analysis.compute.iteration_compute`. Each panel is
     :func:`~eda_analysis.compute.score_by_compute` drawn per arm (iteration 0 at 0 h; K=0
-    solid/circle, K=5 dashed/square; last point labelled with its iteration — GRPO_LA5 ends at I5).
+    solid/circle, K=5 dashed/square; last point labelled with its iteration — a censored arm simply ends first).
 
     ``layout="wide"`` = the paper's ``fig_trajectory`` (panels side by side, shared y);
     ``layout="col"`` = ``fig_trajectory_col`` (the SAME panels stacked, shared x and y, sized for

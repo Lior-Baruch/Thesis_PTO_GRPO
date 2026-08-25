@@ -29,8 +29,8 @@ Conventions:
   every iteration). Retention pairs through :func:`eda_analysis.reliability.attach_persona`
   (replays the shuffle from ``file_index``); the pairs frame uses the ``persona_id`` already on the
   ``scores_long`` frames.
-* **Censoring:** GRPO_LA5 is right-censored at iteration 5 (its full budget); PTO arms and
-  GRPO_LA0 run to 10. Last iterations are read off the data.
+* **Support:** an arm's scored support can be grader-dependent. Last iterations are read off the
+  data, always — never named in a caption from memory.
 * **Holm** in ``cross_k_pairs`` = across ITERATIONS within (grader, method, metric).
 * **Retention floors:** ``retention`` and its persona-bootstrap CI are suppressed (NaN) where
   ``|Δ primary| < min_primary_delta`` — 0.15 on the 1-5 / 1-7 rubrics (the
@@ -72,7 +72,9 @@ DEFAULT_REFERENCE_KINDS = ("own_base", "method_LA0_base", "method_LA5_base", "ed
 #: |Δ primary| floors below which retention is suppressed (see the module note).
 SCALE_FLOOR, RATE_FLOOR = 0.15, 0.05
 
-CENSOR = "GRPO_LA5 is right-censored at iteration 5 (its full budget); PTO arms and GRPO_LA0 run to 10."
+# A LEGEND, not an assertion (see the note on compute.CENSOR_NOTE).
+CENSOR = ("An arm's scored support can be grader-dependent; each table's iteration column is the "
+          "record of where it actually stops.")
 PAIRING = ("Paired on persona_id (the trainer reshuffles the 96 personas every iteration; "
            "file_index is not a pairing key).")
 
@@ -244,7 +246,9 @@ def retention_by_k(judge_long: pd.DataFrame, primary_long: pd.DataFrame, *,
     iteration, metric, ref_kind, reference, ref_is_own_base, n, delta_primary, delta_judge,
     retention, retention_ci_lo, retention_ci_hi, same_sign, min_primary_delta``. ``ret_sum`` puts
     K=0 and K=5 side by side (own-base reference) for ``summary_metrics`` at ``summary_iters``
-    (default: 5 — the last iteration all four arms share — and each K=5 arm's endpoint) with
+    (default: iteration 5 — a FIXED early anchor kept for comparability with the frozen fixture; it
+    was the last iteration all four arms shared when the default was chosen, which is no longer
+    true — plus each K=5 arm's endpoint, read off the data) with
     ``cis_disjoint``. Reproduces ``cross_k_multijudge_retention{,_summary}.csv``. Cross-checks:
     GRPO_LA5 Q1 iteration 5 vs ``eda_view_PTO_LA5_base`` = 1.082 [0.936, 1.271] (the tracked
     measurement table gives the same point estimate with CI [0.937, 1.274] — a different model

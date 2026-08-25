@@ -24,12 +24,12 @@
    "note": "split-half cosine of the per-arm pooled update direction"
   },
   "probe.GRPO_LA5.pooled_wins_holdout": {
-   "value": 0.5818749999999999,
+   "value": 0.56025,
    "source": "tables/update_direction_quality_pooled.md",
    "note": "held-out win rate of the per-arm pooled update direction"
   },
   "probe.GRPO_LA5.pooled_split_half_cos": {
-   "value": 0.8964380481107765,
+   "value": 0.8799272847246699,
    "source": "tables/update_direction_quality_pooled.md",
    "note": "split-half cosine of the per-arm pooled update direction"
   },
@@ -54,7 +54,7 @@
    "note": "split-half cosine of the per-arm pooled update direction"
   },
   "cosine.GRPO_LA0_vs_GRPO_LA5.corrected": {
-   "value": 0.8486094532713507,
+   "value": 0.8506191979085033,
    "source": "tables/update_direction_cosines.md",
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
@@ -69,12 +69,12 @@
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
   "cosine.GRPO_LA5_vs_PTO_LA0.corrected": {
-   "value": 0.12872225538397328,
+   "value": 0.14738171249489673,
    "source": "tables/update_direction_cosines.md",
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
   "cosine.GRPO_LA5_vs_PTO_LA5.corrected": {
-   "value": 0.7503625733256976,
+   "value": 0.756465654839883,
    "source": "tables/update_direction_cosines.md",
    "note": "attenuation-corrected cosine between the two arms' pooled update directions"
   },
@@ -89,7 +89,7 @@
    "note": "PTO_LA0 vs GRPO_LA0 pooled update directions, attenuation-corrected"
   },
   "decomposition.K5.as_trained_cosine_corrected": {
-   "value": 0.7503625733256976,
+   "value": 0.756465654839883,
    "source": "tables/weighting_decomposition.md",
    "note": "PTO_LA5 vs GRPO_LA5 pooled update directions, attenuation-corrected"
   },
@@ -104,12 +104,12 @@
    "note": "gradient groups summed over training iterations"
   },
   "yield.GRPO_LA5.min_yield_rate": {
-   "value": 0.9375,
+   "value": 0.8125,
    "source": "tables/training_signal_yield.md",
    "note": "lowest per-iteration share of built groups that produced a gradient"
   },
   "yield.GRPO_LA5.groups_trained_total": {
-   "value": 10612,
+   "value": 14135,
    "source": "tables/training_signal_yield.md",
    "note": "gradient groups summed over training iterations"
   },

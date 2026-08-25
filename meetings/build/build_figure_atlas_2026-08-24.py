@@ -70,6 +70,10 @@ GRADERS = ("Two graders: gpt-4o-mini (the training reward) and Claude Haiku 4.5 
            "different model family, never played the patient). Never averaged.")
 ARMS4 = ("Four arms: PTO K=0, PTO K=5, GRPO K=0, GRPO K=5. K=0 solid + circle, K=5 dashed + "
          "square. GRPO K=5's line ends at iteration 6, its last scored state.")
+ARMS4_COLOUR = ("Four arms. Colour alone carries the arm here — dark blue / light blue = PTO K=0 / "
+                "K=5, orange / gold = GRPO K=0 / K=5. All four lines are solid with circle "
+                "markers on this figure. GRPO K=5's line ends at iteration 6, its last scored "
+                "state.")
 IT0 = "Iteration 0 is each arm's own untrained base draw."
 
 
@@ -196,8 +200,8 @@ SECTIONS = [
         ("Exp1", "Every published model against the untrained baseline",
          os.path.join(F1, "exp1_vs_base.png"), [
             ("X axis", "Δ Final score vs Base, paired on persona. 95% bootstrap CI."),
-            ("Y axis", "The 14 trained models, K=5 above K=0, iteration 7 at the top of each "
-                       "block."),
+            ("Y axis", "The 14 trained models: the K=0 block above the K=5 block, iteration 1 "
+                       "at the top of each block and iteration 7 at the bottom."),
             ("Series", "Colour = look-ahead arm."),
             ("Data", "n = 96 paired per row. Uncorrected — no multiplicity adjustment is applied "
                      "in this figure."),
@@ -255,11 +259,14 @@ SECTIONS = [
         ], ["_figs/exp2/exp2_own_instrument.png"]),
         ("Exp2", "Every model state against the base model",
          os.path.join(F2, "exp2_vs_base_forest.png"), [
-            ("X axis", "Δ Q1+Q2 vs Base, paired on persona, ±1.96 SEM."),
+            ("X axis", "Δ Q1+Q2 vs Base, paired on persona. Bar = 95% CI on the PAIRED "
+                       "difference, from the paired SD."),
             ("Y axis", "The 35 trained model states, grouped by training oracle then K."),
             ("Series", "Filled marker = Wilcoxon signed-rank p < .05; hollow = not. Colour = "
                        "training oracle."),
-            ("Data", "n = 96 paired per row, uncorrected for multiplicity."),
+            ("Data", "n = 96 paired per row, uncorrected. The marker is a rank test and the bar a "
+                     "normal-approximation CI, so near p ≈ .05–.10 they can disagree — three WAI "
+                     "rows are hollow with a bar clear of zero."),
         ], ["_figs/exp2/exp2_vs_base_forest.png"]),
         ("Exp2", "All six instruments read on every arm",
          os.path.join(F2, "exp2_instrument_grid.png"), [
@@ -268,8 +275,9 @@ SECTIONS = [
                        "base on that instrument."),
             ("Series", "Colour = training oracle, line style = K. Every arm is read on every "
                        "instrument, including ones it never optimised."),
-            ("Data", "n = 96 per point. Seven instruments shown; MITI global is the 1–5 "
-                     "clinician-style global rating."),
+            ("Data", "n = 96 per point. SEVEN panels — the six instruments plus the Q1+Q2 "
+                     "composite, which is the mean of two panels already shown. MITI global is "
+                     "the 1–5 clinician-style global rating."),
         ], ["_figs/exp2/exp2_instrument_grid.png"]),
      ]),
 
@@ -283,15 +291,17 @@ SECTIONS = [
             ("X axis", "Training iteration, 0–10, in every panel."),
             ("Y axis", "The panel's rubric, on its own scale. MICI and PCT are 0–1 rates; the "
                        "rest are 1–5."),
-            ("Series", ARMS4),
+            ("Series", ARMS4_COLOUR),
             ("Data", "Grader: gpt-4o-mini, which was also the training reward. " + N96),
         ], ["arms/outcomes/figures/gpt-4o-mini/trajectories_all_metrics.png"]),
         ("Exp3 · outcomes", "All nine rubrics by iteration — held-out judge",
          R("arms", "outcomes", "figures", HELDOUT, "trajectories_all_metrics.png"), [
             ("X axis", "Training iteration, 0–10."),
-            ("Y axis", "Same rubrics, same arms as the previous slide — but note the y scales "
-                       "differ: this grader sits 1.2–1.7 points lower on the point rubrics."),
-            ("Series", ARMS4),
+            ("Y axis", "Same rubrics, same arms as the previous slide, but the y scales differ. "
+                       "The held-out judge's offset is RUBRIC-DEPENDENT: Q1, Q2 and MITI about "
+                       "1.3–1.7 points lower; WAI-SR 0.6, MI-SAT 0.45, CSQ-8 0.16; on MICI and "
+                       "PCT it scores slightly higher."),
+            ("Series", ARMS4_COLOUR),
             ("Data", "Grader: Claude Haiku 4.5, held out. Same 96 conversations per state as the "
                      "previous slide — only the grader changes."),
         ], ["arms/outcomes/figures/claude-haiku-4-5/trajectories_all_metrics.png"]),
@@ -307,8 +317,9 @@ SECTIONS = [
         ], ["lookahead/reward/figures/k_trajectory_Q1Q2.png"]),
         ("Exp3 · outcomes", "Each arm's endpoint against its own base — training oracle",
          R("arms", "outcomes", "figures", PRIMARY, "effect_vs_base_forest_final.png"), [
-            ("X axis", "Effect size (paired dz) of the arm's FINAL iteration against its own "
-                       "untrained base draw, with CI."),
+            ("X axis", "Change vs the arm's own untrained base draw (Δ mean score) with 95% "
+                       "bootstrap CI, at the arm's FINAL iteration. Cohen's dz is annotated per "
+                       "row as text and has no interval drawn."),
             ("Y axis", "Rubric × arm."),
             ("Series", "One row per (arm, rubric). Lower-is-better rubrics are flagged in the "
                        "row label."),
@@ -316,10 +327,12 @@ SECTIONS = [
         ], ["arms/outcomes/figures/gpt-4o-mini/effect_vs_base_forest_final.png"]),
         ("Exp3 · outcomes", "Each arm's endpoint against its own base — held-out judge",
          R("arms", "outcomes", "figures", HELDOUT, "effect_vs_base_forest_final.png"), [
-            ("X axis", "Paired dz vs own base at the final iteration, with CI."),
+            ("X axis", "Change vs own base (Δ mean score) with 95% bootstrap CI, at the final "
+                       "iteration; dz annotated per row as text."),
             ("Y axis", "Rubric × arm, same layout as the previous slide."),
             ("Series", "One row per (arm, rubric)."),
-            ("Data", "Grader: Claude Haiku 4.5. Same conversations as the previous slide."),
+            ("Data", "Grader: Claude Haiku 4.5. Same conversations as the previous slide. "
+                     + PAIR),
         ], ["arms/outcomes/figures/claude-haiku-4-5/effect_vs_base_forest_final.png"]),
         ("Exp3 · outcomes", "Arm by arm across every rubric, at the final iteration",
          R("arms", "outcomes", "figures", PRIMARY, "outcomes_by_model_final.png"), [
@@ -350,7 +363,9 @@ SECTIONS = [
             ("X axis", "Training iteration."),
             ("Y axis", "Paired K=0 − K=5. Rows are Q1+Q2 and MICI; columns are PTO and GRPO."),
             ("Series", "Solid line + filled circle + ribbon = training oracle; dotted line + open "
-                       "circle + bars = held-out judge. Star = Holm p < .05 under either grader."),
+                       "circle + bars = held-out judge. A star replaces the marker on WHICHEVER "
+                       "grader's series is significant, so a star on the solid line is the "
+                       "training oracle and on the dotted line the held-out judge."),
             ("Sign", "Positive = K=0 higher. MICI is lower-is-better, so on the MICI row a "
                      "positive value means K=0 was more MI-inconsistent. " + PAIR),
         ], ["lookahead/reward/figures/k_contrast_both_judges.png"]),
@@ -361,6 +376,10 @@ SECTIONS = [
             ("Bottom row", "Y = difference-in-differences: the K=0 gap minus the K=5 gap, computed "
                            "per persona. dz annotated at each iteration."),
             ("Columns", "Left = training oracle, right = held-out judge. Row y-limits shared."),
+            ("Stars", "Holm p < .05, family = iterations within (grader, K). That is a DIFFERENT "
+                      "family from the method-gap slide later on, where Holm runs across the "
+                      "rubrics inside one (grader, K, iteration) — so the same series can carry "
+                      "stars at different iterations on the two slides."),
             ("Data", "The DiD needs all four arms, so it is defined while GRPO K=5 runs. " + PAIR),
         ], ["lookahead/reward/figures/k_did.png"]),
         ("Exp3 · look-ahead", "The contrast on every rubric — training oracle",
@@ -417,7 +436,10 @@ SECTIONS = [
             ("X axis", "Training iteration, 0–10."),
             ("Y axis", "Left: utterances per conversation. Middle: characters per therapist turn. "
                        "Right: question marks per therapist turn. Mean ± SE."),
-            ("Series", ARMS4 + " PTO cool colours, GRPO warm."),
+            ("Series", "Four arms: PTO K=0, PTO K=5, GRPO K=0, GRPO K=5. K=0 solid + circle, "
+                       "K=5 dashed + square. PTO cool colours, GRPO warm. GRPO K=5 runs to "
+                       "iteration 8 HERE — these metrics need no grader, so the two model states "
+                       "that have transcripts but no scores are included."),
             ("Data", "These are computed directly from the transcript text — no LLM grades them, "
                      "so they are identical under both graders. " + N96),
         ], ["lookahead/behaviour/figures/session_shape.png"]),
@@ -569,43 +591,50 @@ SECTIONS = [
         ("Exp3 · training signal", "How many usable training rows each iteration produced",
          R("arms", "preference", "figures", PRIMARY, "training_signal_yield.png"), [
             ("X axis", "Training iteration."),
-            ("Y axis", "Number of preference pairs emitted (PTO) — branch points where the "
-                       "best-worst margin cleared τ = 0.1."),
-            ("Series", "One line per PTO arm."),
-            ("Note", "GRPO has no equivalent: every prompt produces a gradient step, so it cannot "
-                     "yield zero rows."),
+            ("Panels", "Three, each on its own scale: groups that trained (a count), yield = "
+                       "trained ÷ built (a rate), and the best−worst training-reward gap."),
+            ("Series", "One line per arm — all four, both methods, in every panel."),
+            ("Data", "PTO emits a pair only where the best−worst margin clears τ = 0.1, so its "
+                     "yield can fall below 1. GRPO trains on every prompt it builds. Grader: "
+                     "gpt-4o-mini."),
         ], ["arms/preference/figures/gpt-4o-mini/training_signal_yield.png"]),
         ("Exp3 · training signal", "What the chosen-minus-rejected direction pushes toward",
          R("arms", "preference", "figures", PRIMARY, "update_category_by_arm.png"), [
-            ("X axis", "Behaviour category."),
-            ("Y axis", "Net direction of the update — how much more often a category appears in "
-                       "the chosen completion than the rejected one."),
-            ("Series", "One group of bars per arm."),
+            ("X axis", "Training iteration, in each of the six panels."),
+            ("Y axis", "Projection of that panel's MI-concept word group onto the iteration's "
+                       "chosen-minus-rejected embedding direction. The dotted line is 0."),
+            ("Series", "One line per arm, all four. Panels = the six MI concepts (Affirmation, "
+                       "ChangeTalk, OpenQuestion, Reflection, SustainTalk, TherapistActions)."),
             ("Data", "Computed over every emitted preference pair. Grader: gpt-4o-mini."),
         ], ["arms/preference/figures/gpt-4o-mini/update_category_by_arm.png"]),
         ("Exp3 · training signal", "The same categories, K=0 against K=5",
          R("arms", "preference", "figures", PRIMARY, "pref_category_K0_vs_K5.png"), [
-            ("X axis", "Behaviour category."),
-            ("Y axis", "Preference weight on that category."),
-            ("Series", "K=0 against K=5, PTO arms."),
-            ("Data", "Every emitted preference pair, both PTO arms."),
+            ("X axis", "Training iteration, in each of the six panels."),
+            ("Y axis", "Projection onto the chosen-minus-rejected direction; 0 = indifferent. "
+                       "Same construction as the previous slide."),
+            ("Series", "PTO K=0 and PTO K=5 only. Panels = the six MI concepts."),
+            ("Data", "Every emitted preference pair, both PTO arms. Grader: gpt-4o-mini."),
         ], ["arms/preference/figures/gpt-4o-mini/pref_category_K0_vs_K5.png"]),
         ("Exp3 · training signal", "Distribution of the training reward, per arm",
          R("arms", "training", "figures", PRIMARY, "reward_distribution_by_arm.png"), [
-            ("X axis", "Training-reward value (Q1+Q2 of the scored candidate)."),
-            ("Y axis", "Density / count of candidates."),
-            ("Series", "One panel or colour per arm."),
+            ("X axis", "Training iteration, one panel per arm."),
+            ("Y axis", "Training reward of a single scored candidate, 0–5. Box = median and "
+                       "quartiles, whiskers 1.5 IQR, dots = outliers."),
+            ("Series", "Four panels — GRPO K=0, GRPO K=5, PTO K=0, PTO K=5 — on a shared y "
+                       "scale."),
             ("Data", "Every scored candidate across all iterations, from generations.jsonl. "
                      "Grader: gpt-4o-mini."),
         ], ["arms/training/figures/gpt-4o-mini/reward_distribution_by_arm.png"]),
         ("Exp3 · training signal", "The advantage signal the two methods see",
          R("arms", "training", "figures", PRIMARY, "advantage_signal_sidebyside.png"), [
-            ("X axis", "Training iteration or advantage value, per panel."),
-            ("Y axis", "The group-relative advantage GRPO computes beside the best-worst margin "
-                       "PTO selects on."),
-            ("Series", "One panel per method."),
-            ("Note", "The two are not the same quantity — this puts them side by side on a "
-                     "common axis rather than claiming equivalence."),
+            ("X axis", "Training iteration, in all four panels."),
+            ("Y axis", "Oracle-score gap, on a shared scale across panels."),
+            ("Series", "Four panels, one per arm. The solid line in every panel is best minus "
+                       "worst candidate reward, unfiltered — the same quantity for both methods. "
+                       "Faint secondary series: within-group SD for GRPO, the τ-filtered "
+                       "chosen−rejected margin for PTO."),
+            ("Note", "GRPO's computed advantages are NOT in this figure; what is plotted is the "
+                     "raw spread of the oracle scores within each sampled group."),
         ], ["arms/training/figures/gpt-4o-mini/advantage_signal_sidebyside.png"]),
         ("Exp3 · training signal", "PTO's best-worst margin by depth in the trunk",
          R("arms", "training", "figures", PRIMARY, "pto_margin_by_depth.png"), [
@@ -622,8 +651,10 @@ SECTIONS = [
             ("Y axis", "Agreement between the score at that prefix and the full-conversation "
                        "score. 0.5 = chance."),
             ("Series", "Per arm."),
-            ("Why it matters", "MIN_CONV_LENGTH = 12 was set from this curve: no training context "
-                               "shorter than that is used."),
+            ("Data", "The curve STARTS at 12 turns because MIN_CONV_LENGTH = 12 already removed "
+                     "everything shorter from the training data, so it cannot speak to prefixes "
+                     "below that. The MCL knob was motivated by the earlier Exp2 "
+                     "partial-conversation diagnostic, not by this curve."),
         ], ["arms/training/figures/gpt-4o-mini/reward_reliability_curve.png"]),
      ]),
 
@@ -677,10 +708,10 @@ SECTIONS = [
      "reproduce.", PTO_C, [
         ("Exp3 · measurement", "Repeatability of the primary oracle",
          R("measurement", "validity", "figures", "oracle_repeatability_icc.png"), [
-            ("X axis", "Metric."),
-            ("Y axis", "ICC(2,1) computed from 3 re-scorings of the SAME conversations by "
-                       "gpt-4o-mini."),
-            ("Series", "One point per model × metric."),
+            ("X axis", "Model state. Only four states were re-scored, all of them K=0 arms."),
+            ("Y axis", "ICC(2,1) across FOUR independent re-scorings of the same 96 conversations "
+                       "by gpt-4o-mini (seeds differ, nothing else)."),
+            ("Panels", "Three: MICI, Q1, Q2 — the metrics with repeat draws."),
             ("Reference lines", "Dotted at 0.75 and 0.90 — the Koo & Li 'good' and 'excellent' "
                                 "thresholds."),
         ], ["measurement/validity/figures/oracle_repeatability_icc.png"]),
@@ -721,10 +752,15 @@ SECTIONS = [
         ], ["measurement/validity/figures/multijudge_variance_decomposition.png"]),
         ("Exp3 · measurement", "Cross-grader agreement as a function of effect size",
          R("measurement", "validity", "figures", "multijudge_concordance_curve.png"), [
-            ("X axis", "Size of the gap between two conversations, under the primary oracle."),
-            ("Y axis", "Probability that Claude Haiku 4.5 orders that pair the same way."),
-            ("Series", "One curve, computed over conversation pairs."),
-            ("Use", "Reads how much resolving power a given gap carries per conversation."),
+            ("X axis", "|Δ| between two conversations under the primary oracle. Each panel has "
+                       "its own x range."),
+            ("Y axis", "Probability that Claude Haiku 4.5 orders that pair the same way. Chance "
+                       "is 0.5."),
+            ("Series", "Eight panels, one per metric, TWO curves in each: cross-model (solid) = "
+                       "pairs drawn from different model states, within-model (dashed) = pairs "
+                       "from the same state."),
+            ("Data", "Computed over conversation pairs; exact ties under the primary oracle are "
+                     "excluded from the denominator."),
         ], ["measurement/validity/figures/multijudge_concordance_curve.png"]),
         ("Exp3 · measurement", "Gain retention, every model state",
          R("measurement", "validity", "figures", "multijudge_gain_retention.png"), [
@@ -754,24 +790,30 @@ SECTIONS = [
             ("Axes", "Rubric × rubric."),
             ("Cell", "Correlation between the two rubrics' per-conversation scores, pooled over "
                      "all model states."),
-            ("Data", "Grader: gpt-4o-mini. MICI is lower-is-better, so its correlations with the "
-                     "others are expected to carry the opposite sign."),
-            ("Use", "Bears on whether the eight instruments are eight independent readings."),
+            ("Data", "Spearman ρ on per-conversation scores, pooled over all model states. "
+                     "Grader: gpt-4o-mini."),
+            ("Note", "The matrix has ten rows and columns, not eight: the six questionnaires plus "
+                     "PCT, MICI and the MITI-derived ratios. MICI is lower-is-better — read its "
+                     "signs against that."),
         ], ["arms/validity/figures/gpt-4o-mini/rubric_correlation.png"]),
         ("Exp3 · rubrics", "Factor structure across the rubrics",
          R("arms", "validity", "figures", PRIMARY, "factor_loadings.png"), [
-            ("X axis", "Factor."),
-            ("Y axis", "Loading of each rubric on that factor."),
-            ("Data", "Computed on the per-conversation score matrix, grader gpt-4o-mini."),
-            ("Note", "Descriptive factor extraction — no rotation claim is made on this slide."),
+            ("X axis", "Loading. One panel per component: PC1 (55% of variance) left, PC2 "
+                       "(17%) right. The two panels have different x ranges."),
+            ("Y axis", "The ten rubrics and MITI-derived ratios, ordered by PC1 loading."),
+            ("Series", "Bar colour marks the two blocks the figure groups by: the global-eval "
+                       "rubrics, and the PCT / MICI / MITI ratios."),
+            ("Data", "Unrotated PCA on the per-conversation score matrix. Grader: gpt-4o-mini."),
         ], ["arms/validity/figures/gpt-4o-mini/factor_loadings.png"]),
-        ("Exp3 · rubrics", "The reward-hack panel",
+        ("Exp3 · rubrics", "The training reward beside two behaviour rubrics",
          R("arms", "validity", "figures", PRIMARY, "reward_hack_panel.png"), [
-            ("Panels", "The training reward beside the behaviour channels that move with it, over "
-                       "training iterations."),
-            ("Y axes", "Each panel on its own scale — rubric points for the reward, rates for the "
-                       "channels."),
-            ("Series", "One line per arm."),
+            ("Panels", "Four, one per arm. X = training iteration."),
+            ("Y axes", "TWO per panel: left = Q1+Q2 on 1–5; right = rate / proportion on 0–1, "
+                       "shared by the other two series."),
+            ("Series", "Three per panel: Q1+Q2 (solid), MICI (dashed, lower is better) and PCT "
+                       "(dotted)."),
+            ("Note", "The figure's own supertitle states a conclusion. Read the lines, not the "
+                     "title."),
             ("Data", "Grader: gpt-4o-mini. The held-out twin of this figure exists at the same "
                      "path under claude-haiku-4-5."),
         ], ["arms/validity/figures/gpt-4o-mini/reward_hack_panel.png"]),
@@ -781,10 +823,11 @@ SECTIONS = [
             ("Y axis", "Questions per therapist turn, two counts: literal '?' MARKS (solid) vs "
                        "oracle-coded question ACTS (dashed)."),
             ("Series", "One line per counting method, per arm."),
-            ("Levels", "Marks run 1.4–2.3× above acts in three of four arms — a construct "
-                       "difference, not disagreement."),
-            ("Use", "Direction agrees everywhere; only GRPO K=0 flips the ordering, from "
-                    "iteration 5. Over-praise twin: overpraise_crosscheck.png."),
+            ("Levels", "Marks run roughly 1.4–2.3× above acts in three of the four arms; in "
+                       "GRPO K=0 the two series cross. Same denominator (therapist turns), "
+                       "different numerators."),
+            ("Also", "The over-praise twin of this crosscheck is overpraise_crosscheck.png, at "
+                     "the same path."),
         ], ["arms/validity/figures/gpt-4o-mini/question_rate_crosscheck.png"]),
         ("Exp3 · rubrics", "What the question rate pools",
          R("arms", "validity", "figures", PRIMARY, "question_decomposition.png"), [
@@ -794,8 +837,9 @@ SECTIONS = [
                     "FEWER turns; three stack MORE."),
             ("The exception", "GRPO K=0 collapses on both: asking 0.65 → 0.13, stacking flat "
                               "1.24 → 1.14. The one arm that stops asking."),
-            ("Watch", "GRPO K=5's headline RISES from iteration 5 (0.69 → 1.14) — stacking, not "
-                      "asking (share 0.40 → 0.50)."),
+            ("Watch", "GRPO K=5's headline RISES from iteration 5 (0.69 → 1.14) and BOTH parts "
+                      "move: asking share 0.40 → 0.50 (×1.26) and marks per asking turn "
+                      "1.65 → 2.16 (×1.31); 1.26 × 1.31 = 1.65."),
             ("Data", "Deterministic, no grader. GRPO K=5 has transcripts to iteration 8, scores "
                      "only to 5/6."),
         ], ["arms/validity/figures/gpt-4o-mini/question_decomposition.png"]),
@@ -825,9 +869,12 @@ SECTIONS = [
         ], ["arms/questionnaires/figures/gpt-4o-mini/pct_detail_grid.png"]),
         ("Exp3 · rubrics", "Outcomes split by patient cooperation level",
          R("arms", "heterogeneity", "figures", PRIMARY, "cooperation_level_all_metrics.png"), [
-            ("X axis", "Training iteration, per panel."),
-            ("Y axis", "The panel's rubric."),
-            ("Series", "One line per (arm × cooperation stratum). 32 personas per stratum."),
+            ("Layout", "Rows = rubric (nine), columns = arm (all four). Every panel has its "
+                       "own y scale."),
+            ("X axis", "Training iteration."),
+            ("Series", "THREE lines per panel, one per patient cooperation stratum: Cooperative, "
+                       "Warms up, Resistant — 32 personas each, disjoint, unpaired. Ribbons = "
+                       "95% bootstrap CI."),
             ("Data", "Grader: gpt-4o-mini. The same grid split by presenting problem is at "
                      "problem_all_metrics.png."),
         ], ["arms/heterogeneity/figures/gpt-4o-mini/cooperation_level_all_metrics.png"]),
@@ -855,9 +902,13 @@ bullets(s, y, [
      "direction, word-level and learn/unlearn drift across iterations, per arm."),
     ("Single-column variants.", "compute_trajectory_col.png and crossgen_col.png are the same "
      "data laid out for a paper column."),
+    ("Six figures are denser than a slide can carry.", "The two 36-row channel forests, the "
+     "40-state dumbbell, the judge-agreement scatter, the gain-retention grid and the 9×4 "
+     "cooperation grid have row labels smaller than this text at slide size. Open the PNG at full "
+     "size from the results tree when we reach them — the paths are on each slide."),
     ("Everything is regenerable.", "Exp3: python tools/render_results.py from Exp3_PTO_GRPO/eda/. "
      "Exp1 and Exp2: python make_exp1_exp2_figs.py from meetings/build/."),
-], size=12.5, gap=11)
+], size=12, gap=10)
 provenance(s, ["Exp3_PTO_GRPO/eda/results/INDEX.md maps every family to its notebook"])
 
 d.save(OUT, repo=REPO)

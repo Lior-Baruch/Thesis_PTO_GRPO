@@ -319,6 +319,15 @@ def exp2_own_instrument(df):
 
 
 def exp2_vs_base_forest(df):
+    """Paired Δ vs Base with a CI ON THE PAIRED DIFFERENCE.
+
+    ⚠ This drew `paired_delta ± 1.96 * sem` until 2026-08-24, where `sem` is the model state's OWN
+    unpaired SEM (sd/sqrt(n)). That ignores both the Base arm's variance and the persona-pairing
+    correlation, so the bar had nothing to do with the interval around the difference — and because
+    the point estimate and the significance marker ARE paired, three rows contradicted themselves
+    on the slide (two filled markers whose bars crossed zero, one hollow marker whose bar did not).
+    The paired SD is recovered exactly from the tabulated dz: SD(delta) = delta / dz.
+    """
     m = _e2(df, "Q1Q2_Mean")
     m = m[m.model_state != "Base"].copy()
     m["key"] = m["train_oracle"] + " K=" + m["K"].astype(int).astype(str) + " I" + \
@@ -326,22 +335,32 @@ def exp2_vs_base_forest(df):
     m = m.sort_values(["train_oracle", "K", "iteration"], ascending=[True, True, False])
     y = np.arange(len(m))
     cols = [ORACLE_C[o] for o in m["train_oracle"]]
-    fig, ax = plt.subplots(figsize=(9.6, 8.4))
+
+    d = m["paired_delta_vs_ref"].values.astype(float)
+    dz = m["dz_vs_ref"].values.astype(float)
+    n = m["n"].values.astype(float)
+    with np.errstate(divide="ignore", invalid="ignore"):
+        sd_paired = np.where(np.abs(dz) > 1e-9, d / dz, np.nan)
+    se_paired = sd_paired / np.sqrt(n)
+    lo, hi = d - 1.96 * se_paired, d + 1.96 * se_paired
+
+    fig, ax = plt.subplots(figsize=(11.0, 8.8))
     ax.axvline(0, color="black", lw=1)
-    d = m["paired_delta_vs_ref"].values
-    lo = d - 1.96 * m["sem"].values
-    hi = d + 1.96 * m["sem"].values
     for yi, lo_i, hi_i, ci in zip(y, lo, hi, cols):
-        ax.plot([lo_i, hi_i], [yi, yi], color=ci, lw=1.4, solid_capstyle="butt", zorder=2)
+        if np.isfinite(lo_i):
+            ax.plot([lo_i, hi_i], [yi, yi], color=ci, lw=1.5, solid_capstyle="butt", zorder=2)
     filled = m["wilcoxon_p_vs_ref"].values < 0.05
-    ax.scatter(d[filled], y[filled], color=np.array(cols)[filled], s=48, zorder=3)
+    ax.scatter(d[filled], y[filled], color=np.array(cols)[filled], s=54, zorder=3)
     ax.scatter(d[~filled], y[~filled], facecolors="white", edgecolors=np.array(cols)[~filled],
-               s=48, zorder=3, linewidths=1.5)
+               s=54, zorder=3, linewidths=1.5)
     ax.set_yticks(y)
-    ax.set_yticklabels(m["key"], fontsize=8)
-    ax.set_xlabel("Δ Q1+Q2 vs Base (paired on persona, n = 96, ±1.96 SEM)")
+    ax.set_yticklabels(m["key"], fontsize=10)
+    ax.tick_params(axis="x", labelsize=10)
+    ax.set_ylim(-0.8, len(m) - 0.2)
+    ax.set_xlabel("Δ Q1+Q2 vs Base — paired on persona, n = 96, 95% CI on the paired difference",
+                  fontsize=11)
     ax.set_title("Exp2 — every PTO model state against Base\n"
-                 "filled = Wilcoxon p < .05, hollow = not", fontsize=12, fontweight="bold")
+                 "filled = Wilcoxon p < .05, hollow = not", fontsize=13, fontweight="bold")
     fig.savefig(os.path.join(OUT2, "exp2_vs_base_forest.png"))
     plt.close(fig)
 

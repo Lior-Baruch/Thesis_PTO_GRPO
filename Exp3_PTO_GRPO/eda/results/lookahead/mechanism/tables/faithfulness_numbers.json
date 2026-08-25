@@ -11,7 +11,7 @@
   "curve.primary.PTO_LA0.iters1-10.nt12": {
    "value": {
     "agreement": 0.865,
-    "ci_lo": 0.851,
+    "ci_lo": 0.852,
     "ci_hi": 0.878,
     "n_pairs": 33323
    },
@@ -22,7 +22,7 @@
    "value": {
     "agreement": 0.825,
     "ci_lo": 0.802,
-    "ci_hi": 0.845,
+    "ci_hi": 0.844,
     "n_pairs": 12092
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=20",
@@ -31,8 +31,8 @@
   "curve.primary.PTO_LA0.iters1-10.nt30": {
    "value": {
     "agreement": 0.764,
-    "ci_lo": 0.716,
-    "ci_hi": 0.805,
+    "ci_lo": 0.718,
+    "ci_hi": 0.806,
     "n_pairs": 3085
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=30",
@@ -41,8 +41,8 @@
   "curve.primary.PTO_LA0.iters1-10.nt40": {
    "value": {
     "agreement": 0.758,
-    "ci_lo": 0.685,
-    "ci_hi": 0.82,
+    "ci_lo": 0.681,
+    "ci_hi": 0.817,
     "n_pairs": 1137
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=40",
@@ -51,8 +51,8 @@
   "curve.primary.PTO_LA0.iters1-10.ntall": {
    "value": {
     "agreement": 0.836,
-    "ci_lo": 0.817,
-    "ci_hi": 0.852,
+    "ci_lo": 0.819,
+    "ci_hi": 0.851,
     "n_pairs": 151215
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=all",
@@ -61,8 +61,8 @@
   "curve.primary.PTO_LA0.iters1-10.nt12-20": {
    "value": {
     "agreement": 0.855,
-    "ci_lo": 0.842,
-    "ci_hi": 0.869,
+    "ci_lo": 0.841,
+    "ci_hi": 0.868,
     "n_pairs": 110952
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=12-20",
@@ -71,8 +71,8 @@
   "curve.primary.PTO_LA0.iters1-10.nt22-34": {
    "value": {
     "agreement": 0.787,
-    "ci_lo": 0.754,
-    "ci_hi": 0.817,
+    "ci_lo": 0.758,
+    "ci_hi": 0.813,
     "n_pairs": 32843
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=22-34",
@@ -81,8 +81,8 @@
   "curve.primary.PTO_LA0.iters1-10.nt36-50": {
    "value": {
     "agreement": 0.757,
-    "ci_lo": 0.688,
-    "ci_hi": 0.815,
+    "ci_lo": 0.689,
+    "ci_hi": 0.811,
     "n_pairs": 7420
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA0, iters=1-10, n_turns=36-50",
@@ -91,7 +91,7 @@
   "curve.primary.PTO_LA5.iters1-10.nt12": {
    "value": {
     "agreement": 0.892,
-    "ci_lo": 0.882,
+    "ci_lo": 0.883,
     "ci_hi": 0.902,
     "n_pairs": 35412
    },
@@ -101,7 +101,7 @@
   "curve.primary.PTO_LA5.iters1-10.nt20": {
    "value": {
     "agreement": 0.852,
-    "ci_lo": 0.833,
+    "ci_lo": 0.834,
     "ci_hi": 0.868,
     "n_pairs": 17572
    },
@@ -111,7 +111,7 @@
   "curve.primary.PTO_LA5.iters1-10.nt30": {
    "value": {
     "agreement": 0.812,
-    "ci_lo": 0.783,
+    "ci_lo": 0.782,
     "ci_hi": 0.839,
     "n_pairs": 5184
    },
@@ -121,8 +121,8 @@
   "curve.primary.PTO_LA5.iters1-10.nt40": {
    "value": {
     "agreement": 0.804,
-    "ci_lo": 0.758,
-    "ci_hi": 0.847,
+    "ci_lo": 0.755,
+    "ci_hi": 0.849,
     "n_pairs": 1767
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=40",
@@ -131,8 +131,8 @@
   "curve.primary.PTO_LA5.iters1-10.ntall": {
    "value": {
     "agreement": 0.863,
-    "ci_lo": 0.85,
-    "ci_hi": 0.875,
+    "ci_lo": 0.849,
+    "ci_hi": 0.876,
     "n_pairs": 196409
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=all",
@@ -141,8 +141,8 @@
   "curve.primary.PTO_LA5.iters1-10.nt12-20": {
    "value": {
     "agreement": 0.879,
-    "ci_lo": 0.867,
-    "ci_hi": 0.888,
+    "ci_lo": 0.868,
+    "ci_hi": 0.889,
     "n_pairs": 134566
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=12-20",
@@ -151,8 +151,8 @@
   "curve.primary.PTO_LA5.iters1-10.nt22-34": {
    "value": {
     "agreement": 0.833,
-    "ci_lo": 0.811,
-    "ci_hi": 0.852,
+    "ci_lo": 0.81,
+    "ci_hi": 0.853,
     "n_pairs": 50106
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=22-34",
@@ -161,8 +161,8 @@
   "curve.primary.PTO_LA5.iters1-10.nt36-50": {
    "value": {
     "agreement": 0.813,
-    "ci_lo": 0.769,
-    "ci_hi": 0.851,
+    "ci_lo": 0.766,
+    "ci_hi": 0.852,
     "n_pairs": 11737
    },
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=PTO_LA5, iters=1-10, n_turns=36-50",
@@ -248,171 +248,91 @@
    "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-10, n_turns=36-50",
    "note": ""
   },
-  "curve.primary.GRPO_LA0.iters1-5.nt12": {
+  "curve.primary.GRPO_LA5.iters1-10.nt12": {
    "value": {
-    "agreement": 0.862,
-    "ci_lo": 0.845,
-    "ci_hi": 0.877,
-    "n_pairs": 20034
+    "agreement": 0.886,
+    "ci_lo": 0.875,
+    "ci_hi": 0.895,
+    "n_pairs": 40046
    },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=12",
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=12",
    "note": ""
   },
-  "curve.primary.GRPO_LA0.iters1-5.nt20": {
+  "curve.primary.GRPO_LA5.iters1-10.nt20": {
    "value": {
-    "agreement": 0.904,
-    "ci_lo": 0.888,
-    "ci_hi": 0.918,
-    "n_pairs": 11356
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=20",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA0.iters1-5.nt30": {
-   "value": {
-    "agreement": 0.911,
-    "ci_lo": 0.888,
-    "ci_hi": 0.93,
-    "n_pairs": 3742
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=30",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA0.iters1-5.nt40": {
-   "value": {
-    "agreement": 0.932,
-    "ci_lo": 0.902,
-    "ci_hi": 0.955,
-    "n_pairs": 1499
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=40",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA0.iters1-5.ntall": {
-   "value": {
-    "agreement": 0.897,
-    "ci_lo": 0.885,
-    "ci_hi": 0.907,
-    "n_pairs": 127649
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=all",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA0.iters1-5.nt12-20": {
-   "value": {
-    "agreement": 0.885,
-    "ci_lo": 0.872,
-    "ci_hi": 0.898,
-    "n_pairs": 80990
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=12-20",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA0.iters1-5.nt22-34": {
-   "value": {
-    "agreement": 0.912,
-    "ci_lo": 0.897,
-    "ci_hi": 0.925,
-    "n_pairs": 35565
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=22-34",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA0.iters1-5.nt36-50": {
-   "value": {
-    "agreement": 0.931,
-    "ci_lo": 0.907,
-    "ci_hi": 0.95,
-    "n_pairs": 11094
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA0, iters=1-5, n_turns=36-50",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA5.iters1-5.nt12": {
-   "value": {
-    "agreement": 0.876,
-    "ci_lo": 0.863,
-    "ci_hi": 0.888,
-    "n_pairs": 28056
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=12",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA5.iters1-5.nt20": {
-   "value": {
-    "agreement": 0.902,
-    "ci_lo": 0.888,
-    "ci_hi": 0.916,
-    "n_pairs": 15391
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=20",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA5.iters1-5.nt30": {
-   "value": {
-    "agreement": 0.907,
-    "ci_lo": 0.883,
-    "ci_hi": 0.926,
-    "n_pairs": 4249
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=30",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA5.iters1-5.nt40": {
-   "value": {
-    "agreement": 0.929,
+    "agreement": 0.909,
     "ci_lo": 0.898,
-    "ci_hi": 0.955,
-    "n_pairs": 1494
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=40",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA5.iters1-5.ntall": {
-   "value": {
-    "agreement": 0.899,
-    "ci_lo": 0.887,
-    "ci_hi": 0.909,
-    "n_pairs": 166374
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=all",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA5.iters1-5.nt12-20": {
-   "value": {
-    "agreement": 0.894,
-    "ci_lo": 0.882,
-    "ci_hi": 0.904,
-    "n_pairs": 112916
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=12-20",
-   "note": ""
-  },
-  "curve.primary.GRPO_LA5.iters1-5.nt22-34": {
-   "value": {
-    "agreement": 0.905,
-    "ci_lo": 0.888,
     "ci_hi": 0.919,
-    "n_pairs": 42432
+    "n_pairs": 23308
    },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=22-34",
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=20",
    "note": ""
   },
-  "curve.primary.GRPO_LA5.iters1-5.nt36-50": {
+  "curve.primary.GRPO_LA5.iters1-10.nt30": {
    "value": {
-    "agreement": 0.925,
-    "ci_lo": 0.897,
-    "ci_hi": 0.948,
-    "n_pairs": 11026
+    "agreement": 0.924,
+    "ci_lo": 0.908,
+    "ci_hi": 0.938,
+    "n_pairs": 7237
    },
-   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-5, n_turns=36-50",
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=30",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-10.nt40": {
+   "value": {
+    "agreement": 0.94,
+    "ci_lo": 0.916,
+    "ci_hi": 0.959,
+    "n_pairs": 2662
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=40",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-10.ntall": {
+   "value": {
+    "agreement": 0.909,
+    "ci_lo": 0.9,
+    "ci_hi": 0.917,
+    "n_pairs": 254645
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=all",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.901,
+    "ci_lo": 0.892,
+    "ci_hi": 0.909,
+    "n_pairs": 165253
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-10.nt22-34": {
+   "value": {
+    "agreement": 0.92,
+    "ci_lo": 0.907,
+    "ci_hi": 0.93,
+    "n_pairs": 69519
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=22-34",
+   "note": ""
+  },
+  "curve.primary.GRPO_LA5.iters1-10.nt36-50": {
+   "value": {
+    "agreement": 0.936,
+    "ci_lo": 0.917,
+    "ci_hi": 0.952,
+    "n_pairs": 19873
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=gpt-4o-mini, arm=GRPO_LA5, iters=1-10, n_turns=36-50",
    "note": ""
   },
   "curve.heldout.PTO_LA0.iters1-10.nt12": {
    "value": {
     "agreement": 0.804,
-    "ci_lo": 0.789,
-    "ci_hi": 0.819,
+    "ci_lo": 0.788,
+    "ci_hi": 0.818,
     "n_pairs": 33645
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=12",
@@ -422,7 +342,7 @@
    "value": {
     "agreement": 0.776,
     "ci_lo": 0.75,
-    "ci_hi": 0.8,
+    "ci_hi": 0.799,
     "n_pairs": 12029
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=20",
@@ -431,8 +351,8 @@
   "curve.heldout.PTO_LA0.iters1-10.nt30": {
    "value": {
     "agreement": 0.717,
-    "ci_lo": 0.666,
-    "ci_hi": 0.76,
+    "ci_lo": 0.668,
+    "ci_hi": 0.764,
     "n_pairs": 3026
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=30",
@@ -441,8 +361,8 @@
   "curve.heldout.PTO_LA0.iters1-10.nt40": {
    "value": {
     "agreement": 0.726,
-    "ci_lo": 0.658,
-    "ci_hi": 0.79,
+    "ci_lo": 0.653,
+    "ci_hi": 0.793,
     "n_pairs": 1107
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=40",
@@ -451,7 +371,7 @@
   "curve.heldout.PTO_LA0.iters1-10.ntall": {
    "value": {
     "agreement": 0.783,
-    "ci_lo": 0.764,
+    "ci_lo": 0.766,
     "ci_hi": 0.801,
     "n_pairs": 151039
    },
@@ -461,7 +381,7 @@
   "curve.heldout.PTO_LA0.iters1-10.nt12-20": {
    "value": {
     "agreement": 0.797,
-    "ci_lo": 0.782,
+    "ci_lo": 0.781,
     "ci_hi": 0.812,
     "n_pairs": 111431
    },
@@ -471,8 +391,8 @@
   "curve.heldout.PTO_LA0.iters1-10.nt22-34": {
    "value": {
     "agreement": 0.748,
-    "ci_lo": 0.712,
-    "ci_hi": 0.778,
+    "ci_lo": 0.715,
+    "ci_hi": 0.779,
     "n_pairs": 32383
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=22-34",
@@ -481,8 +401,8 @@
   "curve.heldout.PTO_LA0.iters1-10.nt36-50": {
    "value": {
     "agreement": 0.719,
-    "ci_lo": 0.649,
-    "ci_hi": 0.782,
+    "ci_lo": 0.648,
+    "ci_hi": 0.781,
     "n_pairs": 7225
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA0, iters=1-10, n_turns=36-50",
@@ -491,7 +411,7 @@
   "curve.heldout.PTO_LA5.iters1-10.nt12": {
    "value": {
     "agreement": 0.817,
-    "ci_lo": 0.8,
+    "ci_lo": 0.803,
     "ci_hi": 0.832,
     "n_pairs": 35656
    },
@@ -501,8 +421,8 @@
   "curve.heldout.PTO_LA5.iters1-10.nt20": {
    "value": {
     "agreement": 0.78,
-    "ci_lo": 0.758,
-    "ci_hi": 0.801,
+    "ci_lo": 0.76,
+    "ci_hi": 0.799,
     "n_pairs": 17555
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=20",
@@ -511,8 +431,8 @@
   "curve.heldout.PTO_LA5.iters1-10.nt30": {
    "value": {
     "agreement": 0.77,
-    "ci_lo": 0.734,
-    "ci_hi": 0.8,
+    "ci_lo": 0.735,
+    "ci_hi": 0.802,
     "n_pairs": 5147
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=30",
@@ -521,7 +441,7 @@
   "curve.heldout.PTO_LA5.iters1-10.nt40": {
    "value": {
     "agreement": 0.775,
-    "ci_lo": 0.728,
+    "ci_lo": 0.724,
     "ci_hi": 0.822,
     "n_pairs": 1780
    },
@@ -531,7 +451,7 @@
   "curve.heldout.PTO_LA5.iters1-10.ntall": {
    "value": {
     "agreement": 0.794,
-    "ci_lo": 0.777,
+    "ci_lo": 0.779,
     "ci_hi": 0.811,
     "n_pairs": 196764
    },
@@ -541,7 +461,7 @@
   "curve.heldout.PTO_LA5.iters1-10.nt12-20": {
    "value": {
     "agreement": 0.802,
-    "ci_lo": 0.785,
+    "ci_lo": 0.788,
     "ci_hi": 0.817,
     "n_pairs": 135091
    },
@@ -551,8 +471,8 @@
   "curve.heldout.PTO_LA5.iters1-10.nt22-34": {
    "value": {
     "agreement": 0.777,
-    "ci_lo": 0.753,
-    "ci_hi": 0.801,
+    "ci_lo": 0.752,
+    "ci_hi": 0.8,
     "n_pairs": 49871
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=22-34",
@@ -561,8 +481,8 @@
   "curve.heldout.PTO_LA5.iters1-10.nt36-50": {
    "value": {
     "agreement": 0.777,
-    "ci_lo": 0.731,
-    "ci_hi": 0.819,
+    "ci_lo": 0.73,
+    "ci_hi": 0.818,
     "n_pairs": 11802
    },
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=PTO_LA5, iters=1-10, n_turns=36-50",
@@ -648,164 +568,84 @@
    "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-10, n_turns=36-50",
    "note": ""
   },
-  "curve.heldout.GRPO_LA0.iters1-5.nt12": {
+  "curve.heldout.GRPO_LA5.iters1-10.nt12": {
    "value": {
-    "agreement": 0.784,
-    "ci_lo": 0.763,
-    "ci_hi": 0.807,
-    "n_pairs": 20171
+    "agreement": 0.799,
+    "ci_lo": 0.782,
+    "ci_hi": 0.813,
+    "n_pairs": 40763
    },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=12",
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=12",
    "note": ""
   },
-  "curve.heldout.GRPO_LA0.iters1-5.nt20": {
+  "curve.heldout.GRPO_LA5.iters1-10.nt20": {
    "value": {
     "agreement": 0.798,
-    "ci_lo": 0.774,
-    "ci_hi": 0.823,
-    "n_pairs": 11404
+    "ci_lo": 0.78,
+    "ci_hi": 0.818,
+    "n_pairs": 23678
    },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=20",
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=20",
    "note": ""
   },
-  "curve.heldout.GRPO_LA0.iters1-5.nt30": {
+  "curve.heldout.GRPO_LA5.iters1-10.nt30": {
    "value": {
-    "agreement": 0.783,
-    "ci_lo": 0.744,
-    "ci_hi": 0.816,
-    "n_pairs": 3744
+    "agreement": 0.79,
+    "ci_lo": 0.762,
+    "ci_hi": 0.818,
+    "n_pairs": 7341
    },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=30",
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=30",
    "note": ""
   },
-  "curve.heldout.GRPO_LA0.iters1-5.nt40": {
+  "curve.heldout.GRPO_LA5.iters1-10.nt40": {
    "value": {
-    "agreement": 0.769,
-    "ci_lo": 0.703,
-    "ci_hi": 0.824,
-    "n_pairs": 1499
+    "agreement": 0.788,
+    "ci_lo": 0.746,
+    "ci_hi": 0.83,
+    "n_pairs": 2769
    },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=40",
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=40",
    "note": ""
   },
-  "curve.heldout.GRPO_LA0.iters1-5.ntall": {
+  "curve.heldout.GRPO_LA5.iters1-10.ntall": {
    "value": {
-    "agreement": 0.793,
-    "ci_lo": 0.773,
-    "ci_hi": 0.814,
-    "n_pairs": 128176
+    "agreement": 0.8,
+    "ci_lo": 0.784,
+    "ci_hi": 0.817,
+    "n_pairs": 259262
    },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=all",
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=all",
    "note": ""
   },
-  "curve.heldout.GRPO_LA0.iters1-5.nt12-20": {
+  "curve.heldout.GRPO_LA5.iters1-10.nt12-20": {
+   "value": {
+    "agreement": 0.803,
+    "ci_lo": 0.787,
+    "ci_hi": 0.819,
+    "n_pairs": 167985
+   },
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=12-20",
+   "note": ""
+  },
+  "curve.heldout.GRPO_LA5.iters1-10.nt22-34": {
    "value": {
     "agreement": 0.797,
-    "ci_lo": 0.777,
-    "ci_hi": 0.817,
-    "n_pairs": 81459
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=12-20",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA0.iters1-5.nt22-34": {
-   "value": {
-    "agreement": 0.793,
-    "ci_lo": 0.764,
+    "ci_lo": 0.776,
     "ci_hi": 0.819,
-    "n_pairs": 35636
+    "n_pairs": 70664
    },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=22-34",
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=22-34",
    "note": ""
   },
-  "curve.heldout.GRPO_LA0.iters1-5.nt36-50": {
+  "curve.heldout.GRPO_LA5.iters1-10.nt36-50": {
    "value": {
-    "agreement": 0.766,
-    "ci_lo": 0.707,
-    "ci_hi": 0.814,
-    "n_pairs": 11081
+    "agreement": 0.787,
+    "ci_lo": 0.747,
+    "ci_hi": 0.825,
+    "n_pairs": 20613
    },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA0, iters=1-5, n_turns=36-50",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.nt12": {
-   "value": {
-    "agreement": 0.812,
-    "ci_lo": 0.796,
-    "ci_hi": 0.827,
-    "n_pairs": 28372
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=12",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.nt20": {
-   "value": {
-    "agreement": 0.82,
-    "ci_lo": 0.799,
-    "ci_hi": 0.839,
-    "n_pairs": 15483
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=20",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.nt30": {
-   "value": {
-    "agreement": 0.813,
-    "ci_lo": 0.781,
-    "ci_hi": 0.841,
-    "n_pairs": 4247
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=30",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.nt40": {
-   "value": {
-    "agreement": 0.821,
-    "ci_lo": 0.767,
-    "ci_hi": 0.866,
-    "n_pairs": 1487
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=40",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.ntall": {
-   "value": {
-    "agreement": 0.819,
-    "ci_lo": 0.801,
-    "ci_hi": 0.835,
-    "n_pairs": 167324
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=all",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.nt12-20": {
-   "value": {
-    "agreement": 0.819,
-    "ci_lo": 0.803,
-    "ci_hi": 0.835,
-    "n_pairs": 113940
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=12-20",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.nt22-34": {
-   "value": {
-    "agreement": 0.817,
-    "ci_lo": 0.793,
-    "ci_hi": 0.839,
-    "n_pairs": 42437
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=22-34",
-   "note": ""
-  },
-  "curve.heldout.GRPO_LA5.iters1-5.nt36-50": {
-   "value": {
-    "agreement": 0.815,
-    "ci_lo": 0.767,
-    "ci_hi": 0.858,
-    "n_pairs": 10947
-   },
-   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-5, n_turns=36-50",
+   "source": "tables/faithfulness_curve_long.md row judge=claude-haiku-4-5, arm=GRPO_LA5, iters=1-10, n_turns=36-50",
    "note": ""
   },
   "k_by_iter.primary.PTO.train_iter1": {
@@ -813,8 +653,8 @@
     "agr_K0": 0.809,
     "agr_K5": 0.805,
     "delta_K0_minus_K5": 0.004,
-    "d_lo": -0.071,
-    "d_hi": 0.08
+    "d_lo": -0.069,
+    "d_hi": 0.073
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=1",
    "note": ""
@@ -824,8 +664,8 @@
     "agr_K0": 0.809,
     "agr_K5": 0.853,
     "delta_K0_minus_K5": -0.043,
-    "d_lo": -0.121,
-    "d_hi": 0.024
+    "d_lo": -0.119,
+    "d_hi": 0.027
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=2",
    "note": ""
@@ -835,8 +675,8 @@
     "agr_K0": 0.808,
     "agr_K5": 0.821,
     "delta_K0_minus_K5": -0.014,
-    "d_lo": -0.078,
-    "d_hi": 0.051
+    "d_lo": -0.076,
+    "d_hi": 0.057
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=3",
    "note": ""
@@ -846,7 +686,7 @@
     "agr_K0": 0.821,
     "agr_K5": 0.866,
     "delta_K0_minus_K5": -0.044,
-    "d_lo": -0.096,
+    "d_lo": -0.104,
     "d_hi": 0.01
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=4",
@@ -857,8 +697,8 @@
     "agr_K0": 0.839,
     "agr_K5": 0.892,
     "delta_K0_minus_K5": -0.053,
-    "d_lo": -0.103,
-    "d_hi": -0.003
+    "d_lo": -0.105,
+    "d_hi": 0.0
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=5",
    "note": ""
@@ -868,8 +708,8 @@
     "agr_K0": 0.868,
     "agr_K5": 0.888,
     "delta_K0_minus_K5": -0.02,
-    "d_lo": -0.072,
-    "d_hi": 0.027
+    "d_lo": -0.066,
+    "d_hi": 0.031
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=6",
    "note": ""
@@ -880,7 +720,7 @@
     "agr_K5": 0.867,
     "delta_K0_minus_K5": 0.011,
     "d_lo": -0.034,
-    "d_hi": 0.059
+    "d_hi": 0.058
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=7",
    "note": ""
@@ -890,7 +730,7 @@
     "agr_K0": 0.869,
     "agr_K5": 0.899,
     "delta_K0_minus_K5": -0.031,
-    "d_lo": -0.086,
+    "d_lo": -0.083,
     "d_hi": 0.02
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=8",
@@ -902,7 +742,7 @@
     "agr_K5": 0.879,
     "delta_K0_minus_K5": -0.011,
     "d_lo": -0.07,
-    "d_hi": 0.046
+    "d_hi": 0.043
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=9",
    "note": ""
@@ -912,8 +752,8 @@
     "agr_K0": 0.877,
     "agr_K5": 0.895,
     "delta_K0_minus_K5": -0.018,
-    "d_lo": -0.078,
-    "d_hi": 0.04
+    "d_lo": -0.079,
+    "d_hi": 0.048
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=PTO, train_iter=10",
    "note": ""
@@ -998,12 +838,34 @@
   "k_by_iter.primary.GRPO.train_iter8": {
    "value": {
     "agr_K0": 0.836,
-    "agr_K5": null,
-    "delta_K0_minus_K5": null,
-    "d_lo": null,
-    "d_hi": null
+    "agr_K5": 0.92,
+    "delta_K0_minus_K5": -0.084,
+    "d_lo": -0.137,
+    "d_hi": -0.036
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=8",
+   "note": ""
+  },
+  "k_by_iter.primary.GRPO.train_iter9": {
+   "value": {
+    "agr_K0": 0.879,
+    "agr_K5": 0.928,
+    "delta_K0_minus_K5": -0.048,
+    "d_lo": -0.095,
+    "d_hi": -0.007
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=9",
+   "note": ""
+  },
+  "k_by_iter.primary.GRPO.train_iter10": {
+   "value": {
+    "agr_K0": 0.829,
+    "agr_K5": 0.934,
+    "delta_K0_minus_K5": -0.105,
+    "d_lo": -0.147,
+    "d_hi": -0.065
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=gpt-4o-mini, method=GRPO, train_iter=10",
    "note": ""
   },
   "k_by_iter.heldout.PTO.train_iter1": {
@@ -1011,8 +873,8 @@
     "agr_K0": 0.745,
     "agr_K5": 0.738,
     "delta_K0_minus_K5": 0.007,
-    "d_lo": -0.081,
-    "d_hi": 0.094
+    "d_lo": -0.076,
+    "d_hi": 0.092
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=1",
    "note": ""
@@ -1023,7 +885,7 @@
     "agr_K5": 0.812,
     "delta_K0_minus_K5": -0.05,
     "d_lo": -0.136,
-    "d_hi": 0.032
+    "d_hi": 0.028
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=2",
    "note": ""
@@ -1033,8 +895,8 @@
     "agr_K0": 0.799,
     "agr_K5": 0.75,
     "delta_K0_minus_K5": 0.049,
-    "d_lo": -0.015,
-    "d_hi": 0.114
+    "d_lo": -0.013,
+    "d_hi": 0.116
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=3",
    "note": ""
@@ -1044,8 +906,8 @@
     "agr_K0": 0.787,
     "agr_K5": 0.791,
     "delta_K0_minus_K5": -0.005,
-    "d_lo": -0.078,
-    "d_hi": 0.07
+    "d_lo": -0.079,
+    "d_hi": 0.063
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=4",
    "note": ""
@@ -1055,8 +917,8 @@
     "agr_K0": 0.774,
     "agr_K5": 0.809,
     "delta_K0_minus_K5": -0.035,
-    "d_lo": -0.093,
-    "d_hi": 0.03
+    "d_lo": -0.1,
+    "d_hi": 0.027
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=5",
    "note": ""
@@ -1066,7 +928,7 @@
     "agr_K0": 0.796,
     "agr_K5": 0.854,
     "delta_K0_minus_K5": -0.058,
-    "d_lo": -0.12,
+    "d_lo": -0.112,
     "d_hi": -0.002
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=6",
@@ -1077,8 +939,8 @@
     "agr_K0": 0.823,
     "agr_K5": 0.808,
     "delta_K0_minus_K5": 0.014,
-    "d_lo": -0.045,
-    "d_hi": 0.077
+    "d_lo": -0.044,
+    "d_hi": 0.072
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=7",
    "note": ""
@@ -1088,8 +950,8 @@
     "agr_K0": 0.803,
     "agr_K5": 0.829,
     "delta_K0_minus_K5": -0.026,
-    "d_lo": -0.095,
-    "d_hi": 0.041
+    "d_lo": -0.096,
+    "d_hi": 0.045
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=8",
    "note": ""
@@ -1099,7 +961,7 @@
     "agr_K0": 0.775,
     "agr_K5": 0.807,
     "delta_K0_minus_K5": -0.032,
-    "d_lo": -0.111,
+    "d_lo": -0.11,
     "d_hi": 0.044
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=9",
@@ -1110,8 +972,8 @@
     "agr_K0": 0.816,
     "agr_K5": 0.783,
     "delta_K0_minus_K5": 0.033,
-    "d_lo": -0.041,
-    "d_hi": 0.101
+    "d_lo": -0.037,
+    "d_hi": 0.106
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=PTO, train_iter=10",
    "note": ""
@@ -1196,19 +1058,41 @@
   "k_by_iter.heldout.GRPO.train_iter8": {
    "value": {
     "agr_K0": 0.712,
-    "agr_K5": null,
-    "delta_K0_minus_K5": null,
-    "d_lo": null,
-    "d_hi": null
+    "agr_K5": 0.799,
+    "delta_K0_minus_K5": -0.087,
+    "d_lo": -0.178,
+    "d_hi": 0.001
    },
    "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=8",
+   "note": ""
+  },
+  "k_by_iter.heldout.GRPO.train_iter9": {
+   "value": {
+    "agr_K0": 0.824,
+    "agr_K5": 0.802,
+    "delta_K0_minus_K5": 0.021,
+    "d_lo": -0.044,
+    "d_hi": 0.085
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=9",
+   "note": ""
+  },
+  "k_by_iter.heldout.GRPO.train_iter10": {
+   "value": {
+    "agr_K0": 0.699,
+    "agr_K5": 0.708,
+    "delta_K0_minus_K5": -0.009,
+    "d_lo": -0.101,
+    "d_hi": 0.077
+   },
+   "source": "tables/faithfulness_k_by_iter.md row judge=claude-haiku-4-5, method=GRPO, train_iter=10",
    "note": ""
   },
   "by_iter.PTO_LA0.train_iter1": {
    "value": {
     "agreement": 0.809,
-    "ci_lo": 0.754,
-    "ci_hi": 0.855,
+    "ci_lo": 0.755,
+    "ci_hi": 0.853,
     "n_pairs": 26808,
     "n_convs": 87,
     "agreement_heldout": 0.745
@@ -1220,7 +1104,7 @@
    "value": {
     "agreement": 0.809,
     "ci_lo": 0.741,
-    "ci_hi": 0.868,
+    "ci_hi": 0.866,
     "n_pairs": 19334,
     "n_convs": 84,
     "agreement_heldout": 0.763
@@ -1231,8 +1115,8 @@
   "by_iter.PTO_LA0.train_iter3": {
    "value": {
     "agreement": 0.808,
-    "ci_lo": 0.756,
-    "ci_hi": 0.852,
+    "ci_lo": 0.757,
+    "ci_hi": 0.855,
     "n_pairs": 20935,
     "n_convs": 87,
     "agreement_heldout": 0.799
@@ -1243,7 +1127,7 @@
   "by_iter.PTO_LA0.train_iter4": {
    "value": {
     "agreement": 0.821,
-    "ci_lo": 0.778,
+    "ci_lo": 0.776,
     "ci_hi": 0.863,
     "n_pairs": 14589,
     "n_convs": 76,
@@ -1255,8 +1139,8 @@
   "by_iter.PTO_LA0.train_iter5": {
    "value": {
     "agreement": 0.839,
-    "ci_lo": 0.794,
-    "ci_hi": 0.877,
+    "ci_lo": 0.797,
+    "ci_hi": 0.88,
     "n_pairs": 14814,
     "n_convs": 83,
     "agreement_heldout": 0.774
@@ -1267,8 +1151,8 @@
   "by_iter.PTO_LA0.train_iter6": {
    "value": {
     "agreement": 0.868,
-    "ci_lo": 0.827,
-    "ci_hi": 0.903,
+    "ci_lo": 0.83,
+    "ci_hi": 0.901,
     "n_pairs": 13882,
     "n_convs": 84,
     "agreement_heldout": 0.796
@@ -1280,7 +1164,7 @@
    "value": {
     "agreement": 0.877,
     "ci_lo": 0.846,
-    "ci_hi": 0.905,
+    "ci_hi": 0.904,
     "n_pairs": 11541,
     "n_convs": 85,
     "agreement_heldout": 0.823
@@ -1291,8 +1175,8 @@
   "by_iter.PTO_LA0.train_iter8": {
    "value": {
     "agreement": 0.869,
-    "ci_lo": 0.822,
-    "ci_hi": 0.909,
+    "ci_lo": 0.821,
+    "ci_hi": 0.906,
     "n_pairs": 11120,
     "n_convs": 84,
     "agreement_heldout": 0.803
@@ -1303,8 +1187,8 @@
   "by_iter.PTO_LA0.train_iter9": {
    "value": {
     "agreement": 0.868,
-    "ci_lo": 0.826,
-    "ci_hi": 0.902,
+    "ci_lo": 0.825,
+    "ci_hi": 0.9,
     "n_pairs": 9637,
     "n_convs": 88,
     "agreement_heldout": 0.775
@@ -1316,7 +1200,7 @@
    "value": {
     "agreement": 0.877,
     "ci_lo": 0.829,
-    "ci_hi": 0.922,
+    "ci_hi": 0.923,
     "n_pairs": 8555,
     "n_convs": 82,
     "agreement_heldout": 0.816
@@ -1327,8 +1211,8 @@
   "by_iter.PTO_LA5.train_iter1": {
    "value": {
     "agreement": 0.805,
-    "ci_lo": 0.751,
-    "ci_hi": 0.852,
+    "ci_lo": 0.755,
+    "ci_hi": 0.851,
     "n_pairs": 25256,
     "n_convs": 85,
     "agreement_heldout": 0.738
@@ -1339,7 +1223,7 @@
   "by_iter.PTO_LA5.train_iter2": {
    "value": {
     "agreement": 0.853,
-    "ci_lo": 0.81,
+    "ci_lo": 0.807,
     "ci_hi": 0.889,
     "n_pairs": 21883,
     "n_convs": 83,
@@ -1351,8 +1235,8 @@
   "by_iter.PTO_LA5.train_iter3": {
    "value": {
     "agreement": 0.821,
-    "ci_lo": 0.778,
-    "ci_hi": 0.863,
+    "ci_lo": 0.771,
+    "ci_hi": 0.867,
     "n_pairs": 22832,
     "n_convs": 87,
     "agreement_heldout": 0.75
@@ -1363,8 +1247,8 @@
   "by_iter.PTO_LA5.train_iter4": {
    "value": {
     "agreement": 0.866,
-    "ci_lo": 0.827,
-    "ci_hi": 0.898,
+    "ci_lo": 0.829,
+    "ci_hi": 0.899,
     "n_pairs": 15443,
     "n_convs": 85,
     "agreement_heldout": 0.791
@@ -1387,7 +1271,7 @@
   "by_iter.PTO_LA5.train_iter6": {
    "value": {
     "agreement": 0.888,
-    "ci_lo": 0.854,
+    "ci_lo": 0.853,
     "ci_hi": 0.918,
     "n_pairs": 16236,
     "n_convs": 88,
@@ -1399,7 +1283,7 @@
   "by_iter.PTO_LA5.train_iter7": {
    "value": {
     "agreement": 0.867,
-    "ci_lo": 0.829,
+    "ci_lo": 0.828,
     "ci_hi": 0.9,
     "n_pairs": 20981,
     "n_convs": 91,
@@ -1411,8 +1295,8 @@
   "by_iter.PTO_LA5.train_iter8": {
    "value": {
     "agreement": 0.899,
-    "ci_lo": 0.866,
-    "ci_hi": 0.928,
+    "ci_lo": 0.867,
+    "ci_hi": 0.926,
     "n_pairs": 17762,
     "n_convs": 87,
     "agreement_heldout": 0.829
@@ -1423,8 +1307,8 @@
   "by_iter.PTO_LA5.train_iter9": {
    "value": {
     "agreement": 0.879,
-    "ci_lo": 0.836,
-    "ci_hi": 0.917,
+    "ci_lo": 0.831,
+    "ci_hi": 0.918,
     "n_pairs": 18654,
     "n_convs": 92,
     "agreement_heldout": 0.807
@@ -1435,8 +1319,8 @@
   "by_iter.PTO_LA5.train_iter10": {
    "value": {
     "agreement": 0.895,
-    "ci_lo": 0.856,
-    "ci_hi": 0.933,
+    "ci_lo": 0.852,
+    "ci_hi": 0.931,
     "n_pairs": 23773,
     "n_convs": 90,
     "agreement_heldout": 0.783
@@ -1650,14 +1534,38 @@
   },
   "by_iter.GRPO_LA5.train_iter8": {
    "value": {
-    "agreement": null,
-    "ci_lo": null,
-    "ci_hi": null,
-    "n_pairs": 0,
-    "n_convs": 0,
-    "agreement_heldout": null
+    "agreement": 0.92,
+    "ci_lo": 0.901,
+    "ci_hi": 0.939,
+    "n_pairs": 25957,
+    "n_convs": 96,
+    "agreement_heldout": 0.799
    },
    "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=8",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.train_iter9": {
+   "value": {
+    "agreement": 0.928,
+    "ci_lo": 0.905,
+    "ci_hi": 0.949,
+    "n_pairs": 30364,
+    "n_convs": 96,
+    "agreement_heldout": 0.802
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=9",
+   "note": ""
+  },
+  "by_iter.GRPO_LA5.train_iter10": {
+   "value": {
+    "agreement": 0.934,
+    "ci_lo": 0.913,
+    "ci_hi": 0.952,
+    "n_pairs": 31950,
+    "n_convs": 96,
+    "agreement_heldout": 0.708
+   },
+   "source": "tables/faithfulness_curve_by_iter.md row arm=GRPO_LA5, train_iter=10",
    "note": ""
   },
   "k_summary.primary.PTO.train_iter_1": {
@@ -1666,11 +1574,11 @@
     "agr_K0": 0.809,
     "agr_K5": 0.805,
     "delta_pooled": 0.004,
-    "dp_lo": -0.071,
-    "dp_hi": 0.08,
+    "dp_lo": -0.069,
+    "dp_hi": 0.073,
     "delta_iter_mean": 0.004,
-    "di_lo": -0.071,
-    "di_hi": 0.08,
+    "di_lo": -0.069,
+    "di_hi": 0.073,
     "n_iters": 1,
     "iters_K5_more_faithful": 0,
     "wilcoxon_over_iters_p": null,
@@ -1686,11 +1594,11 @@
     "agr_K0": 0.815,
     "agr_K5": 0.841,
     "delta_pooled": -0.025,
-    "dp_lo": -0.058,
-    "dp_hi": 0.005,
+    "dp_lo": -0.056,
+    "dp_hi": 0.006,
     "delta_iter_mean": -0.03,
     "di_lo": -0.059,
-    "di_hi": -0.001,
+    "di_hi": -0.003,
     "n_iters": 5,
     "iters_K5_more_faithful": 4,
     "wilcoxon_over_iters_p": 0.125,
@@ -1706,10 +1614,10 @@
     "agr_K0": 0.836,
     "agr_K5": 0.863,
     "delta_pooled": -0.027,
-    "dp_lo": -0.049,
-    "dp_hi": -0.006,
+    "dp_lo": -0.048,
+    "dp_hi": -0.007,
     "delta_iter_mean": -0.022,
-    "di_lo": -0.04,
+    "di_lo": -0.041,
     "di_hi": -0.003,
     "n_iters": 10,
     "iters_K5_more_faithful": 8,
@@ -1762,20 +1670,20 @@
   },
   "k_summary.primary.GRPO.matched_iters": {
    "value": {
-    "train_iters": "1,2,3,4,5,6,7,8",
-    "agr_K0": 0.882,
-    "agr_K5": 0.899,
-    "delta_pooled": -0.017,
-    "dp_lo": -0.033,
-    "dp_hi": 0.001,
-    "delta_iter_mean": -0.012,
-    "di_lo": -0.028,
-    "di_hi": 0.004,
-    "n_iters": 7,
-    "iters_K5_more_faithful": 4,
-    "wilcoxon_over_iters_p": 0.5781,
-    "pairs_K0": 209690,
-    "pairs_K5": 166374
+    "train_iters": "1,2,3,4,5,6,7,8,9,10",
+    "agr_K0": 0.873,
+    "agr_K5": 0.909,
+    "delta_pooled": -0.036,
+    "dp_lo": -0.051,
+    "dp_hi": -0.021,
+    "delta_iter_mean": -0.032,
+    "di_lo": -0.047,
+    "di_hi": -0.018,
+    "n_iters": 10,
+    "iters_K5_more_faithful": 7,
+    "wilcoxon_over_iters_p": 0.084,
+    "pairs_K0": 271715,
+    "pairs_K5": 254645
    },
    "source": "tables/faithfulness_k_summary.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters",
    "note": ""
@@ -1786,11 +1694,11 @@
     "agr_K0": 0.745,
     "agr_K5": 0.738,
     "delta_pooled": 0.007,
-    "dp_lo": -0.081,
-    "dp_hi": 0.094,
+    "dp_lo": -0.076,
+    "dp_hi": 0.092,
     "delta_iter_mean": 0.007,
-    "di_lo": -0.081,
-    "di_hi": 0.094,
+    "di_lo": -0.076,
+    "di_hi": 0.092,
     "n_iters": 1,
     "iters_K5_more_faithful": 0,
     "wilcoxon_over_iters_p": null,
@@ -1806,11 +1714,11 @@
     "agr_K0": 0.771,
     "agr_K5": 0.775,
     "delta_pooled": -0.004,
-    "dp_lo": -0.04,
-    "dp_hi": 0.03,
+    "dp_lo": -0.037,
+    "dp_hi": 0.032,
     "delta_iter_mean": -0.007,
-    "di_lo": -0.04,
-    "di_hi": 0.026,
+    "di_lo": -0.038,
+    "di_hi": 0.028,
     "n_iters": 5,
     "iters_K5_more_faithful": 3,
     "wilcoxon_over_iters_p": 0.8125,
@@ -1826,11 +1734,11 @@
     "agr_K0": 0.783,
     "agr_K5": 0.794,
     "delta_pooled": -0.012,
-    "dp_lo": -0.037,
-    "dp_hi": 0.012,
+    "dp_lo": -0.036,
+    "dp_hi": 0.013,
     "delta_iter_mean": -0.01,
     "di_lo": -0.033,
-    "di_hi": 0.011,
+    "di_hi": 0.013,
     "n_iters": 10,
     "iters_K5_more_faithful": 6,
     "wilcoxon_over_iters_p": 0.4316,
@@ -1882,20 +1790,20 @@
   },
   "k_summary.heldout.GRPO.matched_iters": {
    "value": {
-    "train_iters": "1,2,3,4,5,6,7,8",
-    "agr_K0": 0.75,
-    "agr_K5": 0.819,
-    "delta_pooled": -0.068,
-    "dp_lo": -0.094,
-    "dp_hi": -0.043,
-    "delta_iter_mean": -0.058,
-    "di_lo": -0.081,
-    "di_hi": -0.033,
-    "n_iters": 7,
-    "iters_K5_more_faithful": 5,
-    "wilcoxon_over_iters_p": 0.2969,
-    "pairs_K0": 210627,
-    "pairs_K5": 167324
+    "train_iters": "1,2,3,4,5,6,7,8,9,10",
+    "agr_K0": 0.747,
+    "agr_K5": 0.8,
+    "delta_pooled": -0.053,
+    "dp_lo": -0.078,
+    "dp_hi": -0.03,
+    "delta_iter_mean": -0.048,
+    "di_lo": -0.07,
+    "di_hi": -0.026,
+    "n_iters": 10,
+    "iters_K5_more_faithful": 7,
+    "wilcoxon_over_iters_p": 0.1934,
+    "pairs_K0": 271969,
+    "pairs_K5": 259262
    },
    "source": "tables/faithfulness_k_summary.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters",
    "note": ""
@@ -1959,8 +1867,8 @@
    "value": {
     "n_bins": 20,
     "bins_K5_more_faithful": 20,
-    "mean_delta": -0.021,
-    "median_delta": -0.02,
+    "mean_delta": -0.047,
+    "median_delta": -0.048,
     "wilcoxon_p": 0.0
    },
    "source": "tables/faithfulness_matched_policy_tests.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters",
@@ -2025,8 +1933,8 @@
    "value": {
     "n_bins": 20,
     "bins_K5_more_faithful": 20,
-    "mean_delta": -0.089,
-    "median_delta": -0.091,
+    "mean_delta": -0.064,
+    "median_delta": -0.069,
     "wilcoxon_p": 0.0
    },
    "source": "tables/faithfulness_matched_policy_tests.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters",
@@ -2037,8 +1945,8 @@
     "agr_K0": 0.838,
     "agr_K5": 0.831,
     "delta_K0_minus_K5": 0.007,
-    "d_lo": -0.055,
-    "d_hi": 0.065,
+    "d_lo": -0.053,
+    "d_hi": 0.068,
     "pairs_K0": 3656,
     "pairs_K5": 3474
    },
@@ -2050,8 +1958,8 @@
     "agr_K0": 0.832,
     "agr_K5": 0.816,
     "delta_K0_minus_K5": 0.016,
-    "d_lo": -0.048,
-    "d_hi": 0.079,
+    "d_lo": -0.045,
+    "d_hi": 0.077,
     "pairs_K0": 15661,
     "pairs_K5": 14755
    },
@@ -2063,8 +1971,8 @@
     "agr_K0": 0.78,
     "agr_K5": 0.792,
     "delta_K0_minus_K5": -0.012,
-    "d_lo": -0.114,
-    "d_hi": 0.087,
+    "d_lo": -0.117,
+    "d_hi": 0.074,
     "pairs_K0": 8029,
     "pairs_K5": 9185
    },
@@ -2076,8 +1984,8 @@
     "agr_K0": 0.771,
     "agr_K5": 0.774,
     "delta_K0_minus_K5": -0.003,
-    "d_lo": -0.169,
-    "d_hi": 0.185,
+    "d_lo": -0.182,
+    "d_hi": 0.183,
     "pairs_K0": 3118,
     "pairs_K5": 1316
    },
@@ -2089,8 +1997,8 @@
     "agr_K0": 0.809,
     "agr_K5": 0.805,
     "delta_K0_minus_K5": 0.004,
-    "d_lo": -0.071,
-    "d_hi": 0.08,
+    "d_lo": -0.069,
+    "d_hi": 0.073,
     "pairs_K0": 26808,
     "pairs_K5": 25256
    },
@@ -2103,7 +2011,7 @@
     "agr_K5": 0.872,
     "delta_K0_minus_K5": -0.028,
     "d_lo": -0.054,
-    "d_hi": -0.003,
+    "d_hi": -0.001,
     "pairs_K0": 16626,
     "pairs_K5": 17240
    },
@@ -2115,8 +2023,8 @@
     "agr_K0": 0.837,
     "agr_K5": 0.857,
     "delta_K0_minus_K5": -0.02,
-    "d_lo": -0.044,
-    "d_hi": 0.004,
+    "d_lo": -0.046,
+    "d_hi": 0.006,
     "pairs_K0": 64967,
     "pairs_K5": 68420
    },
@@ -2128,8 +2036,8 @@
     "agr_K0": 0.776,
     "agr_K5": 0.807,
     "delta_K0_minus_K5": -0.031,
-    "d_lo": -0.081,
-    "d_hi": 0.016,
+    "d_lo": -0.082,
+    "d_hi": 0.014,
     "pairs_K0": 25192,
     "pairs_K5": 26193
    },
@@ -2141,8 +2049,8 @@
     "agr_K0": 0.748,
     "agr_K5": 0.792,
     "delta_K0_minus_K5": -0.044,
-    "d_lo": -0.137,
-    "d_hi": 0.052,
+    "d_lo": -0.14,
+    "d_hi": 0.049,
     "pairs_K0": 6321,
     "pairs_K5": 4390
    },
@@ -2154,8 +2062,8 @@
     "agr_K0": 0.815,
     "agr_K5": 0.841,
     "delta_K0_minus_K5": -0.025,
-    "d_lo": -0.058,
-    "d_hi": 0.005,
+    "d_lo": -0.056,
+    "d_hi": 0.006,
     "pairs_K0": 96480,
     "pairs_K5": 99003
    },
@@ -2180,7 +2088,7 @@
     "agr_K0": 0.855,
     "agr_K5": 0.879,
     "delta_K0_minus_K5": -0.023,
-    "d_lo": -0.039,
+    "d_lo": -0.04,
     "d_hi": -0.007,
     "pairs_K0": 110952,
     "pairs_K5": 134566
@@ -2193,8 +2101,8 @@
     "agr_K0": 0.787,
     "agr_K5": 0.833,
     "delta_K0_minus_K5": -0.046,
-    "d_lo": -0.084,
-    "d_hi": -0.008,
+    "d_lo": -0.082,
+    "d_hi": -0.01,
     "pairs_K0": 32843,
     "pairs_K5": 50106
    },
@@ -2206,8 +2114,8 @@
     "agr_K0": 0.757,
     "agr_K5": 0.813,
     "delta_K0_minus_K5": -0.055,
-    "d_lo": -0.132,
-    "d_hi": 0.021,
+    "d_lo": -0.133,
+    "d_hi": 0.011,
     "pairs_K0": 7420,
     "pairs_K5": 11737
    },
@@ -2219,8 +2127,8 @@
     "agr_K0": 0.836,
     "agr_K5": 0.863,
     "delta_K0_minus_K5": -0.027,
-    "d_lo": -0.049,
-    "d_hi": -0.006,
+    "d_lo": -0.048,
+    "d_hi": -0.007,
     "pairs_K0": 151215,
     "pairs_K5": 196409
    },
@@ -2359,65 +2267,65 @@
   },
   "matched_policy.primary.GRPO.matched_iters.nt12": {
    "value": {
-    "agr_K0": 0.861,
-    "agr_K5": 0.876,
-    "delta_K0_minus_K5": -0.015,
-    "d_lo": -0.033,
-    "d_hi": 0.003,
-    "pairs_K0": 32606,
-    "pairs_K5": 28056
+    "agr_K0": 0.86,
+    "agr_K5": 0.886,
+    "delta_K0_minus_K5": -0.026,
+    "d_lo": -0.041,
+    "d_hi": -0.01,
+    "pairs_K0": 41074,
+    "pairs_K5": 40046
    },
    "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=12",
    "note": ""
   },
   "matched_policy.primary.GRPO.matched_iters.nt12-20": {
    "value": {
-    "agr_K0": 0.876,
-    "agr_K5": 0.894,
-    "delta_K0_minus_K5": -0.018,
-    "d_lo": -0.034,
-    "d_hi": -0.001,
-    "pairs_K0": 129604,
-    "pairs_K5": 112916
+    "agr_K0": 0.871,
+    "agr_K5": 0.901,
+    "delta_K0_minus_K5": -0.03,
+    "d_lo": -0.045,
+    "d_hi": -0.015,
+    "pairs_K0": 160844,
+    "pairs_K5": 165253
    },
    "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=12-20",
    "note": ""
   },
   "matched_policy.primary.GRPO.matched_iters.nt22-34": {
    "value": {
-    "agr_K0": 0.888,
-    "agr_K5": 0.905,
-    "delta_K0_minus_K5": -0.017,
-    "d_lo": -0.041,
-    "d_hi": 0.005,
-    "pairs_K0": 57060,
-    "pairs_K5": 42432
+    "agr_K0": 0.873,
+    "agr_K5": 0.92,
+    "delta_K0_minus_K5": -0.046,
+    "d_lo": -0.066,
+    "d_hi": -0.027,
+    "pairs_K0": 74626,
+    "pairs_K5": 69519
    },
    "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=22-34",
    "note": ""
   },
   "matched_policy.primary.GRPO.matched_iters.nt36-50": {
    "value": {
-    "agr_K0": 0.9,
-    "agr_K5": 0.925,
-    "delta_K0_minus_K5": -0.025,
-    "d_lo": -0.057,
-    "d_hi": 0.011,
-    "pairs_K0": 23026,
-    "pairs_K5": 11026
+    "agr_K0": 0.882,
+    "agr_K5": 0.936,
+    "delta_K0_minus_K5": -0.054,
+    "d_lo": -0.081,
+    "d_hi": -0.026,
+    "pairs_K0": 36245,
+    "pairs_K5": 19873
    },
    "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=36-50",
    "note": ""
   },
   "matched_policy.primary.GRPO.matched_iters.ntall": {
    "value": {
-    "agr_K0": 0.882,
-    "agr_K5": 0.899,
-    "delta_K0_minus_K5": -0.017,
-    "d_lo": -0.033,
-    "d_hi": 0.001,
-    "pairs_K0": 209690,
-    "pairs_K5": 166374
+    "agr_K0": 0.873,
+    "agr_K5": 0.909,
+    "delta_K0_minus_K5": -0.036,
+    "d_lo": -0.051,
+    "d_hi": -0.021,
+    "pairs_K0": 271715,
+    "pairs_K5": 254645
    },
    "source": "tables/faithfulness_matched_policy.md row judge=gpt-4o-mini, method=GRPO, cut=matched_iters, n_turns=all",
    "note": ""
@@ -2427,8 +2335,8 @@
     "agr_K0": 0.765,
     "agr_K5": 0.768,
     "delta_K0_minus_K5": -0.003,
-    "d_lo": -0.081,
-    "d_hi": 0.077,
+    "d_lo": -0.079,
+    "d_hi": 0.081,
     "pairs_K0": 3571,
     "pairs_K5": 3451
    },
@@ -2440,8 +2348,8 @@
     "agr_K0": 0.764,
     "agr_K5": 0.746,
     "delta_K0_minus_K5": 0.018,
-    "d_lo": -0.058,
-    "d_hi": 0.098,
+    "d_lo": -0.052,
+    "d_hi": 0.102,
     "pairs_K0": 15253,
     "pairs_K5": 14609
    },
@@ -2453,8 +2361,8 @@
     "agr_K0": 0.718,
     "agr_K5": 0.724,
     "delta_K0_minus_K5": -0.007,
-    "d_lo": -0.12,
-    "d_hi": 0.106,
+    "d_lo": -0.118,
+    "d_hi": 0.097,
     "pairs_K0": 7636,
     "pairs_K5": 9042
    },
@@ -2466,8 +2374,8 @@
     "agr_K0": 0.716,
     "agr_K5": 0.739,
     "delta_K0_minus_K5": -0.023,
-    "d_lo": -0.228,
-    "d_hi": 0.198,
+    "d_lo": -0.219,
+    "d_hi": 0.179,
     "pairs_K0": 2925,
     "pairs_K5": 1312
    },
@@ -2479,8 +2387,8 @@
     "agr_K0": 0.745,
     "agr_K5": 0.738,
     "delta_K0_minus_K5": 0.007,
-    "d_lo": -0.081,
-    "d_hi": 0.094,
+    "d_lo": -0.076,
+    "d_hi": 0.092,
     "pairs_K0": 25814,
     "pairs_K5": 24963
    },
@@ -2492,8 +2400,8 @@
     "agr_K0": 0.792,
     "agr_K5": 0.803,
     "delta_K0_minus_K5": -0.011,
-    "d_lo": -0.041,
-    "d_hi": 0.018,
+    "d_lo": -0.04,
+    "d_hi": 0.021,
     "pairs_K0": 16656,
     "pairs_K5": 17263
    },
@@ -2505,8 +2413,8 @@
     "agr_K0": 0.79,
     "agr_K5": 0.784,
     "delta_K0_minus_K5": 0.006,
-    "d_lo": -0.024,
-    "d_hi": 0.036,
+    "d_lo": -0.023,
+    "d_hi": 0.037,
     "pairs_K0": 64849,
     "pairs_K5": 68220
    },
@@ -2518,8 +2426,8 @@
     "agr_K0": 0.74,
     "agr_K5": 0.755,
     "delta_K0_minus_K5": -0.015,
-    "d_lo": -0.068,
-    "d_hi": 0.041,
+    "d_lo": -0.066,
+    "d_hi": 0.037,
     "pairs_K0": 24688,
     "pairs_K5": 25875
    },
@@ -2531,7 +2439,7 @@
     "agr_K0": 0.703,
     "agr_K5": 0.764,
     "delta_K0_minus_K5": -0.061,
-    "d_lo": -0.161,
+    "d_lo": -0.163,
     "d_hi": 0.047,
     "pairs_K0": 6116,
     "pairs_K5": 4342
@@ -2544,8 +2452,8 @@
     "agr_K0": 0.771,
     "agr_K5": 0.775,
     "delta_K0_minus_K5": -0.004,
-    "d_lo": -0.04,
-    "d_hi": 0.03,
+    "d_lo": -0.037,
+    "d_hi": 0.032,
     "pairs_K0": 95653,
     "pairs_K5": 98437
    },
@@ -2557,8 +2465,8 @@
     "agr_K0": 0.804,
     "agr_K5": 0.817,
     "delta_K0_minus_K5": -0.013,
-    "d_lo": -0.035,
-    "d_hi": 0.007,
+    "d_lo": -0.034,
+    "d_hi": 0.008,
     "pairs_K0": 33645,
     "pairs_K5": 35656
    },
@@ -2570,8 +2478,8 @@
     "agr_K0": 0.797,
     "agr_K5": 0.802,
     "delta_K0_minus_K5": -0.005,
-    "d_lo": -0.026,
-    "d_hi": 0.015,
+    "d_lo": -0.027,
+    "d_hi": 0.016,
     "pairs_K0": 111431,
     "pairs_K5": 135091
    },
@@ -2583,8 +2491,8 @@
     "agr_K0": 0.748,
     "agr_K5": 0.777,
     "delta_K0_minus_K5": -0.03,
-    "d_lo": -0.069,
-    "d_hi": 0.013,
+    "d_lo": -0.068,
+    "d_hi": 0.01,
     "pairs_K0": 32383,
     "pairs_K5": 49871
    },
@@ -2596,7 +2504,7 @@
     "agr_K0": 0.719,
     "agr_K5": 0.777,
     "delta_K0_minus_K5": -0.057,
-    "d_lo": -0.137,
+    "d_lo": -0.136,
     "d_hi": 0.02,
     "pairs_K0": 7225,
     "pairs_K5": 11802
@@ -2609,8 +2517,8 @@
     "agr_K0": 0.783,
     "agr_K5": 0.794,
     "delta_K0_minus_K5": -0.012,
-    "d_lo": -0.037,
-    "d_hi": 0.012,
+    "d_lo": -0.036,
+    "d_hi": 0.013,
     "pairs_K0": 151039,
     "pairs_K5": 196764
    },
@@ -2750,64 +2658,64 @@
   "matched_policy.heldout.GRPO.matched_iters.nt12": {
    "value": {
     "agr_K0": 0.76,
-    "agr_K5": 0.812,
-    "delta_K0_minus_K5": -0.052,
-    "d_lo": -0.076,
-    "d_hi": -0.029,
-    "pairs_K0": 32997,
-    "pairs_K5": 28372
+    "agr_K5": 0.799,
+    "delta_K0_minus_K5": -0.039,
+    "d_lo": -0.061,
+    "d_hi": -0.015,
+    "pairs_K0": 41575,
+    "pairs_K5": 40763
    },
    "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=12",
    "note": ""
   },
   "matched_policy.heldout.GRPO.matched_iters.nt12-20": {
    "value": {
-    "agr_K0": 0.766,
-    "agr_K5": 0.819,
-    "delta_K0_minus_K5": -0.054,
-    "d_lo": -0.076,
-    "d_hi": -0.031,
-    "pairs_K0": 130673,
-    "pairs_K5": 113940
+    "agr_K0": 0.763,
+    "agr_K5": 0.803,
+    "delta_K0_minus_K5": -0.04,
+    "d_lo": -0.063,
+    "d_hi": -0.018,
+    "pairs_K0": 161999,
+    "pairs_K5": 167985
    },
    "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=12-20",
    "note": ""
   },
   "matched_policy.heldout.GRPO.matched_iters.nt22-34": {
    "value": {
-    "agr_K0": 0.734,
-    "agr_K5": 0.817,
-    "delta_K0_minus_K5": -0.082,
-    "d_lo": -0.115,
-    "d_hi": -0.049,
-    "pairs_K0": 57084,
-    "pairs_K5": 42437
+    "agr_K0": 0.726,
+    "agr_K5": 0.797,
+    "delta_K0_minus_K5": -0.071,
+    "d_lo": -0.104,
+    "d_hi": -0.039,
+    "pairs_K0": 74296,
+    "pairs_K5": 70664
    },
    "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=22-34",
    "note": ""
   },
   "matched_policy.heldout.GRPO.matched_iters.nt36-50": {
    "value": {
-    "agr_K0": 0.703,
-    "agr_K5": 0.815,
-    "delta_K0_minus_K5": -0.112,
-    "d_lo": -0.176,
-    "d_hi": -0.049,
-    "pairs_K0": 22870,
-    "pairs_K5": 10947
+    "agr_K0": 0.715,
+    "agr_K5": 0.787,
+    "delta_K0_minus_K5": -0.071,
+    "d_lo": -0.125,
+    "d_hi": -0.018,
+    "pairs_K0": 35674,
+    "pairs_K5": 20613
    },
    "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=36-50",
    "note": ""
   },
   "matched_policy.heldout.GRPO.matched_iters.ntall": {
    "value": {
-    "agr_K0": 0.75,
-    "agr_K5": 0.819,
-    "delta_K0_minus_K5": -0.068,
-    "d_lo": -0.094,
-    "d_hi": -0.043,
-    "pairs_K0": 210627,
-    "pairs_K5": 167324
+    "agr_K0": 0.747,
+    "agr_K5": 0.8,
+    "delta_K0_minus_K5": -0.053,
+    "d_lo": -0.078,
+    "d_hi": -0.03,
+    "pairs_K0": 271969,
+    "pairs_K5": 259262
    },
    "source": "tables/faithfulness_matched_policy.md row judge=claude-haiku-4-5, method=GRPO, cut=matched_iters, n_turns=all",
    "note": ""
@@ -2817,11 +2725,11 @@
     "all_iters": {
      "delta": -0.03,
      "lo": -0.097,
-     "hi": 0.036
+     "hi": 0.041
     },
     "train_iter_1": {
      "delta": -0.039,
-     "lo": -0.195,
+     "lo": -0.181,
      "hi": 0.112
     }
    },
@@ -2831,9 +2739,9 @@
   "by_coop.primary.Cooperative.GRPO.delta_K0_minus_K5": {
    "value": {
     "all_iters": {
-     "delta": 0.049,
-     "lo": -0.009,
-     "hi": 0.114
+     "delta": 0.02,
+     "lo": -0.035,
+     "hi": 0.08
     },
     "train_iter_1": {
      "delta": 0.039,
@@ -2848,13 +2756,13 @@
    "value": {
     "all_iters": {
      "delta": 0.006,
-     "lo": -0.051,
-     "hi": 0.06
+     "lo": -0.054,
+     "hi": 0.064
     },
     "train_iter_1": {
      "delta": 0.097,
-     "lo": -0.115,
-     "hi": 0.277
+     "lo": -0.114,
+     "hi": 0.281
     }
    },
    "source": "tables/faithfulness_by_coop.md rows coop=Warms up, arms PTO_LA0/PTO_LA5 (delta computed from the same replicates)",
@@ -2863,9 +2771,9 @@
   "by_coop.primary.Warms up.GRPO.delta_K0_minus_K5": {
    "value": {
     "all_iters": {
-     "delta": -0.029,
-     "lo": -0.075,
-     "hi": 0.017
+     "delta": -0.028,
+     "lo": -0.071,
+     "hi": 0.013
     },
     "train_iter_1": {
      "delta": -0.014,
@@ -2880,13 +2788,13 @@
    "value": {
     "all_iters": {
      "delta": 0.007,
-     "lo": -0.048,
-     "hi": 0.06
+     "lo": -0.049,
+     "hi": 0.062
     },
     "train_iter_1": {
      "delta": 0.039,
-     "lo": -0.168,
-     "hi": 0.255
+     "lo": -0.178,
+     "hi": 0.249
     }
    },
    "source": "tables/faithfulness_by_coop.md rows coop=Resistant, arms PTO_LA0/PTO_LA5 (delta computed from the same replicates)",
@@ -2895,9 +2803,9 @@
   "by_coop.primary.Resistant.GRPO.delta_K0_minus_K5": {
    "value": {
     "all_iters": {
-     "delta": 0.006,
-     "lo": -0.032,
-     "hi": 0.046
+     "delta": -0.0,
+     "lo": -0.034,
+     "hi": 0.036
     },
     "train_iter_1": {
      "delta": 0.116,
@@ -2911,7 +2819,7 @@
   "by_coop.primary.Cooperative.PTO_LA0": {
    "value": {
     "agreement": 0.69,
-    "ci_lo": 0.646,
+    "ci_lo": 0.64,
     "ci_hi": 0.736,
     "n_pairs": 7035,
     "agr_train_iter_1": 0.741
@@ -2922,8 +2830,8 @@
   "by_coop.primary.Cooperative.PTO_LA5": {
    "value": {
     "agreement": 0.72,
-    "ci_lo": 0.668,
-    "ci_hi": 0.767,
+    "ci_lo": 0.671,
+    "ci_hi": 0.763,
     "n_pairs": 7535,
     "agr_train_iter_1": 0.78
    },
@@ -2943,10 +2851,10 @@
   },
   "by_coop.primary.Cooperative.GRPO_LA5": {
    "value": {
-    "agreement": 0.74,
-    "ci_lo": 0.689,
-    "ci_hi": 0.788,
-    "n_pairs": 9007,
+    "agreement": 0.769,
+    "ci_lo": 0.721,
+    "ci_hi": 0.81,
+    "n_pairs": 11135,
     "agr_train_iter_1": 0.706
    },
    "source": "tables/faithfulness_by_coop.md row coop=Cooperative, arm=GRPO_LA5",
@@ -2955,8 +2863,8 @@
   "by_coop.primary.Warms up.PTO_LA0": {
    "value": {
     "agreement": 0.721,
-    "ci_lo": 0.68,
-    "ci_hi": 0.758,
+    "ci_lo": 0.679,
+    "ci_hi": 0.763,
     "n_pairs": 15343,
     "agr_train_iter_1": 0.685
    },
@@ -2966,7 +2874,7 @@
   "by_coop.primary.Warms up.PTO_LA5": {
    "value": {
     "agreement": 0.715,
-    "ci_lo": 0.677,
+    "ci_lo": 0.673,
     "ci_hi": 0.754,
     "n_pairs": 22035,
     "agr_train_iter_1": 0.588
@@ -2987,10 +2895,10 @@
   },
   "by_coop.primary.Warms up.GRPO_LA5": {
    "value": {
-    "agreement": 0.805,
-    "ci_lo": 0.771,
-    "ci_hi": 0.836,
-    "n_pairs": 21029,
+    "agreement": 0.804,
+    "ci_lo": 0.773,
+    "ci_hi": 0.831,
+    "n_pairs": 30100,
     "agr_train_iter_1": 0.839
    },
    "source": "tables/faithfulness_by_coop.md row coop=Warms up, arm=GRPO_LA5",
@@ -2999,8 +2907,8 @@
   "by_coop.primary.Resistant.PTO_LA0": {
    "value": {
     "agreement": 0.688,
-    "ci_lo": 0.648,
-    "ci_hi": 0.723,
+    "ci_lo": 0.649,
+    "ci_hi": 0.727,
     "n_pairs": 31643,
     "agr_train_iter_1": 0.668
    },
@@ -3010,8 +2918,8 @@
   "by_coop.primary.Resistant.PTO_LA5": {
    "value": {
     "agreement": 0.681,
-    "ci_lo": 0.645,
-    "ci_hi": 0.719,
+    "ci_lo": 0.639,
+    "ci_hi": 0.72,
     "n_pairs": 33982,
     "agr_train_iter_1": 0.629
    },
@@ -3031,10 +2939,10 @@
   },
   "by_coop.primary.Resistant.GRPO_LA5": {
    "value": {
-    "agreement": 0.785,
-    "ci_lo": 0.752,
-    "ci_hi": 0.814,
-    "n_pairs": 24697,
+    "agreement": 0.791,
+    "ci_lo": 0.765,
+    "ci_hi": 0.816,
+    "n_pairs": 38883,
     "agr_train_iter_1": 0.738
    },
    "source": "tables/faithfulness_by_coop.md row coop=Resistant, arm=GRPO_LA5",
@@ -3484,6 +3392,42 @@
    "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=6",
    "note": ""
   },
+  "levels.GRPO_LA5.eval_iter7": {
+   "value": {
+    "proxy_mean": 4.266,
+    "eval_mean_primary": 4.27,
+    "gap_primary": -0.004,
+    "n_branch_points": 1850,
+    "mean_n_turns": 24.94,
+    "eval_mean_heldout": 2.912
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=7",
+   "note": ""
+  },
+  "levels.GRPO_LA5.eval_iter8": {
+   "value": {
+    "proxy_mean": 4.395,
+    "eval_mean_primary": 4.254,
+    "gap_primary": 0.14,
+    "n_branch_points": 2152,
+    "mean_n_turns": 26.02,
+    "eval_mean_heldout": 2.776
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=8",
+   "note": ""
+  },
+  "levels.GRPO_LA5.eval_iter9": {
+   "value": {
+    "proxy_mean": 4.561,
+    "eval_mean_primary": 4.454,
+    "gap_primary": 0.107,
+    "n_branch_points": 2266,
+    "mean_n_turns": 26.52,
+    "eval_mean_heldout": 2.858
+   },
+   "source": "tables/faithfulness_levels.md row arm=GRPO_LA5, eval_iter=9",
+   "note": ""
+  },
   "levels_rho.PTO_LA0.primary": {
    "value": {
     "spearman_rho": 0.988,
@@ -3552,22 +3496,22 @@
   },
   "levels_rho.GRPO_LA5.primary": {
    "value": {
-    "spearman_rho": 1.0,
+    "spearman_rho": 0.964,
     "spearman_p": 0.0,
-    "pearson_r": 0.988,
-    "n_iters": 7,
-    "mean_gap": 0.079
+    "pearson_r": 0.987,
+    "n_iters": 10,
+    "mean_gap": 0.08
    },
    "source": "tables/faithfulness_levels_rho.md row arm=GRPO_LA5, eval_grader=gpt-4o-mini",
    "note": ""
   },
   "levels_rho.GRPO_LA5.heldout": {
    "value": {
-    "spearman_rho": 0.964,
-    "spearman_p": 0.0005,
-    "pearson_r": 0.974,
-    "n_iters": 7,
-    "mean_gap": 1.34
+    "spearman_rho": 0.794,
+    "spearman_p": 0.0061,
+    "pearson_r": 0.943,
+    "n_iters": 10,
+    "mean_gap": 1.406
    },
    "source": "tables/faithfulness_levels_rho.md row arm=GRPO_LA5, eval_grader=claude-haiku-4-5",
    "note": ""
@@ -3586,7 +3530,7 @@
     "proxy_score is the training oracle's score by construction; it cannot be re-graded, so the held-out-judge tables change only the EVAL side.",
     "PTO greedy trunks share only the first MCL=12 utterances with the eval conversation; beyond n_turns=12 the PTO prefix follows the best-of-M trunk, so PTO's curve mixes cut length with trunk divergence (GRPO prefixes are exact slices).",
     "GRPO branch rows include the policy drifting within an iteration (2 epochs) and ~3-10% eval-split groups scored at iteration end; PTO rows come from the frozen iter-start policy.",
-    "GRPO_LA5 is right-censored at train_iter 5; K reads for GRPO use the iters 1-5 series / cuts.",
+    "K reads use each arm's own-support series / cuts, and where the two K arms' supports differ the longer arm is drawn a second time restricted to exactly the shorter one's support (derived per grader, not a frozen range).",
     "Pairs within a cell are not independent (each conversation enters n-1 pairs) — CIs come from the conversation-level cluster bootstrap, not from n_pairs.",
     "Wilcoxon over n_turns bins treats correlated bins as observations — descriptive only.",
     "GRPO_LA5 iteration 1 captured only its second epoch (the run resumed after a crash and the recorder flushes once per iteration)."
@@ -3595,17 +3539,17 @@
    "note": ""
   },
   "n_branch_rows": {
-   "value": 42473,
+   "value": 46891,
    "source": "training.load_branch_reliability(which='chosen') row count",
    "note": ""
   },
   "n_branch_rows_joined_primary": {
-   "value": 40623,
+   "value": 46891,
    "source": "inner join to gpt-4o-mini eval Q1Q2 on (arm, eval_iter, conversation_id)",
    "note": ""
   },
   "n_branch_rows_joined_heldout": {
-   "value": 40623,
+   "value": 46891,
    "source": "inner join to claude-haiku-4-5 eval Q1Q2 on (arm, eval_iter, conversation_id)",
    "note": ""
   },

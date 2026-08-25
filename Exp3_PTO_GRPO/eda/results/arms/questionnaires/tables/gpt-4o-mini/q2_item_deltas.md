@@ -17,23 +17,23 @@
 | final    | GRPO_LA0 |     15 | treated me as equal     | Non-judgment/equality |            10 |  3.396 |   0.833 |
 | final    | GRPO_LA0 |     16 | made me feel cared for  | Warmth/closeness      |            10 |  3.281 |   0.656 |
 | final    | GRPO_LA0 |     17 | made me feel close      | Warmth/closeness      |            10 |  3.198 |   0.677 |
-| final    | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |             6 |  3.042 |   0.781 |
-| final    | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |             6 |  2.604 |   1.250 |
-| final    | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |             6 |  2.167 |   0.927 |
-| final    | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |             6 |  3.156 |   1.177 |
-| final    | GRPO_LA5 |      5 | understood me           | Empathy/understanding |             6 |  3.177 |   1.104 |
-| final    | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |             6 |  2.688 |   1.438 |
-| final    | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |             6 |  3.417 |   1.146 |
-| final    | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |             6 |  3.406 |   1.219 |
-| final    | GRPO_LA5 |      9 | took charge             | Direction/control     |             6 |  2.677 |   1.365 |
-| final    | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |             6 |  2.302 |   1.042 |
-| final    | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |             6 |  3.417 |   1.240 |
-| final    | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |             6 |  3.406 |   1.250 |
-| final    | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |             6 |  2.979 |   1.323 |
-| final    | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |             6 |  3.385 |   1.396 |
-| final    | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |             6 |  3.260 |   1.448 |
-| final    | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |             6 |  3.135 |   1.469 |
-| final    | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |             6 |  3.052 |   1.542 |
+| final    | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |            10 |  3.042 |   1.021 |
+| final    | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |            10 |  2.604 |   1.813 |
+| final    | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |            10 |  2.167 |   1.427 |
+| final    | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |            10 |  3.156 |   1.469 |
+| final    | GRPO_LA5 |      5 | understood me           | Empathy/understanding |            10 |  3.177 |   1.427 |
+| final    | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |            10 |  2.688 |   1.812 |
+| final    | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |            10 |  3.417 |   1.427 |
+| final    | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |            10 |  3.406 |   1.490 |
+| final    | GRPO_LA5 |      9 | took charge             | Direction/control     |            10 |  2.677 |   1.792 |
+| final    | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |            10 |  2.302 |   1.469 |
+| final    | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |            10 |  3.417 |   1.479 |
+| final    | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |            10 |  3.406 |   1.490 |
+| final    | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |            10 |  2.979 |   1.583 |
+| final    | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |            10 |  3.385 |   1.552 |
+| final    | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |            10 |  3.260 |   1.635 |
+| final    | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |            10 |  3.135 |   1.750 |
+| final    | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |            10 |  3.052 |   1.781 |
 | final    | PTO_LA0  |      1 | sense of who he was     | Self-disclosure       |            10 |  3.073 |   0.854 |
 | final    | PTO_LA0  |      2 | revealed his thinking   | Self-disclosure       |            10 |  2.635 |   1.479 |
 | final    | PTO_LA0  |      3 | shared his feelings     | Self-disclosure       |            10 |  2.156 |   1.229 |
@@ -85,23 +85,23 @@
 | best     | GRPO_LA0 |     15 | treated me as equal     | Non-judgment/equality |             8 |  3.396 |   1.271 |
 | best     | GRPO_LA0 |     16 | made me feel cared for  | Warmth/closeness      |             8 |  3.281 |   1.208 |
 | best     | GRPO_LA0 |     17 | made me feel close      | Warmth/closeness      |             8 |  3.198 |   1.188 |
-| best     | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |             6 |  3.042 |   0.781 |
-| best     | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |             6 |  2.604 |   1.250 |
-| best     | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |             6 |  2.167 |   0.927 |
-| best     | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |             6 |  3.156 |   1.177 |
-| best     | GRPO_LA5 |      5 | understood me           | Empathy/understanding |             6 |  3.177 |   1.104 |
-| best     | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |             6 |  2.688 |   1.438 |
-| best     | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |             6 |  3.417 |   1.146 |
-| best     | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |             6 |  3.406 |   1.219 |
-| best     | GRPO_LA5 |      9 | took charge             | Direction/control     |             6 |  2.677 |   1.365 |
-| best     | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |             6 |  2.302 |   1.042 |
-| best     | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |             6 |  3.417 |   1.240 |
-| best     | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |             6 |  3.406 |   1.250 |
-| best     | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |             6 |  2.979 |   1.323 |
-| best     | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |             6 |  3.385 |   1.396 |
-| best     | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |             6 |  3.260 |   1.448 |
-| best     | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |             6 |  3.135 |   1.469 |
-| best     | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |             6 |  3.052 |   1.542 |
+| best     | GRPO_LA5 |      1 | sense of who he was     | Self-disclosure       |            10 |  3.042 |   1.021 |
+| best     | GRPO_LA5 |      2 | revealed his thinking   | Self-disclosure       |            10 |  2.604 |   1.813 |
+| best     | GRPO_LA5 |      3 | shared his feelings     | Self-disclosure       |            10 |  2.167 |   1.427 |
+| best     | GRPO_LA5 |      4 | knew how I was feeling  | Empathy/understanding |            10 |  3.156 |   1.469 |
+| best     | GRPO_LA5 |      5 | understood me           | Empathy/understanding |            10 |  3.177 |   1.427 |
+| best     | GRPO_LA5 |      6 | put himself in my shoes | Empathy/understanding |            10 |  2.688 |   1.812 |
+| best     | GRPO_LA5 |      7 | comfortable talking     | Fluency/ease          |            10 |  3.417 |   1.427 |
+| best     | GRPO_LA5 |      8 | relaxed and secure      | Fluency/ease          |            10 |  3.406 |   1.490 |
+| best     | GRPO_LA5 |      9 | took charge             | Direction/control     |            10 |  2.677 |   1.792 |
+| best     | GRPO_LA5 |     10 | said when happy/sad     | Self-disclosure       |            10 |  2.302 |   1.469 |
+| best     | GRPO_LA5 |     11 | no difficulty w/ words  | Fluency/ease          |            10 |  3.417 |   1.479 |
+| best     | GRPO_LA5 |     12 | expressed himself       | Fluency/ease          |            10 |  3.406 |   1.490 |
+| best     | GRPO_LA5 |     13 | a 'warm' partner        | Warmth/closeness      |            10 |  2.979 |   1.583 |
+| best     | GRPO_LA5 |     14 | did not judge me        | Non-judgment/equality |            10 |  3.385 |   1.552 |
+| best     | GRPO_LA5 |     15 | treated me as equal     | Non-judgment/equality |            10 |  3.260 |   1.635 |
+| best     | GRPO_LA5 |     16 | made me feel cared for  | Warmth/closeness      |            10 |  3.135 |   1.750 |
+| best     | GRPO_LA5 |     17 | made me feel close      | Warmth/closeness      |            10 |  3.052 |   1.781 |
 | best     | PTO_LA0  |      1 | sense of who he was     | Self-disclosure       |            10 |  3.073 |   0.854 |
 | best     | PTO_LA0  |      2 | revealed his thinking   | Self-disclosure       |            10 |  2.635 |   1.479 |
 | best     | PTO_LA0  |      3 | shared his feelings     | Self-disclosure       |            10 |  2.156 |   1.229 |

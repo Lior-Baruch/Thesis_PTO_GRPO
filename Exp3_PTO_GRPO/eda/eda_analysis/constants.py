@@ -320,6 +320,83 @@ def method_of(arm: str) -> str:
     return m.group(1) if m else ""
 
 
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  ARM SUPPORT — where each arm actually stops, READ OFF THE FRAME IN HAND      ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+#
+# ⚠ An arm's endpoint is a property of the FRAME, never of the project. GRPO_LA5's endpoint has
+# moved three times, and it is not even one number: the score lake's coverage differs BY GRADER
+# (a state can be scored under one judge and not the other), the transcript/training frames run
+# further than the scored ones, and a live run advances while the results tree sits still. Every
+# caption that named an iteration was therefore false for at least one caller — which is how
+# "right-censored at iteration 5" survived into ~60 rendered captions after it stopped being true.
+# These two helpers are THE answer to "where does this arm stop?"; nothing may hard-code it again.
+
+
+def last_iterations(frame, *, iter_col: str = "iteration", arm_col: str = "arm",
+                    base_col: str = "is_base") -> dict:
+    """``{arm: the last iteration this FRAME actually carries}`` — each arm's support.
+
+    Duck-typed over the frame (``.columns`` / ``.groupby``) so this leaf stays stdlib-only and
+    import-cheap: nothing here touches disk. Values that will not coerce to ``int`` are skipped,
+    so a frame carrying a ``"pooled"`` row or a NaN iteration is handled rather than raising.
+    Rows flagged by ``base_col`` (the iteration-0 draw) are dropped where that column exists, so a
+    base-only arm yields no entry instead of a misleading ``0``. Returns ``{}`` for an empty frame,
+    a ``None``, or a frame missing either key column.
+    """
+    if frame is None:
+        return {}
+    cols = list(getattr(frame, "columns", []))
+    if arm_col not in cols or iter_col not in cols or len(frame) == 0:
+        return {}
+    d = frame
+    if base_col and base_col in cols:
+        try:
+            d = frame[~frame[base_col].astype(bool)]
+        except Exception:      # a non-boolean base column is not worth failing a caption over
+            d = frame
+    out = {}
+    for arm, g in d.groupby(arm_col):
+        vals = []
+        for v in g[iter_col]:
+            try:
+                vals.append(int(v))
+            except (TypeError, ValueError):
+                continue
+        if vals:
+            out[str(arm)] = max(vals)
+    return out
+
+
+def support_note(frame, *, iter_col: str = "iteration", arm_col: str = "arm",
+                 base_col: str = "is_base", subject: str = None, label: bool = True,
+                 prefix: str = "Support: ") -> str:
+    """The censoring sentence for a caption, DERIVED from ``frame`` — ``""`` when nothing is short.
+
+    ``"Support: GRPO (K=5) ends at iteration 6 (no later scored state under this grader); the
+    other arms run to 10."`` ``subject`` is the parenthetical reason — say WHICH kind of artifact
+    ran out, because they run out at different places: ``"no later scored state under this
+    grader"``, ``"no later checkpoint on disk"``, ``"no later training iteration recorded"``. It
+    defaults to ``"no later scored state in this frame"``.
+
+    An arm is censored only RELATIVE TO THE ARMS IN THE SAME FRAME, so a single arm, or four arms
+    that all reach the same iteration, produce no sentence at all — the caption then says nothing
+    rather than something false. Pass ``label=False`` to keep the canonical ``PTO_LA0`` keys
+    instead of the :func:`arm_label` display form. Generalises the inline derivation
+    ``notebooks/arms/heterogeneity.ipynb`` has always used, so there is one implementation.
+    """
+    last = last_iterations(frame, iter_col=iter_col, arm_col=arm_col, base_col=base_col)
+    if len(last) < 2:
+        return ""
+    top = max(last.values())
+    short = sorted(a for a, v in last.items() if v < top)
+    if not short:
+        return ""
+    why = subject or "no later scored state in this frame"
+    names = "; ".join(f"{arm_label(a) if label else a} ends at iteration {last[a]}" for a in short)
+    return f"{prefix}{names} ({why}); the other arms run to {top}."
+
+
 # Patient-characteristic columns recovered per persona.
 PERSONA_COLS = ["gender", "age_value", "problem", "problem_time",
                 "tried_to_solve", "cooperation_level"]

@@ -24,9 +24,11 @@ Conventions (restate them in every caption):
 * **Iteration 0 = two INDEPENDENT base draws** (the K=0 arm's base vs the K=5 arm's base): a free
   noise-floor row, computed with the same machinery. Never drop it silently — it is the reference
   the trained rows are read against.
-* **Censoring:** GRPO_LA5 is right-censored at iteration 5 (its full budget), so GRPO rows stop
-  at 5 while PTO runs to 10; the DiD is estimable only at 0..5. Matched iterations are derived from
-  the data (the intersection of both arms' iterations), never hard-coded.
+* **Support:** an arm has no state past its last iteration on disk, and how far it is SCORED can
+  be grader-dependent, so the DiD is estimable only over the overlap of the arms in the frame.
+  Matched iterations are derived from the data (the
+  intersection of both arms' iterations), never hard-coded; neither is any endpoint a caption
+  quotes (:func:`eda_analysis.constants.support_note` reads it off the frame in hand).
 * **Holm family = ITERATIONS 0..N within (judge, method, metric)** (``holm_family="iterations"``,
   the paper's default). This is a DIFFERENT family from the tracked ``k_paired_by_method`` table
   (Holm across rubrics within one iteration; ``holm_family="rubrics"``), so ``p`` agrees with that
@@ -49,6 +51,7 @@ import numpy as np
 import pandas as pd
 
 from .constants import LOWER_IS_BETTER as _LIB
+from .constants import support_note
 from .stats import holm, paired_arrays
 from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
 from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
@@ -81,7 +84,14 @@ LOWER_BETTER = set(_LIB) | {"MICI"}
 TEXT_JUDGE_LABEL = "text (judge-invariant)"
 
 SIGN_NOTE = "Sign: + = K=0 higher (K=0 minus K=5). Paired on persona_id (96 personas)."
-CENSOR_NOTE = "GRPO_LA5 is right-censored at iteration 5, so GRPO rows stop at 5."
+# NOT an assertion that any arm IS censored — a legend for how to read support. It is the fallback
+# used only when a frame is not available to derive from; `constants.support_note` is the real
+# mechanism and returns "" when every arm reaches the same iteration. This string asserted
+# "GRPO_LA5 is right-censored" until 2026-08-25, which shipped into ~20 captions after that arm
+# finished at iteration 10 — a hardcoded claim outliving the condition it described.
+CENSOR_NOTE = ("Each arm's rows run to its own last scored iteration, which can differ by grader "
+               "- read each arm's endpoint off the table's own iteration column "
+               "(constants.support_note derives the sentence when an arm is genuinely short).")
 HOLM_NOTE = ("p_holm = Holm across iterations 0..N within each (judge, method, metric); "
              "iteration 0 = two independent base draws (noise floor).")
 
@@ -419,7 +429,8 @@ def did_by_iter(scores_by_judge: Mapping[str, pd.DataFrame], *, metrics: Optiona
     """K × method interaction — persona-level difference-in-differences, per grader.
 
     ``did = (PTO_LA0 − GRPO_LA0) − (PTO_LA5 − GRPO_LA5)`` computed persona by persona at every
-    iteration ALL FOUR arms share (0..5: GRPO_LA5 stops at 5, so 6..10 is NOT estimable; iteration
+    iteration ALL FOUR arms share (derived as ``min`` over the four arms' last iterations, so a
+    censored arm caps it and nothing past that point is estimable; iteration
     0 = four independent base draws, the noise floor). **Sign: ``+`` => PTO's lead over GRPO is
     LARGER at K=0 than at K=5** (equivalently, look-ahead helps GRPO more than PTO); on MICI the sign
     reads the other way round (lower is better).
@@ -540,7 +551,8 @@ def endpoint_contrasts(scores_by_judge: Mapping[str, pd.DataFrame], *, pairs=Non
     ``pairs`` = ``[(label, model_a, model_b), ...]``; ``+`` => ``model_a`` higher (on MICI, lower is
     better, so ``+`` favours B — read ``favours_*``, where A/B are the pair's left/right model).
     Default pairs (the paper's): the K=0 headline ``PTO_LA0_I10 − GRPO_LA0_I10``; the K=5 endpoints
-    ``PTO_LA5_I10 − GRPO_LA5_I5``; the K lever at each method's endpoint / matched iteration; GRPO's
+    ``PTO_LA5_I<last> − GRPO_LA5_I<last>`` (each arm's own last iteration, GRPO's earlier because
+    it is censored); the K lever at each method's endpoint / matched iteration; GRPO's
     K=5 endpoint vs GRPO_LA0's endpoint and vs GRPO_LA0's BEST iteration by mean ``best_metric``
     under each grader (:func:`best_iteration`; one extra pair when the two graders disagree). The
     default endpoints are read off the data (each arm's last iteration), so they follow the arms.
@@ -712,7 +724,8 @@ def lookahead_numbers(frames: pd.DataFrame, *, summary: Optional[pd.DataFrame] =
     put("conventions", {"sign": "+ => K=0 higher (K=0 minus K=5)", "pairing": "persona_id (n=96)",
                         "holm_family": "iterations 0..N within (judge, method, metric)",
                         "oracle_repeatability_band": oracle_noise,
-                        "censoring": "GRPO_LA5 ends at iteration 5",
+                        "censoring": (support_note(levels_long, base_col="")
+                                      if levels_long is not None else "") or CENSOR_NOTE,
                         "iteration0": "two independent base draws (K=0-arm base vs K=5-arm base)"},
         source="eda_analysis.lookahead")
     return L

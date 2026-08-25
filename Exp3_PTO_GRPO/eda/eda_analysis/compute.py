@@ -84,8 +84,10 @@ Sign conventions (state them in every caption):
 * **Method contrasts**: ``arm_a = PTO, arm_b = GRPO``; ``+ mean_delta => PTO higher``.
 * MICI and every ``MICI_*`` channel are LOWER-is-better; count/length channels have no valence.
 * Everything is paired on ``persona_id`` (never ``file_index``).
-* **Censoring:** GRPO_LA5 is right-censored at iteration 5 (its budget stops at ~27.08 GPU-h),
-  so its sweep never reaches GRPO_LA0's later checkpoints — every sweep/iso frame inherits that.
+* **Budget ceilings:** each arm's ceiling is its OWN last ``cum_gpu_h`` in
+  ``compute_by_iteration`` (read it there; the number moves whenever a run advances), so a sweep
+  reaches only the checkpoints that arm's spend bought — every sweep/iso frame
+  inherits that.
 * Bootstrap CIs use :func:`eda_analysis.stats.paired_arrays` (seeded with
   :data:`constants.BOOT_SEED`); the paper's generator seeded its own helper with 0, so CI bounds
   may differ from the frozen fixture in the third decimal while ``mean_delta``/``dz``/``p``/``n``
@@ -633,7 +635,13 @@ CHANNELS: List[str] = [
 TEXT_CHANNELS = {"conv_len", "mean_turn_len"}
 TEXT_JUDGE_LABEL = "text (grader-independent)"
 
-CENSOR_NOTE = "GRPO_LA5 is right-censored at iteration 5 (its budget stops at 27.08 GPU-h)."
+# A LEGEND, not an assertion that any arm is short. It said "GRPO_LA5 is right-censored ..." until
+# 2026-08-25 and kept saying it after that arm finished at iteration 10, shipping a false claim into
+# every caption that interpolated it. `constants.support_note` derives the real sentence and returns
+# "" when nothing is short.
+CENSOR_NOTE = ("Each arm's budget ceiling is its own last cum_gpu_h in compute_by_iteration (read it "
+               "there - it moves as a run advances), so a sweep only reaches the checkpoints that "
+               "arm's spend actually bought.")
 SIGN_K = ("K contrast: mean_delta = K5 - K0 (arm_a=LA5, as the tracked EDA table); "
           "delta_K0_minus_K5 = -mean_delta is the paper's convention (+ => K=0 higher).")
 SIGN_M = "Method contrast: mean_delta = PTO - GRPO (+ => PTO higher)."
@@ -770,7 +778,12 @@ _RATIOS = {
     "GRPO_LA0_total_over_PTO_LA0_total": ("GRPO_LA0", "PTO_LA0", "total_gpu_h"),
     "GRPO_LA5_total_over_PTO_LA5_total": ("GRPO_LA5", "PTO_LA5", "total_gpu_h"),
     "PTO_LA5_total_over_PTO_LA0_total": ("PTO_LA5", "PTO_LA0", "total_gpu_h"),
-    "GRPO_LA5_5iters_over_GRPO_LA0_10iters": ("GRPO_LA5", "GRPO_LA0", "total_gpu_h"),
+    # Renamed 2026-08-25. The key was "GRPO_LA5_5iters_over_GRPO_LA0_10iters", which asserted an
+    # iteration count IN THE LEDGER KEY — and kept asserting it after GRPO_LA5 finished at 10, so
+    # the rendered compute_numbers.json named "5iters" over a value where BOTH sides are
+    # 10-iteration totals. Key names must not carry facts that can go stale; the iteration counts
+    # are columns of compute_by_arm.
+    "GRPO_LA5_total_over_GRPO_LA0_total": ("GRPO_LA5", "GRPO_LA0", "total_gpu_h"),
 }
 #: The three totals-ratios re-read under the generation floor (same keys as the paper ledger's
 #: ``ratio_floor.*``).
@@ -813,8 +826,9 @@ def step_multiplier_table(comp: pd.DataFrame) -> pd.DataFrame:
         PTO_iter_gpu_h_K0, PTO_iter_gpu_h_K5, PTO_iter_ratio_K5_over_K0
 
     ⚠ Iteration 1 of GRPO_LA5 ran at ``LOOKAHEAD_SUB_BATCH_SIZE=64`` with a fat API-latency tail
-    (ratio 2.41), so quote the settled iterations 3-5 (~1.9x); GRPO_LA5 has no rows past
-    iteration 5 (right-censored). Reproduces ``compute_axis_step_multiplier.csv``.
+    (ratio 2.41), so quote the settled later iterations (~1.9x); GRPO_LA5 has no rows past its
+    last trained iteration (right-censored — the frame's ``iteration`` column says where).
+    Reproduces ``compute_axis_step_multiplier.csv``.
     """
     sm = step_multiplier(comp, "GRPO")
     if sm.empty:
@@ -1186,8 +1200,9 @@ CAVEATS = [
     "lands in iter 6 (0.967 h). Cumulative totals are right; per-iteration gen splits are not, for that arm. "
     "gen_h is a systematic UNDER-estimate (~0.1 h/iter: the mtime span misses the first batch of 64); gen_h_floor / "
     "cum_gpu_h_floor / total_gpu_h_floor use max(mtime, recorded generation_time_s) without changing the headline; "
-    "under the floor PTO_LA0 8.12->9.22 h, PTO_LA5 19.68->21.08 h, GRPO_LA0 27.91->28.77 h, GRPO_LA5 27.08->27.42 h.",
-    "GRPO_LA5 is right-censored at iteration 5 (27.08 GPU-h); its sweep never reaches GRPO_LA0's later checkpoints.",
+    "read each arm's headline-vs-floor totals off the *_floor columns themselves, never from prose.",
+    "Each arm's budget ceiling is its own last cum_gpu_h in compute_by_iteration, so a sweep reaches only the "
+    "checkpoints that arm's spend bought - read the ceiling off that column, never from prose.",
     "Iso-compute pairs different iterations across arms; pairing is on persona_id.",
     "Quote budget_sweep rows, not a single iso-compute row: the sign of the K lever depends on budget.",
     "K-contrast tables carry mean_delta = K5 - K0 (tracked-EDA convention) AND delta_K0_minus_K5 (paper convention).",

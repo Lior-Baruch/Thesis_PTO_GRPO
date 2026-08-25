@@ -15,7 +15,8 @@ Encoding: project arm palette (PTO cool / GRPO warm — :func:`~eda_analysis.plo
 :data:`K_STYLE` = K=0 solid + circle, K=5 dashed + square (the same encoding as
 ``plotting/lookahead.py`` and ``plotting/compute.py``, so the K contrast survives greyscale).
 Grader: the training oracle (gpt-4o-mini) — training-side figures, not judge-swappable.
-Censoring (GRPO_LA5 stops at iteration 5) is derived from the frames and stated in the suptitle.
+Censoring is derived from the frames (:func:`_censor_note`) and stated in the suptitle — which arm
+stops short, and where, is read off the data every time.
 """
 
 from typing import Optional, Sequence
@@ -51,7 +52,10 @@ def _arm_order(labels) -> list:
 
 
 def _censor_note(frame: pd.DataFrame, iter_col: str = "train_iter") -> str:
-    """'GRPO_LA5 censored at iteration 5' when the arms' last iterations differ (else '')."""
+    """``'GRPO_LA5 censored at iteration 6'`` when the arms' last iterations differ (else ``''``).
+
+    Both the arm AND the iteration are read off ``frame`` — the example is only an example.
+    """
     d = frame[frame[iter_col] != "pooled"] if frame[iter_col].dtype == object else frame
     if d.empty:
         return ""

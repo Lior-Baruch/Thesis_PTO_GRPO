@@ -205,12 +205,12 @@ here.)*
 | Check / figure | Where | What it shows |
 |---|---|---|
 | **`reward_hack_panel`** | `arms/validity.ipynb` | The hack in one frame: per arm, twin y-axis — warmth (`Q1+Q2`, left) **climbs** while `MICI↓` (MI-inconsistency, right) **climbs with it** and `PCT` (real patient change-talk) barely moves. "All rubrics up" ≠ multi-skill. |
-| **Peak-then-regress marking** | `single_metric_trajectory(mark_peaks=True)`, `arms/outcomes.ipynb` | Auto-draws a vline at any arm's peak iteration *only if it regressed after* — surfaces a peak-then-regression arm (e.g. late GRPO) without hardcoding. |
+| **Peak-then-regress marking** | `single_metric_trajectory(mark_peaks=True)`, `arms/outcomes.ipynb` | Auto-draws a vline at any arm's peak iteration *only if it regressed after* — surfaces a peak-then-regression arm without hardcoding. ⚠ **The peak iteration is grader-dependent, so name the grader:** on Q1+Q2 the `best` endpoint is iteration 8 of 10 for GRPO_LA0 and 10 for the other three arms under gpt-4o-mini, but 3 / 7 / 9 / 7 (GRPO_LA0 / GRPO_LA5 / PTO_LA0 / PTO_LA5) under claude-haiku-4-5 — `arms/stats/tables/<judge>/main_results.md`, column `target_iter` at `target=best`. |
 | **Affirmation drift** | `behavior_by_iter` / behavior trajectories, `arms/validity.ipynb` | `B6_AF` rising while `B3_Q` falls over iterations — the over-praise drift signature. |
 | **`overpraise_crosscheck`** | `behavior.py` + `arms/validity.ipynb` | Lexical over-praise marker rate beside the oracle's `MICI_OverPraiseRate` — validates the sycophancy direction. |
-| **`MICI_Rate` trajectory** | `2`/`3` | MI-inconsistent behavior per therapist turn across iterations — does it rise with warmth? |
+| **`MICI_Rate` trajectory** | `arms/outcomes.ipynb` (the all-metric trajectory grid) + `arms/questionnaires.ipynb` §8 (the per-behaviour `mici_detail_grid`) | MI-inconsistent behavior per therapist turn across iterations — does it rise with warmth? |
 | **`subgroup_endpoint_bars`** | `arms/heterogeneity.ipynb` | Score per persona × arm at each arm's final AND best iteration (`subgroup_endpoint_<trait>_{final,best}`) — where does a late regression concentrate? |
-| **`effect_forest`** | `arms/outcomes.ipynb` | Each arm×rubric Δ-vs-base with 95% CI + `dz`; MICI is direction-colored (a positive Δ is *bad*). Readable stand-in for the 28-row table. |
+| **`effect_forest`** (rendered as `effect_vs_base_forest_{final,best}`) | `arms/outcomes.ipynb` | Each arm×rubric Δ-vs-base with 95% CI + `dz`; MICI is direction-colored (a positive Δ is *bad*). Readable stand-in for `arms/stats/tables/<judge>/main_results.md`, which is 4 arms × 9 rubrics = 36 rows at each of the two endpoints. |
 | **PCA / `factor_loadings_bars`** | `arms/validity.ipynb` / `arms/stats.ipynb` | PC1 share once the further metrics are added → is the global-eval halo one factor and technique+MICI a second? |
 | **`question_rate_crosscheck`** | `arms/validity.ipynb` | (§4) — questions collapsing while the halo scores rise is part of the same drift. |
 | **`q2_item_deltas_{final,best}` / `q2_item_group_trajectories`** | `arms/questionnaires.ipynb` §2 | The **reward-composition** view: per-item Δ vs base for Q2's 17 items (per-item scores already stored — no oracle re-run), colored by face-content group (`Q2_ITEM_GROUPS` — OUR analytical grouping, not a validated subscale). Q2 items 1/2/3/10 reward therapist *self-disclosure*, which MI does not prescribe — if those top the Δ ranking, the Q1+Q2 reward itself incentivizes the emotive drift. Loader `data.load_q2_items`; deltas `stats.q2_item_endpoint_deltas`. |
@@ -229,11 +229,78 @@ MCL values). They are NOT outputs of the Exp3 rebuild and must not be cited as s
 
 `arms/training.ipynb` rebuilds the curve **on Exp3 data** (`stats.rank_agreement_by_nturns`, from
 `generations.jsonl`), but MCL=12 means Exp3 has **no slices below 12 turns at all**, so its curve
-starts where Exp2's had already recovered: agreement ≈0.86–0.89 at `n_turns=12`, and from there it
-edges *up* for GRPO (≈0.90 at 50) and *down* for PTO (≈0.76 at 48). Exp3 therefore cannot confirm
-or refute the short-cut finding — it is evidence that the knob is doing its job, not a replication.
-Read the live numbers off `figures/5_training/<judge>/reward_reliability_curve.png` and its
-`_provenance.md` (which arms were drawn), never from prose.
+starts where Exp2's had already recovered: at `n_turns=12` all four arms sit between 0.860 and
+0.892, and from there it edges *up* for both GRPO arms (GRPO_LA0 0.860 → 0.897 by `n_turns` 50,
+GRPO_LA5 0.886 → 0.936) and *down* for both PTO arms (PTO_LA0 0.865 → 0.756 by `n_turns` 48,
+PTO_LA5 0.892 → 0.826; PTO has no 50-turn bin). Exp3 therefore cannot confirm or refute the
+short-cut finding — it is evidence that the knob is doing its job, not a replication. Those figures
+are the primary grader's columns of
+[`lookahead/mechanism/tables/faithfulness_curve.md`](lookahead/mechanism/tables/faithfulness_curve.md)
+(same point estimates as the figure, with CIs); the figure itself is
+`arms/training/figures/<judge>/reward_reliability_curve.png` and its `_provenance.md` says which
+arms were drawn. Read both from the artifact, never from prose.
+
+## 6a · Does look-ahead make the reward more faithful? — the two cuts that sound contradictory
+
+**Module:** `eda_analysis/faithfulness.py` (`k_summary`, `matched_policy`). **Rendered by:**
+`lookahead/mechanism.ipynb` into `lookahead/mechanism/tables/`.
+
+§6's curve, made inferential and split by K. The statistic is unchanged: pairwise sign-agreement
+between the **training proxy** (the training oracle's score of the CHOSEN — arg-max — branch
+candidate, on `prefix + completion` when K=0 and on `prefix + completion + 5 simulated turns` when
+K=5) and the **full-conversation eval Q1+Q2** of the conversation that prefix was cut from; pairs
+formed within one `(arm, eval_iter, n_turns)` cell, 0.5 = chance, 95% CI from a conversation-level
+cluster bootstrap. **Sign: `delta = K0 − K5`, so a NEGATIVE delta means look-ahead is MORE
+faithful.** The proxy can never be re-graded, so a change of grader changes only the eval side.
+
+Two results that read as a contradiction are **two rows of one table**, differing only in its `cut`
+column — i.e. in which training iterations are pooled. Both are in
+[`lookahead/mechanism/tables/faithfulness_k_summary.md`](lookahead/mechanism/tables/faithfulness_k_summary.md):
+
+| cut | what it holds fixed | result |
+|---|---|---|
+| **`matched_iters`** — every train_iter present in both K arms of the method (the row's own `train_iters` column says which; currently 1 through 10, all ten realized, for both methods under both graders) | nothing: at iteration *n* each arm's branch rows come from **its own** policy, and its eval side is that policy's own 96 conversations | **K=5 agrees better.** gpt-4o-mini: GRPO `agr_K0` 0.873 [0.861, 0.884] vs `agr_K5` 0.909 [0.900, 0.917], delta −0.036 [−0.051, −0.021]; PTO 0.836 [0.819, 0.851] vs 0.863 [0.849, 0.876], delta −0.027 [−0.048, −0.007]. claude-haiku-4-5: GRPO delta −0.053 [−0.078, −0.030] (CI excludes 0), PTO −0.012 [−0.036, 0.013] (CI includes 0) |
+| **`train_iter_1`** — the **matched-policy** cut | the policy: at train_iter 1 both K arms start from the SAME base policy π_0 (the eval side is each arm's own independent base draw, so still two conversation sets — but from one policy), leaving the scoring rule as what differs: were 5 simulated turns appended before the oracle saw the candidate? | **Nothing detectable.** All four deltas straddle 0 — gpt-4o-mini: PTO +0.004 [−0.069, 0.073], GRPO +0.015 [−0.026, 0.059]; claude-haiku-4-5: PTO +0.007 [−0.076, 0.092], GRPO −0.014 [−0.075, 0.048] |
+
+The per-`n_turns` breakdown of the same three cuts is
+[`faithfulness_matched_policy.md`](lookahead/mechanism/tables/faithfulness_matched_policy.md), with a
+Wilcoxon-over-bins summary in
+[`faithfulness_matched_policy_tests.md`](lookahead/mechanism/tables/faithfulness_matched_policy_tests.md).
+Read those tests as **descriptive only** — neighbouring bins share conversations, so bins are not
+independent observations — and note that at `train_iter_1` they point in **opposite directions on
+the two graders for GRPO**: 17 of 20 bins favour K=0 under gpt-4o-mini (mean delta +0.0170) and 17
+of 20 favour K=5 under claude-haiku-4-5 (mean delta −0.0390); PTO's matched-policy bins split 10
+against 9 and 13 against 6. A sign that flips with the grader is the shape of no effect, not of a
+small one.
+
+**Which one a write-up should cite.**
+- *"Over the run, the K=5 arms' training signal ranked conversations more like the full-session eval
+  did"* → the `matched_iters` rows. **Name the grader** (significant for GRPO on both, for PTO on
+  the primary only) and say the two arms are different policies.
+- *"Look-ahead helps **because** it makes the training reward a better proxy"* → this is a mechanism
+  claim, so it needs `train_iter_1`, and `train_iter_1` does not support it. Report the mechanism as
+  **unsupported**, not as established.
+
+⚠ **Quoting either row as a refutation of the other is the error this subsection exists to
+prevent.** They condition differently and both are correct. `matched_iters` pools iterations at
+which the two arms are *different policies K itself produced*, scored on *different conversation
+sets*, so its gap is a joint property of the scoring rule and of the trajectory K put the policy on;
+it cannot separate them. `train_iter_1` is the only cut in which the scoring rule is close to the
+sole difference — which is why it can address a mechanism question, and also why it has the least
+data behind it (one model state per arm).
+
+⚠ **`train_iter_1` is matched at the START of the iteration, not throughout it.** Within iteration 1
+GRPO's policy drifts across 2 epochs under K-specific rewards, and PTO's greedy trunk follows the
+K-scored best after the first branch point, so later branch rows in that cut are already
+K-influenced. Treat it as a conservative isolation of the scoring rule, not a perfect one.
+
+⚠ Two further traps in this table family. (i) The third cut, **`iters_1-5` is a FIXED early window,
+not a censoring boundary** — it was GRPO_LA5's full support when it was named, and that arm has
+since finished at iteration 10; read it as "early iterations", never as "as far as GRPO_LA5 got".
+The module still carries a right-censoring caveat for GRPO_LA5 and derives every arm's support per
+grader off the join, which is why the `train_iters` column, not the prose, is the authority on what
+a row pooled. (ii) Faithfulness is agreement between two *rankings*: a higher `agr_K5` says nothing
+about whether the K=5 arm *scores* higher, which is `lookahead/reward`'s question.
 
 ## 6b · The update-weighted probe (what the training signal pushes toward)
 
@@ -262,10 +329,14 @@ branch point the τ filter left unpaired (logged `chosen`, no `rejected`), which
   Mass-Mean-Probe generalized to any weighting. Word/MI-concept projections read out on it.
 - **Probe audit** (`direction_quality`, `pooled_direction_quality`) — `wins_correct` is IN-sample
   and optimistic; **`wins_holdout`** (each half scored by the other half's direction) is the honest
-  one; **`split_half_cos`** says whether the direction is estimated at all. Measured: a
-  per-iteration PTO direction is only ~0.19 reliable and wins 0.55 held out (vs 0.68 in-sample), so
-  per-iteration PTO projections are mostly noise; pooled over iterations it reaches ~0.60, and GRPO
-  ~0.91 (8 candidates per group instead of 2, and more groups).
+  one; **`split_half_cos`** says whether the direction is estimated at all. Measured on the
+  completed grid: a per-iteration PTO direction is only ~0.20 reliable (mean `split_half_cos` over
+  the two PTO arms' ten iterations) and wins 0.54 held out vs 0.67 in-sample, so per-iteration PTO
+  projections are mostly noise. Pooled over iterations `split_half_cos` reaches 0.60 for PTO_LA0
+  and 0.72 for PTO_LA5, against 0.91 for GRPO_LA0 and 0.88 for GRPO_LA5 (8 candidates per group
+  instead of 2, and more groups) — quote the arm, not the method:
+  `arms/preference/tables/<judge>/update_direction_quality.md` and
+  `..._pooled.md`.
 - **`cosine_corrected`** (`pooled_direction_cosines`) — cross-arm direction cosine divided by the
   attenuation ceiling `sqrt(r_a·r_b)`, each `r` a Spearman-Brown-corrected split-half. Same
   correction as the cross-judge agreement in §7, for the same reason: two noisy estimates cannot
@@ -349,7 +420,7 @@ itself is reproducible and grader-independent. Both come from `data/eval_scores/
 | `icc_2_1` | ICC(2,1) — two-way random effects, absolute agreement, single rater (Shrout & Fleiss), computed across N re-scorings of the SAME conversations by the SAME oracle with only the API `seed` differing | Share of per-conversation variance that is signal rather than re-scoring noise. Koo & Li (2016): ≥0.75 good, ≥0.90 excellent |
 | `mean_abs_diff` | Mean \|Δ\| between two reps of the same conversation | The citable "oracle noise" figure, in rubric points |
 | `pearson_r` / `spearman_rho` | Second judge vs primary oracle, per conversation, within (metric, model) | Rank agreement across grader families. **Compare to `ceiling`, never to 1.0** |
-| `ceiling` / `ceiling_basis` | Attenuation ceiling = `sqrt(ICC_primary × ICC_judge)`. **Both terms measured since 2026-07-28** (the second judge has 3 reps on the anchor subset); `ceiling_basis` says whether a cell used measured values or fell back to the old `ICC_judge == ICC_primary` assumption | Upper bound on achievable r — **compare `pearson_r` to this, never to 1.0**. The assumption it replaced flattered MICI: Haiku's MICI ICC is 0.53–0.93, so the true ceiling there is 0.70–0.94, not 0.93 |
+| `ceiling` / `ceiling_basis` | Attenuation ceiling = `sqrt(ICC_primary × ICC_judge)`. **Both terms measured since 2026-07-28** (the second judge has 3 reps on the anchor subset); `ceiling_basis` says whether a cell used measured values or fell back to the old `ICC_judge == ICC_primary` assumption | Upper bound on achievable r — **compare `pearson_r` to this, never to 1.0**. The assumption it replaced flattered MICI: across the four anchor models Haiku's own MICI ICC runs 0.53–0.93, so the measured ceiling there is 0.70–0.93 where the equal-ICC assumption would have put it at 0.86–0.94 |
 | `icc_judge` | The second judge's own ICC(2,1), same construction as `icc_2_1` but across *its* reps. `NaN` where that judge has <2 full reps | Whether weak agreement is the second judge's noise or genuine disagreement — unanswerable without it |
 | `bias_judge_minus_primary` | Mean level offset between judges | Expected and harmless — a harsher grader shifts every score. The thesis reports *contrasts*, which cancel it |
 | `same_sign` | Whether an endpoint contrast (paired Δ over the 96 matched personas) has the same sign under both judges | **The load-bearing number.** Answers `LIMITATIONS.md` §2: is the result an artifact of the patient simulator and the grader being the same model? |
@@ -363,8 +434,14 @@ judges' ICC tables, the observed-r-vs-ceiling table and what they imply are owne
 Read by `measurement/validity.ipynb` §2 from the same tree. **The two judges are not
 interchangeable raters.** The primary oracle *was the training reward*; the second judge never
 touched training. That makes every comparison below an **optimization-target vs held-out-test**
-comparison, so nothing here averages raw scores across judges — level bias is 1.2–1.7 points and is
-*model-dependent*, i.e. comparable in size to the headline effect.
+comparison, so nothing here averages raw scores across judges. The level bias is large **and
+model-dependent**: over the 44 scored model states the held-out judge reads lower by 1.18–1.84
+points on Q1, 1.03–1.78 on Q2 and 1.24–2.16 on MITI, and by under 0.4 on CSQ-8
+([`measurement/validity/tables/second_judge_agreement.md`](measurement/validity/tables/second_judge_agreement.md),
+column `bias_judge_minus_primary`; the `.md` is an excerpt, the full 8 rubrics × 44 states = 352
+rows are on the workbook sheet). On the halo
+rubrics that is comparable in size to the headline effect, which is what makes averaging the two
+graders a silent, model-dependent shrinkage rather than a nuisance offset.
 
 | Metric | Definition | Read |
 |---|---|---|
@@ -378,10 +455,17 @@ comparison, so nothing here averages raw scores across judges — level bias is 
 
 ⚠ **One reading rule that belongs with the definitions, not the results.** The sign-preservation
 ladder's thresholds are **absolute**, so read a ladder *down its own rubric*, never across rubrics:
-`PCT` is a genuine 0–1 proportion (`PCT_ChangeProp`) and never reaches |Δ|≥0.25 at all — its
-ladder stops at the ≥0.10 rung. ⚠ **`MICI` is NOT on that scale and does reach the upper rungs:**
-`MICI_Rate` is an unbounded acts-per-therapist-turn rate (observed 0.00–1.71 per conversation), and
-in `L0` it has **48 of 231** contrasts at |Δ|≥0.25 and **15** at ≥0.50, so read its ladder normally.
+`PCT` is a genuine 0–1 proportion (`PCT_ChangeProp`) and never reaches |Δ|≥0.25 at all — 214 of its
+946 contrasts clear ≥0.10 and **none** clear ≥0.25, so its ladder stops at the ≥0.10 rung.
+⚠ **`MICI` is NOT on that scale and does reach the upper rungs:** `MICI_Rate` is an unbounded
+acts-per-therapist-turn rate (observed 0.00–1.71 per conversation), and on the completed grid it
+has **99 of 946** contrasts at |Δ|≥0.25 and **36** at ≥0.50, so read its ladder normally. Both
+counts come per rubric off
+[`measurement/validity/tables/multijudge_sign_preservation_by_metric.md`](measurement/validity/tables/multijudge_sign_preservation_by_metric.md);
+the denominator is every unordered pair of the 44 scored model states, 44 × 43 / 2 = 946, which is
+also why the pooled ladder in
+[`multijudge_sign_preservation.md`](measurement/validity/tables/multijudge_sign_preservation.md)
+counts 8 rubrics × 946 = 7,568.
 The global ratings Q1/Q2/WAI-SR/MI-SAT/MITI are 1–5 and CSQ-8 is 1–4; nothing here is 1–7. Only the
 pooled `all contrasts` row is cross-rubric comparable.
 

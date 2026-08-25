@@ -11,7 +11,8 @@
 
 Style: PTO cool / GRPO warm (:func:`eda_analysis.plotting_style.arm_palette`); K=0 solid line +
 filled circle, K=5 dashed line + open square (:data:`K_STYLE`) so the K contrast survives greyscale.
-Iteration 0 = the two independent base draws. GRPO_LA5 stops at iteration 5 (right-censored).
+Iteration 0 = the two independent base draws. Each arm's series simply ends at its own last scored
+iteration under the grader in hand.
 
 Contract as everywhere in ``plotting``: takes frames, never touches disk, returns a ``fig`` (the
 notebook owns ``save_fig``). Promoted 2026-08-18 from

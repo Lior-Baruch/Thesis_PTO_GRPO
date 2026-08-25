@@ -42,7 +42,8 @@ Iteration axis
 train_iter 1 is the clean cut where the two K arms of a method differ ONLY in the look-ahead
 measurement (same policy, same 96 personas) — that is where the SD ratio used for the rescaling
 test is taken. ``eval_iter = train_iter − 1`` (the model_iter whose convs the policy also
-produced). **GRPO_LA5 is right-censored at train_iter 5.**
+produced). **Each arm's branch rows stop at its own last training iteration on disk**; read that
+endpoint off the frame (``meta.last_train_iter_by_arm`` in the ledger), never from prose.
 
 Sign / direction convention
 ---------------------------
@@ -81,7 +82,7 @@ from typing import Dict, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-from .constants import BOOT_SEED
+from .constants import BOOT_SEED, last_iterations
 from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
 __all__ = [
@@ -296,7 +297,8 @@ def dispersion_ratios(source, *, gens: Optional[pd.DataFrame] = None,
                       seed: int = BOOT_SEED) -> pd.DataFrame:
     """The "same factor" test (paper table ``dispersion_by_k_ratios``): K=5 / K=0 ratio of the mean
     best-worst margin and of the mean within-group SD (ddof=0), per method × training iteration
-    plus a ``pooled`` row (all iterations both arms have — GRPO 1–5 right-censored, PTO 1–10).
+    plus a ``pooled`` row (all iterations both arms have — the intersection of the two arms'
+    supports; ``n_groups_K0/K5`` say how much was pooled).
 
     ``source`` = a group frame (:func:`load_group_frame`) or an arms list. Columns:
     ``n_groups_K0/K5, margin_K0/K5, margin_ratio [+_lo/_hi], sd_K0/K5, sd_ratio [+_lo/_hi],
@@ -544,7 +546,9 @@ def dispersion_numbers(by_iter: pd.DataFrame, ratios: pd.DataFrame, tau: pd.Data
     meta = {"group_keys": GROUP_KEYS, "sd_estimator": "ddof=0 (population)", "M": M_BRANCHES,
             "tau_trainer": tau_trainer, "taus": sorted(set(float(t) for t in tau["tau"].unique())),
             "arms": sorted(by_iter["arm"].unique()), "grader": GRADER,
-            "grpo_la5_censored_at_train_iter": 5,
+            # ⚠ Derived, never asserted: this was a hard-coded 5 that outlived the run by four
+            # iterations. Where an arm stops is a property of the frame in hand.
+            "last_train_iter_by_arm": last_iterations(by_iter, iter_col="train_iter", base_col=""),
             "n_candidates_loaded": by_iter.attrs.get("n_candidates_loaded"),
             "n_groups": by_iter.attrs.get("n_groups"),
             "seed_default": BOOT_SEED,

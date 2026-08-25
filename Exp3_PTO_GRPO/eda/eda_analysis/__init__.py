@@ -34,6 +34,7 @@ from .constants import (  # noqa: E402,F401
     MITI_THRESHOLDS, Q1_ITEM_SHORT, Q2_ITEM_SHORT, Q2_ITEM_GROUPS, ITEM_QUESTIONNAIRES,
     DISPLAY_NAMES, ARM_LABELS, PERSONA_COLS,
     display_label, short_label, arm_label, item_short_label,
+    last_iterations, support_note,
 )
 
 
@@ -173,6 +174,7 @@ __all__ = [
     "WARMTH_RUBRICS", "EXTRA_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
     "MITI_THRESHOLDS", "Q1_ITEM_SHORT", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS", "ITEM_QUESTIONNAIRES",
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label", "item_short_label",
+    "last_iterations", "support_note",
     "EdaConfig", "notebook_setup", "Setup", "cross_k_arms",
     "scores_by_judge", "FAMILIES", "PER_JUDGE_TOPS",
     "Arm", "discover_arms", "parse_experiment_name", "filter_arms",

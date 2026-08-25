@@ -44,9 +44,11 @@ UNIT (restated in every table caption)
   is computed under EVERY grader passed in ``scores_by_judge`` — primary = gpt-4o-mini (the same
   oracle → same-grader faithfulness), held-out = Claude Haiku 4.5 (cross-grader faithfulness).
   **Never averaged across graders.**
-* **GRPO_LA5 is right-censored at iteration 5** (train_iter 1..5, eval_iter 0..4). K reads for GRPO
-  use the iters 1–5 series / cuts; GRPO_LA0 is shown both on its full support and restricted to
-  1–5 (like-for-like).
+* **Support is derived, never assumed**: each arm's branch rows stop at its own last training
+  iteration on disk and its eval side at the last state THAT GRADER scored, so support can be
+  grader-dependent and is derived per grader (:func:`_series`). GRPO_LA0 is shown both on its full support and
+  restricted to GRPO_LA5's — like-for-like by construction, never by a frozen range; the ``iters``
+  label on every row states the range actually pooled.
 
 Further caveats (kept from the paper generator)
 -----------------------------------------------
@@ -77,6 +79,7 @@ for the per-grader wide table), :func:`faithfulness_by_iter`, :func:`k_faithfuln
 in :mod:`eda_analysis.plotting.faithfulness`.
 """
 
+import re
 from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -104,10 +107,23 @@ from .constants import COOP_LABEL, COOP_ORDER  # noqa: E402,F401
 from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
 from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 CUTS = ["train_iter_1", "iters_1-5", "matched_iters"]
-# series = (arm, iteration-range label, eval_iters subset or None). GRPO_LA0 appears twice: its
-# full support (1-10) and the 1-5 subset matched to GRPO_LA5's censored support (like-for-like).
-SERIES = [("PTO_LA0", "1-10", None), ("PTO_LA5", "1-10", None), ("GRPO_LA0", "1-10", None),
-          ("GRPO_LA0", "1-5", frozenset({0, 1, 2, 3, 4})), ("GRPO_LA5", "1-5", None)]
+#: Curve series SPEC: ``(arm, matched_to)``. Every arm is drawn on its OWN support; a PAIRED arm is
+#: drawn a SECOND time restricted to the support the pair SHARES (the like-for-like row). The pair
+#: is symmetric — naming it on one arm restricts BOTH — so which of the two is written down here
+#: carries no meaning beyond column order. The iteration-range LABEL and the eval_iters subset are
+#: BOTH derived per grader by :func:`_series` — they are never written down here. PTO's pair is
+#: dormant while its two arms cover the same iterations (no second row is emitted); it exists so
+#: the guarantee does not depend on which arm happens to be the censored one.
+#:
+#: ⚠ This list used to carry the ranges as literals (``("GRPO_LA5", "1-5", None)`` and a
+#: ``frozenset({0,1,2,3,4})`` for GRPO_LA0). Two things were wrong with that, and both were silent:
+#: the ``None`` on GRPO_LA5 applied NO filter at all, so the row pooled every eval_iter that
+#: existed while the label still said ``1-5`` (a false label over correct numbers); and the frozen
+#: GRPO_LA0 subset stopped matching GRPO_LA5's real support the moment that arm advanced, so the
+#: "like-for-like" row silently compared different iteration sets. An arm's support is a property
+#: of the per-judge join (``fd.AB[judge].cells``) — the score lake covers an arm further under one
+#: grader than another — so it can only be read off the frame, per grader, every time.
+SERIES = [("PTO_LA0", "PTO_LA5"), ("PTO_LA5", None), ("GRPO_LA0", "GRPO_LA5"), ("GRPO_LA5", None)]
 PRIMARY_LABEL = judge_dirname(PRIMARY_JUDGE_TAG)          # "gpt-4o-mini"
 _N_BOOT = 1000
 _MIN_PAIRS = 20
@@ -127,18 +143,25 @@ UNIT_NOTE = (
     "n_turns = utterances BEFORE the scored completion (MCL=12 = shortest cut)."
 )
 SIGN_NOTE = "K-contrast sign: delta = K0 - K5 (+ => K=0 higher; a NEGATIVE delta means look-ahead is more faithful)."
-CENSOR_NOTE = "GRPO_LA5 is right-censored at iteration 5 (train_iter 1..5, eval_iter 0..4)."
+# A LEGEND, not an assertion (see the note on compute.CENSOR_NOTE — this said "GRPO_LA5 is
+# right-censored" long after that arm finished at iteration 10).
+CENSOR_NOTE = ("Each arm's branch rows stop at its own last training iteration on disk and its eval side at "
+               "the last state that grader scored, so support can be grader-dependent - the `iters` "
+               "label on each row states the train_iter range actually pooled.")
 GRADER_NOTE = ("Proxy = the training oracle (gpt-4o-mini) by construction; eval side under the grader named in "
                "the table (primary = gpt-4o-mini, held-out = Claude Haiku 4.5). Never averaged across graders.")
 CUT_NOTE = ("Cuts: cut=train_iter_1 = MATCHED POLICY — both K arms of a method branch from the SAME base policy pi_0 "
             "(eval side = that arm's independent base draw, model_iter_0), so K=0 vs K=5 is free of policy divergence; "
-            "cut=iters_1-5 pools train_iter 1..5 (GRPO_LA5's full support; policies have diverged); cut=matched_iters "
-            "pools every train_iter present in BOTH K arms (PTO 1..10, GRPO 1..5).")
+            "cut=iters_1-5 pools train_iter 1..5 - a FIXED early window (it was GRPO_LA5's full support when the "
+            "cut was defined; that arm has since advanced, so read it as an early-iterations cut, not a censoring "
+            "boundary), policies have diverged; cut=matched_iters pools every train_iter present in BOTH K arms of "
+            "the method, derived from the data (the train_iters column of each row says which).")
 CAVEATS = [
     "proxy_score is the training oracle's score by construction; it cannot be re-graded, so the held-out-judge tables change only the EVAL side.",
     "PTO greedy trunks share only the first MCL=12 utterances with the eval conversation; beyond n_turns=12 the PTO prefix follows the best-of-M trunk, so PTO's curve mixes cut length with trunk divergence (GRPO prefixes are exact slices).",
     "GRPO branch rows include the policy drifting within an iteration (2 epochs) and ~3-10% eval-split groups scored at iteration end; PTO rows come from the frozen iter-start policy.",
-    "GRPO_LA5 is right-censored at train_iter 5; K reads for GRPO use the iters 1-5 series / cuts.",
+    "K reads use each arm's own-support series / cuts, and where the two K arms' supports differ the longer arm is "
+    "drawn a second time restricted to exactly the shorter one's support (derived per grader, not a frozen range).",
     "Pairs within a cell are not independent (each conversation enters n-1 pairs) — CIs come from the conversation-level cluster bootstrap, not from n_pairs.",
     "Wilcoxon over n_turns bins treats correlated bins as observations — descriptive only.",
     "GRPO_LA5 iteration 1 captured only its second epoch (the run resumed after a crash and the recorder flushes once per iteration).",
@@ -310,8 +333,14 @@ class FaithfulnessData:
         return "_heldout" if len(self.heldout) == 1 else f"_{judge}"
 
     def cut_iters(self, method: str, cut: str) -> set:
-        """eval_iters used by a cut: train_iter_1 → {0}; iters_1-5 → {0..4}; matched_iters →
-        every train_iter present in BOTH K arms of the method (PTO 1..10, GRPO 1..5)."""
+        """eval_iters used by a cut: ``train_iter_1`` → ``{0}``; ``iters_1-5`` → the fixed early
+        window ``{0..4}``; ``matched_iters`` → every train_iter present in BOTH K arms of the
+        method, derived from the branch rows (never a written-down range).
+
+        ⚠ ``iters_1-5`` is a FIXED window, kept as-is so its numbers stay comparable with the
+        frozen paper fixture. It was GRPO_LA5's full support when it was named; that arm has since
+        advanced, so it no longer marks a censoring boundary — it is just an early-iterations cut.
+        """
         both = set(self.train_iters.get(f"{method}_LA0", [])) & set(self.train_iters.get(f"{method}_LA5", []))
         if cut == "train_iter_1":
             ti = {1}
@@ -367,8 +396,61 @@ def check_against_rank_agreement(fd: FaithfulnessData, scores_long_primary: pd.D
 
 # ── 1) curve ─────────────────────────────────────────────────────────────────
 
-def _series(fd: FaithfulnessData):
-    return [(a, lab, eis) for a, lab, eis in SERIES if a in fd.arm_labels]
+def _arm_eval_iters(fd: FaithfulnessData, judge: str, arm: str) -> frozenset:
+    """The eval_iters ``arm`` actually HAS under ``judge`` — read off that grader's bootstrap cells
+    (i.e. off the branch-row-to-eval join), never assumed. Grader-dependent by construction: the
+    score lake can cover an arm further under one judge than another."""
+    return frozenset(int(ei) for (a, ei, _nt) in fd.AB[judge].cells if a == arm)
+
+
+def _iters_label(eval_iters) -> str:
+    """``{0..5}`` → ``"1-6"`` (train_iter = eval_iter + 1); a gap → ``"1,2,5"``; empty → ``""``."""
+    ts = sorted(int(e) + 1 for e in eval_iters)
+    if not ts:
+        return ""
+    return f"{ts[0]}-{ts[-1]}" if ts == list(range(ts[0], ts[-1] + 1)) else ",".join(str(t) for t in ts)
+
+
+def _matched_partners(arm: str) -> List[str]:
+    """The arms ``arm`` must be shown against on a SHARED support: the partner it names in
+    :data:`SERIES` **and** every arm that names it. Symmetric on purpose — see :func:`_series`."""
+    return list(dict.fromkeys([m for a, m in SERIES if a == arm and m]
+                              + [a for a, m in SERIES if m == arm]))
+
+
+def _series(fd: FaithfulnessData, judge: str):
+    """``[(arm, iters_label, eval_iters|None)]`` for ONE grader, derived from that grader's join.
+
+    Each arm appears on its own support (no filter). For a matched pair (A, B), BOTH arms appear
+    again restricted to ``A & B`` whenever that is narrower than the arm's own support — so the
+    pair's two rows cover exactly ``A & B`` on every frame, whichever way the supports lie.
+
+    ⚠ The restriction has to be applied to both sides. Restricting only the arm that NAMES the
+    partner is equivalent **only while the partner's support is a subset of it** — the shape the
+    live data happens to have. A hole anywhere in A (a missing ``generations.jsonl``, an
+    ``AgreementBoot`` cell dropped for n < 2 conversations, one model state not yet in that
+    grader's lake), or B simply running ahead of A, and the one-sided version silently pools
+    different iteration sets under a row labelled "like-for-like".
+    """
+    out, seen = [], set()
+    own = {}
+    for arm, _m in SERIES:
+        if arm in fd.arm_labels:
+            s = _arm_eval_iters(fd, judge, arm)
+            if s:
+                own[arm] = s
+    for arm, _m in SERIES:
+        if arm not in own:
+            continue
+        out.append((arm, _iters_label(own[arm]), None))
+        for partner in _matched_partners(arm):
+            if partner not in own:
+                continue
+            sub = own[arm] & own[partner]
+            if sub and sub != own[arm] and (arm, sub) not in seen:
+                seen.add((arm, sub))
+                out.append((arm, _iters_label(sub), frozenset(sub)))
+    return out
 
 
 def faithfulness_curve(data, scores_by_judge=None, *, min_pairs: int = _MIN_PAIRS, **kw) -> pd.DataFrame:
@@ -378,14 +460,16 @@ def faithfulness_curve(data, scores_by_judge=None, *, min_pairs: int = _MIN_PAIR
     ``n_turns='all'`` pool every bin, ``'12-20'/'22-34'/'36-50'`` pool the coarse ranges. Columns:
     ``judge, arm, iters, method, K, n_turns (str), agreement, ci_lo, ci_hi, n_pairs, n_iters,
     n_convs_mean``. Bins with < ``min_pairs`` pairs are dropped. GRPO_LA0 appears on its full
-    support (``iters='1-10'``) AND restricted to iters 1–5 (like-for-like with censored GRPO_LA5).
+    support AND restricted to GRPO_LA5's support (like-for-like with the censored arm) — both the
+    ``iters`` label and the restriction are derived PER GRADER off that grader's join, so the two
+    matched rows always cover the same iterations and no label can go stale.
     Use :func:`curve_wide` for the per-grader wide table (``reward_faithfulness_curve`` /
     ``_curve_heldout``)."""
     fd = _as_data(data, scores_by_judge, **kw)
     rows = []
     for j in fd.judges:
         ab = fd.AB[j]
-        for arm, iters_lab, eis in _series(fd):
+        for arm, iters_lab, eis in _series(fd, j):
             for nt in fd.all_bins + ["all"] + [c[0] for c in COARSE]:
                 if nt == "all":
                     ks = ab.keys(arm=arm, eval_iters=eis)
@@ -406,13 +490,25 @@ def faithfulness_curve(data, scores_by_judge=None, *, min_pairs: int = _MIN_PAIR
     return pd.DataFrame(rows)
 
 
+def _label_rank(lab: str) -> int:
+    """Sort key putting the WIDER iteration range first (``"1-10"`` before ``"1-6"``). String sort
+    would not: ``"1-10" < "1-6"`` happens to be right and ``"1-9" < "1-10"`` is wrong."""
+    ns = [int(x) for x in re.findall(r"\d+", str(lab))]
+    return -(max(ns) - min(ns)) if ns else 0
+
+
 def curve_wide(curve: pd.DataFrame, judge: str, *, bins: Optional[Sequence[int]] = None) -> pd.DataFrame:
     """One grader's curve as the paper's wide table: rows = n_turns bins (+ coarse ranges + all),
     columns ``"<arm> (iters <range>)"`` = ``agreement [lo, hi]`` and ``"... pairs"``."""
     d = curve[curve["judge"] == judge]
     if bins is None:
         bins = sorted({int(b) for b in d["n_turns"] if str(b).isdigit()})
-    series = [(a, l) for a, l, _ in SERIES if ((d["arm"] == a) & (d["iters"] == l)).any()]
+    # Derived off the frame, not off SERIES: the iteration ranges are per-grader labels that
+    # faithfulness_curve computed. SERIES supplies only the arm ORDER; within an arm the wider
+    # support comes first (its own support, then the like-for-like restriction).
+    order = {a: i for i, (a, _m) in enumerate(SERIES)}
+    series = sorted({(str(a), str(l)) for a, l in zip(d["arm"], d["iters"])},
+                    key=lambda t: (order.get(t[0], len(order)), _label_rank(t[1]), t[1]))
     rows = []
     for nt in [str(b) for b in bins] + [c[0] for c in COARSE] + ["all"]:
         row = {"n_turns": nt}
@@ -596,8 +692,9 @@ def matched_policy(data, scores_by_judge=None, **kw) -> Tuple[pd.DataFrame, pd.D
     Returns ``(per_bin, tests)``. ``per_bin`` columns: ``judge, method, cut, n_turns (str; digits,
     the coarse ranges and 'all'), agr_K0, K0_lo, K0_hi, pairs_K0, agr_K5, K5_lo, K5_hi, pairs_K5,
     delta_K0_minus_K5, d_lo, d_hi``. Cuts: ``train_iter_1`` = MATCHED POLICY (both K arms branch from
-    the SAME base policy π_0; eval side = that arm's independent base draw), ``iters_1-5`` (GRPO_LA5's
-    full support; diverged policies), ``matched_iters`` (every train_iter in BOTH K arms). Sign:
+    the SAME base policy π_0; eval side = that arm's independent base draw), ``iters_1-5`` (a FIXED
+    early window, NOT a censoring boundary - see :meth:`FaithfulnessData.cut_iters`; diverged
+    policies), ``matched_iters`` (every train_iter in BOTH K arms). Sign:
     + ⇒ K=0 higher. Per-bin CI = percentile of the difference of independent cluster-bootstrap
     replicates. Bins with < 20 pairs in either arm are dropped.
     ``tests`` = Wilcoxon signed-rank over the numeric n_turns BINS (paired by bin) of
@@ -710,8 +807,8 @@ def proxy_levels(data, scores_by_judge=None, **kw) -> Tuple[pd.DataFrame, pd.Dat
     ``levels``: ``proxy_mean`` = mean over that iteration's branch points of the CHOSEN (arg-max)
     candidate's training-oracle score (K=0: prefix+completion; K=5: the K-EXTENDED score) — the
     reward the update actually optimised, indexed by the policy that produced it (train_iter =
-    eval_iter + 1; the final model state, eval_iter 10 / GRPO_LA5 5, was evaluated but never
-    trained on, hence NaN proxy). ``eval_mean<sfx>`` = mean full-conversation Q1Q2 of the same
+    eval_iter + 1; each arm's final model state — its last eval_iter, earlier for the
+    censored arm — was evaluated but never trained on, hence NaN proxy). ``eval_mean<sfx>`` = mean full-conversation Q1Q2 of the same
     model state under each grader (primary unsuffixed, held-out ``_heldout``) — never averaged.
     ``gap_proxy_minus_eval<sfx>`` = proxy_mean − eval_mean (+ ⇒ the training reward reads higher
     than the full-conversation eval). ``mean_n_turns`` = mean prefix length of the branch points.

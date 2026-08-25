@@ -1,0 +1,38 @@
+\section*{Ethics Statement}
+
+\paragraph{No human subjects, and no clinical claim.}
+Every conversation in this work is between two language models. No human patient data was
+collected, used, or generated, and no human participants were involved at any stage. Nothing here
+is evidence that the resulting model is safe or effective for use with people. A 1B-parameter model
+trained against a simulated patient and graded by another language model is a research artifact;
+motivational interviewing is a clinical skill practised with people in distress, and the gap
+between the two is not bridged by any number in this paper.
+
+\paragraph{The failure mode we document is a safety-relevant one.}
+The $K{=}0$ policy learned to praise its patient more or less regardless of what they said, and its
+score went \emph{up} while it did so. In a counselling setting that behaviour is not a neutral
+artifact of optimisation: unearned affirmation of ambivalence or of a harmful plan is precisely the
+error motivational interviewing trains counsellors out of. We report it prominently, including the
+residual drift that survives under look-ahead (§\ref{sec:behaviour-honest}), because a reader
+evaluating this line of work should see the failure mode as clearly as the improvement. We would
+consider it a misuse of this paper to cite the headline gain without the behavioural result.
+
+\paragraph{Simulated patients encode a narrow population.}
+The 96 personas vary six attributes around two presenting problems (smoking and obesity). They are
+a coarse and culturally narrow caricature of help-seeking, they were authored by the researchers
+rather than derived from clinical data, and results on them should not be read as generalising
+across presenting problems, demographics, or cultures. The saturated design (§\ref{sec:limitations})
+means we cannot even measure generalisation within this grid.
+
+\paragraph{Judges inherit their models' biases.}
+Both graders are commercial LLMs whose training data and alignment procedures are undisclosed. They
+disagree systematically about level (1.2--1.7 points) and, as §\ref{sec:measurement} shows, can
+disagree severely about individual conversations. Using such models as the sole arbiter of
+therapeutic quality is a methodological convenience, not a validated measurement, and any downstream
+use of this reward signal should treat it as such.
+
+\paragraph{Compute and models.}
+Training used a single cloud A100-class GPU for approximately $27.9 + 51.2 = 79.1$ GPU-hours across
+the two arms reported here, plus API inference for the patient simulator and the graders. The base
+model is openly licensed; the patient simulator and graders are commercial APIs used within their
+terms of service.

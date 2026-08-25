@@ -1,0 +1,134 @@
+\section{Where the ruler stops working}
+\label{sec:measurement}
+
+The result in §\ref{sec:reward} rests on two graders agreeing about an ordering. This section
+reports, at the level of individual conversations, where they stop agreeing --- because that place
+turns out to be the winning checkpoint itself, and a paper that reported the gain without it would
+be hiding its own sharpest caveat.
+
+\subsection{Arm-level agreement is strong}
+
+Across the parent experiment's full grid, the held-out judge preserves the sign of
+$6{,}693$ of $8 \times \binom{44}{2} = 8 \times 946 = 7{,}568$ pairwise arm $\times$ instrument
+contrasts, or $88.4\%$; restricted to contrasts the training oracle scores at
+$|\Delta| \geq 0.25$ this rises to $97.2\%$, and at $|\Delta| \geq 0.50$ to $99.3\%$. The two
+graders disagree, in other words, mainly about differences too small to claim. Every contrast this
+paper reports is well inside the range where they agree.
+
+\subsection{Per-conversation agreement collapses at the winning checkpoint}
+
+That statistic is \emph{arm-level}, and it does not license a per-conversation claim. On the
+rewarded rubric Q1, per-conversation agreement between the two graders along the $\Kf$ arm reads
+$0.941$ at iteration 5, then $0.877$, $0.842$, $0.769$, and falls to $\mathbf{0.487}$ at iteration
+9 and $\mathbf{0.544}$ at iteration 10 --- against a median of $0.855$ across all 44 model states
+of the parent experiment. \textbf{These are the two lowest-agreeing of the 44 states on Q1}
+(the qualifier matters: MITI and MICI reach lower absolute correlations at this same state, but
+they do so in every arm --- see Table~\ref{tab:agreement}). The best checkpoint by score is the
+checkpoint the two graders most disagree about, conversation by conversation.
+
+The decline is also not unique to this arm. Both $K{=}5$ arms lose Q1 agreement over their last two
+iterations (PTO's $K{=}5$ runs $0.852 \rightarrow 0.797 \rightarrow 0.667$) while neither $K{=}0$
+arm does. With two arms per optimizer we cannot separate "a property of this checkpoint" from "a
+property of long $K{=}5$ training", and we flag it as the more interesting of the two readings
+rather than asserting either.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Instrument & $r$ @I10 & med. & $\Delta$ med. & rank\\
+\midrule
+MITI (coding)   & $0.333$ & $0.658$ & $-0.325$ & $1/44$\\
+Q1 (rewarded)   & $0.544$ & $0.855$ & $-0.311$ & $2/44$\\
+MICI (coding)   & $0.287$ & $0.518$ & $-0.231$ & $4/44$\\
+Q2 (rewarded)   & $0.590$ & $0.784$ & $-0.195$ & $2/44$\\
+\midrule
+CSQ-8           & $0.851$ & $0.903$ & $-0.052$ & $4/44$\\
+PCT             & $0.928$ & $0.954$ & $-0.026$ & $4/44$\\
+MI-SAT          & $0.906$ & $0.930$ & $-0.023$ & $5/44$\\
+WAI-SR          & $0.898$ & $0.922$ & $-0.023$ & $6/44$\\
+\bottomrule
+\end{tabular}
+\caption{Per-conversation cross-grader agreement at the winning checkpoint
+(\texttt{GRPO\_LA5\_I10}) against each instrument's own median and its own rank across all 44 model
+states ($1/44$ = this instrument's worst-agreeing state in the experiment). Instruments must be
+compared \emph{down their own column}, never across --- their baseline agreement differs by more
+than the effect. The disagreement is real but \emph{not} confined to the rewarded rubric.
+Source: \texttt{judge\_saturation\_data} (measurement/validity family).}
+\label{tab:agreement}
+\end{table}
+
+The collapse is selective, but not in the way one might assume, and comparing raw correlations
+across instruments would get it backwards --- the eight rubrics differ in baseline agreement by
+more than the effect, so each must be read against its own distribution. Doing that
+(Table~\ref{tab:agreement}), the disagreement is \textbf{not} confined to the rewarded rubric. MITI
+falls furthest from its own median ($-0.325$) and reaches its \emph{worst value across all 44 model
+states} at this exact cell; Q1 is next ($-0.311$, its second-worst state); MICI and Q2 follow. The
+four patient-perspective Likert instruments barely move ($-0.02$ to $-0.05$).
+
+The pattern that holds is that the graders stop agreeing on the two \emph{rewarded} rubrics and on
+the two \emph{behaviour-coding} rubrics, and keep agreeing on the global-impression ones. That is
+consistent with two distinct causes stacking at the same checkpoint: saturation on what was
+optimised (§\ref{sec:measurement}, below), and the known difficulty of cross-model behaviour
+coding, where MITI is the least dependable instrument in the battery experiment-wide
+(single-grader dependability $0.624$, against $0.91$--$0.97$ for the Likert rubrics). We report
+both rather than attributing all of it to the reward.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\columnwidth]{figures/judge_saturation.png}
+\caption{\textbf{Top:} per-conversation cross-grader agreement on Q1 by iteration, one line per
+arm, against the median across all 44 model states. $\Kf$'s late collapse is the lowest point in
+the experiment on this rubric. \textbf{Bottom:} the mechanism --- Q1 standard deviation for $\Kf$
+under each grader, on the same conversations. The training oracle's spread collapses monotonically
+($\rho = -0.86$); the held-out judge's is flat ($\rho = +0.44$, n.s.). Only one ruler moves, which
+is what distinguishes a saturating grader from conversations that became alike. (SD is a spread,
+not a level, so the two graders can share this axis; their score levels cannot be compared.)
+Source: \texttt{judge\_saturation} (measurement/validity family).}
+\label{fig:saturation}
+\end{figure}
+
+\subsection{The mechanism is one-sided saturation, not homogenised output}
+
+A correlation can collapse because the underlying conversations became uniform, or because one
+rater ran out of range. Here it is the second, and the two are distinguishable --- because
+\textbf{only one of the two graders' spreads moves}.
+
+The training oracle's Q1 standard deviation falls monotonically across $\Kf$'s run,
+$1.336$ at base to $0.701$ at iteration 10 (Spearman $\rho = -0.86$ between SD and iteration,
+$p = .001$). That is a variance ratio of $0.701^2 / 1.336^2 = 0.275$, and it is not an artifact of
+which iteration one anchors on: against iteration 1 it is $0.285$, against the mean of iterations
+1--10 it is $0.544$. It has lost most of its discriminative range as its scores pile up near the
+top of the scale.
+
+On the \emph{identical conversations}, the held-out judge's Q1 spread does not move: $\rho = +0.44$,
+$p = .18$, hovering between $0.76$ and $1.00$ with no trend. \todo{earlier drafts said this grader's
+variance \emph{grew} $1.410\times$. That figure anchors on iteration 0, which happens to be the
+series minimum; re-anchored to iteration 1 it is $1.062\times$ and against the mean of iterations
+1--10 it is $1.034\times$. Flat is the honest description, and it is all the argument needs --- do
+not reinstate the growth claim.}
+
+Flat is sufficient. Had the conversations themselves become homogeneous, \emph{both} graders'
+spreads would have shrunk. One shrank and the other did not, on the same 96 conversations, so what
+changed is the ruler and not the thing being measured.
+
+\subsection{What this does and does not undermine}
+
+It does not undermine the headline. The held-out judge, which is the one still discriminating,
+independently ranks $\Kf$ above $\Kz$ at $\dz\,1.030$ --- a \emph{larger} standardised effect than
+the saturating grader reports. An arm-level ordering that both graders agree on, one of them from
+an unsaturated range, is exactly the claim that survives.
+
+It does undermine three things, and we mark them wherever they appear. First, any per-conversation
+claim about $\Kf$'s late checkpoints on the four depressed instruments --- Q1, Q2, MITI and MICI.
+This is why §\ref{sec:behaviour}'s behavioural argument is built on the deterministic lexical
+marker and not on the MITI/MICI counts: the two rubrics carrying the coded-behaviour signal are
+precisely the two whose cross-grader agreement is worst at this checkpoint. Second, the absolute
+endpoint level $4.517$, which sits
+in the compressed part of the training oracle's range and should be read as "near the top of this
+grader's scale", not as a calibrated score. Third, the precise magnitude of the residual
+MI-inconsistency in §\ref{sec:behaviour-honest}, where the two graders differ. No K$=5$ model state
+has a repeatability replicate, so cross-grader agreement on this arm cannot be benchmarked against
+a measured attenuation ceiling --- we report the raw correlations and say so.

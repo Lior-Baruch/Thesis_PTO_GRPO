@@ -32,8 +32,10 @@ LONGER) because that is how the ICLR claim is phrased.
 :func:`eda_analysis.data.attach_personas`; NEVER ``file_index``). Group-level tables (selection)
 have no persona pairing. Brown-Forsythe treats the two arms as independent groups (pairing not used).
 
-**Censoring:** GRPO_LA5 is right-censored at iteration 5 (its K=0 sibling runs to 10), so matched
-iterations are 0..10 for PTO and 0..5 for GRPO. **Iteration 0** = two INDEPENDENT base draws
+**Support:** each method's matched iterations are the intersection of its two arms' iterations,
+derived per frame (and
+grader-dependent: the score lake covers an arm further under one judge than another).
+**Iteration 0** = two INDEPENDENT base draws
 (same base policy) per method — a free noise-floor row for every K contrast; the SD tally and the
 lowest-SD summary exclude it (trained iterations 1..N only).
 
@@ -105,7 +107,9 @@ from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 # Caption fragments (verbatim from the paper generator) — the notebook composes captions from them.
 SIGN = "Sign: + => K=0 higher (K0 - K5)."
 PAIR = "Pairing unit: persona_id (the per-iteration file shuffle replayed; never file_index)."
-CENSOR = "GRPO_LA5 is right-censored at iteration 5 (its K=0 sibling runs to 10)."
+# A LEGEND, not an assertion (see the note on compute.CENSOR_NOTE).
+CENSOR = ("How far each arm is scored can be grader-dependent; each table's iteration column is the "
+          "record of what was actually pooled.")
 ITER0 = "Iteration 0 = two INDEPENDENT base draws (same base policy) — a free noise-floor row."
 
 
@@ -288,7 +292,8 @@ def length_kcontrast(shape: pd.DataFrame, *, endpoints: Optional[Sequence[Tuple[
                      metrics: Sequence[str] = tuple(LENGTH_METRICS)) -> pd.DataFrame:
     """The ICLR "K=5 gives shorter conversations" claim at the endpoints: the persona-paired K
     contrast on session length at each method's LAST MATCHED iteration (default: derived from
-    ``shape`` — today PTO iter 10 and GRPO iter 5, where GRPO_LA5 is right-censored). Rows are
+    ``shape`` — the last iteration that method has there; GRPO's is earlier because GRPO_LA5 is
+    right-censored). Rows are
     pulled from :func:`session_shape_paired`; ``K5_minus_K0`` = the K=5 arm's mean minus the K=0
     arm's mean (positive = K=5 LONGER); ``mean_delta_K0_minus_K5`` keeps the package convention.
     Reproduces ``session_shape_stability_length_kcontrast``."""
@@ -684,7 +689,8 @@ CAPTIONS = {
         "n_pm_holm_sig_K5_lower / _K0_lower = iterations where the persona-paired Pitman-Morgan test is "
         "Holm-significant (within judge x method x rubric across iterations) with K=5 resp. K=0 less dispersed; "
         "n_bf_holm_sig = Brown-Forsythe Holm-significant iterations (either direction). iter0_sd_* = the two "
-        f"independent base draws (noise floor for an SD difference). {CENSOR} PTO: N=10 iterations; GRPO: N=5."),
+        f"independent base draws (noise floor for an SD difference). {CENSOR} N per method = that method's "
+        "trained matched iterations, i.e. the count the n_* columns tally over."),
     "sd_summary": (
         "**Where the lowest SD sits (trained iterations 1..N only; iteration 0 excluded), per grader and rubric.** "
         "min_sd_* = the model state with the smallest across-persona SD and its mean; max_mean_* = the state with "
@@ -694,12 +700,12 @@ CAPTIONS = {
     "length_endpoints": (
         "**Base -> final session length per arm (arm means over 96 personas; base = the arm's own iteration-0 "
         "draw).** conv_len in utterances, n_th_turns in therapist turns, mean_turn_len in characters per therapist "
-        f"turn; change = final - base. {CENSOR} The K contrast at the endpoints (PTO iter 10, GRPO iter 5) is in "
+        f"turn; change = final - base. {CENSOR} The K contrast at each method's own endpoint is in "
         "the length_kcontrast table."),
     "length_kcontrast": (
         "**The ICLR 'K=5 gives shorter conversations' claim at the endpoints: persona-paired K contrast on session "
-        "length at PTO iteration 10 and GRPO iteration 5 (the last matched GRPO iteration; GRPO_LA5 is "
-        "right-censored there).** K5_minus_K0 is the K=5 arm's mean minus the K=0 arm's mean (positive = K=5 "
+        "length at each method's LAST MATCHED iteration (the `iteration` column records which - it is derived from "
+        "the two arms' own supports).** K5_minus_K0 is the K=5 arm's mean minus the K=0 arm's mean (positive = K=5 "
         f"LONGER); mean_delta_K0_minus_K5 keeps the paper's convention ({SIGN}). dz / bootstrap 95% CI / Wilcoxon "
         f"p on the paired deltas; p_holm within (method, metric) across iterations. {PAIR} Judge-free."),
     "selection": (

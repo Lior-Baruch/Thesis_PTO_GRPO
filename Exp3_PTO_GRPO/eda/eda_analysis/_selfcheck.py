@@ -40,7 +40,7 @@ Data (skipped if data absent):
   * ``compute axis (GPU-hours)`` — every trained iteration costed; phases sum; iso-compute pairs on
     persona with the ``stats.py`` sign convention.
   * ``paper fixture anchors`` — the paper's frozen numbers
-    (``papers/2026_lookahead_pto_grpo/analysis/out/*.json``, kept as a fixture) match the promoted
+    (``papers/archive/2026_lookahead_pto_grpo/analysis/out/*.json``, kept as a fixture) match the promoted
     modules: PTO Q1Q2 iter 6 K contrast +0.257 / dz 0.417 via ``stats.paired_arrays``; GRPO
     per-step K5/K0 ratio at iters 3–5 = 1.965/1.962/1.911 (``compute.step_multiplier``); PTO
     iter-1 ``margin_mean`` PTO_LA5 0.424 + PTO_LA0 0.274 (``dispersion.dispersion_by_iter``);
@@ -1082,7 +1082,7 @@ def _c_exports_routing() -> str:
             "ledger merge; index+captions; PRESERVE guarded; judge-scoped reset; xlsx bytes stable")
 
 
-_FIXTURE_DIR = os.path.normpath(os.path.join(_EDA_DIR, "..", "..", "papers",
+_FIXTURE_DIR = os.path.normpath(os.path.join(_EDA_DIR, "..", "..", "papers", "archive",
                                              "2026_lookahead_pto_grpo", "analysis", "out"))
 
 
@@ -1150,8 +1150,9 @@ def _scout_first_groups(arm, *, n_groups: int | None = None) -> dict:
 def _c_paper_fixture(probe: bool = False) -> str:
     """The paper's frozen numbers reproduce from the promoted modules (the anchor cells).
 
-    ``papers/2026_lookahead_pto_grpo/analysis/out/*.json`` is KEPT as a fixture after the paper's
-    generators were promoted into the package (2026-08-18 reorg): if a promoted module drifts, the
+    ``papers/archive/2026_lookahead_pto_grpo/analysis/out/*.json`` is KEPT as a fixture after the
+    paper's generators were promoted into the package (2026-08-18 reorg; the draft itself was
+    retired to ``papers/archive/`` on 2026-08-25): if a promoted module drifts, the
     paper's quoted numbers stop matching what the EDA renders, and nothing else would notice.
     Anchors (means / dz / ratios / counts must match to the fixture's precision; the fixture's
     bootstrap CIs are seed-0 while the package seeds with ``BOOT_SEED``, so CIs are NOT compared —

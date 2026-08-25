@@ -3,6 +3,396 @@
  "_name": "method_contrast",
  "_judge": null,
  "numbers": {
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.base_mean": {
+   "value": 3.000367647058823,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.final_mean": {
+   "value": 4.259742647058824,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.delta": {
+   "value": 1.2593750000000001,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.dz": {
+   "value": 1.428829896838685,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.ci_lo": {
+   "value": 1.0940548406862747,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.ci_hi": {
+   "value": 1.4429105392156867,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA0.Q1Q2.p_holm": {
+   "value": 3.757827148371589e-16,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.base_mean": {
+   "value": 3.003247549019608,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.final_mean": {
+   "value": 4.306740196078432,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.delta": {
+   "value": 1.3034926470588235,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.dz": {
+   "value": 1.3531717084145436,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.ci_lo": {
+   "value": 1.1210600490196079,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.ci_hi": {
+   "value": 1.5059037990196078,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.PTO_LA5.Q1Q2.p_holm": {
+   "value": 8.813596939444644e-16,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.base_mean": {
+   "value": 3.066789215686274,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.final_mean": {
+   "value": 3.7525735294117646,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.delta": {
+   "value": 0.6857843137254903,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.dz": {
+   "value": 0.7207267703011722,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.ci_lo": {
+   "value": 0.4923943014705883,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.ci_hi": {
+   "value": 0.8722426470588234,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA0.Q1Q2.p_holm": {
+   "value": 8.908642984129893e-10,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.base_mean": {
+   "value": 2.9631740196078433,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.final_mean": {
+   "value": 4.517218137254901,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.delta": {
+   "value": 1.5540441176470587,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.dz": {
+   "value": 1.518032766774597,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.ci_lo": {
+   "value": 1.362046568627451,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.ci_hi": {
+   "value": 1.7551639093137255,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.gpt-4o-mini.GRPO_LA5.Q1Q2.p_holm": {
+   "value": 2.3286994908946724e-16,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by gpt-4o-mini; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.base_mean": {
+   "value": 1.829718137254902,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.final_mean": {
+   "value": 2.866053921568627,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.delta": {
+   "value": 1.0363357843137255,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.dz": {
+   "value": 1.6527192768613341,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.ci_lo": {
+   "value": 0.9154243259803923,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.ci_hi": {
+   "value": 1.1597503063725492,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA0.Q1Q2.p_holm": {
+   "value": 3.876993870330042e-16,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.base_mean": {
+   "value": 1.833700980392157,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.final_mean": {
+   "value": 2.666973039215686,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.delta": {
+   "value": 0.8332720588235293,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.dz": {
+   "value": 1.1240787126825271,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.ci_lo": {
+   "value": 0.6928079044117649,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.ci_hi": {
+   "value": 0.9805790441176471,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.PTO_LA5.Q1Q2.p_holm": {
+   "value": 5.563932780762671e-13,
+   "source": "tables/headline_grid.md",
+   "note": "PTO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.base_mean": {
+   "value": 1.8609681372549016,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.final_mean": {
+   "value": 2.257169117647059,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.delta": {
+   "value": 0.39620098039215684,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.dz": {
+   "value": 0.6579296716969946,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.ci_lo": {
+   "value": 0.28013020833333335,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.ci_hi": {
+   "value": 0.5133210784313724,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA0.Q1Q2.p_holm": {
+   "value": 6.387175783506732e-08,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA0 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.final_iter": {
+   "value": 10,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.n": {
+   "value": 96,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.base_mean": {
+   "value": 1.834497549019608,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.final_mean": {
+   "value": 2.8729779411764707,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.delta": {
+   "value": 1.0384803921568628,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.dz": {
+   "value": 1.5394303381416832,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.ci_lo": {
+   "value": 0.8999172794117648,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.ci_hi": {
+   "value": 1.173109681372549,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.claude-haiku-4-5.GRPO_LA5.Q1Q2.p_holm": {
+   "value": 1.930812463831228e-15,
+   "source": "tables/headline_grid.md",
+   "note": "GRPO_LA5 at iteration 10 vs ITS OWN base, graded by claude-haiku-4-5; persona-paired n = 96; + => the endpoint scores higher"
+  },
+  "headline.meta.grid": {
+   "value": "2 graders x 4 arms x 9 metrics = 72 rows",
+   "source": "tables/headline_grid.md",
+   "note": "shape of headline_grid"
+  },
+  "headline.meta.anchor": {
+   "value": "each arm vs ITS OWN base (iteration 0 of that arm), never a shared/pooled base",
+   "source": "tables/headline_grid.md",
+   "note": ""
+  },
+  "headline.meta.pairing": {
+   "value": "paired on persona_id (never file_index - personas reshuffle each iteration), n = 96 shared personas",
+   "source": "tables/headline_grid.md",
+   "note": ""
+  },
+  "headline.meta.scale": {
+   "value": "levels are NOT comparable across graders and must never be averaged (train-vs-test, model-dependent offset); compare delta/dz across graders, levels within one",
+   "source": "tables/headline_grid.md",
+   "note": ""
+  },
+  "headline.meta.holm_scope": {
+   "value": "across the rubrics within each (judge, arm)",
+   "source": "tables/headline_grid.md",
+   "note": ""
+  },
+  "headline.meta.sign": {
+   "value": "+ => the endpoint scores higher than the arm's own base (on MICI, lower = better, so + => WORSE); no sign is flipped in the table",
+   "source": "tables/headline_grid.md",
+   "note": ""
+  },
   "matched_last.gpt-4o-mini.K0.Q1Q2.iteration": {
    "value": 10,
    "source": "tables/method_paired_by_K.md",
@@ -59,59 +449,59 @@
    "note": "PTO_LA0 at its best iteration (10) - GRPO_LA0 at its best (8), each selected under this grader; + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.iteration": {
-   "value": 6,
+   "value": 10,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.mean_delta": {
-   "value": -0.3318627450980392,
+   "value": -0.21047794117647053,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.dz": {
-   "value": -0.43683887125590887,
+   "value": -0.35648352881292705,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.p_holm": {
-   "value": 1.0554404304689341e-05,
+   "value": 0.0004981819744775516,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.iter_pto": {
    "value": 10,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.iter_grpo": {
-   "value": 6,
+   "value": 10,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.mean_delta": {
-   "value": 0.07775735294117643,
+   "value": -0.21047794117647053,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.dz": {
-   "value": 0.13292480041607302,
+   "value": -0.35648352881292705,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.p_holm": {
-   "value": 1.0,
+   "value": 0.0004981819744775516,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K0.Q1Q2.iteration": {
    "value": 10,
@@ -169,59 +559,59 @@
    "note": "PTO_LA0 at its best iteration (9) - GRPO_LA0 at its best (3), each selected under this grader; + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.iteration": {
-   "value": 6,
+   "value": 10,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.mean_delta": {
-   "value": -0.3965686274509805,
+   "value": -0.20600490196078433,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.dz": {
-   "value": -0.5991447617876667,
+   "value": -0.31313356577656926,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.p_holm": {
-   "value": 1.5469619987528742e-06,
+   "value": 0.03389778950233498,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_by_K.md",
-   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (6); + => PTO higher"
+   "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.iter_pto": {
    "value": 7,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (7), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.iter_grpo": {
-   "value": 6,
+   "value": 7,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (7), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.mean_delta": {
-   "value": -0.16801470588235298,
+   "value": -0.17671568627450984,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (7), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.dz": {
-   "value": -0.3523723595071022,
+   "value": -0.2702521734071958,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (7), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.p_holm": {
-   "value": 0.009151182900204039,
+   "value": 0.10687787972305271,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (7), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K5.Q1Q2.n": {
    "value": 96,
    "source": "tables/method_paired_best.md",
-   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (6), each selected under this grader; + => PTO higher"
+   "note": "PTO_LA5 at its best iteration (7) - GRPO_LA5 at its best (7), each selected under this grader; + => PTO higher"
   },
   "meta.sign": {
    "value": "+ => PTO higher (on MICI, lower = better, + => PTO worse)",
@@ -234,7 +624,7 @@
    "note": ""
   },
   "meta.censoring": {
-   "value": "GRPO_LA5 right-censored at iteration 5; K=5 contrasts end there",
+   "value": "no arm is short in this frame: every arm runs to the same last scored iteration. Each contrast's own support is named by the iteration / iter_a / iter_b columns of the tables above.",
    "source": "",
    "note": ""
   },

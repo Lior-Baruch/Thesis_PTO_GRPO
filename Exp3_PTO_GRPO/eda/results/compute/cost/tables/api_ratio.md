@@ -19,10 +19,10 @@
 | GRPO     | iters 1-5 (matched) | 1,2,3,4,5            | patient_calls_tail               |      0.000 | 190499.000 |      nan     | 190,499 / 0                  |
 | GRPO     | iters 1-5 (matched) | 1,2,3,4,5            | n_candidates                     |  68864.000 |  66304.000 |        0.963 | 66,304 / 68,864              |
 | GRPO     | iters 1-5 (matched) | 1,2,3,4,5            | total_api_calls                  | 150427.000 | 338476.000 |        2.250 | 338,476 / 150,427            |
-| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8      | oracle_calls_train               | 238552.000 | 219295.000 |        0.919 | 219,295 / 238,552            |
-| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8      | oracle_input_Mchars              |   2029.544 |   2970.433 |        1.464 | 2,970.4 / 2,029.5            |
-| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8      | patient_calls_total              |  11279.000 | 304950.000 |       27.037 | 304,950 / 11,279             |
-| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8      | patient_calls_tail               |      0.000 | 294329.000 |      nan     | 294,329 / 0                  |
-| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8      | n_candidates                     | 113920.000 | 102912.000 |        0.903 | 102,912 / 113,920            |
-| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8      | total_api_calls                  | 249831.000 | 524245.000 |        2.098 | 524,245 / 249,831            |
-| GRPO     | all K5 iters        | 1,2,3,4,5,6,7,8      | patient_calls_tail_per_candidate |      0.000 |      2.860 |      nan     | 294,329 / 102,912 candidates |
+| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8,9,10 | oracle_calls_train               | 302541.000 | 289983.000 |        0.958 | 289,983 / 302,541            |
+| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8,9,10 | oracle_input_Mchars              |   2666.628 |   4669.468 |        1.751 | 4,669.5 / 2,666.6            |
+| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8,9,10 | patient_calls_total              |  14254.000 | 406565.000 |       28.523 | 406,565 / 14,254             |
+| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8,9,10 | patient_calls_tail               |      0.000 | 392766.000 |      nan     | 392,766 / 0                  |
+| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8,9,10 | n_candidates                     | 144384.000 | 136960.000 |        0.949 | 136,960 / 144,384            |
+| GRPO     | all matched iters   | 1,2,3,4,5,6,7,8,9,10 | total_api_calls                  | 316795.000 | 696548.000 |        2.199 | 696,548 / 316,795            |
+| GRPO     | all K5 iters        | 1,2,3,4,5,6,7,8,9,10 | patient_calls_tail_per_candidate |      0.000 |      2.868 |      nan     | 392,766 / 136,960 candidates |

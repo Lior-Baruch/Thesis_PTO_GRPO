@@ -34,9 +34,11 @@ Conventions
   ``+`` ⇒ the ended-early candidates score HIGHER than the full-tail candidates of the same group.
   (The package-wide K-contrast convention ``+`` ⇒ K=0 higher does not apply here — these are
   within-arm, within-group contrasts.)
-* **Censoring**: GRPO_LA5 was stopped after iteration 5, PTO_LA5 ran 10 — every per-iteration
-  frame carries both as they are; the ``pooled`` rows pool whatever iterations exist. State the
-  censoring in captions.
+* **Censoring**: GRPO_LA5 was stopped before the other arms — every per-iteration frame carries
+  each arm as it is, and the ``pooled`` rows pool whatever iterations exist. State the censoring
+  in captions, DERIVED off the frame
+  (:func:`eda_analysis.plotting.tails._censor_note` / :func:`eda_analysis.constants.support_note`)
+  — never as a written-down iteration.
 * **Bootstraps** use :data:`eda_analysis.constants.BOOT_SEED` (the paper generator used seed 0
   with the same 1,000 draws, so CI *bounds* may differ from the frozen fixture in the third
   decimal; every mean / count / dz / p / rho reproduces exactly).
@@ -795,7 +797,9 @@ def api_ratio(api_df: pd.DataFrame) -> pd.DataFrame:
     """K=5 / K=0 API-call ratios per method, summed over matched training iterations.
 
     Two windows per method: ``iters 1-5 (matched)`` (the iterations both K arms of the method
-    ran, capped at 5 — GRPO_LA5 only has 1–5) and ``all matched iters``; quantities
+    ran, capped at 5 — a FIXED early window, kept as-is so its numbers stay comparable with the
+    frozen fixture; it was the censored arm's full support when it was named, which it no longer
+    is) and ``all matched iters`` (every iteration both K arms have, derived); quantities
     ``oracle_calls_train``, ``oracle_input_Mchars``, ``patient_calls_total``, ``patient_calls_tail``,
     ``n_candidates``, ``total_api_calls`` (= oracle_calls_train + patient_calls_total), each with
     ``K0_sum``, ``K5_sum``, ``K5_over_K0`` and the ``arithmetic`` string. A final

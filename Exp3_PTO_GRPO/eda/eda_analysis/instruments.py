@@ -43,9 +43,11 @@ Conventions every table shares (state them in the notebook captions):
   each function's docstring.
 * **Iteration 0 = two independent base draws** of the same base model (one per arm), so the
   iteration-0 K contrast is the noise floor, not a treatment effect.
-* **Censoring:** GRPO_LA5 is right-censored at iteration 5 (PTO arms and GRPO_LA0 run to 10),
-  so the matched endpoint is PTO iter 10 vs 10 and GRPO iter 5 vs 5, and every "endpoint" table
-  says which iteration it read (``target_iter`` / ``iter_K0`` / ``iter_K5`` / ``@N`` columns).
+* **Support:** an arm's scored support can be grader-dependent, so the matched endpoint per
+  method is DERIVED, never assumed:
+  :func:`endpoints` reads each arm's last scored iteration off the frame and
+  :func:`matched_endpoints` takes the per-method min. Every "endpoint" table says which iteration
+  it actually read (``target_iter`` / ``iter_K0`` / ``iter_K5`` / ``@N`` columns).
 * **Own-oracle best iteration** (:func:`data.best_iteration_by_arm`) is selected on the TRAINING
   oracle's Q1Q2 mean (the primary grader) and reused for the held-out grader, so both graders
   judge the same checkpoints.
@@ -119,7 +121,9 @@ HETERO_METRICS = ["Q1Q2", "MICI", "PCT"]
 
 SIGN_NOTE = "K-contrast sign: + => K=0 higher (K0 - K5)."
 PAIR_NOTE = "Paired on persona_id (the recovered patient persona), never file_index."
-CENSOR_NOTE = "GRPO_LA5 is right-censored at iteration 5 (PTO arms and GRPO_LA0 run to 10)."
+# A LEGEND, not an assertion (see the note on compute.CENSOR_NOTE).
+CENSOR_NOTE = ("An arm's scored support can be grader-dependent; the endpoint columns "
+               "(target_iter / iter_K0 / iter_K5 / @N) name the iteration each row actually read.")
 
 
 # ── small helpers ─────────────────────────────────────────────────────────────
@@ -201,13 +205,19 @@ _clean = json_scalar          # one definition — see eda_analysis/ledger.py
 
 # ── endpoints ─────────────────────────────────────────────────────────────────
 def endpoints(df: pd.DataFrame, arms: Optional[Sequence[str]] = None) -> Dict[str, int]:
-    """``{arm: max scored iteration}`` — each arm's endpoint (GRPO_LA5 is censored at 5)."""
+    """``{arm: max scored iteration}`` — each arm's endpoint, READ OFF ``df``.
+
+    A censored arm simply returns a smaller number; WHICH arm that is, and how small, is a
+    property of the frame (the score lake's coverage differs by grader) — never assume it.
+    """
     return {arm: int(df.loc[df["arm"] == arm, "iteration"].max()) for arm in _arms_present(df, arms)}
 
 
 def matched_endpoints(end: Dict[str, int], methods: Sequence[str] = METHODS) -> Dict[str, int]:
-    """``{method: min(END[<m>_LA0], END[<m>_LA5])}`` — the K-matched endpoint per method
-    (PTO 10 vs 10, GRPO 5 vs 5 today)."""
+    """``{method: min(END[<m>_LA0], END[<m>_LA5])}`` — the K-matched endpoint per method.
+
+    A method with one censored arm is matched at THAT arm's last scored iteration; the value is
+    whatever :func:`endpoints` found in the frame, so it moves with the data."""
     out = {}
     for m in methods:
         a, b = f"{m}_LA0", f"{m}_LA5"
@@ -389,7 +399,8 @@ def wai_fig_data(items_by_judge: Dict[str, object], *,
                  subscales: Sequence[str] = ("Task", "Goal", "Bond")) -> pd.DataFrame:
     """Data behind :func:`plotting.instruments.wai_fig` (fixture ``held_out_instruments_fig_wai_data``):
     persona-paired gain over own base per WAI-SR subscale at each arm's endpoint, PLUS the
-    K=0 arm of any censored method at the matched iteration (GRPO_LA0 @ 5 beside GRPO_LA5 @ 5),
+    K=0 arm of any censored method at the matched iteration (GRPO_LA0 drawn beside GRPO_LA5 at
+    that method's matched endpoint, whichever iteration ``matched_end`` derives),
     both graders. Columns ``judge, arm, iteration, subscale, gain, ci_lo, ci_hi, n``
     (95% percentile-bootstrap CI over the paired deltas).
 
@@ -481,7 +492,8 @@ def q2_items(q2_by_judge: Dict[str, object], *, end: Optional[Dict[str, int]] = 
     ``q2_by_judge`` = ``{judge_label: data.load_items("Q2") long, persona attached}`` (or the
     loader's nested dict). Groups are the face-content reading of ``constants.Q2_ITEM_GROUPS``
     (analytical, not a validated subscale); items 1,2,3,10 = self-disclosure, 3 and 10 = emotional
-    self-disclosure. GRPO_LA5 is right-censored at 5.
+    self-disclosure. GRPO's matched endpoint is derived from the arms' own last scored iterations
+    (via :func:`matched_endpoints`), not a fixed number.
     """
     frames = _by_judge(q2_by_judge, "q2_items") if _nested(q2_by_judge) else q2_by_judge
     first = next(iter(frames.values()))
@@ -573,7 +585,8 @@ def hetero_kcontrast(scores_by_judge: Dict[str, pd.DataFrame], *,
     output — persona characteristics attached, ``cooperation_level`` present). Strata: ``High →
     Cooperative``, ``StartLowAndChangesToHigh → Warms up``, ``Low → Resistant`` (32 personas each)
     + an ``All`` reference row (96 personas). Two targets per method: ``matched_final`` (PTO iter
-    10 vs 10, GRPO iter 5 vs 5 — GRPO_LA5 is right-censored at 5) and ``own_best`` (each arm at its
+    each method at its matched endpoint from :func:`matched_endpoints`, derived per method from
+    the arms' own supports) and ``own_best`` (each arm at its
     own-oracle best iteration; ``best_by_arm`` defaults to :func:`data.best_iteration_by_arm` on
     the PRIMARY grader's frame — selection on the training oracle's Q1Q2, reused for the held-out
     grader so both graders judge the same checkpoints).

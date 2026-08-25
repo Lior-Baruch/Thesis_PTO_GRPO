@@ -16,22 +16,22 @@
 | final    | GRPO_LA0 | %MICO                | % MI-Consistent (MITI)              |         |            10 |  0.507 |   0.261 |
 | final    | GRPO_LA0 | MITI_Technical       | Technical global (MITI)             |         |            10 |  1.854 |   0.224 |
 | final    | GRPO_LA0 | MITI_Relational      | Relational global (MITI)            |         |            10 |  1.922 |   0.198 |
-| final    | GRPO_LA5 | ChangeTalk           | Cultivating Change Talk (MITI)      |         |             6 |  1.688 |   0.562 |
-| final    | GRPO_LA5 | SoftenSustain        | Softening Sustain Talk (MITI)       |         |             6 |  1.875 |   0.333 |
-| final    | GRPO_LA5 | Partnership          | Partnership (MITI)                  |         |             6 |  1.688 |   0.531 |
-| final    | GRPO_LA5 | Empathy              | Empathy (MITI)                      |         |             6 |  2.073 |   0.625 |
-| final    | GRPO_LA5 | B3_Q_per_turn        | Questions / turn (MITI)             |         |             6 |  0.391 |  -0.210 |
-| final    | GRPO_LA5 | B4_SR_per_turn       | Simple Reflections / turn (MITI)    |         |             6 |  0.072 |  -0.020 |
-| final    | GRPO_LA5 | B5_CR_per_turn       | Complex Reflections / turn (MITI)   |         |             6 |  0.013 |   0.049 |
-| final    | GRPO_LA5 | B6_AF_per_turn       | Affirmations / turn (MITI)          |         |             6 |  0.042 |  -0.008 |
-| final    | GRPO_LA5 | B2_Persuade_per_turn | Persuasion / turn (MITI)            |         |             6 |  0.202 |   0.133 |
-| final    | GRPO_LA5 | B1_GI_per_turn       | Giving Information / turn (MITI)    |         |             6 |  0.204 |   0.130 |
-| final    | GRPO_LA5 | B7_Seek_per_turn     | Seeking Collaboration / turn (MITI) |         |             6 |  0.085 |  -0.082 |
-| final    | GRPO_LA5 | RtoQ                 | Reflection:Question (MITI)          |         |             6 |  0.615 |   0.173 |
-| final    | GRPO_LA5 | %CR                  | % Complex Reflections (MITI)        |         |             6 |  0.161 |   0.366 |
-| final    | GRPO_LA5 | %MICO                | % MI-Consistent (MITI)              |         |             6 |  0.510 |  -0.220 |
-| final    | GRPO_LA5 | MITI_Technical       | Technical global (MITI)             |         |             6 |  1.781 |   0.448 |
-| final    | GRPO_LA5 | MITI_Relational      | Relational global (MITI)            |         |             6 |  1.880 |   0.578 |
+| final    | GRPO_LA5 | ChangeTalk           | Cultivating Change Talk (MITI)      |         |            10 |  1.688 |   0.667 |
+| final    | GRPO_LA5 | SoftenSustain        | Softening Sustain Talk (MITI)       |         |            10 |  1.875 |   0.208 |
+| final    | GRPO_LA5 | Partnership          | Partnership (MITI)                  |         |            10 |  1.688 |   0.583 |
+| final    | GRPO_LA5 | Empathy              | Empathy (MITI)                      |         |            10 |  2.073 |   0.719 |
+| final    | GRPO_LA5 | B3_Q_per_turn        | Questions / turn (MITI)             |         |            10 |  0.391 |  -0.220 |
+| final    | GRPO_LA5 | B4_SR_per_turn       | Simple Reflections / turn (MITI)    |         |            10 |  0.072 |  -0.002 |
+| final    | GRPO_LA5 | B5_CR_per_turn       | Complex Reflections / turn (MITI)   |         |            10 |  0.013 |   0.132 |
+| final    | GRPO_LA5 | B6_AF_per_turn       | Affirmations / turn (MITI)          |         |            10 |  0.042 |  -0.021 |
+| final    | GRPO_LA5 | B2_Persuade_per_turn | Persuasion / turn (MITI)            |         |            10 |  0.202 |   0.163 |
+| final    | GRPO_LA5 | B1_GI_per_turn       | Giving Information / turn (MITI)    |         |            10 |  0.204 |   0.023 |
+| final    | GRPO_LA5 | B7_Seek_per_turn     | Seeking Collaboration / turn (MITI) |         |            10 |  0.085 |  -0.084 |
+| final    | GRPO_LA5 | RtoQ                 | Reflection:Question (MITI)          |         |            10 |  0.615 |   0.945 |
+| final    | GRPO_LA5 | %CR                  | % Complex Reflections (MITI)        |         |            10 |  0.161 |   0.498 |
+| final    | GRPO_LA5 | %MICO                | % MI-Consistent (MITI)              |         |            10 |  0.510 |  -0.128 |
+| final    | GRPO_LA5 | MITI_Technical       | Technical global (MITI)             |         |            10 |  1.781 |   0.438 |
+| final    | GRPO_LA5 | MITI_Relational      | Relational global (MITI)            |         |            10 |  1.880 |   0.651 |
 | final    | PTO_LA0  | ChangeTalk           | Cultivating Change Talk (MITI)      |         |            10 |  1.677 |   0.438 |
 | final    | PTO_LA0  | SoftenSustain        | Softening Sustain Talk (MITI)       |         |            10 |  1.896 |   0.354 |
 | final    | PTO_LA0  | Partnership          | Partnership (MITI)                  |         |            10 |  1.677 |   0.656 |
@@ -80,22 +80,22 @@
 | best     | GRPO_LA0 | %MICO                | % MI-Consistent (MITI)              |         |             3 |  0.507 |  -0.093 |
 | best     | GRPO_LA0 | MITI_Technical       | Technical global (MITI)             |         |             3 |  1.854 |   0.380 |
 | best     | GRPO_LA0 | MITI_Relational      | Relational global (MITI)            |         |             3 |  1.922 |   0.609 |
-| best     | GRPO_LA5 | ChangeTalk           | Cultivating Change Talk (MITI)      |         |             6 |  1.688 |   0.562 |
-| best     | GRPO_LA5 | SoftenSustain        | Softening Sustain Talk (MITI)       |         |             6 |  1.875 |   0.333 |
-| best     | GRPO_LA5 | Partnership          | Partnership (MITI)                  |         |             6 |  1.688 |   0.531 |
-| best     | GRPO_LA5 | Empathy              | Empathy (MITI)                      |         |             6 |  2.073 |   0.625 |
-| best     | GRPO_LA5 | B3_Q_per_turn        | Questions / turn (MITI)             |         |             6 |  0.391 |  -0.210 |
-| best     | GRPO_LA5 | B4_SR_per_turn       | Simple Reflections / turn (MITI)    |         |             6 |  0.072 |  -0.020 |
-| best     | GRPO_LA5 | B5_CR_per_turn       | Complex Reflections / turn (MITI)   |         |             6 |  0.013 |   0.049 |
-| best     | GRPO_LA5 | B6_AF_per_turn       | Affirmations / turn (MITI)          |         |             6 |  0.042 |  -0.008 |
-| best     | GRPO_LA5 | B2_Persuade_per_turn | Persuasion / turn (MITI)            |         |             6 |  0.202 |   0.133 |
-| best     | GRPO_LA5 | B1_GI_per_turn       | Giving Information / turn (MITI)    |         |             6 |  0.204 |   0.130 |
-| best     | GRPO_LA5 | B7_Seek_per_turn     | Seeking Collaboration / turn (MITI) |         |             6 |  0.085 |  -0.082 |
-| best     | GRPO_LA5 | RtoQ                 | Reflection:Question (MITI)          |         |             6 |  0.615 |   0.173 |
-| best     | GRPO_LA5 | %CR                  | % Complex Reflections (MITI)        |         |             6 |  0.161 |   0.366 |
-| best     | GRPO_LA5 | %MICO                | % MI-Consistent (MITI)              |         |             6 |  0.510 |  -0.220 |
-| best     | GRPO_LA5 | MITI_Technical       | Technical global (MITI)             |         |             6 |  1.781 |   0.448 |
-| best     | GRPO_LA5 | MITI_Relational      | Relational global (MITI)            |         |             6 |  1.880 |   0.578 |
+| best     | GRPO_LA5 | ChangeTalk           | Cultivating Change Talk (MITI)      |         |             7 |  1.688 |   0.625 |
+| best     | GRPO_LA5 | SoftenSustain        | Softening Sustain Talk (MITI)       |         |             7 |  1.875 |   0.375 |
+| best     | GRPO_LA5 | Partnership          | Partnership (MITI)                  |         |             7 |  1.688 |   0.552 |
+| best     | GRPO_LA5 | Empathy              | Empathy (MITI)                      |         |             7 |  2.073 |   0.656 |
+| best     | GRPO_LA5 | B3_Q_per_turn        | Questions / turn (MITI)             |         |             7 |  0.391 |  -0.190 |
+| best     | GRPO_LA5 | B4_SR_per_turn       | Simple Reflections / turn (MITI)    |         |             7 |  0.072 |  -0.019 |
+| best     | GRPO_LA5 | B5_CR_per_turn       | Complex Reflections / turn (MITI)   |         |             7 |  0.013 |   0.078 |
+| best     | GRPO_LA5 | B6_AF_per_turn       | Affirmations / turn (MITI)          |         |             7 |  0.042 |  -0.009 |
+| best     | GRPO_LA5 | B2_Persuade_per_turn | Persuasion / turn (MITI)            |         |             7 |  0.202 |   0.135 |
+| best     | GRPO_LA5 | B1_GI_per_turn       | Giving Information / turn (MITI)    |         |             7 |  0.204 |   0.086 |
+| best     | GRPO_LA5 | B7_Seek_per_turn     | Seeking Collaboration / turn (MITI) |         |             7 |  0.085 |  -0.081 |
+| best     | GRPO_LA5 | RtoQ                 | Reflection:Question (MITI)          |         |             7 |  0.615 |   0.314 |
+| best     | GRPO_LA5 | %CR                  | % Complex Reflections (MITI)        |         |             7 |  0.161 |   0.455 |
+| best     | GRPO_LA5 | %MICO                | % MI-Consistent (MITI)              |         |             7 |  0.510 |  -0.175 |
+| best     | GRPO_LA5 | MITI_Technical       | Technical global (MITI)             |         |             7 |  1.781 |   0.500 |
+| best     | GRPO_LA5 | MITI_Relational      | Relational global (MITI)            |         |             7 |  1.880 |   0.604 |
 | best     | PTO_LA0  | ChangeTalk           | Cultivating Change Talk (MITI)      |         |             9 |  1.677 |   0.396 |
 | best     | PTO_LA0  | SoftenSustain        | Softening Sustain Talk (MITI)       |         |             9 |  1.896 |   0.406 |
 | best     | PTO_LA0  | Partnership          | Partnership (MITI)                  |         |             9 |  1.677 |   0.760 |

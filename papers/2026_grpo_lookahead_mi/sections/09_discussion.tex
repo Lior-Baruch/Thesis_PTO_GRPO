@@ -1,0 +1,44 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\paragraph{The horizon of the reward selects the reward hack.}
+The usual framing of reward hacking asks how much a policy games its judge. Our results suggest a
+more useful question: \emph{which} exploit is reachable given what the judge is shown. Both arms
+optimise the same rubric administered by the same model, and both find something. The $K{=}0$ arm
+finds unearned praise --- an exploit whose payoff is immediate and whose cost is deferred. The
+$K{=}5$ arm cannot profit from that, because the cost lands inside the window the judge now sees,
+and it instead moves toward asking more questions. Extending the horizon did not make the policy
+honest; it made the dishonest strategy unprofitable. That is a design lever, and it is cheaper to
+reason about than a better rubric.
+
+\paragraph{Iteration counts are the wrong denominator for this literature.}
+Reporting a reward-shaping result per iteration is standard and, here, would have been misleading
+in both directions: it overstates the lever at small budgets (where look-ahead is genuinely behind)
+and understates the eventual gap. Because the sign of our own conclusion flips at ${\sim}20$
+GPU-hours, we think any claim of the form "technique $X$ improves RLHF" should state the budget
+regime it holds in.
+
+\paragraph{Scope: this is a single-optimizer result.}
+The same lever, applied to a preference-tree optimizer (PTO) in the same experiment with matched
+personas, oracle, and context length, is null-to-negative on outcome scores --- so "look-ahead
+helps" is not a claim we make about reward shaping in general, and the reader should not import
+one. Why the two optimizers respond so differently is the subject of a companion paper on the full
+$2 \times 2$; it is genuinely open, and we would rather flag it than fold a second, weaker analysis
+into this one. What the present result establishes is narrower and, we think, more solid: for a
+group-relative optimizer in a multi-turn dialogue, the horizon of the reward is a first-order design
+choice, comparable in effect size to changing the algorithm.
+
+\paragraph{One-sided grader saturation is a measurement failure worth naming.}
+The pattern in §\ref{sec:measurement} --- a trained-against grader losing three-quarters of its
+variance on the rewarded rubric while an independent grader's spread over the same conversations
+stays flat --- is not detectable from arm-level agreement statistics, which stayed flat as the
+grid grew. It appears precisely at the best-scoring checkpoint, which is the checkpoint a
+practitioner would ship. We suspect it is common wherever a single judge supplies both the reward
+and the reported outcome over many iterations, and that the cheap diagnostic --- track the training
+grader's per-conversation \emph{variance}, not just its mean --- is worth running by default.
+
+\paragraph{What would change our minds.}
+A replicate 96-conversation draw at the winning checkpoint that failed to reproduce the endpoint
+gap; an intermediate $K$ showing the effect is a threshold rather than a horizon; or a human MI
+coder disagreeing with the over-praise finding, which is the one place where a deterministic
+transcript metric and two model graders currently agree with each other and with nobody else.

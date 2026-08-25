@@ -59,20 +59,24 @@
 | GRPO     | conv_len      |           1 |    25.792 |    28.125 |  96 |       -2.333 |  -0.131 |   -5.823 |    1.137 | 0.141 |    0.846 | utterances / conversation                                      |
 | GRPO     | conv_len      |           2 |    31.208 |    29.740 |  96 |        1.469 |   0.076 |   -2.167 |    5.229 | 0.417 |    1.000 | utterances / conversation                                      |
 | GRPO     | conv_len      |           3 |    27.604 |    29.062 |  96 |       -1.458 |  -0.095 |   -4.480 |    1.542 | 0.484 |    1.000 | utterances / conversation                                      |
-| GRPO     | conv_len      |           4 |    30.500 |    25.781 |  96 |        4.719 |   0.273 |    1.447 |    8.031 | 0.010 |    0.068 | utterances / conversation                                      |
+| GRPO     | conv_len      |           4 |    30.500 |    25.781 |  96 |        4.719 |   0.273 |    1.447 |    8.031 | 0.010 |    0.078 | utterances / conversation                                      |
 | GRPO     | conv_len      |           5 |    30.677 |    22.573 |  96 |        8.104 |   0.531 |    5.031 |   11.063 | 0.000 |    0.000 | utterances / conversation                                      |
 | GRPO     | conv_len      |           6 |    32.292 |    28.802 |  96 |        3.490 |   0.179 |   -0.313 |    7.178 | 0.151 |    0.846 | utterances / conversation                                      |
 | GRPO     | conv_len      |           7 |    28.844 |    29.635 |  96 |       -0.792 |  -0.047 |   -4.136 |    2.521 | 0.534 |    1.000 | utterances / conversation                                      |
 | GRPO     | conv_len      |           8 |    24.115 |    32.646 |  96 |       -8.531 |  -0.511 |  -11.824 |   -5.166 | 0.000 |    0.000 | utterances / conversation                                      |
+| GRPO     | conv_len      |           9 |    38.062 |    33.667 |  96 |        4.396 |   0.235 |    0.677 |    8.000 | 0.029 |    0.206 | utterances / conversation                                      |
+| GRPO     | conv_len      |          10 |    25.198 |    31.896 |  96 |       -6.698 |  -0.431 |   -9.729 |   -3.749 | 0.000 |    0.002 | utterances / conversation                                      |
 | GRPO     | n_th_turns    |           0 |    14.469 |    14.240 |  96 |        0.229 |   0.025 |   -1.469 |    2.000 | 0.918 |    1.000 | therapist turns / conversation                                 |
 | GRPO     | n_th_turns    |           1 |    13.000 |    14.146 |  96 |       -1.146 |  -0.129 |   -2.885 |    0.594 | 0.138 |    0.827 | therapist turns / conversation                                 |
 | GRPO     | n_th_turns    |           2 |    15.667 |    14.948 |  96 |        0.719 |   0.075 |   -1.125 |    2.604 | 0.422 |    1.000 | therapist turns / conversation                                 |
 | GRPO     | n_th_turns    |           3 |    13.812 |    14.562 |  96 |       -0.750 |  -0.098 |   -2.250 |    0.760 | 0.462 |    1.000 | therapist turns / conversation                                 |
-| GRPO     | n_th_turns    |           4 |    15.271 |    12.896 |  96 |        2.375 |   0.275 |    0.739 |    4.031 | 0.009 |    0.066 | therapist turns / conversation                                 |
+| GRPO     | n_th_turns    |           4 |    15.271 |    12.896 |  96 |        2.375 |   0.275 |    0.739 |    4.031 | 0.009 |    0.075 | therapist turns / conversation                                 |
 | GRPO     | n_th_turns    |           5 |    15.344 |    11.312 |  96 |        4.031 |   0.528 |    2.490 |    5.510 | 0.000 |    0.000 | therapist turns / conversation                                 |
 | GRPO     | n_th_turns    |           6 |    16.177 |    14.427 |  96 |        1.750 |   0.180 |   -0.146 |    3.584 | 0.141 |    0.827 | therapist turns / conversation                                 |
 | GRPO     | n_th_turns    |           7 |    14.458 |    14.844 |  96 |       -0.385 |  -0.046 |   -2.042 |    1.292 | 0.561 |    1.000 | therapist turns / conversation                                 |
 | GRPO     | n_th_turns    |           8 |    12.135 |    16.354 |  96 |       -4.219 |  -0.507 |   -5.875 |   -2.531 | 0.000 |    0.000 | therapist turns / conversation                                 |
+| GRPO     | n_th_turns    |           9 |    19.052 |    16.854 |  96 |        2.198 |   0.235 |    0.333 |    3.979 | 0.029 |    0.201 | therapist turns / conversation                                 |
+| GRPO     | n_th_turns    |          10 |    12.750 |    15.969 |  96 |       -3.219 |  -0.415 |   -4.740 |   -1.760 | 0.000 |    0.004 | therapist turns / conversation                                 |
 | GRPO     | mean_turn_len |           0 |   266.296 |   279.036 |  96 |      -12.740 |  -0.070 |  -49.734 |   25.611 | 0.546 |    1.000 | chars / therapist turn                                         |
 | GRPO     | mean_turn_len |           1 |   284.241 |   292.523 |  96 |       -8.282 |  -0.042 |  -46.466 |   32.685 | 0.628 |    1.000 | chars / therapist turn                                         |
 | GRPO     | mean_turn_len |           2 |   238.834 |   282.982 |  96 |      -44.148 |  -0.248 |  -79.460 |   -8.653 | 0.021 |    0.084 | chars / therapist turn                                         |
@@ -82,6 +86,8 @@
 | GRPO     | mean_turn_len |           6 |   446.148 |   698.408 |  96 |     -252.260 |  -0.849 | -312.360 | -194.186 | 0.000 |    0.000 | chars / therapist turn                                         |
 | GRPO     | mean_turn_len |           7 |   633.896 |   774.924 |  96 |     -141.027 |  -0.597 | -188.143 |  -95.971 | 0.000 |    0.000 | chars / therapist turn                                         |
 | GRPO     | mean_turn_len |           8 |   822.193 |   839.508 |  96 |      -17.316 |  -0.098 |  -51.079 |   18.130 | 0.807 |    1.000 | chars / therapist turn                                         |
+| GRPO     | mean_turn_len |           9 |   338.432 |   856.164 |  96 |     -517.732 |  -1.997 | -570.459 | -464.993 | 0.000 |    0.000 | chars / therapist turn                                         |
+| GRPO     | mean_turn_len |          10 |   895.711 |   849.274 |  96 |       46.437 |   0.519 |   29.256 |   65.570 | 0.000 |    0.000 | chars / therapist turn                                         |
 | GRPO     | q_per_turn    |           0 |     0.829 |     0.740 |  96 |        0.088 |   0.102 |   -0.076 |    0.272 | 0.550 |    1.000 | '?' / therapist turn                                           |
 | GRPO     | q_per_turn    |           1 |     0.682 |     0.884 |  96 |       -0.202 |  -0.198 |   -0.408 |   -0.017 | 0.084 |    0.335 | '?' / therapist turn                                           |
 | GRPO     | q_per_turn    |           2 |     0.774 |     0.784 |  96 |       -0.011 |  -0.017 |   -0.137 |    0.117 | 0.941 |    1.000 | '?' / therapist turn                                           |
@@ -91,12 +97,16 @@
 | GRPO     | q_per_turn    |           6 |     0.269 |     0.809 |  96 |       -0.540 |  -0.855 |   -0.676 |   -0.417 | 0.000 |    0.000 | '?' / therapist turn                                           |
 | GRPO     | q_per_turn    |           7 |     0.228 |     1.075 |  96 |       -0.847 |  -0.898 |   -1.033 |   -0.678 | 0.000 |    0.000 | '?' / therapist turn                                           |
 | GRPO     | q_per_turn    |           8 |     0.231 |     1.142 |  96 |       -0.911 |  -1.044 |   -1.095 |   -0.751 | 0.000 |    0.000 | '?' / therapist turn                                           |
+| GRPO     | q_per_turn    |           9 |     0.158 |     0.903 |  96 |       -0.745 |  -1.119 |   -0.880 |   -0.612 | 0.000 |    0.000 | '?' / therapist turn                                           |
+| GRPO     | q_per_turn    |          10 |     0.151 |     0.719 |  96 |       -0.568 |  -1.303 |   -0.653 |   -0.482 | 0.000 |    0.000 | '?' / therapist turn                                           |
 | GRPO     | loop          |           0 |     0.479 |     0.490 |  96 |       -0.010 |  -0.019 |   -0.115 |    0.104 | 0.853 |    1.000 | share of conversations with a verbatim-repeated therapist turn |
 | GRPO     | loop          |           1 |     0.365 |     0.354 |  96 |        0.010 |   0.017 |   -0.115 |    0.125 | 0.866 |    1.000 | share of conversations with a verbatim-repeated therapist turn |
 | GRPO     | loop          |           2 |     0.354 |     0.333 |  96 |        0.021 |   0.031 |   -0.104 |    0.157 | 0.763 |    1.000 | share of conversations with a verbatim-repeated therapist turn |
-| GRPO     | loop          |           3 |     0.000 |     0.083 |  96 |       -0.083 |  -0.300 |   -0.146 |   -0.031 | 0.005 |    0.042 | share of conversations with a verbatim-repeated therapist turn |
+| GRPO     | loop          |           3 |     0.000 |     0.083 |  96 |       -0.083 |  -0.300 |   -0.146 |   -0.031 | 0.005 |    0.047 | share of conversations with a verbatim-repeated therapist turn |
 | GRPO     | loop          |           4 |     0.042 |     0.021 |  96 |        0.021 |   0.083 |   -0.031 |    0.073 | 0.414 |    1.000 | share of conversations with a verbatim-repeated therapist turn |
 | GRPO     | loop          |           5 |     0.021 |     0.000 |  96 |        0.021 |   0.145 |    0.000 |    0.052 | 0.157 |    1.000 | share of conversations with a verbatim-repeated therapist turn |
-| GRPO     | loop          |           6 |     0.073 |     0.000 |  96 |        0.073 |   0.279 |    0.031 |    0.125 | 0.008 |    0.065 | share of conversations with a verbatim-repeated therapist turn |
+| GRPO     | loop          |           6 |     0.073 |     0.000 |  96 |        0.073 |   0.279 |    0.031 |    0.125 | 0.008 |    0.073 | share of conversations with a verbatim-repeated therapist turn |
 | GRPO     | loop          |           7 |     0.010 |     0.000 |  96 |        0.010 |   0.102 |    0.000 |    0.031 | 0.317 |    1.000 | share of conversations with a verbatim-repeated therapist turn |
 | GRPO     | loop          |           8 |     0.010 |     0.000 |  96 |        0.010 |   0.102 |    0.000 |    0.031 | 0.317 |    1.000 | share of conversations with a verbatim-repeated therapist turn |
+| GRPO     | loop          |           9 |     0.125 |     0.000 |  96 |        0.125 |   0.376 |    0.062 |    0.188 | 0.001 |    0.006 | share of conversations with a verbatim-repeated therapist turn |
+| GRPO     | loop          |          10 |     0.000 |     0.000 |  96 |        0.000 | nan     |    0.000 |    0.000 | 1.000 |    1.000 | share of conversations with a verbatim-repeated therapist turn |

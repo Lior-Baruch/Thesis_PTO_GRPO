@@ -7,8 +7,9 @@ visual fixture). Both figures put the two graders side by side (one panel column
 never averaged) and read persona-paired contrasts with 95% percentile-bootstrap CIs.
 
 - :func:`wai_fig` — WAI-SR subscale gain over own base (Task / Goal / Bond) at each arm's
-  endpoint, PLUS the K=0 arm of a censored method at the matched iteration (GRPO_LA0 @ 5 next to
-  GRPO_LA5 @ 5, drawn faded). K=5 arms are hatched; the arm palette carries the method.
+  endpoint, PLUS the K=0 arm of a censored method at the matched iteration (GRPO_LA0 next to
+  GRPO_LA5 at that method's matched endpoint, drawn faded). K=5 arms are hatched; the arm palette
+  carries the method.
 - :func:`hetero_fig` — the K0−K5 contrast (``+ => K=0 higher``) within patient cooperation
   level, a 2×2 grid: rows = metrics (Q1Q2 then MICI, where LOWER is better so a positive bar is
   K=0 WORSE), columns = graders; PTO vs GRPO bars per stratum with a ``*`` above the CI whisker
@@ -67,7 +68,7 @@ def wai_fig(fig_data: pd.DataFrame, *, palette: Optional[Dict[str, str]] = None,
     ``fig_data`` = :func:`eda_analysis.instruments.wai_fig_data` output (``judge, arm, iteration,
     subscale, gain, ci_lo, ci_hi, n``). Bars = mean persona-paired gain, whiskers = 95% bootstrap
     CI. Each arm's endpoint series is drawn at full alpha; a second (matched, non-endpoint)
-    iteration of the same arm — GRPO_LA0 @ 5 today — is drawn faded (alpha 0.45) so it reads as
+    iteration of the same arm — GRPO_LA0 at GRPO's matched endpoint — is drawn faded (alpha 0.45) so it reads as
     context for the censored K=5 arm beside it. K=5 bars are hatched (:data:`K_STYLE`).
     """
     if fig_data is None or fig_data.empty:

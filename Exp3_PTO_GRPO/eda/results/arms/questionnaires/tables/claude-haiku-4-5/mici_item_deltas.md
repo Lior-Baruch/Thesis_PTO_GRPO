@@ -8,14 +8,14 @@
 | final    | GRPO_LA0 | MICI_Direct_rate             | Direct/order / turn (MICI) ↓          |         |            10 |  0.104 |  -0.102 |
 | final    | GRPO_LA0 | MICI_Judge_rate              | Judge/label / turn (MICI) ↓           |         |            10 |  0.010 |  -0.010 |
 | final    | GRPO_LA0 | MICI_OverPraise_rate         | Over-praise / turn (MICI) ↓           |         |            10 |  0.016 |   0.810 |
-| final    | GRPO_LA5 | MICI_Severity                | MI-Incon. Severity (MICI) ↓           |         |             6 |  3.021 |  -0.167 |
-| final    | GRPO_LA5 | MICI_Rate                    | MI-Incon. total / turn (MICI) ↓       |         |             6 |  0.326 |   0.249 |
-| final    | GRPO_LA5 | MICI_Confront_rate           | Confront / turn (MICI) ↓              |         |             6 |  0.023 |  -0.013 |
-| final    | GRPO_LA5 | MICI_AdviseNoPermission_rate | Advise w/o permission / turn (MICI) ↓ |         |             6 |  0.223 |   0.195 |
-| final    | GRPO_LA5 | MICI_Warn_rate               | Warn / turn (MICI) ↓                  |         |             6 |  0.005 |  -0.005 |
-| final    | GRPO_LA5 | MICI_Direct_rate             | Direct/order / turn (MICI) ↓          |         |             6 |  0.062 |   0.009 |
-| final    | GRPO_LA5 | MICI_Judge_rate              | Judge/label / turn (MICI) ↓           |         |             6 |  0.006 |  -0.001 |
-| final    | GRPO_LA5 | MICI_OverPraise_rate         | Over-praise / turn (MICI) ↓           |         |             6 |  0.007 |   0.063 |
+| final    | GRPO_LA5 | MICI_Severity                | MI-Incon. Severity (MICI) ↓           |         |            10 |  3.021 |   0.010 |
+| final    | GRPO_LA5 | MICI_Rate                    | MI-Incon. total / turn (MICI) ↓       |         |            10 |  0.326 |   0.301 |
+| final    | GRPO_LA5 | MICI_Confront_rate           | Confront / turn (MICI) ↓              |         |            10 |  0.023 |  -0.018 |
+| final    | GRPO_LA5 | MICI_AdviseNoPermission_rate | Advise w/o permission / turn (MICI) ↓ |         |            10 |  0.223 |   0.162 |
+| final    | GRPO_LA5 | MICI_Warn_rate               | Warn / turn (MICI) ↓                  |         |            10 |  0.005 |  -0.005 |
+| final    | GRPO_LA5 | MICI_Direct_rate             | Direct/order / turn (MICI) ↓          |         |            10 |  0.062 |  -0.029 |
+| final    | GRPO_LA5 | MICI_Judge_rate              | Judge/label / turn (MICI) ↓           |         |            10 |  0.006 |  -0.006 |
+| final    | GRPO_LA5 | MICI_OverPraise_rate         | Over-praise / turn (MICI) ↓           |         |            10 |  0.007 |   0.197 |
 | final    | PTO_LA0  | MICI_Severity                | MI-Incon. Severity (MICI) ↓           |         |            10 |  3.115 |   0.031 |
 | final    | PTO_LA0  | MICI_Rate                    | MI-Incon. total / turn (MICI) ↓       |         |            10 |  0.364 |   0.461 |
 | final    | PTO_LA0  | MICI_Confront_rate           | Confront / turn (MICI) ↓              |         |            10 |  0.022 |  -0.022 |
@@ -40,14 +40,14 @@
 | best     | GRPO_LA0 | MICI_Direct_rate             | Direct/order / turn (MICI) ↓          |         |             3 |  0.104 |  -0.062 |
 | best     | GRPO_LA0 | MICI_Judge_rate              | Judge/label / turn (MICI) ↓           |         |             3 |  0.010 |  -0.010 |
 | best     | GRPO_LA0 | MICI_OverPraise_rate         | Over-praise / turn (MICI) ↓           |         |             3 |  0.016 |   0.024 |
-| best     | GRPO_LA5 | MICI_Severity                | MI-Incon. Severity (MICI) ↓           |         |             6 |  3.021 |  -0.167 |
-| best     | GRPO_LA5 | MICI_Rate                    | MI-Incon. total / turn (MICI) ↓       |         |             6 |  0.326 |   0.249 |
-| best     | GRPO_LA5 | MICI_Confront_rate           | Confront / turn (MICI) ↓              |         |             6 |  0.023 |  -0.013 |
-| best     | GRPO_LA5 | MICI_AdviseNoPermission_rate | Advise w/o permission / turn (MICI) ↓ |         |             6 |  0.223 |   0.195 |
-| best     | GRPO_LA5 | MICI_Warn_rate               | Warn / turn (MICI) ↓                  |         |             6 |  0.005 |  -0.005 |
-| best     | GRPO_LA5 | MICI_Direct_rate             | Direct/order / turn (MICI) ↓          |         |             6 |  0.062 |   0.009 |
-| best     | GRPO_LA5 | MICI_Judge_rate              | Judge/label / turn (MICI) ↓           |         |             6 |  0.006 |  -0.001 |
-| best     | GRPO_LA5 | MICI_OverPraise_rate         | Over-praise / turn (MICI) ↓           |         |             6 |  0.007 |   0.063 |
+| best     | GRPO_LA5 | MICI_Severity                | MI-Incon. Severity (MICI) ↓           |         |             7 |  3.021 |  -0.083 |
+| best     | GRPO_LA5 | MICI_Rate                    | MI-Incon. total / turn (MICI) ↓       |         |             7 |  0.326 |   0.253 |
+| best     | GRPO_LA5 | MICI_Confront_rate           | Confront / turn (MICI) ↓              |         |             7 |  0.023 |  -0.015 |
+| best     | GRPO_LA5 | MICI_AdviseNoPermission_rate | Advise w/o permission / turn (MICI) ↓ |         |             7 |  0.223 |   0.193 |
+| best     | GRPO_LA5 | MICI_Warn_rate               | Warn / turn (MICI) ↓                  |         |             7 |  0.005 |  -0.004 |
+| best     | GRPO_LA5 | MICI_Direct_rate             | Direct/order / turn (MICI) ↓          |         |             7 |  0.062 |  -0.011 |
+| best     | GRPO_LA5 | MICI_Judge_rate              | Judge/label / turn (MICI) ↓           |         |             7 |  0.006 |  -0.005 |
+| best     | GRPO_LA5 | MICI_OverPraise_rate         | Over-praise / turn (MICI) ↓           |         |             7 |  0.007 |   0.096 |
 | best     | PTO_LA0  | MICI_Severity                | MI-Incon. Severity (MICI) ↓           |         |             9 |  3.115 |  -0.094 |
 | best     | PTO_LA0  | MICI_Rate                    | MI-Incon. total / turn (MICI) ↓       |         |             9 |  0.364 |   0.382 |
 | best     | PTO_LA0  | MICI_Confront_rate           | Confront / turn (MICI) ↓              |         |             9 |  0.022 |  -0.021 |

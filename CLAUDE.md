@@ -90,7 +90,7 @@ everywhere else keep a pointer.
 | Detailed eval narrative + numbers, per research question | `Exp3_PTO_GRPO/eda/results/<top>/SUMMARY.md` (`arms` · `lookahead` · `method` · `compute` · `measurement`) | per render |
 | Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/results/METRICS_REFERENCE.md` | rarely |
 | Measurement / inference limitations (for the write-up) | `Exp3_PTO_GRPO/eda/results/LIMITATIONS.md` | rarely |
-| **Paper drafts + the claim→artifact ledger** | [`papers/README.md`](papers/README.md), then each paper's `README.md` + **`NUMBERS.md`**. Live draft: [`papers/2026_lookahead_pto_grpo/`](papers/2026_lookahead_pto_grpo/) (all four arms, both graders, both cost axes; the EDA's `lookahead/` and `compute/` families own the cross-K numbers — the paper's `NUMBERS.md` maps each claim to its `eda/results/<family>/tables/…` path and carries the retired generators' output as a frozen fixture under `analysis/out/` + `tables/`). Retired drafts live tracked under `papers/archive/` | per draft |
+| **Paper drafts + the claim→artifact ledger** | [`papers/README.md`](papers/README.md), then each paper's `README.md` + **`NUMBERS.md`**. Live draft: [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*Scoring the Continuation* — the two GRPO arms, both graders, both cost axes; planned in [`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md)). Every earlier Exp3 draft was retired to `papers/archive/` (tracked) once GRPO K=5 finished and made their grids stale. The EDA's `lookahead/` and `compute/` families own the cross-K numbers; the retired *Same Lever* draft's `analysis/out/` + `tables/` stay the EDA self-check's frozen fixture | per draft |
 | Supervisor decks + emails | [`meetings/README.md`](meetings/README.md) | per meeting |
 | Data/artifact policy (what's gitignored, how it regenerates) | `README.md` § "Data & large artifacts" | rarely |
 | **Everything about the Exp4 side project** (spec, module contract, naming grammar, data layout, phase gates) | [`Exp4_OpenStack/CLAUDE.md`](Exp4_OpenStack/CLAUDE.md) | its own cadence |
@@ -125,6 +125,15 @@ disjoint that overlaps, a cell count nobody multiplied out, and a rate quoted fr
    is retrieval, not brainstorming.
 2. **Any composite number must show its arithmetic** wherever it is quoted
    (`8 × 40 × 96 = 30,720`, not `30,720`). Atomic-looking numbers do not get audited.
+2b. **A two-point ratio is only as stable as its anchor — quote a TREND beside it, or don't quote
+   it.** Added 2026-08-25, after "the held-out grader's variance *grows* 1.410×" survived into
+   STATUS.md, a family SUMMARY, a rendered figure and a paper draft. Iteration 0 happened to be
+   that series' **minimum**: re-anchored to iteration 1 the ratio is 1.062× and the trend test is
+   null (ρ = +0.44, p = .18). The arithmetic was correct and the inference was backwards. Before
+   quoting `end / start`, check whether either endpoint is a series extremum, and report the
+   trend (or the re-anchored value) in the same breath. The sibling claim in the same sentence —
+   the primary's 0.275× collapse — was fine precisely because it is monotone (ρ = −0.86, p = .001)
+   and survives re-anchoring.
 3. **A number in prose is a claim about a table, not a number.** Before reusing one, open the table
    it cites — and check it cites the *right* table. (`SUMMARY.md` §4 has quoted the regex question
    rate while pointing at the oracle-coded one.)
@@ -409,8 +418,11 @@ still read this experiment's `eda/results/`; they resolve it as `REPO/Exp3_PTO_G
    `data/eval_scores/judge=<tag>/rep=<r>/`.
 2. **Analyze:** one notebook per results **family**, `notebooks/<top>/<sub>.ipynb` ↔
    `results/<top>/<sub>/` 1:1 — `arms/*` (per-arm descriptives, all four arms on one axis),
-   `lookahead/*` (RQ-i, K=0 vs K=5 within each optimizer), `method/contrast` (RQ-ii), `compute/cost`
-   (GPU-h + API axis, budget sweeps), `measurement/validity` (judge validity, multi-judge); everything
+   `lookahead/*` (RQ-i, K=0 vs K=5 within each optimizer), `method/contrast` (RQ-ii — incl.
+   **`headline_grid`**, THE four-arm endpoint grid with both graders side by side, each arm anchored
+   to its own base), `compute/cost`
+   (GPU-h + API axis, budget sweeps), `measurement/validity` (judge validity, multi-judge, and
+   **`judge_saturation`** — the per-conversation agreement collapse and its SD mechanism); everything
    auto-discovers arms from disk — no registry edits anywhere. Cell 1 is always
    `EdaConfig(family="<top>/<sub>", judge=os.environ.get("EDA_JUDGE", ""))` → `notebook_setup`. The
    **FAMILY knob** sets the output root (the default arm filter is every arm; there is no VIEW); the
@@ -661,7 +673,7 @@ budget_sweep_crossjudge{,_verdicts},iso_channels{,_selected},api_calls,api_ratio
 - **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/eval_scores/`: ICC/agreement/contrast tables for `measurement/validity.ipynb` §1, plus the **multi-judge** layer for its §2 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `sign_preservation`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_results.py`.
   - ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the second judge is held out — that is train-vs-test, not two raters. The level offset is 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to every effect. Combine only contrasts or standardized quantities.
   - ⚠ **Pair on `persona_id`, not `file_index`** (`attach_persona`). The 96 personas are reshuffled each iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it; `dz` and CIs do not.
-- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with every conversation already scored (`8 × 40 × 96 = 30,720` cells per grader; read the live count off `results/measurement/validity/tables/multijudge_coverage.md`).
+- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with every conversation already scored (`8 × 44 × 96 = 33,792` cells per grader as of 2026-08-25; read the live count off `results/measurement/validity/tables/multijudge_coverage.md`).
 
 ## Exp3 · Gotchas
 

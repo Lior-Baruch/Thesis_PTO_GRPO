@@ -5,11 +5,11 @@
 | final    | GRPO_LA0 |      3 | facilitated motivation          |         |            10 |  3.146 |   0.542 |
 | final    | GRPO_LA0 |      4 | learned something new           |         |            10 |  2.917 |   0.656 |
 | final    | GRPO_LA0 |      5 | learning relevant to daily life |         |            10 |  3.198 |   0.521 |
-| final    | GRPO_LA5 |      1 | overall chat satisfaction       |         |             6 |  2.938 |   1.125 |
-| final    | GRPO_LA5 |      2 | content satisfaction            |         |             6 |  2.927 |   1.135 |
-| final    | GRPO_LA5 |      3 | facilitated motivation          |         |             6 |  2.979 |   1.292 |
-| final    | GRPO_LA5 |      4 | learned something new           |         |             6 |  2.667 |   1.531 |
-| final    | GRPO_LA5 |      5 | learning relevant to daily life |         |             6 |  3.042 |   1.365 |
+| final    | GRPO_LA5 |      1 | overall chat satisfaction       |         |            10 |  2.938 |   1.302 |
+| final    | GRPO_LA5 |      2 | content satisfaction            |         |            10 |  2.927 |   1.385 |
+| final    | GRPO_LA5 |      3 | facilitated motivation          |         |            10 |  2.979 |   1.552 |
+| final    | GRPO_LA5 |      4 | learned something new           |         |            10 |  2.667 |   1.865 |
+| final    | GRPO_LA5 |      5 | learning relevant to daily life |         |            10 |  3.042 |   1.667 |
 | final    | PTO_LA0  |      1 | overall chat satisfaction       |         |            10 |  2.979 |   1.042 |
 | final    | PTO_LA0  |      2 | content satisfaction            |         |            10 |  2.938 |   1.094 |
 | final    | PTO_LA0  |      3 | facilitated motivation          |         |            10 |  2.958 |   1.250 |
@@ -25,11 +25,11 @@
 | best     | GRPO_LA0 |      3 | facilitated motivation          |         |             8 |  3.146 |   0.812 |
 | best     | GRPO_LA0 |      4 | learned something new           |         |             8 |  2.917 |   0.948 |
 | best     | GRPO_LA0 |      5 | learning relevant to daily life |         |             8 |  3.198 |   0.896 |
-| best     | GRPO_LA5 |      1 | overall chat satisfaction       |         |             6 |  2.938 |   1.125 |
-| best     | GRPO_LA5 |      2 | content satisfaction            |         |             6 |  2.927 |   1.135 |
-| best     | GRPO_LA5 |      3 | facilitated motivation          |         |             6 |  2.979 |   1.292 |
-| best     | GRPO_LA5 |      4 | learned something new           |         |             6 |  2.667 |   1.531 |
-| best     | GRPO_LA5 |      5 | learning relevant to daily life |         |             6 |  3.042 |   1.365 |
+| best     | GRPO_LA5 |      1 | overall chat satisfaction       |         |            10 |  2.938 |   1.302 |
+| best     | GRPO_LA5 |      2 | content satisfaction            |         |            10 |  2.927 |   1.385 |
+| best     | GRPO_LA5 |      3 | facilitated motivation          |         |            10 |  2.979 |   1.552 |
+| best     | GRPO_LA5 |      4 | learned something new           |         |            10 |  2.667 |   1.865 |
+| best     | GRPO_LA5 |      5 | learning relevant to daily life |         |            10 |  3.042 |   1.667 |
 | best     | PTO_LA0  |      1 | overall chat satisfaction       |         |            10 |  2.979 |   1.042 |
 | best     | PTO_LA0  |      2 | content satisfaction            |         |            10 |  2.938 |   1.094 |
 | best     | PTO_LA0  |      3 | facilitated motivation          |         |            10 |  2.958 |   1.250 |

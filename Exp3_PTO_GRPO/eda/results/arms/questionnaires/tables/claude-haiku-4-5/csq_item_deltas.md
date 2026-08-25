@@ -8,14 +8,14 @@
 | final    | GRPO_LA0 |      6 | Effectiveness        |         |            10 |  2.104 |   0.271 |
 | final    | GRPO_LA0 |      7 | Overall satisfaction |         |            10 |  2.073 |   0.396 |
 | final    | GRPO_LA0 |      8 | Return intention     |         |            10 |  2.198 |   0.448 |
-| final    | GRPO_LA5 |      1 | Quality              |         |             6 |  2.094 |   0.812 |
-| final    | GRPO_LA5 |      2 | Service fit          |         |             6 |  2.083 |   0.792 |
-| final    | GRPO_LA5 |      3 | Needs met            |         |             6 |  2.052 |   0.750 |
-| final    | GRPO_LA5 |      4 | Recommend            |         |             6 |  2.083 |   0.792 |
-| final    | GRPO_LA5 |      5 | Amount of help       |         |             6 |  2.094 |   0.771 |
-| final    | GRPO_LA5 |      6 | Effectiveness        |         |             6 |  2.073 |   0.771 |
-| final    | GRPO_LA5 |      7 | Overall satisfaction |         |             6 |  2.094 |   0.802 |
-| final    | GRPO_LA5 |      8 | Return intention     |         |             6 |  2.156 |   0.781 |
+| final    | GRPO_LA5 |      1 | Quality              |         |            10 |  2.094 |   0.833 |
+| final    | GRPO_LA5 |      2 | Service fit          |         |            10 |  2.083 |   0.844 |
+| final    | GRPO_LA5 |      3 | Needs met            |         |            10 |  2.052 |   0.875 |
+| final    | GRPO_LA5 |      4 | Recommend            |         |            10 |  2.083 |   0.844 |
+| final    | GRPO_LA5 |      5 | Amount of help       |         |            10 |  2.094 |   0.833 |
+| final    | GRPO_LA5 |      6 | Effectiveness        |         |            10 |  2.073 |   0.875 |
+| final    | GRPO_LA5 |      7 | Overall satisfaction |         |            10 |  2.094 |   0.833 |
+| final    | GRPO_LA5 |      8 | Return intention     |         |            10 |  2.156 |   0.812 |
 | final    | PTO_LA0  |      1 | Quality              |         |            10 |  2.062 |   0.750 |
 | final    | PTO_LA0  |      2 | Service fit          |         |            10 |  2.031 |   0.760 |
 | final    | PTO_LA0  |      3 | Needs met            |         |            10 |  1.979 |   0.750 |
@@ -40,14 +40,14 @@
 | best     | GRPO_LA0 |      6 | Effectiveness        |         |             3 |  2.104 |   0.594 |
 | best     | GRPO_LA0 |      7 | Overall satisfaction |         |             3 |  2.073 |   0.656 |
 | best     | GRPO_LA0 |      8 | Return intention     |         |             3 |  2.198 |   0.562 |
-| best     | GRPO_LA5 |      1 | Quality              |         |             6 |  2.094 |   0.812 |
-| best     | GRPO_LA5 |      2 | Service fit          |         |             6 |  2.083 |   0.792 |
-| best     | GRPO_LA5 |      3 | Needs met            |         |             6 |  2.052 |   0.750 |
-| best     | GRPO_LA5 |      4 | Recommend            |         |             6 |  2.083 |   0.792 |
-| best     | GRPO_LA5 |      5 | Amount of help       |         |             6 |  2.094 |   0.771 |
-| best     | GRPO_LA5 |      6 | Effectiveness        |         |             6 |  2.073 |   0.771 |
-| best     | GRPO_LA5 |      7 | Overall satisfaction |         |             6 |  2.094 |   0.802 |
-| best     | GRPO_LA5 |      8 | Return intention     |         |             6 |  2.156 |   0.781 |
+| best     | GRPO_LA5 |      1 | Quality              |         |             7 |  2.094 |   0.719 |
+| best     | GRPO_LA5 |      2 | Service fit          |         |             7 |  2.083 |   0.708 |
+| best     | GRPO_LA5 |      3 | Needs met            |         |             7 |  2.052 |   0.698 |
+| best     | GRPO_LA5 |      4 | Recommend            |         |             7 |  2.083 |   0.708 |
+| best     | GRPO_LA5 |      5 | Amount of help       |         |             7 |  2.094 |   0.698 |
+| best     | GRPO_LA5 |      6 | Effectiveness        |         |             7 |  2.073 |   0.688 |
+| best     | GRPO_LA5 |      7 | Overall satisfaction |         |             7 |  2.094 |   0.708 |
+| best     | GRPO_LA5 |      8 | Return intention     |         |             7 |  2.156 |   0.677 |
 | best     | PTO_LA0  |      1 | Quality              |         |             9 |  2.062 |   0.802 |
 | best     | PTO_LA0  |      2 | Service fit          |         |             9 |  2.031 |   0.833 |
 | best     | PTO_LA0  |      3 | Needs met            |         |             9 |  1.979 |   0.750 |

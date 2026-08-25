@@ -5,8 +5,9 @@ Promoted 2026-08-18 from the look-ahead paper's ``analysis/reward_faithfulness.p
 :func:`faithfulness_fig` — three panels, called ONCE PER EVAL GRADER (the proxy is always the
 training oracle; only the eval side changes): (a) PTO and (b) GRPO agreement vs prefix length
 n_turns, K=0 solid/circle vs K=5 dashed/square, ribbons = 95% cluster-bootstrap CI, pooled over
-iterations (GRPO on the 1–5 series — GRPO_LA5 is right-censored at 5 — with full-support GRPO_LA0
-as a faint dotted reference); (c) the matched-policy (train_iter 1, base policy) K0 − K5
+iterations (GRPO on the shorter-support arm's own support, with full-support GRPO_LA0 as a faint
+dotted reference where the two differ); (c) the matched-policy (train_iter 1, base
+policy) K0 − K5
 difference per bin with CI — NEGATIVE = look-ahead more faithful.
 
 Contract as everywhere in ``plotting``: takes the tidy frames, never touches disk, returns a
@@ -38,17 +39,39 @@ def faithfulness_fig(curve: pd.DataFrame, matched: pd.DataFrame, judge_label: st
     ``judge_label`` selects the eval-side grader's rows (e.g. ``"gpt-4o-mini"``,
     ``"claude-haiku-4-5"``); ``grader_display`` = the long label for the suptitle (default via
     :func:`eda_analysis.faithfulness.judge_display`). ``main_iters`` maps method → the ``iters``
-    series label to draw (default PTO ``"1-10"``, GRPO ``"1-5"``)."""
-    from ..faithfulness import judge_display
+    series label to draw; by default it is DERIVED from ``curve`` — the narrowest label the
+    method's two K arms SHARE, i.e. the support they have in common under this grader.
+
+    ⚠ The default used to be the literal ``{"PTO": "1-10", "GRPO": "1-5"}``. Once the series
+    labels became per-grader (they are computed by
+    :func:`eda_analysis.faithfulness.faithfulness_curve`), a literal that matched nothing would
+    have filtered the panel to an empty frame and dropped a K curve from the figure without an
+    error. Derive it from BOTH arms or pass it; never write a range down here, and never derive it
+    from one arm alone - a label only one arm carries drops the other arm's curve just as quietly.
+    """
+    from ..faithfulness import judge_display, _label_rank
     gl = grader_display or judge_display(judge_label)
-    main_iters = main_iters or {"PTO": "1-10", "GRPO": "1-5"}
     arms = [f"{m}_LA{k}" for m in methods for k in (0, 5)]
     pal = arm_palette(arms)
     cj = curve[curve["judge"] == judge_label]
     mj = matched[matched["judge"] == judge_label]
+    if main_iters is None:
+        # The panel must plot the two K arms on the SAME iterations, so take the narrowest `iters`
+        # label the method's K=0 and K=5 rows SHARE - faithfulness._series emits exactly one such
+        # row per arm. Reading the K=5 arm's own label instead works only while the K=0 arm happens
+        # to carry a row with that same label; when it does not, `d.empty` below drops the K=0
+        # curve without a word and the faint full-support reference is left looking like it.
+        main_iters = {}
+        for m in methods:
+            shared = (set(cj.loc[cj["arm"] == f"{m}_LA0", "iters"])
+                      & set(cj.loc[cj["arm"] == f"{m}_LA5", "iters"]))
+            if shared:
+                main_iters[m] = max(shared, key=lambda s: (_label_rank(s), s))
     fig, axes = plt.subplots(1, 3, figsize=figsize, gridspec_kw={"width_ratios": [1.15, 1.15, 1.0]})
     for ax, m in zip(axes[:2], methods):
-        mi = main_iters.get(m, "1-10")
+        mi = main_iters.get(m)
+        if mi is None:          # this method's K=5 arm is absent from the frame entirely
+            continue
         for K in (0, 5):
             arm = f"{m}_LA{K}"
             d = cj[(cj["arm"] == arm) & (cj["iters"] == mi) & (cj["n_turns"].str.isdigit())].copy()

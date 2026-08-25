@@ -1,0 +1,94 @@
+\section{Look-ahead more than doubles the gain}
+\label{sec:reward}
+
+\begin{table*}[t]
+\centering
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{3}{c}{\primaryjudge\ (training oracle)} & \multicolumn{3}{c}{\heldoutjudge\ (held out)}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Instrument & $\Delta$ & \dz & $p_{\text{holm}}$ & $\Delta$ & \dz & $p_{\text{holm}}$\\
+\midrule
+Q1+Q2 (reward) & $+0.765$ & $0.905$ & $<.001$ & $+0.616$ & $1.030$ & $<.001$\\
+\quad Q1        & $+0.858$ & $0.902$ & $<.001$ & $+0.865$ & $1.152$ & $<.001$\\
+\quad Q2        & $+0.671$ & $0.864$ & $<.001$ & $+0.367$ & $0.609$ & $<.001$\\
+WAI-SR          & $+0.291$ & $0.513$ & $<.001$ & $+0.288$ & $0.442$ & $<.001$\\
+CSQ-8           & $+0.289$ & $0.482$ & $<.001$ & $+0.451$ & $0.678$ & $<.001$\\
+MI-SAT          & $+0.352$ & $0.531$ & $<.001$ & $+0.503$ & $0.829$ & $<.001$\\
+MITI            & $+0.615$ & $0.735$ & $<.001$ & $+0.276$ & $0.502$ & $<.001$\\
+PCT             & $+0.111$ & $0.516$ & $<.001$ & $+0.113$ & $0.563$ & $<.001$\\
+MICI ($\downarrow$) & $-0.627$ & $-1.862$ & $<.001$ & $-0.422$ & $-1.567$ & $<.001$\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{$\Kf$ minus $\Kz$ at the matched iteration-10 endpoint}, persona-paired over the
+96 shared personas ($n{=}96$). A \emph{positive} $\Delta$ means look-ahead scored higher; MICI is
+lower-is-better, so its negative $\Delta$ also favours $\Kf$. Look-ahead wins on every instrument
+under both graders. Holm correction is across the nine rows within a grader.
+Source: \texttt{k\_endpoints} (lookahead/reward family).}
+\label{tab:endpoint}
+\end{table*}
+
+\subsection{The headline}
+
+At the matched iteration-10 endpoint, look-ahead wins on \textbf{every instrument under both
+graders} (Table~\ref{tab:endpoint}). On the rewarded rubric the gap is $+0.765$ ($\dz\,0.905$)
+under the training oracle and $+0.616$ ($\dz\,1.030$) under the held-out judge. That the held-out
+judge --- a different model family that never played the patient and never touched training ---
+reports a \emph{larger} standardised effect than the grader that was optimised against is the
+single most important fact in this section: the gain is not an artifact of the optimisation target.
+
+Measured against each arm's own base, look-ahead more than doubles what the same optimizer extracts
+from the same oracle: $+1.554$ versus $+0.686$ on Q1+Q2 under the training oracle
+($1.554 / 0.686 = 2.27\times$), and $+1.038$ versus $+0.396$ under the held-out judge
+($1.038 / 0.396 = 2.62\times$). In absolute terms the $\Kf$ policy ends at $4.517$ on a 1--5 scale
+against the $\Kz$ policy's $3.753$, from statistically indistinguishable bases ($2.963$ and
+$3.067$; the base-vs-base contrast is $+0.104$, $\dz\,0.115$, n.s.).
+
+\subsection{The effect has an onset}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=\textwidth]{figures/k_headline_q1q2_grpo.png}
+\caption{The two GRPO arms only. \textbf{Top:} Q1+Q2 by iteration under each grader, each arm's own
+base dotted. \textbf{Bottom:} the persona-paired $\Kf - \Kz$ contrast, so \emph{up is look-ahead
+winning} --- note this is the opposite sign to the underlying tables, which report $\Kz - \Kf$.
+Iteration 0 is the two arms' independent base draws (the noise floor); the shaded band is the
+$\pm 0.10$ oracle repeatability interval. The two graders' panels have independent $y$-axes and are
+not on a common scale. Bars are persona-bootstrap 95\% CIs; filled markers cleared Holm.
+The four-arm version of this figure, showing the PTO arms of the parent experiment for context, is
+Figure~\ref{fig:fourarm-traj} in the appendix.
+Source: \texttt{k\_headline\_q1q2\_grpo} (lookahead/reward family).}
+\label{fig:headline}
+\end{figure*}
+
+Look-ahead is not free from the first step, and the trajectory matters for anyone deciding how long
+to train. For the first three iterations the two arms are statistically indistinguishable on Q1+Q2
+under both graders. The advantage opens at iteration 4 and is Holm-significant at 6 of the 10
+iterations under each grader (primary: 4, 6, 7, 8, 9, 10; held-out: 4, 5, 6, 7, 9, 10), and it is
+\emph{largest at the endpoint} --- there is no sign of it having peaked
+(Figure~\ref{fig:headline}).
+
+Two readings are ruled out by the same figure. This is not a case of $\Kz$ collapsing while $\Kf$
+holds steady: $\Kf$ climbs throughout. Nor is it a single-iteration artifact --- the gap is
+Holm-significant at every iteration from 6 to 10 under the training oracle. It is not smooth,
+however, and we do not describe it as such: under the training oracle it runs
+$+0.263, +0.196, +0.172, +0.647, +0.765$ over iterations 6--10, so most of the final margin opens
+between iterations 8 and 9. Part of that late jump is the $\Kz$ arm falling rather than the $\Kf$
+arm rising --- $\Kz$ scores $4.082$ at its own iteration-8 peak and $3.753$ at iteration 10 --- and
+§\ref{sec:behaviour} identifies what the $\Kz$ policy was doing over exactly those iterations.
+\todo{once the replicate draw of GRPO\_LA5@10 exists, state whether the endpoint survives a second
+96-conversation sample; the iteration-9 dip in the $\Kz$ arm is a single draw}
+
+\subsection{What the gain is made of}
+
+The two components of the reward move differently, and the held-out judge localises the effect
+more sharply than the trained-against grader does. Q1 (session satisfaction) carries the larger
+share under both graders ($+0.858$ / $+0.865$), while Q2 (working alliance) is smaller and grader
+dependent ($+0.671$ primary, $+0.367$ held out). The instruments \emph{outside} the reward move
+too, which is what distinguishes a genuine gain from a target-specific one: MI-SAT
+($\dz\,0.531$ / $0.829$), CSQ-8 ($0.482$ / $0.678$), WAI-SR ($0.513$ / $0.442$), the MITI-style
+technique coder ($0.735$ / $0.502$), and patient change talk ($0.516$ / $0.563$) all favour
+look-ahead under both graders. MI-inconsistent behaviour, the one lower-is-better axis, shows the
+largest standardised effect in the table ($\dz\,-1.862$ primary, $-1.567$ held out); §\ref{sec:behaviour}
+takes that apart, because it is where the two graders stop agreeing about magnitude.

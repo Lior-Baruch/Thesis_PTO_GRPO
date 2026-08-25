@@ -28,7 +28,8 @@ Plus the paper's headline figures, promoted 2026-08-18 from
 
 Every delta figure states the sign convention on its axis: ``+ => K=0 higher`` (K=0 minus K=5;
 MICI channels lower-better). Iteration 0 = the two arms' independent base draws. GRPO_LA5 is
-right-censored at 5, so its series simply stop — the legends say so.
+right-censored, so its series simply stop where its support ends — the legends say WHERE, read off
+the frame rather than from a constant.
 
 Contract as everywhere in ``plotting``: takes already-built tidy frames, never touches disk,
 returns a ``fig`` (the notebook owns ``save_fig``), returns ``None`` when the arms are absent.
@@ -410,12 +411,16 @@ def _sig_handles(pal: dict, noise: Optional[float], *, pto_label="PTO", grpo_lab
 
 def _censor_labels(frames: pd.DataFrame):
     """Legend labels that say where each method's matched iterations stop (read off the frame)."""
+    _tops = [int(g["iteration"].max()) for _, g in frames.groupby("method") if len(g)]
+    _top = max(_tops) if _tops else 0
+
     def _rng(method):
         d = frames[frames["method"] == method]
         if d.empty:
             return method
         lo, hi = int(d["iteration"].min()), int(d["iteration"].max())
-        return f"{method} (iters {lo}–{hi}{', censored' if method == 'GRPO' else ''})"
+        # "censored" is a comparison against the OTHER methods in this frame, not a fact about GRPO.
+        return f"{method} (iters {lo}–{hi}{', censored' if hi < _top else ''})"
     return _rng("PTO"), _rng("GRPO")
 
 
@@ -459,8 +464,11 @@ def k_headline_fourarm(levels_long: pd.DataFrame, frames: pd.DataFrame, *, metri
         ax.set_ylabel(f"{lab} (1–5), mean ± SE" if j == 0 else "")
         if j == 0:
             ax.legend(fontsize=7, frameon=False, loc="lower right", ncol=2)
+        # Annotate the censored arm's last point ONLY when it actually stops before the others.
+        # Drawing it unconditionally labelled the shared final iteration "<arm> ends", which reads
+        # as censoring on a completed grid — the figure then disproved its own annotation.
         dc = lv[lv["arm"] == censor_arm]
-        if len(dc):
+        if len(dc) and int(dc["iteration"].max()) < int(lv["iteration"].max()):
             it_end = int(dc["iteration"].max())
             y5 = float(dc.loc[dc["iteration"] == it_end, "mean"].iloc[0])
             ax.annotate(f"{arm_label(censor_arm).replace(' (', ' ').replace(')', '')} ends",
@@ -784,7 +792,7 @@ def k_did(did: pd.DataFrame, method_gap: pd.DataFrame, *, metric: str = "Q1Q2",
         did_end = int(sub["iteration"].max()) if len(sub) else n_it - 1
         ax.set_title(f"{metric} DiD: {title}", fontsize=9.5)
         ax.set_ylabel(f"{metric} DiD, score points" if j == 0 else "", fontsize=9)
-        ax.set_xlabel(f"iteration (0 = base draws; DiD estimable only to {did_end})", fontsize=9)
+        ax.set_xlabel(f"iteration (0 = base draws; DiD estimable to {did_end})", fontsize=9)
         ax.set_xticks(range(0, n_it))
         ax.tick_params(labelsize=8)
         ax.grid(True, alpha=0.35)
@@ -792,7 +800,11 @@ def k_did(did: pd.DataFrame, method_gap: pd.DataFrame, *, metric: str = "Q1Q2",
         ylo = min(a.get_ylim()[0] for a in axes[row]); yhi = max(a.get_ylim()[1] for a in axes[row])
         for a in axes[row]:
             a.set_ylim(ylo, yhi + (0.12 if row == 1 else 0))
-    k5_end = int(method_gap.loc[method_gap["K"] == 5, "iteration"].max()) if (method_gap["K"] == 5).any() else None
+    # Qualify the K=5 label with its endpoint ONLY when it genuinely stops before K=0. Appending
+    # "(to iter N)" unconditionally put an asymmetric note against the K=5 series alone, which
+    # reads as "this is the short one" even when both series run to the same iteration.
+    _k_end = {int(k): int(g["iteration"].max()) for k, g in method_gap.groupby("K")}
+    k5_end = _k_end.get(5) if (5 in _k_end and _k_end[5] < max(_k_end.values())) else None
     h = [Line2D([], [], color=gap_colors[0], ls="-", marker="o", ms=5.5, lw=1.7, label="K=0: PTO_LA0 − GRPO_LA0"),
          Line2D([], [], color=gap_colors[5], ls="--", marker="s", ms=5.5, lw=1.7,
                 label="K=5: PTO_LA5 − GRPO_LA5" + (f" (to iter {k5_end})" if k5_end is not None else "")),

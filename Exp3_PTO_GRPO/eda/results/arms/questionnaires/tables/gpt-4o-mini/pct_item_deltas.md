@@ -7,13 +7,13 @@
 | final    | GRPO_LA0 | PCT_ChangeTalk_prop  | % Change Talk (PCT)          |         |            10 |  0.420 |   0.068 |
 | final    | GRPO_LA0 | PCT_SustainTalk_prop | % Sustain Talk (PCT) ↓       |         |            10 |  0.441 |  -0.079 |
 | final    | GRPO_LA0 | PCT_Neutral_prop     | % Neutral (PCT)              |         |            10 |  0.140 |   0.011 |
-| final    | GRPO_LA5 | PCT_Importance       | Importance (PCT)             |         |             6 |  3.323 |   0.562 |
-| final    | GRPO_LA5 | PCT_Confidence       | Confidence (PCT)             |         |             6 |  2.729 |   0.479 |
-| final    | GRPO_LA5 | PCT_Readiness        | Readiness (PCT)              |         |             6 |  3.062 |   0.812 |
-| final    | GRPO_LA5 | PCT_ChangeProp       | Change-Talk proportion (PCT) |         |             6 |  0.471 |   0.154 |
-| final    | GRPO_LA5 | PCT_ChangeTalk_prop  | % Change Talk (PCT)          |         |             6 |  0.395 |   0.152 |
-| final    | GRPO_LA5 | PCT_SustainTalk_prop | % Sustain Talk (PCT) ↓       |         |             6 |  0.446 |  -0.121 |
-| final    | GRPO_LA5 | PCT_Neutral_prop     | % Neutral (PCT)              |         |             6 |  0.159 |  -0.031 |
+| final    | GRPO_LA5 | PCT_Importance       | Importance (PCT)             |         |            10 |  3.323 |   0.771 |
+| final    | GRPO_LA5 | PCT_Confidence       | Confidence (PCT)             |         |            10 |  2.729 |   0.667 |
+| final    | GRPO_LA5 | PCT_Readiness        | Readiness (PCT)              |         |            10 |  3.062 |   1.042 |
+| final    | GRPO_LA5 | PCT_ChangeProp       | Change-Talk proportion (PCT) |         |            10 |  0.471 |   0.214 |
+| final    | GRPO_LA5 | PCT_ChangeTalk_prop  | % Change Talk (PCT)          |         |            10 |  0.395 |   0.222 |
+| final    | GRPO_LA5 | PCT_SustainTalk_prop | % Sustain Talk (PCT) ↓       |         |            10 |  0.446 |  -0.170 |
+| final    | GRPO_LA5 | PCT_Neutral_prop     | % Neutral (PCT)              |         |            10 |  0.159 |  -0.052 |
 | final    | PTO_LA0  | PCT_Importance       | Importance (PCT)             |         |            10 |  3.427 |   0.375 |
 | final    | PTO_LA0  | PCT_Confidence       | Confidence (PCT)             |         |            10 |  2.719 |   0.458 |
 | final    | PTO_LA0  | PCT_Readiness        | Readiness (PCT)              |         |            10 |  3.083 |   0.750 |
@@ -35,13 +35,13 @@
 | best     | GRPO_LA0 | PCT_ChangeTalk_prop  | % Change Talk (PCT)          |         |             8 |  0.420 |   0.080 |
 | best     | GRPO_LA0 | PCT_SustainTalk_prop | % Sustain Talk (PCT) ↓       |         |             8 |  0.441 |  -0.064 |
 | best     | GRPO_LA0 | PCT_Neutral_prop     | % Neutral (PCT)              |         |             8 |  0.140 |  -0.015 |
-| best     | GRPO_LA5 | PCT_Importance       | Importance (PCT)             |         |             6 |  3.323 |   0.562 |
-| best     | GRPO_LA5 | PCT_Confidence       | Confidence (PCT)             |         |             6 |  2.729 |   0.479 |
-| best     | GRPO_LA5 | PCT_Readiness        | Readiness (PCT)              |         |             6 |  3.062 |   0.812 |
-| best     | GRPO_LA5 | PCT_ChangeProp       | Change-Talk proportion (PCT) |         |             6 |  0.471 |   0.154 |
-| best     | GRPO_LA5 | PCT_ChangeTalk_prop  | % Change Talk (PCT)          |         |             6 |  0.395 |   0.152 |
-| best     | GRPO_LA5 | PCT_SustainTalk_prop | % Sustain Talk (PCT) ↓       |         |             6 |  0.446 |  -0.121 |
-| best     | GRPO_LA5 | PCT_Neutral_prop     | % Neutral (PCT)              |         |             6 |  0.159 |  -0.031 |
+| best     | GRPO_LA5 | PCT_Importance       | Importance (PCT)             |         |            10 |  3.323 |   0.771 |
+| best     | GRPO_LA5 | PCT_Confidence       | Confidence (PCT)             |         |            10 |  2.729 |   0.667 |
+| best     | GRPO_LA5 | PCT_Readiness        | Readiness (PCT)              |         |            10 |  3.062 |   1.042 |
+| best     | GRPO_LA5 | PCT_ChangeProp       | Change-Talk proportion (PCT) |         |            10 |  0.471 |   0.214 |
+| best     | GRPO_LA5 | PCT_ChangeTalk_prop  | % Change Talk (PCT)          |         |            10 |  0.395 |   0.222 |
+| best     | GRPO_LA5 | PCT_SustainTalk_prop | % Sustain Talk (PCT) ↓       |         |            10 |  0.446 |  -0.170 |
+| best     | GRPO_LA5 | PCT_Neutral_prop     | % Neutral (PCT)              |         |            10 |  0.159 |  -0.052 |
 | best     | PTO_LA0  | PCT_Importance       | Importance (PCT)             |         |            10 |  3.427 |   0.375 |
 | best     | PTO_LA0  | PCT_Confidence       | Confidence (PCT)             |         |            10 |  2.719 |   0.458 |
 | best     | PTO_LA0  | PCT_Readiness        | Readiness (PCT)              |         |            10 |  3.083 |   0.750 |

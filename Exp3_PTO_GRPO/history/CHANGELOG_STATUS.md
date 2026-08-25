@@ -13,6 +13,120 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-08-25 (later) — iteration 10 lands; the 2x2 closes and the K x method interaction goes significant on both graders
+
+**Same day, second event.** The entry below was written when GRPO LA5 stopped at iteration 9 with
+iteration 10 at 70/136 steps. Credits were topped up, the run resumed, and iteration 10 completed:
+**136/136** optimizer steps, adapter written 05:14, 136 completions parquets, `generations.jsonl`
+with 2,266 rows, and the post-loop generate-only pass produced `model_iter_10` (96 conversations).
+`GRPOExp3_LA5_I10` was scored on both graders (768 calls each, 0 errors). The grid is **44 states**
+= 44 x 8 x 96 = **33,792 cells** per grader, and **all four arms reach iteration 10** for the first
+time.
+
+**What the matched endpoint settled.**
+
+- **The method verdict flips sign with K, on BOTH graders.** `method_paired_by_K.md` at iteration
+  10, PTO - GRPO on Q1Q2, n = 96 persona-paired: K=0 gives **+0.507** (dz 0.729, p_holm .000)
+  primary and **+0.609** (dz 1.265, p_holm .000) held-out; K=5 gives **-0.210** (dz -0.356,
+  p_holm .001) primary and **-0.206** (dz -0.313, p_holm .034) held-out. At iteration 9 the K=5
+  reversal was significant only on the primary. Iteration 10 makes it unambiguous.
+- **GRPO K=5 @10 is the best final state on BOTH graders** — Q1+Q2 **4.517** primary (vs PTO K=5
+  4.307, PTO K=0 4.260, GRPO K=0 3.753) and **2.873** held-out (vs PTO K=0 2.866). It leads every
+  other instrument on the primary and five of them on the held-out, and its primary best equals its
+  final, i.e. it was still climbing: 4.229 (I6) -> 4.270 -> 4.254 -> 4.454 -> 4.517.
+- **But best-vs-best on the held-out still favours PTO K=0**: GRPO K=5's held-out peak is I7 (2.912)
+  vs PTO K=0's I9 (2.921), and `method_paired_best.md`'s held-out K=5 row is -0.177, p_holm 0.107,
+  n.s. Matched-endpoint and best-vs-best now answer differently; both must be reported.
+- **The K contrast is largest at the endpoint**: GRPO **-0.765** (dz -0.91) primary and **-0.616**
+  (dz -1.03) held-out, both p_holm .000. PTO never significantly favours K=5 at any iteration on
+  either grader.
+- **The DiD converged across graders**: 0.718 (dz 0.793) primary and 0.815 (dz 0.972) held-out, ratio
+  0.815 / 0.718 = 1.14x, against 1.52x at iteration 9 and 1.68x at iteration 6.
+- **Cost**: GRPO LA5 finished at **51.205 GPU-h** = 51.205 / 27.906 = 1.84x GRPO K=0,
+  51.205 / 8.119 = 6.31x PTO K=0, 51.205 / 19.681 = 2.60x PTO K=5. At PTO's own budget (19.68 GPU-h)
+  GRPO K=5 only reaches iteration 3, so the budget sweep still favours PTO at every affordable rung.
+  The honest framing is a quality/cost trade, not a winner.
+
+**Two corrections to the entry below, both caught by re-reading the tables at 10.**
+
+1. **The gain-retention disjointness was an iteration-9 artefact.** At 9, GRPO K=0 retention was
+   0.191 [-0.064, 0.382] vs K=5's 0.686 [0.598, 0.788], `cis_disjoint = True`. At 10 it is 0.578
+   [0.457, 0.723] vs 0.668 [0.587, 0.765] and the CIs **overlap**; only Q1 stays disjoint. GRPO_LA0's
+   held-out score at iteration 9 was the outlier. Retention claims must name metric AND iteration.
+2. **The cross-judge collapse is NOT an iteration-9 fluke and did not clear.** Per-conversation Q1
+   agreement for GRPO_LA5 runs 0.941 (I5) -> 0.877 -> 0.842 -> 0.769 -> 0.487 (I9) -> **0.544 (I10)**.
+   Against a 44-state median of 0.855, I9 and I10 are the two lowest-agreeing states in the whole
+   experiment. The graders agree on this arm's *ranking* but disagree most about *which conversations
+   are good*, precisely where the primary scores it highest.
+
+**The censoring fix proved itself.** With no arm censored any more, the derived `SERIES` in
+`faithfulness.py` emits four series all labelled `(iters 1-10)` and drops the like-for-like subset
+row entirely. The hardcoded version it replaced would still be printing `iters 1-5`. The compute
+mis-billing also resolved itself now that iteration 10 has an adapter — and it was never an
+"adapter gate": compute.py derives last_iter/n_iters from billed parquet rows with the sole
+exclusion len(steps) < 3, so any arm with >=3 timed steps and no adapter will inflate n_iters again.
+
+**Render**: 6 units / 21 notebook executions, **1,086 s, no failures**, on a rebuilt parquet fold
+(31 files, 73,344 rows). `_selfcheck`: 25 passed, 1 warn, 0 failed; `multi-judge analysis` reports
+352/352 cells and 6,692 / 7,568 = 88.4% sign-preserving contrasts — flat against 88.6% at 43 states
+and 88.5% at 40.
+
+---
+
+## 2026-08-25 — GRPO LA5 reaches iteration 9; the method verdict becomes an interaction with K
+
+**The 2026-08-21 entry below is superseded in every particular.** GRPO LA5 did not stop at
+iteration 6. It trained iterations 7, 8 and 9 to completion (106/106, 110/110, 130/130 optimizer
+steps; adapters + `eda/generations.jsonl` for all three, written 2026-08-23/24) and reached
+**70 of 136** steps of iteration 10 before dying at 2026-08-24 15:25 UTC.
+
+**Two things changed about the failure story.** Failure B (Drive accepting appends but not new
+files) did not recur after iteration 7 — iterations 8 and 10 lost nothing, iteration 9 lost 6 steps.
+And the OpenAI failure escalated from the transient `organization_spend_limit_exceeded` to
+`insufficient_quota` / `credit_balance_exhausted`, i.e. the balance actually reached zero; three
+sessions died on it. Iteration 7 in fact took **seven** Colab sessions, not the four this file
+recorded. The resume changed no knob: `run_metadata.json` differs from
+`run_metadata_pre_resume_iter1.json` only in `started_at` and the two audit-mirror fields.
+
+**Scoring.** `GRPOExp3_LA5_I7/I8/I9` were scored on both graders on 2026-08-25 — 3 states x 8
+rubrics x 96 personas x 2 graders = 4,608 cells, the held-out side as one Message Batch of 2,304
+(0 errors), the primary live (0 errors). The grid went 40 -> **43 states**, 33,024 cells per grader.
+
+**What the three states did to the results.**
+
+- **The method verdict flipped sign with K.** `method_paired_best.md`: at K=0, PTO - GRPO = +0.177
+  (dz 0.296, p_holm .010) primary and +0.284 (dz 0.568, p_holm .000) held-out — PTO wins. At K=5 it
+  is **-0.148** (dz -0.271, p_holm .016) primary and -0.177 (dz -0.270, p_holm .107 n.s.) held-out
+  — GRPO wins or draws. The matched-iteration-9 version agrees: -0.257 (dz -0.426, p_holm 1.13e-4)
+  primary. "PTO beats GRPO" had been stated unconditionally since the first eval; it is a **K=0**
+  statement.
+- **GRPO K=5 @9 became the best state in the experiment on the primary grader**, on every
+  instrument: Q1+Q2 4.454 vs PTO K=5's 4.307 and PTO K=0's 4.260, and MICI 0.212, the lowest of any
+  final state.
+- **The held-out judge refused to confirm it**, and the disagreement is itself the finding. I6 -> I9
+  moved +0.225 on the primary and -0.045 on the held-out, and per-conversation cross-judge Q1
+  agreement fell 0.941 (I5) -> 0.877 -> 0.842 -> 0.769 -> **0.487** (I9) — the minimum of that
+  column over all 43 states.
+- **The K contrast got much larger, not smaller.** `k_table1.md` iteration 9: GRPO -0.647 (dz -0.93)
+  primary and -0.856 (dz -0.90) held-out, both p_holm .000, against -0.263 / -0.533 at iteration 6.
+  The DiD at 9 is 0.688 (dz 0.799) primary and 1.044 (dz 0.971) held-out.
+- **Gain retention separated with disjoint CIs.** At GRPO iteration 9, K=0 retains 0.191
+  [-0.064, 0.382] of its primary gain under the held-out judge while K=5 retains 0.686
+  [0.598, 0.788] — `cis_disjoint = True` on Q1Q2, Q1 and Q2.
+- **The compute picture worsened for GRPO K=5 and did not change the ordering.** The arm cost
+  45.432 GPU-h through iteration 9 = 45.432 / 27.906 = 1.63x GRPO K=0 and 45.432 / 8.119 = 5.60x
+  PTO K=0. The "budget-matched to within 3%" framing, already dead on 2026-08-21, is now off by 63%.
+
+**Both 2026-08-21 EDA defects were fixed before this render.** The hardcoded `CENSOR_NOTE` is gone
+from 16 package modules and 15 notebooks, replaced by `constants.support_note()` /
+`constants.last_iterations()` derived per frame and per grader; `faithfulness.py`'s asymmetric
+`SERIES` now derives its matched pair, so the like-for-like GRPO rows carry 36,632 vs 36,117 pairs
+at `n_turns=12` instead of 128,176 vs 141,487. Two rendered ledger keys were renamed as a
+consequence (`curve.*.iters1-5.*` -> `iters1-9.*`; `grpo_la5_censored_at_train_iter` ->
+`last_train_iter_by_arm`).
+
+---
+
 ## 2026-08-21 — GRPO LA5 stopped, not stalled; I6 lands and moves two headline claims
 
 **The arm is not training.** GRPO LA5 has written nothing since 2026-08-20 12:09 UTC. Yesterday's

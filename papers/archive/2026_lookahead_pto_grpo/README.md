@@ -2,6 +2,15 @@
 
 *Does K-Turn Look-Ahead Help a Small Motivational-Interviewing Therapist?*
 
+> ⚠ **RETIRED 2026-08-25 — archived, not live.** Drafted while GRPO K=5 was right-censored at
+> iteration 5; that arm has since **finished at iteration 10 with all states scored**, so every
+> endpoint, retention and iso-compute claim below reads a grid that no longer matches the score
+> lake. No successor draft yet — the next paper will be planned fresh from the re-rendered EDA
+> (`Exp3_PTO_GRPO/eda/results/`), not by patching this one. Do not edit this draft. Its
+> `NUMBERS.md` **traps still bind** on any shared number, and `analysis/out/*.json` +
+> `tables/` remain the frozen fixture the EDA self-check (`paper fixture anchors`) asserts
+> against — the fixture pins the promoted modules' behaviour, not current results.
+
 **Target:** ACL-family venue (ACL two-column style) — long-paper length. **Current length: §1–§9 fill
 10 pages in `[review]` mode; Limitations + Ethics + References on p.11; appendix pp.12–23.** For an
 8-page venue the pre-planned cuts (in order, ~2 pages) are: (1) demote §8's re-score figure to the
@@ -16,9 +25,9 @@ the four framings and the diff against the retired drafts that fixed this paper'
 persona-paired, on both the iteration axis and a reconstructed GPU-hour axis. GRPO K=5 ran
 5 iterations (right-censored); the other three ran 10. Plus a re-score of the ICLR SSI-FM
 poster's own 1,440 Exp1 conversations with the Exp3 oracle.
-**Predecessors:** [`../archive/2026_lookahead_hack_substitution/`](../archive/2026_lookahead_hack_substitution/)
+**Predecessors:** [`../2026_lookahead_hack_substitution/`](../2026_lookahead_hack_substitution/)
 (PTO K contrast only, iteration 10) and
-[`../archive/2026_clpsych_mi_reward_hacking/`](../archive/2026_clpsych_mi_reward_hacking/) (K=0 only).
+[`../2026_clpsych_mi_reward_hacking/`](../2026_clpsych_mi_reward_hacking/) (K=0 only).
 This draft supersedes both on the K question; their ledgers are still worth reading for traps.
 
 ## The argument in one line
@@ -112,8 +121,8 @@ repo venv (the shell's `python` is not it):
 ```powershell
 $py = ".\.venv\Scripts\python.exe"
 & $py Exp3_PTO_GRPO\eda\tools\render_results.py --top lookahead compute   # results/{lookahead/*,compute/cost}
-& $py papers\2026_lookahead_pto_grpo\sync_figures.py                       # copy figures into ./figures/
-& $py papers\2026_lookahead_pto_grpo\sync_figures.py --check               # must print "0 drifted, 0 missing"
+& $py papers\archive\2026_lookahead_pto_grpo\sync_figures.py               # copy figures into ./figures/
+& $py papers\archive\2026_lookahead_pto_grpo\sync_figures.py --check       # must print "0 drifted, 0 missing"
 ```
 
 (The schematics are hand-drawn under `Exp3_PTO_GRPO/eda/results/schematics/` and are not part of

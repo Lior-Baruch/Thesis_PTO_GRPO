@@ -284,32 +284,32 @@
    "note": "rows in second_judge_contrasts"
   },
   "sign_preservation.all_contrasts.pct_same_sign": {
-   "value": 88.5,
+   "value": 88.4,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "5525/6240 persona-paired contrasts, all four arms"
+   "note": "6693/7568 persona-paired contrasts, all four arms"
   },
   "sign_preservation.abs_primary_ge_0p10.pct_same_sign": {
    "value": 94.5,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "3813/4035 persona-paired contrasts, all four arms"
+   "note": "4793/5071 persona-paired contrasts, all four arms"
   },
   "sign_preservation.abs_primary_ge_0p25.pct_same_sign": {
-   "value": 97.4,
+   "value": 97.2,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "2474/2539 persona-paired contrasts, all four arms"
+   "note": "3146/3236 persona-paired contrasts, all four arms"
   },
   "sign_preservation.abs_primary_ge_0p50.pct_same_sign": {
-   "value": 99.5,
+   "value": 99.3,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "1302/1309 persona-paired contrasts, all four arms"
+   "note": "1681/1692 persona-paired contrasts, all four arms"
   },
   "sign_preservation.judge_CI_excludes_0.pct_same_sign": {
-   "value": 96.2,
+   "value": 96.0,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "4197/4361 persona-paired contrasts, all four arms"
+   "note": "5144/5361 persona-paired contrasts, all four arms"
   },
   "variance.WAI-SR.pct_arm_x_judge": {
-   "value": 1.3,
+   "value": 1.4,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
@@ -319,62 +319,62 @@
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "variance.CSQ-8.pct_arm_x_judge": {
-   "value": 5.3,
+   "value": 4.6,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.CSQ-8.dependability_k1": {
-   "value": 0.935,
+   "value": 0.945,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "variance.MI-SAT.pct_arm_x_judge": {
-   "value": 2.2,
+   "value": 1.9,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.MI-SAT.dependability_k1": {
-   "value": 0.943,
+   "value": 0.955,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "variance.MITI.pct_arm_x_judge": {
-   "value": 2.1,
+   "value": 2.3,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.MITI.dependability_k1": {
-   "value": 0.622,
+   "value": 0.624,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "variance.PCT.pct_arm_x_judge": {
-   "value": 2.7,
+   "value": 2.1,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.PCT.dependability_k1": {
-   "value": 0.963,
+   "value": 0.974,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "variance.MICI.pct_arm_x_judge": {
-   "value": 6.4,
+   "value": 7.0,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.MICI.dependability_k1": {
-   "value": 0.845,
+   "value": 0.812,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "variance.Q1.pct_arm_x_judge": {
-   "value": 0.9,
+   "value": 1.1,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.Q1.dependability_k1": {
-   "value": 0.933,
+   "value": 0.928,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
@@ -384,17 +384,17 @@
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.Q2.dependability_k1": {
-   "value": 0.911,
+   "value": 0.914,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "multijudge.n_states": {
-   "value": 40,
+   "value": 44,
    "source": "tables/multijudge_coverage.md",
    "note": "model states with complete second-judge coverage"
   },
   "multijudge.n_pairs_contrasts": {
-   "value": 6240,
+   "value": 7568,
    "source": "tables/multijudge_all_pairs_contrasts.md",
    "note": "C(n_states,2) x n_metrics"
   },

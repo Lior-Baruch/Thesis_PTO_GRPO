@@ -1,42 +1,42 @@
 | metric   | subset              |   n_contrasts |   n_same_sign |   pct_same_sign |
 |:---------|:--------------------|--------------:|--------------:|----------------:|
-| WAI-SR   | all contrasts       |           780 |           690 |          88.500 |
-| WAI-SR   | |Δ primary| ≥ 0.10  |           576 |           553 |          96.000 |
-| WAI-SR   | |Δ primary| ≥ 0.25  |           349 |           349 |         100.000 |
-| WAI-SR   | |Δ primary| ≥ 0.50  |            98 |            98 |         100.000 |
-| WAI-SR   | judge CI excludes 0 |           515 |           507 |          98.400 |
-| CSQ-8    | all contrasts       |           780 |           714 |          91.500 |
-| CSQ-8    | |Δ primary| ≥ 0.10  |           546 |           545 |          99.800 |
-| CSQ-8    | |Δ primary| ≥ 0.25  |           308 |           308 |         100.000 |
-| CSQ-8    | |Δ primary| ≥ 0.50  |            49 |            49 |         100.000 |
-| CSQ-8    | judge CI excludes 0 |           541 |           533 |          98.500 |
-| MI-SAT   | all contrasts       |           780 |           716 |          91.800 |
-| MI-SAT   | |Δ primary| ≥ 0.10  |           614 |           597 |          97.200 |
-| MI-SAT   | |Δ primary| ≥ 0.25  |           400 |           400 |         100.000 |
-| MI-SAT   | |Δ primary| ≥ 0.50  |           194 |           194 |         100.000 |
-| MI-SAT   | judge CI excludes 0 |           554 |           545 |          98.400 |
-| MITI     | all contrasts       |           780 |           615 |          78.800 |
-| MITI     | |Δ primary| ≥ 0.10  |           633 |           529 |          83.600 |
-| MITI     | |Δ primary| ≥ 0.25  |           453 |           407 |          89.800 |
-| MITI     | |Δ primary| ≥ 0.50  |           291 |           287 |          98.600 |
-| MITI     | judge CI excludes 0 |           558 |           481 |          86.200 |
-| PCT      | all contrasts       |           780 |           725 |          92.900 |
-| PCT      | |Δ primary| ≥ 0.10  |           119 |           119 |         100.000 |
+| WAI-SR   | all contrasts       |           946 |           843 |          89.100 |
+| WAI-SR   | |Δ primary| ≥ 0.10  |           726 |           699 |          96.300 |
+| WAI-SR   | |Δ primary| ≥ 0.25  |           457 |           457 |         100.000 |
+| WAI-SR   | |Δ primary| ≥ 0.50  |           151 |           151 |         100.000 |
+| WAI-SR   | judge CI excludes 0 |           630 |           622 |          98.700 |
+| CSQ-8    | all contrasts       |           946 |           871 |          92.100 |
+| CSQ-8    | |Δ primary| ≥ 0.10  |           690 |           688 |          99.700 |
+| CSQ-8    | |Δ primary| ≥ 0.25  |           396 |           396 |         100.000 |
+| CSQ-8    | |Δ primary| ≥ 0.50  |            88 |            88 |         100.000 |
+| CSQ-8    | judge CI excludes 0 |           666 |           658 |          98.800 |
+| MI-SAT   | all contrasts       |           946 |           877 |          92.700 |
+| MI-SAT   | |Δ primary| ≥ 0.10  |           762 |           745 |          97.800 |
+| MI-SAT   | |Δ primary| ≥ 0.25  |           509 |           509 |         100.000 |
+| MI-SAT   | |Δ primary| ≥ 0.50  |           253 |           253 |         100.000 |
+| MI-SAT   | judge CI excludes 0 |           709 |           699 |          98.600 |
+| MITI     | all contrasts       |           946 |           755 |          79.800 |
+| MITI     | |Δ primary| ≥ 0.10  |           787 |           661 |          84.000 |
+| MITI     | |Δ primary| ≥ 0.25  |           588 |           527 |          89.600 |
+| MITI     | |Δ primary| ≥ 0.50  |           374 |           366 |          97.900 |
+| MITI     | judge CI excludes 0 |           672 |           593 |          88.200 |
+| PCT      | all contrasts       |           946 |           888 |          93.900 |
+| PCT      | |Δ primary| ≥ 0.10  |           214 |           214 |         100.000 |
 | PCT      | |Δ primary| ≥ 0.25  |             0 |             0 |         nan     |
 | PCT      | |Δ primary| ≥ 0.50  |             0 |             0 |         nan     |
-| PCT      | judge CI excludes 0 |           448 |           447 |          99.800 |
-| MICI     | all contrasts       |           780 |           687 |          88.100 |
-| MICI     | |Δ primary| ≥ 0.10  |           252 |           252 |         100.000 |
-| MICI     | |Δ primary| ≥ 0.25  |            85 |            85 |         100.000 |
-| MICI     | |Δ primary| ≥ 0.50  |            32 |            32 |         100.000 |
-| MICI     | judge CI excludes 0 |           546 |           529 |          96.900 |
-| Q1       | all contrasts       |           780 |           683 |          87.600 |
-| Q1       | |Δ primary| ≥ 0.10  |           650 |           607 |          93.400 |
-| Q1       | |Δ primary| ≥ 0.25  |           478 |           465 |          97.300 |
-| Q1       | |Δ primary| ≥ 0.50  |           319 |           318 |          99.700 |
-| Q1       | judge CI excludes 0 |           586 |           564 |          96.200 |
-| Q2       | all contrasts       |           780 |           695 |          89.100 |
-| Q2       | |Δ primary| ≥ 0.10  |           645 |           611 |          94.700 |
-| Q2       | |Δ primary| ≥ 0.25  |           466 |           460 |          98.700 |
-| Q2       | |Δ primary| ≥ 0.50  |           326 |           324 |          99.400 |
-| Q2       | judge CI excludes 0 |           613 |           591 |          96.400 |
+| PCT      | judge CI excludes 0 |           598 |           596 |          99.700 |
+| MICI     | all contrasts       |           946 |           784 |          82.900 |
+| MICI     | |Δ primary| ≥ 0.10  |           296 |           290 |          98.000 |
+| MICI     | |Δ primary| ≥ 0.25  |            99 |            99 |         100.000 |
+| MICI     | |Δ primary| ≥ 0.50  |            36 |            36 |         100.000 |
+| MICI     | judge CI excludes 0 |           644 |           585 |          90.800 |
+| Q1       | all contrasts       |           946 |           827 |          87.400 |
+| Q1       | |Δ primary| ≥ 0.10  |           804 |           744 |          92.500 |
+| Q1       | |Δ primary| ≥ 0.25  |           611 |           588 |          96.200 |
+| Q1       | |Δ primary| ≥ 0.50  |           400 |           399 |          99.800 |
+| Q1       | judge CI excludes 0 |           695 |           670 |          96.400 |
+| Q2       | all contrasts       |           946 |           848 |          89.600 |
+| Q2       | |Δ primary| ≥ 0.10  |           792 |           752 |          94.900 |
+| Q2       | |Δ primary| ≥ 0.25  |           576 |           570 |          99.000 |
+| Q2       | |Δ primary| ≥ 0.50  |           390 |           388 |          99.500 |
+| Q2       | judge CI excludes 0 |           747 |           721 |          96.500 |
