@@ -37,13 +37,15 @@ the post-loop generate-only pass produced `model_iter_10` (96 conversations).
   `run_metadata_pre_resume_iter1.json` only in `started_at` and the two audit-mirror fields
   (`lookahead_k`, `lookahead_sub_batch_size`) added after the arm began. Every knob is unchanged.
 
-✅ **The compute mis-billing is RESOLVED — and it was never an "adapter gate".** `compute.py` bills
-GRPO from `iteration_N/training/completions/*.parquet` mtimes and derives `last_iter` / `n_iters` as
-max / count over the billed rows, with the **sole** exclusion `len(steps) < 3` (`compute.py:332`).
-There is no adapter check anywhere in the module, which is why an in-flight iteration counted as a
-whole one. All ten iterations now have adapters, so `compute_by_arm.md`'s
-`last_iter 10 / n_iters 10 / total_gpu_h 51.205` is honest. ⚠ The behaviour is still latent:
-**any arm with ≥3 timed steps and no adapter will inflate `n_iters` again.**
+✅ **The compute mis-billing is RESOLVED, and the latent half is now CLOSED (2026-08-26).**
+`compute.py` bills GRPO from `iteration_N/training/completions/*.parquet` mtimes; the historical
+bug was that it had no adapter check, so an in-flight iteration with ≥3 timed steps counted as a
+whole one (GRPO_LA5's stalled iteration 7 billed as `n_iters 7` against six adapters). It now
+carries an **adapter gate**: only iterations with `iteration_N/adapter/` on disk — the same
+completion marker the trainers' resume uses — are billed; an in-flight iteration is excluded and
+announced, and its spend is billed once, when it completes. Verified behavior-preserving on the
+current data: a cache-bypassed re-render of `compute/cost` produced byte-identical tables
+(8.119 / 19.681 / 27.906 / 51.205 GPU-h, `n_iters 10` everywhere).
 
 ## Where the artifacts live
 

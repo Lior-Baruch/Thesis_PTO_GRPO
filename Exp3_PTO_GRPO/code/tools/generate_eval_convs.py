@@ -1,4 +1,4 @@
-"""Generate-only eval pass for ONE PTO_Exp3 model state — no training, no oracle.
+"""Generate-only eval pass for ONE model state (PTO_Exp3 or GRPO_Exp3) — no training, no oracle.
 
 Why this exists
 ---------------
@@ -33,6 +33,21 @@ Usage
     python generate_eval_convs.py --iter 5 --verify-seeds --dry-run   # free, no model load
     python generate_eval_convs.py --iter 5                            # the real pass
     python generate_eval_convs.py --iter 5 --batch-size 4             # 12 GB local card
+    python generate_eval_convs.py --method grpo --iter 10 \
+        --experiment GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8 \
+        --conv-dir <...>/conversations/replicate/<EXP>/model_iter_10_rep1_TT0.9_TP0.7 \
+        --batch-size 6                                                # a REPLICATE draw (GRPO arm)
+
+``--method`` (added 2026-08-26) selects the trainer whose config/machinery to use: ``pto``
+(default — the original behaviour) or ``grpo``. Both trainers expose the same
+``run_generation_only`` signature and store ``asdict(cfg)`` in ``run_metadata.json``, and both
+shuffle personas with the same ``seed + k + 1`` formula (proven for every (arm, iter) pair by
+``eda_analysis._selfcheck``'s persona-permutation check), so the seed logic is shared.
+
+For a REPLICATE draw (a second independent conversation sample of an already-scored state), pass
+``--conv-dir`` pointing under ``conversations/replicate/<EXP_NAME>/`` — NEVER under
+``conversations/full/`` (``model_iter_10`` globs into ``model_iter_10_rep1_*`` and the two draws
+would collide on one discovery key; see STATUS.md § replicate isolation).
 
 ⚠ ``--batch-size`` is a SAFETY setting on the local GPU, not a throughput knob: an over-budget
 VRAM request REBOOTS the machine instead of raising ``OutOfMemoryError`` (no traceback, nothing to
@@ -59,7 +74,23 @@ import sys
 from dataclasses import fields as dataclass_fields
 
 
-DEFAULT_EXPERIMENT = "PTO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_M8_PTgreedy"
+# Per-method plumbing: trainer module, config class name, data/ subdir, code/ subdir, default arm.
+METHODS = {
+    "pto": {
+        "trainer_module": "pto_trainer",
+        "config_class": "PTOConfig",
+        "data_subdir": "pto_Exp3",
+        "code_subdir": "PTO_Exp3",
+        "default_experiment": "PTO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_M8_PTgreedy",
+    },
+    "grpo": {
+        "trainer_module": "grpo_trainer",
+        "config_class": "TrainingConfig",
+        "data_subdir": "grpo_Exp3",
+        "code_subdir": "GRPO_Exp3",
+        "default_experiment": "GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8",
+    },
+}
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -80,7 +111,8 @@ def bootstrap_paths() -> str:
     here = os.path.dirname(os.path.abspath(__file__))          # code/tools/ (moved 2026-08-18)
     code_dir = os.path.abspath(os.path.join(here, ".."))         # code/
     pto_dir = os.path.join(code_dir, "PTO_Exp3")                  # pto_trainer lives here
-    for p in (code_dir, pto_dir, here):
+    grpo_dir = os.path.join(code_dir, "GRPO_Exp3")                # grpo_trainer lives here
+    for p in (code_dir, pto_dir, grpo_dir, here):
         if p not in sys.path:
             sys.path.insert(0, p)
     return code_dir
@@ -90,9 +122,10 @@ def bootstrap_paths() -> str:
 # ║                     CONFIG — rebuilt from the run's own metadata           ║
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
-def load_cfg(experiment_root: str, experiment: str, mode_tag: str, batch_size=None,
+def load_cfg(experiment_root: str, experiment: str, mode_tag: str, method: str, batch_size=None,
              overrides: dict = None):
-    """Rebuild the run's ``PTOConfig`` from its ``run_metadata.json``.
+    """Rebuild the run's config (``PTOConfig`` / GRPO ``TrainingConfig``) from its
+    ``run_metadata.json``.
 
     ``run_metadata.json``'s ``config`` block is ``asdict(cfg)``, so it round-trips
     exactly — this is the run's real config, not a re-derivation from notebook
@@ -103,19 +136,22 @@ def load_cfg(experiment_root: str, experiment: str, mode_tag: str, batch_size=No
     experiment root, and the recomputed tail is asserted against the stored one
     so a renamed experiment can never silently misroute output.
     """
-    from pto_trainer import PTOConfig
+    spec = METHODS[method]
+    import importlib
+    ConfigCls = getattr(importlib.import_module(spec["trainer_module"]), spec["config_class"])
 
-    runs_root = os.path.join(experiment_root, "data", "pto_Exp3", "runs", mode_tag, experiment)
+    runs_root = os.path.join(experiment_root, "data", spec["data_subdir"], "runs", mode_tag,
+                             experiment)
     meta_path = os.path.join(runs_root, "run_metadata.json")
     if not os.path.isfile(meta_path):
         raise SystemExit(f"No run_metadata.json at {meta_path}\n"
-                         f"  (is --experiment / --mode-tag right?)")
+                         f"  (is --experiment / --mode-tag / --method right?)")
 
     with open(meta_path) as f:
         stored = json.load(f)["config"]
 
     conv_root = os.path.join(
-        experiment_root, "data", "pto_Exp3", "conversations", mode_tag, experiment
+        experiment_root, "data", spec["data_subdir"], "conversations", mode_tag, experiment
     )
     for key, rebuilt in (("local_outdir", runs_root), ("conv_outdir", conv_root)):
         want, got = os.path.basename(stored[key]), os.path.basename(rebuilt)
@@ -123,7 +159,7 @@ def load_cfg(experiment_root: str, experiment: str, mode_tag: str, batch_size=No
             raise SystemExit(f"{key} mismatch: metadata ends in {want!r}, rebuilt ends in {got!r}")
     stored["local_outdir"], stored["conv_outdir"] = runs_root, conv_root
 
-    # PTOConfig is frozen, so every override goes in BEFORE construction.
+    # Both config classes are frozen, so every override goes in BEFORE construction.
     if batch_size is not None:
         print(f"  conversation_batch_size: {stored['conversation_batch_size']} -> {batch_size} "
               f"(throughput only — batching does not change sampled outputs)")
@@ -134,11 +170,11 @@ def load_cfg(experiment_root: str, experiment: str, mode_tag: str, batch_size=No
         print(f"  ! SCALE OVERRIDE {key}: {stored.get(key)} -> {val}")
         stored[key] = val
 
-    known = {f.name for f in dataclass_fields(PTOConfig)}
+    known = {f.name for f in dataclass_fields(ConfigCls)}
     unknown = set(stored) - known
     if unknown:
         print(f"  ! ignoring {len(unknown)} unknown metadata field(s): {sorted(unknown)}")
-    return PTOConfig(**{k: v for k, v in stored.items() if k in known})
+    return ConfigCls(**{k: v for k, v in stored.items() if k in known})
 
 
 def seeds_for(cfg, model_iter: int) -> int:
@@ -260,7 +296,10 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--iter", type=int, required=True,
                     help="MODEL STATE to evaluate: loads iteration_N/adapter, writes model_iter_N/")
-    ap.add_argument("--experiment", default=DEFAULT_EXPERIMENT, help="EXPERIMENT_NAME")
+    ap.add_argument("--method", default="pto", choices=sorted(METHODS),
+                    help="which trainer's config/machinery to use (default: pto)")
+    ap.add_argument("--experiment", default=None,
+                    help="EXPERIMENT_NAME (default: the method's canonical LA5 arm)")
     ap.add_argument("--mode-tag", default="full", choices=["full", "quicktest"])
     ap.add_argument("--batch-size", type=int, default=None,
                     help="override conversation_batch_size (VRAM lever; does not change outputs)")
@@ -296,10 +335,15 @@ def main() -> int:
         setup_tokenizer, load_base_model, sync_pad_token, patch_generate,
         setup_permutations,
     )
-    from pto_trainer import run_generation_only
+    import importlib
+    spec = METHODS[args.method]
+    run_generation_only = getattr(importlib.import_module(spec["trainer_module"]),
+                                  "run_generation_only")
+    experiment = args.experiment or spec["default_experiment"]
 
     rt = detect_runtime(run_env="auto", experiment_name="Exp3_PTO_GRPO")
-    cfg = load_cfg(rt.experiment_root, args.experiment, args.mode_tag, args.batch_size, scaled)
+    cfg = load_cfg(rt.experiment_root, experiment, args.mode_tag, args.method,
+                   args.batch_size, scaled)
 
     adapter_dir = os.path.join(cfg.local_outdir, f"iteration_{args.iter}", "adapter")
     conv_dir = args.conv_dir or os.path.join(
@@ -314,11 +358,18 @@ def main() -> int:
     existing = (sorted(f for f in os.listdir(conv_dir) if f.startswith("conversation_"))
                 if os.path.isdir(conv_dir) else [])
 
-    is_smoke = bool(args.conv_dir)
+    # A scaled-down run is a SMOKE TEST (never scoreable). A FULL-SCALE run with --conv-dir is a
+    # custom-destination pass — e.g. a replicate draw under conversations/replicate/ — and IS
+    # scoreable data; it just never lands in the auto-discovered eval tree.
+    is_smoke = any(v is not None for v in scaled.values())
+    kind = ("SMOKE TEST" if is_smoke
+            else "CUSTOM-DIR PASS" if args.conv_dir else "EVAL PASS")
     print("=" * 70)
-    print(f"GENERATE-ONLY {'SMOKE TEST' if is_smoke else 'EVAL PASS'} — model_iter_{args.iter}")
+    print(f"GENERATE-ONLY {kind} — {args.method.upper()} model_iter_{args.iter}")
     if is_smoke:
         print("  ** SMOKE: output goes to --conv-dir, NOT the eval tree. Not scoreable data. **")
+    elif args.conv_dir:
+        print("  ** Full-scale pass to a CUSTOM dir (outside conversations/full/ — not auto-discovered). **")
     print("=" * 70)
     print(f"  Experiment:   {cfg.experiment_name}  [{cfg.mode_tag}]")
     print(f"  Adapter:      {adapter_dir}")
@@ -383,7 +434,10 @@ def main() -> int:
     print(f"    {conv_dir}")
     if is_smoke:
         print("    SMOKE run — throwaway output, NOT eval data. The generation path works;")
-        print("    run the real pass (no --num-convs/--num-utterances/--conv-dir) to produce it.")
+        print("    run the real pass (no --num-convs/--num-utterances) to produce it.")
+    elif args.conv_dir:
+        print("    Custom-dir pass — NOT auto-discovered. Score it with an explicit Experiment")
+        print("    entry (model_name_override) through scoring.pipeline / scoring.judge.")
     else:
         print("    Next: score with eda/notebooks/scoring/Run_Eval.ipynb (auto-discovers this arm).")
     print("=" * 70)

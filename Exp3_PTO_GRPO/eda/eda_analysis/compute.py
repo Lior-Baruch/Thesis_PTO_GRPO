@@ -273,9 +273,15 @@ def iteration_compute(arms: Optional[List] = None, *,
     gen_h, build_h, train_h, gpu_h, cum_gpu_h, train_source``.
 
     An ``iteration = 0`` row is emitted per arm with ``cum_gpu_h = 0`` so the frame joins
-    directly onto the score lake's base state. An iteration whose training never started
-    (fewer than 3 timed steps — e.g. a run stopped moments into its next iteration) is
-    EXCLUDED: no adapter and therefore no scored model state depends on it.
+    directly onto the score lake's base state. Two exclusions keep the frame honest:
+
+    - **Adapter gate (2026-08-26).** Only iterations with ``iteration_N/adapter/`` on disk are
+      billed — the same completion marker the trainers' resume uses. An in-flight or crashed
+      iteration with timed steps but no adapter is excluded (and announced), so it can no longer
+      inflate ``last_iter`` / ``n_iters`` the way GRPO_LA5's stalled iteration 7 did on
+      2026-08-21; its spend is billed once, when the iteration completes.
+    - An iteration whose training never started (fewer than 3 timed steps — e.g. a run stopped
+      moments into its next iteration) is excluded: no scored model state depends on it.
 
     Single-span phases (generate, build) whose only interval is a resume gap are back-filled
     with that arm's median for the phase, so one interrupted iteration does not silently bill
@@ -309,6 +315,18 @@ def _iteration_compute_impl(arms, *, gap_cutoff_s: float = GAP_CUTOFF_S) -> pd.D
                      "gen_h": 0.0, "build_h": 0.0, "train_h": 0.0, "gpu_h": 0.0,
                      "train_source": "-"})
         for it, d in sorted(_iter_dirs(arm.runs_dir).items()):
+            # -- ADAPTER GATE (2026-08-26). An iteration is DONE when iteration_N/adapter/ exists —
+            #    the same completion marker resolve_start_state uses for resume. Without this gate
+            #    an in-flight or crashed iteration with >= 3 timed steps billed as a WHOLE
+            #    iteration and inflated last_iter / n_iters (it did: GRPO_LA5's stalled
+            #    iteration 7 counted as n_iters 7 against six adapters, 2026-08-21). Its partial
+            #    steps are real GPU spend, but they are the NEXT completed bill's business — when
+            #    the iteration finishes, its full span (including the discarded sessions' gaps,
+            #    imputed at the phase median) is billed once, under an iteration that exists.
+            if not os.path.isdir(os.path.join(d, "adapter")):
+                print(f"[compute] {arm.label} iteration_{it}: training artifacts but no adapter "
+                      f"— in-flight/crashed, excluded from the cost frame")
+                continue
             # -- the trainer's own cumulative log wins when it exists (post-dates every run here) --
             rec = _recorded_phases(d)
             if rec is not None:
