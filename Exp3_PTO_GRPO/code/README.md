@@ -18,8 +18,9 @@ code/
     └── generate_eval_convs.{py,ipynb}  generate-only pass for ONE model state (repairs an orphaned adapter)
 ```
 
-`tools/` scripts put `code/` (and, for `generate_eval_convs`, `code/PTO_Exp3/`) on `sys.path`
-themselves, so they run from anywhere; nothing in `_shared/` or the method dirs imports them.
+`tools/` scripts put `code/` (and, for `generate_eval_convs`, both `code/PTO_Exp3/` and
+`code/GRPO_Exp3/`) on `sys.path` themselves, so they run from anywhere; nothing in `_shared/` or
+the method dirs imports them.
 
 ## `_shared/` — the layer both methods import
 
@@ -45,11 +46,17 @@ in the notebook) over `<method>_trainer.py` (`<Method>Config` + `run_one_iterati
 so `from <method>_trainer import …` cannot collide when both notebooks run in one kernel.
 
 `tools/generate_eval_convs.py` (was `PTO_Exp3/generate_eval_convs.py` until 2026-08-18) is a
-generate-only pass for **one** model state; it repairs an *orphaned adapter* (trained, but its
-`model_iter_N` convs were never generated) and, with `--conv-dir`, writes a replicate draw
-somewhere other than the canonical `model_iter_<N>` folder. Config is rebuilt from the run's own
-`run_metadata.json` and seeds are **derived** (`seed+N+1`) — `--verify-seeds` proves that against
-decoy offsets before you spend anything. Run it from `code/tools/`:
+generate-only pass for **one** model state of **either method** (`--method {pto,grpo}`, added
+2026-08-26 — both trainers expose the same `run_generation_only` signature and `asdict(cfg)`
+metadata, so the flag just selects trainer module / config class / `data/` subdir); it repairs an
+*orphaned adapter* (trained, but its `model_iter_N` convs were never generated) and, with
+`--conv-dir`, writes a replicate draw under `conversations/replicate/<EXP>/` — never
+`conversations/full/`, where `model_iter_10` globs into `model_iter_10_rep1_*` and the draws
+collide on one discovery key. Config is rebuilt from the run's own `run_metadata.json` and seeds
+are **derived** (`seed+N+1`) — `--verify-seeds` proves that against decoy offsets before you spend
+anything. A replicate is scored by `eda/tools/score_replicate.py` (manual `Experiment` entries,
+`_rep1_` infixed lake names) and analysed by `eda/tools/replicate_check.py`. Run it from
+`code/tools/`:
 
 ```powershell
 # from code/tools/
