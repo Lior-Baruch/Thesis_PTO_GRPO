@@ -9,6 +9,89 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-26) — navigation layer + surface trim + the collisions the inventory found.**
+
+A full-tree survey (package + results) drove one pass:
+
+- **`results/README.md`** — a hand-authored START HERE mapping each research question to its
+  headline artifacts + the reading rules (sign conventions, never-average-judges, axis naming).
+  Added to `exports.PRESERVE`; the root `INDEX.md` header now points at it.
+- **The duplicate `headline/` presentation copies are retired** (14 byte-identical files across
+  `arms/outcomes` + `arms/validity`, both judges — they double-counted in `INDEX.md` and competed
+  with three other "promotion" channels). The notebooks' `group="headline"` re-saves are removed;
+  curation lives in `results/README.md`.
+- **`lookahead/behaviour`'s ledger renamed `replication_numbers.json` → `shape_numbers.json`** — it
+  held `shape.*` keys and collided by name with the *different-content* ledger of
+  `lookahead/replication`. ⚠ The archived *Same Lever* `NUMBERS.md` cites the old behaviour-side
+  name; its fixture files are untouched.
+- **`build_index()` now lists the `.xlsx` workbooks** (they were invisible to every index) and
+  `lookahead/behaviour` + `measurement/validity` re-stamp `_provenance.md` after their
+  `reset_results()` (the two figure dirs that had none).
+- **Package surface trimmed**: `__init__.__all__` 315 → 259 — module-internal constants/helpers
+  with no consumer outside their module are no longer re-exported (still importable qualified).
+  Dead code removed: `pref.direction_cosine`, `compute._meta` (an `iteration_metadata.json` reader
+  — the documented anti-pattern), `judge_batch.{wait_for_batches, probe_usage_sync}`, the two
+  `_K_STYLE` aliases. `compute.py`'s mid-file `wide_by_persona` import moved to the header; the
+  `__init__` double `from .compute import` block merged; `replication.selection_table`'s stale
+  pre-reorg docstring fixed.
+- Stale "captions are stale" warnings in `lookahead/SUMMARY.md` §9 and `measurement/SUMMARY.md`
+  were themselves resolved on 2026-08-25 by the caption purge; both now say so instead of
+  re-warning (verified by grep).
+- The **2026-08-18 migration table moved here from `eda/README.md`** (dated content; the README
+  keeps a pointer):
+
+### Migration (2026-08-18) — old → new (moved verbatim from eda/README.md on 2026-08-26)
+
+The results tree was reorganised by research question (the design note that guided it was a scratch
+file, never committed — this table is the record). **Commit `abe5cb3` (was `b09eb6f` before the 2026-08-19 history rewrite) is the last pre-reorg
+state** — check it out to re-run anything that read the retired `L0`/`L5` tree (the deck builders
+written before that date, the paper's own `analysis/*.py` generators). ⚠ **Its `results/` renders are
+NOT there:** on 2026-08-19 the repo's history was rewritten (`git-filter-repo`) to drop
+`Exp3_PTO_GRPO/eda/results` from every past commit — 606 MB of the 671 MB packed repo was superseded
+figure generations. Git now holds exactly one copy of the tree (the current one, re-added in
+`b44213c`), and **every pre-rewrite commit, including the whole `L0`/`L5` render history, is
+preserved in an archival bundle** at
+`G:\My Drive\Thesis_PTO_GRPO\_git_archive\Thesis_PTO_GRPO_prerewrite_2026-08-19_b7b44ac.bundle`
+(`git clone <bundle>` restores it read-only). The rewrite changed every commit SHA; content at HEAD
+was verified byte-identical (1,046 tracked files, same blob hashes). `L0/`, `L5/`, the `VIEW`
+knob, `RQ_I_VIEW`, `render_views.py` (`EDA_VIEW`) and `EdaConfig(view=, export_group=)` are gone;
+`lookahead/` owns cross-K.
+
+| Old | New |
+|---|---|
+| `results/L0/figures/1_outcomes/<judge>/x.png` | `results/arms/outcomes/figures/<judge>/x.png` (now all four arms) |
+| `results/L5/tables/7_stats/<judge>/k_paired_by_method.md` | `results/lookahead/reward/tables/k_paired_by_method.md` (both graders inside) |
+| `results/L5/tables/7_stats/<judge>/{compute_*, budget_sweep, iso_compute_contrast, k_step_multiplier}.md` | `results/compute/cost/tables/…` |
+| `results/L5/tables/7_stats/<judge>/{method_paired_by_K, method_paired_best}.md` | `results/method/contrast/tables/…` |
+| `results/L5/tables/7_stats/<judge>/{main_results, friedman_omnibus, vs_base_paired, slope_by_arm, rubric_pca_pc1}.md` | `results/arms/stats/tables/<judge>/…` |
+| `results/L5/tables/6_preference/gpt-4o-mini/k_mechanism_overpraise_chain.md` | `results/lookahead/mechanism/tables/…` |
+| `results/*/tables/8_measurement/…` | `results/measurement/validity/tables/…` |
+| `papers/2026_lookahead_pto_grpo/tables/k_contrast_headline_*.md` | `results/lookahead/reward/tables/…` (rubrics) / `lookahead/behaviour/tables/…` (channels, text) |
+| `papers/…/tables/cross_k_multijudge_{pairs,ladder,retention*}.md` | `results/lookahead/transfer/tables/…` |
+| `papers/…/tables/cross_k_multijudge_{did,method_gap,endpoints}.md` | `results/lookahead/reward/tables/…` |
+| `papers/…/tables/compute_axis_*.md`, `tail_audit_api_*.md` | `results/compute/cost/tables/…` |
+| `papers/…/tables/tail_audit_{by_iter,within_group,score_by_realized_turns,cues_by_iter}.md`, `dispersion_by_k_*.md`, `reward_faithfulness_*.md` | `results/lookahead/mechanism/tables/…` |
+| `papers/…/tables/session_shape_stability_{shape,length_*,selection}.md`, `held_out_instruments_*.md` | `results/lookahead/behaviour/tables/…` |
+| `papers/…/tables/session_shape_stability_{sd,sd_bf,sd_tally,sd_summary,ceiling}.md`, `crossgen_exp1_*.md` | `results/lookahead/replication/tables/…` |
+| `Exp3_PTO_GRPO/figures/*` | `results/schematics/*` |
+| `eda/docs/{METRICS_REFERENCE,LIMITATIONS}.md` | `results/{METRICS_REFERENCE,LIMITATIONS}.md` |
+| `code/_local_smoke.py`, `code/PTO_Exp3/generate_eval_convs.{py,ipynb}` | `code/tools/…` |
+| `tools/render_views.py` (`EDA_VIEW`) | `tools/render_results.py` (`EDA_JUDGE`) |
+| `EdaConfig(view=, export_group=)`, `RQ_I_VIEW` | `EdaConfig(family=)`; no view owner — `lookahead/` owns cross-K |
+
+Old numbered notebooks (`notebooks/analysis/1_Outcomes` … `8_Measurement_Validity`) map onto the
+family notebooks as: `1_Outcomes` → `arms/outcomes` (the `0_headline` re-saves become
+`group="headline"`); `2_Questionnaire_Detail` → `arms/questionnaires`; `3_Validity_and_Hacking` (+
+`7_Stats` `grpo_iter9_check`) → `arms/validity`; `4_Heterogeneity` → `arms/heterogeneity`;
+`5_Training` → `arms/training` (per-arm) with the K-faithfulness contrast in `lookahead/mechanism`;
+`6_Preference` §1–§5 → `arms/preference`, its §5d K-mechanism panel → `lookahead/mechanism`;
+`7_Stats` → `arms/stats` (main tables) + `lookahead/reward` (§4c) + `lookahead/behaviour` (§4d) +
+`method/contrast` (§4a/§4b) + `compute/cost` (§4e); `8_Measurement_Validity` →
+`measurement/validity` (unchanged content). The hand-authored `L0`/`L5` `SUMMARY.md`s were
+redistributed by section into `results/<top>/SUMMARY.md` (numbers unchanged, paths rewritten).
+
+---
+
 **Landed (2026-08-20) — the promotion's leftovers: one definition each, one cache, one render order.**
 
 Two commits (`f35b96d`, `ee685bd`) closing out what promoting the eight paper generators into the

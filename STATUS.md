@@ -6,7 +6,7 @@ things stand*, not *how they got here*. When an entry stops being current, move 
 [Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) rather than
 appending a new dated paragraph beneath the old one.
 
-**Last updated 2026-08-25.**
+**Last updated 2026-08-26.**
 
 ## Run status — ALL FOUR ARMS COMPLETE at iteration 10
 
@@ -51,9 +51,18 @@ The EDA is organised **by research question**:
 `Exp3_PTO_GRPO/eda/results/<top>/<sub>/{figures,tables}/[<judge>/]` with tops **`arms/`** (per-arm
 descriptives, one leaf per grader), **`lookahead/`** (RQ-i: reward · transfer · behaviour ·
 mechanism · replication), **`method/contrast`**, **`compute/cost`**, **`measurement/validity`** —
-the four contrast tops carry both graders side by side and have no `<judge>/` level. Each top has a
-hand-authored `SUMMARY.md`; `results/INDEX.md` maps every family to its notebook. Regenerate with
+the four contrast tops carry both graders side by side and have no `<judge>/` level. **Navigation
+starts at the hand-authored `results/README.md`** (added 2026-08-26: each research question → its
+headline artifacts + the reading rules). Each top has a hand-authored `SUMMARY.md`;
+`results/INDEX.md` maps every family to its notebook (workbooks now listed too). Regenerate with
 `python tools/render_results.py` from `Exp3_PTO_GRPO/eda/`.
+
+✅ **EDA refactor pass 2026-08-26** (details: `history/CHANGELOG_EDA.md`): the duplicate `headline/`
+presentation copies are retired (curation lives in `results/README.md`); `lookahead/behaviour`'s
+ledger is renamed `shape_numbers.json` (was `replication_numbers.json`, colliding with the
+different-content ledger of the same name in `lookahead/replication` — the archived *Same Lever*
+`NUMBERS.md` cites the old name); the package surface was trimmed (dead exports + dead code out,
+`_selfcheck` green); a full re-render followed.
 
 ✅ **The tree is CURRENT as of 2026-08-25** — a full re-render (6 units / 21 notebook executions,
 **1,086 s, no failures**) ran on the complete 44-state grid after iteration 10 landed. The parquet
@@ -341,13 +350,15 @@ vendor dashboard before quoting any figure.**
 `LIMITATIONS.md`, `METRICS_REFERENCE.md`, and the tree-wide censoring purge described above.
 What remains here is the **P1 draft's own open items**, listed in its README.
 
-**2. ✅ STARTED (2026-08-25) — P1 is drafted end to end** at
+**2. ✅ P1 is drafted end to end and RETARGETED TO ICLR 2027 (2026-08-26)** at
 [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*Scoring the Continuation*):
-the two GRPO arms, both graders, both cost axes, with a complete `NUMBERS.md` ledger and a clean
-4-pass build (15 pp., 0 undefined refs). It needs a length cut to an 8-page body (plan in its
-README) and carries two `\todo`s: the iteration-10 dispersion inversion, and the replicate draw
-below. **P2 — the full 2×2 interaction — is deliberately NOT started**; plan it fresh after P1
-settles.
+the two GRPO arms, both graders, both cost axes, complete `NUMBERS.md` ledger. Now on the vendored
+`iclr2027_conference` style (single column, double-blind until `\iclrfinalcopy`), clean 4-pass
+build, **main text ends on p. 9 of the 9-page submission limit** with draft notes still visible;
+depth moved to appendices A–D, ethics + reproducibility as page-exempt statements. **Deadlines:
+abstract 2026-09-18, full paper 2026-09-25 (both 23:59 UTC-12).** Two `\todo`s remain: the
+replicate draw below, and the retired held-out-variance growth claim's tombstone in §8. **P2 — the
+full 2×2 interaction — is deliberately NOT started**; plan it fresh after P1 settles.
    The stale draft was **retired to `papers/archive/2026_lookahead_pto_grpo/` rather than re-cut** —
 its iteration-5 censoring premise ran through every section, and its central claim changed shape:
 the method verdict is an **interaction with K**, not a PTO win. Candidate framings live in
@@ -379,10 +390,11 @@ computed number, so it needs a deliberate decision.
 
 ## Write-up decisions already made
 
-- **No live paper** — every Exp3 draft is retired under `papers/archive/` (their grids predate the
-  completed GRPO K=5 arm). Next drafts are planned in
-  [`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md); the archived `NUMBERS.md`
-  ledgers remain the trap list for any shared number.
+- **One live paper** — [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (P1,
+  targeting ICLR 2027; see step 2 above). Every earlier Exp3 draft is retired under
+  `papers/archive/` (their grids predate the completed GRPO K=5 arm); the archived `NUMBERS.md`
+  ledgers remain the trap list for any shared number, and P2 is planned fresh in
+  [`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md) after P1 settles.
 - **Report the method comparison on BOTH axes, and always conditional on K.** Matched-iteration and
   matched-budget answer different questions — say which axis a number is on, and **never state a
   PTO-vs-GRPO verdict without naming K**. The two axes now disagree in a way that is itself the

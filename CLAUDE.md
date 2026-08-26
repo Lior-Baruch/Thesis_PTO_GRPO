@@ -86,7 +86,8 @@ everywhere else keep a pointer.
 | Run status, headline numbers, cost constraint, next step | [STATUS.md](STATUS.md) | weekly |
 | Method mechanics, algorithms, trainer internals, gotchas, conventions | this file | when the code does |
 | What each `code/` module does | `Exp3_PTO_GRPO/code/README.md` | when the code does |
-| EDA how-to (FAMILY + JUDGE knobs, `EdaConfig`, exports API, `render_results.py`, package module map, the 2026-08-18 old→new migration table) | `Exp3_PTO_GRPO/eda/README.md` | when the EDA does |
+| EDA how-to (FAMILY + JUDGE knobs, `EdaConfig`, exports API, `render_results.py`, package module map) | `Exp3_PTO_GRPO/eda/README.md` (the 2026-08-18 old→new migration table retired to `history/CHANGELOG_EDA.md` on 2026-08-26) | when the EDA does |
+| **Results navigation** — each research question → its headline artifacts + reading rules | `Exp3_PTO_GRPO/eda/results/README.md` (hand-authored, in `exports.PRESERVE`) | when the artifacts do |
 | Detailed eval narrative + numbers, per research question | `Exp3_PTO_GRPO/eda/results/<top>/SUMMARY.md` (`arms` · `lookahead` · `method` · `compute` · `measurement`) | per render |
 | Metric definitions (no current values) | `Exp3_PTO_GRPO/eda/results/METRICS_REFERENCE.md` | rarely |
 | Measurement / inference limitations (for the write-up) | `Exp3_PTO_GRPO/eda/results/LIMITATIONS.md` | rarely |
@@ -395,7 +396,9 @@ Exp3_PTO_GRPO/
 │                  + results/. Artifacts nest results/<top>/<sub>/{figures,tables}/[<judge>/][<group>/]
 │                  — the <judge>/ leaf (short label) ONLY under arms/*, whose artifacts one grader
 │                  produced; every other family is judge-invariant (both graders inside, no judge
-│                  level). Each <top>/ carries a hand-authored SUMMARY.md + auto INDEX.md;
+│                  level). NAVIGATION starts at the hand-authored results/README.md (question →
+│                  headline artifacts + reading rules). Each <top>/ carries a hand-authored
+│                  SUMMARY.md + auto INDEX.md;
 │                  results/{METRICS_REFERENCE,LIMITATIONS}.md and results/schematics/ (the
 │                  hand-authored METHOD diagrams — build_method_figures.py + CAPTIONS.md, no
 │                  notebook, no judge level, in exports.PRESERVE) sit at the results root.

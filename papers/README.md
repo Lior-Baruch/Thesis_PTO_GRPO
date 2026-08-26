@@ -8,7 +8,7 @@ method schematics under `Exp3_PTO_GRPO/eda/results/schematics/`).
 | Folder | Paper | Domain | Status |
 |---|---|---|---|
 | [`2025_iclr_pto_lookahead/`](2025_iclr_pto_lookahead/) | *Preference Tree Optimization: Enhancing Goal-Oriented Dialogue with Look-Ahead Simulations* | Exp1 | **published — frozen** (ICLR 2025 SSI-FM workshop, poster) |
-| [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) | *Scoring the Continuation: $K$-Turn Look-Ahead Rewards for Group-Relative Policy Optimization in Motivational Interviewing* | Exp3, the **two GRPO arms only**, both graders, both cost axes | **drafting** — the live draft |
+| [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) | *Scoring the Continuation: $K$-Turn Look-Ahead Rewards for Group-Relative Policy Optimization in Motivational Interviewing* | Exp3, the **two GRPO arms only**, both graders, both cost axes | **drafting — the live draft; targeting ICLR 2027** (abstract 2026-09-18, paper 2026-09-25; retargeted from ACL/CLPsych 2026-08-26, 9-page body met) |
 | [`archive/2026_lookahead_pto_grpo/`](archive/2026_lookahead_pto_grpo/) | *Same Lever, Different Optimizer: Does $K$-Turn Look-Ahead Help a Small Motivational-Interviewing Therapist?* | Exp3, all four arms (both K, both optimizers, both graders); reads `results/{lookahead,compute}` | **retired 2026-08-25** — drafted while GRPO K=5 was right-censored at iteration 5; that arm has since finished at 10 (all states scored), so its endpoint/retention/iso-compute claims read a stale grid. Its `analysis/out/` remains the EDA's frozen fixture |
 | [`archive/2026_clpsych_mi_reward_hacking/`](archive/2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry: Reward Hacking When an LLM Judge Trains a Motivational Interviewing Therapist* | Exp3, `L0` view | **retired 2026-08-18** — its K=0 reward-hacking result was absorbed by *Same Lever*'s §6 |
 | [`archive/2026_lookahead_hack_substitution/`](archive/2026_lookahead_hack_substitution/) | *The Hack Moves: Trajectory-Level Reward Redirects Rather Than Reduces Reward Hacking in a Motivational Interviewing Therapist* | Exp3, `L5` view, PTO only | **retired 2026-08-18** — its substitution result was absorbed by *Same Lever*'s §6; its `NUMBERS.md` traps still apply |
@@ -75,10 +75,12 @@ Each paper's `sync_figures.py` copies every figure its `.tex` references from th
 
 ## Building (MiKTeX on Windows)
 
-Both the vendored `acl.sty` and `acl_natbib.bst` live inside each paper folder, so a draft builds
-with no network round-trip. Four passes, no Perl, **no `latexmk`** (MiKTeX ships no Perl, and the
-`perl` bundled with Git for Windows is only on the PATH inside a Git Bash session — so a build
-that works in a terminal can still fail in VS Code):
+Each paper folder vendors its own style files, so a draft builds with no network round-trip — the
+live draft carries `iclr2027_conference.{sty,bst}` + `natbib.sty` + `fancyhdr.sty` (from the
+official ICLR 2027 zip); the archived drafts carry `acl.sty` + `acl_natbib.bst`. Four passes, no
+Perl, **no `latexmk`** (MiKTeX ships no Perl, and the `perl` bundled with Git for Windows is only
+on the PATH inside a Git Bash session — so a build that works in a terminal can still fail in VS
+Code):
 
 ```bash
 export PATH="$LOCALAPPDATA/Programs/MiKTeX/miktex/bin/x64:$PATH"
