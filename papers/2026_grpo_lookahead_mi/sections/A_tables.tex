@@ -1,6 +1,46 @@
 \section{Supplementary results}
 \label{app:tables}
 
+\subsection{Method schematic}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.6\textwidth]{figures/method_grpo_group.png}
+\caption{One GRPO group. The policy samples $G{=}8$ completions; each is scored by the oracle and
+standardised against its siblings. $K$ changes only what the oracle is shown --- the candidate
+turn, or the candidate plus the $K$-turn continuation simulated from it.}
+\label{fig:schematic}
+\end{figure}
+
+\subsection{The endpoint on every instrument}
+
+\begin{table}[h]
+\centering
+\small
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{3}{c}{\primaryjudge\ (training oracle)} & \multicolumn{3}{c}{\heldoutjudge\ (held out)}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-7}
+Instrument & $\Delta$ & \dz & $p_{\text{holm}}$ & $\Delta$ & \dz & $p_{\text{holm}}$\\
+\midrule
+Q1+Q2 (reward) & $+0.765$ & $0.905$ & $<.001$ & $+0.616$ & $1.030$ & $<.001$\\
+\quad Q1        & $+0.858$ & $0.902$ & $<.001$ & $+0.865$ & $1.152$ & $<.001$\\
+\quad Q2        & $+0.671$ & $0.864$ & $<.001$ & $+0.367$ & $0.609$ & $<.001$\\
+WAI-SR          & $+0.291$ & $0.513$ & $<.001$ & $+0.288$ & $0.442$ & $<.001$\\
+CSQ-8           & $+0.289$ & $0.482$ & $<.001$ & $+0.451$ & $0.678$ & $<.001$\\
+MI-SAT          & $+0.352$ & $0.531$ & $<.001$ & $+0.503$ & $0.829$ & $<.001$\\
+MITI            & $+0.615$ & $0.735$ & $<.001$ & $+0.276$ & $0.502$ & $<.001$\\
+PCT             & $+0.111$ & $0.516$ & $<.001$ & $+0.113$ & $0.563$ & $<.001$\\
+MICI ($\downarrow$) & $-0.627$ & $-1.862$ & $<.001$ & $-0.422$ & $-1.567$ & $<.001$\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{$\Kf$ minus $\Kz$ at the matched iteration-10 endpoint}, persona-paired over the
+96 shared personas ($n{=}96$). A \emph{positive} $\Delta$ means look-ahead scored higher; MICI is
+lower-is-better, so its negative $\Delta$ also favours $\Kf$. Look-ahead wins on every instrument
+under both graders. Holm correction is across the nine rows within a grader.}
+\label{tab:endpoint}
+\end{table}
+
 \subsection{The $K$ contrast at every iteration}
 
 \begin{table}[h]
@@ -32,57 +72,51 @@ experiment's noise floor. $\Kz$ is nominally ahead at iterations 0 and 3 under t
 (and 0, 1, 3 under the held-out judge); none of those clears Holm, though iteration 3's primary
 $\Delta$ of $-0.132$ is uncorrected-significant ($p = .014$, $p_{\text{holm}} = .070$) and is the
 larger of the two. Stars are Holm-corrected across iterations within a grader:
-$^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$. Source:
-\texttt{k\_table1} (lookahead/reward family), GRPO columns.}
+$^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$.}
 \label{tab:byiter}
 \end{table}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/k_delta_grid_gpt-4o-mini.png}
-\caption{Per-instrument $K$ contrast by iteration under the training oracle. Source:
-\texttt{k\_delta\_grid\_gpt-4o-mini} (lookahead/reward family).}
+\includegraphics[width=0.9\textwidth]{figures/k_delta_grid_gpt-4o-mini.png}
+\caption{Per-instrument $K$ contrast by iteration under the training oracle.}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/k_delta_grid_claude-haiku-4-5.png}
-\caption{The same grid under the held-out judge. Source:
-\texttt{k\_delta\_grid\_claude-haiku-4-5} (lookahead/reward family).}
+\includegraphics[width=0.9\textwidth]{figures/k_delta_grid_claude-haiku-4-5.png}
+\caption{The same grid under the held-out judge.}
 \end{figure}
 
 \subsection{The four arms of the parent experiment}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/k_headline_q1q2.png}
+\includegraphics[width=\textwidth]{figures/k_headline_q1q2.png}
 \caption{The four-arm version of Figure~\ref{fig:headline}: Q1+Q2 by iteration (top) and the paired
 contrast (bottom) for all four arms of the parent experiment, under each grader. The two GRPO
-series (orange, $\Kz$; yellow, $\Kf$) are this paper's subject; the PTO series (blue) are the
-companion arms, analysed in a separate draft. \textbf{Note the bottom panels here plot
-$\Kz - \Kf$}, the source tables' convention and the \emph{opposite} of Figure~\ref{fig:headline} ---
-so GRPO's descent below zero is look-ahead winning.
-Source: \texttt{k\_headline\_q1q2} (lookahead/reward family).}
+series are this paper's subject; the PTO series are the companion arms, analysed separately.
+\textbf{Note the bottom panels here plot $\Kz - \Kf$}, the source tables' convention and the
+\emph{opposite} of Figure~\ref{fig:headline} --- so GRPO's descent below zero is look-ahead
+winning.}
 \label{fig:fourarm-traj}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/k_overpraise_trajectory_gpt-4o-mini.png}
+\includegraphics[width=0.9\textwidth]{figures/k_overpraise_trajectory_gpt-4o-mini.png}
 \caption{Oracle-rated over-praise rate by iteration under the training oracle, all four arms ---
-the rated-only view of Figure~\ref{fig:overpraise}'s middle panel.
-Source: \texttt{k\_overpraise\_trajectory\_gpt-4o-mini} (lookahead/behaviour family).}
+the rated-only view of Figure~\ref{fig:overpraise}'s middle panel.}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/headline_grid.png}
+\includegraphics[width=0.9\textwidth]{figures/headline_grid.png}
 \caption{Endpoint level for all four arms of the parent experiment under both graders, each
 anchored to its own base. \textbf{The two GRPO arms are this paper's subject}; the PTO arms are
-shown so the reader can see the whole experiment rather than a selected half, and are analysed in
-the companion draft. The two panels are \emph{not} on a common scale --- the graders' levels differ
-systematically and are never compared directly. Source:
-\texttt{headline\_grid} (method/contrast family).}
+shown so the reader can see the whole experiment rather than a selected half. The two panels are
+\emph{not} on a common scale --- the graders' levels differ systematically and are never compared
+directly.}
 \label{fig:fourarm}
 \end{figure}
 
@@ -90,28 +124,128 @@ systematically and are never compared directly. Source:
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/k_channel_forest_gpt-4o-mini.png}
+\includegraphics[width=0.85\textwidth]{figures/k_channel_forest_gpt-4o-mini.png}
 \caption{Per-channel $K$ contrast at the endpoint under the training oracle. Over-praise is the
 dominant channel; every channel is reported so that a substitution effect --- MI-inconsistency
 moving to a different channel rather than falling --- would be visible rather than hidden by the
-total. Source: \texttt{k\_channel\_forest\_gpt-4o-mini} (lookahead/behaviour family).}
+total.}
 \end{figure}
+
+\subsection{Cross-grader agreement per instrument at the winning checkpoint}
+\label{app:agreement}
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Instrument & $r$ @I10 & med. & $\Delta$ med. & rank\\
+\midrule
+MITI (coding)   & $0.333$ & $0.658$ & $-0.325$ & $1/44$\\
+Q1 (rewarded)   & $0.544$ & $0.855$ & $-0.311$ & $2/44$\\
+MICI (coding)   & $0.287$ & $0.518$ & $-0.231$ & $4/44$\\
+Q2 (rewarded)   & $0.590$ & $0.784$ & $-0.195$ & $2/44$\\
+\midrule
+CSQ-8           & $0.851$ & $0.903$ & $-0.052$ & $4/44$\\
+PCT             & $0.928$ & $0.954$ & $-0.026$ & $4/44$\\
+MI-SAT          & $0.906$ & $0.930$ & $-0.023$ & $5/44$\\
+WAI-SR          & $0.898$ & $0.922$ & $-0.023$ & $6/44$\\
+\bottomrule
+\end{tabular}
+\caption{Per-conversation cross-grader agreement at the winning checkpoint
+(\texttt{GRPO\_LA5\_I10}) against each instrument's own median and its own rank across all 44 model
+states ($1/44$ = this instrument's worst-agreeing state in the experiment). Instruments must be
+compared \emph{down their own column}, never across --- their baseline agreement differs by more
+than the effect. The disagreement is real but \emph{not} confined to the rewarded rubric.}
+\label{tab:agreement}
+\end{table}
 
 \subsection{Look-ahead rollout audit}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/tail_audit.png}
+\includegraphics[width=0.85\textwidth]{figures/tail_audit.png}
 \caption{What the $K{=}5$ reward actually observed: realised continuation length per candidate and
 the rate at which a rollout ended early. A rollout that terminates before $K$ turns gives the
 oracle a shorter transcript than intended, so this is the audit that the lever was applied as
-specified. Source: \texttt{tail\_audit} (lookahead/mechanism family).}
+specified.}
 \end{figure}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width=\columnwidth]{figures/api_calls.png}
+\includegraphics[width=0.85\textwidth]{figures/api_calls.png}
 \caption{API calls per arm and iteration. The patient-simulator calls inside the look-ahead rollout
-are the multiplier; oracle calls per candidate are matched across arms by construction. Source:
-\texttt{api\_calls} (compute/cost family).}
+are the multiplier; oracle calls per candidate are matched across arms by construction.}
 \end{figure}
+
+\clearpage
+\section{The mechanism analysis in full}
+\label{app:mechanism}
+
+This appendix expands \S\ref{sec:mechanism}.
+
+\subsection{The faithfulness statistic}
+
+The training reward scores a \emph{partial} conversation; the evaluation scores the whole session.
+The gap between them is measurable as pairwise rank agreement: among candidate turns compared
+within one (arm, iteration, conversation-length) cell, how often does the training reward order
+them the way the full-session score eventually does? Chance is $0.5$; intervals are
+conversation-level cluster bootstraps.
+
+Pooled over the ten iterations both arms reached, agreement is $0.909$ $[0.900, 0.917]$ under $\Kf$
+against $0.873$ $[0.861, 0.884]$ under $\Kz$ on the training oracle, and $0.800$ against $0.747$ on
+the held-out judge; both differences have intervals excluding zero, and $\Kf$ is the more faithful
+arm at 7 of 10 iterations under both graders. Two qualifications travel with that number. First,
+the iteration-level Wilcoxon test --- with the ten iterations, rather than the branch pairs, as the
+unit of observation --- does \emph{not} clear $.05$ ($p = .084$ primary, $p = .193$ held out). The
+pooled interval treats branch pairs as independent and is the more permissive of the two, so we
+describe the difference as small and consistent rather than significant. Second, at iteration $n$
+the two arms are \emph{different policies} generating \emph{different conversations}, so this
+comparison measures a joint property of the scoring rule and of the trajectory the scoring rule put
+the policy on; it cannot separate them.
+
+\subsection{At a matched policy, the effect disappears}
+
+There is exactly one cut in this design where the scoring rule is close to the only difference: the
+first iteration, where both arms start from the same base policy and differ only in whether five
+simulated turns were appended before the oracle saw each candidate. At that cut, nothing is
+detectable. All four deltas straddle zero (training oracle: $+0.015$ $[-0.026, 0.059]$ for GRPO;
+held-out judge: $-0.014$ $[-0.075, 0.048]$), and the per-length-bin breakdown points in
+\emph{opposite directions on the two graders} --- 17 of 20 bins favour $\Kz$ under the training
+oracle, 17 of 20 favour $\Kf$ under the held-out judge. A sign that flips with the grader is the
+shape of no effect, not of a small one. The matched-policy cut is also the weakest-powered one ---
+a single model state per arm, and only approximately matched, since the policy drifts within the
+iteration under $K$-specific rewards --- so this is an absence of evidence rather than evidence of
+absence. It is not, however, a result we can quietly omit while quoting the pooled row.
+
+\subsection{Dispersion, and the iteration-10 inversion}
+
+The mean best-minus-worst margin within a group is $1.300\times$ larger under $\Kf$
+$([1.275, 1.326])$; the within-group standard deviation grows by $1.293\times$ $([1.267, 1.317])$;
+the ratio of the two ratios is $1.006$ $([1.002, 1.010])$ --- a pure rescaling, which the advantage
+normalisation absorbs.
+
+One iteration inverts the \emph{level} of this. At training iteration 10 the margin ratio drops to
+$0.679$ --- $\Kf$'s within-group margins are smaller than $\Kz$'s there. Both sides move: $\Kz$'s
+mean margin jumps from $0.248$ to $0.339$ while $\Kf$'s falls from $0.268$ to $0.230$. The $\Kz$
+jump coincides exactly with the iteration in which its over-praise rate explodes
+(\S\ref{sec:behaviour}: the judge-free marker goes from $0.093$ to $0.671$ between iterations 9 and
+10), which is what a group containing both flattering and non-flattering candidates would do to a
+grader that rewards flattery --- the pool splits and the best--worst gap widens. The $\Kf$ decline
+is the mirror image: a converging policy whose eight samples the oracle scores increasingly alike.
+Crucially this does \emph{not} break the rescaling result: at that same iteration the
+ratio-of-ratios is $0.964$ --- margin and standard deviation still move together. What inverts is
+the level of dispersion in each arm, not the coupling the advantage normalisation absorbs. We offer
+the over-praise account as consistent with the timing, not as demonstrated: a single iteration, and
+no manipulation separates the two.
+
+\subsection{The update-direction proxy}
+
+Writing each iteration's update direction as the advantage-weighted sum of its candidates' sentence
+embeddings, $\operatorname{normalise}(\sum_g w_g \cdot \mathrm{emb}(t_g))$ with $w_g$ the
+standardised group-relative advantage that scales each completion's gradient, the two arms' pooled
+directions have a cosine of $0.804$ --- $0.851$ once divided by the attenuation ceiling that two
+split-half-noisy estimates can reach at all. This is an \emph{embedding-space proxy}, not the
+gradient: it measures the semantic direction of what the update prefers, and it says the $\Kz$ and
+$\Kf$ policies are pushed along substantially the same direction.

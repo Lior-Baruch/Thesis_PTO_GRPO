@@ -2,16 +2,23 @@
 
 *$K$-Turn Look-Ahead Rewards for Group-Relative Policy Optimization in Motivational Interviewing*
 
-**Target:** CLPsych / an ACL-family or RLHF-alignment workshop (ACL two-column style, 8-page body
-+ appendix). **Status: drafting** — the one live draft.
-**Current length (clean 4-pass build, `[review]` mode): 15 pages** — §1–§9 on pp. 1–9, Limitations
-+ Ethics pp. 10–11, references p. 11, appendix pp. 12–15. That is ~2 pages over an 8-page body.
-Pre-planned cuts, in order: (1) fold §7 (mechanism) to half a page — it is a negative result and
-can state the two ruled-out mechanisms in one paragraph each, moving the dispersion detail to the
-appendix; (2) cut §2 related work to two paragraphs; (3) demote Table~1 to the appendix and keep
-only the Q1+Q2 row inline; (4) compress §5's rung-by-rung budget walk to the crossover and the
-common-budget result. **Do not cut §8 (measurement) or the per-grader qualifier in §6** — those
-are the paper's honesty, and cutting them would change what it claims.
+**Target:** **ICLR 2027** (abstract deadline **2026-09-18**, full paper **2026-09-25**, both
+23:59 UTC-12; conference April 2027). Single-column `iclr2027_conference` style, vendored here
+from the official `iclr-2027-style-files.zip`. **Status: drafting** — the one live draft.
+Retargeted from the earlier ACL/CLPsych two-column draft on 2026-08-26 (the ACL version is in git
+history; `acl.sty`/`acl_natbib.bst` were removed with it).
+**Current length (clean 4-pass build, draft notes visible): 23 pages — main text §1–§9 ends on
+p. 9** (ICLR submission limit: 9; camera-ready: 10). Ethics Statement + Reproducibility Statement
+(exempt from the limit) follow, then references and appendices A (supplementary results, incl. the
+full endpoint table and the method schematic), B (mechanism in full), C (repro details),
+D (limitations in full).
+**Double-blind:** `\iclrfinalcopy` stays commented out until camera-ready — the submission renders
+as "Anonymous authors". The `\author` block in `main.tex` is ignored while it is commented. The
+ICLR poster is cited in third person throughout; keep it that way.
+**Do not cut §8 (measurement) or the per-grader qualifier in §6** — those are the paper's honesty,
+and cutting them would change what it claims. §7 (mechanism) is deliberately compressed with the
+full analysis in Appendix B; the endpoint-per-instrument table is Appendix Table 1 by design (the
+9-page budget), with its verdict stated in §4 prose.
 **Domain:** Exp3, the **two GRPO arms only** — `GRPO_LA0` and `GRPO_LA5`, matched MCL=12, G=8,
 96 personas, 8 instruments, 10 iterations each, scored by two graders (gpt-4o-mini = the training
 oracle; Claude Haiku 4.5 = held out). Both arms complete; 2 arms × 11 states = 22 model states.
@@ -125,8 +132,9 @@ flatter the judge.
 
 ## Building (MiKTeX on Windows)
 
-`acl.sty` and `acl_natbib.bst` are vendored here, so the draft builds with no network round-trip.
-Four passes, no Perl, **no `latexmk`**:
+`iclr2027_conference.{sty,bst}`, `natbib.sty` and `fancyhdr.sty` are vendored here (from the
+official ICLR 2027 style zip), so the draft builds with no network round-trip. Four passes, no
+Perl, **no `latexmk`**:
 
 ```bash
 export PATH="$LOCALAPPDATA/Programs/MiKTeX/miktex/bin/x64:$PATH"

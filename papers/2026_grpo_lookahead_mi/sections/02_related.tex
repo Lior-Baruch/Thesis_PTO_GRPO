@@ -1,46 +1,38 @@
 \section{Related work}
 \label{sec:related}
 
-\paragraph{Group-relative policy optimisation.}
-GRPO \citep{shao2024deepseekmath} replaces PPO's learned value function
-\citep{schulman2017ppo, ouyang2022instructgpt} with a baseline computed across a group of sampled
-completions for the same prompt. That makes it attractive for dialogue, where a value function
-would have to be learned over conversation states, but it also concentrates all the learning signal
-in the \emph{relative} ranking of siblings --- so the quality of the reward that produces the
-ranking is the whole ballgame. Our contribution is orthogonal to the loss: we change what the reward
-function observes and leave the group-relative machinery untouched.
+\textbf{Group-relative policy optimisation.} GRPO \citep{shao2024deepseekmath} replaces PPO's
+learned value function \citep{schulman2017ppo, ouyang2022instructgpt} with a baseline computed
+across a group of sampled completions for the same prompt --- attractive for dialogue, where a
+value function would have to be learned over conversation states, but it concentrates all learning
+signal in the \emph{relative} ranking of siblings, so the reward that produces the ranking is the
+whole ballgame. Our contribution is orthogonal to the loss: we change what the reward observes and
+leave the group-relative machinery untouched.
 
-\paragraph{Look-ahead and search in preference learning.}
-Using simulated continuations to score a candidate action is the standard move in planning, and it
-has been imported into preference learning in several forms: MCTS-guided prompt and response search
-\citep{yu2023promptmcts, xie2024mctsdpo}, process supervision that rewards intermediate steps by
-their eventual outcome \citep{lightman2024letsverify}, and sampling-based reranking against a
-reward model \citep{pace2024westofn}. The immediate predecessor of this work is preference tree
-optimisation \citep{baruch2025pto}, which introduced the $K$-turn look-ahead lever for MI dialogue
-and applied it to a preference-tree method with DPO \citep{rafailov2023dpo}. What has not been
-tested, and is what we test, is whether that lever transfers to a group-relative optimizer, and
-what it costs when the continuation must be simulated by an API-served patient.
+\textbf{Look-ahead and search in preference learning.} Scoring a candidate by a simulated
+continuation is the standard move in planning, imported into preference learning as MCTS-guided
+search \citep{yu2023promptmcts, xie2024mctsdpo}, process supervision \citep{lightman2024letsverify},
+and reranking against a reward model \citep{pace2024westofn}. The immediate predecessor of this
+work is preference-tree optimisation \citep{baruch2025pto}, which introduced the $K$-turn
+look-ahead lever for MI dialogue with DPO \citep{rafailov2023dpo}. Untested, and tested here, is
+whether the lever transfers to a group-relative optimizer --- and what it costs when the
+continuation must be simulated by an API-served patient.
 
-\paragraph{Reward hacking and LLM judges.}
-That optimising a proxy degrades the true objective is a long-standing concern
-\citep{amodei2016concrete, skalse2022defining, pan2022effects} with a well-documented scaling
-behaviour \citep{gao2023scaling}. LLM-as-judge evaluation \citep{zheng2023judging} adds specific
-pathologies: sycophancy \citep{sharma2024sycophancy, perez2023discovering}, self-preference
-\citep{panickssery2024selfpreference}, and length bias \citep{singhal2024long,
-dubois2024lengthcontrolled}. Our over-praise result is a sycophancy finding with an unusual handle
-on it --- the exploit is not merely present or absent across arms, it is \emph{selected} by the
-horizon of the reward, and we can corroborate it with a deterministic transcript statistic rather
-than a second model judge. The one-sided saturation we report in §\ref{sec:measurement} is, to our
-knowledge, not a documented failure mode of judge-based evaluation, and it is invisible to the
-arm-level agreement statistics usually reported.
+\textbf{Reward hacking and LLM judges.} That optimising a proxy degrades the true objective is a
+long-standing concern \citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling},
+and LLM-as-judge evaluation \citep{zheng2023judging} adds sycophancy \citep{sharma2024sycophancy,
+perez2023discovering}, self-preference \citep{panickssery2024selfpreference}, and length bias
+\citep{singhal2024long, dubois2024lengthcontrolled}. Our over-praise result is a sycophancy finding
+with an unusual handle: the exploit is \emph{selected} by the horizon of the reward, and we
+corroborate it with a deterministic transcript statistic rather than a second model judge. The
+one-sided grader saturation of \S\ref{sec:measurement} is, to our knowledge, not a documented
+failure mode of judge-based evaluation.
 
-\paragraph{Motivational interviewing and counselling dialogue systems.}
-MI \citep{miller1991mi} has established behavioural coding schemes \citep{moyers2016miti} and
-validated session instruments \citep{hatcher2006waisr, larsen1979csq}, which is what makes it a
-usable testbed: the reward can be an instrument with published psychometrics rather than an ad hoc
-rubric. Prior NLP work has assessed counselling quality automatically
-\citep{perezrosas2019goodcounselor, yosef2024assessing} and used LLMs to scaffold or simulate
-counselling interactions \citep{steenstra2025scaffolding, chen2025broaden}. We use MI not to build
-a deployable counsellor --- see the Ethics Statement --- but because it is a domain where the
-mismatch between locally-visible and downstream value is unusually explicit in the clinical
-literature itself.
+\textbf{Motivational interviewing.} MI \citep{miller1991mi} has established coding schemes
+\citep{moyers2016miti} and validated session instruments \citep{hatcher2006waisr, larsen1979csq},
+so the reward can be an instrument with published psychometrics rather than an ad hoc rubric;
+prior work has assessed counselling quality automatically \citep{perezrosas2019goodcounselor,
+yosef2024assessing} and simulated counselling with LLMs \citep{steenstra2025scaffolding,
+chen2025broaden}. We use MI not to build a deployable counsellor --- see the Ethics Statement ---
+but because the mismatch between locally-visible and downstream value is unusually explicit in its
+clinical literature.

@@ -11,42 +11,40 @@ Motivational interviewing (MI) is a setting where that assumption is plainly fal
 counselling style for helping someone resolve ambivalence about change, and almost every technique
 it teaches is defined by its downstream effect: a reflection is good if the patient elaborates, an
 open question is good if it surfaces change talk, and premature reassurance is bad precisely
-because of what it forecloses two turns later. A judge shown only the turn cannot see any of this.
-Worse, the same judge can see the one thing that \emph{is} locally visible --- whether the patient
-felt validated --- which is exactly the signal a policy can capture by flattering them.
+because of what it forecloses two turns later. A judge shown only the turn can see none of this.
+Worse, it \emph{can} see the one thing that is locally visible --- whether the patient felt
+validated --- which is exactly the signal a policy can capture by flattering them.
 
 We test the alternative directly. Holding an entire training pipeline fixed, we vary only the
 transcript the oracle scores: either the candidate turn alone ($K{=}0$), or the candidate followed
 by the $K{=}5$-turn continuation that the current policy and the simulated patient actually produce
-from it. A therapist model is trained with Group Relative Policy Optimization (GRPO) against a
-simulated patient, with the reward supplied by a larger model administering validated MI
-questionnaires. The two arms differ in exactly two substantive configuration fields; everything
-else --- optimizer, group size, oracle, temperatures, minimum context, persona set, iteration count
---- is identical.
+from it. A 1B-parameter therapist is trained with Group Relative Policy Optimization (GRPO) against
+a simulated patient, with the reward supplied by a larger model administering validated MI
+questionnaires. The two arms differ in exactly two configuration fields; optimizer, group size,
+oracle, temperatures, minimum context, persona set, and iteration count are identical.
 
-The result is larger than we expected and points in one direction. Against its own base, the
-look-ahead arm gains more than twice as much on the rewarded rubric under the training oracle
-($1.554$ vs.\ $0.686$, a $2.27\times$ ratio) and under a held-out judge from a different model
-family ($1.038$ vs.\ $0.396$, $2.62\times$), and at the matched endpoint it leads on all eight
-instruments under both graders. It is also, and we think more importantly, the difference between
-a policy that learns MI and one that learns to flatter: turn-level reward drives MI-inconsistent
-behaviour up fourfold, concentrated in unearned praise, which a judge-free lexical marker finds in
-$67\%$ of that policy's therapist turns at the endpoint against $6\%$ under trajectory-level
-reward.
+The result is large and points in one direction. Against its own base, the look-ahead arm gains
+more than twice as much on the rewarded rubric under the training oracle ($+1.554$ vs.\ $+0.686$)
+and under a held-out judge from a different model family ($+1.038$ vs.\ $+0.396$), and at the
+matched endpoint it leads on all eight instruments under both graders. It is also, and we think
+more importantly, the difference between a policy that learns MI and one that learns to flatter:
+turn-level reward drives MI-inconsistent behaviour up fourfold, concentrated in unearned praise,
+which a judge-free lexical marker finds in $67\%$ of that policy's therapist turns at the endpoint
+against $6\%$ under trajectory-level reward.
 
-We report three things that a purely positive account would leave out. \textbf{Cost:} look-ahead
-runs at $1.835\times$ the GPU-hours, and on a matched-budget axis it is \emph{behind} below
-${\sim}18$ GPU-hours and only significantly ahead from ${\sim}35$ --- the result is a claim about a
-budget, not about an iteration. \textbf{Residual drift:} under the held-out judge, look-ahead's
-MI-inconsistency still rises, at under half the turn-level rate rather than not at all, so
-"prevents the hack" is a training-oracle statement and we do not make it unqualified.
-\textbf{Measurement:} the winning checkpoint has the weakest per-conversation cross-grader
-agreement in the entire experiment on the rewarded rubric, because the trained-against grader
-saturates one-sidedly while the held-out judge's spread over the same conversations does not move. The arm-level conclusion
-survives that; the per-conversation ruler does not, and we mark every claim that depends on it.
+We report three things a purely positive account would omit. \textbf{Cost:} look-ahead runs at
+$1.835\times$ the GPU-hours, and on a matched-budget axis it is \emph{behind} below ${\sim}18$
+GPU-hours and only significantly ahead from ${\sim}35$ --- a claim about a budget, not an
+iteration. \textbf{Residual drift:} under the held-out judge, look-ahead's MI-inconsistency still
+rises, at under half the turn-level rate, so ``prevents the hack'' is a training-oracle statement
+and we never make it unqualified. \textbf{Measurement:} the winning checkpoint has the weakest
+per-conversation cross-grader agreement in the experiment on the rewarded rubric, because the
+trained-against grader saturates one-sidedly while the held-out judge's spread over the same
+conversations does not move. The arm-level conclusion survives that; the per-conversation ruler
+does not, and we mark every claim that depends on it.
 
-Our contributions are: (i) a controlled, two-grader measurement of what trajectory-level reward
-buys a group-relative optimizer in a multi-turn dialogue task, on both a matched-iteration and a
+Our contributions: (i) a controlled, two-grader measurement of what trajectory-level reward buys a
+group-relative optimizer in a multi-turn dialogue task, on both a matched-iteration and a
 matched-compute axis; (ii) evidence, from a deterministic transcript metric rather than a model
 judge, that the horizon of the reward determines \emph{which} reward hack the policy finds; and
 (iii) a diagnosis of a failure mode in LLM-judge evaluation --- one-sided grader saturation ---

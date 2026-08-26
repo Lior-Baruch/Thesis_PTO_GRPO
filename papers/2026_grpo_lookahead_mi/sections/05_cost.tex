@@ -1,62 +1,48 @@
 \section{What it costs, and at what budget it wins}
 \label{sec:cost}
 
-Every result in §\ref{sec:reward} is indexed by \emph{iteration}, which is not a fixed unit of
+Every result in \S\ref{sec:reward} is indexed by \emph{iteration}, which is not a fixed unit of
 spend. A $\Kf$ optimizer step simulates five extra utterances per candidate --- eight candidates
 per prompt, one patient API call and one policy generation per utterance --- so an iteration of
-$\Kf$ buys strictly more compute than an iteration of $\Kz$. Reporting only the matched-iteration
-result would flatter the lever. This section reports the lever on the axis that actually constrains
-a practitioner.
+$\Kf$ buys strictly more compute than an iteration of $\Kz$, and reporting only the
+matched-iteration result would flatter the lever. This section reports it on the axis that
+actually constrains a practitioner.
 
-\subsection{The multiplier}
-
-Across the settled iterations 3--10 a $\Kf$ optimizer step costs a median $\mathbf{1.92\times}$ a
-$\Kz$ step (range $1.828$--$2.182$). Iterations 1--2 are excluded because they ran at a smaller
-look-ahead sub-batch before it was raised, giving inflated ratios of $2.406$ and $2.119$; the
-tracked run metadata records only the final sub-batch value, so this exclusion is stated rather
-than inferable from the metadata alone. Over the whole run the two arms cost $51.205$ and $27.906$
-GPU-hours, a ratio of $51.205 / 27.906 = \mathbf{1.835\times}$ --- close to, and slightly below,
-the per-step figure, because generation and scoring outside the optimizer loop are shared.
-
-GPU-hours here are \emph{reconstructed} from per-step artifact timestamps rather than read from a
-timing field, because the run metadata's elapsed-time fields are per-process and therefore
-undercount any iteration that crashed and resumed --- in one case by nearly a factor of two. Gaps
-outside a $(0, 3600\,\mathrm{s})$ window are treated as resume gaps and imputed at the phase median,
-so a resumed step is counted once rather than billing days of idle time.
-
-\subsection{The lever's sign is a function of budget}
+\textbf{The multiplier.} Across the settled iterations 3--10 a $\Kf$ optimizer step costs a median
+$\mathbf{1.92\times}$ a $\Kz$ step (range $1.83$--$2.18$; iterations 1--2 ran at a smaller
+look-ahead sub-batch and are excluded). Over the whole run the two arms cost $51.205$ and $27.906$
+GPU-hours --- $\mathbf{1.835\times}$, slightly below the per-step figure because generation
+outside the optimizer loop is shared. GPU-hours are \emph{reconstructed} from per-step artifact
+timestamps rather than read from a timing field, because the metadata's elapsed-time fields are
+per-process and undercount any iteration that crashed and resumed --- in one case by nearly a
+factor of two (Appendix~\ref{app:repro}).
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/budget_sweep.png}
+\includegraphics[width=0.66\textwidth]{figures/budget_sweep.png}
 \caption{Q1+Q2 for each arm's best checkpoint reachable within a given GPU-hour budget. Below
 ${\sim}18$ GPU-hours look-ahead is behind; it draws level near $23$ and is significantly ahead from
-$35$. Source: \texttt{budget\_sweep} (compute/cost family).}
+$35$.}
 \label{fig:budget}
 \end{figure}
 
-Matching on budget rather than iteration reverses the verdict at small budgets and confirms it at
-large ones (Figure~\ref{fig:budget}). At $18.31$ GPU-hours look-ahead is \emph{behind} by $-0.143$
-($\dz\,-0.276$); at $23.21$ it has drawn level ($+0.038$, n.s.); its first Holm-significant win is
-at $35.29$ GPU-hours ($+0.188$, $\dz\,0.310$, $p_{\text{holm}}\,.020$); and at the common $51.20$
-GPU-hour budget it leads by $+0.435$ ($\dz\,0.743$, $p_{\text{holm}}<.001$).
+\textbf{The lever's sign is a function of budget.} Matching on budget rather than iteration
+reverses the verdict at small budgets and confirms it at large ones (Figure~\ref{fig:budget}). At
+$18.31$ GPU-hours look-ahead is \emph{behind} by $-0.143$ ($\dz\,-0.276$); at $23.21$ it has drawn
+level ($+0.038$, n.s.); its first Holm-significant win is at $35.29$ GPU-hours ($+0.188$,
+$\dz\,0.310$, $p_{\text{holm}}\,.020$); and at the common $51.20$ GPU-hour budget it leads by
+$+0.435$ ($\dz\,0.743$, $p_{\text{holm}}<.001$). The practical statement is therefore conditional,
+and we state it that way: \textbf{if the budget is under roughly 20 GPU-hours, spend it on more
+$\Kz$ iterations; past roughly 35, spend it on look-ahead.} A reader who wants a single number
+should take the sweep, not any one rung --- the rungs are not independent, since each compares the
+best checkpoint each arm can reach by that budget.
 
-The practical statement is therefore conditional, and we state it that way: \textbf{if the budget
-is under roughly 20 GPU-hours, spend it on more $\Kz$ iterations; past roughly 35, spend it on
-look-ahead.} A reader who wants a single number should take the sweep, not any one rung --- the
-rungs are not independent, since each compares the best checkpoint each arm can reach by that
-budget.
-
-\subsection{The win survives honest model selection}
-
-Choosing "the best checkpoint" on the same grader that then evaluates it is optimistic. Repeating
-the $51.2$ GPU-hour comparison under all four combinations of selecting grader $\times$ evaluating
-grader --- including the two \emph{honest} cells where selection and evaluation use different
-graders --- look-ahead wins in \textbf{4 of 4}, with $\Delta$ from $0.256$ to $0.435$ and every
-$p_{\text{holm}} < .001$. The lever is not an artifact of checkpoint selection.
-
-The MI-inconsistency advantage survives the budget axis as well. At the same $51.2$ GPU-hour budget
-with checkpoints selected on Q1+Q2, MICI is $0.210$ for $\Kf$ against $0.535$ for $\Kz$
-($\Delta = -0.325$, $\dz\,-1.129$, lower better) --- so look-ahead is not buying reward by
-converting compute into a better-hidden hack. §\ref{sec:behaviour} makes that case from the
-transcripts rather than from the grader.
+\textbf{The win survives honest model selection.} Choosing ``the best checkpoint'' on the same
+grader that then evaluates it is optimistic. Repeating the $51.2$ GPU-hour comparison under all
+four combinations of selecting grader $\times$ evaluating grader --- including the two \emph{honest}
+cells where selection and evaluation use different graders --- look-ahead wins in \textbf{4 of 4},
+with $\Delta$ from $0.256$ to $0.435$ and every $p_{\text{holm}} < .001$. The MI-inconsistency
+advantage survives the budget axis as well: at $51.2$ GPU-hours with checkpoints selected on Q1+Q2,
+MICI is $0.210$ for $\Kf$ against $0.535$ for $\Kz$ ($\dz\,-1.129$, lower better) --- look-ahead is
+not buying reward by converting compute into a better-hidden hack. \S\ref{sec:behaviour} makes that
+case from the transcripts rather than from the grader.

@@ -4,6 +4,11 @@ Every quantitative claim in the draft → the exact tracked artifact it came fro
 are relative to `Exp3_PTO_GRPO/eda/`. **Nothing enters the `.tex` that is not a row here**, and no
 row is written from prose — each was read off the named table or recomputed from the score lake.
 
+*(2026-08-26 ICLR retarget: no number changed. The endpoint-per-instrument table ("Table 1 in
+full" below) moved to Appendix A as `tab:endpoint`; the §-numbers below refer to the same sections
+under the ICLR layout. The old §10/§11 limitations/ethics rows now live in Appendix D and the
+Ethics Statement.)*
+
 **Graders.** `primary` = `gpt-4o-mini` (this WAS the training reward). `held-out` =
 `claude-haiku-4-5` (never touched training). ⚠ **Levels are not comparable across graders** (the
 offset is 1.2–1.7 points and model-dependent) and the two are **never averaged** — only contrasts

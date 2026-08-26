@@ -4,76 +4,59 @@
 A higher score is not by itself evidence of better therapy. The sharpest result in this paper is
 not the size of the gain but \emph{what the two rewards teach the policy to do}.
 
-\subsection{The $\Kz$ policy learns to over-praise}
-
-Under turn-level reward, the \emph{per-turn rate} of MI-inconsistent behaviour rises from $0.211$
-at base to $\mathbf{0.838}$ at iteration 10 ($\dz\,1.717$) --- a $0.838 / 0.211 = 4.0\times$
-increase, over a run whose Q1+Q2 score was at the same time going up. The channel responsible is
-\textbf{over-praise}: unearned affirmation of whatever the patient just said. Under
-trajectory-level reward the same rate reads $0.209 \rightarrow 0.210$ ($\dz\,0.006$, $p = .711$)
---- flat. (Both figures are the training oracle's; see §\ref{sec:behaviour-honest} for the
-held-out judge, which does not read $\Kf$ as flat.)
-
-This is the textbook shape of a reward hack, and the mechanism is legible. Q1 and Q2 ask a
-simulated patient how satisfied they were and how strong the alliance felt. Praising the patient
-raises exactly those ratings \emph{in the turn where it happens}. What it costs --- a session that
-never gets to change talk, a patient who is agreed with rather than moved --- lands several turns
-later, which is precisely the horizon a $K{=}0$ reward cannot see and a $K{=}5$ reward can.
-
-\subsection{The claim does not depend on a grader}
-
-An MI-inconsistency counter is itself produced by an LLM, so the finding above could in principle
-be a grader artifact. It is not. A \textbf{deterministic lexical over-praise marker} --- a keyword
-pattern matched against the transcript with no model in the loop, and therefore \emph{identical
-under both graders} --- gives the share of therapist turns containing at least one such marker. At
-iteration 10 that share is $\mathbf{0.671}$ for $\Kz$ against $\mathbf{0.064}$ for $\Kf$: roughly
-\textbf{two turns in three} carry an over-praise marker under turn-level reward, against
-\textbf{one in sixteen} under trajectory-level reward, a ratio of
-$0.671 / 0.064 = 10.5\times$. The oracle-rated over-praise rate on the same conversations is
-$0.698$ against $0.051$ --- the same story from a completely different instrument. This is the
-load-bearing evidence for the section, and it is the reason the claim is worth making at all.
-(The marker is a deliberately brittle keyword regex, kept as a direction check on the oracle's
-counts rather than as a measurement of over-praise in its own right; it is the \emph{agreement}
-between it and the rated rate that carries the argument, not its absolute value.)
+\textbf{The $\Kz$ policy learns to over-praise.} Under turn-level reward, the per-turn rate of
+MI-inconsistent behaviour rises from $0.211$ at base to $\mathbf{0.838}$ at iteration 10
+($\dz\,1.717$) --- fourfold, over a run whose Q1+Q2 score was simultaneously going up. The channel
+responsible is \textbf{over-praise}: unearned affirmation of whatever the patient just said. Under
+trajectory-level reward the same rate reads $0.209 \rightarrow 0.210$ ($\dz\,0.006$) --- flat.
+(Both figures are the training oracle's; the held-out judge does not read $\Kf$ as flat, and we
+return to that below.) This is the textbook shape of a reward hack, and the mechanism is legible:
+Q1 and Q2 ask a simulated patient how satisfied they were and how strong the alliance felt.
+Praising the patient raises exactly those ratings \emph{in the turn where it happens}; the cost
+--- a session that never gets to change talk, a patient agreed with rather than moved --- lands
+several turns later, precisely the horizon a $K{=}0$ reward cannot see and a $K{=}5$ reward can.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\columnwidth]{figures/overpraise_judgefree.png}
-\caption{Over-praise by iteration, measured three ways. \textbf{Top:} the deterministic lexical
-marker --- the share of therapist turns containing at least one over-praise keyword, computed from
-the transcripts with no model in the loop and therefore identical under both graders.
-\textbf{Middle, bottom:} the oracle-rated rate under the training oracle and the held-out judge.
-The judge-free panel tells the same story as the two rated ones, which is the point: the
-behavioural claim does not rest on an LLM's judgement of an LLM. All four arms are shown; this
-paper's subjects are the two GRPO series.
-Source: \texttt{overpraise\_judgefree} (lookahead/behaviour family).}
+\includegraphics[width=0.6\textwidth]{figures/overpraise_judgefree.png}
+\caption{Over-praise by iteration, three ways. \textbf{Top:} the deterministic lexical marker ---
+the share of therapist turns with at least one over-praise keyword, no model in the loop.
+\textbf{Middle, bottom:} the oracle-rated rate under each grader. The judge-free panel tells the
+same story as the rated ones, which is the point. All four arms of the parent experiment are
+shown; this paper's subjects are the two GRPO series.}
 \label{fig:overpraise}
 \end{figure}
 
-The channel-level contrast is significant late and consistently: over-praise is worse under $\Kz$
-at 6 iterations under the training oracle (5--10) and at 7 under the held-out judge (4--10). The
-onset matches the reward gap's onset in §\ref{sec:reward}, which is what a common cause predicts.
+\textbf{The claim does not depend on a grader.} An MI-inconsistency counter is itself produced by
+an LLM, so the finding above could in principle be a grader artifact. It is not. A
+\textbf{deterministic lexical over-praise marker} --- a keyword pattern matched against the
+transcript with no model in the loop, hence identical under both graders --- gives the share of
+therapist turns containing at least one such marker. At iteration 10 that share is
+$\mathbf{0.671}$ for $\Kz$ against $\mathbf{0.064}$ for $\Kf$: \textbf{two turns in three} against
+\textbf{one in sixteen} ($10.5\times$). The oracle-rated over-praise rate on the same
+conversations is $0.698$ against $0.051$ --- the same story from a completely different instrument
+(Figure~\ref{fig:overpraise}). The marker is a deliberately brittle keyword regex, kept as a
+direction check on the oracle's counts rather than as a measurement in its own right; it is the
+\emph{agreement} between it and the rated rate that carries the argument. The channel-level
+contrast is significant late and consistently --- over-praise is worse under $\Kz$ at 6 iterations
+under the training oracle and 7 under the held-out judge --- and its onset matches the reward
+gap's onset in \S\ref{sec:reward}, which is what a common cause predicts.
 
-\subsection{What look-ahead substitutes in}
+\textbf{What look-ahead substitutes in.} Look-ahead does not merely suppress a behaviour; it
+changes what the policy does with the turn. The $\Kf$ policy asks \textbf{more questions per
+therapist turn}, significantly so at 7 of 10 iterations (4--10, mean $\dz\,0.643$) --- also a
+deterministic text metric, so grader-free. Asking rather than affirming is the direction MI
+training is supposed to move a counsellor, and it is the behavioural counterpart of the MI-SAT and
+MITI gains in Table~\ref{tab:endpoint}.
 
-Look-ahead does not merely suppress a behaviour; it changes what the policy does with the turn. The
-$\Kf$ policy asks \textbf{more questions per therapist turn}, significantly so at 7 of 10
-iterations (iterations 4--10, mean $\dz\,0.643$) --- and this is a deterministic text metric, so it
-too is grader-free. Asking rather than affirming is the direction MI training is supposed to move a
-counsellor, and it is the behavioural counterpart of the MI-SAT and MITI gains in
-Table~\ref{tab:endpoint}.
-
-\subsection{The honest version of this claim}
+\textbf{The honest version of this claim.}
 \label{sec:behaviour-honest}
-
-"Look-ahead prevents the reward hack" is a \textbf{training-oracle statement}, and we do not make
+``Look-ahead prevents the reward hack'' is a \textbf{training-oracle statement}, and we do not make
 it without that qualifier. The held-out judge scores the same $\Kf$ conversations and reads
 MI-inconsistency as rising from $0.326$ to $0.628$ ($\dz\,0.845$) --- real, not flat. What survives
 both graders is the \emph{comparison}: under the held-out judge $\Kf$'s rise is $0.301$ against
-$\Kz$'s $0.666$, i.e.\ $0.301 / 0.666 = 0.45$, under half the rate.
-
-So the defensible sentence, and the one this paper uses, is that trajectory-level reward
-\textbf{slows the drift to under half its turn-level rate and removes its dominant channel
-entirely} --- not that it eliminates it. The two graders disagree about how much MI-inconsistency
-remains at the endpoint, and §\ref{sec:measurement} explains why that disagreement is concentrated
-exactly where it is.
+$\Kz$'s $0.666$, i.e.\ $0.45$ --- under half the rate. So the defensible sentence, and the one this
+paper uses, is that trajectory-level reward \textbf{slows the drift to under half its turn-level
+rate and removes its dominant channel entirely} --- not that it eliminates it. The two graders
+disagree about how much MI-inconsistency remains at the endpoint, and \S\ref{sec:measurement}
+explains why that disagreement is concentrated exactly where it is.

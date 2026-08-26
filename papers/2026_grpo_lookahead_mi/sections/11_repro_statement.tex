@@ -1,0 +1,21 @@
+\section*{Reproducibility Statement}
+
+The two arms are launched from one notebook with one configuration block; the arm identity is
+encoded in the experiment name, which also determines the output directory, so two arms can never
+share a folder. Each arm's full resolved configuration is recorded in a tracked
+\texttt{run\_metadata.json}, and diffing the two files yields exactly two substantive differences
+(the look-ahead depth and its sub-batch mirror) --- Appendix~\ref{app:repro} reproduces the
+configuration in full, together with the anti-degeneracy handling that applies identically in both
+arms and inside the $K{=}5$ rollout. Every model state is scored offline into a partitioned score
+archive keyed by grader $\times$ replicate $\times$ instrument $\times$ model, so an interrupted
+scoring run resumes by skipping completed work and a grader is an ordinary partition key rather
+than a privileged path. All statistics are persona-paired with the pairing recovered by replaying
+the per-iteration persona shuffle (pairing on file order would join unrelated conversations);
+tests, effect sizes, and bootstrap procedures --- including the fixed bootstrap seed that makes
+re-rendered confidence intervals reproduce exactly --- are specified in \S\ref{sec:setup} and
+Appendix~\ref{app:repro}. GPU-hours are reconstructed from per-step artifact timestamps rather
+than from in-process timing fields, for the reasons given in \S\ref{sec:cost}, and the
+reconstruction procedure, its imputation rule, and its recorded imputation counts are described in
+Appendix~\ref{app:repro}. Every number in the paper is traceable to a tracked analysis artifact
+through a claim-to-table ledger maintained alongside the source; figures are copied from that same
+artifact tree by a checked sync script, so the compiled PDF is frozen against later re-renders.
