@@ -719,37 +719,6 @@ def _spearman_brown(split_half: float) -> float:
     return 2.0 * split_half / (1.0 + split_half)
 
 
-def direction_cosine(directions: dict, arm_a: str, arm_b: str,
-                     quality: Optional[pd.DataFrame] = None) -> pd.DataFrame:
-    """Per matched iteration: cosine between two arms' update directions (1 = same target).
-
-    Serves both cross-arm questions with one function — PTO vs GRPO at matched K ("do the two
-    losses pull toward the same language?") and K=0 vs K=5 within a method ("does look-ahead
-    re-aim the update?").
-
-    Pass ``quality`` (a :func:`direction_quality` frame) to also get the **attenuation ceiling**:
-    two noisily-estimated directions cannot correlate to 1 even if they are identical, so a raw
-    cosine of 0.3 means different things at reliability 0.9 and at reliability 0.2. ``ceiling`` =
-    ``sqrt(r_a · r_b)`` with each ``r`` the Spearman-Brown-corrected split-half reliability, and
-    ``cosine_corrected`` = ``cosine / ceiling`` — the same correction
-    :mod:`~eda_analysis.reliability` applies to cross-judge agreement, for the same reason.
-    """
-    da, db = directions.get(arm_a, {}), directions.get(arm_b, {})
-    rel = {}
-    if quality is not None and not quality.empty:
-        rel = {(r.arm, int(r.train_iter)): _spearman_brown(r.split_half_cos)
-               for r in quality.itertuples(index=False)}
-    rows = []
-    for i in sorted(set(da) & set(db)):
-        row = {"train_iter": i, "arm_a": arm_a, "arm_b": arm_b, "cosine": float(da[i] @ db[i])}
-        ra, rb = rel.get((arm_a, i), np.nan), rel.get((arm_b, i), np.nan)
-        ceil = float(np.sqrt(ra * rb)) if np.isfinite(ra) and np.isfinite(rb) else np.nan
-        row["ceiling"] = ceil
-        row["cosine_corrected"] = row["cosine"] / ceil if ceil and np.isfinite(ceil) else np.nan
-        rows.append(row)
-    return pd.DataFrame(rows)
-
-
 def pooled_direction_cosines(directions_by_arm: dict,
                              quality: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """Every arm pair's pooled direction cosine + attenuation ceiling (one row per pair).

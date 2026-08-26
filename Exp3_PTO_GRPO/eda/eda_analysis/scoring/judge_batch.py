@@ -238,22 +238,6 @@ def poll_batches(judge: "_judge.JudgeSpec", *, rep: Optional[int] = None) -> pd.
     return pd.DataFrame(rows)
 
 
-def wait_for_batches(judge: "_judge.JudgeSpec", *, rep: Optional[int] = None,
-                     poll_seconds: int = 300, max_hours: float = 26.0) -> pd.DataFrame:
-    """Block until every batch has ended (or ``max_hours`` elapses). Optional convenience — the
-    three-phase design means you can just as well close the notebook and call
-    :func:`collect_batches` later."""
-    deadline = time.time() + max_hours * 3600
-    while time.time() < deadline:
-        tab = poll_batches(judge, rep=rep)
-        if tab.empty or (tab["status"] == "ended").all():
-            return tab
-        pending = int((tab["status"] != "ended").sum())
-        print(f"[judge_batch] {pending} batch(es) still running; sleeping {poll_seconds}s")
-        time.sleep(poll_seconds)
-    return poll_batches(judge, rep=rep)
-
-
 # ── phase 3: collect ──────────────────────────────────────────────────────────
 
 def collect_batches(judge: "_judge.JudgeSpec", *, rep: Optional[int] = None,
@@ -426,9 +410,3 @@ async def probe_usage(judge: "_judge.JudgeSpec", combined_data: pd.DataFrame,
     return _plan.UsageProfile(input_tokens=tot_in / n, output_tokens=tot_out / n,
                               cached_input_tokens=tot_cached / n,
                               source=f"measured ({judge.model})", n_samples=n)
-
-
-def probe_usage_sync(judge, combined_data, questionnaire_names, *, n_per_metric: int = 2):
-    """Notebook-friendly wrapper around :func:`probe_usage`."""
-    return asyncio.get_event_loop().run_until_complete(
-        probe_usage(judge, combined_data, questionnaire_names, n_per_metric=n_per_metric))

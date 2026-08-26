@@ -40,6 +40,9 @@ _Each subfamily below is written by `notebooks/lookahead/<sub>.ipynb`; the famil
 **Number ledgers** — `tables/`
 - `k_numbers.json` — Number ledger for lookahead/reward: every quotable cell of the paired K contrast (k.*, base_vs_base.*, summary.*), the Q1+Q2 levels (level.*), the K x method DiD (did.*), the method gap at each K (method_gap.*) and the endpoint contrasts (endpoint.*), each with its producing frame + row as `source`; `conventions` restates sign (+ => K=0 higher), pairing (persona_id, n = 96), Holm family, the +/-0.10 band, iteration 0 = two independent base draws, and how far each arm's support runs — `conventions.censoring` is DERIVED from the levels frame by constants.support_note, so it names an arm only when that arm genuinely stops before the others and otherwise falls back to the neutral read-the-iteration-column legend. Reproduces the paper's k_contrast_headline.json (rubric keys) + the did/method_gap/endpoint keys of cross_k_multijudge.json (CI bounds to bootstrap noise).
 
+**Workbooks (one sheet per table)** — `tables/`
+- `reward.xlsx`
+
 ## lookahead/transfer
 
 **Figures** — `figures/`
@@ -53,6 +56,9 @@ _Each subfamily below is written by `notebooks/lookahead/<sub>.ipynb`; the famil
 
 **Number ledgers** — `tables/`
 - `transfer_numbers.json` — **Number ledger for the transfer family** — every cell of `k_pairs` (kcontrast.*), `k_sign_ladder` (ladder.*), `k_retention` (retention.*) and `k_retention_summary` (retention_summary.*), as `{value, source, note}` records keyed like the paper's cross_k_multijudge.json. Sign: + => K=0 higher; MICI lower-better. Paired on persona_id (the trainer reshuffles the 96 personas every iteration; file_index is not a pairing key). Support: each arm's rows run to its own last scored iteration, which can differ by grader; every table's iteration column is the record of where they stop.
+
+**Workbooks (one sheet per table)** — `tables/`
+- `transfer.xlsx`
 
 ## lookahead/behaviour
 
@@ -99,7 +105,10 @@ _Each subfamily below is written by `notebooks/lookahead/<sub>.ipynb`; the famil
 **Number ledgers** — `tables/`
 - `instruments_numbers.json` — Number ledger for the held-out instruments (both graders): endpoints / matched endpoints / own-oracle best iterations, the WAI-SR endpoint levels + gains and their K contrast (wai.*), the change-talk K contrast (pct.*), the Q2 item profile (q2.*), the cooperation-stratum K contrast + ceiling shares (hetero.*), the WAI subscale-map parity check and the two anchor crosschecks. Sign + => K=0 higher; paired on persona_id. An arm's scored support can be grader-dependent; the endpoint columns (target_iter / iter_K0 / iter_K5 / @N) name the iteration each row actually read. Reproduces the paper's held_out_instruments.json key-for-key (values rounded to 3 decimals; CI bounds to bootstrap noise).
 - `k_channels_numbers.json` — Number ledger for the behaviour-channel K contrast: channel.<method>.<channel>.iter<n>.<judge> (the three headline channels of k_channels_grid, both graders), channel_text.<method>.<channel>.iter<n> (judge-invariant text channels) and channel_summary.<method>.<channel>.<judge>, each with its producing frame + row as `source`; `conventions` restates sign (+ => K=0 higher), pairing (persona_id, n = 96), Holm family, iteration 0 = two independent base draws and the support each key was read on (every key's iteration is the one its source row actually carries). The rubric keys of the same paper ledger (k_contrast_headline.json) live in lookahead/reward/tables/k_numbers.json.
-- `replication_numbers.json` — Number ledger for the session-shape part of the replication family: shape.<method>.<metric>.iter<n> (persona-paired K0 - K5, + => K=0 higher, n = 96), levels.<arm> (base -> final on all five shape metrics), length_endpoint.<method>.iter<n>.<metric> (the endpoint K contrast) and selection.<arm>.* (lexical push + pool means, copied from the preference tables). Sources name the table + row in this family. The dispersion / ceiling part of the same paper ledger (session_shape_stability.json sd.* / sd_bf.* / ceiling.*) lives in lookahead/replication/tables/replication_numbers.json.
+- `shape_numbers.json` — Number ledger for the session-shape part of this family (named shape_numbers 2026-08-26; was replication_numbers, a same-name different-content twin of the replication family's ledger): shape.<method>.<metric>.iter<n> (persona-paired K0 - K5, + => K=0 higher, n = 96), levels.<arm> (base -> final on all five shape metrics), length_endpoint.<method>.iter<n>.<metric> (the endpoint K contrast) and selection.<arm>.* (lexical push + pool means, copied from the preference tables). Sources name the table + row in this family. The dispersion / ceiling part of the same paper ledger (session_shape_stability.json sd.* / sd_bf.* / ceiling.*) lives in lookahead/replication/tables/replication_numbers.json.
+
+**Workbooks (one sheet per table)** — `tables/`
+- `behaviour.xlsx`
 
 ## lookahead/mechanism
 
@@ -142,6 +151,9 @@ _Each subfamily below is written by `notebooks/lookahead/<sub>.ipynb`; the famil
 - `faithfulness_numbers.json` — **Number ledger for reward faithfulness (section 3)** — headline bins of `faithfulness_curve_long` (curve.*), `faithfulness_k_by_iter` (k_by_iter.*), `faithfulness_curve_by_iter` (by_iter.*), `faithfulness_k_summary` (k_summary.*), `faithfulness_matched_policy[_tests]` (matched_policy*.*), `faithfulness_by_coop` incl. the within-stratum K deltas (by_coop.*), `faithfulness_levels[_rho]` (levels*.*), the bootstrap spec, the caveats and the self-check against stats.rank_agreement_by_nturns, as `{value, source, note}` records keyed like the paper's reward_faithfulness.json (grader keys primary / heldout). K-contrast sign: delta = K0 - K5 (+ => K=0 higher; a NEGATIVE delta means look-ahead is more faithful). Proxy = the training oracle (gpt-4o-mini) by construction; eval side under the grader named in the table (primary = gpt-4o-mini, held-out = Claude Haiku 4.5). Never averaged across graders. Support: each arm's branch rows run to its own last training iteration on disk and its eval side to the last state that grader scored, so the support is derived per grader - the `iters` label on each row states the train_iter range actually pooled.
 - `tails_numbers.json` — **Number ledger for the tail audit (section 4)** — row-filter counts (rows.*), the scout anchor (scout_check.*: GRPO_LA5 iter 5, first 300 groups), every cell of `tail_audit_by_iter` (by_iter.*), `tail_within_group` (within_group.*), `tail_cues_by_iter` (cues.*) and the pooled rows of `tail_score_by_realized_turns` (score_by_realized_turns.*), plus the API-call accounting keys (api.*, api_ratio.*, api_totals.*) whose tables render in compute/cost, as `{value, source, note}` records keyed like the paper's tail_audit.json. Sign of within_group deltas: + => ended-early candidates score higher. Pairing unit = the GROUP: the M=8 (PTO) / G=8 (GRPO) candidates the policy sampled at one branch point, keyed (arm, train_iter, conversation_id, branch_id, epoch) — PTO's branch_id is the trunk depth, so conversation_id is required. Support: each arm's training rows run to its own last iteration on disk and its scored rows to the last state that grader scored - read an arm's endpoint off the table's own iteration column. Grader: the training oracle (gpt-4o-mini).
 
+**Workbooks (one sheet per table)** — `tables/`
+- `mechanism.xlsx`
+
 ## lookahead/replication
 
 **Figures** — `figures/`
@@ -165,3 +177,6 @@ _Each subfamily below is written by `notebooks/lookahead/<sub>.ipynb`; the famil
 **Number ledgers** — `tables/`
 - `crossgen_numbers.json` — Number ledger for the cross-generation link (Exp1 under two graders): pairing/crosscheck, levels per model state, K contrast per iteration and its summaries, grader agreement, vs-Base, the K=3 status, and the per-grader verdict. Sign: delta = K0 - K5, + => K=0 higher; pairing on conversation index; no censoring.
 - `replication_numbers.json` — Number ledger for the ICLR-stability replication on Exp3: per arm x iteration dispersion (sd.*), the K0-vs-K5 variance tests (sd_bf.*), their tally (sd_tally.*), the lowest-SD summary (sd_summary.*) and the ceiling check (ceiling.*), both graders (never averaged). Sign: + => K=0 higher / more dispersed; pairing on persona_id; each arm's rows run to its own last scored iteration (read it off the iteration column).
+
+**Workbooks (one sheet per table)** — `tables/`
+- `replication.xlsx`

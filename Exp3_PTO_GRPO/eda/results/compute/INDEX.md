@@ -36,3 +36,6 @@ _Each subfamily below is written by `notebooks/compute/<sub>.ipynb`; the family 
 
 **Number ledgers** — `tables/`
 - `compute_numbers.json` — Number ledger for the compute axis: cost ratios with their arithmetic (ratio.*, ratio_floor.*), per-arm and per-iteration GPU-hours (by_arm.*, by_iteration.*), step multipliers (step_multiplier.*), every budget-sweep row and top-of-sweep verdict (sweep.*, sweep_top.*), cross-judge verdicts (crossjudge*.*), channels at matched compute and at the deployed checkpoints (iso_channels*.*), the API-call rows / K5-over-K0 ratios / per-arm totals (api.*, api_ratio.*, api_totals.*), the figures and the caveats - each key citing the table it was read from. K contrasts: mean_delta = K5 - K0 with delta_K0_minus_K5 beside it; method contrasts + => PTO higher; persona-paired n = 96; equal iteration counts are NOT equal budgets - how far each arm ran and what it cost is in the meta.censoring key, DERIVED from the frame rather than asserted here.
+
+**Workbooks (one sheet per table)** — `tables/`
+- `cost.xlsx`

@@ -561,13 +561,12 @@ quoted bare; the three-way flip is worked out in [`../LIMITATIONS.md`](../LIMITA
 - **One training run per arm.** Run-to-run training variance is entirely unmeasured, which matters
   most for `GRPO_LA0`, whose trajectory is the least monotone of the four
   ([`../LIMITATIONS.md`](../LIMITATIONS.md) §5g).
-- ⚠ **The rendered `CAPTIONS.md` files in this top are staler than the tables they describe.** Several
-  still carry right-censoring boilerplate for `GRPO_LA5`, and two hard-code the old endpoint outright:
-  `reward/figures/CAPTIONS.md` says the K=5 lines stop at "(PTO 10, GRPO 5 …)", and
-  `reward/tables/CAPTIONS.md` glosses `k_table1`'s em-dash as "no matched K=5 model state (GRPO after
-  5)". Both are false of the current tables, which run all four arms to iteration 10. Those caption
-  strings are hand-written in `notebooks/lookahead/*.ipynb` and in the `eda_analysis` modules and need
-  a separate pass; **trust the table, not its caption, on where an arm stops.**
+- ✅ *(Resolved 2026-08-25 — kept so the warning's history is visible.)* This file warned that the
+  rendered `CAPTIONS.md` in this top still carried right-censoring boilerplate for `GRPO_LA5`
+  ("(PTO 10, GRPO 5 …)", "no matched K=5 model state (GRPO after 5)"). The tree-wide caption purge
+  later the same day (see STATUS.md) removed every such string — support is now DERIVED per render
+  (`constants.support_note`), so a caption can no longer hard-code where an arm stops. Verified by
+  grep on 2026-08-26: no `CAPTIONS.md` under this top asserts censoring.
 - **Bootstrap seeds.** The promoted modules seed with `constants.BOOT_SEED`; the paper generators used
   other seeds, so CI *bounds* in the rendered tables differ from the paper's frozen tables at
   Monte-Carlo scale (≤ ~0.02 on the rubric scale; one or two `judge_ci_excl0` flags flip in

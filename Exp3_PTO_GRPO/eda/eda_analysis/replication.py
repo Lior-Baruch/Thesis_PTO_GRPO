@@ -496,8 +496,8 @@ def selection_table(source_dir: Union[None, str, Sequence[str]] = None) -> pd.Da
     """Selection-level lexical push and generation-pool means per arm x training iteration —
     COPIED, not recomputed, from the tracked preference tables ``update_lexical_push.md`` and
     ``generation_pool_means.md`` found in ``source_dir`` (one directory or several; default
-    :func:`default_selection_dirs` — the old ``results/{L0,L5}/tables/6_preference/gpt-4o-mini/``
-    pair; TODO flip the default to ``results/arms/preference/tables/gpt-4o-mini/`` after Phase C).
+    :func:`default_selection_dirs` = ``results/arms/preference/tables/gpt-4o-mini/`` — the reason
+    ``config.FAMILY_READS`` declares ``lookahead/behaviour`` as a reader of ``arms/preference``).
 
     ``w_<feature>`` = the lexical contrast the update pushes for, Sum(w * feature) per group +/- SE
     over groups, on a shared scale for both methods (DPO's +/-1 pair; GRPO's standardized advantages

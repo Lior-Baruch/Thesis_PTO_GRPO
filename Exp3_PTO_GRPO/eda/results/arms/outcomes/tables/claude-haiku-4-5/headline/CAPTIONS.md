@@ -1,1 +1,0 @@
-- **leaderboard_scorecard** — Scorecard (final + best) — headline copy; canonical: arms/outcomes/tables/<judge>/leaderboard_scorecard.md. Final AND best iteration per arm (target column) on claude-haiku-4-5: every evaluation metric side by side (means over 96 personas; MICI lower-is-better, flagged ↓; best = peak Q1+Q2 (own training rubric) under claude-haiku-4-5). 

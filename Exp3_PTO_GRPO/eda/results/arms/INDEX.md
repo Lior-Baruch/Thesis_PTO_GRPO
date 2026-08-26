@@ -12,12 +12,7 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `effect_vs_base_forest_final.png` — Improvement vs own base (Δ + 95% bootstrap CI) per arm x rubric at each arm's FINAL iteration, full-conv eval on claude-haiku-4-5; persona-paired (96 pairs), dot color = effect-size label, dz annotated; MICI ↓ rows valence-inverted (red = worse). 
 - `outcomes_by_model_best.png` — Each of the four arms at its best iteration (peak Q1+Q2 (own training rubric) under claude-haiku-4-5) x metrics on claude-haiku-4-5; mean +/- 95% CI over 96 personas (the arm-bases pooled into Base; dotted line = base; MICI lower-is-better). 
 - `outcomes_by_model_final.png` — Each of the four arms at its final iteration x metrics on claude-haiku-4-5; mean +/- 95% CI over 96 personas (the arm-bases pooled into Base; dotted line = base; MICI lower-is-better). 
-- `trajectories_all_metrics.png` — Full-conv eval on claude-haiku-4-5: per-metric mean +/- 95% CI across iterations, all four arms overlaid (all 9 evaluation metrics; MICI is lower-is-better). N=96 personas per model state; 
-
-**Figures** — `figures/claude-haiku-4-5/headline/`
-- `effect_vs_base_forest_best.png` — Effect vs base at each arm's BEST iteration (peak Q1+Q2 (own training rubric) under claude-haiku-4-5) — headline copy; canonical: arms/outcomes/figures/<judge>/effect_vs_base_forest_best.png. Improvement vs own base (Δ + 95% bootstrap CI) per arm x rubric at each arm's BEST iteration (peak Q1+Q2 (own training rubric) under claude-haiku-4-5), full-conv eval on claude-haiku-4-5; persona-paired (96 pairs), dot color = effect-size label, dz annotated; MICI ↓ rows valence-inverted (red = worse). 
-- `effect_vs_base_forest_final.png` — Effect vs base at each arm's FINAL iteration — headline copy; canonical: arms/outcomes/figures/<judge>/effect_vs_base_forest_final.png. Improvement vs own base (Δ + 95% bootstrap CI) per arm x rubric at each arm's FINAL iteration, full-conv eval on claude-haiku-4-5; persona-paired (96 pairs), dot color = effect-size label, dz annotated; MICI ↓ rows valence-inverted (red = worse). 
-- `trajectories_all_metrics.png` — THE main figure — headline copy; canonical: arms/outcomes/figures/<judge>/trajectories_all_metrics.png. Full-conv eval on claude-haiku-4-5: per-metric mean +/- 95% CI across iterations, all four arms overlaid (all 9 evaluation metrics; MICI is lower-is-better). N=96 personas per model state; 
+- `trajectories_all_metrics.png` — THE main per-arm figure. Full-conv eval on claude-haiku-4-5: per-metric mean +/- 95% CI across iterations, all four arms overlaid (all 9 evaluation metrics; MICI is lower-is-better). N=96 personas per model state; 
 
 **Figures** — `figures/claude-haiku-4-5/trajectories/`
 - `trajectory_CSQ-8.png` — CSQ-8 (Client Satisfaction) across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
@@ -35,12 +30,7 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `effect_vs_base_forest_final.png` — Improvement vs own base (Δ + 95% bootstrap CI) per arm x rubric at each arm's FINAL iteration, full-conv eval on gpt-4o-mini; persona-paired (96 pairs), dot color = effect-size label, dz annotated; MICI ↓ rows valence-inverted (red = worse). 
 - `outcomes_by_model_best.png` — Each of the four arms at its best iteration (peak Q1+Q2 (own training rubric) under gpt-4o-mini) x metrics on gpt-4o-mini; mean +/- 95% CI over 96 personas (the arm-bases pooled into Base; dotted line = base; MICI lower-is-better). 
 - `outcomes_by_model_final.png` — Each of the four arms at its final iteration x metrics on gpt-4o-mini; mean +/- 95% CI over 96 personas (the arm-bases pooled into Base; dotted line = base; MICI lower-is-better). 
-- `trajectories_all_metrics.png` — Full-conv eval on gpt-4o-mini: per-metric mean +/- 95% CI across iterations, all four arms overlaid (all 9 evaluation metrics; MICI is lower-is-better). N=96 personas per model state; 
-
-**Figures** — `figures/gpt-4o-mini/headline/`
-- `effect_vs_base_forest_best.png` — Effect vs base at each arm's BEST iteration (peak Q1+Q2 (own training rubric) under gpt-4o-mini) — headline copy; canonical: arms/outcomes/figures/<judge>/effect_vs_base_forest_best.png. Improvement vs own base (Δ + 95% bootstrap CI) per arm x rubric at each arm's BEST iteration (peak Q1+Q2 (own training rubric) under gpt-4o-mini), full-conv eval on gpt-4o-mini; persona-paired (96 pairs), dot color = effect-size label, dz annotated; MICI ↓ rows valence-inverted (red = worse). 
-- `effect_vs_base_forest_final.png` — Effect vs base at each arm's FINAL iteration — headline copy; canonical: arms/outcomes/figures/<judge>/effect_vs_base_forest_final.png. Improvement vs own base (Δ + 95% bootstrap CI) per arm x rubric at each arm's FINAL iteration, full-conv eval on gpt-4o-mini; persona-paired (96 pairs), dot color = effect-size label, dz annotated; MICI ↓ rows valence-inverted (red = worse). 
-- `trajectories_all_metrics.png` — THE main figure — headline copy; canonical: arms/outcomes/figures/<judge>/trajectories_all_metrics.png. Full-conv eval on gpt-4o-mini: per-metric mean +/- 95% CI across iterations, all four arms overlaid (all 9 evaluation metrics; MICI is lower-is-better). N=96 personas per model state; 
+- `trajectories_all_metrics.png` — THE main per-arm figure. Full-conv eval on gpt-4o-mini: per-metric mean +/- 95% CI across iterations, all four arms overlaid (all 9 evaluation metrics; MICI is lower-is-better). N=96 personas per model state; 
 
 **Figures** — `figures/gpt-4o-mini/trajectories/`
 - `trajectory_CSQ-8.png` — CSQ-8 (Client Satisfaction) across iterations per arm on gpt-4o-mini (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
@@ -56,20 +46,20 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 **Tables** — `tables/claude-haiku-4-5/`
 - `leaderboard_scorecard.md` — Final AND best iteration per arm (target column) on claude-haiku-4-5: every evaluation metric side by side (means over 96 personas; MICI lower-is-better, flagged ↓; best = peak Q1+Q2 (own training rubric) under claude-haiku-4-5). 
 
-**Tables** — `tables/claude-haiku-4-5/headline/`
-- `leaderboard_scorecard.md` — Scorecard (final + best) — headline copy; canonical: arms/outcomes/tables/<judge>/leaderboard_scorecard.md. Final AND best iteration per arm (target column) on claude-haiku-4-5: every evaluation metric side by side (means over 96 personas; MICI lower-is-better, flagged ↓; best = peak Q1+Q2 (own training rubric) under claude-haiku-4-5). 
-
 **Tables** — `tables/gpt-4o-mini/`
 - `leaderboard_scorecard.md` — Final AND best iteration per arm (target column) on gpt-4o-mini: every evaluation metric side by side (means over 96 personas; MICI lower-is-better, flagged ↓; best = peak Q1+Q2 (own training rubric) under gpt-4o-mini). 
-
-**Tables** — `tables/gpt-4o-mini/headline/`
-- `leaderboard_scorecard.md` — Scorecard (final + best) — headline copy; canonical: arms/outcomes/tables/<judge>/leaderboard_scorecard.md. Final AND best iteration per arm (target column) on gpt-4o-mini: every evaluation metric side by side (means over 96 personas; MICI lower-is-better, flagged ↓; best = peak Q1+Q2 (own training rubric) under gpt-4o-mini). 
 
 **Number ledgers** — `tables/claude-haiku-4-5/`
 - `outcomes_numbers.json` — Ledger of the scorecard cells (keys <target>.<arm>.<metric>; best = peak Q1+Q2 (own training rubric) under claude-haiku-4-5) on claude-haiku-4-5; 
 
 **Number ledgers** — `tables/gpt-4o-mini/`
 - `outcomes_numbers.json` — Ledger of the scorecard cells (keys <target>.<arm>.<metric>; best = peak Q1+Q2 (own training rubric) under gpt-4o-mini) on gpt-4o-mini; 
+
+**Workbooks (one sheet per table)** — `tables/claude-haiku-4-5/`
+- `outcomes.xlsx`
+
+**Workbooks (one sheet per table)** — `tables/gpt-4o-mini/`
+- `outcomes.xlsx`
 
 ## arms/questionnaires
 
@@ -217,6 +207,12 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `q2_item_deltas.md` — Per (arm, Q2 item): base / target means + Delta at the final AND best iteration (target column), all four arms. Delta = target-iteration mean minus that arm's own iteration-0 (base) mean, a difference of arm means over the same 96 personas (not a persona-paired contrast); + = higher item score. grader: gpt-4o-mini (primary oracle = the training reward). All arms run to the same last scored iteration under gpt-4o-mini.
 - `wai_item_deltas.md` — Per (arm, WAI-SR item): base / target means + Delta at the final AND best iteration (target column), all four arms. Delta = target-iteration mean minus that arm's own iteration-0 (base) mean, a difference of arm means over the same 96 personas (not a persona-paired contrast); + = higher item score. grader: gpt-4o-mini (primary oracle = the training reward). All arms run to the same last scored iteration under gpt-4o-mini.
 
+**Workbooks (one sheet per table)** — `tables/claude-haiku-4-5/`
+- `questionnaires.xlsx`
+
+**Workbooks (one sheet per table)** — `tables/gpt-4o-mini/`
+- `questionnaires.xlsx`
+
 ## arms/validity
 
 **Figures** — `figures/claude-haiku-4-5/`
@@ -228,9 +224,6 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `rubric_correlation.png` — Spearman correlation among all evaluation metrics (per conversation, pooled over every iteration of all four arms; grader claude-haiku-4-5 (held-out judge)). The global-eval (halo) rubrics block together and PCT blocks WITH them (rho 0.66-0.91 vs the 5 halo rubrics under this grader), while MICI + the MITI ratios R:Q/%CR/%MICO form the genuine second family.
 - `session_shape.png` — Deterministic text metrics per (arm, iteration), all four arms: mean therapist-turn length, literal '?' marks/turn, degeneration fraction (loop), conversation length. The '?' panel is the pooled headline only — its incidence/stacking/density decomposition is the question_decomposition figure in 3b. No oracle involved (judge-invariant by construction) — the load-bearing reward-hack evidence. Per-iteration arm means over the 96 conversations (one point per arm x iteration, no CI band). Deterministic (read off the transcripts), so the range is where CONVERSATIONS exist, not where scores do: every arm has conversations to the same iteration.
 
-**Figures** — `figures/claude-haiku-4-5/headline/`
-- `reward_hack_panel.png` — The reward-hack in one frame — headline copy; canonical: arms/validity/figures/<judge>/reward_hack_panel.png.
-
 **Figures** — `figures/gpt-4o-mini/`
 - `factor_loadings.png` — Each metric's PCA loading (pooled over all four arms and every iteration; grader gpt-4o-mini (primary oracle = the training reward)): the 5 global-eval (halo) rubrics load high on PC1 (one shared factor) and PCT loads high WITH them (Spearman rho 0.79-0.93 vs the halo rubrics under this grader); only the MITI ratios R:Q/%CR/%MICO and MICI load ~0 on PC1 and define PC2.
 - `overpraise_crosscheck.png` — Per-(arm, iteration) deterministic lexical over-praise marker rate vs the oracle-coded MICI over-praise rate (grader gpt-4o-mini (primary oracle = the training reward)), all four arms, pooled Spearman rho in the title — a directional sanity-check on the demoted regex.
@@ -239,9 +232,6 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `reward_hack_panel.png` — Twin-axis per arm (all four arms; grader gpt-4o-mini (primary oracle = the training reward)): the global-eval reward proxy Q1+Q2 (left, 1-5) rises while MI-Inconsistency (right, higher=worse) rises with it and Patient Change-Talk (right, the actual MI goal) stays ~flat — 'all rubrics up' is not multi-skill. Per-iteration arm means over 96 personas, no CI band. 
 - `rubric_correlation.png` — Spearman correlation among all evaluation metrics (per conversation, pooled over every iteration of all four arms; grader gpt-4o-mini (primary oracle = the training reward)). The global-eval (halo) rubrics block together and PCT blocks WITH them (rho 0.79-0.93 vs the 5 halo rubrics under this grader), while MICI + the MITI ratios R:Q/%CR/%MICO form the genuine second family.
 - `session_shape.png` — Deterministic text metrics per (arm, iteration), all four arms: mean therapist-turn length, literal '?' marks/turn, degeneration fraction (loop), conversation length. The '?' panel is the pooled headline only — its incidence/stacking/density decomposition is the question_decomposition figure in 3b. No oracle involved (judge-invariant by construction) — the load-bearing reward-hack evidence. Per-iteration arm means over the 96 conversations (one point per arm x iteration, no CI band). Deterministic (read off the transcripts), so the range is where CONVERSATIONS exist, not where scores do: every arm has conversations to the same iteration.
-
-**Figures** — `figures/gpt-4o-mini/headline/`
-- `reward_hack_panel.png` — The reward-hack in one frame — headline copy; canonical: arms/validity/figures/<judge>/reward_hack_panel.png.
 
 **Tables** — `tables/claude-haiku-4-5/`
 - `grpo_iter9_check.md` — GRPO_LA0 iter-9 anomaly (grader claude-haiku-4-5 (held-out judge)): persona-paired deltas it8->9, it9->10, it8->10 on Q1+Q2/MITI/WAI-SR (contrast label hi-lo, so + = later iteration higher; N=96 personas paired on persona_id across the per-iteration shuffle). A significant negative it9-it8 followed by a positive it10-it9 = a one-iteration dip (eval-noise or transient policy state), distinct from the monotonic Q1+Q2 reward-hack regression. Holm scope: p_holm is corrected across the 3 metrics WITHIN each contrast.
@@ -258,6 +248,12 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `rubric_pca_expanded.md` — PCA over the EXPANDED metric set (the 5 global-eval halo rubrics + PCT, MICI and the free MITI ratios R:Q/%CR/%MICO), standardized, per conversation, pooled over every iteration: PC1/PC2 variance share + PC1 loadings, pooled over all four arms and per arm; the `POOLED_halo_only` row is the 5-rubric reference (~91%). Grader gpt-4o-mini (primary oracle = the training reward). The pooled-vs-halo-only drop is partly mechanical (more, less-correlated columns) — read as 'a second dimension exists', not as an effect size. The default-metric PC1 table lives in arms/stats (rubric_pca_pc1).
 - `session_end_reasons.md` — How sessions terminate per arm, all four arms (count of conversations by session_ended_by, pooled over every iteration with conversations on disk; `nan` = the session ran to the turn cap with no explicit end) — degeneration health-check. Judge-invariant (read off the transcripts). Each arm contributes 96 conversations per iteration it covers. Deterministic (read off the transcripts), so the range is where CONVERSATIONS exist, not where scores do: every arm has conversations to the same iteration.
 - `session_shape_by_iter.md` — Mean deterministic text metrics per (arm, iteration), all four arms: turn length (chars), the four '?'-question columns (marks/turn, share of turns asking, marks per asking turn, marks/sentence) with sentences/turn as the moving denominator, loop fraction, conversation length (utterances), therapist turns. No oracle — identical under every judge. Deterministic (read off the transcripts), so the range is where CONVERSATIONS exist, not where scores do: every arm has conversations to the same iteration.
+
+**Workbooks (one sheet per table)** — `tables/claude-haiku-4-5/`
+- `validity.xlsx`
+
+**Workbooks (one sheet per table)** — `tables/gpt-4o-mini/`
+- `validity.xlsx`
 
 ## arms/heterogeneity
 
@@ -329,6 +325,12 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `subgroup_endpoint_means_cooperation_level.md` — [gpt-4o-mini; primary oracle = the training reward] The numbers behind the subgroup_endpoint_cooperation_level_* bars, for every metric: mean / sd / sem / n per (metric, target ∈ {final, best}, arm, cooperation_level category) at the arm's target iteration, plus the arm's OWN iteration-0 mean for that category (base_mean) and delta_vs_base = mean − base_mean (⇒ trained model higher; for MICI ↓ negative = improvement). Best = peak Q1+Q2 (own training rubric) under gpt-4o-mini (GRPO_LA0 = iter 8, GRPO_LA5 = iter 10, PTO_LA0 = iter 10, PTO_LA5 = iter 10); final = last scored iteration (GRPO_LA0 = iter 10, GRPO_LA5 = iter 10, PTO_LA0 = iter 10, PTO_LA5 = iter 10). Higher = better for every rubric except MICI (↓, lower = better). Unit = the 96 conversations of one model state, split by the true persona trait (categories are disjoint persona subsets, no pairing); mean per category with a 95% bootstrap CI (seed BOOT_SEED).
 - `subgroup_endpoint_means_problem.md` — [gpt-4o-mini; primary oracle = the training reward] The numbers behind the subgroup_endpoint_problem_* bars, for every metric: mean / sd / sem / n per (metric, target ∈ {final, best}, arm, problem category) at the arm's target iteration, plus the arm's OWN iteration-0 mean for that category (base_mean) and delta_vs_base = mean − base_mean (⇒ trained model higher; for MICI ↓ negative = improvement). Best = peak Q1+Q2 (own training rubric) under gpt-4o-mini (GRPO_LA0 = iter 8, GRPO_LA5 = iter 10, PTO_LA0 = iter 10, PTO_LA5 = iter 10); final = last scored iteration (GRPO_LA0 = iter 10, GRPO_LA5 = iter 10, PTO_LA0 = iter 10, PTO_LA5 = iter 10). Higher = better for every rubric except MICI (↓, lower = better). Unit = the 96 conversations of one model state, split by the true persona trait (categories are disjoint persona subsets, no pairing); mean per category with a 95% bootstrap CI (seed BOOT_SEED).
 
+**Workbooks (one sheet per table)** — `tables/claude-haiku-4-5/`
+- `heterogeneity.xlsx`
+
+**Workbooks (one sheet per table)** — `tables/gpt-4o-mini/`
+- `heterogeneity.xlsx`
+
 ## arms/training
 
 **Figures** — `figures/claude-haiku-4-5/`
@@ -374,6 +376,12 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 **Number ledgers** — `tables/gpt-4o-mini/`
 - `training_numbers.json` — Number ledger for arms/training: per-arm anchors -- decisiveness means (§2), degeneration maxima (§3), rank agreement at the shortest/longest scored cut (§4) and mean proxy-eval gap (§5); eval side graded by gpt-4o-mini, training side always the training oracle gpt-4o-mini (§2/§3 keys present only under the primary leaf). 
 
+**Workbooks (one sheet per table)** — `tables/claude-haiku-4-5/`
+- `training.xlsx`
+
+**Workbooks (one sheet per table)** — `tables/gpt-4o-mini/`
+- `training.xlsx`
+
 ## arms/preference
 
 **Figures** — `figures/gpt-4o-mini/`
@@ -418,6 +426,9 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 **Number ledgers** — `tables/gpt-4o-mini/`
 - `preference_numbers.json` — Number ledger for arms/preference: per-arm pooled probe audit (wins_holdout, split_half_cos), attenuation-corrected cosines between the arms' pooled update directions, the as-trained PTO-vs-GRPO decomposition cosine per K, the pairs.csv sanity cosine, and the training-signal yield anchors. Training side only (training oracle gpt-4o-mini (partial-conv candidate rewards; not judge-swappable)); primary leaf only. 
 
+**Workbooks (one sheet per table)** — `tables/gpt-4o-mini/`
+- `preference.xlsx`
+
 ## arms/stats
 
 **Tables** — `tables/claude-haiku-4-5/`
@@ -433,3 +444,9 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb` and rendered on
 - `rubric_pca_pc1.md` — Variance explained by PC1 of the standardized rubric scores per arm (canonical 10-metric factor space, pooled over every conversation x iteration of the arm), all four arms; grader = gpt-4o-mini (primary oracle = the training reward). A dominant PC1 => the rubrics ~ one latent factor, so 'every metric up' is weak evidence of multi-skill gain. Unit = conversation; no pairing, no sign. 
 - `slope_by_arm.md` — Per-iteration OLS slope + Spearman rho per arm x metric (climb rate; peak_iter vs final_iter flags a post-peak regression), all four arms; grader = gpt-4o-mini (primary oracle = the training reward). Pooled persona x iteration rows (unit = conversation), so NO p is reported -- descriptive; the repeated-measures omnibus is friedman_omnibus. + slope => the metric climbs with iteration (MICI is lower-better, so + is worse there).  Thin arms dropped.
 - `vs_base_paired.md` — Each arm x iteration vs its OWN base on Q1+Q2 -- one merged table (column `arm`), all four arms; grader = gpt-4o-mini (primary oracle = the training reward). persona-paired (persona_id, N=96 shared personas; never file_index): mean_delta = iteration - base (+ => later policy higher), Wilcoxon p, dz, Holm p (across iterations WITHIN each arm), bootstrap 95% CI (BOOT_SEED). 
+
+**Workbooks (one sheet per table)** — `tables/claude-haiku-4-5/`
+- `stats.xlsx`
+
+**Workbooks (one sheet per table)** — `tables/gpt-4o-mini/`
+- `stats.xlsx`

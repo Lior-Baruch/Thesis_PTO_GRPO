@@ -107,6 +107,10 @@ import pandas as pd
 
 from .constants import (QUESTIONNAIRE_ORDER, LOWER_IS_BETTER, DISPLAY_NAMES,
                         PRIMARY_JUDGE_TAG, judge_dirname)
+# The persona pivot is THE pairing primitive (see the file_index gotcha in CLAUDE.md); one
+# definition so a fix to the pairing cannot land in one copy and not the other. (lookahead
+# imports only constants/stats/ledger, so this is cycle-free.)
+from .lookahead import wide_by_persona as _wide
 
 __all__ = [
     # the mtime-reconstructed cost frame + the contrasts that need it (pre-2026-08-18 surface)
@@ -219,14 +223,6 @@ def _tb_step_times(iter_dir: str) -> List[float]:
             if len(ts) > len(best):
                 best = ts
     return best
-
-
-def _meta(iter_dir: str) -> dict:
-    try:
-        with open(os.path.join(iter_dir, "iteration_metadata.json"), encoding="utf-8") as fh:
-            return json.load(fh)
-    except Exception:
-        return {}
 
 
 def _recorded_phases(iter_dir: str) -> Optional[Dict[str, float]]:
@@ -667,11 +663,6 @@ def channel_direction(metric: str) -> str:
 
 def _label_of(metric: str) -> str:
     return DISPLAY_NAMES.get(metric, metric)
-
-
-# The persona pivot is THE pairing primitive (see the file_index gotcha in CLAUDE.md); one
-# definition so a fix to the pairing cannot land in one copy and not the other.
-from .lookahead import wide_by_persona as _wide  # noqa: E402
 
 
 def _primary_label(judges: Sequence[str]) -> str:

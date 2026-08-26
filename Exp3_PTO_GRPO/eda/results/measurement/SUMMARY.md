@@ -39,10 +39,10 @@ findings rather than restating them. Metric definitions, no values:
 [`METRICS_REFERENCE.md`](../METRICS_REFERENCE.md) §7–§7b. Current run status:
 [STATUS.md](../../../../STATUS.md).
 
-⚠ **Some auto-generated captions under [`validity/figures/CAPTIONS.md`](validity/figures/CAPTIONS.md)
-and in [`INDEX.md`](INDEX.md) still read "GRPO K=5 is right-censored and ends first."** That string
-is stale — all four arms reach iteration 10. The *data* in those artifacts is the completed grid;
-only the caption text lags.
+✅ *(Resolved 2026-08-25 — kept so the warning's history is visible.)* This file warned that some
+auto-generated captions here still read "GRPO K=5 is right-censored and ends first." The tree-wide
+caption purge later the same day (see STATUS.md) removed every such string — support is now derived
+per render. Verified by grep on 2026-08-26: no caption in this top asserts censoring.
 
 ---
 

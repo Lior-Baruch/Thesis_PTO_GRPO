@@ -25,6 +25,8 @@ tables merged with a `target` column.
 
 ```
 results/
+├── README.md                                 hand-authored START HERE: each research question -> its
+│                                             headline artifacts + the reading rules (in PRESERVE)
 ├── INDEX.md                                  auto: one line per family, with artifact counts
 ├── METRICS_REFERENCE.md  LIMITATIONS.md      hand-authored reference docs (moved here from eda/docs/)
 ├── schematics/                               hand-authored METHOD diagrams — build_method_figures.py,
@@ -65,7 +67,7 @@ whatever runs last.
 
 | Notebook | Answers | Main artifacts (`results/<family>/…`) |
 |---|---|---|
-| `arms/outcomes.ipynb` | **Level 1 — global scores**, all four arms | `trajectories_all_metrics` (THE main figure) · per-metric learning-curve catalog `trajectories/trajectory_<metric>` (peaks auto-flagged) · `outcomes_by_model_{final,best}` · `effect_vs_base_forest_{final,best}` · `leaderboard_scorecard` (+ `.json` ledger) · the presentation re-saves under `group="headline"` |
+| `arms/outcomes.ipynb` | **Level 1 — global scores**, all four arms | `trajectories_all_metrics` (THE main figure) · per-metric learning-curve catalog `trajectories/trajectory_<metric>` (peaks auto-flagged) · `outcomes_by_model_{final,best}` · `effect_vs_base_forest_{final,best}` · `leaderboard_scorecard` (+ `.json` ledger). *(The duplicate `headline/` re-saves were retired 2026-08-26 — curation lives in `results/README.md`.)* |
 | `arms/questionnaires.ipynb` | **Level 2 — inside each rubric** | `<slug>_detail_grid` + `<slug>_item_deltas_{final,best}` for Q1/Q2/WAI-SR/CSQ-8/MI-SAT · `q2_item_group_trajectories` · `wai_subscales` · `miti_detail_grid` + `miti_detail_by_iter` + **official MITI 4.2.1 thresholds** (`miti_proficiency_thresholds`, `miti_threshold_verdicts`) · zoom groups `miti/` `pct/` `mici/` |
 | `arms/validity.ipynb` | **Level 3 — is it real skill?** | `rubric_correlation` + `factor_loadings` + `rubric_pca_expanded` · `reward_hack_panel` · `question_rate_crosscheck` · `overpraise_crosscheck` · `session_shape` / `session_shape_by_iter` · `session_end_reasons` · `grpo_iter9_check` |
 | `arms/heterogeneity.ipynb` | every metric split by persona trait | groups `cooperation_level/`, `problem/` (one figure per metric) · `<trait>_all_metrics` · `subgroup_endpoint_<trait>_{final,best}` + `subgroup_endpoint_means_<trait>` |
@@ -74,7 +76,7 @@ whatever runs last.
 | `arms/stats.ipynb` | the heavy per-arm tables | `main_results` (`target` col) · `friedman_omnibus` · `vs_base_paired` · `slope_by_arm` · `rubric_pca_pc1` |
 | `lookahead/reward.ipynb` | **RQ-i on the reward** — K=0 vs K=5 within each optimizer, persona-paired, both graders | `k_table1{,_Q1,_Q2,_MICI,_PCT}` · `k_paired_{pto,grpo}_<judge>` + `k_paired_long` + `k_paired_by_method` · `k_means_by_iter` · `k_levels{,_long}` · `k_summary` · `k_did` + `k_method_gap` + `k_endpoints` (difference-in-differences, method gap by K, endpoint contrasts) · figs `k_headline_q1q2`, `k_delta_grid_<judge>`, `k_contrast_both_judges`, `k_did`, `k_trajectory_Q1Q2` · `k_numbers.json` |
 | `lookahead/transfer.ipynb` | does the K contrast **transfer** to the held-out judge? | `k_pairs` (primary vs held-out contrast pairs) · `k_sign_ladder` · `k_retention` + `k_retention_summary` (gain retention by K, several reference kinds) · fig `k_retention` · `transfer_numbers.json` |
-| `lookahead/behaviour.ipynb` | what look-ahead **does to behaviour** — channels, substitution, session shape, held-out instruments | `k_paired_channels` · `k_means_channels` · `k_channels_{pto,grpo}_<judge>` + `k_channels_text_*` + `k_channels_summary` · `k_mici_composition` · `session_shape` · `length_endpoints` / `length_kcontrast` · `selection` · held-out instruments `wai_subscales` / `wai_kcontrast` / `wai_fig_data`, `pct_kcontrast`, `q2_items{,_long,_kcontrast}`, `hetero_kcontrast` · figs `k_channels_grid`, `k_channel_forest_<judge>`, `k_cost_benefit_<judge>`, `k_mici_composition_grid_<judge>`, `k_overpraise_trajectory_<judge>`, `session_shape`, `wai`, `hetero` · `k_channels_numbers.json`, `instruments_numbers.json`, `replication_numbers.json` |
+| `lookahead/behaviour.ipynb` | what look-ahead **does to behaviour** — channels, substitution, session shape, held-out instruments | `k_paired_channels` · `k_means_channels` · `k_channels_{pto,grpo}_<judge>` + `k_channels_text_*` + `k_channels_summary` · `k_mici_composition` · `session_shape` · `length_endpoints` / `length_kcontrast` · `selection` · held-out instruments `wai_subscales` / `wai_kcontrast` / `wai_fig_data`, `pct_kcontrast`, `q2_items{,_long,_kcontrast}`, `hetero_kcontrast` · figs `k_channels_grid`, `k_channel_forest_<judge>`, `k_cost_benefit_<judge>`, `k_mici_composition_grid_<judge>`, `k_overpraise_trajectory_<judge>`, `session_shape`, `wai`, `hetero` · `k_channels_numbers.json`, `instruments_numbers.json`, `shape_numbers.json` (named 2026-08-26; was `replication_numbers.json`, colliding with the different-content ledger of that name in `lookahead/replication`) |
 | `lookahead/mechanism.ipynb` | **why** — the K-mechanism chain, dispersion, reward faithfulness at matched policy, tail audit | `k_mechanism_overpraise_chain` (+ fig `k_mechanism_overpraise`) · `dispersion_{by_iter,ratios,tau,expectation}` (+ figs `dispersion`, `dispersion_tau`) · `faithfulness_{curve,curve_heldout,curve_by_iter,k_by_iter,matched_policy,matched_policy_tests,k_summary,by_coop,levels,levels_rho}` (+ figs `faithfulness`, `faithfulness_heldout`) · the tail-audit tables (by iter, cues, within group, score by realized turns) + fig `tail_audit` |
 | `lookahead/replication.ipynb` | does the ICLR result **replicate**? Exp1 transcripts re-scored + the SD/stability claim | `crossgen_levels` / `_kcontrast` / `_kcontrast_summary` / `_grader_agreement` / `_vsbase` / `_la3_gpt35` (+ figs `crossgen`, `crossgen_col`) · `sd_by_iter` · `sd_tests` · `sd_tally` · `sd_summary` · `ceiling` (+ fig `sd`) · `crossgen_numbers.json`, `replication_numbers.json` |
 | `method/contrast.ipynb` | **RQ-ii — PTO vs GRPO at each K** | `method_paired_by_K` · `method_paired_best` (best-vs-best steelman) · fig `method_gap` · `method_contrast.json`; budget-matched method contrasts are in `compute/cost` |
@@ -211,7 +213,7 @@ Prints the family, the judge and the arm list.
 | `reset_results(groups=None)` | clears the ACTIVE family's generated `figures/` + `tables/` — **judge-scoped** (a per-judge family clears only the active judge's leaf, never another grader's copy) — or just the named nested `groups`. Never the family/top root, so `SUMMARY.md` survives structurally |
 | `set_family(family)` · `active_family()` · `is_judge_invariant()` · `family_root()` · `set_formats()` | routing state (`notebook_setup` does `set_family` from `EdaConfig.family`) |
 
-`PRESERVE = {SUMMARY.md, METRICS_REFERENCE.md, LIMITATIONS.md, schematics}` — never deleted by
+`PRESERVE = {SUMMARY.md, README.md, METRICS_REFERENCE.md, LIMITATIONS.md, schematics}` — never deleted by
 `reset_results` / rewritten by `prune_orphan_captions`; enforced structurally (the helpers only
 descend into a family's `figures/` + `tables/`) and by a `_guard_path` assertion.
 `JUDGE_INVARIANT_GROUPS` is derived from `config.PER_JUDGE_TOPS` (everything except `arms`), never
@@ -731,7 +733,9 @@ Train → it writes `conversations/full/<EXP>/model_iter_*` → `Run_Eval` (the 
 the run) → the notebooks pick it up automatically (re-run `python tools/render_results.py`).
 
 ## Results
-Not duplicated here (so they can't drift). The written analysis per research question lives in
+Not duplicated here (so they can't drift). **Navigation starts at
+[`results/README.md`](results/README.md)** — each research question mapped to its headline
+artifacts, plus the reading rules. The written analysis per research question lives in
 **`results/<top>/SUMMARY.md`** (`arms/`, `lookahead/`, `method/`, `compute/`, `measurement/`) beside
 each top's auto `INDEX.md`; the metric definitions in [`results/METRICS_REFERENCE.md`](results/METRICS_REFERENCE.md)
 and the measurement/inference limitations in [`results/LIMITATIONS.md`](results/LIMITATIONS.md)
@@ -741,53 +745,12 @@ and the measurement/inference limitations in [`results/LIMITATIONS.md`](results/
 
 ## Migration (2026-08-18) — old → new
 
-The results tree was reorganised by research question (the design note that guided it was a scratch
-file, never committed — this table is the record). **Commit `abe5cb3` (was `b09eb6f` before the 2026-08-19 history rewrite) is the last pre-reorg
-state** — check it out to re-run anything that read the retired `L0`/`L5` tree (the deck builders
-written before that date, the paper's own `analysis/*.py` generators). ⚠ **Its `results/` renders are
-NOT there:** on 2026-08-19 the repo's history was rewritten (`git-filter-repo`) to drop
-`Exp3_PTO_GRPO/eda/results` from every past commit — 606 MB of the 671 MB packed repo was superseded
-figure generations. Git now holds exactly one copy of the tree (the current one, re-added in
-`b44213c`), and **every pre-rewrite commit, including the whole `L0`/`L5` render history, is
-preserved in an archival bundle** at
-`G:\My Drive\Thesis_PTO_GRPO\_git_archive\Thesis_PTO_GRPO_prerewrite_2026-08-19_b7b44ac.bundle`
-(`git clone <bundle>` restores it read-only). The rewrite changed every commit SHA; content at HEAD
-was verified byte-identical (1,046 tracked files, same blob hashes). `L0/`, `L5/`, the `VIEW`
-knob, `RQ_I_VIEW`, `render_views.py` (`EDA_VIEW`) and `EdaConfig(view=, export_group=)` are gone;
-`lookahead/` owns cross-K.
-
-| Old | New |
-|---|---|
-| `results/L0/figures/1_outcomes/<judge>/x.png` | `results/arms/outcomes/figures/<judge>/x.png` (now all four arms) |
-| `results/L5/tables/7_stats/<judge>/k_paired_by_method.md` | `results/lookahead/reward/tables/k_paired_by_method.md` (both graders inside) |
-| `results/L5/tables/7_stats/<judge>/{compute_*, budget_sweep, iso_compute_contrast, k_step_multiplier}.md` | `results/compute/cost/tables/…` |
-| `results/L5/tables/7_stats/<judge>/{method_paired_by_K, method_paired_best}.md` | `results/method/contrast/tables/…` |
-| `results/L5/tables/7_stats/<judge>/{main_results, friedman_omnibus, vs_base_paired, slope_by_arm, rubric_pca_pc1}.md` | `results/arms/stats/tables/<judge>/…` |
-| `results/L5/tables/6_preference/gpt-4o-mini/k_mechanism_overpraise_chain.md` | `results/lookahead/mechanism/tables/…` |
-| `results/*/tables/8_measurement/…` | `results/measurement/validity/tables/…` |
-| `papers/2026_lookahead_pto_grpo/tables/k_contrast_headline_*.md` | `results/lookahead/reward/tables/…` (rubrics) / `lookahead/behaviour/tables/…` (channels, text) |
-| `papers/…/tables/cross_k_multijudge_{pairs,ladder,retention*}.md` | `results/lookahead/transfer/tables/…` |
-| `papers/…/tables/cross_k_multijudge_{did,method_gap,endpoints}.md` | `results/lookahead/reward/tables/…` |
-| `papers/…/tables/compute_axis_*.md`, `tail_audit_api_*.md` | `results/compute/cost/tables/…` |
-| `papers/…/tables/tail_audit_{by_iter,within_group,score_by_realized_turns,cues_by_iter}.md`, `dispersion_by_k_*.md`, `reward_faithfulness_*.md` | `results/lookahead/mechanism/tables/…` |
-| `papers/…/tables/session_shape_stability_{shape,length_*,selection}.md`, `held_out_instruments_*.md` | `results/lookahead/behaviour/tables/…` |
-| `papers/…/tables/session_shape_stability_{sd,sd_bf,sd_tally,sd_summary,ceiling}.md`, `crossgen_exp1_*.md` | `results/lookahead/replication/tables/…` |
-| `Exp3_PTO_GRPO/figures/*` | `results/schematics/*` |
-| `eda/docs/{METRICS_REFERENCE,LIMITATIONS}.md` | `results/{METRICS_REFERENCE,LIMITATIONS}.md` |
-| `code/_local_smoke.py`, `code/PTO_Exp3/generate_eval_convs.{py,ipynb}` | `code/tools/…` |
-| `tools/render_views.py` (`EDA_VIEW`) | `tools/render_results.py` (`EDA_JUDGE`) |
-| `EdaConfig(view=, export_group=)`, `RQ_I_VIEW` | `EdaConfig(family=)`; no view owner — `lookahead/` owns cross-K |
-
-Old numbered notebooks (`notebooks/analysis/1_Outcomes` … `8_Measurement_Validity`) map onto the
-family notebooks as: `1_Outcomes` → `arms/outcomes` (the `0_headline` re-saves become
-`group="headline"`); `2_Questionnaire_Detail` → `arms/questionnaires`; `3_Validity_and_Hacking` (+
-`7_Stats` `grpo_iter9_check`) → `arms/validity`; `4_Heterogeneity` → `arms/heterogeneity`;
-`5_Training` → `arms/training` (per-arm) with the K-faithfulness contrast in `lookahead/mechanism`;
-`6_Preference` §1–§5 → `arms/preference`, its §5d K-mechanism panel → `lookahead/mechanism`;
-`7_Stats` → `arms/stats` (main tables) + `lookahead/reward` (§4c) + `lookahead/behaviour` (§4d) +
-`method/contrast` (§4a/§4b) + `compute/cost` (§4e); `8_Measurement_Validity` →
-`measurement/validity` (unchanged content). The hand-authored `L0`/`L5` `SUMMARY.md`s were
-redistributed by section into `results/<top>/SUMMARY.md` (numbers unchanged, paths rewritten).
+The full old→new table (retired `L0`/`L5` paths, the promoted paper-table paths, the old numbered
+notebooks, the 2026-08-19 history rewrite + archival-bundle pointer) is **dated history** and moved
+to [history/CHANGELOG_EDA.md](../history/CHANGELOG_EDA.md) (the 2026-08-26 entry carries it
+verbatim). Short version: commit `abe5cb3` is the last pre-reorg state; its `results/` renders live
+only in the Drive archival bundle; `L0`/`L5`, the `VIEW` knob and `render_views.py` are gone —
+`lookahead/` owns cross-K, `EdaConfig(family=)` is the one control.
 
 ## Roadmap
 Dated pass history (2026-06-09 → today) is in [history/CHANGELOG_EDA.md](../history/CHANGELOG_EDA.md).

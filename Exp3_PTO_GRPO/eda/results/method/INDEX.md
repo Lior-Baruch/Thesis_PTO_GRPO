@@ -18,3 +18,6 @@ _Each subfamily below is written by `notebooks/method/<sub>.ipynb`; the family i
 
 **Number ledgers** — `tables/`
 - `method_contrast.json` — Number ledger for the method contrast: the Q1+Q2 gap PTO - GRPO at the last matched iteration (matched_last.*) and at best-vs-best (best_vs_best.*), per grader x K, each key citing the table cell it was read from. + => PTO higher; persona-paired n = 96; how far each contrast's support actually ran is in the meta.censoring key, DERIVED from the frame rather than asserted here. The same file also carries the headline.* keys written by section 0b - the Q1+Q2 endpoint of each (grader, arm) vs THAT ARM'S OWN base, read off tables/headline_grid.md (there + => the endpoint beat its own base, not PTO beat GRPO).
+
+**Workbooks (one sheet per table)** — `tables/`
+- `contrast.xlsx`

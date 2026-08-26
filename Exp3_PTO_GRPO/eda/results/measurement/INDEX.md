@@ -36,3 +36,6 @@ _Each subfamily below is written by `notebooks/measurement/<sub>.ipynb`; the fam
 
 **Number ledgers** — `tables/`
 - `validity_numbers.json` — Citable scalars of this family (oracle ICC per metric, the hand-picked K=0 endpoint contrasts under both judges, the sign-preservation ladder, per-metric arm x judge share + dependability_k1); every value names the table it was read from.
+
+**Workbooks (one sheet per table)** — `tables/`
+- `validity.xlsx`

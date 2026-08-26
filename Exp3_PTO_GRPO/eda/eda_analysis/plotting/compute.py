@@ -65,7 +65,6 @@ __all__ = [
 # only live branch; _shared is where the deferral actually landed.)
 from ._shared import K_STYLE  # noqa: F401
 from ..constants import k_of as _k_of_canonical  # noqa: E402
-_K_STYLE = K_STYLE           # back-compat alias for the pre-2026-08-18 private name
 
 
 def _k_of(arm: str) -> int:

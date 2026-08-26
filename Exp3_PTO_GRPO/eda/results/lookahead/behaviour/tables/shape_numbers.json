@@ -1,6 +1,6 @@
 {
  "_family": "lookahead/behaviour",
- "_name": "replication_numbers",
+ "_name": "shape_numbers",
  "_judge": null,
  "numbers": {
   "shape.PTO.conv_len.iter0": {

@@ -64,7 +64,6 @@ __all__ = [
 #: + colourblind. The one place the K line style is defined (the paper's ``C.K_STYLE``).
 from ._shared import K_STYLE  # noqa: F401  (one definition; see _shared)
 from ..constants import k_of as _k_of_canonical  # noqa: E402
-_K_STYLE = K_STYLE   # back-compat alias
 
 #: The four Exp3 arms in palette / legend order.
 _ARMS = ("PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5")
@@ -80,7 +79,7 @@ def _k_of(arm: str) -> int:
 
 
 def _style(arm: str) -> dict:
-    return _K_STYLE.get(_k_of(arm), _K_STYLE[0])
+    return K_STYLE.get(_k_of(arm), K_STYLE[0])
 
 
 def _direction_note(channel: str) -> str:
