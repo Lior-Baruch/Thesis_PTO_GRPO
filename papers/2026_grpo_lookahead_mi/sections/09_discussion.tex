@@ -16,14 +16,15 @@ directions: it overstates the lever at small budgets and understates the eventua
 sign of our own conclusion flips at ${\sim}20$ GPU-hours, any claim of the form ``technique $X$
 improves RLHF'' should state the budget regime it holds in.
 
-\textbf{Scope: this is a single-optimizer result.} The same lever, applied to a preference-tree
-optimizer (PTO) in the parent experiment with matched personas, oracle, and context length, is
-null-to-negative on outcome scores --- so ``look-ahead helps'' is not a claim we make about reward
-shaping in general. Why the two optimizers respond so differently is the subject of a separate
-analysis of the full $2 \times 2$; we would rather flag it than fold a second, weaker analysis
-into this one. What the present result establishes is narrower and more solid: for a
-group-relative optimizer in a multi-turn dialogue task, the horizon of the reward is a first-order
-design choice, comparable in effect size to changing the algorithm.
+\textbf{Scope: this is a single-optimizer result.} Everything here concerns a group-relative
+optimizer, whose loss consumes the reward only through the relative ranking of eight siblings ---
+a shape that plausibly matters for what a longer horizon can change. Whether the lever transfers
+to other optimizer families (preference-pair methods in the DPO line, or PPO with a learned value
+function) is not established by anything in this paper, and we deliberately make no claim in
+either direction; a controlled optimizer $\times$ horizon comparison is the subject of companion
+work. What the present result establishes is narrower and solid: for a group-relative optimizer
+in a multi-turn dialogue task, the horizon of the reward is a first-order design choice --- it
+decides not only how much is gained but which failure mode the policy learns.
 
 \textbf{One-sided grader saturation is a measurement failure worth naming.} The pattern in
 \S\ref{sec:measurement} --- a trained-against grader losing three-quarters of its variance on the

@@ -9,13 +9,16 @@ rendered by ``Exp3_PTO_GRPO/eda/tools/render_results.py`` into
     & ..\\..\\.venv\\Scripts\\python.exe sync_figures.py           # copy
     & ..\\..\\.venv\\Scripts\\python.exe sync_figures.py --check   # report drift, copy nothing
 
-⚠ **Figure scope policy (revised 2026-08-26).** MAIN-TEXT figures show the two GRPO arms only —
-the EDA renders ``*_grpo`` variants of the shared figures for exactly this use — with ONE
-deliberate exception: ``judge_saturation``, whose four arms are load-bearing (the claim is "the
-two lowest-agreeing of 44 states", and §8 uses PTO K=5's parallel decline). APPENDIX figures stay
-FOUR-ARM on purpose: their declared job is to show the full experiment rather than crop the
-companion arms out of view, and each caption names the two GRPO series as this paper's subject.
-Entries below are marked ``FOUR-ARM`` where this applies.
+⚠ **Figure scope policy (revised again 2026-08-26, superseding the same-day four-arm policy).**
+EVERY figure in this paper — main text AND appendix — shows the two GRPO arms only. The paper is
+scoped to GRPO + look-ahead; the companion PTO arms of the parent experiment appear nowhere in it,
+and every statistic that used to be quoted over the full four-arm grid (the sign-preservation
+ladder, the agreement medians/ranks) was RECOMPUTED over the 22 GRPO states in the EDA
+(``multijudge_sign_preservation_grpo``, ``judge_saturation_grpo_data``) rather than re-scoped in
+prose. The EDA renders ``*_grpo`` variants of every shared figure for exactly this use; the
+four-arm originals stay canonical in the results tree for the thesis and the method-contrast
+paper. A second same-day revision: the paper reads SCORES, not deltas — the headline and budget
+figures are level-trajectory variants (delta strips live on in the EDA tables/figures).
 
 Where a source figure is produced per grader (``..._<judge>.png``), the destination keeps the
 grader in the filename so a figure in the paper always says which judge produced it; the
@@ -47,31 +50,29 @@ FIGURES: list[tuple[Path, str]] = [
     # --- sec:setup — method schematic (hand-authored: no notebook, no judge) ---------------------
     (SCHEMATICS / "grpo_group_rollout.png", "method_grpo_group.png"),
     # --- sec:reward -----------------------------------------------------------------------------
-    # GRPO-only headline (added to the EDA 2026-08-25 for this paper): the two arms this draft
-    # analyses, without the two PTO arms competing for the eye. Its bottom row plots K=5 - K=0,
-    # the OPPOSITE sign to the source tables - see NUMBERS.md.
+    # GRPO-only headline in LEVELS (redesigned 2026-08-26): the two arms' Q1+Q2 trajectories from
+    # their own bases, stars = Holm-cleared paired contrasts; no delta strip. Numbers behind every
+    # mark: the EDA's k_headline_grpo_data table.
     (REWARD / "k_headline_q1q2_grpo.png", "k_headline_q1q2_grpo.png"),
     # --- sec:cost -------------------------------------------------------------------------------
-    # GRPO-only variant (added 2026-08-26): the 2x2 original carries a PTO column sec:cost never
-    # discusses (and which previews the companion paper's negative result).
-    (COST / "budget_sweep_grpo.png", "budget_sweep_grpo.png"),
+    # Scores vs cumulative GPU-hours, GRPO only (added 2026-08-26; replaces the delta-style
+    # budget_sweep_grpo in the paper). The Holm-tested best-within-budget contrast stays quoted
+    # from the budget_sweep_GRPO_K_<judge> tables.
+    (COST / "compute_trajectory_grpo.png", "compute_trajectory_grpo.png"),
     # --- sec:behaviour --------------------------------------------------------------------------
     # The judge-free lexical marker beside both graders' rated rates — the section's load-bearing
-    # evidence. GRPO-only variant (added 2026-08-26); the four-arm original stays in the EDA.
+    # evidence. GRPO-only variant; the four-arm original stays in the EDA.
     (BEHAVIOUR / "overpraise_judgefree_grpo.png", "overpraise_judgefree_grpo.png"),
-    (BEHAVIOUR / "k_channel_forest_gpt-4o-mini.png", "k_channel_forest_gpt-4o-mini.png"),
     # --- sec:measurement ------------------------------------------------------------------------
-    # The grader-saturation figure: the agreement collapse and its mechanism. FOUR-ARM by design —
-    # the "two lowest-agreeing of 44 states" claim and §8's PTO-K=5 sentence need the other arms.
-    (MEASUREMENT / "judge_saturation.png", "judge_saturation.png"),
-    # --- appendix A -----------------------------------------------------------------------------
-    (REWARD / "k_headline_q1q2.png", "k_headline_q1q2.png"),                # FOUR-ARM (context)
-    (BEHAVIOUR / "k_overpraise_trajectory_gpt-4o-mini.png", "k_overpraise_trajectory_gpt-4o-mini.png"),
-    (REWARD / "k_delta_grid_gpt-4o-mini.png", "k_delta_grid_gpt-4o-mini.png"),
-    (REWARD / "k_delta_grid_claude-haiku-4-5.png", "k_delta_grid_claude-haiku-4-5.png"),
-    (METHOD / "headline_grid.png", "headline_grid.png"),                    # FOUR-ARM
-    (MECHANISM / "tail_audit.png", "tail_audit.png"),
-    (COST / "api_calls.png", "api_calls.png"),                              # FOUR-ARM
+    # The grader-saturation figure, GRPO-only companion (added 2026-08-26): agreement vs the
+    # 22-GRPO-state median + the SD mechanism. The four-arm original stays canonical in the EDA.
+    (MEASUREMENT / "judge_saturation_grpo.png", "judge_saturation_grpo.png"),
+    # --- appendix A (all GRPO-only) -------------------------------------------------------------
+    (REWARD / "k_levels_grid_grpo_gpt-4o-mini.png", "k_levels_grid_grpo_gpt-4o-mini.png"),
+    (REWARD / "k_levels_grid_grpo_claude-haiku-4-5.png", "k_levels_grid_grpo_claude-haiku-4-5.png"),
+    (BEHAVIOUR / "k_channel_forest_grpo_gpt-4o-mini.png", "k_channel_forest_grpo_gpt-4o-mini.png"),
+    (MECHANISM / "tail_audit_grpo.png", "tail_audit_grpo.png"),
+    (COST / "api_calls_grpo.png", "api_calls_grpo.png"),
 ]
 
 

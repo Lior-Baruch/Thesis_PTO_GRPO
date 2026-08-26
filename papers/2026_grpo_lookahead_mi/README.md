@@ -77,10 +77,13 @@ flatter the judge.
    this section as mechanism *evidence consistent with* the effect, never as its demonstration.
 5. **§8 Measurement — the caveat that must travel with the headline.** The winning state is also
    the experiment's **worst per-conversation cross-grader agreement on Q1**: `GRPO_LA5`'s Q1
-   agreement falls 0.941 (I5) → 0.769 (I8) → 0.487 (I9) → 0.544 (I10) against a 44-state Q1 median
-   of 0.855 — I9 and I10 are the two lowest of all 44 states. ⚠ **It is NOT "only the rewarded
-   rubric"** (the draft said that until 2026-08-25 and the table disproves it): at the same state
-   Q2 (0.590 vs 0.784), **MITI (0.333 vs 0.658 — its 44-state minimum)** and MICI (0.287 vs 0.518)
+   agreement falls 0.941 (I5) → 0.769 (I8) → 0.487 (I9) → 0.544 (I10) against a Q1 median of
+   0.841 over the paper's 22 GRPO states (⚠ since the 2026-08-26 GRPO-only rescope, every §8
+   statistic is recomputed on those 22 states — sign preservation 1,640/1,848 = 88.7%, sources =
+   the `*_grpo` measurement artifacts; the retired 44-state values live in git history). I9 and
+   I10 are the two lowest of the 22 (and were also the two lowest of the parent grid's 44).
+   ⚠ **It is NOT "only the rewarded rubric"**: at the same state Q2 (0.590 vs 0.754, its
+   worst GRPO state), **MITI (0.333 vs 0.678 — its minimum)** and MICI (0.287 vs 0.399)
    are all depressed, while CSQ-8, MI-SAT, WAI-SR and PCT are normal. The pattern is *rewarded +
    behaviour-coding rubrics degrade, global-impression rubrics don't* — two causes stacking, and
    the reason §6's argument rests on the judge-free marker rather than on the MITI/MICI counts.
@@ -95,9 +98,11 @@ flatter the judge.
 
 ## What this draft deliberately does NOT claim
 
-- **Not** that look-ahead helps optimizers in general. It is a single-optimizer result; the same
-  lever applied to PTO in the same experiment is null-to-negative on outcomes. One paragraph in
-  §9 says so and points at the companion paper rather than importing its 2×2.
+- **Not** that look-ahead helps optimizers in general. It is a single-optimizer result. Since the
+  2026-08-26 rescope, the paper itself never names PTO or its arms: §9's scope paragraph says
+  transfer to other optimizer families "is not established by anything in this paper" and defers
+  to companion work (= [`../2026_pto_grpo_mi/`](../2026_pto_grpo_mi/), where the lever is in fact
+  null-to-negative on PTO's outcomes — a fact this draft deliberately neither states nor uses).
 - **Not** that $K{=}5$ eliminates reward hacking — see the per-grader split in move 3.
 - **Not** anything about $K$ as a continuous knob. $K \in \{0, 5\}$ by design; there is no
   dose–response evidence and the Limitations section says so.

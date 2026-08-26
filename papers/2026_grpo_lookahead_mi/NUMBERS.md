@@ -31,7 +31,7 @@ with the cited table. Rows marked 📄 were read off the cited table only.
 | claim | value | source |
 |---|---|---|
 | Arms in this paper | `GRPO_LA0`, `GRPO_LA5` — 2 arms × 11 states (base + 10 iterations) = 22 model states | results/lookahead/reward/tables/k_levels.md |
-| Parent experiment | 4 arms × 11 states = 44 model states, both graders | results/measurement/validity/tables/multijudge_coverage.md |
+| Parent experiment | 4 arms × 11 states = 44 model states, both graders — ⚠ **NOT quoted anywhere in the paper since the 2026-08-26 GRPO-only rescope**: every statistic that used the full grid was recomputed on the 22 GRPO states (see §8) | results/measurement/validity/tables/multijudge_coverage.md |
 | Score-lake cells per grader | 44 × 8 × 96 = 33,792 | results/measurement/validity/tables/multijudge_coverage.md |
 | Personas | 2 gender × 3 cooperation × 2 problem × 2 problem duration × 2 prior attempts × 2 age = 96 | Exp3_PTO_GRPO/code/system_prompts_builder.py `generate_all_permutations` |
 | Matched knobs | MCL=12, G=8, same generation temperatures, same oracle (Q1+Q2), 10 iterations each | `run_metadata.json` of both arms (CONFIG FACT) |
@@ -54,6 +54,8 @@ with the cited table. Rows marked 📄 were read off the cited table only.
 | 📄 K=5 ahead on all 8 instruments at iteration 10, both graders | K=5 better | 9 metric rows (8 instruments + the Q1Q2 composite), all favouring K=5, every $p_{holm}$ .000 under both graders | results/lookahead/reward/tables/k_endpoints.md (`favours_primary` / `favours_judge` columns, `GRPO_LA5_I10 − GRPO_LA0_I10`) |
 | 📄 **Table 1 in full** — $\Delta$ (dz) per instrument, primary \| held-out. Sign flipped from the source, which reports K=0 − K=5 | K=5 higher | Q1Q2 +0.765 (0.905) \| +0.616 (1.030) · Q1 +0.858 (0.902) \| +0.865 (1.152) · Q2 +0.671 (0.864) \| +0.367 (0.609) · WAI-SR +0.291 (0.513) \| +0.288 (0.442) · CSQ-8 +0.289 (0.482) \| +0.451 (0.678) · MI-SAT +0.352 (0.531) \| +0.503 (0.829) · MITI +0.615 (0.735) \| +0.276 (0.502) · PCT +0.111 (0.516) \| +0.113 (0.563) · MICI −0.627 (−1.862) \| −0.422 (−1.567) | results/lookahead/reward/tables/k_endpoints.md, the nine `GRPO_LA5_I10 − GRPO_LA0_I10 (K lever, GRPO matched iter)` rows |
 | 📄 **Appendix by-iteration table** — Q1+Q2 $\Delta$ (dz) at iterations 0–10, both graders | K=5 higher | reproduced cell-by-cell from the source's GRPO columns with **every sign negated** | results/lookahead/reward/tables/k_table1.md |
+| ✅ **LEVEL columns of both appendix tables** (added 2026-08-26 — the tables now show each arm's mean, not just the Δ) | — | endpoint per instrument: primary K0/K5 e.g. Q1Q2 3.753/4.517, MICI 0.838/0.210; held-out Q1Q2 2.257/2.873 (all 9 instruments × 2 graders); by-iteration Q1Q2 levels e.g. primary I8 4.082/4.254, I10 3.753/4.517 | results/lookahead/reward/tables/reward.xlsx sheets `k_levels_long` (iteration-10 rows) and `k_headline_grpo_data` (mean_K0/mean_K5); level-minus-level agrees with the paired Δ to ±0.001 rounding |
+| 📄 Main §4 figure is now LEVELS-only | — | k_headline_q1q2_grpo redesigned 2026-08-26: trajectories + star row (Holm), no delta strip; stars = the same tests as tab:byiter | results/lookahead/reward/figures/k_headline_q1q2_grpo.png + tables/k_headline_grpo_data.md |
 | 📄 GRPO K=0's own peak and decline | — | 4.082 at iteration 8, 3.808 at 9, 3.753 at 10 (primary Q1+Q2) | results/arms/stats/tables/gpt-4o-mini/main_results.md (`target=best`, `target_iter` 8) + recomputed from the score lake |
 | 📄 Iterations where K=5 is Holm-significant on Q1+Q2 | K=5 better | primary 6 of 10 (iters 4, 6, 7, 8, 9, 10); held-out 6 of 10 (iters 4, 5, 6, 7, 9, 10) | results/lookahead/reward/tables/k_summary.md, GRPO/Q1Q2 rows, `iters_sig_K5_higher` |
 | 📄 Base-vs-base noise floor (iteration 0) | neither | +0.104 primary (dz 0.115, n.s.), +0.026 held-out (dz 0.043, n.s.) | results/lookahead/reward/tables/k_table1.md row 0, GRPO cols |
@@ -96,6 +98,11 @@ per arm; do not let "it replicates" drift into "the result is run-independent."
 | 📄 MICI at the common budget (Q1+Q2-selected) | K=5 0.210 vs K=0 0.535 = −0.325 (dz −1.129), lower better | results/compute/cost/tables/budget_sweep_GRPO_K_gpt-4o-mini.md, `select Q1Q2 / eval MICI` row at 51.200 |
 
 ⚠ **Quote the sweep, never a single iso-compute row** — the lever's sign is a function of budget.
+⚠ **The §5 figure is compute_trajectory_grpo (scores vs GPU-h), not the delta sweep** (2026-08-26).
+The figure shows LEVEL curves — each arm's actual score at its cumulative spend — while the text's
+crossover/significance numbers keep coming from the budget_sweep tables, which pair
+BEST-within-budget checkpoints (a running max, so the K=0 side of a sweep row can sit above the
+K=0 curve after its iteration-8 peak decays). Do not read sweep rows off the figure or vice versa.
 ⚠ GPU-hours are **reconstructed from artifact mtimes**, with gaps outside (0, 3600 s) imputed at
 the phase median; never from `iteration_metadata.json`, whose `*_time_s` fields are per-process and
 undercount any resumed iteration.
@@ -158,15 +165,20 @@ results/METRICS_REFERENCE.md for which cut supports which claim; cite it rather 
 
 ## §8 Measurement
 
+*(2026-08-26 GRPO-only rescope: every full-grid statistic below was **recomputed on the 22 GRPO
+states** and its source moved to the `*_grpo` artifacts. The 44-state values retired from this
+ledger live in git history and in the full-grid EDA artifacts, which are unchanged.)*
+
 | claim | value | source |
 |---|---|---|
-| ✅ `GRPO_LA5` per-conversation cross-grader agreement on **Q1** | .941 (I5) → .877 (I6) → .842 (I7) → .769 (I8) → **.487 (I9)** → **.544 (I10)** | results/measurement/validity/tables/validity.xlsx, sheet `second_judge_agreement`, `pearson_r` |
-| ✅ Q1 median across all 44 states | **0.855** | same sheet |
-| ✅ The two lowest-agreeing states in the experiment | `GRPO_LA5_I9` .487 and `GRPO_LA5_I10` .544 (next: `PTO_LA5_I10` .667) | same sheet |
-| ✅ The collapse is **selective but NOT Q1-only** | at `GRPO_LA5_I10` vs each instrument's 44-state median: Q1 .544/.855, Q2 .590/.784, **MITI .333/.658 (its 44-state MINIMUM)**, MICI .287/.518 — all depressed; CSQ-8 .851/.903, MI-SAT .906/.930, WAI-SR .898/.922, PCT .928/.954 — all normal | same sheet |
+| ✅ `GRPO_LA5` per-conversation cross-grader agreement on **Q1** | .941 (I5) → .877 (I6) → .842 (I7) → .769 (I8) → **.487 (I9)** → **.544 (I10)** | results/measurement/validity/tables/validity.xlsx, sheet `second_judge_agreement`, `pearson_r`; also panel-a rows of judge_saturation_grpo_data.md |
+| ✅ Q1 median across the 22 GRPO states | **0.841** — ⚠ the exact value is 0.8415 (mean of the middle pair .841/.842), so the figure prints 0.841 (`:.3f`) while the data table's display rounds to 0.842; the paper quotes 0.841 to match its own figure | results/measurement/validity/tables/judge_saturation_grpo_data.md (panel-a median row); recomputed independently from validity.xlsx 2026-08-26 |
+| ✅ The two lowest-agreeing states in the experiment (= the 22 GRPO states) | `GRPO_LA5_I9` .487 and `GRPO_LA5_I10` .544 (next: `GRPO_LA0_I6` .744) | same |
+| ✅ `GRPO_LA0` never leaves the normal range on Q1 | its 11 states span .744–.882 | validity.xlsx, sheet `second_judge_agreement` |
+| ✅ The collapse is **selective but NOT Q1-only** | at `GRPO_LA5_I10` vs each instrument's 22-state median (shortfall, rank/22): **MITI .333/.678 (−.345, 1/22 — its minimum)**, Q1 .544/.841 (−.297, 2/22), Q2 .590/.754 (−.164, 1/22), MICI .287/.399 (−.112, 4/22) — all depressed; CSQ-8 .851/.891 (−.040), PCT .928/.956 (−.028), MI-SAT .906/.931 (−.025), WAI-SR .898/.921 (−.023) — all normal | judge_saturation_grpo_data.md panel-c rows; recomputed from validity.xlsx 2026-08-26 |
 | ✅ One-sided saturation of the training grader | `GRPO_LA5` on Q1: the **primary** SD falls monotonically 1.336 → 0.701, Spearman(SD, iteration) **−0.86, p = .001**; variance ratio 0.701² / 1.336² = 0.275 (robust to anchor: 0.285 vs iter 1, 0.544 vs the mean of iters 1–10). The **held-out** SD does not move: Spearman **+0.44, p = .18** | results/lookahead/replication/tables/sd_by_iter.md |
-| 📄 Arm-level sign preservation | 6,693 of 7,568 = 88.4% pooled; 97.2% at \|Δ\|≥0.25; 99.3% at \|Δ\|≥0.50 | results/measurement/validity/tables/multijudge_sign_preservation.md |
-| 📄 Contrast count arithmetic | 8 × C(44,2) = 8 × 946 = 7,568 | derived — show the arithmetic |
+| ✅ Arm-level sign preservation, GRPO states only | **1,640 of 1,848 = 88.7%** pooled; 94.7% at \|Δ\|≥0.10; **97.0%** at \|Δ\|≥0.25; **98.9%** at \|Δ\|≥0.50; 95.4% where the judge CI excludes 0 | results/measurement/validity/tables/multijudge_sign_preservation_grpo.md |
+| 📄 Contrast count arithmetic | 8 × C(22,2) = 8 × 231 = 1,848 | derived — show the arithmetic |
 | 📄 Oracle self-repeatability | ICC(2,1) 0.86–0.99 across Q1 / Q2 / MICI, four K=0 anchor states only | results/measurement/validity/tables/oracle_repeatability_icc.md |
 
 ⚠ **Sign preservation is an ARM-LEVEL statistic.** Quote it for orderings; it does **not** license

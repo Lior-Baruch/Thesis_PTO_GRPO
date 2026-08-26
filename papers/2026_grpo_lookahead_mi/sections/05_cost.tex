@@ -19,12 +19,14 @@ factor of two (Appendix~\ref{app:repro}).
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.55\textwidth]{figures/budget_sweep_grpo.png}
-\caption{Paired Q1+Q2 delta ($\Kf - \Kz$, so \emph{up is look-ahead winning}) between the best
-checkpoints reachable within a given GPU-hour budget, under each grader. Hollow markers did not
-clear Holm; labels name the selected iterations. Below ${\sim}18$ GPU-hours look-ahead is behind;
-it crosses zero near $23$ under both graders --- already Holm-significant there under the held-out
-judge, from $35$ under the training oracle.}
+\includegraphics[width=0.88\textwidth]{figures/compute_trajectory_grpo.png}
+\caption{The same scores on the axis that costs money: Q1+Q2 (mean $\pm$ SEM over 96 personas)
+against cumulative GPU-hours, under each grader; iteration 0 sits at 0 hours and each arm's last
+point is labelled with its iteration. The two arms run the same 10 iterations but end at $27.9$
+vs.\ $51.2$ GPU-hours --- the horizontal gap is the price of the lever, and the $\Kf$ curve
+crosses the $\Kz$ one at roughly the budget the tested sweep below identifies. $\Kz$'s late sag
+is its own iteration-8 peak decaying; the sweep numbers in the text pair \emph{best}-within-budget
+checkpoints, so their $\Kz$ side keeps that peak.}
 \label{fig:budget}
 \end{figure}
 
