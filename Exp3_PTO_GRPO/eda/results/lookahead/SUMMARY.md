@@ -571,3 +571,12 @@ quoted bare; the three-way flip is worked out in [`../LIMITATIONS.md`](../LIMITA
   other seeds, so CI *bounds* in the rendered tables differ from the paper's frozen tables at
   Monte-Carlo scale (≤ ~0.02 on the rubric scale; one or two `judge_ci_excl0` flags flip in
   `transfer/`). Point estimates, dz, p and n reproduce exactly.
+
+---
+
+**Artifact note (2026-08-26).** The GRPO-scoped paper's figure rescope added GRPO-only,
+levels-style companions in this top: `reward/figures/k_headline_q1q2_grpo` (redesigned to levels +
+Holm-star row; its data table keeps the full delta columns), `reward/figures/k_levels_grid_grpo_<judge>`
+(the 9-rubric battery in levels), `mechanism/figures/tail_audit_grpo`, and
+`behaviour/figures/k_channel_forest_grpo_<judge>` (⚠ the un-suffixed `k_channel_forest_<judge>` is
+the **PTO** forest). The four-arm and delta artifacts are unchanged and stay canonical.

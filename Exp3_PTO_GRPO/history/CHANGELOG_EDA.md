@@ -9,6 +9,36 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-08-26, second pass) — GRPO-only companions + the levels redesign (the P1 rescope).**
+
+Lior's instruction: the GRPO paper must carry no PTO arms and should show scores, not K5−K0
+deltas. The EDA answer is companions, not edits — every four-arm/delta artifact stays canonical:
+
+- **`lookahead/reward`**: `k_headline_q1q2_grpo` REDESIGNED to levels-only (mean ± SE from each
+  arm's own base, endpoint means printed, star row = Holm-cleared paired contrasts; the delta
+  strip left the figure, not the data — `k_headline_grpo_data` still carries `delta_K5_minus_K0`
+  and its CI/dz/p columns). NEW §3c `k_levels_grid_grpo_<judge>`: the full 9-rubric battery in
+  levels, stars from the same `paired_k_frames` tests as `k_delta_grid_<judge>` (unchanged).
+- **`compute/cost`**: NEW `compute_trajectory_grpo` (scores vs cumulative GPU-h, two arms) and
+  `api_calls_grpo`. The budget_sweep delta figures are untouched.
+- **`lookahead/mechanism`**: NEW `tail_audit_grpo` (GRPO_LA5 alone; `tail_audit` keeps both K=5 arms).
+- **`lookahead/behaviour`**: NEW `k_channel_forest_grpo_<judge>` — and the pass caught a real
+  paper bug: the appendix figure P1 had been captioning as its per-channel K contrast was the
+  **PTO** forest (`k_channel_forest_<judge>` is rendered with `method="PTO"` at the last matched
+  PTO iteration).
+- **`measurement/validity`**: NEW §3b "recomputed, not re-scoped" — `multijudge_sign_preservation_grpo`
+  (GRPO×GRPO pairs only: 1,640/1,848 = 88.7%; 97.0% at |Δ|≥0.25; 98.9% at ≥0.50),
+  `judge_saturation_grpo` + `judge_saturation_grpo_data` (Q1 median over the 22 GRPO states =
+  0.8415 — the figure prints 0.841, the md display rounds to 0.842; per-rubric medians + ranks/22
+  in the panel-c rows). A GRPO-scoped write-up must quote these, never the 44-state versions.
+
+Renders: the five touched families re-rendered clean (reward 86 s, behaviour 286 s, cost 82 s,
+validity 700 s, mechanism OK); `_selfcheck` green. Consumed by
+`papers/2026_grpo_lookahead_mi` (see its NUMBERS.md, same-day rescope) — the four-arm originals
+remain the thesis's and `papers/2026_pto_grpo_mi`'s artifacts.
+
+---
+
 **Landed (2026-08-26) — navigation layer + surface trim + the collisions the inventory found.**
 
 A full-tree survey (package + results) drove one pass:

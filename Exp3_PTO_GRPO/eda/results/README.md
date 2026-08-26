@@ -42,9 +42,15 @@ sign flips between K=0 (PTO wins) and K=5 (GRPO wins) on both graders. Steelman:
 higher**); endpoint pairs with both graders:
 [`k_endpoints.md`](lookahead/reward/tables/k_endpoints.md) (sign as named in its `pair` column);
 difference-in-differences: [`k_did.md`](lookahead/reward/tables/k_did.md). Figures:
-[`k_headline_q1q2.png`](lookahead/reward/figures/k_headline_q1q2.png) (four arms),
-[`k_headline_q1q2_grpo.png`](lookahead/reward/figures/k_headline_q1q2_grpo.png) (GRPO only —
-⚠ its contrast row plots **K5 − K0**, the opposite of the tables, so up = look-ahead winning).
+[`k_headline_q1q2.png`](lookahead/reward/figures/k_headline_q1q2.png) (four arms, level curves +
+a paired-delta strip), [`k_headline_q1q2_grpo.png`](lookahead/reward/figures/k_headline_q1q2_grpo.png)
+(GRPO only — since 2026-08-26 **levels-only** with a Holm-star row; its backing table
+`k_headline_grpo_data` still carries the deltas, ⚠ signed **K5 − K0**, the opposite of the
+tables). A full set of GRPO-only, levels-style companions exists for the GRPO-scoped paper —
+`k_levels_grid_grpo_<judge>`, `compute_trajectory_grpo`, `api_calls_grpo`, `tail_audit_grpo`,
+`k_channel_forest_grpo_<judge>`, `judge_saturation_grpo`, `multijudge_sign_preservation_grpo` —
+each a re-cut of a canonical four-arm artifact, never a replacement (⚠ the un-suffixed
+`k_channel_forest_<judge>` is the **PTO** forest).
 
 **The reward hack / over-praise story.** — Judge-free evidence first:
 [`lookahead/behaviour/figures/overpraise_judgefree.png`](lookahead/behaviour/figures/overpraise_judgefree.png)
@@ -84,7 +90,8 @@ dispersion (rescaling, not sharpening):
 
 1. **Sign conventions differ per table and are stated in each caption.** `k_table1` / `k_paired_*`
    / `k_summary` report **K0 − K5**; `method_paired_*` report **PTO − GRPO**; `k_endpoints` names
-   its pair per row; the GRPO-only headline figure plots **K5 − K0**. Say which you are quoting.
+   its pair per row; the GRPO-only headline's backing table (`k_headline_grpo_data`) is signed
+   **K5 − K0**. Say which you are quoting.
 2. **Never average the two graders, never compare levels across them** (offset 1.2–1.7 points,
    model-dependent). Contrasts and standardized quantities only.
 3. **Name the axis**: matched-iteration vs matched-budget disagree at K=5, and behaviour rates

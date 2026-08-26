@@ -481,3 +481,12 @@ than weakened that: the sign-preservation rate did not budge as `44 − 40 = 4` 
 locatable failure: on four of the eight rubrics — the two rewarded ones **plus MITI and MICI**, which
 were never rewarded — at the top of the primary grader's range, the two graders stop agreeing per
 conversation, and the state where that is worst is the state with the highest score.
+
+---
+
+**Artifact note (2026-08-26).** §3b of the validity notebook now recomputes the full-grid
+statistics on the 22 GRPO states for the GRPO-scoped paper: `multijudge_sign_preservation_grpo`
+(1,640/1,848 = 88.7% pooled; 97.0% at |Δ|≥0.25) and `judge_saturation_grpo` (+`_data`; Q1 median
+0.8415 over 22 states — printed 0.841 in the figure, displayed 0.842 in the md — with per-rubric
+medians and ranks /22 in its panel-c rows). Recomputed, not re-scoped: the 44-state artifacts are
+unchanged and remain the four-arm paper's sources.

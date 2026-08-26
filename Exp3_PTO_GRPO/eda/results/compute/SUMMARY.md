@@ -478,3 +478,9 @@ The matched-iteration readings this top exists to be read against are
 [`../measurement/SUMMARY.md`](../measurement/SUMMARY.md). Metric definitions are in
 [`../METRICS_REFERENCE.md`](../METRICS_REFERENCE.md); inference limits in
 [`../LIMITATIONS.md`](../LIMITATIONS.md).
+
+---
+
+**Artifact note (2026-08-26).** Two GRPO-only companions for the GRPO-scoped paper:
+`cost/figures/compute_trajectory_grpo` (Q1+Q2 levels vs cumulative GPU-h, the two GRPO arms) and
+`cost/figures/api_calls_grpo`. The four-arm figures and every budget_sweep table are unchanged.
