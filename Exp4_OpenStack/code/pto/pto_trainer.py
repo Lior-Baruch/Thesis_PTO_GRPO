@@ -113,6 +113,7 @@ from core.conversations import (
     generate_all_conversations,
     generate_patient_batch,
     handle_session_end,
+    load_conversations_dir,
     turns_to_messages,
     turns_to_patient_messages,
 )
@@ -134,6 +135,7 @@ from core.recorder import (
 from core.reward import CandidateScore, score_pref_candidates
 from core.tb import patch_trainer_tensorboard_callback, setup_tensorboard_logging
 from core.timing import log_session, metadata_fields
+from roles import make_client
 
 __all__ = [
     # Constants
@@ -480,6 +482,17 @@ def pref_config_fingerprint(train_cfg: PTOTrainingConfig, gen_cfg: GenConfig) ->
         ),
         "seed": int(train_cfg.seed),
     }
+
+
+def _pairs_fingerprint_path(pairs_csv: str) -> str:
+    """Sidecar recording the config fingerprint ``pairs.csv`` was BUILT under.
+
+    The mid-build ``_progress.json`` guards its fingerprint and is deleted on success -- which
+    left the finished marker unguarded: a tau edited between the build and a resumed DPO step
+    would reload pairs filtered under the old value while stamping the new one into the
+    iteration metadata. The sidecar closes that gap; the reload path compares and warns.
+    """
+    return os.path.join(os.path.dirname(pairs_csv), "pairs_fingerprint.json")
 
 
 def _atomic_write_text(path: str, text: str) -> None:
@@ -1358,6 +1371,13 @@ async def build_pref_pairs_async(
             config time; the second check is here because a mode typo that silently fell through
             to greedy would produce an arm whose name says ``_PTindep``.
     """
+    # Re-resolve the client on THIS loop (make_client is loop-keyed): the notebook built its
+    # handle outside any loop, and pooled keep-alive connections cannot cross loops -- a stale
+    # handle poisons the build's first oracle/patient calls with APIConnectionError. Built from
+    # the ORACLE binding: one endpoint serves both roles here, and the oracle's per-attempt
+    # timeout is the larger, so neither role's own asyncio.wait_for is undercut by the socket.
+    client = make_client(oracle_cfg.binding)
+
     mode = str(train_cfg.pref_tree_mode).strip().lower()
 
     if mode == _MODE_GREEDY:
@@ -1580,7 +1600,13 @@ def build_dpo_config(
         num_train_epochs=int(train_cfg.epochs_per_iteration),
         # See the Warning above: this is the ONLY length cap in TRL 1.4.0, and the two configured
         # halves are 2 tokens short of what TRL actually feeds the collator (BOS + appended EOS).
-        max_length=(int(gen_cfg.max_prompt_tokens) + int(train_cfg.max_completion_length)
+        # The completion half is max() of the two token caps because PTO's completions are
+        # actually SAMPLED with branch_max_tokens (_sample_completions_batch), not
+        # max_completion_length -- sizing from the latter alone would silently re-arm keep_start
+        # truncation the moment someone raised BRANCH_MAX_TOKENS on its own.
+        max_length=(int(gen_cfg.max_prompt_tokens)
+                    + max(int(train_cfg.max_completion_length),
+                          int(train_cfg.branch_max_tokens))
                     + DPO_FRAMING_HEADROOM_TOKENS),
         beta=float(train_cfg.dpo_beta),
         loss_type=str(train_cfg.dpo_loss_type),
@@ -1985,14 +2011,44 @@ def run_one_iteration(
     # -- Step 1: generate this iteration's conversations (they are also the eval set) ------
     persona_ids = _persona_order(
         len(permutations), gen_cfg.num_conversations_per_iter, train_cfg.seed, iteration)
-    print(f"\n{_LOG}Step 1: generating {len(persona_ids)} conversations")
-    states, generation_s, avg_len = run_generation_phase(
-        policy=policy, tokenizer=tokenizer, client=client,
-        patient_binding=binding, primitives=primitives,
-        permutations=permutations, persona_ids=persona_ids,
-        sp_therapist=sp_therapist, therapist_init_utterance=therapist_init_utterance,
-        gen_cfg=gen_cfg, save_dir=conv_dir,
-        patient_seed=int(train_cfg.seed) + int(iteration),
+    resuming_mid_training = bool(resume_checkpoint and iteration == start_iteration)
+    if resuming_mid_training:
+        # Mid-DPO resume: the conversations (and pairs.csv) were completed by the crashed
+        # process. Reload-only -- generating anything here would file fresh output into
+        # model_iter_{n-1} for no benefit, and the DPO dataset comes from pairs.csv anyway.
+        print(f"\n{_LOG}Step 1: mid-training resume -- reloading conversations from disk")
+        gen_start = time.time()
+        loaded = load_conversations_dir(conv_dir, verbose=gen_cfg.verbose)
+        states = [loaded[pid] for pid in sorted(loaded) if pid in set(persona_ids)]
+        missing = sorted(set(persona_ids) - set(loaded))
+        if missing:
+            raise RuntimeError(
+                f"mid-training resume of iteration_{iteration}: {len(missing)} persona CSV(s) "
+                f"missing from {conv_dir} ({missing}). The crashed process had a complete set. "
+                f"Restore the files (check the Drive mount / cloud first) before resuming."
+            )
+        generation_s = time.time() - gen_start
+        avg_len = (sum(s.n_utterances for s in states) / len(states)) if states else 0.0
+    else:
+        print(f"\n{_LOG}Step 1: generating {len(persona_ids)} conversations")
+        states, generation_s, avg_len = run_generation_phase(
+            policy=policy, tokenizer=tokenizer, client=client,
+            patient_binding=binding, primitives=primitives,
+            permutations=permutations, persona_ids=persona_ids,
+            sp_therapist=sp_therapist, therapist_init_utterance=therapist_init_utterance,
+            gen_cfg=gen_cfg, save_dir=conv_dir,
+            patient_seed=int(train_cfg.seed) + int(iteration),
+        )
+
+    # Phase logged as it completes (never batched to iteration end): a process killed during the
+    # multi-hour build or the DPO step must still leave its generation phase on record, or the
+    # cost axis undercounts every preempted iteration.
+    log_session(
+        iter_dir,
+        generation_s=generation_s,
+        started_at=iter_started,
+        note=("reloaded for mid-training resume" if resuming_mid_training
+              else f"generation, iteration {iteration}"),
     )
 
     gc.collect()
@@ -2004,6 +2060,8 @@ def run_one_iteration(
           f"tau={train_cfg.pref_filter_tau}, MCL={gen_cfg.min_conv_length}, K={la_cfg.k}]")
     build_started = time.time()
 
+    pairs_fingerprint_mismatch = False
+    build_fingerprint = pref_config_fingerprint(train_cfg, gen_cfg)
     if os.path.exists(pairs_csv):
         # The completion marker exists: reload and skip the build entirely. Do NOT flush the
         # recorder here -- generations.jsonl was written by the session that built these pairs,
@@ -2013,6 +2071,31 @@ def run_one_iteration(
         pref_pair_s = 0.0            # this process did not build; the earlier session logged it
         print(f"{_LOG}  Found pairs.csv -- reloaded {len(pref_pairs)} pairs, skipping the build "
               f"({time.time() - build_started:.1f}s)")
+        # The mid-build snapshot guards its fingerprint; the finished marker must too, or a tau
+        # edited between the build and a resumed DPO step silently trains on pairs filtered
+        # under one configuration while the metadata records another.
+        sidecar = _pairs_fingerprint_path(pairs_csv)
+        if os.path.exists(sidecar):
+            try:
+                with open(sidecar, encoding="utf-8") as fh:
+                    recorded_fp = json.load(fh)
+            except Exception:
+                recorded_fp = None
+            current_fp = pref_config_fingerprint(train_cfg, gen_cfg)
+            if recorded_fp is not None:
+                build_fingerprint = recorded_fp
+            if recorded_fp is not None and recorded_fp != current_fp:
+                pairs_fingerprint_mismatch = True
+                print(
+                    f"{_LOG}  WARNING: pairs.csv was built under a DIFFERENT config than the "
+                    f"current one:\n"
+                    f"    built with : {recorded_fp}\n"
+                    f"    current    : {current_fp}\n"
+                    f"    The reloaded pairs keep the BUILD-time configuration; this iteration's "
+                    f"metadata is stamped from the sidecar, and the mismatch is recorded. If the "
+                    f"current knobs are what you want, DELETE {pairs_csv} (and the sidecar) to "
+                    f"rebuild."
+                )
     else:
         pref_pairs = build_pref_pairs(
             states, permutations,
@@ -2030,7 +2113,20 @@ def run_one_iteration(
               f"from {len(states)} conversations")
 
         write_pairs_csv(pref_pairs, pairs_csv)
-        print(f"{_LOG}  Preference pairs saved: {pairs_csv}")
+        _atomic_write_text(
+            _pairs_fingerprint_path(pairs_csv),
+            json.dumps(pref_config_fingerprint(train_cfg, gen_cfg), indent=1),
+        )
+        print(f"{_LOG}  Preference pairs saved: {pairs_csv} (+ config fingerprint sidecar)")
+
+        # The build is PTO's dominant phase -- log it the moment it lands, so a process killed
+        # during the DPO step still leaves the ~hours-long build on the cost record.
+        log_session(
+            iter_dir,
+            pref_pair_s=pref_pair_s,
+            started_at=build_started,
+            note=f"pref build, iteration {iteration}",
+        )
 
         flushed = recorder.flush()
         if flushed:
@@ -2109,16 +2205,16 @@ def run_one_iteration(
             tb_logger.log_sample_completions(samples, step=end_step, iteration=iteration)
 
     # -- Step 5: timing, metadata, adapter ------------------------------------------------
-    # Logged BEFORE the metadata is assembled so metadata_fields() sees this session. A reloaded
-    # build logs pref_pair_s=0.0 on purpose: the session that actually built the pairs recorded it,
-    # and the cumulative total is the sum over sessions.
+    # Generation and the build logged themselves when they finished; this line records the DPO
+    # step. Logged BEFORE the metadata is assembled so metadata_fields() sees this session. A
+    # reloaded build logged nothing for pref_pair_s on purpose: the session that actually built
+    # the pairs recorded it, and the cumulative total is the sum over sessions.
     log_session(
         iter_dir,
-        generation_s=generation_s,
-        pref_pair_s=pref_pair_s,
         training_s=training_s,
         started_at=iter_started,
-        note=("reloaded pairs.csv" if pref_pairs_reloaded else ""),
+        note=("training, reloaded pairs.csv" if pref_pairs_reloaded
+              else f"training, iteration {iteration}"),
     )
 
     iter_metadata: Dict[str, Any] = {
@@ -2135,11 +2231,15 @@ def run_one_iteration(
         # comparison between two iterations of the same arm is meaningless.
         "lookahead_sub_batch_final": la_state.sub_batch,
         "lookahead_oom_events": int(la_state.oom_events),
-        "min_conv_length": int(gen_cfg.min_conv_length),
-        "pref_tree_mode": train_cfg.pref_tree_mode,
-        "num_branches_per_turn": int(train_cfg.num_branches_per_turn),
-        "pref_filter_tau": float(train_cfg.pref_filter_tau),
-        "greedy_trunk_target_len": train_cfg.greedy_trunk_target_len,
+        # Build knobs stamped from the fingerprint the pairs were actually BUILT under (the
+        # sidecar, when reloaded) -- not from the live config, which may have been edited
+        # between the build and a resumed DPO step.
+        "min_conv_length": int(build_fingerprint["min_conv_length"]),
+        "pref_tree_mode": str(build_fingerprint["mode"]),
+        "num_branches_per_turn": int(build_fingerprint["num_branches_per_turn"]),
+        "pref_filter_tau": float(build_fingerprint["pref_filter_tau"]),
+        "greedy_trunk_target_len": build_fingerprint["greedy_trunk_target_len"],
+        "pairs_fingerprint_mismatch": bool(pairs_fingerprint_mismatch),
         "dpo_beta": float(train_cfg.dpo_beta),
         "dpo_loss_type": train_cfg.dpo_loss_type,
         "learning_rate": float(train_cfg.learning_rate),

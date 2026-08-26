@@ -712,7 +712,11 @@ class TrainingConfigBase:
 
     # -- loop -------------------------------------------------------------------
     num_iterations: int = 6
-    epochs_per_iteration: int = 2
+    # 1, matched across both methods: a GRPO "epoch" re-samples G fresh completions per prompt
+    # and re-grades them, while a DPO epoch re-treads the SAME fixed pairs -- so epochs=1 is the
+    # only value at which "one pass over data produced by this iteration's policy" holds for
+    # both. Raise num_iterations, not this, for more updates.
+    epochs_per_iteration: int = 1
 
     # -- optimizer --------------------------------------------------------------
     learning_rate: float = 1e-5
@@ -773,12 +777,13 @@ class GRPOTrainingConfig(TrainingConfigBase):
 
     Warning:
         ``train_batch_size`` counts **completions**, not prompts, and
-        ``gradient_accumulation_steps`` must not be collapsed. TRL divides the loss by ``gas`` in
-        ``_compute_loss`` and transformers divides again in ``training_step`` (it fires because
-        ``GRPOTrainer`` sets ``model_accepts_loss_kwargs=False`` and the identity collator leaves
-        ``num_items_in_batch`` as None), so the net scale is ``1/gas^2`` and halving ``gas``
-        DOUBLES the accumulated gradient -- enough to start tripping ``max_grad_norm`` on measured
-        Exp3 gradient norms. It also buys nothing: TRL already issues ONE ``generate()`` per
+        ``gradient_accumulation_steps=2`` exists for the DESIGN MATCH (128 completions -> 16
+        unique prompts per optimizer step, mirroring PTO's 16 pairs), not for gradient scale.
+        On the pinned trl 1.4.0, ``gas`` changes are gradient-scale-neutral: trl bypasses
+        transformers' ``training_step`` scaling with a non-None ``compute_loss_func`` sentinel
+        and divides the loss exactly once by ``current_gradient_accumulation_steps``. (The old
+        "1/gas^2, halving gas doubles the gradient" claim was Exp3's earlier stack; re-verify on
+        any trl bump.) Collapsing ``gas`` also buys nothing: TRL issues ONE ``generate()`` per
         optimizer step over the whole ``generation_batch_size``, so 64x2 and 128x1 emit the same
         single call.
     """
@@ -1677,13 +1682,11 @@ def _grpo_errors(train: GRPOTrainingConfig) -> List[str]:
 
     if train.gradient_accumulation_steps == 1:
         _warn(
-            "GRPO gradient_accumulation_steps=1. TRL divides the loss by gas in _compute_loss and "
-            "transformers divides again in training_step (it fires because GRPOTrainer sets "
-            "model_accepts_loss_kwargs=False and the identity collator leaves num_items_in_batch "
-            "None), so the net scale is 1/gas^2: halving gas DOUBLES the accumulated gradient, "
-            "enough to start tripping max_grad_norm on measured Exp3 gradient norms. It also buys "
-            "no throughput -- TRL emits ONE generate() per optimizer step either way. Use "
-            "per_device=64 x gas=2."
+            "GRPO gradient_accumulation_steps=1. On the pinned trl 1.4.0 this is gradient-scale-"
+            "neutral (trl bypasses transformers' scaling and divides once itself), but it halves "
+            "the unique prompts per optimizer step -- 64x2 keeps prompts/step=16, matched to "
+            "PTO's 16 pairs -- and buys no throughput: TRL emits ONE generate() per optimizer "
+            "step either way. Use per_device=64 x gas=2 unless you mean to change the match."
         )
     return errs
 
@@ -1901,6 +1904,10 @@ def config_to_metadata(*cfgs: Any) -> Dict[str, Any]:
         config["roles"] = b["roles"].to_metadata()
     if "oracle" in b:
         config["oracle"] = asdict(b["oracle"])
+        # A module-level flag, not a dataclass field -- record it here or a flipped strictness
+        # (set_openai_compat_strict) leaves no trace in the run's provenance.
+        from core.oracle import openai_compat_strict
+        config["oracle"]["openai_compat_strict"] = bool(openai_compat_strict())
     if "lookahead" in b:
         config["lookahead"] = asdict(b["lookahead"])
     if paths is not None:

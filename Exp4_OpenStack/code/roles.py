@@ -87,11 +87,14 @@ __all__ = [
 # Defaults -- the open stack
 # ---------------------------------------------------------------------------
 
-#: 5.1B raw / 2.3B effective parameters (per-layer embeddings), ~3 GB bf16, 256K context.
+#: Gemma-4-E4B-it: 8.0B raw / 4B-class effective parameters (per-layer embeddings),
+#: **14.89 GiB bf16 checkpoint** (HF API, 2026-08-26 -- vLLM loads the raw checkpoint; do NOT
+#: assume PLE offload), 128K context, ungated Apache 2.0. The E2B sibling is 5.12B raw /
+#: 9.54 GiB bf16 -- the fallback if E4B is too slow or too tight on the shared card.
 #: One server serves all three roles; they differ only in per-request sampling params.
-DEFAULT_ORACLE_MODEL = "google/gemma-4-E2B-it"
-DEFAULT_PATIENT_MODEL = "google/gemma-4-E2B-it"
-DEFAULT_JUDGE_MODEL = "google/gemma-4-E2B-it"
+DEFAULT_ORACLE_MODEL = "google/gemma-4-E4B-it"
+DEFAULT_PATIENT_MODEL = "google/gemma-4-E4B-it"
+DEFAULT_JUDGE_MODEL = "google/gemma-4-E4B-it"
 
 #: The providers :func:`make_client` knows how to construct. ``openai_compat`` is any
 #: OpenAI-compatible server (vLLM, llama.cpp, TGI) -- same call shape, including
@@ -347,9 +350,12 @@ class ServeSpec:
         port: Localhost port. Assigned deterministically by :func:`plan_servers`.
         gpu_memory_utilization: vLLM's share of the card. This is a **pre-allocation, not a
             growing ceiling** -- vLLM grabs the fraction up front and keeps it. When the server
-            shares a card with a live trainer this wants to be LOW (0.25) and the server must
-            start FIRST, because training memory is the spiky side. On a 40 GB A100 that is
-            ~10 GB: ~3 GB Gemma weights bf16 plus a ~6-7 GB KV pool.
+            shares a card with a live trainer this wants to be as low as the WEIGHTS allow and
+            the server must start FIRST, because training memory is the spiky side. Real
+            checkpoint sizes (HF API, 2026-08-26): Gemma-4-E4B-it 14.89 GiB bf16 -> 0.50 of a
+            40 GB A100 (20 GiB = weights + ~4-5 GiB KV pool); Gemma-4-E2B-it 9.54 GiB -> 0.35.
+            The dataclass default (0.25) fits neither on its own -- the notebooks pass the
+            model-derived value explicitly; the default exists for tests and planning.
         max_model_len: Context window to allocate KV cache for.
             ⚠ **Do NOT lower this to save memory.** Measured on the 192 real Exp3 PTO_LA0
             transcripts, the full oracle prompt (rubric + transcript) runs to 9,319 tokens for Q1
@@ -438,12 +444,14 @@ def plan_servers(bindings: Dict[str, RoleBinding],
 # and an async client holds a connection pool worth reusing across the ~10k calls an iteration
 # makes. `request_timeout` is part of the key because the SDK bakes the timeout into the client
 # -- oracle and patient share model+endpoint in the default stack, so keying without it would
-# silently hand one role the other's timeout.
+# silently hand one role the other's timeout. The final key element is the RUNNING LOOP's id
+# (None outside a loop): pooled keep-alive connections cannot legally cross event loops, and
+# run_async spawns a fresh loop per call. See make_client's Notes.
 _CLIENT_CACHE: dict = {}
 
 
 def make_client(binding: RoleBinding, *, api_key: Optional[str] = None):
-    """Async client for *binding*. Cached per (provider, model, base_url, timeout, key).
+    """Async client for *binding*. Cached per (provider, model, base_url, timeout, key, LOOP).
 
     Args:
         binding: The role binding to build a client for.
@@ -458,6 +466,17 @@ def make_client(binding: RoleBinding, *, api_key: Optional[str] = None):
         ValueError: unknown provider.
 
     Notes:
+        **The cache is keyed by the running event loop** (mirroring ``AsyncPrimitives``), and a
+        same-binding entry from a DIFFERENT loop is evicted on sight. ``run_async`` spawns a
+        fresh loop per call and TRL runs the reward coroutine on its own persistent loop, so a
+        client object crossing loops carries keep-alive connections that were opened on a loop
+        that no longer exists -- measured on the pinned openai/httpx stack, every such parked
+        connection poisons exactly one call on the next loop with ``APIConnectionError``, which
+        can eat a whole retry budget at a phase boundary. Async entry points therefore re-resolve
+        their client via this function INSIDE the running coroutine rather than reusing a handle
+        built elsewhere; construction is cheap and per-loop reuse is a dict hit. Callers outside
+        any loop get the ``None`` loop key (probes, sync setup).
+
         An ``openai_compat`` server that wants no auth gets the ``"EMPTY"`` placeholder, because
         the OpenAI SDK refuses to construct without some key.
 
@@ -488,9 +507,23 @@ def make_client(binding: RoleBinding, *, api_key: Optional[str] = None):
             f"set api_key_env=, or export the provider's default variable."
         )
 
-    ck = (binding.provider, binding.model, binding.base_url, float(binding.request_timeout), key)
+    import asyncio
+
+    try:
+        loop_id: Optional[int] = id(asyncio.get_running_loop())
+    except RuntimeError:
+        loop_id = None                       # sync context -- probes and setup cells
+
+    base_key = (binding.provider, binding.model, binding.base_url,
+                float(binding.request_timeout), key)
+    ck = base_key + (loop_id,)
     if ck in _CLIENT_CACHE:
         return _CLIENT_CACHE[ck]
+
+    # Evict this binding's clients from OTHER loops: their pooled connections are unusable here,
+    # and a dead loop's client would otherwise live in the cache for the whole process.
+    for stale in [k for k in _CLIENT_CACHE if k[:-1] == base_key and k[-1] != loop_id]:
+        del _CLIENT_CACHE[stale]
 
     kwargs = {"api_key": key, "timeout": float(binding.request_timeout), "max_retries": 0}
     if binding.base_url:

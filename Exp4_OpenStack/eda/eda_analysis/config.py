@@ -178,9 +178,11 @@ class EdaConfig:
             the tags actually present in the score lake.
         judge_rep: Repetition index. ``0`` is the full draw; ``>=1`` are repeatability re-draws and
             typically cover a subset, so a non-zero rep yields a mostly-empty frame.
-        methods, ks, modes, arm_labels: Arm filters. ``None`` on an axis means "no filter", and the
-            default is therefore every arm on disk -- the four-arm grid shares one axis in every
-            family, so narrowing is the exception.
+        methods, ks, modes, arm_labels, experiment_names: Arm filters. ``None`` on an axis means
+            "no filter", and the default is therefore every arm on disk -- the four-arm grid
+            shares one axis in every family, so narrowing is the exception.
+            ``experiment_names`` matches the FULL folder identity, for pinning exactly one arm
+            (e.g. excluding a quicktest sibling that shares the short label's axes).
         metrics: Metric keys to report, in :data:`~eda_analysis.constants.METRIC_ORDER` order.
             ``None`` means every metric present in the data.
         focus_metric: The single metric a one-panel figure defaults to. ``Q1Q2`` is the training
@@ -212,6 +214,7 @@ class EdaConfig:
     ks: Optional[Sequence[int]] = None             # [0] | [0, 5]
     modes: Optional[Sequence[str]] = None          # ["greedy"] | ["indep"]  (PTO only)
     arm_labels: Optional[Sequence[str]] = None     # explicit whitelist, e.g. ["PTO_LA0"]
+    experiment_names: Optional[Sequence[str]] = None  # whitelist on the FULL folder identity
 
     # -- metric selection --------------------------------------------------------
     metrics: Optional[Sequence[str]] = None
@@ -258,6 +261,7 @@ class EdaConfig:
             "judge": self.judge, "judge_rep": self.judge_rep,
             "methods": _list(self.methods), "ks": _list(self.ks),
             "modes": _list(self.modes), "arm_labels": _list(self.arm_labels),
+            "experiment_names": _list(self.experiment_names),
             "metrics": _list(self.metrics), "focus_metric": self.focus_metric,
             "attach_persona": self.attach_persona,
             "context": self.context, "font_scale": self.font_scale,
@@ -469,7 +473,8 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
     # 4. Arms.
     arms = _sibling("data", "discover_arms")()
     arms = _sibling("data", "filter_arms")(
-        arms, methods=cfg.methods, ks=cfg.ks, modes=cfg.modes, arm_labels=cfg.arm_labels
+        arms, methods=cfg.methods, ks=cfg.ks, modes=cfg.modes, arm_labels=cfg.arm_labels,
+        experiment_names=cfg.experiment_names,
     )
 
     # 5. Scores for THIS judge. The judge travels as an argument, never as global state -- families

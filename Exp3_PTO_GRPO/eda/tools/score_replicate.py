@@ -64,18 +64,29 @@ HELDOUT = JudgeSpec(provider="anthropic", model="claude-haiku-4-5")   # tag: ant
 
 
 def _load_combined():
-    paths = [os.path.join(WORKSPACE_ROOT, e.path) for e in REPLICATES]
-    for p in paths:
+    """Load every replicate whose 96 conversations are all on disk.
+
+    A draw that is still generating is SKIPPED with a warning rather than failing the run, so the
+    first finished draw can be scored while the second is still on Colab. Scoring is resume-safe
+    per conversation CSV, so re-running once the second lands scores only the new work.
+    """
+    ready, skipped = [], []
+    for e in REPLICATES:
+        p = os.path.join(WORKSPACE_ROOT, e.path)
         n = len([f for f in os.listdir(p) if f.startswith("conversation_")]) if os.path.isdir(p) else 0
-        print(f"  {os.path.basename(os.path.dirname(p))}: {n} conversation CSV(s)")
-        if n < 96:
-            raise SystemExit(f"Replicate dir incomplete ({n}/96): {p}\n"
-                             f"  Finish the generate pass before scoring.")
-    combined = combine_data(load_data(paths), [e.model_name for e in REPLICATES])
+        print(f"  {e.model_name}: {n}/96 conversation CSV(s)" + ("" if n >= 96 else "   <-- still generating, SKIPPED"))
+        (ready if n >= 96 else skipped).append(e)
+    if not ready:
+        raise SystemExit("No replicate draw is complete yet — nothing to score.")
+    if skipped:
+        print(f"  ! scoring {len(ready)} of {len(REPLICATES)} draws; re-run this script once "
+              f"{', '.join(e.model_name for e in skipped)} finishes.")
+    combined = combine_data(load_data([os.path.join(WORKSPACE_ROOT, e.path) for e in ready]),
+                            [e.model_name for e in ready])
     combined["id"] = combined["id"].astype(int)
     combined = add_model_metadata_columns(combined)
     print(f"  -> {len(combined)} conversations, models: {sorted(combined['Model'].unique())}")
-    return combined
+    return combined, ready
 
 
 def _coverage(judge_tag: str, rep: int = 0) -> None:
@@ -105,21 +116,21 @@ def main() -> int:
         ap.error("pass --primary and/or --judge (or --coverage)")
 
     assert oracle_eval.EVAL_CODE_AVAILABLE, "questionnaires module not importable (code/ off sys.path?)"
-    combined = _load_combined()
-    layout = get_model_eval_layout(REPLICATES)   # {model_name: {'root': primary rep=0, 'oracle': 'Q1Q2'}}
+    combined, ready = _load_combined()
+    layout = get_model_eval_layout(ready)   # {model_name: {'root': primary rep=0, 'oracle': 'Q1Q2'}}
 
     if args.primary:
         from openai import AsyncOpenAI
         with open(os.path.join(WORKSPACE_ROOT, "openai_key.txt")) as fh:
             client = AsyncOpenAI(api_key=fh.read().strip())
         cfgs = oracle_eval.build_default_eval_configs(ScoringConfig())
-        print(f"\n== PRIMARY (gpt-4o-mini, live): {len(REPLICATES)} models x {len(cfgs)} instruments x 96 ==")
+        print(f"\n== PRIMARY (gpt-4o-mini, live): {len(ready)} model(s) x {len(cfgs)} instruments x 96 ==")
         stats = asyncio.run(oracle_eval.run_all_evaluations_async(
             client, combined, cfgs, layout, concurrency=args.concurrency or 32))
         print({k: v for k, v in stats.items()})
 
     if args.judge:
-        print(f"\n== HELD-OUT ({HELDOUT.tag}, live): {len(REPLICATES)} models x 8 instruments x 96 ==")
+        print(f"\n== HELD-OUT ({HELDOUT.tag}, live): {len(ready)} model(s) x 8 instruments x 96 ==")
         stats = asyncio.run(run_judge_scoring(
             HELDOUT, combined, list(EVAL_QUESTIONNAIRE_DIRS), layout,
             rep=0, concurrency=args.concurrency or 16))

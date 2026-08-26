@@ -61,6 +61,24 @@ with the cited table. Rows marked 📄 were read off the cited table only.
 ⚠ **Do not write "significant at every iteration."** The K advantage is null for the first three
 iterations under both graders and only opens from iteration 4.
 
+### §4 replicate draw (added 2026-08-26)
+
+A second independent 96-conversation draw of `GRPO_LA5@10` (same adapter, same 96 personas, same
+seed-53 shuffle, unseeded decoding), scored on all 8 instruments by both graders, 0 errors.
+Source for every row: results/measurement/replicate_draw.md (written by `eda/tools/replicate_check.py`).
+
+| claim | direction | value | source |
+|---|---|---|---|
+| ✅ Trained-state noise floor, `GRPO_LA5@10` draw2 − draw1 | neither | 9 metrics × 2 graders, **0 significant after Holm**, max \|dz\| **0.174** (MICI, primary); Q1+Q2 −0.056 (dz −0.121, p .160) primary, +0.021 (dz +0.031, p .963) held-out | replicate_draw.md § "GRPO_LA5 @10, draw 2 − draw 1" |
+| ✅ K contrast at iteration 10, Q1+Q2, primary, **replicate** | K=5 higher | **+0.709**, dz 0.919 (original +0.765, dz 0.905) | same, § "K lever @10 — replicate" |
+| ✅ K contrast at iteration 10, Q1+Q2, held-out, **replicate** | K=5 higher | **+0.637**, dz 0.949 (original +0.616, dz 1.030) | same |
+| ✅ Endpoint level, primary | — | 4.517 (original) → **4.461** (replicate) | same |
+
+⚠ **The re-draw covers the $K{=}5$ side only** — the $K{=}0$ arm is the same draw in both columns —
+so it tests the contested endpoint, not the whole contrast. Say so wherever the replicate is cited.
+⚠ **A replicate bounds EVALUATION noise, never TRAINING variance.** There is still one training run
+per arm; do not let "it replicates" drift into "the result is run-independent."
+
 ## §5 Cost
 
 | claim | value | source |

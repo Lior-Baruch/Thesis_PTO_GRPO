@@ -56,7 +56,7 @@ import glob
 import hashlib
 import json
 import os
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from functools import lru_cache
 from typing import Any, Callable, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
@@ -280,6 +280,11 @@ class Arm:
     info: ArmInfo
     iters: Tuple[int, ...] = ()
     data_root: str = DATA_DIR
+    #: Display-label override, set by :func:`discover_arms` when two discovered arms would share
+    #: ``info.label`` (which elides the rubric, MCL and branch width). ``None`` = use the short
+    #: label. This is what keeps a quicktest arm (``_M3_``) from silently merging with the real
+    #: arm in every groupby, palette and figure.
+    label_override: Optional[str] = None
 
     def __post_init__(self) -> None:
         object.__setattr__(self, "iters", tuple(sorted(int(i) for i in self.iters)))
@@ -294,14 +299,14 @@ class Arm:
 
     @property
     def label(self) -> str:
-        """Short display label (``"GRPO_LA5"``). See :attr:`naming.ArmInfo.label`.
+        """Display label (``"GRPO_LA5"``), disambiguated when discovery found a collision.
 
-        Warning:
-            A DISPLAY key. It drops the rubric, MCL and branch width, so two arms differing only
-            in MCL share a label and would merge in a groupby. Key on :attr:`experiment_name`
-            for anything that reads or writes data.
+        :func:`discover_arms` appends the distinguishing name-encoded fields (branch width, MCL,
+        rubric, role tags) whenever two arms on disk would otherwise share the short label -- so
+        within one discovery pass the label IS unique. Still a DISPLAY key: key on
+        :attr:`experiment_name` for anything that reads or writes data.
         """
-        return self.info.label
+        return self.label_override or self.info.label
 
     @property
     def method(self) -> str:
@@ -556,7 +561,48 @@ def discover_arms(*,
         arms.append(Arm(experiment_name=name, info=info, iters=tuple(states), data_root=base))
 
     arms.sort(key=lambda a: (a.method, a.k, a.experiment_name))
-    return arms
+    return _disambiguate_labels(arms, loud)
+
+
+def _disambiguate_labels(arms: List[Arm], loud: bool) -> List[Arm]:
+    """Extend colliding display labels with the fields that actually differ.
+
+    ``ArmInfo.label`` elides the rubric, MCL and branch width, so a quicktest arm (``_M3_``) and
+    the real arm (``_M8_``) both render ``"PTO_LA0"`` -- and every downstream groupby, palette
+    and contrast keys on the label, so they would MERGE SILENTLY into one fictional arm. For any
+    label shared by more than one discovered arm, the distinguishing tokens are appended in a
+    fixed order (branch width, MCL, rubric, oracle tag, patient tag) until the group is unique;
+    arms with unique labels keep the short form.
+    """
+    by_label: Dict[str, List[int]] = {}
+    for i, arm in enumerate(arms):
+        by_label.setdefault(arm.info.label, []).append(i)
+
+    out = list(arms)
+    for label, idxs in by_label.items():
+        if len(idxs) < 2:
+            continue
+        group = [arms[i].info for i in idxs]
+
+        def _width(info: ArmInfo) -> str:
+            return f"M{info.m}" if info.m is not None else f"G{info.g}"
+
+        candidates = [
+            _width,
+            lambda info: f"MCL{info.mcl}",
+            lambda info: info.qtag,
+            lambda info: f"O{info.oracle_tag}",
+            lambda info: f"Pat{info.patient_tag}",
+        ]
+        chosen = [fn for fn in candidates if len({fn(info) for info in group}) > 1]
+        if not chosen:                       # identical on every axis -- cannot happen for
+            continue                         # distinct folder names, but never loop on it
+        for i in idxs:
+            suffix = "_".join(fn(arms[i].info) for fn in chosen)
+            new_label = f"{label}_{suffix}"
+            out[i] = replace(arms[i], label_override=new_label)
+            _log(f"label collision on {label!r}: {arms[i].experiment_name} -> {new_label!r}", loud)
+    return out
 
 
 def filter_arms(arms: Sequence[Arm],
@@ -564,15 +610,19 @@ def filter_arms(arms: Sequence[Arm],
                 methods: Optional[Iterable[str]] = None,
                 ks: Optional[Iterable[int]] = None,
                 modes: Optional[Iterable[str]] = None,
-                arm_labels: Optional[Iterable[str]] = None) -> List[Arm]:
+                arm_labels: Optional[Iterable[str]] = None,
+                experiment_names: Optional[Iterable[str]] = None) -> List[Arm]:
     """Subset a discovered arm list. Each criterion left ``None`` is not applied.
 
     Args:
         methods: ``["PTO"]``, ``["GRPO"]``, or both.
         ks: Look-ahead depths to keep, e.g. ``[0]``.
         modes: Preference-tree modes. ``""`` selects GRPO arms (see :attr:`Arm.mode`).
-        arm_labels: Whitelist on :attr:`Arm.label` -- a DISPLAY key, so it can match more than
-            one arm when two differ only in something the label elides (MCL, branch width).
+        arm_labels: Whitelist on :attr:`Arm.label` -- a DISPLAY key. Discovery disambiguates
+            colliding labels, so within one pass a label names one arm; prefer
+            *experiment_names* when you mean a specific folder.
+        experiment_names: Whitelist on :attr:`Arm.experiment_name` -- the FULL folder identity,
+            for selecting exactly one arm regardless of how labels rendered.
 
     Returns:
         A new list, order preserved.
@@ -581,6 +631,7 @@ def filter_arms(arms: Sequence[Arm],
     k_set = set(int(k) for k in ks) if ks is not None else None
     mode_set = set(modes) if modes is not None else None
     label_set = set(arm_labels) if arm_labels else None
+    name_set = set(experiment_names) if experiment_names else None
 
     def keep(arm: Arm) -> bool:
         if method_set is not None and arm.method not in method_set:
@@ -590,6 +641,8 @@ def filter_arms(arms: Sequence[Arm],
         if mode_set is not None and arm.mode not in mode_set:
             return False
         if label_set is not None and arm.label not in label_set:
+            return False
+        if name_set is not None and arm.experiment_name not in name_set:
             return False
         return True
 

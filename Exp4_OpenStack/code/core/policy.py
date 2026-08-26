@@ -602,15 +602,29 @@ def _list_numbered_dirs(
 def list_iteration_checkpoints(run_dir: str) -> List[Tuple[int, str]]:
     """List completed iterations as ``[(iteration_number, adapter_path), ...]``, ascending.
 
-    An iteration counts as completed exactly when ``iteration_<N>/adapter/`` exists.
-    That is the single definition of "done" used by the resume logic, the EDA and the
+    An iteration counts as completed exactly when ``iteration_<N>/adapter/`` holds both
+    files in :data:`ADAPTER_FILES` -- directory presence alone is NOT enough. A process
+    killed inside the end-of-iteration ``save_pretrained`` (a multi-second window on the
+    Drive mount) leaves ``adapter_config.json`` without ``adapter_model.safetensors``;
+    counting that torn save as "done" would send every subsequent resume into
+    ``PeftModel.from_pretrained`` on it, crashing the notebook until a human deletes the
+    directory by hand. Treating it as incomplete instead routes ``resolve_start_state``
+    to case B, which resumes from the latest valid HF checkpoint sitting right beside it.
+    This is the single definition of "done" used by the resume logic, the EDA and the
     eval-generation tool.
     """
     result: List[Tuple[int, str]] = []
     for n, iter_dir in _list_numbered_dirs(run_dir, ITER_PREFIX):
         adapter_path = os.path.join(iter_dir, ADAPTER_SUBDIR)
-        if os.path.isdir(adapter_path):
-            result.append((n, adapter_path))
+        if not os.path.isdir(adapter_path):
+            continue
+        if not validate_iteration_checkpoint(iter_dir):
+            print(
+                f"  WARNING: {os.path.basename(iter_dir)}/adapter/ exists but is missing "
+                f"adapter files (torn save?) -- treating the iteration as INCOMPLETE"
+            )
+            continue
+        result.append((n, adapter_path))
     return result
 
 
@@ -685,9 +699,14 @@ def resolve_start_state(
 
     A. **Fresh start** -- nothing on disk. Returns ``(1, base, None)``.
     B. **Mid-iteration crash** -- ``iteration_<N>/training/checkpoint-*/`` exists but
-       ``iteration_<N>/adapter/`` does not. Resumes from the latest VALID HF
-       checkpoint, or (if every checkpoint is half-written) restarts iteration ``N``
-       from the previous iteration's adapter.
+       ``iteration_<N>/adapter/`` does not (or is a torn save). Returns the
+       **iteration-start** policy (previous iteration's adapter, or the bare base for
+       an iteration-1 resume) together with the latest VALID HF checkpoint path: the
+       TRL trainers snapshot the handed-in policy as their frozen reference at
+       construction, so the policy must carry iteration-start weights, while
+       ``train(resume_from_checkpoint=...)`` restores the mid-training weights
+       afterwards. If every checkpoint is half-written, restarts iteration ``N`` from
+       the previous iteration's adapter with no resume checkpoint.
     C. **Between iterations** -- ``iteration_<N>/adapter/`` exists. Loads it and starts
        at ``N+1``.
 
@@ -739,7 +758,28 @@ def resolve_start_state(
                     f"{os.path.basename(valid_ckpt)}"
                 )
             print(f"  Resuming iteration_{candidate_iter} from {os.path.basename(valid_ckpt)}")
-            policy = PeftModel.from_pretrained(base_for_adapter, valid_ckpt, is_trainable=True)
+            # The returned policy holds the ITERATION-START weights, not the crash
+            # checkpoint. Both TRL trainers snapshot the policy they are HANDED into
+            # their frozen reference at construction (DPO copies the current "default"
+            # adapter into "ref" and precomputes ref log-probs inside __init__; GRPO
+            # snapshots default->ref the same way) -- all BEFORE
+            # train(resume_from_checkpoint=...) restores the mid-training weights into
+            # the "default" adapter. Loading the checkpoint here would therefore
+            # silently re-anchor the KL/DPO reference to the crash point, so a resumed
+            # iteration would train the objective of a different experiment.
+            if latest_iteration == 0:
+                # Iteration-1 resume: iteration-start == the bare base. The trainer
+                # re-attaches a fresh LoRA (identity at step 0, exactly the reference
+                # the crashed process used) and _load_from_checkpoint restores the
+                # trained weights at train() time.
+                policy = base_for_adapter
+            else:
+                iter_start_adapter = os.path.join(
+                    run_dir, f"{ITER_PREFIX}{latest_iteration}", ADAPTER_SUBDIR
+                )
+                policy = PeftModel.from_pretrained(
+                    base_for_adapter, iter_start_adapter, is_trainable=True
+                )
             patch_generate(policy, tokenizer)
             return candidate_iter, policy, valid_ckpt
 

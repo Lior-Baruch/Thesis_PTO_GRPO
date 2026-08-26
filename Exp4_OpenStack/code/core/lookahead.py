@@ -528,8 +528,10 @@ async def simulate_lookahead_batch(
             "'patient_system_prompt'."
         )
 
-    if client is None:
-        client = make_client(cfg.patient_binding)
+    # Always re-resolve on the RUNNING loop (make_client is loop-keyed), even when a client was
+    # passed: a handle built on another loop carries keep-alive connections that poison the
+    # first patient calls here with APIConnectionError. Per-loop reuse is a dict hit.
+    client = make_client(cfg.patient_binding)
 
     sims: List[_Sim] = []
     for transcript, completion, sp_patient, seed in zip(

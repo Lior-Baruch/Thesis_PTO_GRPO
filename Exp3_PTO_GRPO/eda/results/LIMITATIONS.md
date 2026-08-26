@@ -428,15 +428,28 @@ the **share** of coded acts
 ([`lookahead/behaviour/tables/k_mici_composition.md`](lookahead/behaviour/tables/k_mici_composition.md)'s
 `*_share` columns) — prefer it for any substitution claim, and label every rate as a rate.
 
-## 5c · No replicate draw for any trained checkpoint; decoding has no per-call seed
-Every dz in this EDA treats **one** 96-conversation draw as the model. The only noise floor that
-exists is at the base: four independent draws of the *identical* untrained policy give
+## 5c · Replicate draws exist for TWO trained checkpoints (2026-08-26); decoding has no per-call seed
+Every dz in this EDA treats **one** 96-conversation draw as the model. Two noise floors now exist.
+
+**At the base:** four independent draws of the *identical* untrained policy give
 6 pairs x 9 metrics = 54 same-policy contrasts with **0 reaching even uncorrected p < .05**
 (max |dz| 0.128 primary / 0.147 held-out). That floor is measured where sessions are short and
-homogeneous; for trained checkpoints, where mean therapist turn length runs from 266–301 characters
-at base to 686–896 at iteration 10
-([`lookahead/behaviour/tables/length_endpoints.md`](lookahead/behaviour/tables/length_endpoints.md)),
-**there is no replicate at all**.
+homogeneous; trained checkpoints run much longer (mean therapist turn 266–301 characters at base
+vs 686–896 at iteration 10,
+[`lookahead/behaviour/tables/length_endpoints.md`](lookahead/behaviour/tables/length_endpoints.md)),
+so it does not transfer on its own.
+
+✅ **At two trained endpoints (added 2026-08-26):** `GRPO_LA5@10` (the best final state, and the
+one with the worst per-conversation cross-grader agreement) and `PTO_LA0@10` each have a **second
+independent 96-conversation draw** — same adapter, same 96 personas, same seed-53 shuffle,
+unseeded decoding — scored on all 8 instruments by both graders.
+2 arms x 9 metrics x 2 graders = **36 same-policy contrasts, 0 significant after Holm, max |dz|
+0.216** (largest raw Q1+Q2 gap 0.056). So the trained-state evaluation floor is of the same order
+as the base floor, and **every headline contrast survives re-drawing** — details and the
+original-vs-replicate table in
+[`measurement/replicate_draw.md`](measurement/replicate_draw.md). ⚠ Still ONE draw per state for
+the other 42 states, and still **one training run per arm** (§5g) — a replicate draw bounds
+*evaluation* noise, never run-to-run *training* variance.
 
 **Which endpoints are contested is itself grader-dependent.** Under the primary only GRPO_LA0
 disagrees with itself — best @8 = 4.082 vs final @10 = 3.753 on Q1+Q2

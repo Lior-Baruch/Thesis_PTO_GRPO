@@ -10,12 +10,15 @@ unmeasured, and we cannot separate ``look-ahead helps'' from ``this look-ahead r
 This is the limitation we would most like to remove and the one a reader should weight most
 heavily. It is distinct from, and not bounded by, the evaluation noise floor below.
 
-\paragraph{Every endpoint is a single evaluation draw.}
+\paragraph{Evaluation draws: replicated at the endpoint, single elsewhere.}
 Therapist decoding is unseeded, and each model state was evaluated on one 96-conversation sample.
-The only noise floor we have is at the untrained base, where four independent draws of the
-identical policy yield 54 same-policy contrasts with none reaching even uncorrected $p < .05$. That
-floor is measured where sessions are short and homogeneous; trained checkpoints, whose turn lengths
-differ by more than a factor of two, are not covered by it.
+Two noise floors bound this. At the untrained base, four independent draws of the identical policy
+yield 54 same-policy contrasts with none reaching even uncorrected $p < .05$ --- but that is
+measured where sessions are short and homogeneous. At the \emph{trained} endpoint we re-drew the
+winning state (\S\ref{sec:reward}): 9 instruments $\times$ 2 graders of the same policy differ
+by at most $|\dz|\,0.174$, nothing significant, and the $K$ contrast keeps its sign, significance
+and effect size. The remaining model states are still single draws, and a replicate bounds
+\emph{evaluation} noise only --- never the run-to-run training variance above.
 
 \paragraph{$K \in \{0, 5\}$ only.}
 $K$ was run at two levels by design. There is no dose--response evidence between them and nothing

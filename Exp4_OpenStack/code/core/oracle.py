@@ -560,7 +560,9 @@ async def score_conversation(client,
     """Grade one conversation on every configured rubric and reduce it to one reward.
 
     Args:
-        client: Async client built from ``cfg.binding``.
+        client: Accepted for API stability but re-resolved internally -- the effective client is
+            ``make_client(cfg.binding)`` on the RUNNING loop, because a client object that crossed
+            event loops poisons its first calls (see ``roles.make_client``).
         cfg: The oracle configuration; ``cfg.questionnaire_ids`` selects the rubrics.
         primitives: Supplies the oracle semaphore.
         conversation_text: The complete transcript to grade.
@@ -600,6 +602,11 @@ async def score_conversation(client,
         from scoring many conversations at once (:func:`score_conversations_batch`), which keeps
         the oracle semaphore the single honest bound on in-flight calls.
     """
+    # Re-resolve on the RUNNING loop (make_client is loop-keyed): a client built on another
+    # loop -- the notebook's setup cell, a previous run_async pass, TRL's own reward loop --
+    # carries keep-alive connections that poison calls here with APIConnectionError.
+    client = make_client(cfg.binding)
+
     rewards: List[float] = []
     sub_scores: Dict[str, float] = {}
     attempts_total = 0

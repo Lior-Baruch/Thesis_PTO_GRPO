@@ -28,22 +28,18 @@ design choice, comparable in effect size to changing the algorithm.
 \textbf{One-sided grader saturation is a measurement failure worth naming.} The pattern in
 \S\ref{sec:measurement} --- a trained-against grader losing three-quarters of its variance on the
 rewarded rubric while an independent grader's spread over the same conversations stays flat --- is
-not detectable from arm-level agreement statistics, which stayed flat as the grid grew. It appears
-precisely at the best-scoring checkpoint, which is the checkpoint a practitioner would ship. We
-suspect it is common wherever a single judge supplies both the reward and the reported outcome over
-many iterations, and that the cheap diagnostic --- track the training grader's per-conversation
-\emph{variance}, not just its mean --- is worth running by default.
+not detectable from arm-level agreement statistics, and it appears precisely at the best-scoring
+checkpoint --- the one a practitioner would ship. We suspect it is common wherever one judge
+supplies both the reward and the reported outcome over many iterations; the cheap diagnostic ---
+track the training grader's per-conversation \emph{variance}, not just its mean --- is worth
+running by default.
 
-\textbf{Limitations.} Five constraints bound these claims (each in full in
-Appendix~\ref{app:limitations}): one training run per arm, so run-to-run variance is unmeasured
---- the limitation to weight most heavily; a single 96-conversation evaluation draw per endpoint,
-with unseeded decoding; $K \in \{0, 5\}$ only, so no dose--response and nothing says $5$ is
-optimal; the 96 personas exhaust the grid and serve as both training and evaluation patients, so
-every number is in-sample; and all eight instruments are LLM-administered --- the held-out judge
-decouples the grader but not the \texttt{gpt-4o-mini} patient, and no human MI coder has rated any
-conversation.
+\textbf{Limitations} (in full in Appendix~\ref{app:limitations}): one training run per arm, so
+run-to-run variance is unmeasured --- the limitation to weight most heavily; single evaluation
+draws outside the replicated endpoint; $K \in \{0,5\}$ only; a saturated persona grid that makes
+every number in-sample; and LLM-administered instruments, with no human MI coder anywhere.
 
-\textbf{What would change our minds.} A replicate 96-conversation draw at the winning checkpoint
-failing to reproduce the endpoint gap; an intermediate $K$ showing the effect is a threshold, not
-a horizon; or a human MI coder disagreeing with the over-praise finding --- the one place where a
-deterministic transcript metric and two model graders agree with each other and with nobody else.
+\textbf{What would change our minds.} A second \emph{training} run reversing the ordering --- now
+the largest uncontrolled variance here, the evaluation draw being replicated; an intermediate $K$
+showing a threshold rather than a horizon; or a human MI coder disagreeing with the over-praise
+finding.

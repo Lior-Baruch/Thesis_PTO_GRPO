@@ -16,22 +16,29 @@ first arm.** There is no mtime reconstruction here and none is planned. What is 
 preference-pair building, training, the post-loop eval generate) must log itself.
 
 **Design: an append-only session log, not a running total.** Each process that works on an
-iteration appends ONE line to ``iteration_N/timing_sessions.jsonl`` describing what *it* did.
-Cumulative cost is the sum over lines. Nothing is ever rewritten, so:
+iteration appends a line to ``iteration_N/timing_sessions.jsonl`` **as each phase completes** --
+one line after generation, one after the preference build (PTO), one after training. Cumulative
+cost is the sum over lines; every line carries a per-process token, so process-level counters
+(``n_sessions``, ``n_sessions_production``) count distinct PROCESSES, not lines. Nothing is ever
+rewritten, so:
 
-* a process that dies mid-iteration still leaves its finished phases recorded;
+* a process that dies mid-iteration still leaves its **finished phases** recorded -- this is why
+  logging happens per phase, not once at iteration end: a Colab preemption during training must
+  not erase the 50-minute generation phase that already happened, or the compute/cost axis
+  silently undercounts exactly the preempted arms (the Exp3 defect this module exists to fix);
 * two processes cannot race a read-modify-write and lose a session;
 * the log is auditable -- you can see the resume boundaries rather than inferring them.
 
 Wall-clock spans are recorded alongside the phase durations, so a reader can separate compute time
 from idle time without guessing.
 
-Usage (both trainers, at the end of an iteration)::
+Usage (both trainers, after EACH phase)::
 
     from core.timing import log_session, cumulative_seconds
 
-    log_session(iter_dir, generation_s=gen_time, training_s=train_time,
-                pref_pair_s=pref_time)                   # PTO passes the third; GRPO omits it
+    log_session(iter_dir, generation_s=gen_time)         # right after the generation phase
+    log_session(iter_dir, pref_pair_s=pref_time)         # PTO only, right after the build
+    log_session(iter_dir, training_s=train_time)         # right after the trainer returns
     totals = cumulative_seconds(iter_dir)                # {'generation_s': ..., 'total_s': ...}
 
 Reading it back costs nothing and never raises: a missing or corrupt log returns zeros, so the EDA
@@ -57,8 +64,12 @@ __all__ = [
     "metadata_fields",
 ]
 
-#: One line per process that worked on the iteration. Append-only by contract.
+#: One line per completed phase. Append-only by contract.
 SESSIONS_FILENAME = "timing_sessions.jsonl"
+
+#: Stamped into every record so the reader can group lines by the process that wrote them.
+#: PID alone is not enough -- Windows reuses PIDs across days, and an arm spans days.
+_PROCESS_TOKEN = f"{socket.gethostname()}:{os.getpid()}:{int(time.time())}"
 
 #: The phases a session may report. Unknown keys are preserved in the record but not summed into
 #: ``total_s``, so adding a phase here is what makes it count -- a silent typo in a caller cannot
@@ -76,6 +87,12 @@ PHASE_KEYS = ("generation_s", "pref_pair_s", "training_s", "eval_gen_s")
 #: per arm -- the endpoint every budget sweep is read at -- under a different rule from all the
 #: others, and shift it right by a whole generation pass. Sum ``production_s`` for cost, and read
 #: ``eval_gen_s`` separately as the measurement axis.
+#:
+#: One known ambiguity: a ``tools/generate_convs.py`` repair on an arm that later RESUMES bills
+#: its pass as ``eval_gen_s`` against iteration ``k``, and iteration ``k+1`` then reloads those
+#: same conversations with a near-zero ``generation_s`` -- the pass's cost sits on the measurement
+#: axis instead of ``production_s``. The repair session's ``note`` names the tool, so a cost
+#: analysis can reclassify it when it matters.
 PRODUCTION_PHASE_KEYS = ("generation_s", "pref_pair_s", "training_s")
 
 
@@ -103,9 +120,15 @@ def log_session(iter_dir: str, *, generation_s: float = 0.0, training_s: float =
         The record written, or an empty dict if the write failed.
 
     Notes:
+        Call this **as each phase completes**, not once at iteration end -- a process killed
+        during training must still leave its finished generation phase on record. Multiple calls
+        from one process are grouped by the per-process token, so per-phase logging does not
+        inflate the process counters.
+
         Pass only what *this* process did. A resumed iteration that reloaded ``pairs.csv`` instead
-        of rebuilding must log ``pref_pair_s=0.0`` -- the earlier session already recorded the
-        build, and double-counting it is exactly the failure this file exists to prevent.
+        of rebuilding must log ``pref_pair_s=0.0`` (or skip the call) -- the earlier session
+        already recorded the build, and double-counting it is exactly the failure this file exists
+        to prevent.
 
         Timing must never be able to fail a training run, so every error here is swallowed after a
         warning; the caller gets ``{}`` and should not branch on it.
@@ -121,6 +144,7 @@ def log_session(iter_dir: str, *, generation_s: float = 0.0, training_s: float =
         "wall_span_s": (now - float(started_at)) if started_at else None,
         "host": socket.gethostname(),
         "pid": os.getpid(),
+        "process": _PROCESS_TOKEN,
         "logged_at": time.strftime("%Y-%m-%dT%H:%M:%S", time.localtime(now)),
         "note": note,
     }
@@ -170,8 +194,9 @@ def cumulative_seconds(iter_dir: str) -> Dict[str, float]:
         * ``total_s`` -- every phase, measurement included;
         * ``production_s`` -- :data:`PRODUCTION_PHASE_KEYS` only, i.e. what it cost to PRODUCE
           this iteration's policy. **This is the cost axis**; see the constant's note;
-        * ``n_sessions`` -- how many processes appended a line at all;
-        * ``n_sessions_production`` -- how many of them did production work.
+        * ``n_sessions`` -- how many distinct PROCESSES appended a line at all (lines are grouped
+          by the per-process token, since one process logs each phase separately);
+        * ``n_sessions_production`` -- how many of those processes did production work.
 
     Notes:
         ⚠ **Resume is ``n_sessions_production > 1``, not ``n_sessions > 1``.** The post-loop
@@ -186,8 +211,20 @@ def cumulative_seconds(iter_dir: str) -> Dict[str, float]:
     """
     sessions = read_sessions(iter_dir)
     totals = {k: 0.0 for k in PHASE_KEYS}
-    n_production = 0
-    for s in sessions:
+    all_procs: set = set()
+    production_procs: set = set()
+
+    def _proc_key(rec: dict, idx: int):
+        # Lines without a token fall back to (host, pid); a line missing both counts alone.
+        if rec.get("process"):
+            return rec["process"]
+        if rec.get("pid") is not None:
+            return (rec.get("host"), rec.get("pid"))
+        return ("line", idx)
+
+    for i, s in enumerate(sessions):
+        key = _proc_key(s, i)
+        all_procs.add(key)
         for k in PHASE_KEYS:
             try:
                 totals[k] += float(s.get(k) or 0.0)
@@ -196,14 +233,14 @@ def cumulative_seconds(iter_dir: str) -> Dict[str, float]:
         for k in PRODUCTION_PHASE_KEYS:
             try:
                 if float(s.get(k) or 0.0) > 0.0:
-                    n_production += 1
+                    production_procs.add(key)
                     break
             except (TypeError, ValueError):
                 continue
     totals["total_s"] = sum(totals[k] for k in PHASE_KEYS)
     totals["production_s"] = sum(totals[k] for k in PRODUCTION_PHASE_KEYS)
-    totals["n_sessions"] = float(len(sessions))
-    totals["n_sessions_production"] = float(n_production)
+    totals["n_sessions"] = float(len(all_procs))
+    totals["n_sessions_production"] = float(len(production_procs))
     return totals
 
 

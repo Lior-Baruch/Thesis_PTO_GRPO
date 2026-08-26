@@ -314,10 +314,13 @@ Q1 r = 0.487 (I9) and 0.544 (I10) against a 44-state median of 0.855. See § Hea
 Sign preservation is an *arm-level* statistic; quote it for orderings, never for an endpoint.
 
 ⚠ **Standing caveats** — see [eda/results/LIMITATIONS.md](Exp3_PTO_GRPO/eda/results/LIMITATIONS.md):
-**no channel-level ICC at all**, **no repeatability rep for any K=5 state**, and **no replicate draw
-for any trained checkpoint** (therapist decoding is unseeded, so no conversation set here is
-reproducible). All 96 personas are used for both training and eval at every iteration, so every
-number is in-sample w.r.t. the patient distribution.
+**no channel-level ICC at all** and **no oracle repeatability rep for any K=5 state** (therapist
+decoding is unseeded, so no conversation set here is reproducible). ✅ *"No replicate draw for any
+trained checkpoint" was retired 2026-08-26* — `GRPO_LA5@10` and `PTO_LA0@10` each have a second
+independent draw (§ Next step 3); the other 42 states remain single draws, and a replicate bounds
+*evaluation* noise only, never run-to-run *training* variance (still one training run per arm).
+All 96 personas are used for both training and eval at every iteration, so every number is
+in-sample w.r.t. the patient distribution.
 
 ## Cost constraint
 
@@ -369,14 +372,36 @@ paper (P1 — all-positive, no new spend), then the full 2×2 as the main paper 
 starts from a fresh `NUMBERS.md` against the current tables; the archived ledger's keys are stale
 (`iters1-5` → `iters1-10`) and its ⚠ traps still bind on shared numbers.
 
-**3. ✅ IN PROGRESS (2026-08-26) — the second independent 96-conversation draw.** The machinery is
-built and committed: `generate_eval_convs.py --method {pto,grpo}` (seeds verified on both arms,
-0 wrong), `eda/tools/score_replicate.py` (both graders, `_rep1_`-infixed lake names),
-`eda/tools/replicate_check.py` (report → `results/measurement/replicate_draw.md`). Generation runs
-on **Colab A100** via `code/tools/replicate_colab.ipynb` (on Drive; Run All) — a local attempt was
-GPU-bound at ~22 min/batch on the long-turn endpoint policies and the machine crashed mid-run, so
-the local path is retired for these two draws; the 12 partial local convs were deleted so the
-whole replicate is A100-generated like the primary draws. Original sizing note kept below:
+**3. ✅ DONE (2026-08-26) — the second independent 96-conversation draw. EVERY HEADLINE SURVIVES.**
+`GRPO_LA5@10` and `PTO_LA0@10` were re-drawn on a Colab A100 (`code/tools/replicate_colab.ipynb`,
+Run All) and scored on all 8 instruments by both graders — 1,536 calls per grader, **0 errors**.
+Report: [`eda/results/measurement/replicate_draw.md`](Exp3_PTO_GRPO/eda/results/measurement/replicate_draw.md)
+(every headline contrast computed twice, original draw vs replicate, side by side).
+
+**The trained-state noise floor, measured for the first time:** 2 arms × 9 metrics × 2 graders =
+**36 same-policy contrasts, 0 significant after Holm, max |dz| 0.216**, largest raw Q1+Q2 gap
+0.056 — the same order as the base-only floor, which until now was the only one that existed
+(LIMITATIONS §5c).
+
+**Original → replicate on Q1+Q2** (sign as named; every starred row p_holm < .05 in both):
+
+| contrast | primary | held-out |
+|---|---|---|
+| K lever @10, GRPO K5−K0 | +0.765 → **+0.709** (dz .905→.919)\* | +0.616 → **+0.637** (dz 1.030→.949)\* |
+| method @K0, PTO−GRPO | +0.507 → **+0.516**\* | +0.609 → **+0.659**\* |
+| method @K5, PTO−GRPO | −0.210 → **−0.155**\* | −0.206 → **−0.227**\* |
+| top pair, GRPO_LA5−PTO_LA0 | +0.257 → **+0.193**\* | +0.007 → **−0.022** (both n.s.) |
+
+⚠ **The K-lever and method rows re-draw only ONE side** (the K=0 / non-replicated arm is the same
+draw in both columns), so they test the contested endpoint, not the whole contrast.
+⚠ **The held-out "tie" is now settled properly.** The published 0.007 was *unpaired with no p*; the
+paired test gives dz +0.012 (p_holm 1.000) on the original draw and **flips sign** to −0.022
+(dz −0.039, p_holm 1.000) on the replicate. GRPO_LA5 and PTO_LA0 are **indistinguishable on the
+held-out judge** — now demonstrated across two independent draws, not inferred from one gap.
+Endpoint levels moved 4.517 → 4.461 (primary) and 2.873 → 2.894 (held-out), i.e. the headline
+"4.517" is a single draw whose replicate reads ~4.46.
+
+Original sizing note kept below:
 Every contested endpoint is a **single draw**; the only noise floor is at the base (4 independent
 draws of the identical base policy: 6 pairs × 9 metrics = 54 same-policy contrasts, **0 reaching
 even uncorrected p < .05**, max |dz| 0.128 primary / 0.147 held-out). The endpoints most worth

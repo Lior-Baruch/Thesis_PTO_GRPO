@@ -111,6 +111,7 @@ from core.concurrency import AsyncPrimitives  # noqa: E402
 from core.conversations import (  # noqa: E402
     extract_prompts_from_conversations,
     generate_all_conversations,
+    load_conversations_dir,
 )
 from core.lookahead import LookaheadState  # noqa: E402
 from core.policy import (  # noqa: E402
@@ -710,17 +711,19 @@ def build_grpo_config(
         matched to PTO's 16 preference pairs per step so the two methods take
         comparable-sized steps. Read that number off ``cfg.prompts_per_step``.
 
-        **Never collapse ``gradient_accumulation_steps`` to 1.** TRL divides the loss by ``gas``
-        in ``_compute_loss`` and transformers divides again in ``training_step`` (it fires
-        because ``GRPOTrainer`` sets ``model_accepts_loss_kwargs=False`` and the identity
-        collator leaves ``num_items_in_batch`` as ``None``), so the net scale is ``1/gas^2``:
-        halving ``gas`` DOUBLES the accumulated gradient, enough to start tripping
-        ``max_grad_norm`` on measured Exp3 gradient norms.
+        **Keep ``gradient_accumulation_steps=2`` for the prompts/step match, not for gradient
+        scale.** On the pinned trl 1.4.0, ``gas`` changes are gradient-scale-NEUTRAL: trl
+        bypasses transformers' own ``training_step`` scaling by passing a non-None
+        ``compute_loss_func`` sentinel (installed trl ``grpo_trainer.py`` ~:652-657) and divides
+        the loss exactly once by ``current_gradient_accumulation_steps`` (~:2351-2352). The old
+        "net scale is 1/gas^2, halving gas doubles the gradient" story was measured on Exp3's
+        earlier stack and is FALSE here -- re-verify those two line references on any trl bump.
+        What ``gas=2`` still buys is the design match: 128 completions -> 16 unique prompts per
+        optimizer step, mirrored to PTO's 16 pairs.
 
         **And a bigger batch buys nothing.** TRL already issues ONE ``generate()`` per optimizer
         step over the whole ``generation_batch_size`` (``per_device x gas``), so ``64 x 2`` and
-        ``128 x 1`` emit the same single call. There is no throughput on the table here -- only
-        the gradient-scale hazard above.
+        ``128 x 1`` emit the same single call. There is no throughput on the table here.
 
         **``generation_kwargs={"stop_strings": ...}`` is not optional.** ``<|im_end|>`` is
         template text, not the base tokenizer's EOS, so without it the 1B policy samples straight
@@ -1241,22 +1244,59 @@ def run_one_iteration(
     persona_ids = select_persona_ids(
         len(permutations), gen.num_conversations_per_iter, seed=cfg.seed, iteration=iteration
     )
-    states, generation_s = run_generation_phase(
-        policy=policy,
-        tokenizer=tokenizer,
-        client=client,
-        roles=roles,
-        gen=gen,
-        primitives=primitives,
-        permutations=permutations,
-        therapist_system_prompt=therapist_system_prompt,
-        therapist_init_utterance=therapist_init_utterance,
-        conv_dir=conv_dir,
-        persona_ids=persona_ids,
-        patient_seed=cfg.seed + iteration,
-        label=f"iteration {iteration}",
-    )
+    resuming_mid_training = bool(resume_checkpoint and iteration == start_iteration)
+    if resuming_mid_training:
+        # Mid-training resume: the crashed process already generated, extracted and SHUFFLED this
+        # iteration's dataset, and HF resumes by a purely positional skip_first_batches. The
+        # dataset must therefore be rebuilt from EXACTLY the conversations on disk -- generating
+        # anything here (e.g. refilling a persona) would change the pool, re-deal the shuffle,
+        # and misalign every fast-forwarded batch, while also filing this policy's output as
+        # model_iter_{n-1} eval data.
+        gen_start = time.time()
+        loaded = load_conversations_dir(conv_dir, verbose=gen.verbose)
+        states = [loaded[pid] for pid in sorted(loaded) if pid in set(persona_ids)]
+        missing = sorted(set(persona_ids) - set(loaded))
+        if missing:
+            raise RuntimeError(
+                f"mid-training resume of iteration_{iteration}: {len(missing)} persona CSV(s) "
+                f"missing from {conv_dir} ({missing}). The crashed process trained on the full "
+                f"set, so resuming on fewer would misalign the fast-forwarded batches. Restore "
+                f"the files (check the Drive mount / cloud first) or delete "
+                f"iteration_{iteration}/training/ to restart the iteration cleanly."
+            )
+        generation_s = time.time() - gen_start
+        print(
+            f"{_LOG}Mid-training resume: reloaded {len(states)} conversations from "
+            f"{conv_dir} (no generation -- the dataset must match the crashed process's)"
+        )
+    else:
+        states, generation_s = run_generation_phase(
+            policy=policy,
+            tokenizer=tokenizer,
+            client=client,
+            roles=roles,
+            gen=gen,
+            primitives=primitives,
+            permutations=permutations,
+            therapist_system_prompt=therapist_system_prompt,
+            therapist_init_utterance=therapist_init_utterance,
+            conv_dir=conv_dir,
+            persona_ids=persona_ids,
+            patient_seed=cfg.seed + iteration,
+            label=f"iteration {iteration}",
+        )
     avg_conv_len = (sum(s.n_utterances for s in states) / len(states)) if states else 0.0
+
+    # Phase logged as it completes (never batched to iteration end): a process killed during
+    # training must still leave its generation phase on record, or the cost axis undercounts
+    # every preempted iteration. The per-process token keeps the session counters honest.
+    log_session(
+        iter_dir,
+        generation_s=generation_s,
+        started_at=iter_start,
+        note=("reloaded for mid-training resume" if resuming_mid_training
+              else f"generation, iteration {iteration}"),
+    )
 
     # The generation KV caches are the largest thing alive right now, and the trainer is about to
     # allocate its own. Freeing between phases is not cosmetic: consecutive phases reach different
@@ -1380,18 +1420,18 @@ def run_one_iteration(
             )
 
     # -- 4. Timing + save ------------------------------------------------------
+    # The generation phase logged itself when it finished; this line records the training phase.
     # Logged BEFORE the metadata is built, so metadata_fields() sees this session too. Only what
     # THIS process did: the session log sums across processes, and double-counting a phase that a
     # previous session already recorded is exactly the failure it exists to prevent.
     log_session(
         iter_dir,
-        generation_s=generation_s,
         training_s=training_s,
         started_at=iter_start,
         note=(
-            f"resumed from {os.path.basename(resume_checkpoint)}"
-            if (resume_checkpoint and iteration == start_iteration)
-            else ""
+            f"training, resumed from {os.path.basename(resume_checkpoint)}"
+            if resuming_mid_training
+            else f"training, iteration {iteration}"
         ),
     )
     metadata = {

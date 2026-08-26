@@ -330,8 +330,12 @@ def save_conversation_csv(state: ConversationState, save_dir: str) -> str:
         shuffled processing index (Exp3 fix #2 -- see the module docstring). ``persona_id`` is
         also written as a column, so a file that gets renamed or copied is still self-describing.
 
-        Writing is not atomic. It does not need to be: a half-written CSV fails to parse on the
-        next resume, the persona is simply regenerated, and the cost is one conversation.
+        Writing is atomic: the frame goes to a temp file in the same directory, then
+        ``os.replace`` onto the final name. "A half-written CSV fails to parse on the next
+        resume" is FALSE for a truncation that lands on a row boundary -- pandas parses it as a
+        valid, shorter conversation, the resume path marks the persona complete, and the
+        truncated transcript permanently enters training extraction and the eval set. Atomic
+        replace makes the file either absent (regenerated, cost one conversation) or whole.
     """
     os.makedirs(save_dir, exist_ok=True)
     import pandas as pd  # lazy: the transcript helpers must import without pandas present
@@ -345,7 +349,9 @@ def save_conversation_csv(state: ConversationState, save_dir: str) -> str:
         "session_ended_by": [state.session_ended_by or ""] * n,
         "session_ended_explanation": [state.session_ended_explanation or ""] * n,
     }, columns=list(CONV_CSV_COLUMNS))
-    frame.to_csv(path, index=False)
+    tmp_path = path + ".tmp"
+    frame.to_csv(tmp_path, index=False)
+    os.replace(tmp_path, path)
     return path
 
 
@@ -1004,6 +1010,7 @@ async def generate_all_conversations_async(
     batch_size: int = 8,
     batch_cooldown_seconds: float = 1.0,
     max_retries_without_progress: int = 3,
+    allow_partial: bool = False,
     verbose: bool = True,
     verbose_detailed: bool = False,
 ) -> List[ConversationState]:
@@ -1038,13 +1045,33 @@ async def generate_all_conversations_async(
         detect it -- it needs at least two.
 
         **Bounded no-progress retries.** A pass that adds no conversation at all increments a
-        counter; after ``max_retries_without_progress`` such passes the function returns what it
-        has rather than looping forever against a server that is down. A pass that saves even one
+        counter; after ``max_retries_without_progress`` such passes the function stops rather
+        than looping forever against a server that is down. A pass that saves even one
         conversation resets the counter.
+
+        **OOM halves the batch, stickily.** When a batch comes back with ``error_type="oom"``,
+        the working batch size is halved (floor 1) for the REST of the pass and the remaining
+        personas are re-sliced at the new size -- retrying at the same size would replay the
+        same allocation and fail the same personas every pass until the no-progress bound fires.
+        Mirrors the look-ahead's sticky halving.
+
+        **Partial coverage raises by default.** The personas that fail are not a random sample
+        (they correlate with conversation length and difficulty), so a short set silently feeding
+        training/eval is a biased-missingness hazard on the headline metric. When personas are
+        still missing after the retry bound, this raises ``RuntimeError`` unless
+        ``allow_partial=True`` -- pass that only where a partial set is explicitly acceptable
+        (e.g. a repair tool that reports what it could not fill).
     """
     import torch  # lazy: only the generation path needs it
 
     from core.policy import vram_report
+    from roles import make_client
+
+    # Re-resolve the client on THIS loop (make_client is loop-keyed): run_async gives every
+    # pass a fresh loop, and a client object from an earlier loop poisons its first calls
+    # with APIConnectionError. Within this pass the client only serves patient calls, so the
+    # patient binding's per-attempt timeout is the right socket bound.
+    client = make_client(patient_binding)
 
     if persona_ids is None:
         persona_ids = list(range(len(permutations)))
@@ -1095,6 +1122,7 @@ async def generate_all_conversations_async(
             )
 
         progress = False
+        oom_this_pass = False
         for batch_num, offset in enumerate(range(0, len(remaining), batch_size), 1):
             batch_ids = remaining[offset: offset + batch_size]
             batch_start = time.time()
@@ -1137,6 +1165,22 @@ async def generate_all_conversations_async(
                 else:
                     n_failed += 1
 
+            # A returned batch can still carry a therapist-side error (the loop marks the
+            # still-active states failed and returns what it has). OOM at this batch size will
+            # OOM at this batch size again -- halve stickily and re-slice the remaining
+            # personas at the new width instead of replaying the same allocation.
+            if error_type == "oom" and batch_size > 1:
+                batch_size = max(1, batch_size // 2)
+                oom_this_pass = True
+                print(
+                    f"    OOM in batch {batch_num}: halving conversation batch size to "
+                    f"{batch_size} (sticky); re-slicing the remaining personas"
+                )
+                del states
+                gc.collect()
+                torch.cuda.empty_cache()
+                break  # the offsets of this pass were strided at the old size
+
             # Release this batch's KV cache and activations before the next batch allocates its
             # own. See the Notes above: without this the allocator's high-water mark grows every
             # batch, and on a 12 GB card that ends in a reboot rather than an exception.
@@ -1154,7 +1198,10 @@ async def generate_all_conversations_async(
                     f"vram {mem['reserved_gib']:.1f}G"
                 )
 
-        if progress:
+        if progress or oom_this_pass:
+            # A pass that only halved the batch made progress of a kind: the next pass runs a
+            # genuinely different (smaller) allocation. Halving is log2-bounded, so this cannot
+            # loop forever -- at batch_size 1 an OOM no longer resets the counter.
             retries_without_progress = 0
         else:
             retries_without_progress += 1
@@ -1164,6 +1211,7 @@ async def generate_all_conversations_async(
                     f"({retries_without_progress}/{max_retries_without_progress})"
                 )
 
+    missing = [pid for pid in requested if pid not in completed]
     if verbose:
         print(
             f"\n  Generation summary ({time.time() - start_time:.1f}s):\n"
@@ -1173,7 +1221,18 @@ async def generate_all_conversations_async(
             f"      reached cap     : {n_capped}\n"
             f"    Desync (graceful) : {len(desynced_all)}\n"
             f"    Failed / empty    : {n_failed}\n"
-            f"    Missing           : {total - len(completed)}"
+            f"    Missing           : {len(missing)}"
+        )
+
+    if missing and not allow_partial:
+        raise RuntimeError(
+            f"conversation generation is INCOMPLETE: {len(missing)}/{total} personas missing "
+            f"after the retry bound ({sorted(missing)}). The failures are not a random sample "
+            f"(they correlate with length and difficulty), so training or evaluating on the "
+            f"survivors is a biased subset. Fix the cause (server down? OOM at batch 1? patient "
+            f"timeouts?) and re-run -- conversations already on disk are reloaded, so only the "
+            f"missing personas are regenerated. Pass allow_partial=True only where a partial "
+            f"set is explicitly acceptable."
         )
 
     return [completed[pid] for pid in sorted(completed)]

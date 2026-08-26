@@ -549,6 +549,20 @@ def ensure_alive(handle: ServerHandle, *, max_restarts: int = 3,
             f"transient -- check gpu_memory_utilization against the trainer's peak. Log tail:\n"
             f"{handle.tail_log()}")
 
+    if handle.process is None and _port_in_use(handle.spec.port):
+        # An ADOPTED handle owns no process: stop() is a no-op by design, so a wedged external
+        # server (listening but not answering -- e.g. one orphaned by a kernel restart) cannot
+        # be repaired from here. Falling through would wait on a port that never releases and
+        # then raise start_server's misleading "still loading its weights" error. Name the real
+        # situation and the real fix instead.
+        raise RuntimeError(
+            f"server {handle.model} @ {handle.base_url} was ADOPTED (this process does not own "
+            f"it) and is wedged: it holds port {handle.spec.port} but stopped answering. It "
+            f"must be killed by hand -- e.g. `pkill -f 'vllm serve'` (Colab/Linux) or by PID "
+            f"from `ss -ltnp` / Task Manager -- then re-run this cell; serve_roles will start "
+            f"a fresh server it owns."
+        )
+
     handle.stop()
     _wait_for_port_release(handle.spec.port)
     log_dir = os.path.dirname(handle.log_path) if handle.log_path else None

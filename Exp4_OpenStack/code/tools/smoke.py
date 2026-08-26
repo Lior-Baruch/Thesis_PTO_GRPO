@@ -399,7 +399,9 @@ _ROLE_PAIRS: Tuple[Tuple[str, str], ...] = (
     (DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL),
     ("gpt-4o-mini-2024-07-18", DEFAULT_PATIENT_MODEL),
     (DEFAULT_ORACLE_MODEL, "gpt-4o"),
-    ("google/gemma-4-E4B-it", DEFAULT_PATIENT_MODEL),
+    # The non-default OPEN sibling (defaults are E4B) -- a flipped open role must widen the
+    # name too, not just a vendor flip.
+    ("google/gemma-4-E2B-it", DEFAULT_PATIENT_MODEL),
 )
 
 _NAME_CHARSET = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
@@ -407,9 +409,9 @@ _NAME_CHARSET = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456
 #: The three worked examples in CLAUDE.md and naming.py's docstring. If the grammar drifts, the
 #: documentation and the code disagree, and the documentation is what someone will grep for.
 _DOCUMENTED_NAMES: Tuple[str, ...] = (
-    "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B",
-    "PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E2B_Patgemma4E2B",
-    "GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E2B",
+    "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B",
+    "PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B",
+    "GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E4B",
 )
 
 

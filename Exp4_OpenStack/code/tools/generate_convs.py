@@ -85,6 +85,7 @@ import json
 import math
 import os
 import random
+import re
 import shutil
 import subprocess
 import sys
@@ -837,6 +838,20 @@ def _check_state_matches_adapter(model_iter: int, adapter: Optional[str], *,
         message = ("--model-iter 0 names the UNTRAINED base state but an --adapter was given, so "
                    "this would file trained conversations as the base policy's output.")
         fix = "Pass the --model-iter that matches the adapter, or drop --adapter."
+    elif model_iter > 0 and adapter:
+        # A path-shaped adapter usually carries its iteration in a path segment
+        # (.../iteration_<M>/adapter). --model-iter 3 with iteration_5's adapter passes the two
+        # branches above and files iteration-5 conversations as state 3 -- the exact
+        # "complete, valid-looking, wrong" corruption this guard exists to refuse, and the
+        # double-entry repair invocation is precisely where the slip happens.
+        m = re.search(r"(?:^|[\\/])iteration_(\d+)(?:[\\/]|$)", str(adapter))
+        if m is None or int(m.group(1)) == model_iter:
+            return
+        message = (f"--model-iter {model_iter} does not match the adapter's own path, which says "
+                   f"iteration_{m.group(1)} ({adapter!r}). This would file one policy's "
+                   f"conversations as another state's output.")
+        fix = (f"Pass --model-iter {m.group(1)} for this adapter, or point --adapter at "
+               f"iteration_{model_iter}/adapter.")
     else:
         return
 

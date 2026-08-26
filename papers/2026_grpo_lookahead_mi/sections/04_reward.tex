@@ -6,9 +6,8 @@
 At the matched iteration-10 endpoint, look-ahead wins on \textbf{every instrument under both
 graders} (Table~\ref{tab:endpoint}, appendix). On the rewarded rubric the gap is $+0.765$ ($\dz\,0.905$)
 under the training oracle and $+0.616$ ($\dz\,1.030$) under the held-out judge. That the held-out
-judge --- a different model family that never played the patient and never touched training ---
-reports a \emph{larger} standardised effect than the grader that was optimised against is the
-single most important fact in this section: the gain is not an artifact of the optimisation target.
+judge reports a \emph{larger} standardised effect than the grader optimised against is the key
+fact here: the gain is not an artifact of the optimisation target.
 
 Measured against each arm's own base, look-ahead more than doubles what the same optimizer extracts
 from the same oracle: $+1.554$ versus $+0.686$ on Q1+Q2 under the training oracle
@@ -45,13 +44,20 @@ iterations under each grader (primary: 4, 6--10; held-out: 4--7, 9, 10), and is 
 the endpoint} --- there is no sign of it having peaked (Figure~\ref{fig:headline}; the full
 by-iteration table is Appendix Table~\ref{tab:byiter}).
 
-Two readings are ruled out by the same figure. This is not $\Kz$ collapsing while $\Kf$ holds
-steady: $\Kf$ climbs throughout. Nor is it a single-iteration artifact --- the gap is
-Holm-significant at every iteration from 6 to 10 under the training oracle. It is not smooth,
-however: the primary-grader gap runs $+0.263, +0.196, +0.172, +0.647, +0.765$ over iterations
-6--10, so most of the final margin opens between iterations 8 and 9. Part of that late jump is the
-$\Kz$ arm falling rather than the $\Kf$ arm rising --- $\Kz$ scores $4.082$ at its own iteration-8
-peak and $3.753$ at iteration 10 --- and \S\ref{sec:behaviour} identifies what the $\Kz$ policy was
-doing over exactly those iterations.
-\todo{once the replicate draw of GRPO\_LA5@10 exists, state whether the endpoint survives a second
-96-conversation sample; the iteration-9 dip in the $\Kz$ arm is a single draw}
+Two readings are ruled out by the same figure: this is not $\Kz$ collapsing while $\Kf$ holds
+steady ($\Kf$ climbs throughout), nor a single-iteration artifact (the gap is Holm-significant at
+every iteration from 6 to 10 under the training oracle). It is not smooth --- most of the final
+margin opens between iterations 8 and 9, partly because $\Kz$ falls from its own iteration-8 peak
+of $4.082$ to $3.753$; \S\ref{sec:behaviour} identifies what that policy was doing over exactly
+those iterations.
+\textbf{The endpoint survives a second draw.} Every state here is scored on one 96-conversation
+sample, so we re-drew the winning one: 96 fresh conversations from the same $\Kf$ iteration-10
+adapter, same personas, same unseeded decoding, scored on all eight instruments by both graders.
+That gives a noise floor at a \emph{trained} checkpoint, which the design otherwise lacks --- the
+two draws of the same policy differ by at most $|\dz|\,0.174$ across 9 instruments and both
+graders, nothing significant. And the headline holds: substituting the replicate, the $\Kf-\Kz$
+gap on Q1+Q2 is $+0.709$ ($\dz\,0.919$) under the training oracle and $+0.637$ ($\dz\,0.949$) held
+out, against $+0.765$ and $+0.616$ originally --- same sign, same significance, effect sizes within
+$0.08$. The endpoint \emph{level} moves $4.517 \rightarrow 4.461$, the honest precision of a
+single-draw score here. The re-draw covers the $\Kf$ side only, so it tests the contested endpoint
+rather than the whole contrast.

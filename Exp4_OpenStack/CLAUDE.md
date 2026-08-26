@@ -18,17 +18,30 @@ Exp4 only. (The same warning Exp2↔Exp3 carries for a different reason.)
 | | Exp3_PTO_GRPO | **Exp4_OpenStack** |
 |---|---|---|
 | Therapist | Llama-3.2-1B bf16 + LoRA | **same** (deliberately — the policy is not the variable) |
-| Patient | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E2B-it`** (selectable) |
-| Training oracle | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E2B-it`** (selectable) |
-| Eval judge | gpt-4o-mini + Claude Haiku 4.5 | **`google/gemma-4-E2B-it`** (selectable; `judge=` partitions from day 1) |
-| Serving | vendor APIs | **one local vLLM OpenAI-compatible server** |
+| Patient | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable; E2B = fallback) |
+| Training oracle | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable) |
+| Eval judge | gpt-4o-mini + Claude Haiku 4.5 | **`google/gemma-4-E4B-it`** (selectable; `judge=` partitions from day 1) |
+| Serving | vendor APIs | **one local vLLM OpenAI-compatible server** (vLLM ≥ 0.19.1 for Gemma 4) |
 | Training questionnaire | Q1+Q2 (fixed) | **selectable** (default Q1+Q2) |
 | Logging | W&B + TensorBoard | **TensorBoard only** |
 | Cost per arm | ~$25–120 API | **$0 API** (Colab GPU-h only) |
 
-`google/gemma-4-E2B-it` (released 2026-07-02): 5.1B raw / 2.3B effective parameters (per-layer
-embeddings), ~3 GB bf16, 256K context, configurable thinking modes — **thinking must be disabled
-per request** for the oracle and patient roles.
+**The grader models, measured (HF API, 2026-08-26; both ungated, Apache 2.0 — no license
+click-through needed):**
+
+| | params (bf16) | checkpoint | vLLM `gpu_memory_utilization` on A100 40 GB |
+|---|---|---|---|
+| `google/gemma-4-E4B-it` (default) | 7.996B | **14.89 GiB** | **0.50** (20 GiB = weights + ~4–5 GiB KV) |
+| `google/gemma-4-E2B-it` (fallback) | 5.123B | **9.54 GiB** | 0.35 (14 GiB = weights + ~3.5–4 GiB KV) |
+
+Both are Gemma 4 (released 2026-07): per-layer embeddings, 128K context, configurable thinking
+modes. ⚠ **vLLM loads the raw checkpoint — never budget on the "effective" parameter count.** The
+"~3 GB" figure earlier revisions of this file carried was wrong by 3–5×; the numbers above are the
+checkpoint bytes. E4B is the default because **the grader IS the instrument** — pick between them
+by running the FULL `oracle_sanity` against both (Spearman + spread), not by size. Thinking is off
+by default in Gemma 4 AND explicitly disabled per request (`enable_thinking: false` via
+`chat_template_kwargs` — the key matches the official vLLM Gemma 4 recipe and the model card;
+`smoke.py roles` still verifies no thinking tokens reach the wire).
 
 ## Relationship to Exp3
 
@@ -97,9 +110,9 @@ side) and the EDA (read side). `EXPERIMENT_NAME` is **computed, never typed** �
 ```
 {GRPO|PTO}4_{QTAG}_LA{K}_MCL{N}_{G{G} | M{M}_PT{greedy|indep}}_O{otag}_Pat{ptag}
 
-GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B
-PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E2B_Patgemma4E2B
-GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E2B          # oracle flipped to the OpenAI API
+GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B
+PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B
+GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E4B          # oracle flipped to the OpenAI API
 ```
 
 ⚠ **The grammar can spell a SPLIT stack; the v1 trainers cannot run one.** Both trainers thread a
@@ -135,7 +148,9 @@ data/
 │       ├── adapter/                   presence ⟺ "iteration done"
 │       ├── training/                  HF Trainer output_dir (checkpoint-*, tb_logs/)
 │       ├── eda/generations.jsonl      per-branch capture
-│       ├── pref_pairs/{pairs.csv,_progress.json}   PTO only
+│       ├── pref_pairs/{pairs.csv,pairs_fingerprint.json,_progress.json}   PTO only — the
+│       │                              sidecar records the config the pairs were BUILT under;
+│       │                              the reload path compares it and warns on mismatch
 │       ├── iteration_metadata.json
 │       └── timing_sessions.jsonl      append-only per-phase timing  ← Exp3 fix #3
 ├── conversations/<EXP_NAME>/model_iter_<N>/pers<PID>.csv    PID = stable persona id 00–95  ← fix #2
@@ -158,9 +173,9 @@ change these shapes without updating this file.
 ### `code/roles.py`
 
 ```python
-DEFAULT_ORACLE_MODEL  = "google/gemma-4-E2B-it"
-DEFAULT_PATIENT_MODEL = "google/gemma-4-E2B-it"
-DEFAULT_JUDGE_MODEL   = "google/gemma-4-E2B-it"
+DEFAULT_ORACLE_MODEL  = "google/gemma-4-E4B-it"
+DEFAULT_PATIENT_MODEL = "google/gemma-4-E4B-it"
+DEFAULT_JUDGE_MODEL   = "google/gemma-4-E4B-it"
 
 @dataclass(frozen=True)
 class RoleBinding:
@@ -183,16 +198,23 @@ class RoleBinding:
 class ServeSpec:
     model: str
     port: int = 8000
-    gpu_memory_utilization: float = 0.25
+    gpu_memory_utilization: float = 0.25   # default for tests/planning; notebooks pass the
+                                           # model-derived value (E4B 0.50 / E2B 0.35 — § VRAM budget)
     max_model_len: int = 16384             # NOT an escape hatch — see § VRAM budget
     dtype: str = "bfloat16"
     extra_args: Tuple[str, ...] = ()
 
-def model_tag(model_id: str) -> str            # google/gemma-4-E2B-it -> gemma4E2B ; [A-Za-z0-9] only
+def model_tag(model_id: str) -> str            # google/gemma-4-E4B-it -> gemma4E4B ; [A-Za-z0-9] only
 def thinking_off_extra_body() -> str           # '{"chat_template_kwargs": {"enable_thinking": false}}'
 def make_binding(provider, model, *, base_url=None, disable_thinking=True, **kw) -> RoleBinding
 def plan_servers(bindings: Dict[str, RoleBinding], *, base_port=8000, **spec_kw) -> List[ServeSpec]
-def make_client(binding: RoleBinding, *, api_key: Optional[str] = None)   # cached AsyncOpenAI/AsyncAnthropic
+def make_client(binding: RoleBinding, *, api_key: Optional[str] = None)
+        # AsyncOpenAI/AsyncAnthropic, cached PER RUNNING EVENT LOOP (None outside a loop) —
+        # pooled keep-alive connections cannot cross loops, and run_async spawns a fresh loop
+        # per call, so a same-binding client from another loop is evicted on sight. The async
+        # entry points (generation pass, look-ahead, oracle scoring, PTO build) re-resolve their
+        # client via make_client INSIDE the running coroutine rather than reusing a handle built
+        # elsewhere.
 ```
 
 `plan_servers` **dedupes by model id**: patient + oracle + judge all on the same Gemma ⇒ exactly
@@ -272,10 +294,18 @@ def generate_therapist_batch(model, tokenizer, batch_messages, *, max_tokens, te
         # (responses, None) | (None, "oom") | (None, "runtime_error") — never raises on OOM
 
 def list_iteration_checkpoints(run_dir) -> List[Tuple[int, str]]
+        # "iteration done" ⟺ adapter/ holds BOTH ADAPTER_FILES — dir presence alone is a torn
+        # save and is treated as INCOMPLETE (warns; resolve_start_state then resumes case B)
 def get_latest_iteration(run_dir) -> int
 def validate_iteration_checkpoint(iteration_dir) -> bool
 def get_latest_valid_hf_checkpoint(training_dir) -> Optional[str]
 def resolve_start_state(run_dir, base_policy, tokenizer) -> Tuple[int, Any, Optional[str]]
+        # case B (mid-training crash) returns the ITERATION-START policy (prev adapter, or the
+        # bare base for an iteration-1 resume) + the valid checkpoint path: both TRL trainers
+        # snapshot the handed-in policy as their frozen reference (DPO copies default->"ref" and
+        # precomputes ref logps INSIDE __init__; GRPO snapshots the same way) BEFORE
+        # train(resume_from_checkpoint=...) restores the mid-training weights — loading the
+        # checkpoint here would silently re-anchor the KL/DPO reference to the crash point
 def compute_cumulative_step_offset(run_dir) -> int
 ```
 
@@ -321,8 +351,14 @@ async def generate_patient_batch(client, binding, batch_messages, sem, **kw) -> 
         # asyncio.gather(return_exceptions=True) — per-conversation failures come back as exceptions
 
 async def conversation_loop_batch(...) -> Tuple[List[ConversationState], Optional[str], List[int]]
-def generate_all_conversations(...) -> List[ConversationState]
-        # resumes from per-persona CSVs already on disk; bounded no-progress retries;
+def generate_all_conversations(..., allow_partial=False) -> List[ConversationState]
+        # resumes from per-persona CSVs already on disk (written ATOMICALLY: temp + os.replace,
+        # so a preemption mid-write can't leave a shorter-but-parseable truncation that the
+        # resume then treats as a complete conversation); bounded no-progress retries; an OOM
+        # batch HALVES the batch size stickily and re-slices (mirrors the look-ahead);
+        # RAISES RuntimeError when personas are still missing after the retry bound unless
+        # allow_partial=True — the failures correlate with length/difficulty, so a partial set
+        # feeding training or eval is biased missingness on the headline metric;
         # gc.collect()+empty_cache() BETWEEN batches (not cosmetic — the allocator high-water
         # mark grows otherwise) and prints a `vram <N>G` field per batch line
 
@@ -474,6 +510,12 @@ def cumulative_seconds(iter_dir) -> Dict[str, float]
 def metadata_fields(iter_dir) -> Dict[str, float]         # cumulative_* to splat into metadata
 ```
 
+**Phases log themselves AS THEY COMPLETE** — one line after generation, one after the preference
+build (PTO), one after training — so a Colab preemption during training still leaves the finished
+generation phase on the cost record (the Exp3 undercount this module exists to fix). Every line
+carries a per-process token (`host:pid:start`), and `n_sessions` / `n_sessions_production` count
+distinct PROCESSES, not lines, so per-phase logging does not inflate the counters.
+
 `n_sessions_production > 1` ⟺ the iteration was resumed ⟺ any per-process number for it is wrong.
 ⚠ **Not `n_sessions > 1`.** The post-loop final-eval pass logs an `eval_gen_s`-only session against
 `iteration_{N}` (and every `tools/generate_convs.py` repair appends another), so the raw session
@@ -541,11 +583,14 @@ either.
 
 ## VRAM budget
 
-**Colab A100 40 GB** (the primary target):
+**Colab A100 40 GB** (the primary target). Derived from the MEASURED checkpoint sizes (HF API,
+2026-08-26): E4B **14.89 GiB** bf16, E2B **9.54 GiB** — the "~3 GB" figure earlier revisions
+carried was wrong by 3–5×, and at the old `util 0.25` (10 GiB) the E4B server could not even hold
+its weights:
 
 | | budget | note |
 |---|---|---|
-| vLLM server (started first) | **~10 GB** (`--gpu-memory-utilization 0.25`) | ~3 GB Gemma weights bf16 + ~6–7 GB KV pool. **`--max-model-len 16384`** (see below). Prefix caching on. |
+| vLLM server (started first) | **E4B: ~20 GB** (`--gpu-memory-utilization 0.50`) · E2B: ~14 GB (0.35) | weights (14.89 / 9.54 GiB) + ~4–5 GiB KV pool + vLLM overhead. **`--max-model-len 16384`** (see below). Prefix caching on. Verify the measured weights line at the Phase 1 gate. |
 
 ⚠ **`max_model_len` must be 16384, not 8192.** Measured against the 192 real Exp3 PTO_LA0
 transcripts (o200k tokenizer, rubric + transcript, the actual oracle prompt): the Q2 rubric alone
@@ -569,13 +614,16 @@ patient may write longer turns, which would push more prompts up. 16384 absorbs 
 over the observed maximum; **re-run this measurement on real Exp4 conversations at the Phase 2
 gate** and raise the cap if the margin has eaten in. `tools/oracle_sanity.py` is the natural place
 to report the realised prompt-length distribution.
-| Therapist training | ~29 GB | 1B bf16 + LoRA/optimizer + GRPO 128-completion generate + look-ahead at `sub_batch=64` + DPO's full-sequence 128k-vocab logits spike |
+| Therapist training | **E4B: ~19 GB** · E2B: ~25 GB | 1B bf16 + LoRA/optimizer + GRPO 128-completion generate + look-ahead at `sub_batch=64` + DPO's full-sequence 128k-vocab logits spike. The ~19 GB envelope under E4B is UNMEASURED on A100 — the auto sub-batch halving and `CONVERSATION_BATCH_SIZE` are the levers if it does not fit. |
 | Headroom | ~1 GB | two CUDA contexts |
 
-Escape hatches in order: util 0.25→0.20, look-ahead sub-batch halving (automatic and sticky).
+Escape hatches in order: switch grader E4B→E2B (frees ~6 GB; a science change — new arm name),
+look-ahead sub-batch halving (automatic and sticky), `CONVERSATION_BATCH_SIZE` down.
 ⚠ **`max_model_len` is NOT an escape hatch** — lowering it below 16384 reintroduces the
-biased-missingness hazard above. Give back memory somewhere else. ⚠ Verify the real weights figure from the vLLM startup log at the Phase 1
-gate rather than trusting the ~3 GB estimate.
+biased-missingness hazard above. ⚠ Nor is `gpu_memory_utilization` below the weights + a usable
+KV pool: the server either fails to start (no KV memory) or serves with near-zero concurrency.
+⚠ Verify the real weights figure from the vLLM startup log at the Phase 1 gate rather than
+trusting the arithmetic.
 
 **Local RTX 5070 Ti (12 GB)** is for smoke tests and generate-only passes ONLY. ⚠ **An over-budget
 VRAM request REBOOTS the machine — it does not raise `OutOfMemoryError`.** `tools/smoke.py` does the
@@ -600,18 +648,32 @@ Exp3 transcripts spanning the quality range, with frozen `gpt-4o-mini` reference
   degenerate.
 - **Soft** (reported): Spearman rank agreement vs the reference, mean level offset.
 
-The trainer notebooks run `--quick` before iteration 1 and archive the report next to
-`run_metadata.json`; the full report is a Phase 2 gate before any real arm.
+The trainer notebooks run the **full 12-transcript gate** before iteration 1 whenever the oracle
+is local (`--quick` only when a paid vendor API is the grader — a local call costs nothing, and
+only the full gate enforces the degenerate-SD check at n ≥ 5), and archive the report next to
+`run_metadata.json`. Run the full report once per candidate grader (E4B and E2B) before choosing
+the arm's oracle.
 
 ## Hyperparameters (matched across methods, as in Exp3)
 
 `MCL=12`, K ∈ {0, 5}, `NUM_CONVERSATIONS_PER_ITER=96`, PTO's `M` = GRPO's `G` = 8, matched
 generation temperatures. `DPO_BETA=0.1` is the DPO loss temperature, **not** GRPO's KL β.
 
-⚠ **Never collapse GRPO's `gradient_accumulation_steps`.** TRL divides the loss by `gas` in
-`_compute_loss` and transformers divides again in `training_step`, so the net scale is `1/gas²` and
-halving `gas` **doubles** the accumulated gradient. `per_device_train_batch_size` counts
-**completions**, not prompts: unique prompts/step = `(64/8) × 2 = 16`, matched to PTO's 16 pairs.
+**`EPOCHS_PER_ITERATION=1`, matched — and 1 is the only value at which the match is real.** A GRPO
+"epoch" re-SAMPLES G fresh completions per prompt and re-grades them all (2 epochs = twice the
+reward-side work, the second pass on partially-updated weights), while a DPO epoch re-treads the
+SAME fixed pairs. Exp3 ran both at 2, which quietly gave GRPO double the data generation per
+iteration; Exp4 sets 1 so "one pass over data produced by this iteration's policy" holds for both
+methods. Raise `NUM_ITERATIONS`, never epochs, for more updates.
+
+⚠ **GRPO's `gradient_accumulation_steps=2` exists for the prompts/step match, not gradient
+scale.** On the pinned trl 1.4.0, `gas` changes are gradient-scale-neutral: trl bypasses
+transformers' `training_step` scaling (non-None `compute_loss_func` sentinel, installed trl
+`grpo_trainer.py` ~:652–657) and divides the loss exactly once by
+`current_gradient_accumulation_steps` (~:2351–2352). The earlier "net scale is 1/gas², halving gas
+doubles the gradient" claim was measured on Exp3's stack and is FALSE here — re-verify those two
+line references on any trl bump. `per_device_train_batch_size` counts **completions**, not
+prompts: unique prompts/step = `(64/8) × 2 = 16`, matched to PTO's 16 pairs.
 
 ⚠ **PTO must pre-cap its DPO prompt.** TRL 1.4.0's `DPOConfig` dropped `max_prompt_length` and caps
 prompt+completion with one `max_length` under `truncation_mode='keep_start'` — which slices the
@@ -668,21 +730,42 @@ The reason the double is worth keeping: a *real* grader that happens to be healt
 whether the degeneracy gate would have caught a bad one. Pointing `--policy degenerate` at it is
 the only way to test the gate itself, and that check now runs in about a second.
 
+### The 2026-08-26 audit round (the re-run the previous session asked for)
+
+Six read-only auditors + one independent skeptic per finding, run to completion this time:
+**9 confirmed findings (0 refuted), all applied**, plus 15 desk-reviewed findings applied or
+documented. The headline classes: per-phase timing logging (a preempted process now leaves its
+finished phases on the cost record); the mid-training-resume reference bug (both TRL trainers
+snapshot the handed-in policy as their frozen KL/DPO reference *in* `__init__`, so
+`resolve_start_state` case B now returns iteration-start weights); reload-only generation on
+mid-training resume (HF fast-forwards batches positionally, so the dataset must match the crashed
+process's exactly); sticky OOM halving + a completeness raise in the conversation loop (no more
+silent biased subsets); the loop-keyed client cache (pooled keep-alive connections cannot cross
+event loops — measured: every parked connection poisons exactly one call on the next loop); EDA
+display-label disambiguation (a quicktest arm can no longer merge into the real arm's figures);
+the adapter↔iteration guard in the repair tool; file-validated "iteration done"; atomic
+conversation CSVs; the `pairs.csv` fingerprint sidecar; and the corrected VRAM budget above (the
+"~3 GB Gemma weights" premise was wrong by 3–5×). The "1/gas²" gradient-scale claim was verified
+FALSE on the pinned trl 1.4.0 and rewritten at all its sites.
+
 ### Next session — start here
 
-1. **Re-run the adversarial audit.** It was stopped mid-fix so the session could end cleanly; three
-   findings landed (see the `718e0b9` commit message) and the rest are unapplied. The script is
-   `wf4_verify.js`; re-running it from scratch is fine and cheap relative to a wasted Colab session.
-2. **Then Colab, in this order** — do not jump to a full arm:
-   `smoke.py roles` → `oracle_sanity` (full, not `--quick`) → a 2-iteration mini-arm → a real arm.
-3. **Before any of that**, on Colab: push `code/` to Drive (additively), add the `huggingface`
-   Colab secret, accept the **Gemma license** on HF as well as Llama's, and uncomment the install
-   cell — **vLLM first**, then the pinned training stack, then restart the kernel.
+1. **Colab, in this order** — do not jump to a full arm:
+   `smoke.py roles` → `oracle_sanity` (full) against **both** E4B and E2B (choose the grader by
+   Spearman + spread) → a 2-iteration mini-arm (`QUICK_TEST=True`, lands in a disjoint folder) →
+   a real arm (GRPO K=0 first).
+2. **Before any of that**: push `code/` to Drive (additively), add the `huggingface` Colab secret
+   (Llama-3.2-1B is gated; **Gemma 4 is NOT** — Apache 2.0, no click-through), and uncomment the
+   install cell — **vLLM first** (Gemma 4 needs ≥ 0.19.1), then the pinned training stack, then
+   restart the kernel.
+3. At the Phase 1 gate, check the **measured weights line** against 14.89 GiB (E4B) / 9.54 GiB
+   (E2B), and at Phase 2 re-run the oracle-prompt-length measurement on real Exp4 conversations
+   (the 16384 cap was measured on Exp3's gpt-4o-mini patient).
 
-⚠ **The two things most likely to bite, both unverified because nothing has run on Colab yet:**
-the `enable_thinking` kwarg is a convention borrowed from other models and a wrong key fails
-*silently* (vLLM passes `chat_template_kwargs` into the Jinja render, where an unknown name is just
-an unused variable) — `smoke.py roles` is the only thing that catches it; and Gemma-4-E2B may
-honour the JSON schema perfectly while returning near-constant scores, which would write valid
-parquet and produce contrast tables that read as findings — that is what `oracle_sanity`'s
-degeneracy gate exists for.
+⚠ **What is still unverified because nothing has run on Colab:** the vLLM build's behaviour
+(`smoke.py roles` gates serving, thinking-off on the wire, and `json_schema` handling — the
+`enable_thinking` key now matches the official recipe and thinking is off by default, so this is
+belt-and-braces rather than a coin flip); the E4B trainer envelope (~19 GB alongside `util 0.50`
+is arithmetic, not a measurement); and whether either Gemma actually measures MI quality — a
+grader can honour the schema perfectly and return near-constant scores, which is exactly what
+`oracle_sanity`'s degeneracy gate exists for.
