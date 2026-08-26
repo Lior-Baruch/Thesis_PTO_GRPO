@@ -1,0 +1,40 @@
+\section{Related work}
+\label{sec:related}
+
+\textbf{Optimizers for preference and reward learning.} DPO \citep{rafailov2023dpo} and its
+descendants train on chosen/rejected pairs against a frozen reference; GRPO
+\citep{shao2024deepseekmath} replaces PPO's learned value function \citep{schulman2017ppo,
+ouyang2022instructgpt} with a group baseline over sampled siblings. The two families consume a
+reward differently --- a pair versus a standardised group --- and comparisons between them are
+usually run at a fixed reward design \citep[e.g.][]{xu2024dpovsppo}. Our question is the
+complementary one: whether a change to the \emph{reward's evidence} lands the same way on the
+two families. It does not.
+
+\textbf{Look-ahead and search in preference learning.} Scoring a candidate by a simulated
+continuation is the standard move in planning, imported into preference learning as MCTS-guided
+search \citep{yu2023promptmcts, xie2024mctsdpo}, process supervision \citep{lightman2024letsverify},
+and reranking against a reward model \citep{pace2024westofn}. \citet{baruch2025pto} introduced
+the $K$-turn look-ahead lever for preference-tree optimisation of a motivational-interviewing
+therapist, reporting gains in a cooperative, non-iterative regime; the present work embeds that
+lever in a harder iterative regime and crosses it with the optimizer family. The companion
+GRPO-only analysis of the two group-relative arms is reported separately; this paper owns the
+$2 \times 2$.
+
+\textbf{Reward hacking and LLM judges.} Optimising a proxy degrades the true objective
+\citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling}, and
+LLM-as-judge evaluation \citep{zheng2023judging} adds sycophancy \citep{sharma2024sycophancy,
+perez2023discovering}, self-preference \citep{panickssery2024selfpreference}, and length bias
+\citep{singhal2024long, dubois2024lengthcontrolled}. We contribute a factorial handle on the
+phenomenon: the \emph{horizon} of the reward selects whether the flattery exploit is reachable
+at all, in both optimizer families, and the optimizer selects where the residual inconsistency
+migrates. Our behavioural claims are corroborated by a deterministic transcript statistic rather
+than a second model judge.
+
+\textbf{Motivational interviewing.} MI \citep{miller1991mi} has established coding schemes
+\citep{moyers2016miti} and validated session instruments \citep{hatcher2006waisr, larsen1979csq},
+allowing the reward to be an instrument with published psychometrics; prior work has assessed
+counselling quality automatically \citep{perezrosas2019goodcounselor, yosef2024assessing} and
+simulated counselling with LLMs \citep{steenstra2025scaffolding, chen2025broaden}. We use MI
+because the gap between locally-visible and downstream value --- the thing the horizon
+manipulates --- is unusually explicit in its clinical literature, not to build a deployable
+counsellor (see the Ethics Statement).

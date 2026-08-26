@@ -1,0 +1,25 @@
+\begin{abstract}
+When a large-language-model judge supplies the reward for a dialogue policy, two design choices
+are usually made independently: the \emph{optimizer} that consumes the reward, and the
+\emph{horizon} of transcript the judge is shown. We show they interact strongly enough that
+neither can be chosen alone. In a controlled $2 \times 2$ --- preference-tree DPO (\PTO) versus
+Group Relative Policy Optimization (\GRPO), each with a turn-level ($\Kz$) or trajectory-level
+($\Kf$-turn look-ahead) reward, matched on oracle, personas, group size, temperatures, and
+iteration count --- training a 1B-parameter therapist for motivational interviewing against a
+simulated patient, the \emph{ranking of the optimizers flips with the horizon}: at $\Kz$ the
+preference-tree method wins the matched-endpoint contrast ($+0.51$ of a rubric point,
+$\dz\,0.73$, training oracle; $+0.61$, $\dz\,1.27$ under a held-out judge from another model
+family), while at $\Kf$ GRPO wins it ($-0.21$, $\dz\,-0.36$; $-0.21$, $\dz\,-0.31$). The
+interaction (difference-in-differences $\dz\,0.79$--$0.97$) holds under both graders, and every
+cell of it survives an independent re-draw of the winning endpoints' evaluation sets. On a
+reconstructed GPU-hour axis the practical rankings reverse again: the cheapest arm ($\PTO$,
+$\Kz$) matches the most expensive one (\GRPO, $\Kf$) on held-out gain at $6.3\times$ less
+compute. The horizon also decides what is learned rather than only how much: under turn-level
+reward \emph{both} optimizers drift into unearned praise --- a judge-free lexical marker finds
+over-praise in $67\%$ (\GRPO) and $21\%$ (\PTO) of therapist turns at the endpoint --- and
+trajectory-level reward suppresses the drift in both, while in \PTO\ part of the inconsistency
+relocates to unsolicited advice. Re-scoring an earlier, easier regime of the same task shows the
+look-ahead lever helping \PTO\ there, so the interaction is regime-scoped: the horizon is not a
+free-standing ``improvement'' to be reported per optimizer, and iteration counts are the wrong
+axis to report it on.
+\end{abstract}

@@ -1,0 +1,35 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\textbf{Why might the horizon land so differently on the two optimizers?} We can offer
+mechanism-shaped observations, not a demonstration. The two losses consume the oracle's $8$
+scores differently: \GRPO\ standardises all eight and trains on all eight, so a horizon that
+changes \emph{which} sibling looks best --- and by how much relative to the group spread ---
+re-weights every gradient; \PTO\ keeps one best-vs-worst pair, so the horizon matters only when
+it changes the argmax or argmin, and the DPO update then treats the pair as categorical. The
+behavioural asymmetry in \S\ref{sec:behaviour} (only \GRPO\ converts look-ahead into
+more-questions) is consistent with that reading. Second, \PTO's greedy trunk feeds each chosen
+candidate back into the growing conversation, so a $\Kz$ \PTO\ already receives a weak form of
+trajectory feedback that a $\Kz$ \GRPO\ does not --- which would compress the room the explicit
+lever has to add. Both stories fit; neither is isolated by this design. The cut that would decide
+--- one optimizer trained with the horizon swapped mid-run --- does not exist in these data.
+
+\textbf{Report levers as interaction cells.} The practical upshot of
+\S\S\ref{sec:interaction}--\ref{sec:regime} is methodological. A reward-design lever evaluated on
+one optimizer in one regime yields one cell of a factorial, and this paper shows a case where the
+adjacent cell has the opposite sign and the same cell in an easier regime has the opposite sign
+again. Claims of the form ``technique $X$ improves LLM-judge training'' should state the
+optimizer family, the budget regime (\S\ref{sec:cost}: the verdict flips with spend), and the
+task regime --- or be read as unscoped.
+
+\textbf{The horizon is a safety lever in both families.} The most portable positive finding is
+behavioural: turn-level reward taught \emph{both} optimizers unearned praise, and the five-turn
+window suppressed it in both, because it moves the exploit's payoff inside the judged span. That
+generalised across the optimizer factor even where the score effect did not --- a reason to treat
+reward horizon as a first-class safety knob in judge-trained dialogue systems, independent of
+whether it buys score.
+
+\textbf{What would change our minds.} A second training run per arm reversing the endpoint
+ordering (now the largest unmeasured variance --- the evaluation draws are replicated); an
+intermediate $K$ locating a threshold; a mid-run horizon swap isolating the mechanism; or a human
+MI coder disagreeing with the over-praise finding.

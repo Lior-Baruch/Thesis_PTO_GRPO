@@ -1,0 +1,76 @@
+\section{Reproducibility details}
+\label{app:repro}
+
+\subsection{Configuration}
+
+All four arms are launched from two notebooks (one per optimizer) whose cell-1 configuration
+block encodes the arm identity in an experiment name that also determines the output directory,
+so arms can never share a folder. Each arm's full resolved configuration is recorded in a tracked
+\texttt{run\_metadata.json}; within an optimizer, diffing the two arms' files yields exactly two
+substantive differences (the look-ahead depth and its sub-batching mirror).
+
+\begin{table}[h]
+\centering
+\small
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Setting (shared) & Value \\
+\midrule
+Base model & \texttt{Llama-3.2-1B}, bf16 \\
+LoRA & $r{=}16$, $\alpha{=}16$ \\
+Learning rate & $1\mathrm{e}{-}5$ \\
+Seed & 42 \\
+Iterations & 10 \\
+Epochs / iteration & 2 \\
+Conversations / iteration & 96 \\
+Candidates per decision & $M = G = 8$ \\
+Min.\ context length & 12 utterances \\
+Session target & 49 utterances \\
+Max tokens / response & 200 \\
+Therapist context & 2{,}048 tokens \\
+Therapist / patient temperature & 0.9 / 0.7 \\
+Patient + oracle & \texttt{gpt-4o-mini} \\
+Look-ahead $K$ & 0 / 5 (the horizon factor) \\
+\midrule
+GRPO-specific & KL $\beta{=}0.01$, temp.\ 1.2, batch $64 \times 2$ \\
+PTO-specific & DPO $\beta{=}0.1$, pair threshold $\tau$, \\
+             & branch temp., greedy trunk growth \\
+\bottomrule
+\end{tabular}
+\caption{Configuration. The horizon factor changes only the transcript the oracle scores; the
+optimizer factor changes the loss family and its own hyperparameters.}
+\end{table}
+
+\subsection{Anti-degeneracy handling}
+
+The base 1B model self-plays chat-template markers; generation is cut at the first fake-turn
+marker at every decode site (including inside $\Kf$ rollouts, identically in all arms), an
+empty-after-cleaning turn ends the conversation, and \GRPO\ floors degenerate completions'
+rewards at 0.
+
+\subsection{Scoring, pairing, statistics}
+
+Every model state is scored offline into a partitioned score archive keyed by grader $\times$
+replicate $\times$ instrument $\times$ model, so an interrupted scoring run resumes by skipping
+completed work. Personas are reshuffled every iteration under a seeded scheme; all paired
+statistics recover the persona identity by replaying the shuffle (pairing on file order would
+join unrelated conversations). Tests are Wilcoxon signed-rank; effect sizes Cohen's \dz;
+intervals 2{,}000-resample percentile bootstraps at a fixed seed; Holm correction within each
+stated family.
+
+\subsection{Compute reconstruction}
+
+GPU-hours are reconstructed from per-step artifact timestamps (\GRPO: one file per optimizer
+step; \PTO: TensorBoard wall time for the DPO phase and per-step build snapshots for the tree
+phase), because in-process elapsed-time fields are per-process and undercount any iteration that
+crashed and resumed --- in one observed case by nearly a factor of two. Gaps outside plausible
+step bounds are imputed at the phase median and counted. An iteration is billed only once its
+adapter exists.
+
+\subsection{Artifacts}
+
+Every number in this paper is traceable to a tracked table in the analysis-results tree of the
+released code; the mapping from claim to table is the repository's \texttt{NUMBERS.md} ledger,
+and figures are copied from the same tree by a checked sync script, so the compiled PDF is
+frozen against later re-renders.

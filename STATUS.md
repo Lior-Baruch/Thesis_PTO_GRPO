@@ -359,11 +359,31 @@ What remains here is the **P1 draft's own open items**, listed in its README.
 [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*Scoring the Continuation*):
 the two GRPO arms, both graders, both cost axes, complete `NUMBERS.md` ledger. Now on the vendored
 `iclr2027_conference` style (single column, double-blind until `\iclrfinalcopy`), clean 4-pass
-build, **main text ends on p. 9 of the 9-page submission limit** with draft notes still visible;
-depth moved to appendices A–D, ethics + reproducibility as page-exempt statements. **Deadlines:
-abstract 2026-09-18, full paper 2026-09-25 (both 23:59 UTC-12).** Two `\todo`s remain: the
-replicate draw below, and the retired held-out-variance growth claim's tombstone in §8. **P2 — the
-full 2×2 interaction — is deliberately NOT started**; plan it fresh after P1 settles.
+build, **main text ends on p. 9 of the 9-page submission limit**; depth moved to appendices A–D,
+ethics + reproducibility as page-exempt statements. **Deadlines: abstract 2026-09-18, full paper
+2026-09-25 (both 23:59 UTC-12).** No `\todo`s remain.
+   **✅ Rescoped GRPO-only + scores-not-deltas (2026-08-26, per Lior).** The PTO arms now appear
+   NOWHERE in P1 — not in figures, not in prose, not as "the parent experiment": every full-grid
+   statistic was **recomputed on the 22 GRPO states** as new tracked EDA artifacts
+   (`multijudge_sign_preservation_grpo`: 1,640/1,848 = 88.7%; `judge_saturation_grpo` +
+   `judge_saturation_grpo_data`: Q1 median 0.841/22 states, ranks /22), and the figures now read
+   **scores including each arm's base** rather than K5−K0 deltas (`k_headline_q1q2_grpo` redesigned
+   to levels + Holm-star row; §5 uses `compute_trajectory_grpo`, scores vs GPU-h; appendix delta
+   grids replaced by `k_levels_grid_grpo_<judge>`; new `tail_audit_grpo`, `api_calls_grpo`,
+   `k_channel_forest_grpo_<judge>` — the old appendix forest was silently the **PTO** forest,
+   a real bug this pass caught). The paired-contrast statistics are unchanged and live in the
+   tables; only what is *drawn* changed.
+
+**2b. ✅ P2 IS DRAFTED (2026-08-26) — targeting the ARR October 2026 cycle** (one review cycle
+feeding **NAACL 2027 + COLING 2027**) at [`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/)
+(*Same Lever, Different Optimizer*): the full 2×2 — the sign-flipping interaction (DiD dz
+0.79/0.97, both graders, every cell surviving the replicate draws), the budget-axis reversals
+(PTO K=0 matches GRPO K=5's held-out gain at 6.31× less compute), the two-optimizer behaviour
+comparison (both K=0 arms flatter; PTO's residue relocates to advice), the ICLR-era regime
+re-scoring, and the full-grid measurement section. ACL long format (`acl.sty` `[review]`, vendored
+from the archived draft — the only thing reused), fresh `NUMBERS.md`, four-arm level-style
+figures, clean 4-pass build, **body ends within the 8-page limit** with Limitations/Ethics
+page-exempt as ARR requires.
    The stale draft was **retired to `papers/archive/2026_lookahead_pto_grpo/` rather than re-cut** —
 its iteration-5 censoring premise ran through every section, and its central claim changed shape:
 the method verdict is an **interaction with K**, not a PTO win. Candidate framings live in
@@ -418,17 +438,18 @@ an infix *before* the `_I{k}` tail — `GRPOExp3_LA5_rep1_I10`. ⚠ **Never** wr
 `conversations/full/`: `model_iter_10` matches inside `model_iter_10_rep1_TT…`, so the replicate and
 the primary collide on one `conv_dirs` key and one silently wins by glob order.
 
-**4. Optional: add the adapter gate to `compute.py`.** Latent, not currently biting (all ten
-iterations have adapters), but it will bite again the moment any arm is mid-iteration. It changes a
-computed number, so it needs a deliberate decision.
+**4. ✅ DONE (2026-08-26) — the adapter gate is in `compute.py`** (see "the compute mis-billing is
+RESOLVED" above; verified byte-identical on the complete data).
 
 ## Write-up decisions already made
 
-- **One live paper** — [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (P1,
-  targeting ICLR 2027; see step 2 above). Every earlier Exp3 draft is retired under
-  `papers/archive/` (their grids predate the completed GRPO K=5 arm); the archived `NUMBERS.md`
-  ledgers remain the trap list for any shared number, and P2 is planned fresh in
-  [`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md) after P1 settles.
+- **Two live papers with disjoint scopes** — P1
+  [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (ICLR 2027; GRPO-only, PTO
+  appears nowhere in it) and P2 [`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/) (ARR
+  October 2026 → NAACL/COLING 2027; the full 2×2 owns everything four-arm). Shared numbers are
+  cited from the same EDA artifacts in both ledgers; neither imports the other's argument. Every
+  earlier Exp3 draft is retired under `papers/archive/`; the archived `NUMBERS.md` ledgers remain
+  the trap list for any shared number.
 - **Report the method comparison on BOTH axes, and always conditional on K.** Matched-iteration and
   matched-budget answer different questions — say which axis a number is on, and **never state a
   PTO-vs-GRPO verdict without naming K**. The two axes now disagree in a way that is itself the

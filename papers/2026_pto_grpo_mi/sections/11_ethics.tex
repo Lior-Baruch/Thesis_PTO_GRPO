@@ -1,0 +1,30 @@
+\section*{Ethics Statement}
+
+\textbf{No human subjects, and no clinical claim.} Every conversation in this work is between
+two language models; no human patient data was collected or used, and no human participants were
+involved. Nothing here is evidence that any of the four policies is safe or effective with
+people. Motivational interviewing is a clinical skill practised with people in distress; a
+1B-parameter model graded by another language model is a research artifact, and the gap between
+the two is not bridged by any number in this paper.
+
+\textbf{The documented failure mode is safety-relevant.} Both turn-level policies learned to
+praise their patient more or less regardless of what was said, while their scores rose. In a
+counselling setting, unearned affirmation of ambivalence or of a harmful plan is precisely the
+error MI trains counsellors out of. We report it prominently, including the residual drift and
+the channel relocation that survive under look-ahead, and would consider it a misuse of this
+paper to cite either optimizer's gains without the behavioural results.
+
+\textbf{Simulated patients encode a narrow population.} The 96 personas vary six attributes
+around two presenting problems, were authored by the researchers rather than derived from
+clinical data, and are a culturally narrow caricature of help-seeking; results should not be
+read as generalising across problems, demographics, or cultures.
+
+\textbf{Judges inherit their models' biases.} Both graders are commercial LLMs with undisclosed
+training data; they disagree systematically about levels and, as \S\ref{sec:measurement} shows,
+can disagree severely about individual conversations. Their use as arbiters of therapeutic
+quality is a methodological convenience, not a validated measurement.
+
+\textbf{Compute.} Training used single cloud A100-class GPUs for approximately
+$8.1 + 19.7 + 27.9 + 51.2 \approx 107$ GPU-hours across the four arms, plus API inference for
+the patient simulator and graders. The base model is openly licensed; the commercial APIs were
+used within their terms of service.

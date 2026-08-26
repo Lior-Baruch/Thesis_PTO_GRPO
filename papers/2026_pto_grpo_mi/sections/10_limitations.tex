@@ -1,0 +1,47 @@
+\section*{Limitations}
+\label{sec:limitations}
+
+\paragraph{One training run per cell.} Every effect size is computed across the 96 personas
+within a single training run per arm. There are no training-seed replicates, so run-to-run
+variance is unmeasured, and ``the ranking flips'' cannot be fully separated from ``these four
+runs landed this way.'' The interaction's size ($\dz \approx 0.8$--$1.0$), its agreement across
+two graders, and the replicated evaluation draws mitigate but do not remove this; it is the
+limitation to weight most heavily.
+
+\paragraph{Evaluation draws.} Therapist decoding is unseeded and each state was evaluated on one
+96-conversation sample. The two winning endpoints were re-drawn (36 same-policy contrasts, none
+significant, max $|\dz|\,0.216$) and every headline contrast survives substitution; the other 40
+states remain single draws, and a re-draw bounds evaluation noise only.
+
+\paragraph{The optimizers differ in more than the loss.} \PTO\ and \GRPO\ necessarily differ in
+their own hyperparameters (DPO $\beta$ vs.\ KL $\beta$, pair threshold vs.\ group size
+semantics), and no tuning budget was spent optimising either arm beyond its published defaults.
+``Optimizer'' here means the packaged method as one would deploy it, not the loss in isolation;
+a tuned \PTO-$\Kf$ might behave differently.
+
+\paragraph{$K \in \{0, 5\}$ only.} No dose--response between the two horizons and nothing above
+5; nothing here says 5 is optimal or that the crossover is monotone in $K$.
+
+\paragraph{In-sample personas; coupled generator.} The 96 personas exhaust the persona grid and
+serve as both training and evaluation population, so generalisation to unseen patients is
+unmeasured. All conversations were generated against a \texttt{gpt-4o-mini} patient; the held-out
+judge decouples the grading, not the generation.
+
+\paragraph{LLM-administered instruments; no human coder.} The oracle is highly self-repeatable
+(ICC $0.86$--$0.99$ on the measured subset), but repeatability is not validity, and no human MI
+coder rated any conversation. The behavioural conclusions lean on a deterministic lexical marker
+for exactly this reason, and that marker is itself a deliberately brittle keyword pattern used
+as a direction check.
+
+\paragraph{Grader saturation.} \S\ref{sec:measurement}: per-conversation cross-grader agreement
+collapses at the late $\Kf$ checkpoints because the trained-against grader loses discriminative
+range there. Arm-level orderings survive; per-conversation claims about those states, and
+absolute levels near the training oracle's ceiling, should not be reused downstream.
+
+\paragraph{Reconstructed compute.} GPU-hours are recovered from artifact timestamps with resume
+gaps imputed at phase medians; the budget crossover points inherit that estimate's uncertainty.
+
+\paragraph{The regime comparison is observational.} \S\ref{sec:regime} re-scores conversations
+from an earlier experiment that differs from the present one in several ways at once (policy
+scale, patient difficulty, training loop); it establishes that the lever's sign varies with
+regime, not which ingredient is responsible.

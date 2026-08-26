@@ -1,0 +1,48 @@
+\section{Budget reverses the rankings again}
+\label{sec:cost}
+
+Iteration counts hide a $6.3\times$ spread in what the four arms cost. The same ten iterations
+took $8.1$ GPU-hours for \PTO-$\Kz$, $19.7$ for \PTO-$\Kf$, $27.9$ for \GRPO-$\Kz$, and $51.2$
+for \GRPO-$\Kf$ (reconstructed from per-step artifact timestamps; Appendix~\ref{app:repro}). The
+asymmetry has two independent sources. Across optimizers: \GRPO\ pays for an oracle-scored
+rollout of every one of the $G{=}8$ siblings at every optimizer step inside the training loop,
+while \PTO's dominant phase is the tree build ($70$--$85\%$ of its bill), which produces many DPO
+pairs per oracle call. Across horizons: $\Kf$ multiplies per-candidate cost by the simulated
+continuation --- a \GRPO\ $\Kf$ optimizer step costs a median $1.92\times$ its $\Kz$ twin.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/compute_trajectory.png}
+\caption{The same scores on the axis that costs money: \QQ\ (mean $\pm$ SEM over 96 personas)
+against cumulative GPU-hours, all four arms, one panel per grader. Every arm runs the same 10
+iterations; the horizontal extent is what those iterations cost. The cheap arm (\PTO, $\Kz$,
+$8.1$\,\gpuh) finishes before the expensive arms have completed two iterations.}
+\label{fig:computetraj}
+\end{figure*}
+
+\textbf{At matched spend, the cheap arm is unbeaten until the largest budgets.} Pairing each
+arm's best-within-budget checkpoint at matched cumulative GPU-hours (selection and evaluation
+crossed over both graders, so honest cells select on one grader and score on the other): at
+$8.1$\,\gpuh\ --- the whole \PTO-$\Kz$ run --- \PTO-$\Kz$ beats budget-matched \GRPO-$\Kz$ in 4
+of 4 grader combinations (\dz\,$1.07$--$1.39$, all $p_{\text{holm}} < .001$). At $19.7$\,\gpuh,
+\PTO-$\Kf$ beats budget-matched \GRPO-$\Kf$ in 3 of 4 combinations. Within \PTO, the $\Kf$ arm
+never repays its own doubled cost (it \emph{loses} the budget-matched $K$ contrast under held-out
+selection); within \GRPO, $\Kf$ is behind below ${\sim}18$\,\gpuh, level near $23$, and clearly
+ahead from ${\sim}35$ on. Only at the top of the budget axis does the iteration-matched picture
+reappear: at $51.2$\,\gpuh, \GRPO-$\Kf$ beats \GRPO-$\Kz$ in 4 of 4 combinations.
+
+\textbf{The two winners, head to head.} The practically interesting pair is the cheapest strong
+arm against the most expensive one: \PTO-$\Kz$ at $8.1$\,\gpuh\ versus \GRPO-$\Kf$ at
+$51.2$\,\gpuh, both at iteration 10. The training oracle scores \GRPO-$\Kf$ higher ($+0.257$,
+\dz\,$0.492$); the held-out judge scores them \emph{level} --- own-base gains of $+1.036$ vs.\
+$+1.038$, endpoint contrast $+0.007$ (\dz\,$0.012$, $p_{\text{holm}}\,1.0$), and the null
+replicates on the second evaluation draw ($-0.022$, $p_{\text{holm}}\,1.0$). Read literally:
+under the grader that did not supply the training reward, $6.3\times$ the compute bought nothing
+detectable at the endpoint. What it \emph{did} buy is \S\ref{sec:behaviour}'s subject --- the two
+arms reach that level with different conduct --- and the training-oracle gap is exactly the kind
+of claim \S\ref{sec:measurement} shows to be fragile at this checkpoint.
+
+\textbf{Practical reading.} A practitioner with a small budget in this regime should buy
+preference trees without look-ahead; look-ahead is worth buying for a group-relative optimizer
+only past ${\sim}23$--$35$ GPU-hours; and ``optimizer $A$ beats optimizer $B$'' claims made at
+matched iterations should be treated as unpriced until re-stated at matched spend.

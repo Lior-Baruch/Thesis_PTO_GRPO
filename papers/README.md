@@ -8,7 +8,8 @@ method schematics under `Exp3_PTO_GRPO/eda/results/schematics/`).
 | Folder | Paper | Domain | Status |
 |---|---|---|---|
 | [`2025_iclr_pto_lookahead/`](2025_iclr_pto_lookahead/) | *Preference Tree Optimization: Enhancing Goal-Oriented Dialogue with Look-Ahead Simulations* | Exp1 | **published — frozen** (ICLR 2025 SSI-FM workshop, poster) |
-| [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) | *Scoring the Continuation: $K$-Turn Look-Ahead Rewards for Group-Relative Policy Optimization in Motivational Interviewing* | Exp3, the **two GRPO arms only**, both graders, both cost axes | **drafting — the live draft; targeting ICLR 2027** (abstract 2026-09-18, paper 2026-09-25; retargeted from ACL/CLPsych 2026-08-26, 9-page body met) |
+| [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) | *Scoring the Continuation: $K$-Turn Look-Ahead Rewards for Group-Relative Policy Optimization in Motivational Interviewing* | Exp3, the **two GRPO arms only** — PTO appears nowhere in it (rescoped 2026-08-26: every full-grid statistic recomputed on the 22 GRPO states; figures read scores, not deltas) | **drafting — live; targeting ICLR 2027** (abstract 2026-09-18, paper 2026-09-25; 9-page body met) |
+| [`2026_pto_grpo_mi/`](2026_pto_grpo_mi/) | *Same Lever, Different Optimizer: The Reward-Horizon $\times$ Optimizer Interaction in Simulated Motivational Interviewing* | Exp3, **all four arms** — the 2$\times$2, both graders, budget axis, behaviour, ICLR-era regime re-scoring | **drafting — live; targeting the ARR October 2026 cycle** (feeds NAACL 2027 + COLING 2027; drafted 2026-08-26 as the brainstorm's P2) |
 | [`archive/2026_lookahead_pto_grpo/`](archive/2026_lookahead_pto_grpo/) | *Same Lever, Different Optimizer: Does $K$-Turn Look-Ahead Help a Small Motivational-Interviewing Therapist?* | Exp3, all four arms (both K, both optimizers, both graders); reads `results/{lookahead,compute}` | **retired 2026-08-25** — drafted while GRPO K=5 was right-censored at iteration 5; that arm has since finished at 10 (all states scored), so its endpoint/retention/iso-compute claims read a stale grid. Its `analysis/out/` remains the EDA's frozen fixture |
 | [`archive/2026_clpsych_mi_reward_hacking/`](archive/2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry: Reward Hacking When an LLM Judge Trains a Motivational Interviewing Therapist* | Exp3, `L0` view | **retired 2026-08-18** — its K=0 reward-hacking result was absorbed by *Same Lever*'s §6 |
 | [`archive/2026_lookahead_hack_substitution/`](archive/2026_lookahead_hack_substitution/) | *The Hack Moves: Trajectory-Level Reward Redirects Rather Than Reduces Reward Hacking in a Motivational Interviewing Therapist* | Exp3, `L5` view, PTO only | **retired 2026-08-18** — its substitution result was absorbed by *Same Lever*'s §6; its `NUMBERS.md` traps still apply |
@@ -18,17 +19,25 @@ method schematics under `Exp3_PTO_GRPO/eda/results/schematics/`).
 work: do not edit them in place. Their ledgers (`NUMBERS.md`) remain the fastest way to find the
 trap list for a number that appears in the live draft too.
 
-## Scope of the live draft
+## Scope of the two live drafts
 
-[`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) is the **one** live paper. It takes the
+Both live drafts were planned in [`BRAINSTORM_2026-08-25.md`](BRAINSTORM_2026-08-25.md), which
+reads the re-rendered tables cold and ranks five candidate papers.
+
+[`2026_pto_grpo_mi/`](2026_pto_grpo_mi/) is **P2** (ARR October 2026 → NAACL/COLING 2027): the
+full $2\times2$, where the optimizer ranking flips with the reward horizon. It owns everything
+four-arm — the interaction, the budget-axis reversals, the two-optimizer behaviour comparison,
+the ICLR-era regime re-scoring, and the full-grid measurement section. Since the 2026-08-26
+rescope of P1, the PTO arms appear **nowhere in P1**: every full-grid statistic there was
+recomputed on the 22 GRPO states (`*_grpo` EDA artifacts), and P1's figures read scores rather
+than K-contrast deltas. The two papers deliberately do not overlap: shared numbers are cited from
+the same EDA artifacts in both ledgers, and neither imports the other's argument.
+
+[`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) is **P1**, the ICLR 2027 draft. It takes the
 narrowest question the completed grid answers decisively — does scoring a candidate turn by its
 $K$-turn continuation help a **group-relative** optimizer — and answers it on the two GRPO arms
-across both graders and both cost axes. Planned in
-[`BRAINSTORM_2026-08-25.md`](BRAINSTORM_2026-08-25.md), which reads the re-rendered tables cold
-and ranks five candidate papers; this is P1, chosen to go first because it is self-contained,
-all-positive, and needs no new spend. The full $2\times2$ (the K $\times$ optimizer interaction,
-where the lever's sign flips) is P2 and is deliberately **not** folded in — it is a different,
-larger paper and mixing them would weaken both.
+across both graders and both cost axes. It went first because it is self-contained, all-positive,
+and needed no new spend.
 
 Every earlier Exp3 draft was retired to `archive/` because it predates the completed grid
 (GRPO K=5 finished at iteration 10 on 2026-08-25). A new draft starts from a fresh cold read of
