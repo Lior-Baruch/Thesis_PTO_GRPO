@@ -369,7 +369,14 @@ paper (P1 — all-positive, no new spend), then the full 2×2 as the main paper 
 starts from a fresh `NUMBERS.md` against the current tables; the archived ledger's keys are stale
 (`iters1-5` → `iters1-10`) and its ⚠ traps still bind on shared numbers.
 
-**3. A second independent 96-conversation draw — now the highest-value remaining measurement.**
+**3. ✅ IN PROGRESS (2026-08-26) — the second independent 96-conversation draw.** The machinery is
+built and committed: `generate_eval_convs.py --method {pto,grpo}` (seeds verified on both arms,
+0 wrong), `eda/tools/score_replicate.py` (both graders, `_rep1_`-infixed lake names),
+`eda/tools/replicate_check.py` (report → `results/measurement/replicate_draw.md`). Generation runs
+on **Colab A100** via `code/tools/replicate_colab.ipynb` (on Drive; Run All) — a local attempt was
+GPU-bound at ~22 min/batch on the long-turn endpoint policies and the machine crashed mid-run, so
+the local path is retired for these two draws; the 12 partial local convs were deleted so the
+whole replicate is A100-generated like the primary draws. Original sizing note kept below:
 Every contested endpoint is a **single draw**; the only noise floor is at the base (4 independent
 draws of the identical base policy: 6 pairs × 9 metrics = 54 same-policy contrasts, **0 reaching
 even uncorrected p < .05**, max |dz| 0.128 primary / 0.147 held-out). The endpoints most worth
