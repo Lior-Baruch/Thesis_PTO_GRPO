@@ -26,7 +26,7 @@ apart, because it is where the two graders stop agreeing about magnitude.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.86\textwidth]{figures/k_headline_q1q2_grpo.png}
+\includegraphics[width=0.8\textwidth]{figures/k_headline_q1q2_grpo.png}
 \caption{The two GRPO arms. \textbf{Top:} Q1+Q2 by iteration under each grader, each arm's own
 base dotted. \textbf{Bottom:} the persona-paired $\Kf - \Kz$ contrast, so \emph{up is look-ahead
 winning}. Iteration 0 is the two arms' independent base draws (the noise floor). The two graders'
@@ -53,11 +53,10 @@ those iterations.
 \textbf{The endpoint survives a second draw.} Every state here is scored on one 96-conversation
 sample, so we re-drew the winning one: 96 fresh conversations from the same $\Kf$ iteration-10
 adapter, same personas, same unseeded decoding, scored on all eight instruments by both graders.
-That gives a noise floor at a \emph{trained} checkpoint, which the design otherwise lacks --- the
-two draws of the same policy differ by at most $|\dz|\,0.174$ across 9 instruments and both
-graders, nothing significant. And the headline holds: substituting the replicate, the $\Kf-\Kz$
-gap on Q1+Q2 is $+0.709$ ($\dz\,0.919$) under the training oracle and $+0.637$ ($\dz\,0.949$) held
-out, against $+0.765$ and $+0.616$ originally --- same sign, same significance, effect sizes within
-$0.08$. The endpoint \emph{level} moves $4.517 \rightarrow 4.461$, the honest precision of a
-single-draw score here. The re-draw covers the $\Kf$ side only, so it tests the contested endpoint
-rather than the whole contrast.
+That gives a noise floor at a \emph{trained} checkpoint, which the design otherwise lacks: the two
+draws of the same policy differ by at most $|\dz|\,0.174$ across 9 instruments and both graders,
+nothing significant. And the headline holds --- substituting the replicate, the $\Kf-\Kz$ gap on
+Q1+Q2 is $+0.709$ ($\dz\,0.919$) / $+0.637$ ($\dz\,0.949$) against $+0.765$ / $+0.616$ originally:
+same sign, same significance, effect sizes within $0.08$. The endpoint \emph{level} moves
+$4.517 \rightarrow 4.461$, the honest precision of a single-draw score here. The re-draw covers
+the $\Kf$ side only, so it tests the contested endpoint rather than the whole contrast.

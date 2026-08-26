@@ -45,7 +45,8 @@ does not, and we mark every claim that depends on it.
 
 Our contributions: (i) a controlled, two-grader measurement of what trajectory-level reward buys a
 group-relative optimizer in a multi-turn dialogue task, on both a matched-iteration and a
-matched-compute axis; (ii) evidence, from a deterministic transcript metric rather than a model
+matched-compute axis, with the winning endpoint replicated on a fresh evaluation draw; (ii)
+evidence, from a deterministic transcript metric rather than a model
 judge, that the horizon of the reward determines \emph{which} reward hack the policy finds; and
 (iii) a diagnosis of a failure mode in LLM-judge evaluation --- one-sided grader saturation ---
 that is invisible to arm-level agreement statistics and appears exactly at the best-scoring

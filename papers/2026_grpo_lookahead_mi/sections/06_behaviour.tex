@@ -18,12 +18,12 @@ several turns later, precisely the horizon a $K{=}0$ reward cannot see and a $K{
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.6\textwidth]{figures/overpraise_judgefree.png}
-\caption{Over-praise by iteration, three ways. \textbf{Top:} the deterministic lexical marker ---
+\includegraphics[width=0.82\textwidth]{figures/overpraise_judgefree_grpo.png}
+\caption{Over-praise by iteration, three ways. \textbf{Left:} the deterministic lexical marker ---
 the share of therapist turns with at least one over-praise keyword, no model in the loop.
-\textbf{Middle, bottom:} the oracle-rated rate under each grader. The judge-free panel tells the
-same story as the rated ones, which is the point. All four arms of the parent experiment are
-shown; this paper's subjects are the two GRPO series.}
+\textbf{Middle, right:} the oracle-rated rate under each grader (per-turn counts; the three
+$y$-axes are independent). The judge-free panel tells the same story as the rated ones, which is
+the point: the behavioural claim does not rest on an LLM's judgement of an LLM.}
 \label{fig:overpraise}
 \end{figure}
 
@@ -42,21 +42,19 @@ contrast is significant late and consistently --- over-praise is worse under $\K
 under the training oracle and 7 under the held-out judge --- and its onset matches the reward
 gap's onset in \S\ref{sec:reward}, which is what a common cause predicts.
 
-\textbf{What look-ahead substitutes in.} Look-ahead does not merely suppress a behaviour; it
-changes what the policy does with the turn. The $\Kf$ policy asks \textbf{more questions per
-therapist turn}, significantly so at 7 of 10 iterations (4--10, mean $\dz\,0.643$) --- also a
-deterministic text metric, so grader-free. Asking rather than affirming is the direction MI
-training is supposed to move a counsellor, and it is the behavioural counterpart of the MI-SAT and
-MITI gains in Table~\ref{tab:endpoint}.
+\textbf{What look-ahead substitutes in.} Look-ahead does not merely suppress a behaviour: the
+$\Kf$ policy asks \textbf{more questions per therapist turn}, significantly so at 7 of 10
+iterations (mean $\dz\,0.643$) --- also a deterministic text metric, so grader-free. Asking rather
+than affirming is the direction MI training is supposed to move a counsellor, and the behavioural
+counterpart of the MI-SAT and MITI gains in Table~\ref{tab:endpoint}.
 
 \textbf{The honest version of this claim.}
 \label{sec:behaviour-honest}
 ``Look-ahead prevents the reward hack'' is a \textbf{training-oracle statement}, and we do not make
-it without that qualifier. The held-out judge scores the same $\Kf$ conversations and reads
-MI-inconsistency as rising from $0.326$ to $0.628$ ($\dz\,0.845$) --- real, not flat. What survives
-both graders is the \emph{comparison}: under the held-out judge $\Kf$'s rise is $0.301$ against
-$\Kz$'s $0.666$, i.e.\ $0.45$ --- under half the rate. So the defensible sentence, and the one this
-paper uses, is that trajectory-level reward \textbf{slows the drift to under half its turn-level
-rate and removes its dominant channel entirely} --- not that it eliminates it. The two graders
-disagree about how much MI-inconsistency remains at the endpoint, and \S\ref{sec:measurement}
-explains why that disagreement is concentrated exactly where it is.
+it without that qualifier. The held-out judge reads the same $\Kf$ conversations as rising from
+$0.326$ to $0.628$ ($\dz\,0.845$) --- real, not flat. What survives both graders is the
+\emph{comparison}: held out, $\Kf$'s rise is $0.301$ against $\Kz$'s $0.666$ --- under half the
+rate. So the defensible sentence, and the one this paper uses, is that trajectory-level reward
+\textbf{slows the drift to under half its turn-level rate and removes its dominant channel
+entirely} --- not that it eliminates it. \S\ref{sec:measurement} explains why the graders'
+disagreement concentrates exactly here.

@@ -92,6 +92,7 @@ per arm; do not let "it replicates" drift into "the result is run-independent."
 | 📄 First Holm-significant K=5 win on budget | 35.29 GPU-h: **+0.188** (dz 0.310), p_holm .020 | same |
 | 📄 K=5 win at the common budget | 51.20 GPU-h: **+0.435** (dz 0.743), p_holm .000 | same |
 | 📄 All four grader select/eval combinations at 51.2 GPU-h | K=5 > K=0 in 4/4, mean_delta 0.256–0.435, every p_holm .000 | results/compute/cost/tables/budget_sweep_crossjudge_verdicts.md, `GRPO_K` rows |
+| ✅ Held-out crossover rung (added 2026-08-26) | 23.21 GPU-h: **+0.147** (K5−K0), dz 0.331, p_holm **.012** — same crossover rung as the primary, but Holm-significant immediately; holds +0.267…+0.275 to the top rung | results/compute/cost/tables/budget_sweep_GRPO_K_claude-haiku-4-5.md (its `mean_delta` IS K5−K0; the `delta_K0_minus_K5` column is the flip) |
 | 📄 MICI at the common budget (Q1+Q2-selected) | K=5 0.210 vs K=0 0.535 = −0.325 (dz −1.129), lower better | results/compute/cost/tables/budget_sweep_GRPO_K_gpt-4o-mini.md, `select Q1Q2 / eval MICI` row at 51.200 |
 
 ⚠ **Quote the sweep, never a single iso-compute row** — the lever's sign is a function of budget.

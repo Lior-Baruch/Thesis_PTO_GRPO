@@ -19,23 +19,27 @@ factor of two (Appendix~\ref{app:repro}).
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.66\textwidth]{figures/budget_sweep.png}
-\caption{Q1+Q2 for each arm's best checkpoint reachable within a given GPU-hour budget. Below
-${\sim}18$ GPU-hours look-ahead is behind; it draws level near $23$ and is significantly ahead from
-$35$.}
+\includegraphics[width=0.55\textwidth]{figures/budget_sweep_grpo.png}
+\caption{Paired Q1+Q2 delta ($\Kf - \Kz$, so \emph{up is look-ahead winning}) between the best
+checkpoints reachable within a given GPU-hour budget, under each grader. Hollow markers did not
+clear Holm; labels name the selected iterations. Below ${\sim}18$ GPU-hours look-ahead is behind;
+it crosses zero near $23$ under both graders --- already Holm-significant there under the held-out
+judge, from $35$ under the training oracle.}
 \label{fig:budget}
 \end{figure}
 
 \textbf{The lever's sign is a function of budget.} Matching on budget rather than iteration
-reverses the verdict at small budgets and confirms it at large ones (Figure~\ref{fig:budget}). At
-$18.31$ GPU-hours look-ahead is \emph{behind} by $-0.143$ ($\dz\,-0.276$); at $23.21$ it has drawn
-level ($+0.038$, n.s.); its first Holm-significant win is at $35.29$ GPU-hours ($+0.188$,
-$\dz\,0.310$, $p_{\text{holm}}\,.020$); and at the common $51.20$ GPU-hour budget it leads by
-$+0.435$ ($\dz\,0.743$, $p_{\text{holm}}<.001$). The practical statement is therefore conditional,
-and we state it that way: \textbf{if the budget is under roughly 20 GPU-hours, spend it on more
-$\Kz$ iterations; past roughly 35, spend it on look-ahead.} A reader who wants a single number
-should take the sweep, not any one rung --- the rungs are not independent, since each compares the
-best checkpoint each arm can reach by that budget.
+reverses the verdict at small budgets and confirms it at large ones (Figure~\ref{fig:budget}).
+Under the training oracle: at $18.31$ GPU-hours look-ahead is \emph{behind} by $-0.143$
+($\dz\,-0.276$); at $23.21$ it has drawn level ($+0.038$, n.s.); its first Holm-significant win is
+at $35.29$ GPU-hours ($+0.188$, $\dz\,0.310$, $p_{\text{holm}}\,.020$); and at the common $51.20$
+GPU-hour budget it leads by $+0.435$ ($\dz\,0.743$, $p_{\text{holm}}<.001$). The held-out judge
+crosses at the same rung but is Holm-significant there immediately ($+0.147$, $\dz\,0.331$,
+$p_{\text{holm}}\,.012$ at $23.21$) --- it moves the significance forward, not the crossover. The
+practical statement is therefore conditional, and we state it that way: \textbf{under roughly 20
+GPU-hours, spend the budget on more $\Kz$ iterations; past roughly 35 (23 by the held-out judge),
+spend it on look-ahead.} Take the sweep, not any one rung --- the rungs are not independent, since
+each compares the best checkpoint each arm can reach by that budget.
 
 \textbf{The win survives honest model selection.} Choosing ``the best checkpoint'' on the same
 grader that then evaluates it is optimistic. Repeating the $51.2$ GPU-hour comparison under all

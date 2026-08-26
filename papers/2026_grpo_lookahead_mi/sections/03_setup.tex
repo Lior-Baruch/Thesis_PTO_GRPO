@@ -55,9 +55,9 @@ judge} (\heldoutjudge), a different model family that never played the patient a
 training. All contrasts are \textbf{persona-paired} --- personas are reshuffled every iteration,
 so pairing is on the recovered persona identity, never file order --- with Wilcoxon signed-rank
 tests, Cohen's \dz, and 2{,}000-resample percentile bootstrap intervals at a fixed seed; Holm
-correction is applied within each family of tests. Two rules follow from the grader design and are
-observed throughout. First, the graders' \emph{levels} are not comparable (the held-out judge is
-harsher by 1.2--1.7 points, model-dependently), so only contrasts cross graders and the two are
-never averaged --- averaging an optimisation target with a held-out test is not averaging two
-raters. Second, every behavioural claim names its denominator (per turn, per session, or share of
-coded acts), because the arms differ in both turn count and turn length.
+correction is applied within each family of tests. Two rules follow from the grader design and hold
+throughout: the graders' \emph{levels} are not comparable (the held-out judge is harsher by
+1.2--1.7 points, model-dependently), so only contrasts cross graders and the two are never
+averaged --- an optimisation target and a held-out test are not two raters; and every behavioural
+claim names its denominator (per turn, per session, or share of coded acts), because the arms
+differ in both turn count and turn length.

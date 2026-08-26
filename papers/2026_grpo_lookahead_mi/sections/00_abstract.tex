@@ -9,7 +9,8 @@ current policy and the patient actually produce from it; oracle, group size, tem
 patient personas, and 10 iterations are matched. Trajectory-level reward more than doubles what
 the same optimizer extracts from the same oracle --- gains over base of $+1.554$ vs.\ $+0.686$ on
 the rewarded MI rubric under the training oracle, and $+1.038$ vs.\ $+0.396$ under a held-out
-judge from a different model family --- and it is the difference between learning MI and learning
+judge from a different model family, an endpoint that survives an independent re-draw of its
+evaluation set --- and it is the difference between learning MI and learning
 to flatter the judge: turn-level reward drives MI-inconsistent behaviour up fourfold, and a
 judge-free lexical marker finds over-praise in $67\%$ of the $K{=}0$ policy's therapist turns at
 the endpoint, against $6\%$ under $K{=}5$. The cost is real --- a median $1.92\times$ per

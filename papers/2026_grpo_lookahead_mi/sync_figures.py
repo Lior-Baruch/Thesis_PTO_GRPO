@@ -9,12 +9,13 @@ rendered by ``Exp3_PTO_GRPO/eda/tools/render_results.py`` into
     & ..\\..\\.venv\\Scripts\\python.exe sync_figures.py           # copy
     & ..\\..\\.venv\\Scripts\\python.exe sync_figures.py --check   # report drift, copy nothing
 
-⚠ **This paper analyses the two GRPO arms only, but several source figures are FOUR-ARM** (they
-carry the PTO arms of the parent experiment too). That is a deliberate choice, not an oversight:
-the draft shows the full experiment and says in the caption which series it analyses, rather than
-cropping the companion arms out of view. Any caption for a four-arm figure MUST name the two GRPO
-series as this paper's subject and point at the companion draft for PTO. The entries below are
-marked ``FOUR-ARM`` where this applies.
+⚠ **Figure scope policy (revised 2026-08-26).** MAIN-TEXT figures show the two GRPO arms only —
+the EDA renders ``*_grpo`` variants of the shared figures for exactly this use — with ONE
+deliberate exception: ``judge_saturation``, whose four arms are load-bearing (the claim is "the
+two lowest-agreeing of 44 states", and §8 uses PTO K=5's parallel decline). APPENDIX figures stay
+FOUR-ARM on purpose: their declared job is to show the full experiment rather than crop the
+companion arms out of view, and each caption names the two GRPO series as this paper's subject.
+Entries below are marked ``FOUR-ARM`` where this applies.
 
 Where a source figure is produced per grader (``..._<judge>.png``), the destination keeps the
 grader in the filename so a figure in the paper always says which judge produced it; the
@@ -51,14 +52,17 @@ FIGURES: list[tuple[Path, str]] = [
     # the OPPOSITE sign to the source tables - see NUMBERS.md.
     (REWARD / "k_headline_q1q2_grpo.png", "k_headline_q1q2_grpo.png"),
     # --- sec:cost -------------------------------------------------------------------------------
-    (COST / "budget_sweep.png", "budget_sweep.png"),
+    # GRPO-only variant (added 2026-08-26): the 2x2 original carries a PTO column sec:cost never
+    # discusses (and which previews the companion paper's negative result).
+    (COST / "budget_sweep_grpo.png", "budget_sweep_grpo.png"),
     # --- sec:behaviour --------------------------------------------------------------------------
-    # The judge-free lexical marker beside both graders' rated rates (added 2026-08-25). This is
-    # the section's load-bearing evidence, so it gets the figure.
-    (BEHAVIOUR / "overpraise_judgefree.png", "overpraise_judgefree.png"),
+    # The judge-free lexical marker beside both graders' rated rates — the section's load-bearing
+    # evidence. GRPO-only variant (added 2026-08-26); the four-arm original stays in the EDA.
+    (BEHAVIOUR / "overpraise_judgefree_grpo.png", "overpraise_judgefree_grpo.png"),
     (BEHAVIOUR / "k_channel_forest_gpt-4o-mini.png", "k_channel_forest_gpt-4o-mini.png"),
     # --- sec:measurement ------------------------------------------------------------------------
-    # The grader-saturation figure (added 2026-08-25): the agreement collapse and its mechanism.
+    # The grader-saturation figure: the agreement collapse and its mechanism. FOUR-ARM by design —
+    # the "two lowest-agreeing of 44 states" claim and §8's PTO-K=5 sentence need the other arms.
     (MEASUREMENT / "judge_saturation.png", "judge_saturation.png"),
     # --- appendix A -----------------------------------------------------------------------------
     (REWARD / "k_headline_q1q2.png", "k_headline_q1q2.png"),                # FOUR-ARM (context)
