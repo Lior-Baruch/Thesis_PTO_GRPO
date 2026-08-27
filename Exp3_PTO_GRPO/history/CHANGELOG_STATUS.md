@@ -13,6 +13,23 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-08-27 (later) — P1 revived as a SECOND ARR October submission: "GRPO with look-ahead", PTO cited but never data
+
+**Same day, second decision.** Hours after choosing "one submission" (the entry below), Lior asked
+for a new paper — also for ARR October — telling the GRPO-with-look-ahead story with the PTO arms
+removed: PTO may be discussed and the ICLR 2025 paper cited as the lever's origin, but the
+contribution is framed as *moving* look-ahead to GRPO ("the new algo"). The archived ICLR draft
+was **revived at its original path** `papers/2026_grpo_lookahead_mi/` (the archive keeps the
+frozen ICLR-format snapshot): ported to ACL/ARR format, an explicit lineage paragraph and an
+expanded PTO related-work paragraph added, the ICLR §5 (cost/budget — GPU-hour totals, budget
+sweep, crossover rungs) deleted per the same iterations-only axis decision, replaced by a
+Limitations disclosure (oracle calls ≈matched 302,541 vs 289,983; 392,766 K=5-only look-ahead
+patient calls, sums over `api_calls.md`; median 1.92× per-step wall-clock) and a ≈79 GPU-h Ethics
+line. Sections renumbered (no gap), body ends within the 8-page ACL limit, clean build,
+`sync_figures --check` 0/0. **Open risk logged everywhere it matters: ARR's multiple-submission
+policy** — the GRPO K-lever numbers appear in both same-cycle papers (subject vs interaction
+cells); disjoint claims, no cross-citation of prose, but it needs the supervisors' sign-off.
+
 ## 2026-08-27 — supervisor meeting: ONE submission (P2 → ARR October), P1/ICLR dropped, iterations-only axis
 
 **The decision.** After the 2026-08-27 meeting, Lior + supervisors chose a single Exp3 paper for

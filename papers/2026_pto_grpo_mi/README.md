@@ -53,11 +53,13 @@ pdflatex -interaction=nonstopmode -file-line-error main.tex
 pdflatex -interaction=nonstopmode -file-line-error main.tex
 ```
 
-## Relation to P1 (`archive/2026_grpo_lookahead_mi`)
+## Relation to P1 (`../2026_grpo_lookahead_mi`)
 
-P1 — the GRPO-only look-ahead paper, formerly targeting ICLR 2027 — was **archived on
-2026-08-27** when the supervisors chose a single ARR submission. Everything it argued survives
-here as sections of the 2×2 (the GRPO K lever in §4, the reward hack in §6, the saturation
-mechanism in §8); its `NUMBERS.md` remains a trap list for any shared number, and its `*_grpo`
-EDA artifacts (22-state measurement stats) stay rendered but uncited — this paper uses the full
-44-state grid.
+P1 — the GRPO-only look-ahead paper — was archived on 2026-08-27 when its ICLR plan was dropped,
+then **revived the same day (per Lior) as a second submission to the same ARR October cycle**,
+telling the GRPO-with-look-ahead story with PTO cited as the lever's origin but never as data.
+The GRPO K-lever numbers therefore appear in both papers — there as the subject (its §§5–7 go
+deeper: the reward hack, the mechanism analysis, the full saturation analysis on the 22 GRPO
+states), here as cells of the interaction; this paper uses the full 44-state grid for measurement. The papers never cite each
+other's prose. ⚠ **Two same-cycle ARR submissions from one experiment need supervisor sign-off
+against ARR's multiple-submission policy** — see P1's README for the overlap inventory.

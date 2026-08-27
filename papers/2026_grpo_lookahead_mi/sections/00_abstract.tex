@@ -1,0 +1,23 @@
+\begin{abstract}
+Reinforcement learning from an LLM judge usually scores a candidate turn on the turn itself. In
+multi-turn goal-oriented dialogue that is a short-sighted proxy: the turn that looks best in
+isolation is not the turn that leads somewhere good. We take the $K$-turn look-ahead reward
+introduced for preference-tree optimisation in motivational interviewing (MI) and move it to
+Group Relative Policy Optimization (GRPO), then test it directly: a Llama-3.2-1B therapist is
+trained against a simulated patient with GRPO, varying only \emph{what the judge sees} --- the
+candidate turn alone ($K{=}0$), or the candidate plus the $K{=}5$-turn continuation that the
+current policy and the patient actually produce from it; oracle, group size, temperatures, 96
+patient personas, and 10 iterations are matched. Trajectory-level reward more than doubles what
+the same optimizer extracts from the same oracle --- gains over base of $+1.554$ vs.\ $+0.686$ on
+the rewarded MI rubric under the training oracle, and $+1.038$ vs.\ $+0.396$ under a held-out
+judge from a different model family, an endpoint that survives an independent re-draw of its
+evaluation set --- and it is the difference between learning MI and learning
+to flatter the judge: turn-level reward drives MI-inconsistent behaviour up fourfold, and a
+judge-free lexical marker finds over-praise in $67\%$ of the $K{=}0$ policy's therapist turns at
+the endpoint, against $6\%$ under $K{=}5$. Two caveats travel with the result: under the held-out
+judge $K{=}5$'s MI-inconsistency still rises, at under half the $K{=}0$ rate rather than not at
+all; and the winning checkpoint has the weakest per-conversation cross-grader agreement in the
+experiment, because the trained-against grader saturates one-sidedly, losing three-quarters of
+its variance on the rewarded rubric while the held-out judge's spread over the same conversations
+does not move. The arm-level conclusion survives both; the per-conversation ruler does not.
+\end{abstract}

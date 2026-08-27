@@ -1,0 +1,108 @@
+% =====================================================================
+%  Scoring the Continuation
+%  K-turn look-ahead rewards for group-relative policy optimization
+%  in Motivational Interviewing
+%  Target: ARR October 2026 cycle (submission 2026-10-12, commitment
+%  2026-12-20; the cycle feeds NAACL 2027 + COLING 2027).
+%  ACL long paper: 8-page body + unlimited refs/appendix; Limitations
+%  mandatory and page-exempt; Ethics optional and page-exempt.
+%
+%  SCOPE (2026-08-27, Lior + supervisors): the two GRPO arms only. PTO is
+%  discussed and cited as the predecessor (baruch2025pto) but its Exp3 arms
+%  appear NOWHERE as data. Comparison axis: ITERATIONS ONLY -- no GPU-hour
+%  or budget analysis anywhere; the cost asymmetry is a Limitations
+%  disclosure, and the Ethics statement carries only a one-line total.
+% =====================================================================
+%
+% COMPILING (MiKTeX, no Perl, no latexmk -- see ../README.md):
+%     pdflatex main  ->  bibtex main  ->  pdflatex main  ->  pdflatex main
+%   acl.sty + acl_natbib.bst are vendored next to this file.
+%
+\documentclass[11pt]{article}
+
+\IfFileExists{acl.sty}{%
+  \usepackage[review]{acl}      % ARR submission mode; swap to [final] for camera-ready
+}{%
+  \usepackage[margin=1in]{geometry}
+  \usepackage{natbib}
+  \bibliographystyle{plainnat}
+  \typeout{^^J*** acl.sty not found - building in FALLBACK single-column mode. ***^^J}
+}
+
+\usepackage{times}             % REQUIRED: scalable Type 1 fonts. Without this,
+\usepackage{latexsym}          % microtype's font expansion fails on bitmap CM.
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{microtype}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{xcolor}
+\usepackage{array}
+\usepackage{subcaption}
+
+% --- float packing: let top floats take more of a page and sit closer to text ---
+\renewcommand{\topfraction}{0.9}
+\renewcommand{\dbltopfraction}{0.9}
+\renewcommand{\textfraction}{0.07}
+\renewcommand{\floatpagefraction}{0.85}
+\renewcommand{\dblfloatpagefraction}{0.85}
+\setcounter{topnumber}{3}
+\setcounter{dbltopnumber}{3}
+\setcounter{totalnumber}{4}
+
+% --- draft aids: \todo{...} and \note{...} vanish when \draftfalse -------------
+\newif\ifdraft\drafttrue
+\ifdraft
+  \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+  \newcommand{\note}[1]{\textcolor{blue}{\textit{[#1]}}}
+\else
+  \newcommand{\todo}[1]{}
+  \newcommand{\note}[1]{}
+\fi
+
+% --- shorthands ---------------------------------------------------------------
+\newcommand{\QQ}{Q1{+}Q2}
+\newcommand{\mici}{MICI}
+\newcommand{\dz}{\ensuremath{d_z}}
+\newcommand{\primaryjudge}{\textsc{gpt-4o-mini}}
+\newcommand{\heldoutjudge}{\textsc{Claude Haiku 4.5}}
+\newcommand{\Kz}{\ensuremath{K{=}0}}
+\newcommand{\Kf}{\ensuremath{K{=}5}}
+\newcommand{\GRPO}{GRPO}
+
+\title{Scoring the Continuation: $K$-Turn Look-Ahead\\
+Rewards for Group-Relative Policy Optimization\\
+in Motivational Interviewing}
+
+\author{
+  Lior Baruch \\
+  School of Computer Science \\
+  Reichman University, Herzliya, Israel \\
+  \texttt{lior95bar@gmail.com}
+}
+
+\begin{document}
+\maketitle
+
+\input{sections/00_abstract}
+\input{sections/01_intro}
+\input{sections/02_related}
+\input{sections/03_setup}
+\input{sections/04_reward}
+\input{sections/05_behaviour}
+\input{sections/06_mechanism}
+\input{sections/07_measurement}
+\input{sections/08_discussion}
+\input{sections/09_limitations}
+\input{sections/10_ethics}
+
+\bibliography{refs}
+
+\appendix
+\input{sections/A_tables}
+\input{sections/B_repro}
+
+\end{document}

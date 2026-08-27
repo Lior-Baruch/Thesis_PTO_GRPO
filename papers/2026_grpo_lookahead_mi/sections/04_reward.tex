@@ -1,0 +1,64 @@
+\section{Look-ahead more than doubles the gain}
+\label{sec:reward}
+
+\subsection{The headline}
+
+At the matched iteration-10 endpoint, look-ahead wins on \textbf{every instrument under both
+graders} (Table~\ref{tab:endpoint}, appendix). On the rewarded rubric the gap is $+0.765$ ($\dz\,0.905$)
+under the training oracle and $+0.616$ ($\dz\,1.030$) under the held-out judge. That the held-out
+judge reports a \emph{larger} standardised effect than the grader optimised against is the key
+fact here: the gain is not an artifact of the optimisation target.
+
+Measured against each arm's own base, look-ahead more than doubles what the same optimizer extracts
+from the same oracle: $+1.554$ versus $+0.686$ on Q1+Q2 under the training oracle
+($1.554 / 0.686 = 2.27\times$), and $+1.038$ versus $+0.396$ under the held-out judge
+($1.038 / 0.396 = 2.62\times$). In absolute terms the $\Kf$ policy ends at $4.517$ on a 1--5 scale
+against the $\Kz$ policy's $3.753$, from statistically indistinguishable bases ($2.963$ and
+$3.067$; the base-vs-base contrast is $+0.104$, $\dz\,0.115$, n.s.).
+
+The instruments \emph{outside} the reward move too, which is what distinguishes a genuine gain
+from a target-specific one: MI-SAT ($\dz\,0.531$ / $0.829$ under the two graders), CSQ-8
+($0.482$ / $0.678$), WAI-SR ($0.513$ / $0.442$), the MITI technique coder ($0.735$ / $0.502$), and
+patient change talk ($0.516$ / $0.563$) all favour look-ahead under both graders
+(Table~\ref{tab:endpoint}). MI-inconsistent behaviour, the one lower-is-better axis, shows the
+largest standardised effect of all ($\dz\,-1.862$ / $-1.567$); \S\ref{sec:behaviour} takes that
+apart, because it is where the two graders stop agreeing about magnitude.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/k_headline_q1q2_grpo.png}
+\caption{The two arms in scores: Q1+Q2 by iteration under each grader, mean $\pm$ SE over the 96
+personas, each arm's own base as a dotted reference; iteration 0 is each arm's independent base
+draw, and the endpoint means are printed at iteration 10. A star over an iteration marks the
+persona-paired $\Kf$ vs.\ $\Kz$ contrast clearing Holm there (the per-iteration deltas, CIs and
+effect sizes are Table~\ref{tab:byiter}). The two panels' $y$-axes are independent --- the
+graders' levels are never comparable.}
+\label{fig:headline}
+\end{figure*}
+
+\subsection{The effect has an onset}
+
+Look-ahead is not free from the first step, and the trajectory matters for anyone deciding how long
+to train. For the first three iterations the two arms are statistically indistinguishable on Q1+Q2
+under both graders. The advantage opens at iteration 4, is Holm-significant at 6 of the 10
+iterations under each grader (primary: 4, 6--10; held-out: 4--7, 9, 10), and is \emph{largest at
+the endpoint} --- there is no sign of it having peaked (Figure~\ref{fig:headline}; the full
+by-iteration table is Appendix Table~\ref{tab:byiter}).
+
+Two readings are ruled out by the same figure: this is not $\Kz$ collapsing while $\Kf$ holds
+steady ($\Kf$ climbs throughout), nor a single-iteration artifact (the gap is Holm-significant at
+every iteration from 6 to 10 under the training oracle). It is not smooth --- most of the final
+margin opens between iterations 8 and 9, partly because $\Kz$ falls from its own iteration-8 peak
+of $4.082$ to $3.753$; \S\ref{sec:behaviour} identifies what that policy was doing over exactly
+those iterations.
+
+\textbf{The endpoint survives a second draw.} Every state here is scored on one 96-conversation
+sample, so we re-drew the winning one: 96 fresh conversations from the same $\Kf$ iteration-10
+adapter, same personas, same unseeded decoding, scored on all eight instruments by both graders.
+That gives a noise floor at a \emph{trained} checkpoint, which the design otherwise lacks: the two
+draws of the same policy differ by at most $|\dz|\,0.174$ across 9 instruments and both graders,
+nothing significant. And the headline holds --- substituting the replicate, the $\Kf-\Kz$ gap on
+Q1+Q2 is $+0.709$ ($\dz\,0.919$) / $+0.637$ ($\dz\,0.949$) against $+0.765$ / $+0.616$ originally:
+same sign, same significance, effect sizes within $0.08$. The endpoint \emph{level} moves
+$4.517 \rightarrow 4.461$, the honest precision of a single-draw score here. The re-draw covers
+the $\Kf$ side only, so it tests the contested endpoint rather than the whole contrast.
