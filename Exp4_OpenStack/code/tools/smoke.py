@@ -180,6 +180,15 @@ PARTS: Tuple[str, ...] = (
 #: Parts that allocate VRAM. Each one guards itself; this tuple is for the ``all`` summary.
 GPU_PARTS: Tuple[str, ...] = ("stopgen", "dpo", "grpo")
 
+#: vLLM pre-allocation for the ``roles`` gate, per grader, sized on a 40 GB A100 from the
+#: MEASURED bf16 checkpoints (HF API, 2026-08-26): E4B 14.89 GiB -> 0.50 x 40 = 20 GiB, E2B
+#: 9.54 GiB -> 0.35 x 40 = 14 GiB, each leaving a usable KV pool. These mirror the notebooks'
+#: cell-1 values on purpose: the gate must serve the grader the way the arm will.
+_DEFAULT_SERVE_UTIL: Dict[str, float] = {
+    "google/gemma-4-E4B-it": 0.50,
+    "google/gemma-4-E2B-it": 0.35,
+}
+
 #: Parts that need a server (their own, or one already listening).
 SERVER_PARTS: Tuple[str, ...] = ("serve", "roles")
 
@@ -1350,11 +1359,20 @@ def cmd_roles(sec: Section, args: argparse.Namespace) -> None:
                 adopt_if_running(ServeSpec(model=model, port=port)) is None:
             raise _Skip(f"nothing serving {model} on port {port} and {args.executable!r} is not "
                         f"on PATH. Run this on the GPU host, or pass --base-url.")
+        # The default must hold the REAL grader's weights, because this gate serves the real
+        # grader: E4B is 14.89 GiB bf16 and E2B 9.54 GiB (HF API, 2026-08-26), so on a 40 GB
+        # A100 that is 0.50 and 0.35 of the card. The old flat 0.25 (~10 GiB) predates those
+        # measurements and cannot even load E4B -- the server would die during weight load and
+        # surface as "could not reach or start a server", which reads like a serving bug rather
+        # than a budget one. Overridable with --gpu-memory-utilization for a different card.
+        _util = args.gpu_memory_utilization or _DEFAULT_SERVE_UTIL.get(model, 0.50)
+        sec.note(f"gpu_memory_utilization {_util} "
+                 f"({'explicit' if args.gpu_memory_utilization else 'derived from the model'})")
         try:
             wired, handles = serve_roles(
                 bindings, base_port=port, log_dir=tempfile.gettempdir(), timeout=args.timeout,
                 executable=args.executable,
-                gpu_memory_utilization=args.gpu_memory_utilization or 0.25)
+                gpu_memory_utilization=_util)
         except RuntimeError as exc:
             raise _Skip(f"could not reach or start a server: {exc}") from exc
 

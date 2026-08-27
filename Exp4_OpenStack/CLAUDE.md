@@ -754,10 +754,13 @@ FALSE on the pinned trl 1.4.0 and rewritten at all its sites.
    `smoke.py roles` → `oracle_sanity` (full) against **both** E4B and E2B (choose the grader by
    Spearman + spread) → a 2-iteration mini-arm (`QUICK_TEST=True`, lands in a disjoint folder) →
    a real arm (GRPO K=0 first).
-2. **Before any of that**: push `code/` to Drive (additively), add the `huggingface` Colab secret
-   (Llama-3.2-1B is gated; **Gemma 4 is NOT** — Apache 2.0, no click-through), and uncomment the
-   install cell — **vLLM first** (Gemma 4 needs ≥ 0.19.1), then the pinned training stack, then
-   restart the kernel.
+2. **Before any of that**: push `code/` to Drive (additively) and add the `huggingface` Colab
+   secret (Llama-3.2-1B is gated; **Gemma 4 is NOT** — Apache 2.0, no click-through). The install
+   cell is **self-installing and guarded** — just run it: on a fresh runtime it installs vLLM
+   first (Gemma 4 needs ≥ 0.19.1, and an older build is upgraded automatically), layers the
+   pinned stack on top, drops Colab's torchao, and asks for one restart; on a warm runtime it
+   prints one line and skips. It refuses to install anywhere but Colab, so opening a notebook
+   locally cannot write into the repo `.venv`.
 3. At the Phase 1 gate, check the **measured weights line** against 14.89 GiB (E4B) / 9.54 GiB
    (E2B), and at Phase 2 re-run the oracle-prompt-length measurement on real Exp4 conversations
    (the 16384 cap was measured on Exp3's gpt-4o-mini patient).
