@@ -51,9 +51,9 @@ Usage
 ::
 
     # Phase 2 gate -- 96 base-policy conversations against the Gemma patient
-    python tools/generate_convs.py --exp-name GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E2B_Patgemma4E2B \\
+    python tools/generate_convs.py --exp-name GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi \\
         --model-iter 0 --dry-run
-    python tools/generate_convs.py --exp-name GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E2B_Patgemma4E2B \\
+    python tools/generate_convs.py --exp-name GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi \\
         --model-iter 0 --batch-size 4
 
     # REPAIR -- refill a model state whose conversations were lost
@@ -1060,7 +1060,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         temperature_therapist=gen.temperature_therapist,
         temperature_patient=gen.temperature_patient,
         therapist_max_input_tokens=gen.therapist_max_input_tokens,
-        stop_strings=list(gen.stop_strings) or None,
+        # [] = no string stopping (Instruct arms); `or None` would re-enable the ChatML defaults.
+        stop_strings=list(gen.stop_strings),
         patient_seed=seed,
         batch_size=batch_size,
         max_retries_without_progress=gen.max_retries_without_progress,

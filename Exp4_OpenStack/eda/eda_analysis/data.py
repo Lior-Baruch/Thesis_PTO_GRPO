@@ -262,7 +262,7 @@ class Arm:
     nothing about the layout.
 
     Attributes:
-        experiment_name: The folder name, e.g. ``GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B``.
+        experiment_name: The folder name, e.g. ``GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi``.
         info: The decoded identity from :func:`naming.parse_experiment_name`. Everything the name
             encodes -- rubric, K, MCL, branch width, preference-tree mode, role tags -- is here.
         iters: MODEL-STATE indices present on disk (``model_iter_<N>`` folders that actually hold

@@ -413,14 +413,22 @@ _ROLE_PAIRS: Tuple[Tuple[str, str], ...] = (
     ("google/gemma-4-E2B-it", DEFAULT_PATIENT_MODEL),
 )
 
+#: The two therapist POLICY variants the grammar encodes (the ``_Th<tag>`` field): the Instruct
+#: default and the template-less base. Two DIFFERENT policies must never share a folder, which
+#: is exactly what the grid below proves.
+_THERAPIST_MODELS: Tuple[str, ...] = (
+    "meta-llama/Llama-3.2-1B-Instruct",   # _ThL1Bi (default)
+    "meta-llama/Llama-3.2-1B",            # _ThL1B
+)
+
 _NAME_CHARSET = set("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789_")
 
 #: The three worked examples in CLAUDE.md and naming.py's docstring. If the grammar drifts, the
 #: documentation and the code disagree, and the documentation is what someone will grep for.
 _DOCUMENTED_NAMES: Tuple[str, ...] = (
-    "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B",
-    "PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B",
-    "GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E4B",
+    "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi",
+    "PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B_ThL1Bi",
+    "GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1B",
 )
 
 
@@ -443,47 +451,51 @@ def cmd_naming(sec: Section, args: argparse.Namespace) -> None:
         for ids in _QUESTIONNAIRE_SETS:
             for k in _K_VALUES:
                 for oracle_model, patient_model in _ROLE_PAIRS:
-                    for mode in modes:
-                        name = build_experiment_name(
-                            method, ids, k, 12,
-                            g=8 if method == "GRPO" else None,
-                            m=None if method == "GRPO" else 8,
-                            mode=mode,
-                            oracle_model=oracle_model,
-                            patient_model=patient_model,
-                        )
-                        n_built += 1
+                    for therapist_model in _THERAPIST_MODELS:
+                        for mode in modes:
+                            name = build_experiment_name(
+                                method, ids, k, 12,
+                                g=8 if method == "GRPO" else None,
+                                m=None if method == "GRPO" else 8,
+                                mode=mode,
+                                oracle_model=oracle_model,
+                                patient_model=patient_model,
+                                therapist_model=therapist_model,
+                            )
+                            n_built += 1
 
-                        if set(name) - _NAME_CHARSET:
-                            bad_chars.append(name)
+                            if set(name) - _NAME_CHARSET:
+                                bad_chars.append(name)
 
-                        try:
-                            arm = parse_experiment_name(name)
-                        except ValueError as exc:
-                            roundtrip_failures.append(f"{name}: {exc}")
-                            continue
+                            try:
+                                arm = parse_experiment_name(name)
+                            except ValueError as exc:
+                                roundtrip_failures.append(f"{name}: {exc}")
+                                continue
 
-                        expected = (method, qtag_for(ids), k, 12,
-                                    model_tag(oracle_model), model_tag(patient_model))
-                        actual = (arm.method, arm.qtag, arm.k, arm.mcl,
-                                  arm.oracle_tag, arm.patient_tag)
-                        if actual != expected:
-                            roundtrip_failures.append(f"{name}: {actual} != {expected}")
-                        if method == "GRPO" and (arm.g != 8 or arm.m is not None
-                                                 or arm.mode is not None):
-                            roundtrip_failures.append(f"{name}: GRPO fields wrong ({arm})")
-                        if method == "PTO" and (arm.m != 8 or arm.g is not None
-                                                or arm.mode != mode):
-                            roundtrip_failures.append(f"{name}: PTO fields wrong ({arm})")
+                            expected = (method, qtag_for(ids), k, 12,
+                                        model_tag(oracle_model), model_tag(patient_model),
+                                        model_tag(therapist_model))
+                            actual = (arm.method, arm.qtag, arm.k, arm.mcl,
+                                      arm.oracle_tag, arm.patient_tag, arm.therapist_tag)
+                            if actual != expected:
+                                roundtrip_failures.append(f"{name}: {actual} != {expected}")
+                            if method == "GRPO" and (arm.g != 8 or arm.m is not None
+                                                     or arm.mode is not None):
+                                roundtrip_failures.append(f"{name}: GRPO fields wrong ({arm})")
+                            if method == "PTO" and (arm.m != 8 or arm.g is not None
+                                                    or arm.mode != mode):
+                                roundtrip_failures.append(f"{name}: PTO fields wrong ({arm})")
 
-                        if arm.experiment_name != name:
-                            idempotence_failures.append(f"{name} -> {arm.experiment_name}")
-                        if name in built:
-                            collisions.append(name)
-                        built[name] = arm
+                            if arm.experiment_name != name:
+                                idempotence_failures.append(f"{name} -> {arm.experiment_name}")
+                            if name in built:
+                                collisions.append(name)
+                            built[name] = arm
 
     sec.note(f"grid: 2 methods x {len(_QUESTIONNAIRE_SETS)} rubric sets x {len(_K_VALUES)} K "
-             f"x {len(_ROLE_PAIRS)} role pairs (+{len(PTO_MODES)} PTO modes) = {n_built} names")
+             f"x {len(_ROLE_PAIRS)} role pairs x {len(_THERAPIST_MODELS)} therapists "
+             f"(+{len(PTO_MODES)} PTO modes) = {n_built} names")
     for sample in list(built)[:2] + list(built)[-1:]:
         sec.note(f"  {sample}")
 
@@ -517,6 +529,15 @@ def cmd_naming(sec: Section, args: argparse.Namespace) -> None:
     # lives in run_metadata.json). Checked so that "deliberate" stays visible.
     sec.check(model_tag("gpt-4o-mini") == model_tag("gpt-4o-mini-2024-07-18") == "gpt4m",
               "model_tag is many-to-one by design (family, not snapshot)", "both -> gpt4m")
+
+    # But a base model and its Instruct sibling are DIFFERENT policies, never one family: an
+    # earlier _slugify stripped "-Instruct" and would have tagged both therapists identically,
+    # collapsing two different-policy arms into one folder.
+    sec.check(model_tag("meta-llama/Llama-3.2-1B") == "L1B"
+              and model_tag("meta-llama/Llama-3.2-1B-Instruct") == "L1Bi",
+              "the two therapist variants tag DIFFERENTLY (base L1B vs Instruct L1Bi)")
+    sec.check(model_tag("some/Other-7B") != model_tag("some/Other-7B-Instruct"),
+              "_slugify no longer strips -Instruct (any future base/Instruct pair stays distinct)")
     sec.check(all(set(model_tag(m)) <= _NAME_CHARSET - {"_"}
                   for m in ("google/gemma-4-E2B-it", "meta-llama/Llama-3.2-1B",
                             "some.vendor/weird_model.v2-it")),
@@ -532,14 +553,17 @@ def cmd_naming(sec: Section, args: argparse.Namespace) -> None:
                   lambda: parse_experiment_name("GRPO4_Q1Q2_LA5_MCL12_G8"))
     # The regex is shape-only (it would match a PTO name carrying G8); the cross-field rule that
     # rejects it lives in ArmInfo, which every construction path goes through.
+    _expect_error(sec, "a name missing the therapist field is rejected", "not an Exp4 arm name",
+                  lambda: parse_experiment_name(
+                      "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B"))
     _expect_error(sec, "a PTO name carrying a GRPO group size is rejected",
                   "PTO arms need m",
                   lambda: parse_experiment_name(
-                      "PTO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B"))
+                      "PTO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B_ThL1Bi"))
     _expect_error(sec, "a GRPO name carrying a preference tree is rejected",
                   "GRPO arms need g",
                   lambda: parse_experiment_name(
-                      "GRPO4_Q1Q2_LA5_MCL12_M8_PTgreedy_Ogemma4E2B_Patgemma4E2B"))
+                      "GRPO4_Q1Q2_LA5_MCL12_M8_PTgreedy_Ogemma4E2B_Patgemma4E2B_ThL1Bi"))
     _expect_error(sec, "building GRPO with PTO branch args and no G is rejected",
                   "GRPO arms need g",
                   lambda: build_experiment_name("GRPO", (1, 2), 5, 12, m=8, mode="greedy",
@@ -566,7 +590,8 @@ def cmd_naming(sec: Section, args: argparse.Namespace) -> None:
                                                 patient_model=DEFAULT_PATIENT_MODEL))
     _expect_error(sec, "k=True is a caller mistake, not a depth", "non-negative",
                   lambda: ArmInfo(method="GRPO", qtag="Q1Q2", k=True, mcl=12, g=8, m=None,
-                                  mode=None, oracle_tag="gemma4E2B", patient_tag="gemma4E2B"))
+                                  mode=None, oracle_tag="gemma4E2B", patient_tag="gemma4E2B",
+                                  therapist_tag="L1Bi"))
     _expect_error(sec, "an Exp3-style temperature suffix on a model state is rejected",
                   "is not a model-state folder",
                   lambda: parse_model_state_label("model_iter_0_TT0.9_TP0.7"))
@@ -617,8 +642,8 @@ def _grpo_globals(data_root: str, **overrides: Any) -> Dict[str, Any]:
         "NUM_CONVERSATIONS_PER_ITER": 96,
         "NUM_UTTERANCES_FOR_DATA": 49,
         "CONVERSATION_BATCH_SIZE": 64,
-        "NUM_ITERATIONS": 6,
-        "EPOCHS_PER_ITERATION": 2,
+        "NUM_ITERATIONS": 10,
+        "EPOCHS_PER_ITERATION": 1,
         "NUM_GENERATIONS": 8,
         "TRAIN_BATCH_SIZE": 64,
         "EVAL_BATCH_SIZE": 64,
@@ -641,8 +666,8 @@ def _pto_globals(data_root: str, **overrides: Any) -> Dict[str, Any]:
         "NUM_CONVERSATIONS_PER_ITER": 96,
         "NUM_UTTERANCES_FOR_DATA": 49,
         "CONVERSATION_BATCH_SIZE": 64,
-        "NUM_ITERATIONS": 8,
-        "EPOCHS_PER_ITERATION": 2,
+        "NUM_ITERATIONS": 10,
+        "EPOCHS_PER_ITERATION": 1,
         "PREF_TREE_MODE": "greedy",
         "NUM_BRANCHES_PER_TURN": 8,
         "PREF_FILTER_TAU": 0.1,
@@ -714,7 +739,7 @@ def cmd_config(sec: Section, args: argparse.Namespace) -> None:
         knobs = payload["config"]
         sec.check(knobs["lookahead"]["sub_batch_size"] == 64
                   and knobs["lookahead"]["k"] == 5
-                  and knobs["training"]["num_iterations"] == 6,
+                  and knobs["training"]["num_iterations"] == 10,
                   "run_metadata carries the silently-mutable knobs (K, sub-batch, iterations)",
                   f"{len(payload['silently_mutable_knobs'])} knob paths asserted")
         written = write_run_metadata(payload, g_paths)
@@ -836,8 +861,14 @@ class StubTokenizer:
 
     def apply_chat_template(self, messages: Sequence[Dict[str, str]], *,
                             add_generation_prompt: bool = False,
-                            tokenize: bool = False) -> str:
-        """Render messages the way ``core.policy.CHATML_TEMPLATE`` does."""
+                            tokenize: bool = False,
+                            **template_kwargs: Any) -> str:
+        """Render messages the way ``core.policy.CHATML_TEMPLATE`` does.
+
+        ``**template_kwargs`` mirrors the real API: callers pin ``date_string=`` on every
+        render (the Llama-3.2 template interpolates it), and a template that does not read a
+        variable simply ignores it -- as this one does.
+        """
         parts = [f"{self.start}{m['role']}\n{m['content']}{self.end}\n" for m in messages]
         if add_generation_prompt:
             parts.append(f"{self.start}assistant\n")
@@ -1512,11 +1543,14 @@ def _load_smoke_policy(sec: Section, args: argparse.Namespace):
         _Skip: the weights are not in the local HF cache and downloading was not allowed. That
             is "this host cannot answer the question", not a defect in the code under test.
     """
-    from core.config import DEFAULT_BASE_MODEL_ID
-
     from core.policy import patch_generate, setup_base_model, setup_tokenizer, sync_pad_token
 
-    model_id = args.model or DEFAULT_BASE_MODEL_ID
+    # The GPU parts default to the BASE therapist deliberately, NOT config.DEFAULT_BASE_MODEL_ID
+    # (the Instruct variant since 2026-08-27): stopgen exists to prove the ChatML anti-degeneracy
+    # stack, which only the template-less base exercises -- on Instruct the markers never occur
+    # and every stop check passes vacuously. Pass --model meta-llama/Llama-3.2-1B-Instruct to
+    # smoke the Instruct decode path instead.
+    model_id = args.model or "meta-llama/Llama-3.2-1B"
     sec.note(f"policy: {model_id} "
              f"({'downloads allowed' if args.allow_download else 'local HF cache only'})")
     try:

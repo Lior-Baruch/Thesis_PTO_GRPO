@@ -94,6 +94,7 @@ __all__ = [
     "DEFAULT_BASE_MODEL_ID",
     "DEFAULT_LORA_TARGET_MODULES",
     "DEFAULT_STOP_STRINGS",
+    "resolve_stop_strings",
     "ITERATION_PREFIX",
     "ADAPTER_SUBDIR",
     "TRAINING_SUBDIR",
@@ -130,24 +131,61 @@ __all__ = [
 #: Bumped when the ``run_metadata.json`` payload SHAPE changes (a reader keys on this).
 METADATA_SCHEMA = "exp4-run-metadata/1"
 
-#: The therapist policy. Not encoded in the arm name -- it is fixed across all Exp4 arms, so
-#: changing it is a grammar-version bump (see naming.py), not a new token. Recorded here so
-#: ``run_metadata.json`` still says which policy every arm actually trained.
-DEFAULT_BASE_MODEL_ID = "meta-llama/Llama-3.2-1B"
+#: The therapist policy default. Selectable per arm since 2026-08-27 and ENCODED in the arm name
+#: (the ``_Th<tag>`` field -- see naming.py), so the two variants can never share a folder:
+#:   meta-llama/Llama-3.2-1B-Instruct  (_ThL1Bi, default) -- ships the official Llama-3 chat
+#:       template; stops on the single special token <|eot_id|>, so no string-stopping and no
+#:       ChatML self-play class. STOP_STRINGS="auto" resolves to () for it.
+#:   meta-llama/Llama-3.2-1B           (_ThL1B) -- ships NO template; the hand-written ChatML
+#:       template is installed and the ChatML stop strings are required.
+#: ``run_metadata.json`` still records the exact snapshot id (the tag names a family).
+DEFAULT_BASE_MODEL_ID = "meta-llama/Llama-3.2-1B-Instruct"
 
 DEFAULT_LORA_TARGET_MODULES: Tuple[str, ...] = (
     "q_proj", "k_proj", "v_proj", "o_proj", "up_proj", "down_proj", "gate_proj",
 )
 
-#: The anti-degeneracy stop strings, duplicated from ``core.policy.STOP_STRINGS``.
+#: The anti-degeneracy stop strings FOR THE BASE THERAPIST, duplicated from
+#: ``core.policy.STOP_STRINGS``.
 #:
 #: WARNING: this is a deliberate duplicate. ``core.policy`` imports torch at module level, and
 #: this module must stay importable by the read-only EDA, so it cannot import the constant it is
 #: copying. The two MUST stay equal -- ``tools/smoke.py`` is the right place to assert that. The
 #: markers are ordinary BPE pieces, not special tokens, so the base Llama happily writes both
 #: speakers without them; the whole anti-degeneracy stack (stop strings + clean_completion +
-#: patch_generate + REWARD_FLOOR) is load-bearing.
+#: patch_generate + REWARD_FLOOR) is load-bearing THERE. The Instruct therapist needs none of
+#: it: its native template terminates every turn with the single special token <|eot_id|>, so
+#: ``STOP_STRINGS = "auto"`` resolves to an EMPTY tuple for it (see
+#: :func:`resolve_stop_strings`) and generation stops on the eos-id list instead.
 DEFAULT_STOP_STRINGS: Tuple[str, ...] = ("<|im_end|>", "<|im_start|>")
+
+
+def _therapist_has_native_template(base_model_id: str) -> bool:
+    """True when the therapist checkpoint ships its own chat template (the Instruct variants).
+
+    Decided from the model id, not the tokenizer -- the config is frozen before any tokenizer
+    is loaded, and this module must stay importable without transformers. ``"instruct"`` in the
+    id is exact for both supported therapists; a future therapist family that spells it
+    differently needs this predicate extended, and ``core.policy.setup_tokenizer`` prints which
+    template it actually used, so a mismatch is visible at model-load time.
+    """
+    return "instruct" in str(base_model_id).lower()
+
+
+def resolve_stop_strings(raw: Any, base_model_id: str) -> Tuple[str, ...]:
+    """Resolve the cell-1 ``STOP_STRINGS`` value against the therapist variant.
+
+    ``"auto"`` (the notebooks' default) resolves to :data:`DEFAULT_STOP_STRINGS` for the
+    template-less base therapist and to ``()`` for an Instruct therapist -- string stopping on
+    Instruct is pure cost (the markers never occur; its turns end on the special <|eot_id|>).
+    Anything else is taken verbatim: an explicit tuple pins the behavior, an explicit ``None``
+    or ``()`` means "no string stopping" regardless of variant (validated downstream).
+    """
+    if isinstance(raw, str) and raw.strip().lower() == "auto":
+        return () if _therapist_has_native_template(base_model_id) else DEFAULT_STOP_STRINGS
+    if raw is None:
+        return ()
+    return _as_str_tuple(raw, "STOP_STRINGS")
 
 # Layout tokens. Same duplication caveat as DEFAULT_STOP_STRINGS: ``core.policy`` defines
 # ITER_PREFIX / ADAPTER_SUBDIR for its checkpoint walk and cannot be imported from here.
@@ -711,7 +749,7 @@ class TrainingConfigBase:
     questionnaire_ids: Tuple[int, ...] = (1, 2)   # echo of OracleConfig; equality is enforced
 
     # -- loop -------------------------------------------------------------------
-    num_iterations: int = 6
+    num_iterations: int = 10
     # 1, matched across both methods: a GRPO "epoch" re-samples G fresh completions per prompt
     # and re-grades them, while a DPO epoch re-treads the SAME fixed pairs -- so epochs=1 is the
     # only value at which "one pass over data produced by this iteration's policy" holds for
@@ -1139,8 +1177,13 @@ def _roles_from_globals(cell: _Cell1) -> RolesConfig:
     )
 
 
-def _gen_from_globals(cell: _Cell1) -> GenConfig:
-    """Generation knobs, defaulting to the matched grid on :class:`GenConfig`."""
+def _gen_from_globals(cell: _Cell1, base_model_id: str) -> GenConfig:
+    """Generation knobs, defaulting to the matched grid on :class:`GenConfig`.
+
+    *base_model_id* steers the ``STOP_STRINGS="auto"`` resolution: ChatML markers for the
+    template-less base therapist, empty for an Instruct therapist (see
+    :func:`resolve_stop_strings`).
+    """
     d = GenConfig
     return GenConfig(
         num_conversations_per_iter=cell.int_("NUM_CONVERSATIONS_PER_ITER",
@@ -1160,7 +1203,7 @@ def _gen_from_globals(cell: _Cell1) -> GenConfig:
                                       aliases=("PATIENT_API_CONCURRENCY",)),
         max_retries_without_progress=cell.int_("MAX_GEN_RETRIES_WITHOUT_PROGRESS",
                                                d.max_retries_without_progress),
-        stop_strings=cell.str_tuple("STOP_STRINGS", d.stop_strings),
+        stop_strings=resolve_stop_strings(cell.raw("STOP_STRINGS", "auto"), base_model_id),
         verbose=cell.bool_("GEN_VERBOSE", d.verbose),
         verbose_detailed=cell.bool_("GEN_VERBOSE_DETAILED", d.verbose_detailed),
     )
@@ -1307,8 +1350,8 @@ def build_grpo_config(globals_dict: dict, *, verbose: bool = True) -> Tuple[
         ImportError: if ``core.oracle`` / ``core.lookahead`` are unavailable.
 
     Notes:
-        ``EXPERIMENT_NAME`` is COMPUTED here from the questionnaire set, K, MCL, G and the oracle
-        and patient model ids. It is never read from *globals_dict*. That is the structural fix for
+        ``EXPERIMENT_NAME`` is COMPUTED here from the questionnaire set, K, MCL, G and the
+        oracle, patient and therapist model ids. It is never read from *globals_dict*. That is the structural fix for
         Exp3's "changed ORACLE_MODEL_ID but left EXPERIMENT_NAME alone" failure, which Exp3 could
         only guard with a runtime assertion.
 
@@ -1317,7 +1360,8 @@ def build_grpo_config(globals_dict: dict, *, verbose: bool = True) -> Tuple[
     """
     cell = _Cell1(globals_dict)
     roles = _roles_from_globals(cell)
-    gen = _gen_from_globals(cell)
+    base_model_id = cell.str_("BASE_MODEL_ID", GRPOTrainingConfig.base_model_id)
+    gen = _gen_from_globals(cell, base_model_id)
     qids = cell.int_tuple("QUESTIONNAIRE_IDS", TrainingConfigBase.questionnaire_ids)
 
     oracle_cfg = _oracle_from_globals(cell, roles.oracle, qids)
@@ -1329,6 +1373,7 @@ def build_grpo_config(globals_dict: dict, *, verbose: bool = True) -> Tuple[
         g=num_generations,
         oracle_model=roles.oracle.model,
         patient_model=roles.patient.model,
+        therapist_model=base_model_id,
     )
     _check_name_not_typed(cell, experiment_name)
 
@@ -1369,7 +1414,8 @@ def build_pto_config(globals_dict: dict, *, verbose: bool = True) -> Tuple[
     """
     cell = _Cell1(globals_dict)
     roles = _roles_from_globals(cell)
-    gen = _gen_from_globals(cell)
+    base_model_id = cell.str_("BASE_MODEL_ID", PTOTrainingConfig.base_model_id)
+    gen = _gen_from_globals(cell, base_model_id)
     qids = cell.int_tuple("QUESTIONNAIRE_IDS", TrainingConfigBase.questionnaire_ids)
 
     oracle_cfg = _oracle_from_globals(cell, roles.oracle, qids)
@@ -1385,6 +1431,7 @@ def build_pto_config(globals_dict: dict, *, verbose: bool = True) -> Tuple[
         m=num_branches, mode=mode,
         oracle_model=roles.oracle.model,
         patient_model=roles.patient.model,
+        therapist_model=base_model_id,
     )
     _check_name_not_typed(cell, experiment_name)
 
@@ -1542,12 +1589,8 @@ def _gen_errors(gen: GenConfig) -> List[str]:
             f"({gen.num_utterances_for_data}) -- every slice would be filtered out and the "
             f"iteration would produce zero training rows"
         )
-    if not gen.stop_strings:
-        _warn(
-            "stop_strings is empty. The therapist is a BASE model with a hand-written ChatML "
-            "template, so it will self-play both speakers; the markers are ordinary BPE pieces, "
-            "not special tokens, and nothing else cuts the completion."
-        )
+    # Empty stop_strings is judged in _cross_errors, where the therapist variant is known:
+    # required for the template-less base, correct (and free) for Instruct.
     return errs
 
 
@@ -1739,6 +1782,23 @@ def _cross_errors(b: Dict[str, Any]) -> List[str]:
                 f"({gen.min_conv_length}) -- the trunk starts at MCL and has to grow"
             )
 
+    if train is not None and gen is not None:
+        native = _therapist_has_native_template(train.base_model_id)
+        if not native and not gen.stop_strings:
+            errs.append(
+                f"stop_strings is empty but the therapist ({train.base_model_id!r}) is a BASE "
+                f"model on the hand-written ChatML template: the markers are ordinary BPE "
+                f"pieces, not special tokens, so nothing would cut a self-played completion. "
+                f"Set STOP_STRINGS='auto' (or the ChatML pair) for this therapist."
+            )
+        if native and gen.stop_strings:
+            _warn(
+                f"stop_strings={list(gen.stop_strings)} on the Instruct therapist "
+                f"({train.base_model_id!r}). Its native template ends turns with the special "
+                f"<|eot_id|>, so string stopping buys nothing and costs a criteria-table build "
+                f"per generate() call. STOP_STRINGS='auto' resolves to () here."
+            )
+
     if train is not None and oracle is not None:
         if tuple(train.questionnaire_ids) != tuple(oracle.questionnaire_ids):
             errs.append(
@@ -1774,6 +1834,7 @@ def _cross_errors(b: Dict[str, Any]) -> List[str]:
                 mode=getattr(train, "pref_tree_mode", None) if train.method == "PTO" else None,
                 oracle_model=roles.oracle.model,
                 patient_model=roles.patient.model,
+                therapist_model=train.base_model_id,
             )
         except ValueError as ex:
             errs.append(f"could not recompute the arm name from this bundle: {ex}")

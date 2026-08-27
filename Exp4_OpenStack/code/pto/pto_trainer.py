@@ -328,7 +328,9 @@ async def _sample_completions_batch(
 
     loop = asyncio.get_running_loop()
     gpu_lock = primitives.gpu_lock()
-    stops = list(stop_strings) if stop_strings else None
+    # [] means "no string stopping" (Instruct arms); None means the ChatML defaults. Collapsing
+    # empty to None would silently re-enable string stopping on an arm configured without it.
+    stops = list(stop_strings) if stop_strings is not None else None
     chunk = max(1, int(chunk_size))
 
     for start in range(0, n, chunk):

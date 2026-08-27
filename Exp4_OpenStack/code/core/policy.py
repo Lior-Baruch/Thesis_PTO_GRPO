@@ -48,6 +48,8 @@ __all__ = [
     # Constants
     "CHATML_TEMPLATE",
     "CHATML_MARKERS",
+    "LLAMA3_END_MARKERS",
+    "CHAT_TEMPLATE_DATE",
     "STOP_STRINGS",
     "ITER_PREFIX",
     "HF_CKPT_PREFIX",
@@ -60,6 +62,7 @@ __all__ = [
     "attach_lora",
     "sync_pad_token",
     "patch_generate",
+    "therapist_stop_token_ids",
     "get_adapter_param_count",
     # Generation
     "clean_completion",
@@ -113,12 +116,35 @@ CHATML_TEMPLATE = (
 # either, so the two use one definition and can never disagree about where a turn ends.
 CHATML_MARKERS = ("<|im_end|>", "<|im_start|>")
 
-# Default stop strings for every therapist decode site. `<|im_start|>` is in the list
-# so a self-play attempt halts the instant the model opens a fake turn -- that is what
-# prevents both `<|im_start|>`-spam degenerate turns and the role-swap derailment where
-# a leaked first-person "user" line flips the patient simulator into counselor mode for
-# the rest of the conversation.
+# Default stop strings for every therapist decode site ON THE BASE THERAPIST. `<|im_start|>`
+# is in the list so a self-play attempt halts the instant the model opens a fake turn -- that
+# is what prevents both `<|im_start|>`-spam degenerate turns and the role-swap derailment where
+# a leaked first-person "user" line flips the patient simulator into counselor mode for the
+# rest of the conversation.
+#
+# The INSTRUCT therapist needs none of this: its native Llama-3 template ends every assistant
+# turn with `<|eot_id|>`, a real single special token the model is trained to emit, so stopping
+# is token-id-exact and free. Instruct arms therefore run with EMPTY stop strings (the config
+# builder resolves STOP_STRINGS="auto" to () for them) and rely on the eos-id list from
+# :func:`therapist_stop_token_ids` instead.
 STOP_STRINGS = ["<|im_end|>", "<|im_start|>"]
+
+# Llama-3 turn-terminating special tokens. `<|eot_id|>` closes a normal turn (and IS the
+# Instruct tokenizer's eos), `<|eom_id|>` closes a tool-call turn, and `<|start_header_id|>`
+# opens the NEXT turn's role header -- stopping on it halts a self-play attempt at the first
+# token, the exact analogue of `<|im_start|>` in the ChatML list above. All three exist in the
+# BASE tokenizer's vocab too (harmless there: the base model was never trained to emit them),
+# so :func:`therapist_stop_token_ids` needs no model-variant branch.
+LLAMA3_END_MARKERS = ("<|eot_id|>", "<|eom_id|>", "<|start_header_id|>")
+
+# Pinned `date_string` for every chat-template render. The Llama-3.2 Instruct template
+# interpolates "Today Date: <date_string>" into its system header and defaults the variable to
+# strftime_now(...) -- i.e. the REAL current date, so an arm resumed on a different day would
+# train and generate under a slightly different prompt than its first half, and no render would
+# be reproducible after the fact. Pinning it removes the nondeterminism; the value is the
+# template's own documented fallback date. Templates that never read the variable (the ChatML
+# one above) simply ignore it -- an unused Jinja variable is not an error.
+CHAT_TEMPLATE_DATE = "26 Jul 2024"
 
 # torch >= 2.5 exposes torch.OutOfMemoryError; the alias is kept for older wheels.
 _OOM_ERROR = getattr(torch, "OutOfMemoryError", torch.cuda.OutOfMemoryError)
@@ -132,10 +158,10 @@ _GIB = 1024 ** 3
 
 
 def setup_tokenizer(tokenizer_id: str, padding_side: str = "left"):
-    """Load the therapist tokenizer with the ChatML template and padding configured.
+    """Load the therapist tokenizer with template and padding configured.
 
     Args:
-        tokenizer_id: HuggingFace tokenizer/model id (the therapist base model).
+        tokenizer_id: HuggingFace tokenizer/model id (the therapist model).
         padding_side: "left" for causal generation (a right-padded batch would decode
             pad tokens as the start of the completion).
 
@@ -145,21 +171,30 @@ def setup_tokenizer(tokenizer_id: str, padding_side: str = "left"):
     Notes:
         Four settings, all load-bearing:
 
-        - ``pad_token = eos_token``: the base checkpoint defines no pad token, and
+        - ``pad_token = eos_token``: neither therapist checkpoint defines a pad token, and
           batched generation needs one. The pad id is also what
-          :func:`generate_therapist_batch` passes as ``pad_token_id``.
+          :func:`generate_therapist_batch` passes as ``pad_token_id``. (On the Instruct
+          tokenizer eos is ``<|eot_id|>``, so that is also the pad -- standard for Llama-3
+          Instruct.)
         - ``padding_side = left``: see above.
         - ``truncation_side = left``: an over-long conversation must lose its OLDEST
           turns, never the most recent patient utterance the therapist is replying to.
-        - ``chat_template = CHATML_TEMPLATE``: overwritten unconditionally. Whatever a
-          future checkpoint ships is discarded on purpose -- the template is part of
-          the experiment definition, not of the checkpoint.
+        - ``chat_template``: the checkpoint's NATIVE template is kept when it ships one
+          (the Instruct therapist -- the official Llama-3 format it was trained on);
+          :data:`CHATML_TEMPLATE` is installed only when the checkpoint ships none (the
+          base therapist, which has no template at all -- ``apply_chat_template`` raises
+          without one). The therapist variant is encoded in the arm name (``_Th<tag>``),
+          so which template a run used is recoverable from the folder.
     """
     tokenizer = AutoTokenizer.from_pretrained(tokenizer_id, padding_side=padding_side)
     tokenizer.pad_token = tokenizer.eos_token
     tokenizer.pad_token_id = tokenizer.eos_token_id
     tokenizer.truncation_side = "left"
-    tokenizer.chat_template = CHATML_TEMPLATE
+    if tokenizer.chat_template is None:
+        tokenizer.chat_template = CHATML_TEMPLATE
+        print(f"  tokenizer {tokenizer_id}: no chat template shipped -- installed hand-written ChatML")
+    else:
+        print(f"  tokenizer {tokenizer_id}: keeping the checkpoint's native chat template")
     return tokenizer
 
 
@@ -282,12 +317,48 @@ def attach_lora(
     return peft_model
 
 
+def therapist_stop_token_ids(tokenizer) -> List[int]:
+    """Token ids that terminate a therapist generation: eos plus the Llama-3 end markers.
+
+    Returns:
+        ``[tokenizer.eos_token_id, ...]`` deduplicated, order-stable. On the Instruct
+        tokenizer eos IS ``<|eot_id|>``, so the list is ``[eot, eom, start_header]`` -- the
+        turn terminator plus the two ways a self-play attempt can open a fake turn. On the
+        base tokenizer it is ``[end_of_text, eot, eom, start_header]``; the extra ids are
+        inert there (the base model was never trained to emit them) and stopping would be
+        the right response if it ever did.
+
+    Notes:
+        Token-id stopping is EXACT for the Llama-3 markers because they are single special
+        tokens. It is exactly wrong for the ChatML markers (6-token ordinary BPE sequences --
+        see :func:`generate_therapist_batch`'s stop-string notes), which is why base arms keep
+        string stopping ON TOP of this list, while Instruct arms need only this list.
+    """
+    ids: List[int] = []
+    for candidate in (tokenizer.eos_token_id,
+                      *(tokenizer.convert_tokens_to_ids(t) for t in LLAMA3_END_MARKERS)):
+        if candidate is None or candidate < 0:
+            continue
+        unk = getattr(tokenizer, "unk_token_id", None)
+        if unk is not None and candidate == unk:
+            continue
+        if candidate not in ids:
+            ids.append(int(candidate))
+    return ids
+
+
 def sync_pad_token(model, tokenizer) -> None:
     """Copy pad/eos/bos ids from *tokenizer* onto the model config and generation config.
 
     Without this the model config keeps the checkpoint's own (often ``None``) pad id
     while the tokenizer pads with eos, and batched generation either warns on every
     call or masks the wrong positions.
+
+    The generation config's ``eos_token_id`` is set to the full
+    :func:`therapist_stop_token_ids` LIST (the model config keeps the scalar): any default
+    ``generate`` call then stops at a turn terminator or a fake-turn opener without needing
+    string criteria. Explicit per-call ``eos_token_id`` arguments (both decode paths pass one)
+    override it either way; this is the belt-and-braces layer for calls that pass none.
     """
     model.config.pad_token_id = tokenizer.pad_token_id
     model.config.eos_token_id = tokenizer.eos_token_id
@@ -295,7 +366,7 @@ def sync_pad_token(model, tokenizer) -> None:
     gen_cfg = getattr(model, "generation_config", None)
     if gen_cfg is not None:
         gen_cfg.pad_token_id = tokenizer.pad_token_id
-        gen_cfg.eos_token_id = tokenizer.eos_token_id
+        gen_cfg.eos_token_id = therapist_stop_token_ids(tokenizer)
         gen_cfg.bos_token_id = tokenizer.bos_token_id
 
 
@@ -438,7 +509,11 @@ def generate_therapist_batch(
         temperature: Sampling temperature; sampling is always on (``do_sample=True``).
         max_input_tokens: Prompt truncation budget. Truncation is LEFT, so the oldest
             turns are dropped and the patient's latest utterance always survives.
-        stop_strings: Defaults to :data:`STOP_STRINGS`.
+        stop_strings: ``None`` means the :data:`STOP_STRINGS` default (base-therapist
+            ChatML markers). An EMPTY sequence means "no string stopping" and is the
+            correct value for Instruct arms -- generation then stops on the
+            :func:`therapist_stop_token_ids` eos list alone, with no per-call
+            ``StopStringCriteria`` table build.
 
     Returns:
         ``(responses, None)`` on success, where ``responses[i]`` corresponds to
@@ -480,9 +555,17 @@ def generate_therapist_batch(
     effective_stops = list(STOP_STRINGS if stop_strings is None else stop_strings)
 
     prompts = [
-        tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+        tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True,
+                                      date_string=CHAT_TEMPLATE_DATE)
         for messages in batch_messages
     ]
+
+    # String criteria only when there are strings: an empty stop_strings=[] still pays the
+    # per-call 128k-vocab criteria table build, so Instruct arms (empty stops) omit the kwargs
+    # entirely and stop on the eos-id list alone.
+    stop_kwargs = (
+        {"stop_strings": effective_stops, "tokenizer": tokenizer} if effective_stops else {}
+    )
 
     encoded = None
     outputs = None
@@ -493,7 +576,7 @@ def generate_therapist_batch(
             padding=True,
             truncation=True,
             max_length=max_input_tokens,
-            add_special_tokens=False,  # the ChatML template already supplies the framing
+            add_special_tokens=False,  # the chat template already supplies the framing
         ).to(model.device)
 
         with torch.inference_mode():
@@ -503,11 +586,10 @@ def generate_therapist_batch(
                 do_sample=True,
                 max_new_tokens=max_tokens,
                 pad_token_id=tokenizer.eos_token_id,
-                eos_token_id=tokenizer.eos_token_id,
+                eos_token_id=therapist_stop_token_ids(tokenizer),
                 temperature=temperature,
                 num_return_sequences=1,
-                stop_strings=effective_stops,
-                tokenizer=tokenizer,  # explicit: stop_strings is inert without it
+                **stop_kwargs,
             )
     except _OOM_ERROR as exc:
         print(f"  CUDA OOM during therapist generation: {exc}")

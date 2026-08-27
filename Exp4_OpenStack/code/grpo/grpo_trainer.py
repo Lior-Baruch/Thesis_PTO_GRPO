@@ -119,6 +119,7 @@ from core.policy import (  # noqa: E402
     list_hf_checkpoints,
     list_iteration_checkpoints,
     patch_generate,
+    therapist_stop_token_ids,
     validate_iteration_checkpoint,
 )
 from core.recorder import EDARecorder, to_jsonable  # noqa: E402
@@ -503,7 +504,8 @@ def run_generation_phase(
         temperature_therapist=gen.temperature_therapist,
         temperature_patient=gen.temperature_patient,
         therapist_max_input_tokens=gen.therapist_max_input_tokens,
-        stop_strings=list(gen.stop_strings) if gen.stop_strings else None,
+        # [] = no string stopping (Instruct arms); None would fall back to the ChatML defaults.
+        stop_strings=list(gen.stop_strings),
         patient_seed=patient_seed,
         batch_size=gen.conversation_batch_size,
         max_retries_without_progress=gen.max_retries_without_progress,
@@ -683,6 +685,7 @@ def build_grpo_config(
     num_train_prompts: int,
     has_eval: bool = True,
     tb_log_dir: Optional[str] = None,
+    tokenizer=None,
 ) -> GRPOConfig:
     """Assemble the ``trl.GRPOConfig`` for one iteration.
 
@@ -694,6 +697,10 @@ def build_grpo_config(
         num_train_prompts: length of the train dataset, used only to size the LR warmup.
         has_eval: False disables evaluation entirely (an empty held-out split).
         tb_log_dir: TensorBoard directory; defaults to ``<output_dir>/tb_logs``.
+        tokenizer: the therapist tokenizer. Required when ``gen.stop_strings`` is empty (an
+            Instruct-therapist arm): TRL's in-loop sampling then stops on the
+            ``therapist_stop_token_ids`` eos list passed through ``generation_kwargs``
+            instead of on stop strings.
 
     Returns:
         A ``GRPOConfig``.
@@ -725,14 +732,18 @@ def build_grpo_config(
         step over the whole ``generation_batch_size`` (``per_device x gas``), so ``64 x 2`` and
         ``128 x 1`` emit the same single call. There is no throughput on the table here.
 
-        **``generation_kwargs={"stop_strings": ...}`` is not optional.** ``<|im_end|>`` is
-        template text, not the base tokenizer's EOS, so without it the 1B policy samples straight
-        through the marker to ``max_completion_length`` and writes the patient's reply itself.
-        That pollutes the transcript the oracle grades AND, because GRPO credits every sampled
-        token, trains the policy toward 200-token rambles.
-        ``core.policy.patch_generate`` is what makes ``stop_strings`` take effect at all --
-        HuggingFace ignores it silently unless a tokenizer is passed to the same call, and TRL
-        does not pass one.
+        **``generation_kwargs`` carries the stop mechanism and is not optional.** On a
+        BASE-therapist arm it is ``{"stop_strings": ...}``: ``<|im_end|>`` is template text,
+        not the base tokenizer's EOS, so without it the 1B policy samples straight through the
+        marker to ``max_completion_length`` and writes the patient's reply itself -- polluting
+        the transcript the oracle grades AND, because GRPO credits every sampled token, training
+        the policy toward 200-token rambles. ``core.policy.patch_generate`` is what makes
+        ``stop_strings`` take effect at all -- HuggingFace ignores it silently unless a
+        tokenizer is passed to the same call, and TRL does not pass one. On an
+        INSTRUCT-therapist arm (empty ``gen.stop_strings``) it is
+        ``{"eos_token_id": therapist_stop_token_ids(tokenizer)}`` instead: the Llama-3 turn
+        markers are single special tokens there, so token-id stopping is exact and skips the
+        per-call stop-string criteria build.
 
         **``remove_unused_columns=False`` is required.** Without it TRL strips ``transcript``,
         ``persona_id`` and ``patient_system_prompt`` and the reward function cannot grade or look
@@ -785,9 +796,14 @@ def build_grpo_config(
         "loss_type": cfg.grpo_loss_type,
         "scale_rewards": "group",                     # A = (r - mean_g) / std_g over the G siblings
         "max_completion_length": cfg.max_completion_length,
-        # Without this the base policy self-plays the patient to the token cap. See the Notes.
+        # Without this the base policy self-plays the patient to the token cap (see the Notes).
+        # Base-therapist arms stop on the ChatML strings; Instruct arms have EMPTY stop_strings
+        # and stop on the eos-id list instead -- <|eot_id|>/<|eom_id|>/<|start_header_id|> are
+        # single special tokens there, so token-id stopping is exact and costs nothing per call.
         "generation_kwargs": (
-            {"stop_strings": list(gen.stop_strings)} if gen.stop_strings else None
+            {"stop_strings": list(gen.stop_strings)} if gen.stop_strings
+            else ({"eos_token_id": therapist_stop_token_ids(tokenizer)}
+                  if tokenizer is not None else None)
         ),
         # Required: TRL would otherwise strip every column the reward fn reads.
         "remove_unused_columns": False,
@@ -1364,6 +1380,7 @@ def run_one_iteration(
         num_train_prompts=len(train_dataset),
         has_eval=eval_dataset is not None,
         tb_log_dir=tb_log_dir,
+        tokenizer=tokenizer,
     )
     metadata_base = _iteration_metadata_base(
         cfg=cfg, gen=gen, roles=roles, la_cfg=la_cfg, iteration=iteration

@@ -185,8 +185,10 @@ class LookaheadConfig:
         patient_binding: Which model plays the patient here. **It must be the same binding
             the conversations were generated with** -- the look-ahead patient defines the
             future the candidate is graded on, so swapping it changes the reward.
-        stop_strings: ChatML markers that terminate a therapist turn. Defaults to
-            ``core.policy.STOP_STRINGS``; the base policy self-plays without them.
+        stop_strings: String markers that terminate a therapist turn. Defaults to the ChatML
+            pair in ``core.policy.STOP_STRINGS`` (the base policy self-plays without them);
+            an EMPTY tuple is the Instruct-therapist configuration -- no string stopping,
+            generation ends on the ``therapist_stop_token_ids`` eos list instead.
         sub_batch_size: Cap on the therapist generate batch. ``None`` means "one padded
             generate over all active sims", which is fastest and is what the A100 budget
             assumes. Halved automatically on OOM, and the halving is sticky (see
@@ -556,7 +558,10 @@ async def simulate_lookahead_batch(
         sims.append(_Sim(msgs_therapist, msgs_patient, seed, seed))
 
     loop = asyncio.get_running_loop()
-    stop_strings = list(cfg.stop_strings) if cfg.stop_strings else None
+    # Pass the configured value through even when EMPTY: [] means "no string stopping" (the
+    # Instruct therapist stops on eos ids), while None would fall back to the ChatML defaults
+    # inside generate_therapist_batch and re-buy the criteria-table cost for nothing.
+    stop_strings = list(cfg.stop_strings) if cfg.stop_strings is not None else None
 
     # The candidate was a therapist turn, so the patient speaks first: even step = patient.
     for step in range(k):

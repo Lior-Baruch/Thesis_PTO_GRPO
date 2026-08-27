@@ -153,20 +153,17 @@ _ROLE_TO_LABEL = {
 
 
 @lru_cache(maxsize=1)
-def _chatml_markers() -> Tuple[str, str]:
-    """``(start, end)`` ChatML markers, sourced from :mod:`core.policy`.
+def _chat_template_date() -> str:
+    """``core.policy.CHAT_TEMPLATE_DATE``, imported lazily (policy is torch-side).
 
-    Looked up by shape rather than by tuple position so the pair cannot silently swap if
-    ``core.policy.CHATML_MARKERS`` is ever reordered. Imported lazily and cached: the token
-    estimators below hardcode the ChatML wrapper strings (they must -- the estimate has to match
-    what the template renders), but they must not invent the markers, or a template change would
-    leave the budget arithmetic quietly measuring a format nobody uses any more.
+    Every ``apply_chat_template`` call in this module pins ``date_string`` to this value: the
+    Llama-3.2 Instruct template interpolates the CURRENT date into its system header by default,
+    which would make prompts differ across resume days and renders irreproducible. Templates
+    that never read the variable (the hand-written ChatML one) ignore it.
     """
-    from core.policy import CHATML_MARKERS
+    from core.policy import CHAT_TEMPLATE_DATE
 
-    start = next(m for m in CHATML_MARKERS if m.endswith("start|>"))
-    end = next(m for m in CHATML_MARKERS if m.endswith("end|>"))
-    return start, end
+    return CHAT_TEMPLATE_DATE
 
 
 # ==============================================================================
@@ -1273,38 +1270,76 @@ def generate_all_conversations(*args, **kwargs) -> List[ConversationState]:
 #           through the template's control tokens; it is not ported.
 
 
-def _estimate_turn_token_costs(turns: Sequence[Dict[str, str]], tokenizer) -> List[int]:
-    """Per-turn token cost, by encoding each turn's ChatML wrapper on its own.
+_TURN_PROBE = "XQZPROBE"
+
+
+@lru_cache(maxsize=4)
+def _turn_overheads(tokenizer) -> Dict[str, int]:
+    """Per-role wrapper token overhead, MEASURED on the tokenizer's own chat template.
+
+    Renders a three-message probe and differences the token counts, so the estimate tracks
+    whichever template :func:`core.policy.setup_tokenizer` left on the tokenizer -- the
+    hand-written ChatML wrapper on the base therapist, the native Llama-3 header/footer on the
+    Instruct one. An earlier revision hardcoded the ChatML wrapper strings here, which was exact
+    for the base template and would have silently over-billed every Instruct turn (its special
+    tokens are single ids, the ChatML markers ~6 BPE pieces each).
 
     Approximate at message joins (a real render can merge tokens across a boundary), which is
     fine: the estimate only picks a candidate drop point, and the exact render that follows is
-    what decides whether the prompt actually fits.
+    what decides whether the prompt actually fits. Cached per tokenizer OBJECT -- three renders
+    per cache miss, reused for the ~2,300 slices of an extraction pass.
     """
-    start, end = _chatml_markers()
+    def _render(messages: List[Dict[str, str]]) -> str:
+        return tokenizer.apply_chat_template(messages, tokenize=False,
+                                             add_generation_prompt=False,
+                                             date_string=_chat_template_date())
+
+    def _ntok(text: str) -> int:
+        return len(tokenizer.encode(text, add_special_tokens=False))
+
+    sys_msgs = [{"role": "system", "content": _TURN_PROBE}]
+    user_msgs = sys_msgs + [{"role": "user", "content": _TURN_PROBE}]
+    both_msgs = user_msgs + [{"role": "assistant", "content": _TURN_PROBE}]
+    n_probe = _ntok(_TURN_PROBE)
+    n_sys = _ntok(_render(sys_msgs))
+    n_user = _ntok(_render(user_msgs))
+    n_both = _ntok(_render(both_msgs))
+    return {
+        "user": max(0, n_user - n_sys - n_probe),
+        "assistant": max(0, n_both - n_user - n_probe),
+    }
+
+
+def _estimate_turn_token_costs(turns: Sequence[Dict[str, str]], tokenizer) -> List[int]:
+    """Per-turn token cost: the turn's content plus its measured template wrapper overhead."""
+    overheads = _turn_overheads(tokenizer)
     costs: List[int] = []
     for turn in turns:
         role = "assistant" if turn["role"] == _ROLE_THERAPIST else "user"
-        wrapped = f"{start}{role}\n{turn['content']}{end}\n"
-        costs.append(len(tokenizer.encode(wrapped, add_special_tokens=False)))
+        content_tokens = len(tokenizer.encode(turn["content"], add_special_tokens=False))
+        costs.append(content_tokens + overheads[role])
     return costs
 
 
 def _compute_system_overhead(system_prompt: str, tokenizer) -> int:
     """Fixed token cost of the system message plus the generation-prompt suffix.
 
-    Computed once per extraction pass and reused for every slice of every conversation -- it is
-    the same string every time, and encoding it 2,300 times is pure waste.
+    Computed once per extraction pass and reused for every slice of every conversation. It is a
+    real render of the system-only prompt through the live template, so it automatically counts
+    whatever framing that template adds -- BOS, the Llama-3 date header, the ChatML system turn.
     """
-    start, end = _chatml_markers()
-    overhead = len(tokenizer.encode(f"{start}system\n{system_prompt}{end}\n", add_special_tokens=False))
-    overhead += len(tokenizer.encode(f"{start}assistant\n", add_special_tokens=False))
-    return overhead
+    prompt = tokenizer.apply_chat_template(
+        [{"role": "system", "content": system_prompt}],
+        tokenize=False, add_generation_prompt=True, date_string=_chat_template_date(),
+    )
+    return len(tokenizer.encode(prompt, add_special_tokens=False))
 
 
 def _render_prompt(turns: Sequence[Dict[str, str]], system_prompt: str, tokenizer) -> str:
     """Render turns through the chat template with a generation prompt appended."""
     return tokenizer.apply_chat_template(
-        turns_to_messages(turns, system_prompt), add_generation_prompt=True, tokenize=False
+        turns_to_messages(turns, system_prompt), add_generation_prompt=True, tokenize=False,
+        date_string=_chat_template_date(),
     )
 
 
@@ -1357,7 +1392,7 @@ def build_truncated_training_prompt(
     Args:
         turns: Conversation-so-far, ending on the patient turn the therapist will answer.
         system_prompt: The therapist system prompt.
-        tokenizer: From ``core.policy.setup_tokenizer`` (carries the ChatML template).
+        tokenizer: From ``core.policy.setup_tokenizer`` (carries the therapist's chat template).
         max_prompt_tokens: Budget, in tokens, for the rendered prompt.
         truncation_mode: Only ``"drop_oldest"`` is supported.
 
@@ -1409,7 +1444,7 @@ def extract_prompts_from_conversations(
     Args:
         states: Finished conversations (from generation or from disk).
         system_prompt: The therapist system prompt, rendered into every prompt.
-        tokenizer: Carries the ChatML template.
+        tokenizer: Carries the therapist's chat template.
         min_conv_length: MCL -- the minimum number of utterances (therapist + patient combined)
             in the conversation-so-far for a slice to be eligible. ``2`` is a no-op. The knob
             exists because the training reward grades these partial cuts while the thesis

@@ -17,7 +17,7 @@ Exp4 only. (The same warning Exp2↔Exp3 carries for a different reason.)
 
 | | Exp3_PTO_GRPO | **Exp4_OpenStack** |
 |---|---|---|
-| Therapist | Llama-3.2-1B bf16 + LoRA | **same** (deliberately — the policy is not the variable) |
+| Therapist | Llama-3.2-1B bf16 + LoRA | **selectable variant, tagged in the arm name** — `Llama-3.2-1B-Instruct` (default, `_ThL1Bi`) or the base `Llama-3.2-1B` (`_ThL1B`); same 1B family + LoRA either way |
 | Patient | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable; E2B = fallback) |
 | Training oracle | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable) |
 | Eval judge | gpt-4o-mini + Claude Haiku 4.5 | **`google/gemma-4-E4B-it`** (selectable; `judge=` partitions from day 1) |
@@ -108,11 +108,12 @@ side) and the EDA (read side). `EXPERIMENT_NAME` is **computed, never typed** �
 `assert_name_matches_roles` guard has no Exp4 equivalent: the failure it prevented cannot occur.
 
 ```
-{GRPO|PTO}4_{QTAG}_LA{K}_MCL{N}_{G{G} | M{M}_PT{greedy|indep}}_O{otag}_Pat{ptag}
+{GRPO|PTO}4_{QTAG}_LA{K}_MCL{N}_{G{G} | M{M}_PT{greedy|indep}}_O{otag}_Pat{ptag}_Th{ttag}
 
-GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B
-PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B
-GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E4B          # oracle flipped to the OpenAI API
+GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi
+PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B_ThL1Bi
+GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E4B_ThL1Bi       # oracle flipped to the OpenAI API
+GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1B   # therapist flipped to the BASE model
 ```
 
 ⚠ **The grammar can spell a SPLIT stack; the v1 trainers cannot run one.** Both trainers thread a
@@ -131,8 +132,12 @@ all-open default. The judge is exempt — no trainer calls it; the EDA builds it
   on breaks.
 - Model tags come from `roles.model_tag` and are `[A-Za-z0-9]` only → every name is a legal Windows
   path segment and a legal TensorBoard logdir.
-- The **therapist** is not encoded (fixed across all Exp4 arms; recorded in `run_metadata.json`).
-  Changing it is a grammar-version bump, not a new token.
+- The **therapist IS encoded** (`_Th{ttag}`, added 2026-08-27 while the grammar had produced zero
+  folders — the only moment a mandatory field can be added without a version bump). Two variants:
+  `L1Bi` = `meta-llama/Llama-3.2-1B-Instruct` (default) and `L1B` = the template-less base. The tag
+  names a *family*; `run_metadata.json` records the exact snapshot. ⚠ `roles._slugify` no longer
+  strips `-Instruct` (it used to — which would have slugged base and Instruct to the SAME tag and
+  collapsed two different-policy arms into one folder; the smoke gate now pins the distinctness).
 
 ## Data layout
 
@@ -173,9 +178,10 @@ change these shapes without updating this file.
 ### `code/roles.py`
 
 ```python
-DEFAULT_ORACLE_MODEL  = "google/gemma-4-E4B-it"
-DEFAULT_PATIENT_MODEL = "google/gemma-4-E4B-it"
-DEFAULT_JUDGE_MODEL   = "google/gemma-4-E4B-it"
+DEFAULT_ORACLE_MODEL    = "google/gemma-4-E4B-it"
+DEFAULT_PATIENT_MODEL   = "google/gemma-4-E4B-it"
+DEFAULT_JUDGE_MODEL     = "google/gemma-4-E4B-it"
+DEFAULT_THERAPIST_MODEL = "meta-llama/Llama-3.2-1B-Instruct"   # the policy; _ThL1Bi in every name
 
 @dataclass(frozen=True)
 class RoleBinding:
@@ -237,15 +243,21 @@ class ArmInfo:
     mode: Optional[str]  # "greedy" | "indep" (PTO)
     oracle_tag: str
     patient_tag: str
+    therapist_tag: str   # "L1Bi" (Instruct, default) | "L1B" (base)
     @property
-    def label(self) -> str      # short display label, e.g. "GRPO_LA5"
+    def label(self) -> str      # short display label, e.g. "GRPO_LA5"; non-default therapist
+                                # appends its tag ("GRPO_LA0_ThL1B")
     @property
     def experiment_name(self) -> str
 
 QTAG_BY_IDS: Dict[FrozenSet[int], str]                 # {1,2}->Q1Q2, {3}->WAI, {4}->CSQ8, {6}->MISAT, {7}->MITI, {1}->Q1, {2}->Q2
 def qtag_for(questionnaire_ids: Sequence[int]) -> str   # raises on an unmapped set
 def build_experiment_name(method, questionnaire_ids, k, mcl, *, g=None, m=None, mode=None,
-                          oracle_model: str, patient_model: str) -> str
+                          oracle_model: str, patient_model: str,
+                          therapist_model: str = DEFAULT_THERAPIST_MODEL) -> str
+        # therapist_model is the ONE role with a keyword default: unlike Exp3's optional
+        # suffixes this cannot collide (the tag is encoded either way); the config builders
+        # always pass BASE_MODEL_ID explicitly.
 def parse_experiment_name(name: str) -> ArmInfo         # raises ValueError on non-match
 def model_state_label(n: int) -> str                    # "model_iter_0" ...
 ```
@@ -279,19 +291,32 @@ invariant is what lets the look-ahead API calls overlap with nothing blocking th
 ### `code/core/policy.py`
 
 ```python
-CHATML_TEMPLATE: str                 # verbatim from Exp3 — the base Llama has no chat template
-STOP_STRINGS = ["<|im_end|>", "<|im_start|>"]
+CHATML_TEMPLATE: str                 # verbatim from Exp3 — installed ONLY when the checkpoint
+                                     # ships no template (the base therapist); Instruct keeps
+                                     # its native Llama-3 template
+STOP_STRINGS = ["<|im_end|>", "<|im_start|>"]             # BASE-therapist string stops
+LLAMA3_END_MARKERS = ("<|eot_id|>", "<|eom_id|>", "<|start_header_id|>")
+CHAT_TEMPLATE_DATE = "26 Jul 2024"   # pinned date_string on EVERY render — the Llama-3.2
+                                     # template interpolates TODAY's date otherwise, so an arm
+                                     # resumed on another day would see shifted prompts
 ADAPTER_FILES    = ("adapter_model.safetensors", "adapter_config.json")
 HF_TRAINER_FILES = ADAPTER_FILES + ("trainer_state.json",)
 
 def setup_tokenizer(tokenizer_id: str, padding_side: str = "left")
+        # keeps a shipped chat template (Instruct); installs CHATML_TEMPLATE when none (base)
 def setup_base_model(base_model_id: str, *, use_4bit: bool = False)
 def attach_lora(model, *, r, alpha, dropout, target_modules)
 def patch_generate(model, tokenizer)          # idempotent; injects tokenizer= for stop_strings
+def therapist_stop_token_ids(tokenizer) -> List[int]
+        # eos + the LLAMA3_END_MARKERS present in vocab, deduped — [eot, eom, start_header] on
+        # Instruct (its eos IS eot); inert extras on base. Passed as eos_token_id by every
+        # decode path and installed on generation_config by sync_pad_token.
 def clean_completion(text: Optional[str]) -> str          # cut at first ChatML marker; "" == degenerate
 def generate_therapist_batch(model, tokenizer, batch_messages, *, max_tokens, temperature,
                              max_input_tokens, stop_strings) -> Tuple[Optional[List[str]], Optional[str]]
         # (responses, None) | (None, "oom") | (None, "runtime_error") — never raises on OOM
+        # stop_strings: None = the ChatML defaults; EMPTY = no string criteria (Instruct arms
+        # stop on the eos-id list alone — no per-call StopStringCriteria table build)
 
 def list_iteration_checkpoints(run_dir) -> List[Tuple[int, str]]
         # "iteration done" ⟺ adapter/ holds BOTH ADAPTER_FILES — dir presence alone is a torn
@@ -313,10 +338,15 @@ def compute_cumulative_step_offset(run_dir) -> int
 both TRL trainers hand back a fresh `generate`. Call it at base load, in `resolve_start_state`, and
 on both sides of `trainer.train()`.
 
-⚠ **The therapist is a BASE model with a hand-written ChatML template.** `<|im_start|>` /
-`<|im_end|>` are ordinary BPE pieces, not special tokens, so the model happily writes both speakers.
-The whole anti-degeneracy stack is load-bearing: `STOP_STRINGS` at every decode site +
-`clean_completion` + `patch_generate` + GRPO's `generation_kwargs` + `REWARD_FLOOR`.
+⚠ **The anti-degeneracy stack is a BASE-therapist (`_ThL1B`) concern.** There the policy is a base
+model on the hand-written ChatML template: `<|im_start|>` / `<|im_end|>` are ordinary BPE pieces,
+not special tokens, so the model happily writes both speakers, and the whole stack is load-bearing —
+`STOP_STRINGS` at every decode site + `clean_completion` + `patch_generate` + GRPO's
+`generation_kwargs` + `REWARD_FLOOR`. On the INSTRUCT therapist (`_ThL1Bi`, the default) the failure
+class does not exist: the native template ends every turn on the single special token `<|eot_id|>`,
+`STOP_STRINGS="auto"` resolves to `()`, and stopping is the `therapist_stop_token_ids` eos list
+(GRPO passes it via `generation_kwargs={"eos_token_id": ...}`). `clean_completion` + `REWARD_FLOOR`
+stay wired on both variants (an empty completion is degenerate either way).
 
 ### `code/core/conversations.py`
 
@@ -659,6 +689,16 @@ the arm's oracle.
 `MCL=12`, K ∈ {0, 5}, `NUM_CONVERSATIONS_PER_ITER=96`, PTO's `M` = GRPO's `G` = 8, matched
 generation temperatures. `DPO_BETA=0.1` is the DPO loss temperature, **not** GRPO's KL β.
 
+**`NUM_ITERATIONS=10`, matched** (2026-08-27; Exp3 ran GRPO 6 / PTO 8, unmatched). Not in the arm
+name, so extending an arm later is free: resume continues from iteration 11, and its generation
+pass finds the final-eval `model_iter_10` CSVs already on disk and reuses them.
+
+**Patient call policy matched: 90 s per attempt × 8 retries in BOTH notebooks** (2026-08-27; the
+GRPO notebook briefly said 60 × 12 — a per-method timeout asymmetry is a method-confounded freeze
+probability). 90 s carries headroom because the local vLLM server QUEUES requests and queue wait
+counts against the attempt; if the mini-arm shows timeout storms under saturation, raise it in
+both notebooks together.
+
 **`EPOCHS_PER_ITERATION=1`, matched — and 1 is the only value at which the match is real.** A GRPO
 "epoch" re-SAMPLES G fresh completions per prompt and re-grades them all (2 epochs = twice the
 reward-side work, the second pass on partially-updated weights), while a DPO epoch re-treads the
@@ -694,7 +734,7 @@ GRPO data "pref data".
 
 | Phase | Gate | State |
 |---|---|---|
-| 0 Scaffold | `smoke.py naming` — arm names round-trip through the parser | ✅ 24 checks |
+| 0 Scaffold | `smoke.py naming` — arm names round-trip through the parser (incl. the therapist field + base/Instruct tag distinctness) | ✅ 27 checks |
 | — | `smoke.py config` · `convs` · `vram` | ✅ 26 · 27 · 7 checks |
 | — | `smoke.py stopgen` · `dpo` · `grpo` — real TRL steps on the local 12 GB card | ✅ 3 · 4 · 3 checks |
 | 5 EDA | `_selfcheck --fast`; every family renders on an empty lake | ✅ 14 passed, 0 failed |
@@ -707,10 +747,27 @@ GRPO data "pref data".
 | 4 PTO | mini-arm trains; `pairs.csv` / `_progress.json` resume semantics verified | ⬜ |
 | 6 First real arm | full GRPO K=0 arm on Colab, $0 API | ⬜ |
 
-Everything runnable without Colab is green: **94 smoke checks** (GPU parts included) plus the EDA
+Everything runnable without Colab is green: **97 smoke checks** (GPU parts included) plus the EDA
 self-check. `dpo` runs a real `DPOTrainer` and `grpo` a real `GRPOTrainer` step whose completion
 lengths come back well under the cap, which is the anti-degeneracy stack working rather than merely
 wired up.
+
+### The 2026-08-27 decision round (pre-Colab review with Lior)
+
+Decisions: grader = **E4B only** for now (a future grader swap is a NEW arm by construction — role
+tags are always encoded — so nothing needs re-running); **therapist became selectable** (base +
+Instruct, `_Th{tag}` appended to the grammar while zero folders existed); Instruct arms use the
+**native Llama-3 template + `<|eot_id|>` token-id stopping** (base arms keep ChatML + string
+stops); `NUM_ITERATIONS=10` matched; patient timeout matched at 90 s × 8; the GRPO notebook gained
+the QUICK_TEST block (G→4 → disjoint `_G4_` folder); `LOOKAHEAD_SUB_BATCH_SIZE=64` and
+TensorBoard-only logging stand. Fallout landed with the change: `roles._slugify` no longer strips
+`-Instruct` (base/Instruct would have shared a tag), every chat-template render pins
+`date_string=CHAT_TEMPLATE_DATE` (the Llama-3.2 template otherwise interpolates TODAY's date —
+prompts would drift across resume days), and `core.conversations`' token-budget estimators now
+MEASURE per-role wrapper overheads on the live template instead of hardcoding the ChatML wrapper
+(which would have over-billed every Instruct turn ~2×). The Instruct decode path is verified on the
+local GPU end-to-end (native template kept, eos list `[eot, eom, start_header]`, clean batched
+generations with empty stop strings, truncation budget respected).
 
 **What [tools/fake_oracle_server.py](code/tools/fake_oracle_server.py) buys.** It is a test double
 for the *endpoint*, so the plumbing between Exp4 and the wire is verifiable with no vLLM, no Colab
@@ -751,9 +808,9 @@ FALSE on the pinned trl 1.4.0 and rewritten at all its sites.
 ### Next session — start here
 
 1. **Colab, in this order** — do not jump to a full arm:
-   `smoke.py roles` → `oracle_sanity` (full) against **both** E4B and E2B (choose the grader by
-   Spearman + spread) → a 2-iteration mini-arm (`QUICK_TEST=True`, lands in a disjoint folder) →
-   a real arm (GRPO K=0 first).
+   `smoke.py roles` → `oracle_sanity` (full) against **E4B** (the chosen grader, 2026-08-27; run
+   E2B only if E4B fails the gate) → a 2-iteration mini-arm (`QUICK_TEST=True` — both notebooks
+   have the toggle now; lands in a disjoint folder) → a real arm (GRPO K=0, Instruct therapist).
 2. **Before any of that**: push `code/` to Drive (additively) and add the `huggingface` Colab
    secret (Llama-3.2-1B is gated; **Gemma 4 is NOT** — Apache 2.0, no click-through). The install
    cell is **self-installing and guarded** — just run it: on a fresh runtime it installs vLLM

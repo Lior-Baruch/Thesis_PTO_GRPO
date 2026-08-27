@@ -27,20 +27,24 @@ The grammar
 -----------
 ::
 
-    {GRPO|PTO}4_{QTAG}_LA{K}_MCL{N}_{G{G} | M{M}_PT{greedy|indep}}_O{otag}_Pat{ptag}
+    {GRPO|PTO}4_{QTAG}_LA{K}_MCL{N}_{G{G} | M{M}_PT{greedy|indep}}_O{otag}_Pat{ptag}_Th{ttag}
 
-    GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B
-    PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E2B_Patgemma4E2B
-    GRPO4_WAI_LA0_MCL12_G8_Ogpt4m_Patgemma4E2B          # oracle flipped to the OpenAI API
+    GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi
+    PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B_ThL1Bi
+    GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1B   # therapist flipped to the BASE model
 
 Fields are ``_``-delimited, so **no token may contain an underscore**: ``MI_SAT`` is spelled
 ``MISAT``, and model tags come from :func:`roles.model_tag`, which is restricted to
 ``[A-Za-z0-9]``. A name is therefore also a legal Windows path segment and a legal TensorBoard
 logdir, which is the other reason for the restriction.
 
-The therapist policy is *not* encoded -- it is fixed across all Exp4 arms (Llama-3.2-1B bf16 +
-LoRA) and recorded in ``run_metadata.json``. Changing it is a grammar-version bump (the ``4`` in
-``GRPO4``), not a new token, because every existing folder would otherwise silently change meaning.
+The therapist policy IS encoded (the ``Th`` field), since 2026-08-27: Exp4 runs the same
+Llama-3.2-1B family in two variants -- ``L1Bi`` (Instruct, the default: ships the official
+Llama-3 chat template) and ``L1B`` (the template-less base with the hand-written ChatML
+template) -- and two different policies must never share a folder. The field was added while the
+grammar had produced zero folders on disk, which is the only moment a mandatory field can be
+added without a version bump (there is no such thing as an optional field -- see
+:data:`GRAMMAR_VERSION`).
 
 ``EXPERIMENT_NAME`` is **computed, never typed.** Both trainer notebooks call
 :func:`build_experiment_name` from their cell-1 globals, so the name cannot drift from the config
@@ -57,7 +61,8 @@ import re
 from dataclasses import dataclass
 from typing import Dict, FrozenSet, Optional, Sequence
 
-from roles import DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL, model_tag
+from roles import (DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL, DEFAULT_THERAPIST_MODEL,
+                   model_tag)
 
 __all__ = [
     "GRAMMAR",
@@ -85,7 +90,7 @@ __all__ = [
 
 #: Human-readable grammar, quoted verbatim in every error message. Not an f-string anywhere --
 #: the braces are part of the notation.
-GRAMMAR = "{GRPO|PTO}4_{QTAG}_LA{K}_MCL{N}_{G{G}|M{M}_PT{greedy|indep}}_O{otag}_Pat{ptag}"
+GRAMMAR = "{GRPO|PTO}4_{QTAG}_LA{K}_MCL{N}_{G{G}|M{M}_PT{greedy|indep}}_O{otag}_Pat{ptag}_Th{ttag}"
 
 #: Grammar version. Bumped only if the *meaning* of an existing field changes; a new optional
 #: field would orphan every folder already on disk, so there is no such thing as an optional field.
@@ -144,7 +149,8 @@ ARM_RE = re.compile(
     r"_MCL(?P<mcl>\d+)"
     r"_(?:G(?P<g>\d+)|M(?P<m>\d+)_PT(?P<mode>greedy|indep))"
     r"_O(?P<otag>[A-Za-z0-9]+)"
-    r"_Pat(?P<ptag>[A-Za-z0-9]+)$"
+    r"_Pat(?P<ptag>[A-Za-z0-9]+)"
+    r"_Th(?P<ttag>[A-Za-z0-9]+)$"
 )
 
 #: Model-state folder inside ``conversations/<EXP_NAME>/``. Exp3 appended ``_TT*_TP*`` sampling
@@ -156,9 +162,10 @@ MODEL_STATE_RE = re.compile(r"^" + MODEL_STATE_PREFIX + r"(?P<n>\d+)$")
 _TAG_RE = re.compile(r"^[A-Za-z0-9]+$")
 
 # Computed once: the tags an arm carries when nothing was swapped. Used ONLY by
-# :attr:`ArmInfo.label` -- the NAME always spells both tags out.
+# :attr:`ArmInfo.label` -- the NAME always spells every tag out.
 _DEFAULT_ORACLE_TAG = model_tag(DEFAULT_ORACLE_MODEL)
 _DEFAULT_PATIENT_TAG = model_tag(DEFAULT_PATIENT_MODEL)
+_DEFAULT_THERAPIST_TAG = model_tag(DEFAULT_THERAPIST_MODEL)
 
 
 # ==============================================================================
@@ -189,25 +196,27 @@ class ArmInfo:
     mode: Optional[str]  # PTO preference-tree mode (None for GRPO)
     oracle_tag: str      # model_tag of the TRAINING grader
     patient_tag: str     # model_tag of the patient simulator
+    therapist_tag: str   # model_tag of the therapist POLICY (L1Bi = Instruct, L1B = base)
 
     def __post_init__(self) -> None:
         _validate_fields(self.method, self.qtag, self.k, self.mcl,
-                         self.g, self.m, self.mode, self.oracle_tag, self.patient_tag)
+                         self.g, self.m, self.mode, self.oracle_tag, self.patient_tag,
+                         self.therapist_tag)
 
     @property
     def experiment_name(self) -> str:
         """The folder name. The single formatter -- :func:`build_experiment_name` delegates here."""
         branch = f"G{self.g}" if self.method == "GRPO" else f"M{self.m}_PT{self.mode}"
         return (f"{self.method}{GRAMMAR_VERSION}_{self.qtag}_LA{self.k}_MCL{self.mcl}"
-                f"_{branch}_O{self.oracle_tag}_Pat{self.patient_tag}")
+                f"_{branch}_O{self.oracle_tag}_Pat{self.patient_tag}_Th{self.therapist_tag}")
 
     @property
     def label(self) -> str:
         """Short display label -- the plot legend entry and table row key.
 
         Everything on its default is elided, so the common grid reads ``GRPO_LA5`` / ``PTO_LA0``
-        while a swapped role or a non-default preference-tree mode still separates:
-        ``GRPO_LA0_Ogpt4m``, ``PTO_LA5_indep``.
+        while a swapped role, a non-default preference-tree mode or the base therapist still
+        separates: ``GRPO_LA0_Ogpt4m``, ``PTO_LA5_indep``, ``GRPO_LA0_ThL1B``.
 
         Warning:
             This is a DISPLAY key, not an identity. It deliberately drops ``qtag``, ``mcl`` and
@@ -223,6 +232,8 @@ class ArmInfo:
             parts.append("O" + self.oracle_tag)
         if self.patient_tag != _DEFAULT_PATIENT_TAG:
             parts.append("Pat" + self.patient_tag)
+        if self.therapist_tag != _DEFAULT_THERAPIST_TAG:
+            parts.append("Th" + self.therapist_tag)
         return "_".join(parts)
 
     @property
@@ -300,7 +311,8 @@ def build_experiment_name(method: str,
                           m: Optional[int] = None,
                           mode: Optional[str] = None,
                           oracle_model: str,
-                          patient_model: str) -> str:
+                          patient_model: str,
+                          therapist_model: str = DEFAULT_THERAPIST_MODEL) -> str:
     """Compose ``EXPERIMENT_NAME`` from a trainer's cell-1 globals.
 
     Args:
@@ -314,6 +326,12 @@ def build_experiment_name(method: str,
             (the last is accepted and written as ``indep``). Required for PTO, forbidden for GRPO.
         oracle_model: model id of the TRAINING grader, e.g. ``google/gemma-4-E2B-it``.
         patient_model: model id of the patient simulator.
+        therapist_model: model id of the therapist POLICY. Defaults to
+            :data:`roles.DEFAULT_THERAPIST_MODEL` (the Instruct variant) -- the one tag with a
+            true project-wide default. Unlike Exp3's optional role suffixes this cannot cause a
+            collision: the tag is encoded in the name whether or not the caller passed it, so a
+            forgotten argument mislabels nothing that ``run_metadata.json`` does not correct.
+            The trainer config builders always pass it explicitly from ``BASE_MODEL_ID``.
 
     Returns:
         A name matching :data:`GRAMMAR`, made only of ``[A-Za-z0-9_]``.
@@ -350,11 +368,13 @@ def build_experiment_name(method: str,
 
     otag = model_tag(oracle_model)
     ptag = model_tag(patient_model)
+    ttag = model_tag(therapist_model)
 
     # roles.model_tag promises [A-Za-z0-9]; check it anyway. A tag with an underscore or a dot
     # would not raise here -- it would produce a name that parses back into DIFFERENT fields, and
     # the corruption would only surface as a mislabelled row in an EDA table months later.
-    for role, model_id, tag in (("oracle", oracle_model, otag), ("patient", patient_model, ptag)):
+    for role, model_id, tag in (("oracle", oracle_model, otag), ("patient", patient_model, ptag),
+                                ("therapist", therapist_model, ttag)):
         if not _TAG_RE.match(tag or ""):
             raise ValueError(
                 f"build_experiment_name: {role} model {model_id!r} maps to tag {tag!r}, which is "
@@ -366,7 +386,7 @@ def build_experiment_name(method: str,
         arm = ArmInfo(method=meth, qtag=qtag, k=int(k), mcl=int(mcl),
                       g=None if g is None else int(g),
                       m=None if m is None else int(m),
-                      mode=norm_mode, oracle_tag=otag, patient_tag=ptag)
+                      mode=norm_mode, oracle_tag=otag, patient_tag=ptag, therapist_tag=ttag)
     except ValueError as ex:
         # Almost always a cell-1 typo, so name the entry point and the method being built.
         raise ValueError(f"build_experiment_name({meth}): {ex}") from ex
@@ -407,8 +427,8 @@ def parse_experiment_name(name: str) -> ArmInfo:
         raise ValueError(
             f"parse_experiment_name: {name!r} is not an Exp4 arm name.\n"
             f"  expected: {GRAMMAR}\n"
-            f"  example : GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B\n"
-            f"  example : PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E2B_Patgemma4E2B\n"
+            f"  example : GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi\n"
+            f"  example : PTO4_Q1Q2_LA0_MCL12_M8_PTgreedy_Ogemma4E4B_Patgemma4E4B_ThL1Bi\n"
             f"  QTAG in {sorted(set(QTAG_BY_IDS.values()))}; model tags are [A-Za-z0-9]+ "
             f"(no '_' inside a token)."
         )
@@ -424,6 +444,7 @@ def parse_experiment_name(name: str) -> ArmInfo:
             mode=d["mode"],
             oracle_tag=d["otag"],
             patient_tag=d["ptag"],
+            therapist_tag=d["ttag"],
         )
     except ValueError as ex:
         raise ValueError(f"parse_experiment_name: {name!r} is malformed -- {ex}") from ex
@@ -482,7 +503,7 @@ def _is_int(value: object) -> bool:
 
 def _validate_fields(method: str, qtag: str, k: int, mcl: int,
                      g: Optional[int], m: Optional[int], mode: Optional[str],
-                     oracle_tag: str, patient_tag: str) -> None:
+                     oracle_tag: str, patient_tag: str, therapist_tag: str) -> None:
     """Every consistency rule, in one place, run by both build and parse.
 
     The method/branch rules are the load-bearing ones: they are what stops a GRPO arm from being
@@ -517,7 +538,8 @@ def _validate_fields(method: str, qtag: str, k: int, mcl: int,
         if g is not None:
             raise ValueError(f"PTO arms carry no group size: got g={g!r} (did you mean m={g!r}?)")
 
-    for role, tag in (("oracle_tag", oracle_tag), ("patient_tag", patient_tag)):
+    for role, tag in (("oracle_tag", oracle_tag), ("patient_tag", patient_tag),
+                      ("therapist_tag", therapist_tag)):
         if not isinstance(tag, str) or not _TAG_RE.match(tag):
             raise ValueError(
                 f"{role}={tag!r} must be [A-Za-z0-9]+ -- name fields are '_'-delimited"

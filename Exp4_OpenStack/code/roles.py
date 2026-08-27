@@ -66,6 +66,7 @@ __all__ = [
     "DEFAULT_ORACLE_MODEL",
     "DEFAULT_PATIENT_MODEL",
     "DEFAULT_JUDGE_MODEL",
+    "DEFAULT_THERAPIST_MODEL",
     "PROVIDERS",
     "THINKING_OFF_EXTRA_BODY_JSON",
     "RoleBinding",
@@ -95,6 +96,14 @@ __all__ = [
 DEFAULT_ORACLE_MODEL = "google/gemma-4-E4B-it"
 DEFAULT_PATIENT_MODEL = "google/gemma-4-E4B-it"
 DEFAULT_JUDGE_MODEL = "google/gemma-4-E4B-it"
+
+#: The therapist POLICY default. Unlike the three roles above it is not served (it lives in-process
+#: on the training GPU), but since 2026-08-27 it IS selectable per arm -- base vs Instruct -- and
+#: its tag is encoded in every ``EXPERIMENT_NAME`` (the ``_Th<tag>`` field), so two therapist
+#: variants can never share a folder. The default is the Instruct variant: it ships the official
+#: Llama-3 chat template (single-special-token stopping, no ChatML self-play class), so it is the
+#: primary grid; the template-less base is the ``_ThL1B`` alternate arm.
+DEFAULT_THERAPIST_MODEL = "meta-llama/Llama-3.2-1B-Instruct"
 
 #: The providers :func:`make_client` knows how to construct. ``openai_compat`` is any
 #: OpenAI-compatible server (vLLM, llama.cpp, TGI) -- same call shape, including
@@ -130,6 +139,10 @@ _MODEL_TAGS = {
     "gpt-4o-mini": "gpt4m",
     "gpt-4o": "gpt4o",
     "claude-haiku-4-5": "haiku45",
+    # The two therapist variants. Curated because they appear in EVERY Exp4 arm name (the
+    # _Th<tag> field) and because the derived slugs would be unreadably long.
+    "meta-llama/Llama-3.2-1B": "L1B",
+    "meta-llama/Llama-3.2-1B-Instruct": "L1Bi",
 }
 
 
@@ -139,9 +152,16 @@ def _slugify(model_id: str) -> str:
     Restricted to ``[A-Za-z0-9]`` so a tag can sit inside an ``EXPERIMENT_NAME`` without
     colliding with the ``_``-delimited field structure the arm-name regex depends on -- and so
     every arm name is a legal Windows path segment and a legal TensorBoard logdir.
+
+    ``-Instruct`` is deliberately NOT stripped (an earlier revision stripped it): a base model
+    and its Instruct sibling are different policies, and stripping the suffix slugged
+    ``Llama-3.2-1B`` and ``Llama-3.2-1B-Instruct`` to the SAME tag -- two different-policy arms
+    sharing one folder, exactly the collision the always-encoded tags exist to prevent. ``-it``
+    is still stripped (Gemma's instruction-tuned variants are the only ones this project serves,
+    so the suffix carries no contrast).
     """
     s = model_id.split("/")[-1]
-    for suffix in ("-it", "-instruct", "-Instruct", "-hf"):
+    for suffix in ("-it", "-hf"):
         if s.endswith(suffix):
             s = s[: -len(suffix)]
             break

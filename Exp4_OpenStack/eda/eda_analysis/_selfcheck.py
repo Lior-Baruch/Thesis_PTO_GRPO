@@ -913,9 +913,10 @@ def _c_arm_identity() -> str:
     ``ArmInfo.experiment_name`` re-renders the same string.
     """
     from naming import ArmInfo, build_experiment_name, parse_experiment_name
-    from roles import DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL
+    from roles import DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL, DEFAULT_THERAPIST_MODEL, model_tag
 
     models = (DEFAULT_ORACLE_MODEL, "gpt-4o-mini-2024-07-18", "claude-haiku-4-5")
+    therapists = (DEFAULT_THERAPIST_MODEL, "meta-llama/Llama-3.2-1B")
     qtags = ("Q1Q2", "Q1", "WAI", "MISAT", "MITI")
     ids_by_qtag = {"Q1Q2": [1, 2], "Q1": [1], "WAI": [3], "MISAT": [6], "MITI": [7]}
 
@@ -925,14 +926,18 @@ def _c_arm_identity() -> str:
         for k in (0, 5):
             for mcl in (2, 12, 30):
                 for oracle in models:
-                    for patient in (DEFAULT_PATIENT_MODEL, models[1]):
+                    # patient and therapist vary together (each dimension covered; the base-vs-
+                    # Instruct collision has its own dedicated assert below the grid)
+                    for patient, therapist in ((DEFAULT_PATIENT_MODEL, therapists[0]),
+                                               (models[1], therapists[1])):
                         variants = [("GRPO", {"g": 8}), ("GRPO", {"g": 4})]
                         variants += [("PTO", {"m": 8, "mode": mode})
                                      for mode in ("greedy", "independent")]
                         for method, extra in variants:
                             name = build_experiment_name(
                                 method, ids_by_qtag[qtag], k, mcl,
-                                oracle_model=oracle, patient_model=patient, **extra)
+                                oracle_model=oracle, patient_model=patient,
+                                therapist_model=therapist, **extra)
                             info = parse_experiment_name(name)
                             checked += 1
 
@@ -940,6 +945,8 @@ def _c_arm_identity() -> str:
                                 f"{name!r} re-renders as {info.experiment_name!r}"
                             assert (info.method, info.qtag, info.k, info.mcl) == \
                                 (method, qtag, k, mcl), f"{name!r} decoded as {info}"
+                            assert info.therapist_tag == model_tag(therapist), \
+                                f"{name!r} decoded therapist as {info.therapist_tag!r}"
                             if method == "GRPO":
                                 assert info.g == extra["g"] and info.m is None \
                                     and info.mode is None, f"{name!r} decoded as {info}"
@@ -950,7 +957,8 @@ def _c_arm_identity() -> str:
                                                      else "indep"), f"{name!r} decoded as {info}"
 
                             identity = (method, qtag, k, mcl, extra.get("g"), extra.get("m"),
-                                        info.mode, info.oracle_tag, info.patient_tag)
+                                        info.mode, info.oracle_tag, info.patient_tag,
+                                        info.therapist_tag)
                             if name in seen and seen[name] != identity:
                                 raise AssertionError(
                                     f"arm-name COLLISION: {seen[name]} and {identity} both render "
@@ -960,8 +968,21 @@ def _c_arm_identity() -> str:
 
     assert len(seen) == checked, f"{checked} configurations produced only {len(seen)} names"
 
+    # The two therapist VARIANTS must never share a name: same grid cell, base vs Instruct.
+    same_cell = {
+        build_experiment_name("GRPO", [1, 2], 0, 12, g=8,
+                              oracle_model=DEFAULT_ORACLE_MODEL,
+                              patient_model=DEFAULT_PATIENT_MODEL,
+                              therapist_model=t)
+        for t in therapists
+    }
+    assert len(same_cell) == 2, f"base and Instruct therapists collided: {same_cell}"
+
     for junk in ("", "GRPO_Q1Q2_LA5_MCL12_G8", "GRPO4_NOPE_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B",
-                 "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B", "model_iter_0"):
+                 "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B",
+                 # a pre-therapist-field name (the grammar before 2026-08-27) must not parse
+                 "GRPO4_Q1Q2_LA5_MCL12_G8_Ogemma4E2B_Patgemma4E2B",
+                 "model_iter_0"):
         try:
             parse_experiment_name(junk)
         except ValueError:
@@ -973,7 +994,8 @@ def _c_arm_identity() -> str:
     for bad_kwargs in ({"method": "GRPO", "m": 8, "mode": "greedy", "g": None},
                        {"method": "PTO", "g": 8, "m": None, "mode": None}):
         try:
-            ArmInfo(qtag="Q1Q2", k=0, mcl=12, oracle_tag="x", patient_tag="y", **bad_kwargs)
+            ArmInfo(qtag="Q1Q2", k=0, mcl=12, oracle_tag="x", patient_tag="y",
+                    therapist_tag="z", **bad_kwargs)
         except ValueError:
             pass
         else:
