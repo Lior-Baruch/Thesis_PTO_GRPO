@@ -12,7 +12,12 @@ standardized quantities combine.
 **Sign conventions.** `method_paired_by_K` reports **PTO − GRPO** (+ = PTO higher). The EDA's K
 tables (`k_paired_*`, `k_table1`) report **K=0 − K=5**; this paper's prose flips them to K5−K0
 where it argues about look-ahead — every row below states its direction. `MICI` is
-lower-is-better. `budget_sweep_*`'s `mean_delta` is a−b as named in the table.
+lower-is-better.
+
+**Axis decision (2026-08-27, Lior + supervisors): ITERATIONS ONLY.** The GPU-hour/budget
+analyses are out of the paper entirely (they remain EDA artifacts under `results/compute/cost/`);
+the only cost-flavoured content left is the matched-iterations≠matched-data disclosure in
+Limitations and the one-line compute total in the Ethics statement.
 
 ---
 
@@ -41,6 +46,8 @@ lower-is-better. `budget_sweep_*`'s `mean_delta` is a−b as named in the table.
 | Replicate: method @K0 | PTO higher | +0.516 (0.736) / +0.659 (1.389), both <.001 | same |
 | Replicate: method @K5 | GRPO higher | −0.155 (−0.293, .007) / −0.227 (−0.342, .013) | same |
 | Replicate: GRPO K lever | K5 higher | +0.709 (0.919) / +0.637 (0.949), both <.001 | same |
+| Two winners @10 (GRPO_LA5 − PTO_LA0) | GRPO higher on primary only | primary +0.257 (dz 0.492, <.001); held-out **+0.007 (dz 0.012, p_holm 1.000)** — replicate +0.193 (0.436) / **−0.022 (p_holm 1.000)** | results/measurement/replicate_draw.md § top pair |
+| Two winners: held-out gain tie | tie | PTO_LA0 +1.036 vs GRPO_LA5 +1.038 | headline_grid.md held-out Q1Q2 rows |
 
 ⚠ **The re-draw covers the two winning endpoints only** (GRPO_LA5@10, PTO_LA0@10); the other 40
 states are single draws. A replicate bounds EVALUATION noise, never TRAINING variance.
@@ -48,21 +55,19 @@ states are single draws. A replicate bounds EVALUATION noise, never TRAINING var
 "null-to-negative", never "significantly worse" for the composite; the significantly-worse
 claims are Q2 and MITI held-out only.
 
-## §5 Cost
+## Limitations — matched iterations ≠ matched data (the disclosure that replaced §5 Cost)
 
 | claim | value | source |
 |---|---|---|
-| Totals | PTO_LA0 **8.119**, PTO_LA5 **19.681**, GRPO_LA0 **27.906**, GRPO_LA5 **51.205** GPU-h | results/compute/cost/tables/compute_by_arm.md |
-| Spread arithmetic | 51.205 / 8.119 = **6.31×** | derived — show the arithmetic |
-| PTO build share | 0.698 (LA0) / 0.853 (LA5) of the arm's bill | compute_by_arm.md `build_share` |
-| GRPO K5 step multiplier | median 1.92× (settled iters 3–10) | results/compute/cost/tables/step_multiplier.md |
-| Budget verdicts (all 16 cells of Table tab:verdicts) | see table | results/compute/cost/tables/budget_sweep_crossjudge_verdicts.md — copied cell-for-cell |
-| GRPO K sweep shape | behind ≤18.31 GPU-h, level at 23.21, Holm-sig from 35.29 (primary; held-out sig already at 23.21) | results/compute/cost/tables/budget_sweep_GRPO_K_{gpt-4o-mini,claude-haiku-4-5}.md |
-| Top pair @10 (GRPO_LA5 − PTO_LA0) | primary GRPO +0.257 (dz 0.492, <.001); held-out **+0.007 (dz 0.012, p_holm 1.000)** — replicate +0.193 (0.436) / **−0.022 (p_holm 1.000)** | results/measurement/replicate_draw.md § top pair |
-| Held-out gain tie | PTO_LA0 +1.036 vs GRPO_LA5 +1.038 | headline_grid.md held-out Q1Q2 rows |
+| Oracle scoring calls, sum over train iters 1–10, K=0 | GRPO_LA0 **302,541** vs PTO_LA0 **99,622** → 302,541 / 99,622 = **3.04×** (paper says "roughly 302k vs 100k, 3.0×") | results/compute/cost/tables/api_calls.md, `oracle_calls_train` column summed over the 10 `iteration` rows per arm |
+| Oracle scoring calls, sum over train iters 1–10, K=5 | GRPO_LA5 **289,983** vs PTO_LA5 **121,806** → 289,983 / 121,806 = **2.38×** (paper says "290k vs 122k, 2.4×") | same |
+| Why the asymmetry | GRPO slices every eligible prompt (1,120–2,528 groups/iter across both arms) vs PTO's per-trunk branch points (410–949/iter), both × 8 candidates | same table, `n_groups` column |
 
-⚠ **Quote the sweep/verdict tables, never one iso-compute row** — the K lever's sign is a
-function of budget. ⚠ GPU-hours are mtime-reconstructed; never from `iteration_metadata.json`.
+⚠ These sums are **derived** (10-row additions over `api_calls.md`) — if that table re-renders,
+re-sum; do not trust these totals as atomic numbers.
+⚠ The retired budget/GPU-hour rows (totals 8.119/19.681/27.906/51.205 GPU-h, the 6.31× spread,
+the 16 budget-sweep verdict cells) are in git history and in the EDA
+(`results/compute/cost/`), deliberately NOT in this paper.
 
 ## §6 Behaviour
 
@@ -114,4 +119,4 @@ anchored on a series minimum; the trend is null — "flat").
 
 | claim | value | source |
 |---|---|---|
-| Total compute | 8.1 + 19.7 + 27.9 + 51.2 ≈ 107 GPU-h | compute_by_arm.md — show the arithmetic |
+| Total compute (Ethics statement only — no per-arm breakdown in the paper) | 8.119 + 19.681 + 27.906 + 51.205 ≈ 107 GPU-h | compute_by_arm.md — the paper quotes only the ≈107 total |

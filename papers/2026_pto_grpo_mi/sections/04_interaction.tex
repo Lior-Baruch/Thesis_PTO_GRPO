@@ -68,6 +68,19 @@ differences.}
 \label{tab:flip}
 \end{table}
 
+\subsection{The two winners, head to head}
+\label{ssec:winners}
+
+The grid's two strongest arms are \GRPO-$\Kf$ and \PTO-$\Kz$, and at the matched iteration-10
+endpoint the graders disagree about them. The training oracle scores \GRPO-$\Kf$ higher
+($+0.257$, \dz\,$0.492$); the held-out judge scores them \emph{level} --- own-base gains of
+$+1.036$ vs.\ $+1.038$, endpoint contrast $+0.007$ (\dz\,$0.012$, $p_{\text{holm}}\,1.0$), with
+the null replicating on the second evaluation draw ($-0.022$, $p_{\text{holm}}\,1.0$). Under the
+grader that did not supply the training reward, the two winning cells are indistinguishable at
+the endpoint. What separates them is \S\ref{sec:behaviour}'s subject --- they reach that level
+with different conduct --- and the training-oracle side of the comparison is exactly the kind of
+claim \S\ref{sec:measurement} shows to be fragile at this checkpoint.
+
 \subsection{Every cell survives a second evaluation draw}
 
 Each model state is scored on one 96-conversation sample with unseeded decoding, so before

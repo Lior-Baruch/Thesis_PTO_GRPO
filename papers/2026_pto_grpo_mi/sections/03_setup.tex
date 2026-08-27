@@ -68,5 +68,7 @@ pairing replays the shuffle rather than trusting file order), with Wilcoxon sign
 Cohen's \dz, 2{,}000-resample percentile bootstrap intervals at a fixed seed, and Holm correction
 within each family. The graders' \emph{levels} are never compared or averaged --- the held-out
 judge is systematically harsher by 1.2--1.7 points, model-dependently --- only contrasts cross
-graders. Compute is reported in \emph{reconstructed GPU-hours} from per-step artifact timestamps,
-because in-process timing fields undercount resumed runs (Appendix~\ref{app:repro}).
+graders. All comparisons are made at \emph{matched iteration counts}; an iteration is 96 fresh
+conversations for every arm, but the two optimizers extract different amounts of oracle-scored
+training signal from it by construction, so a matched-iteration verdict is not a matched-data
+one (Limitations).

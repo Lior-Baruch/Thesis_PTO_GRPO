@@ -355,42 +355,25 @@ vendor dashboard before quoting any figure.**
 `LIMITATIONS.md`, `METRICS_REFERENCE.md`, and the tree-wide censoring purge described above.
 What remains here is the **P1 draft's own open items**, listed in its README.
 
-**2. ✅ P1 is drafted end to end and RETARGETED TO ICLR 2027 (2026-08-26)** at
-[`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*Scoring the Continuation*):
-the two GRPO arms, both graders, both cost axes, complete `NUMBERS.md` ledger. Now on the vendored
-`iclr2027_conference` style (single column, double-blind until `\iclrfinalcopy`), clean 4-pass
-build, **main text ends on p. 9 of the 9-page submission limit**; depth moved to appendices A–D,
-ethics + reproducibility as page-exempt statements. **Deadlines: abstract 2026-09-18, full paper
-2026-09-25 (both 23:59 UTC-12).** No `\todo`s remain.
-   **✅ Rescoped GRPO-only + scores-not-deltas (2026-08-26, per Lior).** The PTO arms now appear
-   NOWHERE in P1 — not in figures, not in prose, not as "the parent experiment": every full-grid
-   statistic was **recomputed on the 22 GRPO states** as new tracked EDA artifacts
-   (`multijudge_sign_preservation_grpo`: 1,640/1,848 = 88.7%; `judge_saturation_grpo` +
-   `judge_saturation_grpo_data`: Q1 median 0.841/22 states, ranks /22), and the figures now read
-   **scores including each arm's base** rather than K5−K0 deltas (`k_headline_q1q2_grpo` redesigned
-   to levels + Holm-star row; §5 uses `compute_trajectory_grpo`, scores vs GPU-h; appendix delta
-   grids replaced by `k_levels_grid_grpo_<judge>`; new `tail_audit_grpo`, `api_calls_grpo`,
-   `k_channel_forest_grpo_<judge>` — the old appendix forest was silently the **PTO** forest,
-   a real bug this pass caught). The paired-contrast statistics are unchanged and live in the
-   tables; only what is *drawn* changed.
-
-**2b. ✅ P2 IS DRAFTED (2026-08-26) — targeting the ARR October 2026 cycle** (one review cycle
-feeding **NAACL 2027 + COLING 2027**) at [`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/)
-(*Same Lever, Different Optimizer*): the full 2×2 — the sign-flipping interaction (DiD dz
-0.79/0.97, both graders, every cell surviving the replicate draws), the budget-axis reversals
-(PTO K=0 matches GRPO K=5's held-out gain at 6.31× less compute), the two-optimizer behaviour
-comparison (both K=0 arms flatter; PTO's residue relocates to advice), the ICLR-era regime
-re-scoring, and the full-grid measurement section. ACL long format (`acl.sty` `[review]`, vendored
-from the archived draft — the only thing reused), fresh `NUMBERS.md`, four-arm level-style
-figures, clean 4-pass build, **body ends within the 8-page limit** with Limitations/Ethics
-page-exempt as ARR requires.
-   The stale draft was **retired to `papers/archive/2026_lookahead_pto_grpo/` rather than re-cut** —
-its iteration-5 censoring premise ran through every section, and its central claim changed shape:
-the method verdict is an **interaction with K**, not a PTO win. Candidate framings live in
-[`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md): first a GRPO-only look-ahead
-paper (P1 — all-positive, no new spend), then the full 2×2 as the main paper (P2). Any new draft
-starts from a fresh `NUMBERS.md` against the current tables; the archived ledger's keys are stale
-(`iters1-5` → `iters1-10`) and its ⚠ traps still bind on shared numbers.
+**2. ✅ DECIDED WITH THE SUPERVISORS (2026-08-27): ONE submission — P2 to ARR October 2026.**
+Submission **2026-10-12**, commitment 2026-12-20; the single cycle feeds **NAACL 2027 +
+COLING 2027** and the venue is chosen in December once reviews exist.
+[`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/) (*Same Lever, Different Optimizer* — the
+full 2×2) is **THE paper**; same-day it was rescoped to an **iterations-only comparison axis**
+(Lior's call): §5 (cost) and the budget appendix are deleted — the GPU-hour/budget analyses stay
+EDA-only under `results/compute/cost/` — the two-winners head-to-head moved into §4
+(`ssec:winners`, iteration-matched, grader-conditional), and Limitations now discloses
+matched-iterations ≠ matched-data (GRPO consumed 302,541 vs PTO 99,622 training-oracle calls
+over its ten K=0 iterations = 3.04×, and 289,983 vs 121,806 = 2.38× at K=5; sums over
+`compute/cost/tables/api_calls.md`, arithmetic in the paper's `NUMBERS.md`). The Ethics
+statement keeps only the ≈107 GPU-h total, no per-arm breakdown.
+   **P1 (*Scoring the Continuation*, GRPO-only) is DROPPED and archived** at
+`papers/archive/2026_grpo_lookahead_mi/` — a complete, building draft retired by the same scope
+decision, not by any defect; its ICLR 2027 deadlines no longer bind. Its GRPO-only argument
+survives as §§4/6/8 of P2; its `NUMBERS.md` and the `*_grpo` EDA artifacts remain valid.
+   Candidate framings history: [`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md)
+(P2 was its main-venue pick); the pre-completion four-arm draft remains archived at
+`papers/archive/2026_lookahead_pto_grpo/` with stale ledger keys (`iters1-5` → `iters1-10`).
 
 **3. ✅ DONE (2026-08-26) — the second independent 96-conversation draw. EVERY HEADLINE SURVIVES.**
 `GRPO_LA5@10` and `PTO_LA0@10` were re-drawn on a Colab A100 (`code/tools/replicate_colab.ipynb`,
@@ -443,17 +426,16 @@ RESOLVED" above; verified byte-identical on the complete data).
 
 ## Write-up decisions already made
 
-- **Two live papers with disjoint scopes** — P1
-  [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (ICLR 2027; GRPO-only, PTO
-  appears nowhere in it) and P2 [`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/) (ARR
-  October 2026 → NAACL/COLING 2027; the full 2×2 owns everything four-arm). Shared numbers are
-  cited from the same EDA artifacts in both ledgers; neither imports the other's argument. Every
-  earlier Exp3 draft is retired under `papers/archive/`; the archived `NUMBERS.md` ledgers remain
-  the trap list for any shared number.
-- **Report the method comparison on BOTH axes, and always conditional on K.** Matched-iteration and
-  matched-budget answer different questions — say which axis a number is on, and **never state a
-  PTO-vs-GRPO verdict without naming K**. The two axes now disagree in a way that is itself the
-  finding: at matched *iteration* GRPO K=5 wins; at any budget PTO can afford, PTO wins.
+- **ONE live paper (2026-08-27)** — P2 [`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/)
+  (ARR October 2026 → NAACL/COLING 2027; the full 2×2). P1 and every earlier Exp3 draft are
+  retired under `papers/archive/`; the archived `NUMBERS.md` ledgers remain the trap list for
+  any shared number.
+- **The PAPER's comparison axis is iterations only (Lior, 2026-08-27)** — no GPU-hour or
+  samples/budget analysis in P2; the data-per-iteration asymmetry (GRPO ≈3.0×/2.4× PTO's oracle
+  calls at K=0/K=5) is a Limitations disclosure, and the budget machinery stays EDA-only. For the
+  THESIS the both-axes point still stands: matched-iteration and matched-budget answer different
+  questions (at matched *iteration* GRPO K=5 wins; at any budget PTO can afford, PTO wins), and
+  **never state a PTO-vs-GRPO verdict without naming K** — on either axis.
 - Make the look-ahead claim **about the lever, never about convergence**.
 - **State the look-ahead MI-consistency result at the CHANNEL level, not as a total**, and prefer
   the *share* of MI-inconsistent acts to any per-turn or per-session figure — the arms differ in

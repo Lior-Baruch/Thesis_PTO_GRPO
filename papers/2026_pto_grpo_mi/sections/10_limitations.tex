@@ -38,8 +38,15 @@ collapses at the late $\Kf$ checkpoints because the trained-against grader loses
 range there. Arm-level orderings survive; per-conversation claims about those states, and
 absolute levels near the training oracle's ceiling, should not be reused downstream.
 
-\paragraph{Reconstructed compute.} GPU-hours are recovered from artifact timestamps with resume
-gaps imputed at phase medians; the budget crossover points inherit that estimate's uncertainty.
+\paragraph{Matched iterations are not matched data.} All contrasts are made at matched
+iteration counts. An iteration is 96 conversations for every arm and $M{=}G{=}8$ candidates per
+decision point, but \GRPO\ extracts an oracle-scored group from every eligible slice of every
+conversation while \PTO\ branches only along its single trunk per conversation, so the
+optimizers consume different amounts of oracle-scored signal per iteration by construction: over
+the ten iterations, roughly $302$k oracle scoring calls for \GRPO\ vs.\ $100$k for \PTO\ at
+$\Kz$ ($3.0\times$) and $290$k vs.\ $122$k at $\Kf$ ($2.4\times$). ``\GRPO\ wins at $\Kf$'' is
+therefore a matched-iteration statement, not a matched-data one; we do not equalise that axis,
+and the head-to-head null in \S\ref{ssec:winners} is one reason not to over-read it.
 
 \paragraph{The regime comparison is observational.} \S\ref{sec:regime} re-scores conversations
 from an earlier experiment that differs from the present one in several ways at once (policy

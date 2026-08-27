@@ -47,8 +47,8 @@ three kinds of claims are marked wherever they appear: per-conversation claims a
 checkpoints on the rewarded and behaviour-coding rubrics; absolute endpoint levels near the top
 of the training oracle's compressed range (\GRPO-$\Kf$'s $4.52$ on a 1--5 scale should be read as
 ``near this grader's ceiling''); and the training-oracle side of the two-winners comparison in
-\S\ref{sec:cost}, which is precisely a contrast between a state this grader has saturated on and
-one it has not. This failure mode --- one judge supplying both the reward and the reported
+\S\ref{ssec:winners}, which is precisely a contrast between a state this grader has saturated on
+and one it has not. This failure mode --- one judge supplying both the reward and the reported
 outcome, then quietly losing its discriminative range on exactly the checkpoints being reported
 --- is invisible to arm-level agreement statistics, and we suspect it is common; the cheap
 diagnostic is to track the training grader's per-conversation \emph{variance} by iteration, not

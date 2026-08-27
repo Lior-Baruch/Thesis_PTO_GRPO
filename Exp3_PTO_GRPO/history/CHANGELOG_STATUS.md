@@ -13,6 +13,31 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-08-27 — supervisor meeting: ONE submission (P2 → ARR October), P1/ICLR dropped, iterations-only axis
+
+**The decision.** After the 2026-08-27 meeting, Lior + supervisors chose a single Exp3 paper for
+the **ARR October 2026 cycle** (submission 2026-10-12, commitment 2026-12-20; the one cycle feeds
+NAACL 2027 + COLING 2027, venue chosen in December from reviews). The two ideas on the table were
+the two live drafts' framings — a GRPO-look-ahead story with PTO as appendix, vs the full 2×2 —
+and the **2×2 (P2, `papers/2026_pto_grpo_mi/`) won**, framed as the interaction rather than
+"GRPO wins" (the held-out grader reads the two winners as tied, replicated across draws).
+
+**P1 (`Scoring the Continuation`, GRPO-only) was archived** to
+`papers/archive/2026_grpo_lookahead_mi/` and its ICLR 2027 plan (abstract 2026-09-18) dropped —
+a complete, building draft retired by scope decision, not defect. Until this day STATUS carried
+both as "two live papers with disjoint scopes" (P1 retargeted to ICLR on 2026-08-26; P2 drafted
+the same day with a GPU-hour cost section).
+
+**Axis decision (Lior): the paper compares on ITERATIONS ONLY** — he rejected both the GPU-hour
+axis and a samples/data-count axis. P2's §5 (cost) and its budget appendix (16-cell verdict
+table, budget sweep, cost breakdown, API-calls figure) were deleted; the two-winners
+head-to-head was relocated into §4 as `ssec:winners` (iteration-matched, grader-conditional);
+Limitations gained the matched-iterations ≠ matched-data disclosure — over ten iterations GRPO
+consumed 302,541 vs PTO's 99,622 training-oracle calls at K=0 (3.04×) and 289,983 vs 121,806 at
+K=5 (2.38×), sums over `compute/cost/tables/api_calls.md` — and the Ethics statement kept only
+the ≈107 GPU-h total. All budget machinery remains EDA-owned under `results/compute/cost/`;
+nothing was deleted from the EDA.
+
 ## 2026-08-25 (later) — iteration 10 lands; the 2x2 closes and the K x method interaction goes significant on both graders
 
 **Same day, second event.** The entry below was written when GRPO LA5 stopped at iteration 9 with

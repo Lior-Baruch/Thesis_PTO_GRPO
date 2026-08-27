@@ -28,13 +28,14 @@ scores in this regime. The interaction --- the difference-in-differences --- is
 $\dz\,0.79$--$0.97$ depending on grader, larger than most published ablations in this space, and
 every cell of it survives an independent re-draw of the contested endpoints' evaluation sets.
 
-Three further results give the interaction its practical meaning. \textbf{Budget reverses the
-rankings again} (\S\ref{sec:cost}): the four arms cost $8.1$ to $51.2$ reconstructed GPU-hours
-for the same ten iterations, and at matched spend the cheapest arm (preference trees, $\Kz$) is
-unbeaten until deep into the budget axis under the training oracle --- and on the held-out judge
-is never beaten at all: it matches the most expensive arm's final gain ($+1.036$ vs.\ $+1.038$
-rubric points) at $6.3\times$ less compute, a paired null that replicates across two evaluation
-draws. \textbf{The horizon decides what is
+Three further results give the interaction its practical meaning. \textbf{The flip is
+grader-conditional at the top} (\S\ref{ssec:winners}): the training oracle scores \GRPO-$\Kf$'s
+endpoint as the best final state in the grid, but under the held-out judge that endpoint is
+statistically indistinguishable from \PTO-$\Kz$'s --- own-base gains of $+1.038$ vs.\ $+1.036$
+rubric points, a paired null that replicates across two evaluation draws --- so the two winning
+cells separate only under the grader that supplied the training reward, exactly where
+\S\ref{sec:measurement} shows that grader's per-conversation range collapsing.
+\textbf{The horizon decides what is
 learned, in both optimizers} (\S\ref{sec:behaviour}): under turn-level reward both $\Kz$ policies
 drift into unearned praise --- a deterministic lexical marker, no model in the loop, finds
 over-praise in $67\%$ (GRPO) and $21\%$ (PTO) of endpoint therapist turns --- and both $\Kf$
@@ -47,9 +48,10 @@ regime is a property of the regime, not of the optimizer pairing per se.
 
 Our contributions: (i) the first controlled optimizer $\times$ reward-horizon factorial for
 LLM-judged dialogue training, showing a sign-flipping interaction of $\dz \approx 0.8$--$1.0$
-confirmed by two graders and replicated evaluation draws; (ii) a budget re-analysis on
-reconstructed GPU-hours showing the practical optimizer ranking depends on spend, with the
-cheapest arm unbeaten at low budgets; (iii) evidence from a judge-free transcript statistic that
+confirmed by two graders and replicated evaluation draws; (ii) a measurement analysis showing
+that the training grader's per-conversation discriminative range collapses precisely at the
+winning look-ahead checkpoints --- one-sided saturation that a held-out judge exposes, with a
+cheap diagnostic any judge-trained pipeline can run; (iii) evidence from a judge-free transcript statistic that
 the reward horizon, not the optimizer, determines whether the policy learns to flatter --- and
 that the optimizer determines where the residual inconsistency goes; and (iv) a demonstration
 that the same lever's sign changes across task regimes, which cautions against reporting reward

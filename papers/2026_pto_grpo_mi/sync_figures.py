@@ -9,10 +9,10 @@ by ``Exp3_PTO_GRPO/eda/tools/render_results.py``, or at a hand-authored method s
     & ..\\..\\.venv\\Scripts\\python.exe sync_figures.py --check   # report drift, copy nothing
 
 **Figure scope policy.** This is the FOUR-ARM paper — the full 2x2 (optimizer x reward horizon)
-is its subject, so every results figure deliberately carries all four arms; the GRPO-scoped
-companion paper (papers/2026_grpo_lookahead_mi) is the one that crops to two. Levels are
-preferred over deltas wherever a level artifact exists (k_trajectory_Q1Q2, compute_trajectory,
-headline_grid); the delta-style artifacts stay in the EDA.
+is its subject, so every results figure deliberately carries all four arms. Levels are
+preferred over deltas wherever a level artifact exists (k_trajectory_Q1Q2, headline_grid); the
+delta-style artifacts stay in the EDA. The comparison axis is ITERATIONS ONLY (decided
+2026-08-27): no compute/budget figures — the compute/cost family stays EDA-only.
 """
 
 from __future__ import annotations
@@ -30,7 +30,6 @@ SCHEMATICS = RESULTS / "schematics"                 # hand-authored (no notebook
 REWARD = RESULTS / "lookahead" / "reward" / "figures"
 BEHAVIOUR = RESULTS / "lookahead" / "behaviour" / "figures"
 REPLICATION = RESULTS / "lookahead" / "replication" / "figures"
-COST = RESULTS / "compute" / "cost" / "figures"
 MEASUREMENT = RESULTS / "measurement" / "validity" / "figures"
 METHOD = RESULTS / "method" / "contrast" / "figures"
 DEST = HERE / "figures"
@@ -45,10 +44,6 @@ FIGURES: list[tuple[Path, str]] = [
     (REWARD / "k_trajectory_Q1Q2.png", "k_trajectory_Q1Q2.png"),
     # The endpoint grid: four arms x both graders, each anchored to its own base.
     (METHOD / "headline_grid.png", "headline_grid.png"),
-    # --- sec:cost --------------------------------------------------------------------------------
-    # Scores vs cumulative GPU-hours, four arms — the budget argument in levels.
-    (COST / "compute_trajectory.png", "compute_trajectory.png"),
-    (COST / "cost_breakdown.png", "cost_breakdown.png"),
     # --- sec:behaviour ---------------------------------------------------------------------------
     # The judge-free lexical over-praise marker beside both graders' rated rates, four arms.
     (BEHAVIOUR / "overpraise_judgefree.png", "overpraise_judgefree.png"),
@@ -57,8 +52,6 @@ FIGURES: list[tuple[Path, str]] = [
     # --- sec:measurement -------------------------------------------------------------------------
     (MEASUREMENT / "judge_saturation.png", "judge_saturation.png"),
     # --- appendix --------------------------------------------------------------------------------
-    (COST / "budget_sweep.png", "budget_sweep.png"),
-    (COST / "api_calls.png", "api_calls.png"),
     (BEHAVIOUR / "k_channel_forest_gpt-4o-mini.png", "k_channel_forest_pto_gpt-4o-mini.png"),
     (BEHAVIOUR / "k_channel_forest_grpo_gpt-4o-mini.png", "k_channel_forest_grpo_gpt-4o-mini.png"),
 ]
