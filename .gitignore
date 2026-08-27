@@ -30,9 +30,16 @@ archive/
 # Both negations are needed: the dir must be un-excluded before files inside it can be.
 !meetings/archive/
 !meetings/archive/**
+# ...but `!meetings/archive/**` also re-includes things the global rules above had excluded, and
+# bytecode is the one that bites: archiving a builder tree carries its __pycache__ along, and the
+# .pyc land in the staged set looking like intentional additions. Re-exclude them here.
+meetings/archive/**/__pycache__/
+meetings/archive/**/*.py[cod]
 # papers/archive/ likewise: retired drafts stay tracked (their .tex/.bib/NUMBERS.md/figures/tables).
 !papers/archive/
 !papers/archive/**
+papers/archive/**/__pycache__/
+papers/archive/**/*.py[cod]
 # Sentence-embedding caches (these .npy files are ~139 MB each — over GitHub's limit)
 **/emb_cache_words/
 *.npy
