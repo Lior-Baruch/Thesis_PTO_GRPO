@@ -1,0 +1,71 @@
+\section*{Limitations}
+\label{sec:limitations}
+
+\paragraph{One training run per arm.}
+Every effect size reported here is computed across the 96 patient personas \emph{within} a single
+training run. There are no training-seed replicates, so run-to-run training variance is unmeasured,
+and we cannot separate ``look-ahead helps'' from ``this look-ahead run went well.'' This is the
+limitation a reader should weight most heavily. It is distinct from, and not bounded by, the
+evaluation noise floor below.
+
+\paragraph{Evaluation draws: replicated at the endpoint, single elsewhere.}
+Therapist decoding is unseeded and each model state was evaluated on one 96-conversation sample.
+Two noise floors bound this. At the untrained base, four independent draws of the identical policy
+yield 54 same-policy contrasts with none reaching even uncorrected $p < .05$, but that is measured
+where sessions are short and homogeneous. At the \emph{trained} endpoint we re-drew the winning
+state (\S\ref{sec:reward}): 9 instruments $\times$ 2 graders of the same policy differ by at most
+$|\dz|\,0.174$, nothing significant, and the $K$ contrast keeps its sign, significance, and effect
+size. The remaining states are single draws, and a replicate bounds evaluation noise only, never
+the training variance above.
+
+\paragraph{Matched iterations are not matched cost.}
+Every comparison is at matched iteration counts. An iteration is 96 conversations and $G{=}8$
+scored candidates per prompt in both arms, so oracle scoring calls are approximately matched by
+construction ($302{,}541$ for $\Kz$ vs.\ $289{,}983$ for $\Kf$ over ten iterations). But each
+$\Kf$ reward requires a five-turn simulated continuation, about $393$k patient-simulator calls
+over the run that the $\Kz$ arm never makes, and roughly doubles per-step wall-clock (median
+$1.92\times$ over the settled iterations 3--10). More per iteration is built into the lever; we
+disclose the asymmetry rather than equalise it, and nothing here compares the arms at matched cost.
+
+\paragraph{$K \in \{0, 5\}$ only.}
+There is no dose--response evidence between the two levels and nothing above 5, so nothing here
+says the effect is monotone in $K$, that 5 is optimal, or that a shorter horizon would not capture
+most of the benefit. An intermediate $K$ is the most valuable single follow-up.
+
+\paragraph{The look-ahead reward is also a reward for continuing.}
+A rollout that ends inside the window gives the oracle a shorter transcript, and such candidates
+were scored slightly below their group mean (\S\ref{sec:method}). The lever therefore carries a
+mild pressure to keep the session open that a turn-level reward does not, and the $\Kf$ policy's
+longer endpoint sessions are consistent with it. We cannot separate this from the horizon effect
+proper with two arms.
+
+\paragraph{Every number is in-sample with respect to the patient distribution.}
+The 96 personas are the exhaustive enumeration of the persona grid, and the self-training loop uses
+those same 96 as both the training rollouts and the evaluation set at every iteration.
+Generalisation to unseen patients is not merely unmeasured but unmeasurable without authoring new
+personas.
+
+\paragraph{The grader is decoupled; the generator is not.}
+The held-out judge addresses the concern that the patient simulator and the training oracle are the
+same model, but only for the grading half. Every conversation was generated against a
+\texttt{gpt-4o-mini} patient. A fully decoupled replication would regenerate all conversations with
+a patient from another model family.
+
+\paragraph{No human validation.}
+All eight instruments are administered by language models. The oracle is highly self-repeatable
+(ICC 0.86--0.99 on the measured $K{=}0$ subset), but repeatability is not validity. No human MI
+coder has rated any conversation in this experiment. The over-praise finding is the most robust
+behavioural claim here precisely because a deterministic lexical marker corroborates it without a
+model in the loop.
+
+\paragraph{The reward is also a reported outcome.}
+\QQ\ is both the optimisation target and a headline metric, so ``\QQ\ improved'' is partly
+circular. We treat the held-out judge and the instruments outside the reward as the load-bearing
+evidence, and \S\ref{sec:measurement} quantifies what happens to the trained-against grader's
+discriminative range over a long run.
+
+\paragraph{Instrument-specific reliability.}
+The MITI-style coder is the least dependable instrument at the arm level, and we do not lean on
+its differences alone. There is no reliability estimate for any individual MI-inconsistency
+channel, including over-praise, which is the granularity \S\ref{sec:behaviour} argues at; that is
+the main reason the section's conclusion rests on the deterministic marker.

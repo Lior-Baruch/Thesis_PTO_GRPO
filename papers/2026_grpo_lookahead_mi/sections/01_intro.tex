@@ -1,60 +1,57 @@
 \section{Introduction}
 \label{sec:intro}
 
-When an LLM judge supplies the reward for a dialogue policy, someone has to decide what the judge
-is shown. The default is the obvious one: score the candidate turn, in the context that preceded
-it. For single-turn tasks that is the whole story. For a multi-turn goal-oriented dialogue it
-quietly encodes a strong assumption --- that a turn's value is visible at the moment it is
-produced.
+Reinforcement learning from an LLM judge has a default that is rarely stated: the judge is shown
+the candidate turn, in the context that preceded it, and scores that. For single-turn tasks this
+is the whole story. For multi-turn goal-oriented dialogue it encodes an assumption, that a turn's
+value is visible at the moment it is produced.
 
-Motivational interviewing (MI) is a setting where that assumption is plainly false. MI is a
-counselling style for helping someone resolve ambivalence about change, and almost every technique
+Motivational interviewing (MI) is a setting where the assumption is plainly false. MI is a
+counselling style for helping people resolve ambivalence about change, and almost every technique
 it teaches is defined by its downstream effect: a reflection is good if the patient elaborates, an
 open question is good if it surfaces change talk, and premature reassurance is bad precisely
-because of what it forecloses two turns later. A judge shown only the turn can see none of this.
-Worse, it \emph{can} see the one thing that is locally visible --- whether the patient felt
-validated --- which is exactly the signal a policy can capture by flattering them.
+because of what it forecloses two turns later \citep{miller1991mi}. A judge shown only the turn can
+see none of this. It \emph{can} see the one thing that is locally visible, whether the patient felt
+validated, which is exactly the signal a policy can capture by flattering them.
 
-The corrective lever exists: \citet{baruch2025pto} introduced $K$-turn look-ahead for this task
-with preference-tree optimisation (PTO), where each candidate turn is scored by an oracle shown a
-simulated continuation and the scores select DPO training pairs. We move the lever to the
-optimizer that has since become the workhorse of large-scale RL for language models: Group
-Relative Policy Optimization (GRPO), whose group-relative advantage consumes \emph{every} scored
-candidate rather than a selected pair --- so the horizon of the reward now shapes every gradient,
-not just which pair survives. The result is GRPO with $K$-turn look-ahead: before the oracle
-scores a candidate, the patient simulator and the current policy roll the conversation forward
-$K$ more utterances, and the oracle scores the extended transcript.
+This paper presents \textbf{\LAGRPO}. Before the judge scores a candidate therapist turn, the
+patient simulator and the current policy roll the conversation forward $K$ further turns, and the
+judge scores the extended transcript. The lever itself is not new: \citet{baruch2025pto} introduced
+$K$-turn look-ahead for this task inside preference-tree optimisation (PTO), where the look-ahead
+scores select a chosen and a rejected turn for DPO. We move it to Group Relative Policy
+Optimization \citep[GRPO;][]{shao2024deepseekmath}, now the workhorse optimizer for RL on language
+models, whose group-relative advantage consumes \emph{every} scored candidate. Under GRPO the reward
+horizon no longer decides which pair survives; it reweights every gradient in the group. Whether
+the lever survives that move, and what it does to a policy trained on it for ten iterations, is the
+question.
 
-We test the lever in a controlled pair. Holding the entire training pipeline fixed, we vary only
-the transcript the oracle scores: either the candidate turn alone ($K{=}0$), or the candidate
-followed by the $K{=}5$-turn continuation. A 1B-parameter therapist is trained with GRPO against a
-simulated patient, with the reward supplied by a larger model administering validated MI
-questionnaires. The two arms differ in exactly two configuration fields; optimizer, group size,
-oracle, temperatures, minimum context, persona set, and iteration count are identical.
+We answer it with a controlled pair. Two GRPO runs train the same 1B therapist against the same
+simulated patients with the same oracle, group size, temperatures, personas, and iteration count,
+and differ in exactly two configuration fields: whether the oracle sees the candidate turn alone
+($K{=}0$) or the candidate plus its five-turn continuation ($K{=}5$). Every model state is scored
+on eight MI instruments by two graders, the training oracle and a held-out judge from a different
+model family that never touched training.
 
-The result is large and points in one direction. Against its own base, the look-ahead arm gains
-more than twice as much on the rewarded rubric under the training oracle ($+1.554$ vs.\ $+0.686$)
-and under a held-out judge from a different model family ($+1.038$ vs.\ $+0.396$), and at the
-matched endpoint it leads on all eight instruments under both graders. It is also, and we think
-more importantly, the difference between a policy that learns MI and one that learns to flatter:
-turn-level reward drives MI-inconsistent behaviour up fourfold, concentrated in unearned praise,
-which a judge-free lexical marker finds in $67\%$ of that policy's therapist turns at the endpoint
-against $6\%$ under trajectory-level reward.
+The result is large and consistent. Against its own base, the look-ahead policy gains more than
+twice as much on the rewarded rubric under the training oracle ($+1.55$ vs.\ $+0.69$) and under
+the held-out judge ($+1.04$ vs.\ $+0.40$); it leads on all eight instruments under both graders,
+beats the turn-level policy's \emph{best} checkpoint as well as its last, and the endpoint survives
+an independent re-draw of its evaluation set. The behavioural difference is larger still.
+Turn-level reward teaches flattery: MI-inconsistent behaviour quadruples over the run, almost all
+of it unearned praise, which a judge-free lexical marker finds in $67\%$ of that policy's therapist
+turns at the endpoint against $6\%$ under look-ahead, which asks more questions instead.
 
-We report two things a purely positive account would omit. \textbf{Residual drift:} under the
-held-out judge, look-ahead's MI-inconsistency still rises, at under half the turn-level rate, so
-``prevents the hack'' is a training-oracle statement and we never make it unqualified.
-\textbf{Measurement:} the winning checkpoint has the weakest per-conversation cross-grader
-agreement in the experiment on the rewarded rubric, because the trained-against grader saturates
-one-sidedly while the held-out judge's spread over the same conversations does not move. The
-arm-level conclusion survives that; the per-conversation ruler does not, and we mark every claim
-that depends on it.
+We report two things a purely positive account would omit. Under the held-out judge, look-ahead's
+MI-inconsistency still rises, at under half the turn-level rate, so ``prevents the hack'' is a
+training-oracle statement and we never make it unqualified. And the winning checkpoint has the
+weakest per-conversation cross-grader agreement in the experiment on the rewarded rubric, because
+the trained-against grader saturates one-sidedly while the held-out judge's spread over the same
+conversations stays flat. The arm-level conclusion survives that; the per-conversation ruler does
+not, and we mark every claim that depends on it.
 
-Our contributions: (i) GRPO with $K$-turn look-ahead --- the look-ahead reward horizon of
-\citet{baruch2025pto}, moved from preference-tree DPO to a group-relative optimizer --- with a
-controlled, two-grader measurement of what it buys in a multi-turn dialogue task, the winning
-endpoint replicated on a fresh evaluation draw; (ii) evidence, from a deterministic transcript
-metric rather than a model judge, that the horizon of the reward determines \emph{which} reward
-hack the policy finds; and (iii) a diagnosis of a failure mode in LLM-judge evaluation ---
-one-sided grader saturation --- that is invisible to arm-level agreement statistics and appears
-exactly at the best-scoring checkpoint.
+Our contributions are: (i) \LAGRPO, the look-ahead reward of \citet{baruch2025pto} moved from
+preference-tree DPO to a group-relative optimizer, with a controlled two-grader measurement of what
+it buys in a multi-turn dialogue task and a replicated endpoint; (ii) evidence from a deterministic
+transcript statistic, not a model judge, that the reward horizon determines \emph{which} reward
+hack the policy finds; and (iii) a diagnosis of one-sided grader saturation, a failure mode of
+LLM-judge evaluation that arm-level agreement cannot see and that appears at the best checkpoint.

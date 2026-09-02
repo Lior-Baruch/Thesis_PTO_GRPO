@@ -1,17 +1,18 @@
 % =====================================================================
-%  Scoring the Continuation
-%  K-turn look-ahead rewards for group-relative policy optimization
-%  in Motivational Interviewing
+%  GRPO with Look-Ahead in Motivational Interviewing:
+%  Rewarding a Therapist Turn by Where It Leads
+%
 %  Target: ARR October 2026 cycle (submission 2026-10-12, commitment
 %  2026-12-20; the cycle feeds NAACL 2027 + COLING 2027).
 %  ACL long paper: 8-page body + unlimited refs/appendix; Limitations
 %  mandatory and page-exempt; Ethics optional and page-exempt.
 %
-%  SCOPE (2026-08-27, Lior + supervisors): the two GRPO arms only. PTO is
-%  discussed and cited as the predecessor (baruch2025pto) but its Exp3 arms
-%  appear NOWHERE as data. Comparison axis: ITERATIONS ONLY -- no GPU-hour
-%  or budget analysis anywhere; the cost asymmetry is a Limitations
-%  disclosure, and the Ethics statement carries only a one-line total.
+%  SCOPE: the two GRPO arms of Exp3 only. PTO is cited as the origin of
+%  the look-ahead lever (baruch2025pto); its arms appear NOWHERE as data.
+%  Comparison axis: ITERATIONS ONLY -- the cost asymmetry is disclosed in
+%  Limitations, and the Ethics statement carries a one-line GPU total.
+%
+%  Rewritten 2026-09-02 (new title, method section, tightened prose).
 % =====================================================================
 %
 % COMPILING (MiKTeX, no Perl, no latexmk -- see ../README.md):
@@ -72,10 +73,10 @@
 \newcommand{\Kz}{\ensuremath{K{=}0}}
 \newcommand{\Kf}{\ensuremath{K{=}5}}
 \newcommand{\GRPO}{GRPO}
+\newcommand{\LAGRPO}{GRPO with look-ahead}
 
-\title{Scoring the Continuation: $K$-Turn Look-Ahead\\
-Rewards for Group-Relative Policy Optimization\\
-in Motivational Interviewing}
+\title{GRPO with Look-Ahead in Motivational Interviewing:\\
+Rewarding a Therapist Turn by Where It Leads}
 
 \author{
   Lior Baruch \\
@@ -90,19 +91,21 @@ in Motivational Interviewing}
 \input{sections/00_abstract}
 \input{sections/01_intro}
 \input{sections/02_related}
-\input{sections/03_setup}
-\input{sections/04_reward}
-\input{sections/05_behaviour}
-\input{sections/06_mechanism}
-\input{sections/07_measurement}
-\input{sections/08_discussion}
-\input{sections/09_limitations}
-\input{sections/10_ethics}
+\input{sections/03_method}
+\input{sections/04_setup}
+\input{sections/05_reward}
+\input{sections/06_behaviour}
+\input{sections/07_mechanism}
+\input{sections/08_measurement}
+\input{sections/09_discussion}
+\input{sections/10_limitations}
+\input{sections/11_ethics}
 
 \bibliography{refs}
 
 \appendix
 \input{sections/A_tables}
-\input{sections/B_repro}
+\input{sections/B_mechanism}
+\input{sections/C_repro}
 
 \end{document}

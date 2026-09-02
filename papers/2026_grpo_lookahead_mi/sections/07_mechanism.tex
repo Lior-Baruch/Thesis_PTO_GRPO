@@ -1,0 +1,35 @@
+\section{Why it works, as far as we can tell}
+\label{sec:mechanism}
+
+Three candidate mechanisms were testable in this design. None is confirmed; the negative results
+constrain the explanation. Details are in Appendix~\ref{app:mechanism}.
+
+\textbf{A more faithful reward? Over the run, yes; at a matched policy, no.} The training reward
+scores a partial conversation while the evaluation scores the whole session, and the gap is
+measurable as pairwise rank agreement between the two. Pooled over the ten iterations, the $\Kf$
+signal ranks candidates more like the full-session score does ($0.909$ vs.\ $0.873$ under the
+training oracle, $0.800$ vs.\ $0.747$ held out), but the iteration-level Wilcoxon does not clear
+$.05$ ($p = .084$ / $.193$), and over the run the two arms are different policies on different
+conversations, so that cut cannot establish a mechanism. The one cut where the scoring rule is
+close to the only difference, iteration 1 with both arms branching from the same base policy,
+shows nothing: both deltas straddle zero ($+0.015$ $[-0.026, 0.059]$; $-0.014$
+$[-0.075, 0.048]$) and the per-length breakdown points in opposite directions under the two
+graders. The proxy-quality mechanism is \textbf{unsupported}.
+
+\textbf{Sharper group discrimination? No, a rescaling.} Look-ahead spreads the eight siblings'
+rewards further apart (best-minus-worst margin $1.300\times$), but the within-group standard
+deviation grows by almost the same factor ($1.293\times$), and GRPO divides the advantage by it.
+The ratio of ratios is $1.006$ $[1.002, 1.010]$, a rescaling the advantage normalisation absorbs.
+Look-ahead changes \emph{which} candidate the group prefers, not how confidently.
+
+\textbf{A different update direction? Barely.} Writing each arm's update direction as the
+advantage-weighted sum of its candidates' sentence embeddings, the two arms' pooled directions have
+a cosine of $0.804$ ($0.851$ after correcting for the split-half reliability ceiling). The two
+policies are pushed along substantially the same semantic direction.
+
+The puzzle this leaves is that the same optimizer, pushed in nearly the same direction by a reward
+that is not measurably better conditioned or more faithful at a fixed policy, ends more than twice
+as far from base. What differs is which of eight siblings is preferred at each step: a small,
+repeated difference in selection, compounded over ten iterations of a loop that regenerates its
+own training data from the policy it just updated. Isolating that pathway needs the same policy
+trained under both rewards with the horizon swapped mid-run, a cut this design lacks.

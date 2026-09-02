@@ -36,7 +36,7 @@ DEST = HERE / "figures"
 
 # (source path, destination filename). Destination names are what the .tex references.
 FIGURES: list[tuple[Path, str]] = [
-    # --- sec:setup / appendix — the GRPO group schematic (hand-authored) -------------------------
+    # --- sec:method — Figure 1, the GRPO group schematic (hand-authored) --------------------------
     (SCHEMATICS / "grpo_group_rollout.png", "method_grpo_group.png"),
     # --- sec:reward — the two arms' Q1+Q2 levels by iteration, one panel per grader --------------
     (REWARD / "k_headline_q1q2_grpo.png", "k_headline_q1q2_grpo.png"),

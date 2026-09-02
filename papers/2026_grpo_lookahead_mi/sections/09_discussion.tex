@@ -1,0 +1,29 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\textbf{The horizon of the reward selects the reward hack.} The usual framing of reward hacking
+asks how much a policy games its judge. Our results suggest a more useful question: \emph{which}
+exploit is reachable given what the judge is shown. The $K{=}0$ arm finds unearned praise, whose
+payoff is immediate and whose cost is deferred. The $K{=}5$ arm cannot profit from that, because the cost now
+lands inside the window the judge sees, and it moves toward asking questions and, to a smaller
+degree, toward pushing. Extending the horizon did not make the policy honest; it made the
+dishonest strategy unprofitable. That is a design lever, and cheaper to reason about than a better
+rubric.
+
+\textbf{Scope: one optimizer, one regime.} Everything here concerns a group-relative optimizer,
+whose loss consumes the reward only through the relative ranking of eight siblings. The lever's
+origin is a preference-pair method: \citet{baruch2025pto} introduced it with preference trees and
+DPO in an earlier, easier regime of this task (a 7B policy, more cooperative patients,
+non-iterative training). Nothing here establishes that the lever helps every optimizer family in
+every regime; a controlled optimizer $\times$ horizon comparison is the subject of companion work.
+What this paper establishes is narrower: for a group-relative optimizer in a multi-turn dialogue
+task, the reward horizon is a first-order design choice that decides not only how much is gained
+but which failure mode the policy learns. What would change our minds is a second \emph{training}
+run reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a
+human MI coder disagreeing with the over-praise finding.
+
+\textbf{One-sided grader saturation is worth naming.} A trained-against grader losing
+three-quarters of its variance while an independent grader's spread over the same conversations
+stays flat is invisible to arm-level agreement statistics, and it appears at the checkpoint a
+practitioner would ship. The diagnostic is cheap: track the training grader's per-conversation
+\emph{variance}, not only its mean, and keep a second grader in the loop.

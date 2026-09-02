@@ -366,8 +366,9 @@ Optimizer* — the full 2×2): §5 (cost) + budget appendix deleted; the two-win
 moved into §4 (`ssec:winners`); Limitations discloses matched-iterations ≠ matched-data (GRPO
 302,541 vs PTO 99,622 oracle calls over ten K=0 iterations = 3.04×; 289,983 vs 121,806 = 2.38×
 at K=5; sums over `compute/cost/tables/api_calls.md`). Ethics keeps only the ≈107 GPU-h total.
-   **P1** [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*Scoring the
-Continuation* — GRPO with look-ahead as the story): first archived when the ICLR 2027 plan was
+   **P1** [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*GRPO with
+Look-Ahead in Motivational Interviewing* — retitled and rewritten in full on 2026-09-02; was
+*Scoring the Continuation*): first archived when the ICLR 2027 plan was
 dropped, then **revived the same day per Lior** as a second ARR submission — ported to ACL
 format, PTO now cited openly as the lever's origin (`baruch2025pto`) with the contribution
 framed as "we moved look-ahead to GRPO", PTO arms still nowhere as data, ICLR §5 (cost/budget)
