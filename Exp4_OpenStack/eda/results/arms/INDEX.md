@@ -8,12 +8,12 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb`. Exp4 artifacts
 ## arms/outcomes
 
 **Figures** -- `figures/`
-- `endpoint_best_gemma4E2B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E2B, best state, Q1Q2)
-- `endpoint_final_gemma4E2B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E2B, final state, Q1Q2)
-- `trajectory_gemma4E2B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E2B)
+- `endpoint_best_gemma4E4B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E4B, best state, Q1Q2)
+- `endpoint_final_gemma4E4B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E4B, final state, Q1Q2)
+- `trajectory_gemma4E4B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E4B)
 
 **Tables** -- `tables/`
-- `coverage.md` -- Scored coverage per grader x arm x MODEL STATE (iteration 0 = untrained base). `personas` is the number of distinct persona_id values present; anything below 96 means the state is only partly scored, and every paired contrast elsewhere drops those personas from BOTH sides. `metrics` counts instruments, not items.
+- `coverage.md` -- Scored coverage per grader x arm x MODEL STATE (iteration 0 = untrained base). `personas` pools every instrument, so read `min_personas_per_metric` instead: it is the worst-covered instrument's count of distinct persona_ids with a non-null score, and it is what `complete_grid` is built from (together with the instrument count, so a wholly missing rubric also shows). Anything below 96 means the state is only partly scored on at least one instrument, and every paired contrast on it drops those personas from BOTH sides. `ungraded_cells` are rows the grader returned nothing for. `metrics` counts instruments, not items.
 - `descriptives.md` -- Per grader x arm x MODEL STATE x instrument: n personas, mean, SD, and a 2,000-resample percentile bootstrap CI of the mean ACROSS personas (seed=BOOT_SEED). `sign` is +1 where higher is better and -1 for MICI. These CIs are unpaired: do not read an arm difference off two of them.
 - `leaderboard.md` -- Final-state AND best-state endpoint per grader x instrument x arm. `gain_*` is signed by sign_of(metric) against the arm's own base (state 0), so POSITIVE IS BETTER on every instrument, MICI included; ranks are on the oriented mean. `past_peak` marks an arm whose best state is not its last -- reporting only one endpoint for those arms chooses the answer.
 - `leaderboard_focus.md` -- The leaderboard restricted to the training-reward axis (Q1Q2) -- the metric the policy was actually optimized against. Same signing and ranking rules.

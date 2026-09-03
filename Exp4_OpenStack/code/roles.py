@@ -10,8 +10,8 @@ Exp4 runs three LLM roles besides the therapist policy, and every one of them is
   which is why the score lake partitions on ``judge=<tag>`` instead of forcing a re-train.
 
 The whole point of Exp4 is that all three default to an **open model served locally**
-(``google/gemma-4-E2B-it`` behind a vLLM OpenAI-compatible server), so a full arm costs $0 in
-API. Exp3's binding constraint was the OpenAI bill, and on 2026-08-20 it stopped being
+(``google/gemma-4-E4B-it`` behind a vLLM OpenAI-compatible server; the E2B sibling is the
+documented fallback), so a full arm costs $0 in API. Exp3's binding constraint was the OpenAI bill, and on 2026-08-20 it stopped being
 theoretical -- an organization spend cap killed two Colab sessions outright. Nothing in this
 module is about saving money directly; it is about making the *role -> provider* edge a
 first-class, named thing so that flipping one role back to a vendor API (to sanity-check the
@@ -30,6 +30,9 @@ What this module owns
 3. :func:`plan_servers` -- the *deduplicated* set of vLLM servers a binding table requires.
    ``tools/vllm_serve.py`` turns that plan into processes; the plan itself is pure data, so the
    EDA and the smoke tests can reason about it without starting anything.
+4. :data:`DEFAULT_SERVE_UTIL` / :func:`default_serve_util` -- the ONE table of
+   ``gpu_memory_utilization`` per served model. The notebooks type the number in cell 1 and the
+   VRAM smoke checks both cards against this table, so a size change lands here first.
 
 Coming from Exp3? Three functions are GONE
 ------------------------------------------
@@ -60,7 +63,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import dataclass, field
-from typing import Dict, List, Optional, Tuple
+from typing import AbstractSet, Dict, FrozenSet, List, Mapping, Optional, Sequence, Tuple
 
 __all__ = [
     "DEFAULT_ORACLE_MODEL",
@@ -69,6 +72,8 @@ __all__ = [
     "DEFAULT_THERAPIST_MODEL",
     "PROVIDERS",
     "THINKING_OFF_EXTRA_BODY_JSON",
+    "DEFAULT_SERVE_UTIL",
+    "default_serve_util",
     "RoleBinding",
     "ServeSpec",
     "ORACLE_DEFAULT",
@@ -104,6 +109,50 @@ DEFAULT_JUDGE_MODEL = "google/gemma-4-E4B-it"
 #: Llama-3 chat template (single-special-token stopping, no ChatML self-play class), so it is the
 #: primary grid; the template-less base is the ``_ThL1B`` alternate arm.
 DEFAULT_THERAPIST_MODEL = "meta-llama/Llama-3.2-1B-Instruct"
+
+#: ``gpu_memory_utilization`` per served model -- THE table the notebooks' cell-1 value and the
+#: VRAM smoke arithmetic are both derived from. A FRACTION of the card, and a pre-allocation vLLM
+#: holds for its whole life (see :class:`ServeSpec`), sized from the MEASURED bf16 checkpoints (HF
+#: API, 2026-08-26): E4B 14.89 GiB, E2B 9.54 GiB. On the target A100 80 GB, 0.50 is a 40 GiB
+#: reservation (weights + a ~25 GiB KV pool); on the 40 GB fallback card the same 0.50 is 20 GiB
+#: (weights + ~4-5 GiB KV pool) -- thin but serving. E2B at 0.35 is 28 / 14 GiB respectively.
+#: The fraction is deliberately NOT raised on the 80 GB card: the trainer's spiky side (GRPO's
+#: 128-completion generate, DPO's full-sequence 128k-vocab logits) gets the slack, and a bigger
+#: KV pool buys concurrency the ~3.8k-token median oracle prompt does not need.
+#: ⚠ Any model not in this table has no sanctioned fraction: :func:`default_serve_util` raises
+#: unless the caller supplies a ``fallback`` it has done the arithmetic for.
+DEFAULT_SERVE_UTIL: Dict[str, float] = {
+    "google/gemma-4-E4B-it": 0.50,
+    "google/gemma-4-E2B-it": 0.35,
+}
+
+
+def default_serve_util(model_id: str, *, fallback: Optional[float] = None) -> float:
+    """The sanctioned ``gpu_memory_utilization`` for *model_id*, from :data:`DEFAULT_SERVE_UTIL`.
+
+    Args:
+        model_id: The model that will be served.
+        fallback: Value to return for a model the table does not know. ``None`` (the default)
+            makes an unknown model a ``ValueError`` -- a fraction nobody sized against the
+            weights is how the E4B server failed to load at the old flat 0.25.
+
+    Returns:
+        A fraction in ``(0, 1)``.
+
+    Raises:
+        ValueError: *model_id* is not in the table and no ``fallback`` was given.
+    """
+    try:
+        return float(DEFAULT_SERVE_UTIL[model_id])
+    except KeyError:
+        if fallback is None:
+            raise ValueError(
+                f"no sanctioned gpu_memory_utilization for {model_id!r}; DEFAULT_SERVE_UTIL knows "
+                f"{sorted(DEFAULT_SERVE_UTIL)}. Add the model there (sized from its measured bf16 "
+                f"checkpoint), or pass fallback= with a fraction you have done the arithmetic for."
+            ) from None
+        return float(fallback)
+
 
 #: The providers :func:`make_client` knows how to construct. ``openai_compat`` is any
 #: OpenAI-compatible server (vLLM, llama.cpp, TGI) -- same call shape, including
@@ -145,6 +194,56 @@ _MODEL_TAGS = {
     "meta-llama/Llama-3.2-1B-Instruct": "L1Bi",
 }
 
+#: Reverse of the curated table: tag -> the ids that deliberately share it. Two curated ids
+#: sharing a tag is a FAMILY (gpt-4o-mini and its dated snapshot); an UNCURATED id landing on a
+#: curated tag is a collision, and :func:`model_tag` refuses it -- see there.
+_CURATED_IDS_BY_TAG: Dict[str, Tuple[str, ...]] = {}
+for _model_id, _tag in _MODEL_TAGS.items():
+    _CURATED_IDS_BY_TAG[_tag] = _CURATED_IDS_BY_TAG.get(_tag, ()) + (_model_id,)
+del _model_id, _tag
+
+#: The tags that MORE THAN ONE curated id is allowed to share -- the sanctioned model FAMILIES.
+#: ``gpt4m`` is ``gpt-4o-mini`` plus its dated snapshot: the same grader under two spellings,
+#: and an arm trained under either belongs in the same folder. Every other tag must have exactly
+#: one curated owner. Declared explicitly because :func:`model_tag`'s collision guard only sees
+#: an UNCURATED id landing on a curated tag: two curated entries typed with the same tag (a
+#: copy-paste of an ``_MODEL_TAGS`` line, say) would be grouped silently, and two different
+#: models would share every arm folder and score partition named after that tag.
+#: :func:`_check_curated_tag_families` asserts the table against this set at import.
+_SANCTIONED_SHARED_TAGS: FrozenSet[str] = frozenset({"gpt4m"})
+
+
+def _check_curated_tag_families(ids_by_tag: Mapping[str, Sequence[str]],
+                                sanctioned: AbstractSet[str]) -> None:
+    """Refuse a curated table in which an UNSANCTIONED tag has more than one owner.
+
+    Args:
+        ids_by_tag: ``{tag: (model ids that map to it)}`` -- the reverse of a curated table.
+        sanctioned: The tags that may legitimately have several owners.
+
+    Raises:
+        ValueError: some tag outside *sanctioned* is owned by two or more ids. The message names
+            the tag and its owners, so the fix (a distinct tag, or an explicit addition to the
+            sanctioned set) is one edit away.
+
+    Notes:
+        Pure, so ``tools/smoke.py naming`` can run it against a deliberately broken table and
+        prove the guard still fires; the module calls it once on the real table at import.
+    """
+    offenders = {tag: tuple(owners) for tag, owners in ids_by_tag.items()
+                 if len(owners) > 1 and tag not in sanctioned}
+    if offenders:
+        raise ValueError(
+            f"roles._MODEL_TAGS groups different models under one tag without sanction: "
+            f"{offenders}. Two different models would share every arm folder and score "
+            f"partition named after that tag. Give each a distinct tag, or -- only for a real "
+            f"family (one grader under two spellings) -- add the tag to "
+            f"roles._SANCTIONED_SHARED_TAGS."
+        )
+
+
+_check_curated_tag_families(_CURATED_IDS_BY_TAG, _SANCTIONED_SHARED_TAGS)
+
 
 def _slugify(model_id: str) -> str:
     """Vendor-stripped alphanumeric tag: ``google/gemma-4-E2B-it`` -> ``gemma4E2B``.
@@ -177,16 +276,38 @@ def model_tag(model_id: str) -> str:
     Returns:
         ``[A-Za-z0-9]``-only tag; ``"none"`` for an empty/None id.
 
+    Raises:
+        ValueError: *model_id* is not in the curated table but slugs to a tag a curated model
+            already owns. ``_slugify`` strips ``-it``, so ``google/gemma-4-E4B`` (a base
+            checkpoint) would otherwise tag ``gemma4E4B`` -- the tag of the instruction-tuned
+            grader every default arm is named after -- and two different graders would share
+            a folder and a ``judge=`` partition. Add a curated entry with a distinct tag
+            instead of relying on the slugifier.
+
     Notes:
         This is one half of a round-trip that nothing else enforces: ``naming.py`` writes the
         tag into an arm name and the EDA reads it back out. The mapping is deliberately
-        many-to-one (``gpt-4o-mini`` and ``gpt-4o-mini-2024-07-18`` both tag as ``gpt4m``), so a
-        tag identifies a *model family for naming purposes*, not an exact snapshot. The exact
-        model id belongs in ``run_metadata.json``.
+        many-to-one WITHIN the curated table (``gpt-4o-mini`` and ``gpt-4o-mini-2024-07-18``
+        both tag as ``gpt4m``), so a tag identifies a *model family for naming purposes*, not
+        an exact snapshot. The exact model id belongs in ``run_metadata.json``. The families
+        allowed to share a tag are listed in :data:`_SANCTIONED_SHARED_TAGS` and the table is
+        checked against that list at import; an uncurated id may never land on a curated tag.
     """
     if not model_id:
         return "none"
-    return _MODEL_TAGS.get(model_id) or _slugify(model_id)
+    curated = _MODEL_TAGS.get(model_id)
+    if curated:
+        return curated
+    tag = _slugify(model_id)
+    owners = _CURATED_IDS_BY_TAG.get(tag)
+    if owners:
+        raise ValueError(
+            f"model_tag collision: {model_id!r} slugs to {tag!r}, the curated tag of "
+            f"{list(owners)}. Two different models would share every arm folder and score "
+            f"partition named after that tag. Add {model_id!r} to roles._MODEL_TAGS with a "
+            f"distinct tag."
+        )
+    return tag
 
 
 # ---------------------------------------------------------------------------
@@ -371,11 +492,11 @@ class ServeSpec:
         gpu_memory_utilization: vLLM's share of the card. This is a **pre-allocation, not a
             growing ceiling** -- vLLM grabs the fraction up front and keeps it. When the server
             shares a card with a live trainer this wants to be as low as the WEIGHTS allow and
-            the server must start FIRST, because training memory is the spiky side. Real
-            checkpoint sizes (HF API, 2026-08-26): Gemma-4-E4B-it 14.89 GiB bf16 -> 0.50 of a
-            40 GB A100 (20 GiB = weights + ~4-5 GiB KV pool); Gemma-4-E2B-it 9.54 GiB -> 0.35.
-            The dataclass default (0.25) fits neither on its own -- the notebooks pass the
-            model-derived value explicitly; the default exists for tests and planning.
+            the server must start FIRST, because training memory is the spiky side. The
+            sanctioned per-model fraction lives in :data:`DEFAULT_SERVE_UTIL` (E4B 0.50, E2B
+            0.35 -- 40 / 28 GiB on the target A100 80 GB, 20 / 14 GiB on the 40 GB fallback).
+            The dataclass default (0.25) fits neither Gemma on its own -- the notebooks pass
+            the table value explicitly; the default exists for tests and planning.
         max_model_len: Context window to allocate KV cache for.
             ⚠ **Do NOT lower this to save memory.** Measured on the 192 real Exp3 PTO_LA0
             transcripts, the full oracle prompt (rubric + transcript) runs to 9,319 tokens for Q1

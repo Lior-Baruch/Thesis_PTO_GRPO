@@ -1,4 +1,4 @@
-- **budget_sweep_gemma4E2B** -- No budget sweep for grader gemma4E2B.
+- **budget_sweep_gemma4E4B** -- No budget sweep for grader gemma4E4B.
 - **compute_trajectory** -- No timing log to plot. NO TIMING YET -- no runs/<ARM>/iteration_<N>/timing_sessions.jsonl on disk. The trainer writes it per phase; nothing here can be reconstructed after the fact.
-- **cost_benefit_gemma4E2B** -- No cost/score points for grader gemma4E2B.
+- **cost_benefit_gemma4E4B** -- No cost/score points for grader gemma4E4B.
 - **cost_breakdown** -- No timing log to plot. NO TIMING YET -- no runs/<ARM>/iteration_<N>/timing_sessions.jsonl on disk. The trainer writes it per phase; nothing here can be reconstructed after the fact.

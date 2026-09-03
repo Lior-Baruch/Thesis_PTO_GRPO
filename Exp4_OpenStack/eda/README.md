@@ -109,7 +109,7 @@ parallel, and a process-global "active grader" would be a race.
 them once per grader; Exp4 does not, because the interesting table puts the graders side by side —
 the default judge shares a model with the training oracle and a second judge is genuinely held out —
 and a directory named after one grader would assert something false about its own contents. A
-genuinely single-grader artifact gets a judge-qualified **name** (`outcomes_gemma4E2B`), never a
+genuinely single-grader artifact gets a judge-qualified **name** (`outcomes_gemma4E4B`), never a
 path level.
 
 ⚠ **Never average raw scores across judges.** One grader was the training oracle — the thing the
@@ -173,6 +173,23 @@ results moved" when only a clock did, and the one artifact that *did* change is 
 be reached by an explicit `from eda_analysis import scoring` — and that import is the point at which
 someone is choosing to spend.
 
+- **It runs on the GPU host, not locally.** The judge is served by vLLM on the card that trains
+  (Colab A100 80 GB, or a GPU server); the local 12 GB card cannot hold the E4B judge (14.89 GiB
+  of weights alone), so locally the notebook is a smoke test against a fake or remote endpoint.
+  Its setup cell carries the same Drive-mount preamble as the trainer notebooks (`COLAB_EDA_DIR`),
+  which is why **`eda/` is pushed to Drive beside `code/`** (additively; never `data/`) — the
+  scoring module and the canonical `code/` modules it imports both have to be on the mount. The
+  analysis families stay local: they read parquet and JSONL through the Drive symlinks.
+- **Its last cell is the prompt-length gate.** `scoring.gather_transcripts` →
+  `scoring.prompt_length_gate` → `scoring.check_prompt_length_gate` measures every real Exp4 oracle
+  prompt (through `tools.oracle_sanity.prompt_length_report`, in the served model's tokenizer)
+  against the server's `max_model_len` — the cap the server itself reports on `/tokenize`, never
+  the notebook's `SERVE_MAX_MODEL_LEN` literal (an adopted server keeps its launch-time cap; the
+  literal is forwarded only when no server is used, as the offline fallback, and a mismatch is
+  printed as a note); a prompt over the cap is a conversation that cannot be graded, and the ones
+  that overflow are the longest — arm- and K-dependent missingness. The gate refuses to pass when
+  the report function is absent or the report is undecidable, and an empty lake is a *vacuous*
+  pass that renders as one ("nothing measured"), not as a failed verdict.
 - **Arms auto-discover.** A run is scoreable as soon as its conversations land; nothing to register.
 - **Resume is by whole parquet.** The unit is one `(judge, rep, metric, arm, model state)` file of
   96 rows. A state whose parquet already exists is skipped entirely, so a second pass over a
@@ -183,6 +200,17 @@ someone is choosing to spend.
   "delete the partition and re-run" was not an available move. Here it is: drop
   `judge=<tag>/rep=<r>/metric=<M>/` and re-run. ⚠ The freedom ends the moment a binding points at a
   vendor API — then the lake is expensive again and Exp3's rules apply.
+
+## Fields the trainers write that the readers may or may not surface yet
+
+The pre-run review (see [`../history/CHANGELOG.md`](../history/CHANGELOG.md)) added artifacts on
+the write side. What the EDA does with each:
+
+| Artifact | Written by | Read by |
+|---|---|---|
+| `timing_sessions.jsonl` lines with `"partial": true` (`note: "training partial: checkpoint-N"`) | `core.timing.log_training_progress` from the trainers' `on_save`; the closing line from `finalize_training` | `data.load_timing` → `core.timing.cumulative_seconds`, unchanged: partial lines carry the same per-process token and **sum like any other line**, so `training_s` for a preempted-then-resumed iteration is the true total and `n_sessions_production` still counts processes, not lines. `compute/cost` needs no change. The flag is audit only. |
+| `iteration_metadata.json` → `peak_reserved_gib_<phase>` / `peak_allocated_gib_<phase>` — ONE flat shape for BOTH trainers since the 2026-09-03 repair round (phase ∈ `generate`, `build` (PTO only), `train`, `eval_generate`; `generate` is absent on a mid-training resume; `torch.cuda.max_memory_reserved` / `max_memory_allocated` per phase, stamped by the trainers) and `run_metadata.json` → a `runtime` block for BOTH methods (`gpu_total_gib` + its source, `vllm_version`, `package_versions` from `core.runtime.describe_environment`; PTO gained it in the same round) | trainers / `core.runtime.describe_environment` | No loader reads `iteration_metadata.json` today (its per-process timing fields are the Exp3 undercount, on purpose). Read the peak-memory keys by hand after the `QUICK_TEST` rehearsal — the same key names on both arms, so a GRPO-vs-PTO peak comparison is a flat join, not a reshape; `data.load_run_metadata` returns the whole dict, `runtime` block included. |
+| `generations.jsonl` candidate keys `not_graded_reason` (only when `score` is null: `oracle_failed` / `patient_error` / `gpu_error` / `prompt_overflow` / `parse_error`), `ended_by_candidate` (every candidate), `lookahead.stop_reason` | `core.reward.CandidateScore.to_record`, `core.lookahead.LookaheadResult.to_record`; on PTO rows `gpu_error` / `prompt_overflow` can also come from the branch sampler (`oracle_attempts == 0`, no `lookahead` dict) | **Columns of `data.load_generations`** since the 2026-09-02 gate pass: `not_graded_reason` (None on every graded row — so a NaN `score` no longer mixes a grader failure with a simulator failure), `ended_by_candidate` (bool) and `lookahead_stop_reason` (`""` ran to K / `session_ended` / `degenerate` / a not-graded reason). ⚠ For `ended_by_candidate` rows the reconstruction rule `prefix + "\n\n[THERAPIST]: " + completion + tail` no longer reproduces the graded text — split `completion` at `SESSION ENDED` first (`core.lookahead.split_session_end`). |
 
 ## Self-check
 
@@ -211,7 +239,7 @@ commit.**
 | [`eda_analysis/stats.py`](eda_analysis/stats.py) | `paired_arrays`, `paired_contrast`, `bootstrap_ci`, `holm`, `spearman`, `cohens_dz`, `orient_contrast`, `summarize_contrasts`. Repeated-measures by default; no scipy (the t tail and Spearman are ~40 lines of stdlib maths). |
 | [`eda_analysis/plotting.py`](eda_analysis/plotting.py) | One style, one deterministic arm palette, four reusable figure builders (`score_trajectory`, `arm_distribution`, `contrast_forest`, `cost_benefit`). Returns figures; never saves. |
 | `eda_analysis/_selfcheck.py` | The check suite above. |
-| `eda_analysis/scoring/` | The **paid** side: builds a grader client and writes the score lake. Never imported implicitly. |
+| [`eda_analysis/scoring.py`](eda_analysis/scoring.py) | The **paid** side: builds a grader client, writes the score lake, and carries the prompt-length gate (`gather_transcripts` / `prompt_length_gate` / `check_prompt_length_gate`). Never imported implicitly; runs on the GPU host. |
 | `tools/render_results.py` | Executes every family notebook headlessly and rebuilds the indices. |
 
 `import eda_analysis` loads only `constants` and `config`; pandas, matplotlib, seaborn and pyarrow
@@ -282,8 +310,10 @@ fixes upstream:
   one 96-row parquet per model state, not ~50k single-row CSVs. (`.eda_cache/` above is a different
   thing: a memo of *built frames*, not a re-fold of the lake.)
 - **No mtime forensics for compute.** The trainer appends per-phase wall-clock to
-  `runs/<ARM>/iteration_<N>/timing_sessions.jsonl`, so `compute/cost` reads a log instead of
-  reconstructing GPU-hours from artifact mtimes. `n_sessions_production > 1` means the iteration was
+  `runs/<ARM>/iteration_<N>/timing_sessions.jsonl` — and, for the training phase, a partial line at
+  every checkpoint save — so `compute/cost` reads a log instead of reconstructing GPU-hours from
+  artifact mtimes, and a preemption mid-training loses at most `save_steps` of wall-clock rather
+  than the whole phase. `n_sessions_production > 1` means the iteration was
   resumed — exactly the case Exp3's per-process fields got wrong. ⚠ **Not `n_sessions > 1`:** the
   post-loop final-eval pass appends an eval-gen-only session to each arm's LAST iteration (and every
   `tools/generate_convs.py` repair appends another), so the raw session count reports every healthy

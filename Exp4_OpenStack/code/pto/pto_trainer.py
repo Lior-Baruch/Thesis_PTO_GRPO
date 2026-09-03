@@ -31,9 +31,9 @@ i.e. it would slice the RESPONSE off and leave a pair whose chosen and rejected 
 Every prompt is therefore PRE-capped here with
 ``core.conversations.build_truncated_training_prompt`` (drop-oldest), and ``max_length`` is set to
 ``max_prompt_tokens + max_completion_length + DPO_FRAMING_HEADROOM_TOKENS`` so ``keep_start`` can
-never bite -- the headroom is there because TRL frames both halves before the collator sees them
-(a BOS on the prompt, an EOS appended to chosen/rejected), so the two configured numbers alone are
-two tokens short of the worst case. When the truncator
+never bite. The prompt budget is BOS-INCLUSIVE (``core.policy.count_prompt_tokens``); the
+headroom covers the EOS TRL appends to chosen/rejected and the retokenisation drift at the
+prompt/completion boundary -- see :data:`DPO_FRAMING_HEADROOM_TOKENS`. When the truncator
 returns ``None`` (even one most-recent turn exceeds the budget) the pair is skipped -- but in
 ``greedy`` mode the trunk still advances, because freezing a trunk over an unrenderable prompt
 would silently shorten every later branch point on it.
@@ -45,6 +45,13 @@ indentation AFTER the reload/build branch precisely so BOTH paths reach it befor
 written. The fix for an empty marker is to DELETE it and rebuild. It is never to lower
 ``PREF_FILTER_TAU``: tau is not encoded in ``EXPERIMENT_NAME``, so changing it mid-arm writes two
 different configurations into one folder with nothing on disk able to tell them apart.
+``pairs.csv`` is written ONLY after every EDA row of the build is on disk (see "Resume"), and that
+is ENFORCED, not assumed: the build's final flush is strict (an I/O failure raises instead of
+leaving rows buffered), and :func:`run_one_iteration` re-counts the rows in ``generations.jsonl``
+against the recorder and RAISES before touching the marker if they differ. The failure mode this
+closes: a Drive FUSE hiccup on the LAST append used to be swallowed, the marker was written
+anyway, and every later resume reloaded the pairs and skipped the build -- so the last depth's
+EDA rows were gone for good while the iteration read as complete.
 
 **3. Message lists are freed when a conversation finishes.** ``core.conversations`` calls
 ``release_messages()`` on every completed state, so a step-1 conversation reaching the greedy
@@ -52,6 +59,28 @@ grower has ``turns`` but empty ``messages_therapist`` / ``messages_patient``. Th
 ``turns`` via ``turns_to_messages`` / ``turns_to_patient_messages`` before growth starts; forgetting
 that yields trunks with no system prompt and no history, which generates plausible text and grades
 it against nothing.
+
+Two invariants the build ASSERTS rather than assumes
+----------------------------------------------------
+**The DPO prompt is byte-identical to the text the candidates were sampled from.** Branch
+candidates are drawn by ``core.policy.generate_therapist_batch`` from
+``build_prompt(messages_therapist, therapist_max_input_tokens)``; the pair's ``prompt`` comes from
+``build_truncated_training_prompt(turns, max_prompt_tokens)``. Those are one function over one
+message list, so they agree by construction -- and :func:`_assert_prompt_parity` re-renders both
+at every branch point and raises with a diff if they ever stop agreeing (a drifted
+``turns``/``messages_therapist`` bookkeeping, or two budgets that came apart). The two budgets are
+REQUIRED equal for PTO (:func:`_check_prompt_budgets`): GRPO's TRL path has no prompt cap of its own
+and trains on the extraction prompt, so keeping PTO on one budget is what keeps "trained on what
+it generated from" true for both methods.
+
+**The DPO prompt carries exactly ONE BOS.** trl 1.4.0's live tokenisation for a string-prompt
+dataset is ``DPOTrainer._prepare_dataset`` -> ``_tokenize`` -> ``processing_class(text=prompt)``
+(default ``add_special_tokens=True``; measured on the real Instruct tokenizer: ``prompt_ids ==
+core.policy.prompt_token_ids(prompt)``, one BOS). The collator (``DataCollatorForPreference``)
+consumes those ids and never re-tokenises. So the pair's ``prompt`` must be BOS-FREE -- which is
+what ``build_truncated_training_prompt`` returns -- and :func:`build_dpo_dataset` tokenises every
+prompt the way the live path does and refuses a dataset whose ids do not start with exactly one
+BOS. A prompt that already carried the BOS would be tokenised to ``[BOS, BOS, ...]`` (measured).
 
 Resume
 ------
@@ -61,13 +90,65 @@ after every conversation in independent) guarded by a config fingerprint that in
 ``greedy_trunk_target_len`` and ``seed``. A snapshot whose fingerprint differs is DISCARDED, never
 merged: half a build at one tau plus half at another is a folder nobody can interpret.
 
+The snapshot holds the trunks, the pairs so far, the counters and the NUMBER of EDA rows already
+on disk -- not the rows themselves. The EDA rows are APPENDED to ``iteration_N/eda/generations.jsonl``
+after every depth (:func:`_flush_eda_rows`), before the snapshot that counts them is written, so a
+resume re-reads exactly ``n_eda_flushed`` rows back into the recorder (:func:`_resume_eda_rows`)
+and never re-flushes them. A per-depth append that fails is retried at the next depth; the
+build's FINAL flush is strict and raises, and the marker step re-counts the file
+(:func:`_eda_rows_on_disk`) -- so ``pairs.csv`` is written only when ``generations.jsonl`` holds
+every row the recorder does. The old design rewrote every candidate, every look-ahead tail and
+every prefix into the snapshot at every depth (~45-95 MB x ~38 rewrites per iteration onto a
+Drive FUSE mount) and wrote ``pairs.csv`` BEFORE the recorder flushed, so a kill in between left
+a completion marker whose reload path never wrote the EDA rows.
+
+Known base-arm asymmetry (documented, not changed)
+--------------------------------------------------
+On the ChatML **base** therapist (``_ThL1B``) the two optimizers do not see the same end-of-turn
+token. The policy emits the turn terminator as the 6-BPE STRING ``<|im_end|>`` (ordinary pieces,
+not a special token), which ``core.conversations.clean_completion`` strips before the text
+reaches a pair; ``DPOTrainer``'s ``add_eos`` then appends the tokenizer's EOS --
+``<|end_of_text|>`` -- to ``chosen``/``rejected``, so DPO trains the base policy to end a turn on
+a token it never produces at generation time, while GRPO trains on the RAW emitted ids
+(``<|im_end|>`` pieces included). The **Instruct** arms (``_ThL1Bi``, the default) are consistent:
+the native template ends every turn on the special ``<|eot_id|>``, which is both what the policy
+emits and what ``add_eos`` appends. Left as is: changing either side would be a science change
+on the base arm alone, and the base arm is the alternate, not the default.
+
+**Mid-DPO resume at iteration >= 2 must restore the trained adapter itself.** ``DPOTrainer`` adds a
+``"ref"`` adapter to a PEFT policy, so every ``checkpoint-N/`` holds ``default`` at its root and
+``ref/`` as a subdirectory -- and transformers' ``_load_from_checkpoint`` (5.8.1, ``trainer.py``
+~:3390) loads ONLY the adapter subdirectories when any exist, never the root ``default``. A resumed
+iteration would then train its remaining steps from iteration-start weights and ship an
+undertrained adapter that reads as complete (reproduced on a tiny model). :func:`run_training_phase`
+therefore calls :func:`_restore_default_adapter_from_checkpoint` before ``train()``: the trainer's
+``ref`` copy (taken from the iteration-start policy at construction, ref log-probs precomputed
+there) is untouched by it. Iteration 1 (fresh ``peft_config``, no ``ref``, root-only checkpoint) is
+loaded by transformers itself and needs nothing.
+
 Timing
 ------
 The preference build is PTO's DOMINANT phase (5.7 of 8.1 h in the Exp3 measurement), so it is
 timed separately and logged through ``core.timing.log_session``. A resumed iteration that reloaded
 ``pairs.csv`` legitimately logs ``pref_pair_s = 0.0`` -- the earlier session already recorded the
 build -- which is exactly why the append-only per-session log, rather than one field, is what makes
-the total recoverable.
+the total recoverable. The DPO phase logs INCREMENTALLY: :class:`TrainingTimeCallback` writes the
+time accrued since the previous checkpoint at every ``on_save`` (``core.timing.log_training_progress``)
+and the phase closes with ``core.timing.finalize_training``, which logs only the remaining delta --
+so a preemption during the DPO step loses at most one save interval. Every training ATTEMPT
+opens with ``core.timing.begin_training_phase`` (immediately before the phase clock starts), so
+an in-kernel re-run of the loop cell after a crash measures its partials against zero rather
+than against the crashed attempt's ledger.
+
+Peak CUDA memory is recorded per phase in ``iteration_metadata.json`` as FLAT keys
+``peak_reserved_gib_<phase>`` / ``peak_allocated_gib_<phase>`` with the same phase vocabulary as
+GRPO where the two overlap -- ``generate``, ``train``, ``eval_generate`` (post-loop pass) -- plus
+PTO's own ``build``. The ``generate`` pair is OMITTED on a mid-training resume (a weights-only
+reload is not a generation phase and must not be read as its peak).
+
+Servers are probed at the phase boundaries (:func:`ensure_servers_alive` -- before the build,
+before the DPO step, before the final eval pass) when the notebook passes its ``server_handles``;
+a restart drops every cached client and the ``client_factory`` rebuilds the one in use.
 
 The per-iteration orchestration LOOP lives in ``train_pto.ipynb``; this module supplies the phases
 it composes.
@@ -82,6 +163,7 @@ from trl import DPOConfig, DPOTrainer  # isort: skip
 
 import asyncio
 import contextlib
+import difflib
 import functools
 import gc
 import json
@@ -90,7 +172,7 @@ import os
 import random
 import time
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple
 
 # datasets SECOND, still ahead of torch: pyarrow and torch each initialise native
 # runtimes and whichever goes first wins. MEASURED locally -- `import torch, datasets`
@@ -101,12 +183,12 @@ from datasets import Dataset
 
 import torch
 from peft import PeftModel
+from transformers import TrainerCallback
 
 from core.concurrency import AsyncPrimitives, run_async
 from core.config import GenConfig, PTOTrainingConfig, RunPaths, config_to_metadata
 from core.config import write_run_metadata as _write_metadata_payload
 from core.conversations import (
-    SESSION_END_KEYWORD,
     ConversationState,
     build_truncated_training_prompt,
     format_conversation_for_oracle,
@@ -117,25 +199,37 @@ from core.conversations import (
     turns_to_messages,
     turns_to_patient_messages,
 )
-from core.lookahead import LookaheadConfig, LookaheadState
+from core.lookahead import LookaheadConfig, LookaheadState, split_session_end
 from core.oracle import OracleConfig
 from core.policy import (
+    ADAPTER_FILES,
+    TRUNCATION_COUNTER,
+    build_prompt,
     generate_therapist_batch,
     list_hf_checkpoints,
     list_iteration_checkpoints,
     patch_generate,
+    tokenizer_adds_bos,
 )
 from core.recorder import (
     PHASE_INDEPENDENT,
     PHASE_TREE,
     EDARecorder,
     build_branch_record,
+    iter_jsonl,
     to_jsonable,
 )
 from core.reward import CandidateScore, score_pref_candidates
 from core.tb import patch_trainer_tensorboard_callback, setup_tensorboard_logging
-from core.timing import log_session, metadata_fields
-from roles import make_client
+from core.timing import (
+    begin_training_phase,
+    finalize_training,
+    log_session,
+    log_training_progress,
+    metadata_fields,
+)
+from roles import make_client, reset_client_cache
+from tools.vllm_serve import ensure_alive
 
 __all__ = [
     # Constants
@@ -147,8 +241,12 @@ __all__ = [
     "BRANCH_KIND_GREEDY",
     "BRANCH_KIND_INDEPENDENT",
     "DPO_FRAMING_HEADROOM_TOKENS",
-    # Results
+    "GPU_ERROR_REASON",
+    "PROMPT_OVERFLOW_REASON",
+    # Results / state
     "IterationResult",
+    "BranchSampleState",
+    "TrainingTimeCallback",
     # Preference-pair construction
     "slice_trunk_seeds",
     "grow_preference_trees_batch",
@@ -165,6 +263,7 @@ __all__ = [
     "build_dpo_dataset",
     "build_dpo_config",
     # Phases
+    "ensure_servers_alive",
     "run_generation_phase",
     "run_training_phase",
     "run_one_iteration",
@@ -211,19 +310,150 @@ BRANCH_KIND_GREEDY = "trunk_depth"
 BRANCH_KIND_INDEPENDENT = "patient_turn_index"
 
 #: Slack added to ``DPOConfig.max_length`` on top of ``max_prompt_tokens + max_completion_length``.
-#: TRL frames both halves after this module has measured them -- ``_prepare_dataset`` tokenizes the
-#: prompt through ``processing_class(text=...)`` (default ``add_special_tokens=True``, so BOS) and
-#: ``add_eos`` appends EOS to ``chosen``/``rejected`` -- which is +2 tokens neither configured knob
-#: describes. The rest absorbs detokenize->retokenize drift at the prompt/completion boundary.
+#: MEASURED on trl 1.4.0 with the real Llama-3.2 Instruct tokenizer (scratchpad probe, 2026-09-02):
+#: the live path ``_prepare_dataset`` -> ``_tokenize`` -> ``processing_class(text=prompt)`` prepends
+#: ONE BOS -- and that BOS is already INSIDE ``max_prompt_tokens``, because the pre-cap measures the
+#: prompt with ``core.policy.count_prompt_tokens`` (BOS-inclusive: ``prompt_ids ==
+#: prompt_token_ids(prompt)`` to the token). What the configured knobs do NOT describe is (a) the EOS
+#: ``add_eos`` appends to ``chosen``/``rejected`` (+1, measured: a 9-token completion becomes 10
+#: ids) and (b) retokenisation drift at the prompt/completion boundary -- TRL tokenises
+#: ``prompt + chosen`` as ONE string and slices at ``len(prompt_ids)``, so the completion ids can
+#: differ by a token or two from the completion tokenised alone. 8 covers both with margin.
 #: Without it, ``truncation_mode='keep_start'`` silently slices the end off the longest pairs, EOS
 #: included, which is exactly the failure the pre-cap exists to prevent.
 DPO_FRAMING_HEADROOM_TOKENS = 8
+
+#: ``not_graded_reason`` values this module writes on an EDA candidate that the BRANCH SAMPLER
+#: (not the oracle, not the look-ahead) failed to produce. ``core.reward`` knows only
+#: ``oracle_failed`` and the look-ahead stop reasons; these two are the sampler's own:
+#:   * :data:`GPU_ERROR_REASON` -- ``generate_therapist_batch`` failed for this candidate's chunk
+#:     at chunk size 1 (an OOM or a runtime error that survived the halving ladder);
+#:   * :data:`PROMPT_OVERFLOW_REASON` -- no prompt could be built: the newest turn alone exceeds
+#:     ``therapist_max_input_tokens`` (``generate_therapist_batch`` returned ``None`` for the item).
+#: Both carry ``score=None`` (excluded from the tau ranking, like an oracle failure) and
+#: ``degenerate=False`` (the policy produced nothing because it was never asked, not because it
+#: answered with an empty turn). ``gpu_error`` is spelled like ``core.lookahead``'s stop reason on
+#: purpose: the EDA reads one vocabulary for "the GPU side failed".
+GPU_ERROR_REASON = "gpu_error"
+PROMPT_OVERFLOW_REASON = "prompt_overflow"
 
 #: Mode tokens as ``PTOTrainingConfig.pref_tree_mode`` spells them (the arm name uses ``indep``).
 _MODE_GREEDY = "greedy"
 _MODE_INDEPENDENT = "independent"
 
 _LOG = "  "
+_GIB = 1024 ** 3
+
+
+# =============================================================================
+# BRANCH-SAMPLER STATE + THE TRAINING-TIME CALLBACK
+# =============================================================================
+
+
+@dataclass
+class BranchSampleState:
+    """Sticky state of the branch sampler across the depths of one build (one per iteration).
+
+    Mirrors ``core.lookahead.LookaheadState``: an OOM in :func:`_sample_completions_batch` halves
+    the generate chunk and the halving is STICKY here, so the OOM is paid once per build rather
+    than once per depth. The realised chunk is not in ``EXPERIMENT_NAME``, so it is recorded in the
+    iteration metadata -- the same reason the look-ahead sub-batch is.
+
+    Attributes:
+        chunk_size: the CURRENT generate chunk (candidates per ``generate`` call). ``None`` until
+            the first call, which seeds it from ``GenConfig.conversation_batch_size``.
+        oom_events: OOMs seen (each one halved the chunk, or froze a chunk of 1).
+        gpu_error_candidates: candidates left ungraded as :data:`GPU_ERROR_REASON`.
+        prompt_overflow_candidates: candidates left ungraded as :data:`PROMPT_OVERFLOW_REASON`.
+    """
+
+    chunk_size: Optional[int] = None
+    oom_events: int = 0
+    gpu_error_candidates: int = 0
+    prompt_overflow_candidates: int = 0
+
+    def as_metadata(self) -> Dict[str, Any]:
+        return {
+            "branch_chunk_final": self.chunk_size,
+            "branch_oom_events": int(self.oom_events),
+            "branch_gpu_error_candidates": int(self.gpu_error_candidates),
+            "branch_prompt_overflow_candidates": int(self.prompt_overflow_candidates),
+        }
+
+
+class TrainingTimeCallback(TrainerCallback):
+    """Log the DPO phase's wall-clock INCREMENTALLY, once per checkpoint save.
+
+    Args:
+        iter_dir: ``iteration_N/`` -- where ``timing_sessions.jsonl`` lives.
+        train_started_at: ``time.time()`` when :func:`run_training_phase` started its clock. The
+            SAME clock the phase's final ``training_s`` is read off, which is what lets
+            ``core.timing.log_training_progress`` (here) and ``core.timing.finalize_training``
+            (after ``train()`` returns) sum to exactly the phase's elapsed time.
+
+    Notes:
+        Without this, a Colab preemption during the DPO step left the whole phase off the cost
+        record (Exp3's undercount, again). Every failure is swallowed after a warning: telemetry
+        must never abort an optimizer step that cost GPU-hours to reach.
+    """
+
+    def __init__(self, *, iter_dir: str, train_started_at: float) -> None:
+        self.iter_dir = str(iter_dir)
+        self.train_started_at = float(train_started_at)
+
+    def on_save(self, args, state, control, **kwargs):  # noqa: D102 - TrainerCallback protocol
+        try:
+            log_training_progress(
+                self.iter_dir,
+                elapsed_s=time.time() - self.train_started_at,
+                note=f"checkpoint-{int(state.global_step)}",
+            )
+        except Exception as exc:  # noqa: BLE001 - telemetry must not fail a run
+            print(f"{_LOG}  WARNING: could not log training progress ({exc})")
+        return control
+
+
+def reset_peak_vram() -> None:
+    """Zero the CUDA peak-memory counters at a phase boundary. No-op without CUDA."""
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+
+
+def peak_vram_gib() -> Dict[str, float]:
+    """Peak CUDA memory since the last :func:`reset_peak_vram`, in GiB.
+
+    Returns:
+        ``{"peak_reserved_gib", "peak_allocated_gib"}`` -- the caching allocator's high-water
+        footprint (what the card actually had to hold) and the tensor-level peak. Zeros without
+        CUDA. Same shape as ``grpo_trainer.peak_vram_gib`` on purpose: the two methods' metadata
+        must be readable by one loader.
+
+    Notes:
+        Recorded per phase in ``iteration_metadata.json`` because the E4B-alongside-trainer
+        envelope on the A100 is arithmetic until measured; these numbers are the measurement.
+    """
+    if not torch.cuda.is_available():
+        return {"peak_reserved_gib": 0.0, "peak_allocated_gib": 0.0}
+    return {
+        "peak_reserved_gib": torch.cuda.max_memory_reserved() / _GIB,
+        "peak_allocated_gib": torch.cuda.max_memory_allocated() / _GIB,
+    }
+
+
+def _phase_peaks(label: str) -> Dict[str, float]:
+    """Read the phase's peaks, print them, and key them FLAT by *label* for the metadata record.
+
+    ``{"peak_reserved_gib_<label>", "peak_allocated_gib_<label>"}`` -- GRPO's shape and, where the
+    phases overlap, GRPO's vocabulary (``generate`` / ``train`` / ``eval_generate``); ``build`` is
+    PTO's own.
+    """
+    peaks = peak_vram_gib()
+    print(
+        f"{_LOG}Peak VRAM ({label}): reserved {peaks['peak_reserved_gib']:.2f} GiB, "
+        f"allocated {peaks['peak_allocated_gib']:.2f} GiB"
+    )
+    return {f"peak_reserved_gib_{label}": peaks["peak_reserved_gib"],
+            f"peak_allocated_gib_{label}": peaks["peak_allocated_gib"]}
 
 
 # =============================================================================
@@ -250,6 +480,15 @@ class IterationResult:
         lookahead_sub_batch: the sub-batch the look-ahead rollout ENDED the iteration at. It is
             not in ``EXPERIMENT_NAME``, so an OOM halving leaves no other trace and per-iteration
             wall-clock silently stops being comparable without it.
+        branch_chunk_final: the branch sampler's generate chunk at the end of the build (sticky
+            OOM halving, same reasoning as the look-ahead sub-batch); ``None`` when the build was
+            reloaded.
+        peak_vram: FLAT ``{"peak_reserved_gib_<phase>", "peak_allocated_gib_<phase>"}`` for the
+            phases ``generate`` (omitted on a mid-training resume), ``build`` and ``train`` --
+            GRPO's key shape, zeros without CUDA.
+        client: the async client in use when the iteration ENDED -- a fresh one when a vLLM
+            server was restarted at a phase boundary and a ``client_factory`` was given, else
+            the one passed in. Rebind the loop's client from it, exactly like ``policy``.
     """
 
     policy: Any
@@ -263,6 +502,9 @@ class IterationResult:
     adapter_dir: str
     pref_pairs_reloaded: bool
     lookahead_sub_batch: Optional[int]
+    branch_chunk_final: Optional[int] = None
+    peak_vram: Dict[str, float] = field(default_factory=dict)
+    client: Any = None
 
 
 # =============================================================================
@@ -301,39 +543,64 @@ async def _sample_completions_batch(
     max_input_tokens: int,
     stop_strings: Optional[Sequence[str]],
     chunk_size: int,
-) -> List[str]:
+    sample_state: Optional[BranchSampleState] = None,
+) -> Tuple[List[str], List[Optional[str]]]:
     """Sample one therapist completion per message-list, in GPU-bounded chunks.
 
     Args:
         batch_messages: therapist-perspective histories. The branch fan-out is expressed by
             REPEATING a trunk's history ``M`` times -- ``do_sample=True`` makes each draw
             independent, and one padded batch is far cheaper than ``M`` calls.
-        chunk_size: cap on one ``generate`` batch. ``trunks x M`` is 768 on the default grid;
-            issuing that as a single padded generate is a VRAM spike with no throughput benefit.
+        chunk_size: the STARTING cap on one ``generate`` batch (``GenConfig.conversation_batch_size``,
+            64 on the default grid = 8 trunks x M). ``trunks x M`` is 768; issuing that as a single
+            padded generate is a VRAM spike with no throughput benefit.
+        sample_state: the build's :class:`BranchSampleState`. Its ``chunk_size`` overrides
+            *chunk_size* once set, which is what makes the OOM halving sticky across depths.
 
     Returns:
-        One string per input, in order. ``""`` marks a completion that could not be produced --
-        either the model returned nothing usable (``clean_completion`` cut it to empty) or the
-        whole chunk failed. Both are treated identically downstream: the candidate is floored, is
-        excluded from the ranking, and is still recorded.
+        ``(completions, failures)``, both order-aligned with *batch_messages*.
+        ``completions[i]`` is the cleaned text, or ``""`` when nothing usable was produced;
+        ``failures[i]`` is ``None`` for a candidate the sampler actually drew (including a
+        degenerate ``""``), :data:`GPU_ERROR_REASON` when its chunk failed at chunk size 1, or
+        :data:`PROMPT_OVERFLOW_REASON` when no prompt could be built for it (the newest turn alone
+        exceeds *max_input_tokens*). A failed candidate's completion is ``""`` so the shared
+        scoring path skips it; :func:`_apply_sampling_failures` then replaces its
+        :class:`~core.reward.CandidateScore` with an ungraded one carrying the reason, so the EDA
+        row says "the GPU side failed" rather than "the policy emitted an empty turn".
 
     Notes:
+        **Halve-and-retry, like the look-ahead and the conversation loop.** A chunk that fails
+        (``(None, "oom")`` or ``(None, "runtime_error")`` from ``generate_therapist_batch``, which
+        never raises) is retried at half its size down to 1; only an OOM makes the halving sticky
+        (``sample_state.chunk_size``), because a runtime error is not a memory signal and the next
+        chunk goes back to the sticky size. A failure that persists at chunk size 1 fails ONLY that
+        candidate -- the other ``M-1`` siblings of its trunk still rank, and only a trunk whose
+        every candidate failed is frozen (:func:`_grow_therapist_depth`). The old behaviour
+        treated a whole failed chunk of 64 as degenerate, freezing 8 trunks over one transient
+        generate failure with no retry.
+
         The GPU lock is held across the generate and released between chunks, so an oracle call
         that is still in flight from an earlier depth is never blocked by it.
     """
     n = len(batch_messages)
     out: List[str] = [""] * n
+    failures: List[Optional[str]] = [None] * n
     if n == 0:
-        return out
+        return out, failures
+
+    state = sample_state if sample_state is not None else BranchSampleState()
+    if state.chunk_size is None:
+        state.chunk_size = max(1, int(chunk_size))
 
     loop = asyncio.get_running_loop()
     gpu_lock = primitives.gpu_lock()
     # [] means "no string stopping" (Instruct arms); None means the ChatML defaults. Collapsing
     # empty to None would silently re-enable string stopping on an arm configured without it.
     stops = list(stop_strings) if stop_strings is not None else None
-    chunk = max(1, int(chunk_size))
 
-    for start in range(0, n, chunk):
+    start = 0
+    chunk = max(1, int(state.chunk_size))     # the local ladder; reset to the sticky size per chunk
+    while start < n:
         sub = list(batch_messages[start:start + chunk])
         async with gpu_lock:
             with _inference_policy(model):
@@ -350,15 +617,73 @@ async def _sample_completions_batch(
                         stop_strings=stops,
                     ),
                 )
-        if error is not None or responses is None:
-            # The chunk's candidates stay "" -> floored, excluded from the ranking, recorded.
-            # Dropping the whole depth instead would freeze every trunk in the chunk over a
-            # transient generate failure.
-            print(f"{_LOG}  WARNING: branch sampling failed for a chunk of {len(sub)} ({error}); "
-                  f"those candidates are treated as degenerate")
+
+        if error is None and responses is not None:
+            for j, resp in enumerate(responses):
+                if resp is None:
+                    # Per-item contract of generate_therapist_batch: no prompt could be built.
+                    failures[start + j] = PROMPT_OVERFLOW_REASON
+                    state.prompt_overflow_candidates += 1
+                else:
+                    out[start + j] = resp
+            start += len(sub)
+            chunk = max(1, int(state.chunk_size))
             continue
-        for j, resp in enumerate(responses):
-            out[start + j] = resp or ""
+
+        if error == "oom":
+            state.oom_events += 1
+        if chunk > 1:
+            new_chunk = max(1, chunk // 2)
+            if error == "oom":
+                print(f"{_LOG}  Branch-sampling OOM: chunk {chunk} -> {new_chunk} (sticky), "
+                      f"retrying the same {len(sub)} candidates")
+                state.chunk_size = new_chunk
+            else:
+                print(f"{_LOG}  Branch-sampling {error}: retrying the same {len(sub)} candidates "
+                      f"at chunk {new_chunk}")
+            chunk = new_chunk
+            continue
+
+        # Chunk size 1 and still failing: this ONE candidate is lost, nothing else is.
+        failures[start] = GPU_ERROR_REASON
+        state.gpu_error_candidates += 1
+        print(f"{_LOG}  WARNING: branch sampling failed for one candidate at chunk size 1 "
+              f"({error}); it is recorded as {GPU_ERROR_REASON!r} and excluded from the ranking")
+        start += 1
+        chunk = max(1, int(state.chunk_size))
+
+    return out, failures
+
+
+def _apply_sampling_failures(
+    scored: Sequence[CandidateScore],
+    failures: Sequence[Optional[str]],
+    transcripts: Sequence[str],
+) -> List[CandidateScore]:
+    """Replace the score of every candidate the SAMPLER failed to draw with an ungraded one.
+
+    The shared scoring path saw those candidates as ``""`` and floored them as degenerate. That is
+    the right thing for the oracle batch (nothing to grade) but the wrong thing on the EDA row: a
+    degenerate candidate is a statement about the policy, a failed generate is not. The returned
+    :class:`~core.reward.CandidateScore` carries ``score=None`` (excluded from the tau ranking
+    exactly like an oracle failure), ``degenerate=False``, ``attempts=0`` and
+    ``not_graded_reason`` = :data:`GPU_ERROR_REASON` / :data:`PROMPT_OVERFLOW_REASON`.
+    """
+    out = list(scored)
+    for i, reason in enumerate(failures):
+        if reason is None:
+            continue
+        out[i] = CandidateScore(
+            completion="",
+            score=None,
+            sub_scores=None,
+            success=False,
+            attempts=0,
+            degenerate=False,
+            scored_text=str(transcripts[i]),
+            lookahead=None,
+            not_graded_reason=str(reason),
+        )
     return out
 
 
@@ -396,6 +721,198 @@ def _roles_for(best_idx: Optional[int], worst_idx: Optional[int], emitted: bool,
     if emitted and worst_idx is not None and idx == worst_idx:
         return "rejected"
     return "neither"
+
+
+def _pair_text(candidate: CandidateScore) -> str:
+    """The completion text a preference pair trains on: EXACTLY what the oracle graded.
+
+    ``core.reward`` grades a candidate that contains ``SESSION ENDED`` on the text BEFORE the
+    keyword (the explanation the model wrote after it is dropped, as in a saved conversation) and
+    keeps the keyword in ``CandidateScore.completion`` so :func:`_advance` can still freeze the
+    trunk. The pair must not inherit that keyword: its score describes the split text, and a DPO
+    pair whose ``chosen`` carries text the grader never read trains a preference nobody measured.
+    So for an ``ended_by_candidate`` candidate this returns the split text
+    (``core.lookahead.split_session_end``, the same rule the grader used); otherwise the cleaned
+    completion unchanged.
+    """
+    if candidate.ended_by_candidate:
+        return split_session_end(candidate.completion)[0]
+    return candidate.completion
+
+
+def _check_prompt_budgets(gen_cfg: GenConfig) -> None:
+    """PTO requires ONE prompt budget: the sampling budget IS the training budget.
+
+    ``therapist_max_input_tokens`` (``THERAPIST_MAX_INPUT_TOKENS``) is what the branch candidates
+    are sampled under; ``max_prompt_tokens`` (``MAX_ALLOWED_PROMPT_LENGTH``) is what the DPO
+    prompt is capped to. Both go through ``core.policy.build_prompt``, so when they are equal the
+    pair's prompt is byte-identical to the text the candidates were sampled from -- and when they
+    differ, the policy trains on a context it did not generate from (a different set of dropped
+    turns), which is precisely the mismatch GRPO cannot have: TRL's GRPO path has no prompt cap of
+    its own and trains on the extraction prompt as-is. Refusing keeps the two methods matched.
+
+    Raises:
+        ValueError: the two budgets differ.
+    """
+    a, b = int(gen_cfg.therapist_max_input_tokens), int(gen_cfg.max_prompt_tokens)
+    if a != b:
+        raise ValueError(
+            f"PTO needs THERAPIST_MAX_INPUT_TOKENS ({a}) == MAX_ALLOWED_PROMPT_LENGTH ({b}): the "
+            f"branch candidates are sampled from build_prompt(messages, {a}) and the DPO prompt is "
+            f"build_prompt(messages, {b}); unequal budgets train the policy on a context it never "
+            f"generated from. Set both cell-1 knobs to the same value."
+        )
+
+
+def _assert_prompt_parity(
+    sampled_prompt: Optional[str],
+    training_prompt: Optional[str],
+    *,
+    persona_id: Any,
+    branch_id: Any,
+) -> None:
+    """Refuse to continue when the DPO prompt is not the text the candidates were sampled from.
+
+    Both texts come from ``core.policy.build_prompt`` over ``turns_to_messages(turns, sp)`` at one
+    budget, so they agree by construction today. The assertion exists so that invariant cannot
+    rot silently -- a future change that lets ``messages_therapist`` drift from ``turns``, or
+    re-introduces a second budget, fails HERE with a diff, before an iteration of pairs trains a
+    policy on prompts it never saw.
+
+    Raises:
+        RuntimeError: the two renders differ (a ``None`` on one side only counts as a difference).
+    """
+    if sampled_prompt == training_prompt:
+        return
+    a = (sampled_prompt if sampled_prompt is not None else "<None>").splitlines()
+    b = (training_prompt if training_prompt is not None else "<None>").splitlines()
+    diff = list(difflib.unified_diff(a, b, fromfile="sampled_prompt", tofile="dpo_prompt",
+                                     lineterm="", n=1))
+    shown = "\n".join(diff[:40]) + ("\n..." if len(diff) > 40 else "")
+    raise RuntimeError(
+        f"PTO prompt parity violated (persona {persona_id}, branch {branch_id}): the text the "
+        f"branch candidates were sampled from (core.policy.build_prompt over messages_therapist at "
+        f"therapist_max_input_tokens) is not the DPO prompt (build_truncated_training_prompt over "
+        f"turns at max_prompt_tokens). Training on it would optimise a context the policy never "
+        f"generated from. Diff:\n{shown}"
+    )
+
+
+# -----------------------------------------------------------------------------
+# EDA rows: appended per depth, counted in the snapshot, never re-flushed on resume
+# -----------------------------------------------------------------------------
+
+
+def _eda_enabled(recorder: Optional[EDARecorder]) -> bool:
+    return recorder is not None and bool(getattr(recorder, "enabled", False))
+
+
+def _flush_eda_rows(recorder: Optional[EDARecorder], n_flushed: int, *,
+                    strict: bool = False) -> int:
+    """APPEND the recorder's rows past *n_flushed* to its ``out_path``. Returns the new count.
+
+    Called after every depth, BEFORE the ``_progress.json`` that records the count -- so the
+    snapshot can never claim rows that are not on disk. An append of zero rows still creates the
+    file, so its presence keeps meaning "this iteration's build ran".
+
+    On an I/O failure the rows are NOT counted as flushed (they stay in the recorder and are
+    retried at the next depth) and the file is rewritten from the rows known to be on disk, so a
+    torn trailing line from the failed append cannot survive into the next append.
+
+    Args:
+        strict: the build's FINAL flush passes True -- there is no "next depth" to retry at, so
+            the failure is re-raised as ``RuntimeError`` (after the same file normalisation)
+            instead of being swallowed. Without this the build returned normally with rows still
+            buffered and the marker step could not tell.
+
+    Raises:
+        RuntimeError: *strict* and the append failed. The last snapshot survives, so re-running
+            resumes the build at its final state rather than restarting it.
+
+    Notes:
+        The I/O is ``EDARecorder.append_to_disk`` / ``EDARecorder.rewrite`` -- the recorder owns
+        the line format, so the file stays readable by ``core.recorder.iter_jsonl`` and the EDA
+        whichever path wrote it. This wrapper adds only the retry policy above.
+    """
+    if not _eda_enabled(recorder):
+        return 0
+    n_flushed = max(0, min(int(n_flushed), len(recorder.records)))
+    n_new = len(recorder.records) - n_flushed
+    try:
+        return recorder.append_to_disk(n_flushed)
+    except (OSError, ValueError) as exc:
+        print(f"{_LOG}  WARNING: could not append {n_new} EDA row(s) to "
+              f"{os.path.basename(recorder.out_path)} ({exc}); they stay buffered"
+              + ("" if strict else " and are retried next depth"))
+        try:
+            recorder.rewrite(recorder.records[:n_flushed])
+        except OSError:
+            pass
+        if strict:
+            raise RuntimeError(
+                f"the preference build finished but its last {n_new} EDA row(s) could not be "
+                f"written to {recorder.out_path} ({type(exc).__name__}: {exc}). pairs.csv is NOT "
+                f"written -- a completion marker over a generations.jsonl missing its final "
+                f"depth would make every later resume skip the build for good. Fix the mount "
+                f"and re-run; the build resumes from its last snapshot."
+            ) from exc
+        return n_flushed
+
+
+def _eda_rows_on_disk(recorder: Optional[EDARecorder]) -> int:
+    """Count the newline-terminated rows in the recorder's file (0 when disabled or absent).
+
+    The marker step's independent check: it does not trust the count the build reported, it
+    reads the file. A torn trailing line (no newline) is not counted, which is the right answer
+    -- ``iter_jsonl`` would not parse it either. Raw line counting rather than JSON parsing, so
+    a ~100 MB file on a FUSE mount costs one sequential read, not a parse.
+    """
+    if not _eda_enabled(recorder) or not os.path.exists(recorder.out_path):
+        return 0
+    n = 0
+    with open(recorder.out_path, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            n += chunk.count(b"\n")
+    return n
+
+
+def _resume_eda_rows(recorder: Optional[EDARecorder], n_expected: int) -> int:
+    """Reload exactly *n_expected* rows from disk into the recorder. Returns the count restored.
+
+    The snapshot says how many rows were on disk when it was written; anything past that (a
+    partial line from a kill mid-append, rows from a depth whose snapshot never landed) is
+    dropped, and the file is rewritten to exactly the restored rows so the next append starts on
+    a clean line boundary. Fewer readable rows than expected is a warning, not an error: the
+    build state is ahead of the EDA file by those rows, and rebuilding hours of trunks to recover
+    audit rows is the wrong trade.
+    """
+    if not _eda_enabled(recorder):
+        return 0
+    rows = list(iter_jsonl(recorder.out_path))
+    if len(rows) < int(n_expected):
+        print(f"{_LOG}  WARNING: {os.path.basename(recorder.out_path)} holds {len(rows)} readable "
+              f"row(s) but the snapshot counted {int(n_expected)}; the missing branch rows are "
+              f"lost (the build state is ahead of the EDA file)")
+    rows = rows[:max(0, int(n_expected))]
+    recorder.records = rows
+    try:
+        recorder.rewrite(rows)
+    except OSError as exc:
+        print(f"{_LOG}  WARNING: could not normalise {os.path.basename(recorder.out_path)} "
+              f"({exc})")
+    return len(rows)
+
+
+def _reset_eda_rows(recorder: Optional[EDARecorder]) -> None:
+    """Start a build from scratch: empty buffer, empty file (a stale file from a discarded
+    snapshot must not be appended to)."""
+    if not _eda_enabled(recorder):
+        return
+    recorder.clear()
+    try:
+        recorder.rewrite([])
+    except OSError as exc:
+        print(f"{_LOG}  WARNING: could not reset {os.path.basename(recorder.out_path)} ({exc})")
 
 
 def _record_branch(
@@ -519,10 +1036,17 @@ def write_pairs_csv(pairs: Sequence[Dict[str, Any]], path: str) -> str:
     Warning:
         This file is the Step-2 COMPLETION MARKER as well as the audit trail. Writing it declares
         the build finished, so it must be written only after the build actually completed -- never
-        as a checkpoint. ``_progress.json`` is the checkpoint.
+        as a checkpoint -- AND only after the build's EDA rows are on disk (they are appended per
+        depth, so by the time the build returns they are). ``_progress.json`` is the checkpoint.
 
         An empty ``pairs`` still writes a file, on purpose: the marker means "the build ran", and
         the zero-pairs guard in :func:`run_one_iteration` is what turns that into a loud failure.
+
+        ``chosen`` / ``rejected`` hold EXACTLY the text the oracle graded (:func:`_pair_text`): for
+        a candidate that closed the session that is the text before ``SESSION ENDED`` -- the
+        keyword and the model's explanation after it are not in the pair, just as they are not in
+        the graded transcript. The full completion (keyword included) is on the EDA row, and the
+        chosen one still advanced (and froze) the trunk.
 
         Columns are forced into :data:`PAIR_COLUMNS` order (extras kept after), so the header does
         not depend on dict insertion order at the two build sites and the EDA's read-side contract
@@ -586,26 +1110,28 @@ def _write_progress(
     fingerprint: Dict[str, Any],
     persona_ids: Sequence[int],
     pairs: Sequence[Dict[str, Any]],
-    eda_records: Sequence[Dict[str, Any]],
+    n_eda_flushed: int,
     depth: int = 0,
     processed_persona_ids: Optional[Sequence[int]] = None,
     trunks: Optional[Sequence[Dict[str, Any]]] = None,
+    sample_state: Optional[BranchSampleState] = None,
 ) -> None:
     """Snapshot in-build Step-2 state so an interrupted build resumes where it stopped.
 
-    Written after every lock-step depth (greedy) or every conversation (independent). Cheap
-    relative to the phase it protects -- the build is hours, the snapshot is trunk text plus the
-    pairs so far -- and atomic, so a crash during the write cannot corrupt the previous one.
+    Written after every lock-step depth (greedy) or every conversation (independent), AFTER that
+    depth's EDA rows were appended to ``generations.jsonl`` (:func:`_flush_eda_rows`). Small by
+    design -- trunk text, the pairs so far, the counters and ``n_eda_flushed`` -- and atomic, so a
+    crash during the write cannot corrupt the previous one.
 
     Notes:
         A snapshot failure is logged and swallowed. Losing the ability to resume costs a rebuild;
         aborting the build to report a failed telemetry write costs the same rebuild plus the work
         already done.
 
-        The snapshot carries the EDA records, which on a ``K=5`` arm are dominated by the per-
-        candidate look-ahead tails. ``SAVE_LOOKAHEAD_TRANSCRIPTS=False`` drops those tails at
-        APPEND time, so it shrinks this file as well as ``generations.jsonl`` -- it is the size
-        lever for both.
+        The EDA rows are deliberately NOT in here. They used to be, which made every rewrite
+        carry every candidate, every look-ahead tail and every prefix of the build so far
+        (~45-95 MB on a K=5 arm, ~38 times per iteration, onto a Drive FUSE mount). Now the
+        snapshot records only how many rows are already on disk.
     """
     if not progress_path:
         return
@@ -618,7 +1144,8 @@ def _write_progress(
         "processed_persona_ids": sorted(int(p) for p in (processed_persona_ids or [])),
         "trunks": list(trunks or []),
         "pairs": list(pairs),
-        "eda_records": list(eda_records or []),
+        "n_eda_flushed": int(n_eda_flushed),
+        "sample_state": (sample_state.as_metadata() if sample_state is not None else None),
     }
     try:
         _atomic_write_text(progress_path, json.dumps(to_jsonable(snapshot), ensure_ascii=False))
@@ -702,7 +1229,10 @@ def _advance(state: ConversationState, content: str, speaker: str) -> bool:
         state.active = False
         return False
 
-    if SESSION_END_KEYWORD in content.upper():
+    # One matcher for "did this turn close the session" -- the conversation loop's, via
+    # core.lookahead.split_session_end -- so a trunk freezes at exactly the turn a saved
+    # conversation would have ended on.
+    if split_session_end(content)[1]:
         ended_by, explanation, cleaned = handle_session_end(content, speaker)
         state.session_ended_by = ended_by
         state.session_ended_explanation = explanation.strip()
@@ -800,6 +1330,7 @@ async def _grow_therapist_depth(
     recorder: Optional[EDARecorder],
     iteration: int,
     lookahead_state: Optional[LookaheadState],
+    sample_state: Optional[BranchSampleState] = None,
 ) -> None:
     """One branching (therapist) depth across every live trunk, in lock-step.
 
@@ -812,13 +1343,22 @@ async def _grow_therapist_depth(
         about the two candidates, not about the trunk; freezing the trunk there would make trunk
         length a function of tau and quietly shorten the context of every arm with a larger one.
 
-        The prompt is snapshotted BEFORE the winner is appended -- it is the context the chosen
-        completion was sampled from, so taking it afterwards would train the model to produce a
-        turn it has already seen.
+        **The prompt is rendered BEFORE sampling and asserted against the sampler's render**
+        (:func:`_assert_prompt_parity`): it is the context the chosen completion was sampled from,
+        so taking it after the winner is appended would train the model to produce a turn it has
+        already seen, and taking it from a different render would train it on a context it never
+        generated from.
 
-        Trunks with no scorable candidate at all (every completion degenerate, or every oracle
-        call failed) are frozen: there is nothing to append, and appending an empty turn would
-        corrupt the trunk for every later depth.
+        **A pair's ``chosen``/``rejected`` is the text the oracle graded** (:func:`_pair_text`):
+        a candidate that closed the session is graded on the text before ``SESSION ENDED`` and
+        the pair carries exactly that; the trunk is still advanced with the FULL completion so it
+        freezes as ended (``_advance``), and the chosen role is recorded on the EDA row either way.
+
+        Trunks with no scorable candidate at all (every completion degenerate, every oracle call
+        failed, or every candidate lost to the sampler -- ``gpu_error`` / ``prompt_overflow``,
+        see :func:`_apply_sampling_failures`) are frozen: there is nothing to append, and
+        appending an empty turn would corrupt the trunk for every later depth. One failed
+        candidate never freezes a trunk; its ``M-1`` siblings still rank.
     """
     M = int(train_cfg.num_branches_per_turn)
 
@@ -826,8 +1366,25 @@ async def _grow_therapist_depth(
     # `messages_therapist`: turns carry their own speaker names and cannot be mislabelled.
     transcripts = [format_conversation_for_oracle(t.conv.turns) for t in active]
     flat_messages = [t.conv.messages_therapist for t in active for _ in range(M)]
+    flat_transcripts = [transcripts[i // M] for i in range(len(flat_messages))]
 
-    completions = await _sample_completions_batch(
+    # The DPO prompt per trunk, rendered from the SAME messages the sampler is about to render
+    # from, and checked against that render before any GPU or oracle work is spent on the depth.
+    prompts: List[Optional[str]] = []
+    for trunk in active:
+        sampled_prompt, _ = build_prompt(
+            trunk.conv.messages_therapist, tokenizer, int(gen_cfg.therapist_max_input_tokens),
+        )
+        training_prompt = build_truncated_training_prompt(
+            trunk.conv.turns, sp_therapist, tokenizer, gen_cfg.max_prompt_tokens,
+        )
+        _assert_prompt_parity(
+            sampled_prompt, training_prompt,
+            persona_id=trunk.conv.persona_id, branch_id=trunk.conv.n_utterances,
+        )
+        prompts.append(training_prompt)
+
+    completions, failures = await _sample_completions_batch(
         model,
         tokenizer,
         primitives,
@@ -837,6 +1394,7 @@ async def _grow_therapist_depth(
         max_input_tokens=gen_cfg.therapist_max_input_tokens,
         stop_strings=gen_cfg.stop_strings,
         chunk_size=gen_cfg.conversation_batch_size,
+        sample_state=sample_state,
     )
 
     # One scoring call for the whole depth. Degenerate ("") candidates cost nothing here: the
@@ -848,22 +1406,24 @@ async def _grow_therapist_depth(
         oracle_cfg,
         la_cfg,
         primitives,
-        transcripts=[transcripts[i // M] for i in range(len(flat_messages))],
+        transcripts=flat_transcripts,
         completions=completions,
         sp_therapist=sp_therapist,
         sp_patient_list=[active[i // M].patient_system_prompt for i in range(len(flat_messages))],
         enforce_success_ratio=True,
         lookahead_state=lookahead_state,
     )
+    scored = _apply_sampling_failures(scored, failures, flat_transcripts)
 
     for ti, trunk in enumerate(active):
         block = scored[ti * M:(ti + 1) * M]
         ranked = _eligible(block)
 
         if not ranked:
-            # Nothing scorable: every completion was degenerate or every oracle call failed.
-            # Record the branch anyway -- an all-degenerate branch point is itself a finding --
-            # then freeze, because appending an empty turn would corrupt every later depth.
+            # Nothing scorable: every completion was degenerate, every oracle call failed, or the
+            # sampler lost every candidate. Record the branch anyway -- an all-degenerate branch
+            # point is itself a finding, and the EDA row carries each candidate's reason -- then
+            # freeze, because appending an empty turn would corrupt every later depth.
             _record_branch(
                 recorder,
                 phase=PHASE_TREE, iteration=iteration,
@@ -879,9 +1439,7 @@ async def _grow_therapist_depth(
         best_score, best_idx = max(ranked)
         worst_score, worst_idx = min(ranked)
 
-        prompt = build_truncated_training_prompt(
-            trunk.conv.turns, sp_therapist, tokenizer, gen_cfg.max_prompt_tokens,
-        )
+        prompt = prompts[ti]
         branch_depth = trunk.conv.n_utterances
         emitted = (
             len(ranked) >= 2
@@ -906,8 +1464,8 @@ async def _grow_therapist_depth(
         if emitted:
             trunk.pairs.append({
                 "prompt": prompt,
-                "chosen": block[best_idx].completion,
-                "rejected": block[worst_idx].completion,
+                "chosen": _pair_text(block[best_idx]),
+                "rejected": _pair_text(block[worst_idx]),
                 "chosen_score": best_score,
                 "rejected_score": worst_score,
                 "margin": float(best_score) - float(worst_score),
@@ -918,6 +1476,7 @@ async def _grow_therapist_depth(
             })
 
         # The greedy feedback: the chosen completion becomes the context of the NEXT branch point.
+        # The FULL completion, keyword included, so a session-closing winner freezes the trunk.
         _advance(trunk.conv, block[best_idx].completion, ROLE_THERAPIST)
 
 
@@ -974,6 +1533,7 @@ async def grow_preference_trees_batch(
     progress_path: Optional[str] = None,
     lookahead_state: Optional[LookaheadState] = None,
     patient_seed: Optional[int] = None,
+    sample_state: Optional[BranchSampleState] = None,
 ) -> List[Dict[str, Any]]:
     """Grow every trunk lock-step and return the preference pairs they emitted (greedy mode).
 
@@ -994,6 +1554,8 @@ async def grow_preference_trees_batch(
             makes the look-ahead's OOM sub-batch halving sticky across depths -- omit it and the
             OOM is re-paid at every one of the ~20 depths an iteration runs.
         patient_seed: forwarded to the patient calls; servers that ignore it are unaffected.
+        sample_state: ONE :class:`BranchSampleState` for the build -- the branch sampler's own
+            sticky OOM halving, same reasoning as *lookahead_state*.
 
     Returns:
         A flat list of pair dicts, :data:`PAIR_COLUMNS` -- the same shape the independent path
@@ -1002,13 +1564,19 @@ async def grow_preference_trees_batch(
 
     Raises:
         RuntimeError: propagated from the shared scoring path when the oracle success rate falls
-            below ``oracle_cfg.min_success_ratio``. The last depth's ``_progress.json`` survives,
-            so fixing the grader and re-running resumes rather than restarting.
+            below ``oracle_cfg.min_success_ratio``, or from :func:`_assert_prompt_parity`. The
+            last depth's ``_progress.json`` survives, so fixing the cause and re-running resumes
+            rather than restarting.
 
     Notes:
         **The message lists are rebuilt from ``turns`` here.** Seeds arrive with empty ones (see
         the module docstring); without this the trunks would grow with no system prompt and no
         history.
+
+        **EDA rows land on disk after every depth** (:func:`_flush_eda_rows`, appended to
+        ``recorder.out_path``) and the snapshot written right after counts them, so a resume
+        reloads exactly those rows (:func:`_resume_eda_rows`) and never writes one twice. A
+        fresh build (no usable snapshot) truncates any stale file first.
 
         Growth stops when every trunk is frozen or has reached the target length --
         ``gen_cfg.num_utterances_for_data``, lowered by ``train_cfg.greedy_trunk_target_len`` when
@@ -1042,6 +1610,7 @@ async def grow_preference_trees_batch(
         progress_path, mode=_MODE_GREEDY, iteration=iteration,
         fingerprint=fingerprint, persona_ids=persona_ids,
     )
+    n_eda_flushed = 0
     if snapshot is not None:
         saved = {int(t["persona_id"]): t for t in snapshot.get("trunks", [])}
         n_restored = 0
@@ -1060,10 +1629,12 @@ async def grow_preference_trees_batch(
             n_restored += 1
         carried = list(snapshot.get("pairs", []))
         depth = int(snapshot.get("depth", 0))
-        if recorder is not None and getattr(recorder, "enabled", False):
-            recorder.records = list(snapshot.get("eda_records", []))
+        n_eda_flushed = _resume_eda_rows(recorder, int(snapshot.get("n_eda_flushed", 0)))
+        _restore_sample_state(sample_state, snapshot)
         print(f"{_LOG}[resume] greedy: restored {n_restored} trunks at depth {depth}, "
-              f"{len(carried)} pairs carried")
+              f"{len(carried)} pairs carried, {n_eda_flushed} EDA rows already on disk")
+    else:
+        _reset_eda_rows(recorder)
 
     target_len = int(gen_cfg.num_utterances_for_data)
     if train_cfg.greedy_trunk_target_len is not None:
@@ -1096,6 +1667,7 @@ async def grow_preference_trees_batch(
                 train_cfg=train_cfg, gen_cfg=gen_cfg,
                 recorder=recorder, iteration=iteration,
                 lookahead_state=lookahead_state,
+                sample_state=sample_state,
             )
         else:
             await _grow_patient_depth(
@@ -1106,12 +1678,13 @@ async def grow_preference_trees_batch(
 
         depth += 1
         all_pairs = carried + [p for t in trunks for p in t.pairs]
+        # Rows first, then the snapshot that counts them -- never the other way round.
+        n_eda_flushed = _flush_eda_rows(recorder, n_eda_flushed)
         _write_progress(
             progress_path,
             mode=_MODE_GREEDY, iteration=iteration, fingerprint=fingerprint,
             persona_ids=persona_ids, pairs=all_pairs,
-            eda_records=(recorder.records if (recorder is not None
-                                              and getattr(recorder, "enabled", False)) else []),
+            n_eda_flushed=n_eda_flushed,
             depth=depth,
             trunks=[{
                 "persona_id": int(t.conv.persona_id),
@@ -1121,13 +1694,27 @@ async def grow_preference_trees_batch(
                 "session_ended_by": t.conv.session_ended_by,
                 "session_ended_explanation": t.conv.session_ended_explanation,
             } for t in trunks],
+            sample_state=sample_state,
         )
 
         if gen_cfg.verbose:
             print(f"{_LOG}[tree] depth {depth} ({speaker}): {len(active)} active trunks, "
                   f"{len(all_pairs)} pairs so far")
 
+    # No-op when every depth flushed itself; creates the (empty) file when no depth ran at all;
+    # STRICT because it is the last chance -- rows a per-depth append left buffered must reach
+    # the disk here or the build must fail, never return with the marker step none the wiser.
+    _flush_eda_rows(recorder, n_eda_flushed, strict=True)
     return carried + [p for t in trunks for p in t.pairs]
+
+
+def _restore_sample_state(sample_state: Optional[BranchSampleState],
+                          snapshot: Dict[str, Any]) -> None:
+    """Carry the sticky branch chunk across a resume (the counters stay per-process)."""
+    saved = snapshot.get("sample_state") or {}
+    chunk = saved.get("branch_chunk_final")
+    if sample_state is not None and chunk:
+        sample_state.chunk_size = max(1, int(chunk))
 
 
 # =============================================================================
@@ -1151,6 +1738,7 @@ async def build_pref_pairs_for_conversation(
     recorder: Optional[EDARecorder] = None,
     iteration: int = 0,
     lookahead_state: Optional[LookaheadState] = None,
+    sample_state: Optional[BranchSampleState] = None,
 ) -> List[Dict[str, Any]]:
     """Every preference pair one PRE-RECORDED conversation yields (independent mode).
 
@@ -1208,13 +1796,20 @@ async def build_pref_pairs_for_conversation(
         prefix_messages = turns_to_messages(partial, sp_therapist)
         transcript = format_conversation_for_oracle(partial)
 
-        completions = await _sample_completions_batch(
+        # Same invariant as greedy: the pair trains on the text the candidates were sampled from.
+        sampled_prompt, _ = build_prompt(
+            prefix_messages, tokenizer, int(gen_cfg.therapist_max_input_tokens),
+        )
+        _assert_prompt_parity(sampled_prompt, prompt, persona_id=state.persona_id, branch_id=i)
+
+        completions, failures = await _sample_completions_batch(
             model, tokenizer, primitives, [prefix_messages] * M,
             temperature=train_cfg.branch_sample_temperature,
             max_tokens=train_cfg.branch_max_tokens,
             max_input_tokens=gen_cfg.therapist_max_input_tokens,
             stop_strings=gen_cfg.stop_strings,
             chunk_size=gen_cfg.conversation_batch_size,
+            sample_state=sample_state,
         )
 
         scored = await score_pref_candidates(
@@ -1226,6 +1821,7 @@ async def build_pref_pairs_for_conversation(
             enforce_success_ratio=True,
             lookahead_state=lookahead_state,
         )
+        scored = _apply_sampling_failures(scored, failures, [transcript] * M)
 
         ranked = _eligible(scored)
         best_score, best_idx = (max(ranked) if ranked else (0.0, None))
@@ -1249,8 +1845,8 @@ async def build_pref_pairs_for_conversation(
         if emitted:
             pairs.append({
                 "prompt": prompt,
-                "chosen": scored[best_idx].completion,
-                "rejected": scored[worst_idx].completion,
+                "chosen": _pair_text(scored[best_idx]),
+                "rejected": _pair_text(scored[worst_idx]),
                 "chosen_score": best_score,
                 "rejected_score": worst_score,
                 "margin": float(best_score) - float(worst_score),
@@ -1280,6 +1876,7 @@ async def build_pref_pairs_independent(
     iteration: int = 0,
     progress_path: Optional[str] = None,
     lookahead_state: Optional[LookaheadState] = None,
+    sample_state: Optional[BranchSampleState] = None,
 ) -> List[Dict[str, Any]]:
     """Run :func:`build_pref_pairs_for_conversation` over every usable conversation.
 
@@ -1288,6 +1885,7 @@ async def build_pref_pairs_independent(
 
     Resume-aware: with *progress_path* set, a snapshot is written after every conversation and a
     matching one lets a restart skip the conversations already done and carry their pairs forward.
+    EDA rows are appended per conversation and counted in the snapshot, exactly as in greedy.
     """
     usable = [s for s in states if not (s.failed or len(s.turns) <= 1)]
     persona_ids = sorted(int(s.persona_id) for s in usable)
@@ -1295,6 +1893,7 @@ async def build_pref_pairs_independent(
 
     all_pairs: List[Dict[str, Any]] = []
     processed: set = set()
+    n_eda_flushed = 0
 
     snapshot = _load_progress(
         progress_path, mode=_MODE_INDEPENDENT, iteration=iteration,
@@ -1303,10 +1902,12 @@ async def build_pref_pairs_independent(
     if snapshot is not None:
         all_pairs = list(snapshot.get("pairs", []))
         processed = {int(p) for p in snapshot.get("processed_persona_ids", [])}
-        if recorder is not None and getattr(recorder, "enabled", False):
-            recorder.records = list(snapshot.get("eda_records", []))
+        n_eda_flushed = _resume_eda_rows(recorder, int(snapshot.get("n_eda_flushed", 0)))
+        _restore_sample_state(sample_state, snapshot)
         print(f"{_LOG}[resume] independent: {len(processed)} conversations already done, "
-              f"{len(all_pairs)} pairs carried")
+              f"{len(all_pairs)} pairs carried, {n_eda_flushed} EDA rows already on disk")
+    else:
+        _reset_eda_rows(recorder)
 
     for state in usable:
         if int(state.persona_id) in processed:
@@ -1319,22 +1920,26 @@ async def build_pref_pairs_independent(
             train_cfg=train_cfg, gen_cfg=gen_cfg,
             recorder=recorder, iteration=iteration,
             lookahead_state=lookahead_state,
+            sample_state=sample_state,
         )
         all_pairs.extend(pairs)
         processed.add(int(state.persona_id))
 
+        n_eda_flushed = _flush_eda_rows(recorder, n_eda_flushed)
         _write_progress(
             progress_path,
             mode=_MODE_INDEPENDENT, iteration=iteration, fingerprint=fingerprint,
             persona_ids=persona_ids, pairs=all_pairs,
-            eda_records=(recorder.records if (recorder is not None
-                                              and getattr(recorder, "enabled", False)) else []),
+            n_eda_flushed=n_eda_flushed,
             processed_persona_ids=sorted(processed),
+            sample_state=sample_state,
         )
         if gen_cfg.verbose:
             print(f"{_LOG}[indep] {state.conversation_id}: {len(pairs)} pair(s) "
                   f"({len(all_pairs)} total)")
 
+    # Strict for the same reason as the greedy grower's final flush: no next depth to retry at.
+    _flush_eda_rows(recorder, n_eda_flushed, strict=True)
     return all_pairs
 
 
@@ -1362,6 +1967,7 @@ async def build_pref_pairs_async(
     progress_path: Optional[str] = None,
     lookahead_state: Optional[LookaheadState] = None,
     patient_seed: Optional[int] = None,
+    sample_state: Optional[BranchSampleState] = None,
 ) -> List[Dict[str, Any]]:
     """Build this iteration's preference pairs, dispatching on ``train_cfg.pref_tree_mode``.
 
@@ -1371,8 +1977,11 @@ async def build_pref_pairs_async(
     Raises:
         ValueError: unknown ``pref_tree_mode``. ``core.config.validate_config`` catches this at
             config time; the second check is here because a mode typo that silently fell through
-            to greedy would produce an arm whose name says ``_PTindep``.
+            to greedy would produce an arm whose name says ``_PTindep``. Also from
+            :func:`_check_prompt_budgets` when the sampling and training prompt budgets differ.
     """
+    _check_prompt_budgets(gen_cfg)
+
     # Re-resolve the client on THIS loop (make_client is loop-keyed): the notebook built its
     # handle outside any loop, and pooled keep-alive connections cannot cross loops -- a stale
     # handle poisons the build's first oracle/patient calls with APIConnectionError. Built from
@@ -1394,6 +2003,7 @@ async def build_pref_pairs_async(
             train_cfg=train_cfg, gen_cfg=gen_cfg, patient_binding=patient_binding,
             recorder=recorder, iteration=iteration, progress_path=progress_path,
             lookahead_state=lookahead_state, patient_seed=patient_seed,
+            sample_state=sample_state,
         )
 
     if mode in (_MODE_INDEPENDENT, "indep"):
@@ -1405,6 +2015,7 @@ async def build_pref_pairs_async(
             train_cfg=train_cfg, gen_cfg=gen_cfg,
             recorder=recorder, iteration=iteration, progress_path=progress_path,
             lookahead_state=lookahead_state,
+            sample_state=sample_state,
         )
 
     raise ValueError(
@@ -1452,11 +2063,47 @@ def build_lora_config(train_cfg: PTOTrainingConfig):
     )
 
 
+def _assert_single_bos(pairs: Sequence[Dict[str, Any]], tokenizer) -> None:
+    """Refuse a DPO dataset whose prompts would not tokenise to exactly ONE leading BOS.
+
+    Tokenises every prompt the way trl 1.4.0's live path does -- ``processing_class(text=prompt)``
+    inside ``DPOTrainer._tokenize`` (``_prepare_dataset``; the collator consumes the resulting
+    ``prompt_ids`` and never re-tokenises) -- and checks ``ids[:2]``: a BOS first, and NOT a second
+    one. A prompt that already carried the BOS text would double it (measured: ``[BOS, BOS, ...]``
+    on the real Instruct tokenizer); a tokenizer that adds none has nothing to double and is
+    skipped.
+
+    Raises:
+        ValueError: with the offending pair index. Cheap enough to run on every pair (a fast
+            tokenizer over ~700 x 2k-token prompts is seconds), and the failure it prevents is a
+            policy trained on a prompt shape it never generates from.
+    """
+    bos_id = getattr(tokenizer, "bos_token_id", None)
+    if bos_id is None or not tokenizer_adds_bos(tokenizer):
+        return
+    bos_text = getattr(tokenizer, "bos_token", None) or ""
+    for i, pair in enumerate(pairs):
+        prompt = str(pair["prompt"])
+        if bos_text and prompt.startswith(bos_text):
+            raise ValueError(
+                f"build_dpo_dataset: pair {i} carries the BOS text {bos_text!r} in its prompt; "
+                f"trl's processing_class(text=...) adds one itself, so the model would train on a "
+                f"double BOS. Prompts must be BOS-free (core.policy.strip_leading_bos)."
+            )
+        ids = list(tokenizer(text=prompt)["input_ids"])
+        if len(ids) < 2 or int(ids[0]) != int(bos_id) or int(ids[1]) == int(bos_id):
+            raise ValueError(
+                f"build_dpo_dataset: pair {i} tokenises to ids[:2]={ids[:2]} under trl's live "
+                f"path; expected exactly one leading BOS ({bos_id})."
+            )
+
+
 def build_dpo_dataset(
     pairs: Sequence[Dict[str, Any]],
     *,
     eval_split_ratio: float,
     seed: int,
+    tokenizer=None,
     verbose: bool = True,
 ) -> Tuple[Dataset, Dataset]:
     """Split the pairs by CONVERSATION and return ``(train_dataset, eval_dataset)``.
@@ -1466,13 +2113,17 @@ def build_dpo_dataset(
             ``chosen`` / ``rejected`` / ``conversation_id`` are read.
         eval_split_ratio: fraction of CONVERSATIONS (not pairs) held out.
         seed: shuffles the conversation order, so the split is reproducible across a resume.
+        tokenizer: when given, every prompt is checked with :func:`_assert_single_bos` -- the
+            trainer always passes it; it is optional only so a smoke test can build a dataset
+            with a stub tokenizer.
 
     Returns:
         Two HuggingFace ``Dataset`` objects with exactly the columns ``DPOTrainer`` consumes:
         ``prompt``, ``chosen``, ``rejected``.
 
     Raises:
-        ValueError: *pairs* is empty, or every conversation landed in eval.
+        ValueError: *pairs* is empty, every conversation landed in eval, or a prompt would not
+            tokenise to exactly one leading BOS.
 
     Notes:
         **The split is conversation-level, not pair-level.** Greedy emits many pairs from one
@@ -1486,6 +2137,8 @@ def build_dpo_dataset(
             "build_dpo_dataset received 0 preference pairs. Every branch point either tied within "
             "PREF_FILTER_TAU or was filtered out by MIN_CONV_LENGTH."
         )
+    if tokenizer is not None:
+        _assert_single_bos(pairs, tokenizer)
 
     groups: Dict[Any, List[Dict[str, Any]]] = {}
     for pair in pairs:
@@ -1558,20 +2211,35 @@ def build_dpo_config(
         the three together make ``keep_start`` unreachable. Changing any of them re-arms the
         failure, and it is silent: the pairs still train, on truncated completions.
 
-        The headroom is not slack. TRL frames both halves AFTER this module has measured them:
-        ``_prepare_dataset`` tokenizes the prompt with ``processing_class(text=...)``, whose
-        default ``add_special_tokens=True`` prepends BOS, and ``add_eos`` appends the EOS the DPO
-        loss is supposed to score to ``chosen``/``rejected``. That is +2 tokens the configured
-        numbers do not describe, plus a token or two of detokenize->retokenize drift at the
-        prompt/completion boundary -- so a deep branch point that lands exactly at
-        ``max_prompt_tokens`` paired with a completion that ran to the token cap would have its
-        last tokens sliced off BOTH sides of the pair, on precisely the longest contexts.
+        The headroom is not slack. The prompt half is measured BOS-inclusively by the pre-cap
+        (``core.policy.count_prompt_tokens``), so the one BOS trl's ``processing_class(text=...)``
+        prepends is already inside ``max_prompt_tokens``; what the configured numbers do not
+        describe is the EOS ``add_eos`` appends to ``chosen``/``rejected`` (+1) plus a token or
+        two of retokenisation drift at the prompt/completion boundary (trl tokenises
+        ``prompt + chosen`` as one string and slices at ``len(prompt_ids)``) -- see
+        :data:`DPO_FRAMING_HEADROOM_TOKENS` for the measurement. Without it, a deep branch point
+        that lands exactly at ``max_prompt_tokens`` paired with a completion that ran to the token
+        cap would have its last tokens sliced off BOTH sides of the pair, on precisely the longest
+        contexts.
 
         **``per_device_train_batch_size`` is the memory lever, and 2 is not a placeholder.** DPO
         materialises full-SEQUENCE LM-head logits over a 128k vocab for four forward passes
         (chosen/rejected x policy/reference), so the tensor scales with
         ``batch x seq_len x 128k``. Raise ``gradient_accumulation_steps`` instead: 2 x 8 is 16
-        pairs per optimizer step, matched to GRPO's 16 prompts per step.
+        pairs per optimizer step, matched to GRPO's 16 prompts per step. Exp3 measured this
+        exact shape (2 x 8 + grad-ckpt) at ~17 GB peak in its DPO step and an OOM at 16 x 1 on
+        an 80 GB A100 (78.5/80 GB) -- the ~38 GiB the trainer has beside the vLLM server on
+        the 80 GB card is room for the look-ahead, not for a bigger per-device batch.
+
+        **``disable_dropout`` is passed explicitly from ``train_cfg.disable_dropout`` (the ONE
+        definition on ``TrainingConfigBase``, default True; cell-1 ``DISABLE_DROPOUT``), and
+        ``LORA_DROPOUT`` is 0.0 to match.** trl's ``DPOConfig`` defaults it to True (it zeroes
+        every ``nn.Dropout`` in the policy at construction, LoRA's included) while ``GRPOConfig``
+        defaults it to False, so both trainers pass the same config field rather than trusting
+        their own TRL default -- the two optimizers then see the same deterministic policy at the
+        forward pass, and a deliberate change is one edit that both methods and both metadata
+        records pick up. Leaving ``LORA_DROPOUT`` at 0.05 under it would record a dropout the DPO
+        step never applied (``core.config.validate_config`` warns).
 
         ``precompute_ref_log_probs`` computes the reference log-probs in a no-grad pre-pass, which
         is semantically identical for DPO (the reference is frozen anyway) and frees the reference
@@ -1613,6 +2281,9 @@ def build_dpo_config(
         beta=float(train_cfg.dpo_beta),
         loss_type=str(train_cfg.dpo_loss_type),
         bf16=True,
+        # Explicit, from the SAME config field GRPO passes: both optimizers train the policy
+        # under one dropout setting, and the iteration metadata stamps the value actually used.
+        disable_dropout=bool(train_cfg.disable_dropout),
         precompute_ref_log_probs=bool(train_cfg.precompute_ref_log_probs),
         gradient_checkpointing=bool(train_cfg.gradient_checkpointing),
         gradient_checkpointing_kwargs={"use_reentrant": False},
@@ -1630,6 +2301,55 @@ def build_dpo_config(
     )
 
 
+def _restore_default_adapter_from_checkpoint(model, checkpoint: str) -> bool:
+    """Load the ROOT ``default`` adapter of an HF checkpoint into a PEFT policy. Returns whether it did.
+
+    Why the trainer cannot be left to do this: ``DPOTrainer`` adds a ``"ref"`` adapter to a PEFT
+    policy (iteration >= 2, and every mid-iteration resume of one), so ``checkpoint-N/`` holds
+    ``default`` at its root and ``ref/`` as a subdirectory. transformers 5.8.1's
+    ``Trainer._load_from_checkpoint`` (``trainer.py`` ~:3390) then takes the subdirectory branch --
+    it loads every adapter SUBDIR and ``set_adapter``s the active one -- and never loads the root,
+    so the trained ``default`` weights stay at iteration start (reproduced on a tiny model; see
+    the module docstring). ``peft.PeftModel.load_adapter`` on an EXISTING adapter name skips the
+    config/``add_adapter`` path and just ``set_peft_model_state_dict``s the weights into it
+    (``peft_model.py`` 0.19.1, :1381-1410), which is exactly the missing load.
+
+    Ordering: call this AFTER ``DPOTrainer`` is constructed (its ``ref`` copy and the precomputed
+    reference log-probs are taken from the iteration-start policy at ``__init__``; ``ref`` is not
+    touched here) and BEFORE ``train(resume_from_checkpoint=...)`` (which then loads ``ref/`` from
+    the checkpoint -- the same iteration-start weights -- and re-activates ``default``).
+
+    A root-only checkpoint (iteration 1: fresh ``peft_config``, no ``ref``) is loaded correctly by
+    transformers itself; loading it here too is harmless and keeps one code path.
+
+    Raises:
+        RuntimeError: ``default`` is not the active adapter afterwards, or its parameters are not
+            trainable -- either would mean the resumed step trains the wrong weights.
+    """
+    if not isinstance(model, PeftModel):
+        return False
+    if not all(os.path.isfile(os.path.join(checkpoint, f)) for f in ADAPTER_FILES):
+        return False
+    model.load_adapter(checkpoint, "default", is_trainable=True)
+    model.set_adapter("default")
+
+    active = model.active_adapter
+    active = active if isinstance(active, str) else list(active)[0]
+    if active != "default":
+        raise RuntimeError(
+            f"after restoring the checkpoint adapter the active adapter is {active!r}, not "
+            f"'default'; the resumed DPO step would train the wrong weights"
+        )
+    grads = [p.requires_grad for n, p in model.named_parameters()
+             if ".default." in n and "lora_" in n]
+    if not grads or not all(grads):
+        raise RuntimeError(
+            "the restored 'default' adapter is not trainable (requires_grad=False on some of its "
+            "LoRA parameters); the resumed DPO step would not update it"
+        )
+    return True
+
+
 def run_training_phase(
     *,
     policy,
@@ -1644,6 +2364,7 @@ def run_training_phase(
     lora_config=None,
     tensorboard_log_dir: Optional[str] = None,
     callbacks: Optional[Sequence[Any]] = None,
+    iter_dir: Optional[str] = None,
 ) -> Tuple[Any, int, float]:
     """Run one iteration's DPO update. Returns ``(updated_policy, step_delta, seconds)``.
 
@@ -1658,10 +2379,17 @@ def run_training_phase(
             ``n+1`` from iteration ``n``'s optimizer state.
         tensorboard_log_dir: normally ``iteration_N/training/tb_logs``.
         callbacks: extra ``TrainerCallback``s.
+        iter_dir: ``iteration_N/``. When given, a :class:`TrainingTimeCallback` logs the phase's
+            time incrementally at every checkpoint save; the caller then closes the phase with
+            ``core.timing.finalize_training(iter_dir, seconds, ...)`` using the RETURNED seconds
+            (same clock) -- never with ``log_session(training_s=...)``, which would double-count.
+            Every call is a training ATTEMPT: ``core.timing.begin_training_phase(iter_dir)`` is
+            invoked immediately before the phase clock starts, so an in-kernel re-run after a
+            crash measures its partials against zero, not against the crashed attempt's ledger.
 
     Returns:
         ``updated_policy`` is what TRL hands back -- possibly a NEW wrapper. The caller must rebind
-        its own policy variable from it.
+        its own policy variable from it. ``seconds`` is this process's elapsed time in the phase.
 
     Notes:
         ``patch_generate`` is re-applied on BOTH sides of ``train()``: the trainer installs a fresh
@@ -1669,10 +2397,19 @@ def run_training_phase(
         ``stop_strings`` is silently inert at the next generation phase and the policy self-plays
         ChatML into the saved conversations.
 
+        On a resume the checkpoint's ROOT ``default`` adapter is loaded explicitly
+        (:func:`_restore_default_adapter_from_checkpoint`) between trainer construction and
+        ``train()`` -- transformers loads only adapter subdirectories when ``ref/`` exists.
+
         Unlike GRPO, PTO's EDA rows are all produced BEFORE training starts (during the preference
         build), so there is no recorder snapshot to keep aligned with a mid-training checkpoint --
         the HF fast-forward-on-resume hazard does not apply here.
     """
+    if iter_dir:
+        # A new ATTEMPT on this iteration in this process: reset the per-process partial-line
+        # ledger BEFORE the clock starts (core.timing module docstring), or a second attempt's
+        # partials read as negative deltas and its whole training time vanishes from the record.
+        begin_training_phase(iter_dir)
     started = time.time()
     policy.config.use_cache = False
     policy.train()
@@ -1687,6 +2424,10 @@ def run_training_phase(
         # Must precede the Trainer: TensorBoardCallback reads the env var in __init__.
         setup_tensorboard_logging(tensorboard_log_dir)
 
+    all_callbacks: List[Any] = list(callbacks) if callbacks else []
+    if iter_dir:
+        all_callbacks.append(TrainingTimeCallback(iter_dir=iter_dir, train_started_at=started))
+
     trainer = DPOTrainer(
         model=policy,
         args=dpo_args,
@@ -1694,7 +2435,7 @@ def run_training_phase(
         train_dataset=train_dataset,
         eval_dataset=(eval_dataset if (eval_dataset is not None and len(eval_dataset) > 0) else None),
         peft_config=peft_cfg,
-        callbacks=list(callbacks) if callbacks else None,
+        callbacks=all_callbacks or None,
     )
 
     if tensorboard_log_dir and "tensorboard" in tuple(train_cfg.report_to):
@@ -1705,6 +2446,9 @@ def run_training_phase(
     resume = resume_checkpoint if (iteration == start_iteration and resume_checkpoint) else None
     if resume:
         print(f"{_LOG}Resuming from HF checkpoint: {os.path.basename(resume)}")
+        if _restore_default_adapter_from_checkpoint(trainer.model, resume):
+            print(f"{_LOG}  restored the checkpoint's root 'default' adapter into the policy "
+                  f"(transformers loads only adapter subdirs when ref/ is present)")
     trainer.train(resume_from_checkpoint=resume)
 
     patch_generate(trainer.model, tokenizer)
@@ -1720,6 +2464,72 @@ def run_training_phase(
 
     print(f"{_LOG}Training complete in {elapsed:.1f}s ({step_delta} optimizer steps)")
     return updated, step_delta, elapsed
+
+
+# =============================================================================
+# SERVER PROBE (phase boundaries)
+# =============================================================================
+
+
+def ensure_servers_alive(
+    handles: Optional[Mapping[str, Any]],
+    *,
+    client_factory: Optional[Callable[[], Any]] = None,
+    phase: str = "",
+) -> Optional[Any]:
+    """Probe every vLLM server at a phase boundary; relaunch any that stopped answering.
+
+    A local equivalent of ``grpo_trainer.ensure_servers_alive`` (same signature, same contract)
+    rather than an import of it: pulling ``grpo_trainer`` in here would import ``GRPOTrainer``
+    into every PTO process for one 20-line helper.
+
+    Args:
+        handles: the ``{model: ServerHandle}`` dict ``tools.vllm_serve.serve_roles`` returned.
+            ``None`` or empty is a no-op -- an arm whose roles are all vendor APIs has no
+            process to watch.
+        client_factory: builds a fresh async client. Called only when a server was actually
+            restarted.
+        phase: label for the log line (``"build"``, ``"train"``, ...).
+
+    Returns:
+        A fresh client when a restart happened AND *client_factory* was supplied; ``None``
+        otherwise. ``None`` means "keep using the client you have".
+
+    Raises:
+        RuntimeError: from :func:`tools.vllm_serve.ensure_alive` when a handle exhausts its
+            restart budget -- a server that keeps dying is a configuration problem (almost
+            always ``gpu_memory_utilization`` colliding with the trainer's peak) and should stop
+            the run rather than present itself as a mysterious slowdown.
+
+    Notes:
+        **A restart invalidates every cached client.** ``roles.make_client`` caches by binding,
+        and a cached client holds a connection pool to a process that no longer exists; the
+        symptom is a burst of connection errors on the next phase, blamed on the wrong thing.
+        ``roles.reset_client_cache()`` is called after any restart, so the build's own
+        ``make_client(oracle_cfg.binding)`` re-resolves onto the live process; the client the
+        CALLER holds is only rebuilt when it gave a factory, so that case warns loudly instead
+        of pretending it recovered.
+    """
+    if not handles:
+        return None
+    restarted = 0
+    for handle in list(handles.values()):
+        before = int(getattr(handle, "restarts", 0))
+        ensure_alive(handle)
+        if int(getattr(handle, "restarts", 0)) > before:
+            restarted += 1
+    if not restarted:
+        return None
+
+    dropped = reset_client_cache()
+    label = f" before {phase}" if phase else ""
+    print(f"{_LOG}vLLM: {restarted} server(s) restarted{label}; dropped {dropped} cached client(s)")
+    if client_factory is None:
+        print(f"{_LOG}  WARNING: a vLLM server was restarted but no client_factory was given -- "
+              f"the client still in use holds a connection pool to the dead process. Rebuild it "
+              f"with roles.make_client(binding) before the next phase.")
+        return None
+    return client_factory()
 
 
 # =============================================================================
@@ -1798,7 +2608,7 @@ def run_generation_phase(
 # =============================================================================
 
 
-def write_run_metadata(*cfgs: Any) -> str:
+def write_run_metadata(*cfgs: Any, extra: Optional[Mapping[str, Any]] = None) -> str:
     """Serialise the config bundle to ``run_metadata.json`` + ``run_metadata_history.jsonl``.
 
     Args:
@@ -1808,6 +2618,11 @@ def write_run_metadata(*cfgs: Any) -> str:
                 write_run_metadata(train_cfg, roles_cfg, gen_cfg, oracle_cfg, la_cfg, paths)
 
             The :class:`~core.config.RunPaths` among them says where to write.
+        extra: anything runtime-only worth recording under a ``runtime`` key, mirroring
+            ``grpo_trainer.write_run_metadata`` -- the host, ``core.runtime.describe_environment()``
+            (card GiB, vLLM version, package versions: what tells an 80 GB run from a 40 GB one),
+            the serve specs, the measured server weights, the oracle-sanity verdict. Passed
+            through ``core.recorder.to_jsonable``; absent means no ``runtime`` key at all.
 
     Returns:
         The path of the current-metadata file.
@@ -1834,6 +2649,8 @@ def write_run_metadata(*cfgs: Any) -> str:
             "bundle from build_pto_config(globals()), paths included."
         )
     payload = config_to_metadata(*cfgs)
+    if extra is not None:
+        payload["runtime"] = to_jsonable(dict(extra))
     path = _write_metadata_payload(payload, paths)
     print(f"{_LOG}Run metadata: {path}")
     return path
@@ -1858,23 +2675,20 @@ def save_iteration_checkpoint(
         recreates ``"ref"`` at the start of the next iteration.
 
     Notes:
-        The existence of ``iteration_<N>/adapter/`` is the ONLY definition of "iteration done" --
-        ``core.policy.resolve_start_state``, the EDA and the eval-generation tool all key on it. So
-        this is the last thing an iteration does, after the metadata that describes it.
+        The adapter's FILES in ``iteration_<N>/adapter/`` are the ONLY definition of "iteration
+        done" -- ``core.policy.resolve_start_state``, the EDA and the eval-generation tool all key
+        on them. So the adapter is written LAST, after the metadata that describes the iteration
+        and after the tokenizer: a kill between the two can then only leave an iteration that
+        reads as incomplete (and is resumed), never one that reads as done with no metadata.
     """
     adapter_dir = paths.adapter_dir(iteration)
     print(f"\n{_LOG}Saving iteration_{iteration} checkpoint")
-
-    adapters = getattr(policy, "peft_config", None) or {}
-    selected = ["default"] if (isinstance(policy, PeftModel) and "ref" in adapters) else None
-    policy.save_pretrained(adapter_dir, selected_adapters=selected)
-    tokenizer.save_pretrained(adapter_dir)
-    print(f"{_LOG}  Adapter saved: {adapter_dir}")
 
     checkpoints = list_hf_checkpoints(paths.training_dir(iteration))
     if checkpoints:
         print(f"{_LOG}  Sub-epoch checkpoints: {[os.path.basename(c) for c in checkpoints]}")
 
+    # 1. metadata (the description), 2. tokenizer, 3. the adapter files (the "done" marker).
     if iter_metadata is not None:
         payload = dict(iter_metadata)
         payload["epoch_checkpoints"] = [os.path.basename(c) for c in checkpoints]
@@ -1882,6 +2696,15 @@ def save_iteration_checkpoint(
             paths.iteration_metadata_path(iteration),
             json.dumps(to_jsonable(payload), indent=2, ensure_ascii=False),
         )
+        print(f"{_LOG}  Metadata saved: {paths.iteration_metadata_path(iteration)}")
+
+    os.makedirs(adapter_dir, exist_ok=True)
+    tokenizer.save_pretrained(adapter_dir)
+
+    adapters = getattr(policy, "peft_config", None) or {}
+    selected = ["default"] if (isinstance(policy, PeftModel) and "ref" in adapters) else None
+    policy.save_pretrained(adapter_dir, selected_adapters=selected)
+    print(f"{_LOG}  Adapter saved: {adapter_dir}")
     return adapter_dir
 
 
@@ -1953,6 +2776,8 @@ def run_one_iteration(
     tb_logger=None,
     lookahead_state: Optional[LookaheadState] = None,
     callbacks: Optional[Sequence[Any]] = None,
+    server_handles: Optional[Mapping[str, Any]] = None,
+    client_factory: Optional[Callable[[], Any]] = None,
 ) -> IterationResult:
     """One full PTO iteration: generate -> build preference pairs -> DPO -> save.
 
@@ -1971,26 +2796,49 @@ def run_one_iteration(
         tb_logger: an optional ``core.tb.RunTBLogger`` for the continuous run-level view.
         lookahead_state: one per ARM ideally, one per iteration at minimum. It carries the
             sub-batch the OOM halving arrived at, which is otherwise re-paid at every depth.
+        server_handles / client_factory: see :func:`ensure_servers_alive`. When given, the
+            servers are probed before the preference build and before the DPO step (the
+            notebook's loop-top probe covers the generation phase); a restart rebuilds the
+            client, and the one in use at the end is returned as ``result.client``.
 
     Returns:
         :class:`IterationResult`. **Rebind the orchestration loop's policy from
-        ``result.policy``** -- TRL may hand back a new wrapper.
+        ``result.policy``** -- TRL may hand back a new wrapper -- and its client from
+        ``result.client``.
 
     Raises:
         ValueError: the iteration produced (or reloaded) ZERO preference pairs. Both the build path
             and the reload path reach that check before any adapter is written -- see the module
             docstring, and delete the empty ``pairs.csv`` to force a clean rebuild.
         RuntimeError: the oracle success rate fell below ``oracle_cfg.min_success_ratio`` during
-            the build. ``_progress.json`` survives, so the build resumes.
+            the build (``_progress.json`` survives, so the build resumes); the build's final EDA
+            flush failed, or ``generations.jsonl`` holds fewer rows than the recorder when the
+            marker is about to be written (``pairs.csv`` is NOT written -- see the module
+            docstring); or a vLLM server exhausted its restart budget at a phase boundary.
 
     Notes:
-        The EDA recorder is flushed after the BUILD, not after training: every PTO row is produced
-        during the build, and flushing on the reload path would clobber the ``generations.jsonl``
-        the earlier session already wrote with an empty buffer.
+        The EDA rows are APPENDED to ``generations.jsonl`` during the build, one depth at a time
+        (see :func:`grow_preference_trees_batch`); the marker step then re-counts the file
+        (:func:`_eda_rows_on_disk`) against the recorder and refuses to write ``pairs.csv`` on a
+        shortfall. Nothing is flushed after training, and the reload path (which has an empty
+        recorder) never touches the file the earlier session wrote.
+
+        Peak CUDA memory (``torch.cuda.max_memory_allocated/reserved``) is measured per phase and
+        recorded in ``iteration_metadata.json`` as FLAT ``peak_reserved_gib_<phase>`` /
+        ``peak_allocated_gib_<phase>`` keys (GRPO's shape) for ``generate`` (omitted on a
+        mid-training resume: a weights-only reload is not a generation peak), ``build`` and
+        ``train``, because the trainer's envelope beside the vLLM server is arithmetic until
+        measured. ``core.policy.TRUNCATION_COUNTER`` deltas are recorded per phase too: a
+        truncated prompt is a policy that no longer sees the start of the session, which is a
+        science-relevant rate, not a log line.
     """
     iter_started = time.time()
+    _check_prompt_budgets(gen_cfg)      # fail before any generation, not at the build
     binding = patient_binding if patient_binding is not None else la_cfg.patient_binding
     la_state = lookahead_state if lookahead_state is not None else LookaheadState()
+    sample_state = BranchSampleState()
+    peak_vram: Dict[str, float] = {}
+    truncation: Dict[str, Dict[str, int]] = {}
 
     iter_dir = paths.ensure_iteration_dir(iteration)
     conv_dir = paths.ensure_conv_dir(iteration - 1)
@@ -2014,6 +2862,8 @@ def run_one_iteration(
     persona_ids = _persona_order(
         len(permutations), gen_cfg.num_conversations_per_iter, train_cfg.seed, iteration)
     resuming_mid_training = bool(resume_checkpoint and iteration == start_iteration)
+    reset_peak_vram()
+    trunc_before = TRUNCATION_COUNTER.snapshot()
     if resuming_mid_training:
         # Mid-DPO resume: the conversations (and pairs.csv) were completed by the crashed
         # process. Reload-only -- generating anything here would file fresh output into
@@ -2041,6 +2891,15 @@ def run_one_iteration(
             gen_cfg=gen_cfg, save_dir=conv_dir,
             patient_seed=int(train_cfg.seed) + int(iteration),
         )
+    # No generate peak on a mid-training resume: the phase above was a weights-only reload, and
+    # recording its footprint under the generation label would misreport the envelope.
+    if not resuming_mid_training:
+        peak_vram.update(_phase_peaks("generate"))
+    truncation["generate"] = TRUNCATION_COUNTER.delta_since(trunc_before)
+    print(f"{_LOG}  therapist prompts truncated (generate) {truncation['generate']['truncated']}/"
+          f"{truncation['generate']['prompts']}"
+          + (f", overflow {truncation['generate']['overflow']}"
+             if truncation['generate']['overflow'] else ""))
 
     # Phase logged as it completes (never batched to iteration end): a process killed during the
     # multi-hour build or the DPO step must still leave its generation phase on record, or the
@@ -2061,6 +2920,14 @@ def run_one_iteration(
           f"[mode={train_cfg.pref_tree_mode}, M={train_cfg.num_branches_per_turn}, "
           f"tau={train_cfg.pref_filter_tau}, MCL={gen_cfg.min_conv_length}, K={la_cfg.k}]")
     build_started = time.time()
+    reset_peak_vram()
+    trunc_before = TRUNCATION_COUNTER.snapshot()
+
+    # Phase boundary: a server that died during the (long) generation phase surfaces here as a
+    # burst of connection errors at the build's first oracle call, blamed on the oracle.
+    fresh = ensure_servers_alive(server_handles, client_factory=client_factory, phase="build")
+    if fresh is not None:
+        client = fresh
 
     pairs_fingerprint_mismatch = False
     build_fingerprint = pref_config_fingerprint(train_cfg, gen_cfg)
@@ -2108,12 +2975,32 @@ def run_one_iteration(
             recorder=recorder, iteration=iteration, progress_path=progress_path,
             lookahead_state=la_state,
             patient_seed=int(train_cfg.seed) + int(iteration),
+            sample_state=sample_state,
         )
         pref_pairs_reloaded = False
         pref_pair_s = time.time() - build_started
         print(f"{_LOG}  Built {len(pref_pairs)} preference pairs in {pref_pair_s:.1f}s "
               f"from {len(states)} conversations")
+        if _eda_enabled(recorder):
+            # Appended per depth by the build (the final flush was strict). Do not trust that:
+            # re-count the FILE against the recorder before the marker vouches for it. A marker
+            # over a short generations.jsonl would make every later resume skip the build, and
+            # the missing rows would never be produced again.
+            n_on_disk = _eda_rows_on_disk(recorder)
+            if n_on_disk != len(recorder.records):
+                raise RuntimeError(
+                    f"iteration {iteration}: the preference build returned {len(pref_pairs)} "
+                    f"pairs but {recorder.out_path} holds {n_on_disk} branch row(s) while the "
+                    f"recorder buffered {len(recorder.records)}. pairs.csv is NOT written: a "
+                    f"completion marker over an incomplete generations.jsonl would make every "
+                    f"later resume reload the pairs and skip the build, losing those rows for "
+                    f"good. Fix the mount (Drive FUSE is the known case) and re-run; the build "
+                    f"resumes from its last snapshot."
+                )
+            print(f"{_LOG}  EDA generations on disk: {recorder.out_path} "
+                  f"({n_on_disk} branch rows, verified)")
 
+        # ONLY NOW the completion marker -- the EDA rows it vouches for are verified on disk.
         write_pairs_csv(pref_pairs, pairs_csv)
         _atomic_write_text(
             _pairs_fingerprint_path(pairs_csv),
@@ -2130,16 +3017,22 @@ def run_one_iteration(
             note=f"pref build, iteration {iteration}",
         )
 
-        flushed = recorder.flush()
-        if flushed:
-            print(f"{_LOG}  EDA generations saved: {flushed} ({len(recorder)} branch rows)")
-
         # The build is complete; pairs.csv is now the marker, so the in-build snapshot is dead.
         if os.path.exists(progress_path):
             try:
                 os.remove(progress_path)
             except OSError:
                 pass
+
+    truncation["build"] = TRUNCATION_COUNTER.delta_since(trunc_before)
+    if not pref_pairs_reloaded:
+        # A reloaded build ran no GPU work, so its peak would be the idle footprint: omit it.
+        peak_vram.update(_phase_peaks("build"))
+        print(f"{_LOG}  branch chunk {sample_state.chunk_size} ({sample_state.oom_events} OOM) | "
+              f"therapist prompts truncated (build) {truncation['build']['truncated']}/"
+              f"{truncation['build']['prompts']}"
+              + (f", overflow {truncation['build']['overflow']}"
+                 if truncation['build']['overflow'] else ""))
 
     # Function-body indentation on purpose: BOTH the reload path and the build path reach this,
     # so an empty pairs.csv fails here rather than producing an adapter trained on nothing.
@@ -2164,6 +3057,7 @@ def run_one_iteration(
         pref_pairs,
         eval_split_ratio=train_cfg.eval_split_ratio,
         seed=train_cfg.seed,
+        tokenizer=tokenizer,                # the single-BOS invariant is checked here
         verbose=gen_cfg.verbose,
     )
 
@@ -2179,6 +3073,14 @@ def run_one_iteration(
         has_eval=len(eval_dataset) > 0,
     )
 
+    # Phase boundary again: the build is hours long, and the DPO step needs no server at all --
+    # but the NEXT iteration's generation does, and probing here is what keeps a death during
+    # the build from surfacing as that iteration's first failure.
+    fresh = ensure_servers_alive(server_handles, client_factory=client_factory, phase="train")
+    if fresh is not None:
+        client = fresh
+
+    reset_peak_vram()
     new_policy, step_delta, training_s = run_training_phase(
         policy=policy, tokenizer=tokenizer,
         dpo_args=dpo_args,
@@ -2189,7 +3091,9 @@ def run_one_iteration(
         lora_config=lora_config,
         tensorboard_log_dir=tb_dir,
         callbacks=callbacks,
+        iter_dir=iter_dir,                  # wires the per-checkpoint timing lines
     )
+    peak_vram.update(_phase_peaks("train"))
 
     # -- Run-level live view (opt-in): the aggregates TRL does not know about --------------
     if tb_logger is not None and len(recorder):
@@ -2207,13 +3111,15 @@ def run_one_iteration(
             tb_logger.log_sample_completions(samples, step=end_step, iteration=iteration)
 
     # -- Step 5: timing, metadata, adapter ------------------------------------------------
-    # Generation and the build logged themselves when they finished; this line records the DPO
-    # step. Logged BEFORE the metadata is assembled so metadata_fields() sees this session. A
-    # reloaded build logged nothing for pref_pair_s on purpose: the session that actually built
-    # the pairs recorded it, and the cumulative total is the sum over sessions.
-    log_session(
+    # Generation and the build logged themselves when they finished; the DPO step logged itself
+    # at every checkpoint save (TrainingTimeCallback), and this closes it with only the REMAINING
+    # delta on the same clock -- log_session(training_s=...) here would double-count. Logged
+    # BEFORE the metadata is assembled so metadata_fields() sees this session. A reloaded build
+    # logged nothing for pref_pair_s on purpose: the session that actually built the pairs
+    # recorded it, and the cumulative total is the sum over sessions.
+    finalize_training(
         iter_dir,
-        training_s=training_s,
+        training_s,
         started_at=iter_started,
         note=("training, reloaded pairs.csv" if pref_pairs_reloaded
               else f"training, iteration {iteration}"),
@@ -2233,6 +3139,11 @@ def run_one_iteration(
         # comparison between two iterations of the same arm is meaningless.
         "lookahead_sub_batch_final": la_state.sub_batch,
         "lookahead_oom_events": int(la_state.oom_events),
+        # Non-OOM generate failures (sims frozen "gpu_error") and prompt overflows (frozen
+        # "prompt_overflow": the newest turn alone exceeded the budget) -- both left UNGRADED by
+        # core.reward and excluded from the tau comparison; the second is a budget fault.
+        "lookahead_runtime_errors": int(la_state.runtime_errors),
+        "lookahead_prompt_overflows": int(la_state.prompt_overflows),
         # Build knobs stamped from the fingerprint the pairs were actually BUILT under (the
         # sidecar, when reloaded) -- not from the live config, which may have been edited
         # between the build and a resumed DPO step.
@@ -2244,7 +3155,24 @@ def run_one_iteration(
         "pairs_fingerprint_mismatch": bool(pairs_fingerprint_mismatch),
         "dpo_beta": float(train_cfg.dpo_beta),
         "dpo_loss_type": train_cfg.dpo_loss_type,
+        # The value build_dpo_config actually PASSED (one TrainingConfigBase field, shared with
+        # GRPO) -- not a literal, so a deliberate DISABLE_DROPOUT change is on the record.
+        "dpo_disable_dropout": bool(train_cfg.disable_dropout),
+        "lora_dropout": float(train_cfg.lora_dropout),
         "learning_rate": float(train_cfg.learning_rate),
+        # Prompt budgets: one number for sampling and training (asserted equal), BOS-inclusive.
+        "therapist_max_input_tokens": int(gen_cfg.therapist_max_input_tokens),
+        "max_prompt_tokens": int(gen_cfg.max_prompt_tokens),
+        "dpo_prompt_single_bos_checked": True,
+        # The branch sampler's sticky chunk + failure counts (None chunk = the build was reloaded).
+        **sample_state.as_metadata(),
+        # core.policy.TRUNCATION_COUNTER deltas per phase: prompts built / prompts that lost >=1
+        # oldest turn / turns dropped / prompts that could not be built at all.
+        "truncation": truncation,
+        # torch.cuda.max_memory_{reserved,allocated} per phase, GiB, as FLAT
+        # peak_{reserved,allocated}_gib_{generate|build|train} keys (GRPO's shape; zeros without
+        # CUDA). `generate` is absent on a mid-training resume, `build` on a reloaded build.
+        **peak_vram,
         "num_conversations": len(states),
         "num_pref_pairs": len(pref_pairs),
         "num_train_pairs": len(train_dataset),
@@ -2286,6 +3214,9 @@ def run_one_iteration(
         adapter_dir=adapter_dir,
         pref_pairs_reloaded=bool(pref_pairs_reloaded),
         lookahead_sub_batch=la_state.sub_batch,
+        branch_chunk_final=sample_state.chunk_size,
+        peak_vram=dict(peak_vram),
+        client=client,
     )
 
 
@@ -2303,6 +3234,8 @@ def run_final_eval(
     primitives: AsyncPrimitives,
     patient_binding=None,
     la_cfg: Optional[LookaheadConfig] = None,
+    server_handles: Optional[Mapping[str, Any]] = None,
+    client_factory: Optional[Callable[[], Any]] = None,
 ) -> str:
     """Generate ``model_iter_{NUM_ITERATIONS}`` with the FINAL policy. Returns the directory.
 
@@ -2314,6 +3247,10 @@ def run_final_eval(
         patient_binding: the patient simulator. Defaults to ``la_cfg.patient_binding`` when
             *la_cfg* is given; otherwise it is REQUIRED, because there is no other way to know
             which model the arm was trained against.
+        server_handles / client_factory: see :func:`ensure_servers_alive`; probed once, before
+            the pass. The return value is still the directory, so a client rebuilt here is used
+            for the pass and then dropped -- rebuild the notebook's own with
+            ``roles.make_client`` if anything after this cell needs one.
 
     Raises:
         ValueError: no patient binding could be resolved.
@@ -2327,6 +3264,11 @@ def run_final_eval(
         the sum over ``iteration_*/timing_sessions.jsonl`` with nothing left outside it. The
         conversations resume per-persona from disk, so a killed pass costs only what it had not
         yet written.
+
+        Peak CUDA memory of the pass is recorded as ``peak_reserved_gib_eval_generate`` /
+        ``peak_allocated_gib_eval_generate`` (GRPO's keys) and MERGED into the last iteration's
+        ``iteration_metadata.json`` -- the only per-iteration record there is for the post-loop
+        pass -- best-effort: a failed merge is a warning, never a failed pass.
     """
     binding = patient_binding
     if binding is None and la_cfg is not None:
@@ -2360,6 +3302,11 @@ def run_final_eval(
     print(f"FINAL EVAL GENERATION -- model_iter_{final_state}   [{train_cfg.experiment_name}]")
     print("=" * 78)
 
+    fresh = ensure_servers_alive(server_handles, client_factory=client_factory, phase="final eval")
+    if fresh is not None:
+        client = fresh
+    reset_peak_vram()
+
     # A distinct seed so the final pass is not a replay of the last training iteration's order.
     seed = int(train_cfg.seed) + final_state + 1
     persona_ids = _persona_order(
@@ -2373,12 +3320,27 @@ def run_final_eval(
         gen_cfg=gen_cfg, save_dir=conv_dir, patient_seed=seed,
     )
 
+    peaks = _phase_peaks("eval_generate")
+
     log_session(
         paths.iteration_dir(final_state),
         eval_gen_s=elapsed,
         started_at=started,
         note=f"final eval generate -> model_iter_{final_state}",
     )
+    # The post-loop pass has no iteration record of its own; its peak joins the last iteration's
+    # metadata (GRPO's key names), best-effort -- telemetry must never fail a finished pass.
+    meta_path = paths.iteration_metadata_path(final_state)
+    try:
+        with open(meta_path, encoding="utf-8") as fh:
+            meta = json.load(fh)
+        if isinstance(meta, dict):
+            meta.update(peaks)
+            _atomic_write_text(meta_path, json.dumps(to_jsonable(meta), indent=2,
+                                                     ensure_ascii=False))
+    except (OSError, ValueError) as exc:
+        print(f"{_LOG}  WARNING: could not record the eval_generate peak in "
+              f"{os.path.basename(meta_path)} ({type(exc).__name__}: {exc})")
     print(f"{_LOG}Final eval: {len(states)} conversations, avg {avg_len:.1f} utterances")
     print(f"{_LOG}Saved to: {conv_dir}")
 

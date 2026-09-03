@@ -539,7 +539,7 @@ def judge_tag(binding_or_model) -> str:
         binding_or_model: A ``roles.RoleBinding`` (its ``model`` is used) or a bare model id.
 
     Returns:
-        ``roles.model_tag`` of the model: ``gemma4E2B``, ``gpt4m``, ``haiku45``.
+        ``roles.model_tag`` of the model: ``gemma4E4B``, ``gpt4m``, ``haiku45``.
 
     Warning:
         **This string is a directory name in the path of every score already written**
@@ -575,7 +575,7 @@ DEFAULT_JUDGE_TAG: str = judge_tag(DEFAULT_JUDGE_MODEL)
 def judge_dirname(tag: str = "") -> str:
     """Short display label for a judge tag. ``""`` resolves to :data:`DEFAULT_JUDGE_TAG`.
 
-    Under the :func:`judge_tag` scheme a tag is already short (``gemma4E2B``) and this is the
+    Under the :func:`judge_tag` scheme a tag is already short (``gemma4E4B``) and this is the
     identity. It still trims a provider prefix and a trailing ISO release date, so a full-form tag
     -- one hand-written into the lake, or one carried over from Exp3's
     ``openai_gpt-4o-mini-2024-07-18`` -- renders as ``gpt-4o-mini`` rather than as a path fragment.

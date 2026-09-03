@@ -48,18 +48,39 @@ step, with the policy in ``train()`` and TRL waiting on the reward. So:
   pays the OOM cost once rather than every turn (and, with a :class:`LookaheadState`
   handed in, once per *arm* rather than once per step). At sub-batch 1 an OOM freezes that
   one sim.
-- A non-OOM runtime error freezes the chunk and advances -- deliberately unlike the
-  conversation loop, which aborts. A conversation that dies can be regenerated; an
-  optimizer step that dies takes the iteration with it, and the siblings that worked still
-  deserve rewards.
+- A non-OOM runtime error halves a LOCAL chunk (not the sticky cap) and retries the same
+  items, down to a chunk of one; only a chunk of ONE that still fails freezes that single
+  sim as ``"gpu_error"``. Deliberately unlike the conversation loop, which aborts: a
+  conversation that dies can be regenerated, but an optimizer step that dies takes the
+  iteration with it, and the siblings that worked still deserve rewards. And deliberately
+  NOT "freeze the whole chunk": frozen sims are ungraded and gate-counted, so one transient
+  error at sub-batch 64 would leave 64 of 128 candidates ungraded -- and at
+  ``sub_batch_size=None`` all 128, which trips ``min_success_ratio``. This mirrors the PTO
+  branch sampler's halve-and-retry (``pto_trainer``), so a transient fault costs one sim on
+  both methods.
 - A transcript that will not parse freezes that sim on its seed instead of raising.
 
-A **frozen** sim is not an error: it keeps the transcript it has reached, drops out of
-later steps, and is still scored. It simply got a shorter look-ahead than ``K``, which
-:attr:`LookaheadResult.realized_turns` and :attr:`LookaheadResult.ended_early` record.
-Those two fields are science, not telemetry -- Exp3 measured 19-23% of ``K=5`` tails
-ending early, and early-ending siblings both score lower and are ~23% less likely to be
-their group's argmax.
+A **frozen** sim keeps the transcript it has reached and drops out of later steps -- but
+*why* it froze decides whether it is graded, and :attr:`LookaheadResult.stop_reason` is
+what carries that decision to ``core.reward``:
+
+- ``"session_ended"`` (a speaker closed the session) and ``"degenerate"`` (the policy's
+  simulated turn cleaned to nothing, which ends a conversation in the eval loop too) are
+  COMPLETE rollouts: the future the candidate led to genuinely stopped there. Graded, and
+  recorded as ``ended_early`` when shorter than ``K``. Those two fields are science, not
+  telemetry -- Exp3 measured 19-23% of ``K=5`` tails ending early, and early-ending
+  siblings both score lower and are ~23% less likely to be their group's argmax.
+- ``"patient_error"``, ``"gpu_error"``, ``"prompt_overflow"`` and ``"parse_error"``
+  (:data:`NOT_GRADED_STOP_REASONS`) are FAILURES of the simulator, not of the candidate --
+  ``"prompt_overflow"`` is the budget misconfiguration case (the newest turn alone exceeds
+  ``max_input_tokens``, so no prompt could be built; kept distinct from ``"gpu_error"`` so
+  the EDA does not read a config fault as a GPU fault). Such a sim is **not graded**:
+  ``core.reward`` gives it ``score=None`` (GRPO substitutes the group mean, PTO excludes
+  it from the tau comparison) and counts it against ``min_success_ratio``. Grading it
+  would score a K=0 snapshot next to siblings scored at K=5 -- a within-group K asymmetry
+  that ``scale_rewards="group"`` amplifies, and under server saturation the failures
+  correlate across a whole optimizer step with nothing raising (the oracle still
+  succeeds on the short text). The loud path is the safe one.
 
 The tail is recovered by EXACT string slicing
 ---------------------------------------------
@@ -81,9 +102,10 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple
 from roles import PATIENT_DEFAULT, RoleBinding, make_client
 
 from core.conversations import (
-    SESSION_END_KEYWORD,
     format_conversation_for_oracle,
     generate_patient_batch,
+    handle_session_end,
+    has_session_end,
     parse_transcript_to_messages,
 )
 from core.policy import STOP_STRINGS, generate_therapist_batch
@@ -92,10 +114,12 @@ __all__ = [
     "TURN_JOINER",
     "THERAPIST_LABEL",
     "PATIENT_LABEL",
+    "NOT_GRADED_STOP_REASONS",
     "LookaheadConfig",
     "LookaheadResult",
     "LookaheadState",
     "seed_transcript",
+    "split_session_end",
     "simulate_lookahead_batch",
     "check_transcript_format_agreement",
 ]
@@ -141,23 +165,45 @@ def _append_turn(extended: str, speaker: str, content: str) -> str:
     return f"{extended}{TURN_JOINER}{_LABEL_BY_SPEAKER[speaker]} {content}"
 
 
-def _split_session_end(text: str) -> Tuple[str, bool]:
-    """Split a response at :data:`SESSION_END_KEYWORD`.
+#: ``LookaheadResult.stop_reason`` values that mean the SIMULATOR failed, not that the
+#: conversation ended. A sim frozen for one of these is NOT a complete rollout and must not be
+#: graded next to siblings that got their full ``K`` turns -- see the module docstring.
+#: ``core.reward`` reads this set; the other reasons (``"session_ended"``, ``"degenerate"``,
+#: ``""`` = ran to ``K``) are complete and graded.
+NOT_GRADED_STOP_REASONS = frozenset({"patient_error", "gpu_error", "prompt_overflow", "parse_error"})
+
+
+def split_session_end(text: str) -> Tuple[str, bool]:
+    """Split an utterance at ``SESSION ENDED``, the way the conversation loop does.
 
     Returns:
         ``(content_before_the_marker, marker_was_present)``. The content is stripped and may
-        be empty -- a speaker that emits only the marker contributes no utterance.
+        be empty -- a speaker that emits only the marker contributes no utterance. The
+        explanation the model wrote AFTER the keyword is dropped, exactly as
+        ``core.conversations._apply_response`` drops it from a saved conversation.
 
     Notes:
-        Local rather than imported: Exp4's ``core.conversations`` contract exposes the
-        keyword but no splitter. If it ever grows one, delete this and use it -- two
-        definitions of "where does a closing turn end" is exactly the kind of drift that
-        makes an ended-early rate un-auditable.
+        A thin wrapper over ``core.conversations.handle_session_end`` -- the split index, the
+        case-insensitive match and the "keep the text before, drop the text after" rule are
+        that function's, so a closing turn ends at the same character in a saved conversation,
+        in a simulated look-ahead turn, and (via ``core.reward``) in a candidate being graded.
+        Two definitions of "where does a closing turn end" is exactly the drift that would make
+        an ended-early rate un-auditable, which is why this is public: ``core.reward`` calls it
+        for the candidate itself rather than re-deriving the rule.
+
+        **Presence is tested with ``core.conversations.has_session_end`` -- the same compiled
+        regex the split uses -- never with ``KEYWORD in text.upper()``.** The two are not
+        equivalent under Unicode case folding: ``"seßion ended".upper()`` is ``"SESSION ENDED"``
+        (``ß`` -> ``SS``), so the ``.upper()`` test said "present" while the ``re.IGNORECASE``
+        split found nothing and ``handle_session_end`` RAISED. This function runs inside
+        :func:`simulate_lookahead_batch` and ``core.reward`` with no ``try`` around it, so that
+        one turn took the whole GRPO step down. With one matcher for both questions the split
+        cannot be asked about text it does not match: ``"seßion ended"`` is simply not terminal.
     """
-    idx = text.upper().find(SESSION_END_KEYWORD)
-    if idx == -1:
+    if not has_session_end(text):
         return text, False
-    return text[:idx].strip(), True
+    _ended_by, _explanation, cleaned = handle_session_end(text, "therapist")
+    return cleaned.strip(), True
 
 
 # =============================================================================
@@ -179,9 +225,11 @@ class LookaheadConfig:
             measuring a different policy from the one being scored.
         temperature_patient: Sampling temperature for simulated patient turns.
         max_tokens: ``max_new_tokens`` per simulated turn, both sides.
-        max_input_tokens: Prompt budget for the therapist generate. Truncation is LEFT (see
-            ``core.policy.setup_tokenizer``), so a long rollout drops its oldest turns and
-            always keeps the patient utterance being answered.
+        max_input_tokens: Prompt budget for the therapist generate, BOS included. An
+            over-budget rollout drops its OLDEST turns whole and keeps the system message
+            (``core.policy.build_prompt``) -- never token-truncated -- so it always keeps the
+            patient utterance being answered. A sim whose newest turn alone exceeds the
+            budget is frozen as ``"prompt_overflow"`` (not graded).
         patient_binding: Which model plays the patient here. **It must be the same binding
             the conversations were generated with** -- the look-ahead patient defines the
             future the candidate is graded on, so swapping it changes the reward.
@@ -232,8 +280,10 @@ class LookaheadResult:
             exactly on the K-th turn reads as ``False``; :attr:`stop_reason` is where that
             case is visible.
         stop_reason: ``""`` when the rollout ran to ``k`` (or ``k == 0``), else one of
-            ``"session_ended"``, ``"patient_error"``, ``"gpu_error"``, ``"degenerate"``,
-            ``"parse_error"``.
+            ``"session_ended"``, ``"degenerate"`` (complete -- graded) or ``"patient_error"``,
+            ``"gpu_error"``, ``"prompt_overflow"``, ``"parse_error"``
+            (:data:`NOT_GRADED_STOP_REASONS` -- the simulator failed; ``core.reward`` does not
+            grade these). :attr:`graded` is the boolean view.
         k: The ``k`` this result was produced under, carried so a record is self-describing.
     """
 
@@ -244,6 +294,11 @@ class LookaheadResult:
     stop_reason: str = ""
     k: int = 0
 
+    @property
+    def graded(self) -> bool:
+        """Is this a COMPLETE rollout the oracle may grade? False for a simulator failure."""
+        return self.stop_reason not in NOT_GRADED_STOP_REASONS
+
     def to_record(self) -> Dict[str, Any]:
         """The nested ``lookahead`` dict ``core.recorder.build_candidate`` expects.
 
@@ -251,12 +306,16 @@ class LookaheadResult:
             The recorder wants ``None`` (not this dict) at ``K = 0``: an ABSENT dict is what
             marks a no-look-ahead run, and the look-ahead scalars are then simply not
             emitted. Caller decides; this method always returns a dict.
+
+            ``stop_reason`` rides along so the EDA can split ``ended_early`` into "the session
+            closed" and "the simulator failed" without re-deriving it from the score.
         """
         return {
             "k": int(self.k),
             "tail": self.tail,
             "realized_turns": int(self.realized_turns),
             "ended_early": bool(self.ended_early),
+            "stop_reason": self.stop_reason,
         }
 
 
@@ -273,11 +332,21 @@ class LookaheadState:
     Attributes:
         sub_batch: Current therapist generate cap. ``None`` = "all active sims"; set once
             from ``cfg.sub_batch_size`` on first use, then only ever lowered.
-        gpu_calls: Total ``model.generate`` calls issued (chunks, not turns).
+        gpu_calls: Total ``model.generate`` calls issued (chunks, not turns; retries included).
         oom_events: OOM returns seen. Non-zero means the VRAM budget is at its edge.
-        runtime_errors: Non-OOM generate failures. Non-zero means chunks were frozen and
-            their sims scored on short transcripts -- worth surfacing, not silently
-            averaging away.
+        runtime_errors: Non-OOM generate failures seen -- every failed call, whether it was
+            retried at a smaller local chunk or, at a chunk of one, froze that sim with
+            ``stop_reason="gpu_error"`` (left UNGRADED by ``core.reward``: ``score=None``,
+            counted against ``min_success_ratio``). ``runtime_errors - runtime_retries`` is the
+            number of sims frozen this way -- worth surfacing, not silently averaging away.
+        runtime_retries: Of those failures, the ones answered by halving the LOCAL chunk and
+            retrying the same items (the cap in ``sub_batch`` is untouched -- a runtime error is
+            not a memory signal). A retry that then succeeds cost one extra generate call and
+            froze nothing; a burst of retries with few frozen sims is a flaky-but-recovering GPU,
+            a burst with as many frozen sims is a broken one.
+        prompt_overflows: Sims frozen with ``stop_reason="prompt_overflow"`` -- no prompt could
+            be built because the newest turn alone exceeded ``cfg.max_input_tokens``. Non-zero
+            is a BUDGET misconfiguration (or a runaway patient turn), never a GPU fault.
 
     Notes:
         Read ``sub_batch`` after the iteration and write it into ``run_metadata.json``:
@@ -289,13 +358,18 @@ class LookaheadState:
     gpu_calls: int = 0
     oom_events: int = 0
     runtime_errors: int = 0
+    runtime_retries: int = 0
+    prompt_overflows: int = 0
 
     def summary(self) -> str:
         """One-line render for a training log."""
         sb = "all" if self.sub_batch is None else str(self.sub_batch)
         return (
             f"sub_batch={sb} gpu_calls={self.gpu_calls} "
-            f"oom={self.oom_events} runtime_err={self.runtime_errors}"
+            f"oom={self.oom_events} runtime_err={self.runtime_errors} "
+            f"(retried {self.runtime_retries}, frozen "
+            f"{max(0, self.runtime_errors - self.runtime_retries)}) "
+            f"prompt_overflow={self.prompt_overflows}"
         )
 
 
@@ -354,39 +428,61 @@ def _therapist_generate_chunked(
     max_input_tokens: int,
     stop_strings: Optional[Sequence[str]],
     start_sub_batch: int,
-) -> Tuple[List[Optional[str]], int, int, int, int]:
-    """One therapist reply per message-list, in chunks, with OOM-driven halving.
+) -> Tuple[List[Optional[str]], int, int, int, int, int, List[int]]:
+    """One therapist reply per message-list, in chunks, with OOM- and error-driven halving.
 
     Synchronous: call it through ``run_in_executor`` while holding the GPU lock.
     ``core.policy.generate_therapist_batch`` never raises on OOM -- it cleans the CUDA cache
     and returns ``(None, "oom")`` -- so the whole policy lives in the three branches here:
 
-    - success: place the responses at their indices and advance.
-    - ``"oom"``: at ``sb == 1`` freeze that single item and advance (a batch of one that
+    - success: place the responses at their indices and advance. A per-item ``None`` on
+      success means NO PROMPT COULD BE BUILT for that item (its newest turn alone exceeds
+      ``max_input_tokens`` -- ``core.policy.build_prompt``); its index is reported in the
+      returned ``overflow`` list so the caller freezes it as ``"prompt_overflow"``, not
+      ``"gpu_error"``.
+    - ``"oom"``: for a chunk of ONE freeze that single item and advance (a batch of one that
       still will not fit is not going to fit later either); otherwise halve ``sb`` and retry
-      the SAME chunk without advancing. The reduced ``sb`` is returned so it can be made
-      sticky.
-    - ``"runtime_error"``: halving cannot help, so freeze the chunk's items and advance.
-      This is the deliberate divergence from ``conversation_loop_batch``, which aborts:
-      killing a GRPO step over one transient generate failure discards the rewards of every
-      sibling that worked.
+      the SAME items without advancing. The reduced ``sb`` is returned so it can be made
+      sticky -- an OOM is a memory signal, and re-paying it every turn is the waste the
+      sticky cap exists to avoid.
+    - ``"runtime_error"``: halve a LOCAL chunk (``sb`` untouched -- a runtime error is not a
+      memory signal, so it must not shrink every later turn) and retry the SAME items, down
+      to a chunk of one; only a chunk of ONE that still fails freezes that single item and
+      advances. Mirrors the PTO branch sampler's halve-and-retry. Freezing the whole chunk,
+      which this used to do, is the wrong shape now that frozen sims are ungraded and
+      gate-counted: one transient error at sub-batch 64 left 64/128 candidates ungraded, and
+      at ``sub_batch_size=None`` (one chunk over all sims) 128/128 -- which raises the
+      ``min_success_ratio`` gate and kills the step over one flaky ``generate``. The retry
+      cost is bounded: ``log2(chunk)`` extra calls per fault. Still deliberately unlike
+      ``conversation_loop_batch``, which aborts -- killing a GRPO step over one transient
+      generate failure discards the rewards of every sibling that worked.
 
     Returns:
-        ``(responses, final_sub_batch, n_generate_calls, n_oom, n_runtime_errors)`` with
-        ``responses`` order-aligned to *batch_messages*. ``None`` marks a frozen item;
-        ``""`` marks a degenerate one (the caller must distinguish -- see
-        :func:`simulate_lookahead_batch`).
+        ``(responses, final_sub_batch, n_generate_calls, n_oom, n_runtime_errors,
+        n_runtime_retries, overflow)`` with ``responses`` order-aligned to *batch_messages*.
+        ``None`` marks a frozen item -- a generate failure, or a prompt overflow when its index
+        is in ``overflow``; ``""`` marks a degenerate one (the caller must distinguish -- see
+        :func:`simulate_lookahead_batch`). ``n_runtime_errors`` counts every failed call;
+        ``n_runtime_retries`` the ones that were answered with a smaller local chunk, so the
+        difference is the number of items frozen as ``"gpu_error"``.
     """
     n = len(batch_messages)
     responses: List[Optional[str]] = [None] * n
+    overflow: List[int] = []
     sb = max(1, int(start_sub_batch))
     n_calls = 0
     n_oom = 0
     n_runtime = 0
+    n_retries = 0
+
+    # Non-sticky cap for the items at position `i` while a runtime error is being retried.
+    # Reset on every advance, so the next chunk goes back to the (sticky) `sb`.
+    local_cap: Optional[int] = None
 
     i = 0
     while i < n:
-        chunk = batch_messages[i:i + sb]
+        size = sb if local_cap is None else min(sb, local_cap)
+        chunk = batch_messages[i:i + size]
         resp, error_type = generate_therapist_batch(
             model,
             tokenizer,
@@ -401,26 +497,41 @@ def _therapist_generate_chunked(
         if error_type is None:
             for j, r in enumerate(resp or []):
                 responses[i + j] = r
+                if r is None:
+                    overflow.append(i + j)
             i += len(chunk)
+            local_cap = None
             continue
 
         if error_type == "oom":
             n_oom += 1
-            if sb == 1:
+            if len(chunk) == 1:
                 responses[i] = None
                 i += 1
+                local_cap = None
             else:
-                new_sb = max(1, sb // 2)
+                # Sticky: the chunk that OOM'd is the size that does not fit, so every later
+                # chunk is capped at half of it (a local retry cap only ever narrows this).
+                new_sb = max(1, len(chunk) // 2)
                 print(f"  Look-ahead OOM: sub-batch {sb} -> {new_sb} (sticky), retrying chunk")
                 sb = new_sb
             continue
 
         n_runtime += 1
-        for j in range(len(chunk)):
-            responses[i + j] = None
-        i += len(chunk)
+        if len(chunk) == 1:
+            # A chunk of one that still fails: this item is the fault. Freeze it alone.
+            responses[i] = None
+            i += 1
+            local_cap = None
+            continue
+        local_cap = max(1, len(chunk) // 2)
+        n_retries += 1
+        print(
+            f"  Look-ahead generate error on a chunk of {len(chunk)}: retrying the same items "
+            f"at {local_cap} (local, not sticky; sub-batch stays {sb})"
+        )
 
-    return responses, sb, n_calls, n_oom, n_runtime
+    return responses, sb, n_calls, n_oom, n_runtime, n_retries, overflow
 
 
 # =============================================================================
@@ -467,7 +578,13 @@ async def simulate_lookahead_batch(
 
     Returns:
         One :class:`LookaheadResult` per input pair, in input order. Never raises for a
-        model, API or parse failure -- those freeze the affected sim.
+        model, API or parse failure -- those freeze the affected sim with a
+        :data:`NOT_GRADED_STOP_REASONS` ``stop_reason``, and the caller must not grade it.
+
+        ``completions`` must already be free of :data:`SESSION_END_KEYWORD`: a candidate
+        that closed the session has no future to simulate, and ``core.reward`` grades its
+        seed alone instead of calling this. Passing one through would ask the patient to
+        continue after the therapist ended the session.
 
     Raises:
         ValueError: if the three input sequences differ in length. That is a caller bug and
@@ -582,7 +699,7 @@ async def simulate_lookahead_batch(
                 if isinstance(resp, BaseException) or not resp:
                     sim.freeze("patient_error")
                     continue
-                content, ended = _split_session_end(resp)
+                content, ended = split_session_end(resp)
                 if ended:
                     if content:
                         sim.append("patient", content)
@@ -603,7 +720,8 @@ async def simulate_lookahead_batch(
             model.config.use_cache = True
             model.eval()
             try:
-                responses, final_sb, n_calls, n_oom, n_runtime = await loop.run_in_executor(
+                (responses, final_sb, n_calls, n_oom, n_runtime, n_retries,
+                 overflow_idx) = await loop.run_in_executor(
                     None,
                     functools.partial(
                         _therapist_generate_chunked,
@@ -624,22 +742,27 @@ async def simulate_lookahead_batch(
         state.gpu_calls += n_calls
         state.oom_events += n_oom
         state.runtime_errors += n_runtime
+        state.runtime_retries += n_retries
+        state.prompt_overflows += len(overflow_idx)
+        overflowed = set(overflow_idx)
         # Only persist a REDUCED cap. Storing `len(active)` when nothing went wrong would
         # pin every later call to the size of the first one, which shrinks as sims freeze.
         if final_sb < start_sb:
             state.sub_batch = final_sb
 
-        for sim, resp in zip(active, responses):
+        for pos, (sim, resp) in enumerate(zip(active, responses)):
             if resp is None:
-                # OOM at sub-batch 1, or a non-OOM generate failure for this chunk.
-                sim.freeze("gpu_error")
+                # Prompt overflow (no prompt could be built: a budget fault, not a GPU one),
+                # else an OOM or a non-OOM generate failure that persisted down to a chunk of
+                # ONE holding just this sim -- never a whole chunk frozen for one bad item.
+                sim.freeze("prompt_overflow" if pos in overflowed else "gpu_error")
                 continue
             if not resp.strip():
                 # Cleaned to nothing: the policy emitted only a ChatML marker (self-play).
                 # Scoring an empty turn asks the oracle to grade something that is not there.
                 sim.freeze("degenerate")
                 continue
-            content, ended = _split_session_end(resp)
+            content, ended = split_session_end(resp)
             if ended:
                 if content:
                     sim.append("therapist", content)

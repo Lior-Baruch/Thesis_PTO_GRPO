@@ -11,8 +11,12 @@ invoked from inside the trainer, which runs it on a loop of its own, while the s
 Caching one semaphore per object -- the obvious implementation -- therefore works for the first
 phase of an iteration and then explodes partway through training, with a traceback that points at
 the oracle call rather than at the cache. :class:`AsyncPrimitives` avoids it by creating each
-primitive lazily, keyed by ``id(asyncio.get_running_loop())``, and evicting entries belonging to
-loops that have gone away.
+primitive lazily, keyed by the running loop, and evicting entries belonging to loops that have
+gone away. The key is ``id(loop)`` for the dict lookup, but the loop OBJECT is stored beside the
+primitive and compared by identity on every hit: ``run_async`` creates and closes a fresh loop per
+call, CPython reuses freed addresses eagerly, and an ``id``-only key would hand a primitive bound
+to a dead loop to the new loop that inherited its address -- the same "attached to a different
+loop" crash, now intermittent and address-dependent.
 
 **2. Sync callers may already be inside a running loop.** Notebook cells and the trainers'
 orchestration code are plain synchronous Python, but Jupyter owns a live event loop in the same
@@ -41,7 +45,7 @@ from __future__ import annotations
 import asyncio
 import threading
 from concurrent.futures import Future
-from typing import Any, Callable, Coroutine, Dict, List, TypeVar
+from typing import Any, Callable, Coroutine, Dict, List, Tuple, TypeVar
 
 __all__ = ["AsyncPrimitives", "run_async"]
 
@@ -63,7 +67,9 @@ class AsyncPrimitives:
     One instance is built per trainer process and passed down through conversation generation,
     look-ahead and oracle scoring. It holds no primitives at construction time -- each accessor
     creates its primitive on first use *inside the calling loop*, caches it under
-    ``id(that loop)``, and drops any entry cached for a different loop.
+    ``id(that loop)`` together with the loop object itself, and drops any entry whose stored
+    loop is not (by identity) the loop now running -- a reused address never resurrects a
+    primitive bound to a closed loop.
 
     Args:
         oracle_concurrency: maximum in-flight oracle scoring calls.
@@ -94,7 +100,9 @@ class AsyncPrimitives:
             )
         self._oracle_concurrency = int(oracle_concurrency)
         self._patient_concurrency = int(patient_concurrency)
-        self._cache: Dict[tuple, Any] = {}
+        # (name, id(loop)) -> (loop, primitive). The loop object is kept so a hit can be
+        # verified by identity, not just by address (see the module docstring).
+        self._cache: Dict[tuple, Tuple[asyncio.AbstractEventLoop, Any]] = {}
 
     # -- accessors -------------------------------------------------------------
 
@@ -134,15 +142,22 @@ class AsyncPrimitives:
 
         Raises ``RuntimeError`` when called with no loop running -- the same error asyncio itself
         would raise, and a sign the caller forgot :func:`run_async`.
+
+        A cached entry is a hit only when its stored loop IS the running loop. An entry whose
+        address matches but whose object does not (a closed loop's address reused by a new one)
+        is stale and is evicted like any other loop's entry.
         """
-        loop_id = id(asyncio.get_running_loop())
-        key = (name, loop_id)
-        if key not in self._cache:
-            stale = [k for k in self._cache if k[0] == name and k[1] != loop_id]
-            for k in stale:
-                del self._cache[k]
-            self._cache[key] = factory()
-        return self._cache[key]
+        loop = asyncio.get_running_loop()
+        key = (name, id(loop))
+        hit = self._cache.get(key)
+        if hit is not None and hit[0] is loop:
+            return hit[1]
+        stale = [k for k in self._cache if k[0] == name]
+        for k in stale:
+            del self._cache[k]
+        primitive = factory()
+        self._cache[key] = (loop, primitive)
+        return primitive
 
 
 # ==============================================================================
@@ -178,6 +193,12 @@ def run_async(coro: Coroutine[Any, Any, _T]) -> _T:
 
         The thread is a daemon so an interpreter shutdown while a call is wedged does not hang the
         process -- but the join here means normal control flow always waits for it.
+
+        The worker loop is torn down the way ``asyncio.run`` tears its own down: async generators
+        are finalised (``shutdown_asyncgens``) and the default executor is drained
+        (``shutdown_default_executor``, Python >= 3.9) BEFORE ``close()``. The look-ahead runs
+        its therapist generate through ``run_in_executor``, so closing without the drain would
+        leave that worker thread orphaned on the dead loop and abandon whatever it was holding.
     """
     try:
         asyncio.get_running_loop()
@@ -195,8 +216,13 @@ def run_async(coro: Coroutine[Any, Any, _T]) -> _T:
             except BaseException as exc:                     # includes CancelledError / KeyboardInterrupt
                 result_future.set_exception(exc)
             finally:
-                loop.close()
-        except BaseException as exc:                         # loop creation itself failed
+                try:
+                    loop.run_until_complete(loop.shutdown_asyncgens())
+                    loop.run_until_complete(loop.shutdown_default_executor())
+                finally:
+                    asyncio.set_event_loop(None)
+                    loop.close()
+        except BaseException as exc:                         # loop creation or teardown failed
             if not result_future.done():
                 result_future.set_exception(exc)
 

@@ -6,7 +6,9 @@ thesis; see [Exp3_PTO_GRPO](../Exp3_PTO_GRPO/) for the parent experiment.
 
 > **The spec lives in [CLAUDE.md](CLAUDE.md)** — what Exp4 is, the algorithms, the module contract,
 > the naming grammar, the data layout, the VRAM budget, and the gotchas. This file only maps the
-> folder and says how to run things. Dated history goes in `history/` (created when there is any).
+> folder and says how to run things. Dated history lives in
+> [history/CHANGELOG.md](history/CHANGELOG.md) (the pre-run review, the 80 GB decision, the
+> pre-data science changes).
 
 ## Map
 
@@ -14,34 +16,49 @@ thesis; see [Exp3_PTO_GRPO](../Exp3_PTO_GRPO/) for the parent experiment.
 |---|---|
 | [code/](code/) | the trainers. `core/` is the shared layer; `grpo/` and `pto/` are the two methods; `tools/` holds the stand-alone utilities. `questionnaires.py` + `system_prompts_builder.py` are **verbatim copies from Exp3** and must not be edited — they are the measuring instrument and the task definition. |
 | `data/` | **gitignored**; three Google Drive symlinks (see below). Schemas are documented in CLAUDE.md § "Data layout" — that is the only record of their shape. |
-| [eda/](eda/) | the analysis: the `eda_analysis` package, one notebook per results family, and `tools/render_results.py`. |
+| [eda/](eda/) | the analysis: the `eda_analysis` package, one notebook per results family, `tools/render_results.py`, and the scoring notebook `notebooks/scoring/Run_Eval.ipynb` (runs on the GPU host — see below). |
+| [history/](history/) | `CHANGELOG.md` — the only dated narrative. |
 
 ## Quick start
 
-### Train (Colab A100)
+### Train (Colab A100 80 GB)
 
 Open `code/grpo/train_grpo.ipynb` (or `code/pto/train_pto.ipynb`) from Drive in Colab and run
-top-to-bottom. The cell order is a contract, not a style:
+top-to-bottom. The target card is the **A100 80 GB** (the 40 GB card is a fallback that needs the
+escape hatches in CLAUDE.md § VRAM budget from the start). The cell order is a contract, not a
+style:
 
+0. the install cell (guarded; after installing anything it **raises to stop** — restart, then
+   re-run the mount cell)
 1. flat globals
-2. runtime detect + auth
+2. Drive mount + runtime detect + auth
 3. **`serve_roles()` — starts vLLM, before any torch import**
 4. `import trl` **then** torch, model build
 5. the visible orchestration loop
 
 `EXPERIMENT_NAME` is **computed** from the config, never typed. Outputs land under
 `data/runs/<EXPERIMENT_NAME>/`; conversations under `data/conversations/<EXPERIMENT_NAME>/`.
+Before the first real arm, climb the gate ladder in CLAUDE.md § "Next session — start here"
+(`smoke.py roles` → full `oracle_sanity` → the `QUICK_TEST` rehearsal with a deliberate kill +
+resume → one real-config iteration → extrapolate).
 
-### Score + analyse (local)
+### Score (on the GPU host) + analyse (local)
+
+Scoring runs from `eda/notebooks/scoring/Run_Eval.ipynb` **on the machine that serves the judge**
+— Colab, or a GPU server over SSH. The local 12 GB card cannot host the E4B judge (14.89 GiB of
+weights before any KV cache), so locally the notebook is for smoke tests against a fake or remote
+endpoint only. The notebook carries the same Drive-mount preamble as the trainers; open it from
+Drive in Colab and run top-to-bottom. Arms are auto-discovered from disk — there is no registry to
+edit when a new run appears. Its last cell is the prompt-length gate (the Phase 2 measurement of
+real Exp4 oracle prompts against the server's `max_model_len`).
+
+The analysis is local and needs no GPU:
 
 ```powershell
 cd Exp4_OpenStack\eda
 ..\..\.venv\Scripts\python.exe -m eda_analysis._selfcheck --fast
 ..\..\.venv\Scripts\python.exe tools\render_results.py
 ```
-
-Scoring runs from `eda/notebooks/scoring/Run_Eval.ipynb`. Arms are auto-discovered from disk —
-there is no registry to edit when a new run appears.
 
 ### Smoke tests (local, no GPU needed for most)
 
@@ -93,9 +110,13 @@ folder (Exp3 saw a populated directory read as 0 files with an intermittent `Win
 every file was present in Drive the whole time; a Drive restart fixed it). Check the cloud before
 concluding an arm is unfinished.
 
-Code is pushed to Drive for Colab **additively** — drag the `code` folder onto the Drive
-`Exp4_OpenStack\` parent. Do **not** push `data/` (the symlink targets already live there) or
-`eda/` (local-only). Never `robocopy /MIR` without asking first: it deletes on the destination.
+Code is pushed to Drive for Colab **additively** — drag **both** the `code` folder **and** the
+`eda` folder onto the Drive `Exp4_OpenStack\` parent (`eda/` is needed there because
+`Run_Eval.ipynb` and the `eda_analysis.scoring` module run on the GPU host). Do **not** push
+`data/` — the symlink targets already live there. Never `robocopy /MIR` without asking first: it
+deletes on the destination. Off Colab (a GPU server), `data/` is a real directory on that machine
+and results come back by `rsync` / `rclone` into the Drive folder — CLAUDE.md § "Running off
+Colab".
 
 ## Relationship to Exp3
 

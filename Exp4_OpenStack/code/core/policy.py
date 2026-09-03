@@ -8,8 +8,38 @@ the Llama-3.2-1B therapist policy that is actually being optimized. It covers
 - base-weight load (bf16) and LoRA attachment,
 - ``patch_generate`` -- the bind that makes ``stop_strings`` work at all,
 - the anti-degeneracy stack (stop strings + ``clean_completion``),
+- **the prompt rule** -- how a message list becomes the exact token ids the policy
+  conditions on (:func:`render_prompt`, :func:`prompt_token_ids`,
+  :func:`truncate_messages_drop_oldest`, :func:`build_prompt`), shared by serving AND
+  training so the two can never see different prompts for the same conversation,
 - batched therapist decoding that reports OOM instead of raising, and
 - checkpoint discovery + multi-iteration resume.
+
+**The prompt rule, in one line: rendered TEXT never carries a BOS; every TOKENIZATION
+adds exactly one.** The two therapist variants disagree about BOS at the text level --
+the Instruct checkpoint's native Llama-3 template writes a literal ``<|begin_of_text|>``
+at the start of every render, the hand-written ChatML template writes none -- and the
+consumers disagree about tokenization: this module's decode path and TRL's
+``GRPOTrainer`` (``processing_class(text=prompts)``, i.e. ``add_special_tokens=True``)
+both tokenize the prompt STRING. Left alone that gives the Instruct policy a double BOS
+at training time and none of the two paths a BOS the base policy was pretrained with.
+So every render goes through :func:`strip_leading_bos`, and every tokenization of a
+prompt string goes through :func:`prompt_token_ids` (``add_special_tokens=True`` when the
+tokenizer's post-processor adds a BOS, which is what TRL's call does too). The result on
+BOTH variants: exactly one BOS, at serving and at training. For the BASE therapist this
+ADDS a BOS at serving relative to the pre-rule code -- deliberate: Llama-3.2 base was
+pretrained with one, and Exp4 has no data generated under the old rule.
+
+**Generation never token-truncates.** An over-long conversation is shortened by dropping
+its OLDEST turns whole while keeping the system message and the most recent turns
+(:func:`truncate_messages_drop_oldest`) -- the same rule the training prompts use
+(``core.conversations.build_truncated_training_prompt`` calls the same function), so a
+PTO branch is sampled from byte-identical text to what its DPO pair trains on. This is a
+science change relative to Exp3, whose serve-time prompts were LEFT-truncated at the
+token level (once a conversation outgrew ``max_input_tokens`` every later therapist turn
+was generated from a prompt that started mid-utterance with no system prompt, while its
+training prompts kept the system message). It applies equally to both methods and to
+both K arms.
 
 Two of those exist for reasons that are easy to mistake for boilerplate:
 
@@ -39,6 +69,7 @@ from __future__ import annotations
 import gc
 import os
 import types
+from dataclasses import dataclass
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 import torch
@@ -64,6 +95,19 @@ __all__ = [
     "patch_generate",
     "therapist_stop_token_ids",
     "get_adapter_param_count",
+    # The prompt rule (text <-> ids)
+    "strip_leading_bos",
+    "tokenizer_adds_bos",
+    "render_prompt",
+    "prompt_token_ids",
+    "count_prompt_tokens",
+    "message_overheads",
+    "estimate_message_costs",
+    "system_overhead",
+    "truncate_messages_drop_oldest",
+    "build_prompt",
+    "TruncationCounter",
+    "TRUNCATION_COUNTER",
     # Generation
     "clean_completion",
     "generate_therapist_batch",
@@ -177,8 +221,12 @@ def setup_tokenizer(tokenizer_id: str, padding_side: str = "left"):
           tokenizer eos is ``<|eot_id|>``, so that is also the pad -- standard for Llama-3
           Instruct.)
         - ``padding_side = left``: see above.
-        - ``truncation_side = left``: an over-long conversation must lose its OLDEST
-          turns, never the most recent patient utterance the therapist is replying to.
+        - ``truncation_side = left``: belt-and-braces for any HF/TRL path that token-
+          truncates on its own -- if something ever does, it must lose the OLDEST tokens,
+          never the patient utterance being answered. Exp4's own paths never rely on it:
+          :func:`generate_therapist_batch` and the training-prompt builders shorten at
+          the MESSAGE level via :func:`truncate_messages_drop_oldest` (system message and
+          most recent turns kept whole) and tokenize with no ``truncation``.
         - ``chat_template``: the checkpoint's NATIVE template is kept when it ships one
           (the Instruct therapist -- the official Llama-3 format it was trained on);
           :data:`CHATML_TEMPLATE` is installed only when the checkpoint ships none (the
@@ -487,6 +535,368 @@ def clean_completion(text: Optional[str]) -> str:
     return text[:cut].strip()
 
 
+# =============================================================================
+# THE PROMPT RULE -- message list -> text -> token ids, one way, everywhere
+# =============================================================================
+#
+# See the module docstring. Rendered text never carries a BOS; every tokenization of a
+# prompt string adds exactly one (when the tokenizer has a BOS post-processor at all).
+# Budgets (`max_input_tokens`, `max_prompt_tokens`) count the ids `prompt_token_ids`
+# returns -- i.e. INCLUDING that BOS -- so a budget is exactly the model's input length.
+
+# Per-tokenizer facts, keyed by id(). The entry keeps a strong reference to the tokenizer so
+# its id cannot be recycled by a later object and read back a stale answer. A process holds
+# one or two tokenizers, so the cache never grows.
+_TOKENIZER_FACTS: Dict[int, Dict[str, Any]] = {}
+
+# Content used to MEASURE per-role template overhead: one token on every BPE vocabulary
+# that matters here, so the wrapper cost is the difference of two renders.
+_TURN_PROBE = "XQZPROBE"
+
+
+def _facts(tokenizer) -> Dict[str, Any]:
+    entry = _TOKENIZER_FACTS.get(id(tokenizer))
+    if entry is None:
+        entry = {"tokenizer": tokenizer}
+        _TOKENIZER_FACTS[id(tokenizer)] = entry
+    return entry
+
+
+def tokenizer_adds_bos(tokenizer) -> bool:
+    """True iff ``tokenizer(text)`` prepends the BOS id (probed once, cached per tokenizer).
+
+    The probe is the behaviour itself -- ``tokenizer("x")["input_ids"][0] == bos_token_id`` --
+    not a config flag, because it is the post-processor's action that TRL's
+    ``processing_class(text=...)`` call inherits. Both Llama-3.2 tokenizers answer True. A
+    tokenizer with no ``bos_token_id`` (the offline stub in ``tools/smoke.py``) answers False
+    without being called.
+    """
+    facts = _facts(tokenizer)
+    if "adds_bos" not in facts:
+        bos_id = getattr(tokenizer, "bos_token_id", None)
+        adds = False
+        if bos_id is not None and int(bos_id) >= 0:
+            try:
+                ids = tokenizer("x")["input_ids"]
+            except TypeError:  # not callable -- fall back to the encode() API
+                ids = tokenizer.encode("x", add_special_tokens=True)
+            adds = bool(len(ids)) and int(ids[0]) == int(bos_id)
+        facts["adds_bos"] = adds
+    return bool(facts["adds_bos"])
+
+
+def strip_leading_bos(text: str, tokenizer) -> str:
+    """Remove ONE leading ``tokenizer.bos_token`` from *text*; no-op without a BOS token.
+
+    The Llama-3 Instruct template writes ``<|begin_of_text|>`` into its rendered string;
+    the ChatML template writes nothing. After this call both are BOS-free, and whichever
+    consumer tokenizes the string next (this module's decode path, TRL's trainers) adds the
+    single BOS itself. Exactly one is removed on purpose: a second one would be content.
+    """
+    bos = getattr(tokenizer, "bos_token", None)
+    if bos and text.startswith(bos):
+        return text[len(bos):]
+    return text
+
+
+def render_prompt(messages: Sequence[Dict[str, str]], tokenizer) -> str:
+    """Chat-template text for *messages* with the generation prompt appended, BOS-stripped.
+
+    Pins ``date_string=CHAT_TEMPLATE_DATE`` (the Llama-3.2 template interpolates the current
+    date otherwise) and applies :func:`strip_leading_bos`. This is THE render: the decode
+    path, the GRPO prompt extraction and the PTO pair builder all produce their prompt text
+    here, so the text the policy generated from and the text it later trains on are
+    byte-identical for the same messages.
+    """
+    text = tokenizer.apply_chat_template(
+        list(messages), tokenize=False, add_generation_prompt=True,
+        date_string=CHAT_TEMPLATE_DATE,
+    )
+    return strip_leading_bos(text, tokenizer)
+
+
+def prompt_token_ids(text: str, tokenizer) -> List[int]:
+    """The ids the policy conditions on for prompt *text*: exactly one BOS, then the text.
+
+    ``add_special_tokens=True`` when the tokenizer adds a BOS -- the same call TRL's
+    ``GRPOTrainer`` makes on the prompt string, so the two agree by construction -- and
+    ``add_special_tokens=False`` otherwise (a tokenizer with no BOS post-processor would add
+    nothing useful and some add an EOS). Strips a leading BOS from *text* first, so passing
+    an un-stripped render cannot double it.
+    """
+    text = strip_leading_bos(text, tokenizer)
+    if tokenizer_adds_bos(tokenizer):
+        return list(tokenizer(text)["input_ids"])
+    # Not coerced to int: a stub tokenizer (tools/smoke.py) returns words, and only len() matters.
+    return list(tokenizer.encode(text, add_special_tokens=False))
+
+
+def count_prompt_tokens(text: str, tokenizer) -> int:
+    """``len(prompt_token_ids(text, tokenizer))`` -- the number every budget is compared to."""
+    return len(prompt_token_ids(text, tokenizer))
+
+
+def message_overheads(tokenizer) -> Dict[str, int]:
+    """Per-role template wrapper cost in tokens, MEASURED on the tokenizer's live template.
+
+    Renders a three-message probe and differences the counts, so the estimate tracks
+    whichever template :func:`setup_tokenizer` left on the tokenizer -- the hand-written
+    ChatML wrapper on the base therapist (~6 BPE pieces per marker), the native Llama-3
+    header/footer on the Instruct one (single special tokens). Hardcoding the ChatML strings
+    would over-bill every Instruct turn ~2x. Approximate at message joins (a real render can
+    merge tokens across a boundary), which is fine: the estimate only picks a candidate drop
+    point and the exact render that follows decides. Cached per tokenizer.
+    """
+    facts = _facts(tokenizer)
+    if "overheads" not in facts:
+        def _ntok(text: str) -> int:
+            return len(tokenizer.encode(text, add_special_tokens=False))
+
+        def _render(messages: List[Dict[str, str]]) -> str:
+            return tokenizer.apply_chat_template(
+                messages, tokenize=False, add_generation_prompt=False,
+                date_string=CHAT_TEMPLATE_DATE,
+            )
+
+        sys_msgs = [{"role": "system", "content": _TURN_PROBE}]
+        user_msgs = sys_msgs + [{"role": "user", "content": _TURN_PROBE}]
+        both_msgs = user_msgs + [{"role": "assistant", "content": _TURN_PROBE}]
+        n_probe = _ntok(_TURN_PROBE)
+        n_sys = _ntok(_render(sys_msgs))
+        n_user = _ntok(_render(user_msgs))
+        n_both = _ntok(_render(both_msgs))
+        facts["overheads"] = {
+            "user": max(0, n_user - n_sys - n_probe),
+            "assistant": max(0, n_both - n_user - n_probe),
+        }
+    return dict(facts["overheads"])
+
+
+def estimate_message_costs(messages: Sequence[Dict[str, str]], tokenizer) -> List[int]:
+    """Estimated token cost of every NON-system message: content + its role's wrapper overhead.
+
+    Order-aligned with the non-system messages of *messages*. Feed the result to
+    :func:`truncate_messages_drop_oldest` / :func:`build_prompt` when many prefixes of the
+    same conversation are built (the prompt extraction pass), so the per-turn encodes happen
+    once per conversation rather than once per slice.
+    """
+    overheads = message_overheads(tokenizer)
+    costs: List[int] = []
+    for msg in messages:
+        role = str(msg.get("role", ""))
+        if role == "system":
+            continue
+        content_tokens = len(tokenizer.encode(str(msg.get("content", "")), add_special_tokens=False))
+        costs.append(content_tokens + overheads.get(role, overheads["user"]))
+    return costs
+
+
+def _fixed_overhead(head: Sequence[Dict[str, str]], tokenizer) -> int:
+    """Exact cost of the part that never gets dropped: system message + generation prompt + BOS.
+
+    An EMPTY head (a message list with no leading system message -- ``generate_therapist_batch``
+    accepts those, with ``system_overhead=None``) contributes 0. Rendering ``[]`` through the chat
+    template is not "the fixed framing alone": Llama's template raises on an empty conversation,
+    and ChatML's renders just the generation prompt. The 0 is only the starting point of the
+    drop-oldest ESTIMATE in :func:`_fit_messages`; the exact search that follows renders the
+    real candidate prompts and corrects it, so the framing is still counted to the token.
+    """
+    if not head:
+        return 0
+    return count_prompt_tokens(render_prompt(list(head), tokenizer), tokenizer)
+
+
+def system_overhead(system_prompt: str, tokenizer) -> int:
+    """Exact token cost of a system-only prompt: BOS + system message + generation suffix.
+
+    A real render through the live template, so it counts whatever framing that template adds
+    (the Llama-3 date header, the ChatML system turn) plus the BOS the tokenization adds.
+    Compute once per pass and hand it to :func:`build_prompt` for every slice.
+    """
+    return _fixed_overhead([{"role": "system", "content": str(system_prompt)}], tokenizer)
+
+
+def _fit_messages(
+    messages: Sequence[Dict[str, str]],
+    tokenizer,
+    max_tokens: int,
+    *,
+    message_token_costs: Optional[Sequence[int]] = None,
+    system_overhead: Optional[int] = None,
+) -> Tuple[Optional[List[Dict[str, str]]], Optional[str], int]:
+    """The one implementation behind :func:`truncate_messages_drop_oldest` / :func:`build_prompt`.
+
+    Returns ``(kept_messages, rendered_text, n_dropped)``; ``(None, None, n_body)`` when even
+    the newest non-system message alone does not fit.
+
+    The answer is CANONICAL -- the longest suffix of the non-system messages that fits, with
+    the head -- and does not depend on the cost estimates: they only choose where the exact
+    search starts, and the search then moves in both directions until it sits on the boundary.
+    So the same messages and budget give the same prompt whether or not precomputed costs
+    were supplied, and the budget is exact to the token.
+
+    A list WITHOUT a leading system message is legal (``head`` is then empty, and its fixed
+    overhead counts as 0 for the estimate -- see :func:`_fixed_overhead`); the drop-oldest search
+    then keeps the newest turns that fit, or returns ``None`` when even the newest alone does
+    not. It never renders an empty conversation. An empty *messages* has no turn to keep and
+    returns ``(None, None, 0)``.
+    """
+    messages = list(messages)
+    head = messages[:1] if messages and str(messages[0].get("role", "")) == "system" else []
+    body = messages[len(head):]
+    if not messages:
+        return None, None, 0
+
+    # Fast path -- and the exact check every prompt gets: one render, one count.
+    text = render_prompt(messages, tokenizer)
+    if count_prompt_tokens(text, tokenizer) <= max_tokens:
+        return messages, text, 0
+    if len(body) <= 1:
+        # Nothing to drop: the newest (only) turn with the head is what was just measured
+        # over budget. Never fall through to a head-only prompt -- that is a prompt with no
+        # turn in it, which `None` exists to prevent.
+        return None, None, len(body)
+
+    # Estimate a drop point in one pass, then verify with real renders and keep dropping if
+    # the estimate was optimistic. The head (system message) and the newest turn are what
+    # survive: the therapist is replying to the patient's latest utterance, so that must
+    # never be the thing that gets cut.
+    costs = (list(message_token_costs) if message_token_costs is not None
+             else estimate_message_costs(body, tokenizer))
+    if len(costs) != len(body):
+        raise ValueError(
+            f"_fit_messages: message_token_costs has {len(costs)} entries for {len(body)} "
+            f"non-system messages -- the costs must be order-aligned with the messages"
+        )
+    fixed = int(system_overhead) if system_overhead is not None else _fixed_overhead(head, tokenizer)
+
+    drop = 1  # the full list was already measured over budget above
+    total = fixed + sum(costs[drop:])
+    while total > max_tokens and drop < len(body) - 1:
+        total -= costs[drop]
+        drop += 1
+    # `drop` is now the estimate's first candidate; the exact search below corrects it either way.
+
+    def _fits(d: int) -> Optional[str]:
+        t = render_prompt(head + body[d:], tokenizer)
+        return t if count_prompt_tokens(t, tokenizer) <= max_tokens else None
+
+    # Estimate optimistic: keep dropping until it fits (or nothing fits).
+    text = _fits(drop)
+    while text is None and drop < len(body) - 1:
+        drop += 1
+        text = _fits(drop)
+    if text is None:
+        return None, None, len(body)
+    # Estimate pessimistic: add turns back while they still fit, so the boundary is exact.
+    while drop > 1:
+        more = _fits(drop - 1)
+        if more is None:
+            break
+        drop -= 1
+        text = more
+    return head + body[drop:], text, drop
+
+
+def truncate_messages_drop_oldest(
+    messages: Sequence[Dict[str, str]],
+    tokenizer,
+    max_tokens: int,
+    *,
+    message_token_costs: Optional[Sequence[int]] = None,
+    system_overhead: Optional[int] = None,
+) -> Tuple[Optional[List[Dict[str, str]]], int]:
+    """Drop the OLDEST non-system messages until the rendered prompt fits *max_tokens*.
+
+    Args:
+        messages: Therapist-perspective chat messages; a leading ``system`` message is kept
+            unconditionally.
+        tokenizer: From :func:`setup_tokenizer` (carries the therapist's chat template).
+        max_tokens: Budget for :func:`prompt_token_ids` of the rendered prompt -- BOS included.
+        message_token_costs: Optional per-non-system-message estimates from
+            :func:`estimate_message_costs` (same order), to skip re-encoding each turn.
+        system_overhead: Optional exact cost from :func:`system_overhead`.
+
+    Returns:
+        ``(kept_messages, n_dropped)``. ``kept_messages`` is ``None`` when even the newest
+        non-system message alone (with the system message) exceeds the budget -- the caller
+        must treat that as a failure, never as "generate anyway". ``n_dropped`` counts the
+        messages removed (``len(body)`` in the ``None`` case).
+
+    Notes:
+        Measured on the live template with the pinned ``date_string``; the result is what
+        :func:`render_prompt` renders. Turns are dropped WHOLE: the prompt always starts on a
+        message boundary, so the policy never sees a mid-utterance start or loses its system
+        prompt, whichever therapist template is installed.
+    """
+    kept, _, n_dropped = _fit_messages(
+        messages, tokenizer, max_tokens,
+        message_token_costs=message_token_costs, system_overhead=system_overhead,
+    )
+    return kept, n_dropped
+
+
+def build_prompt(
+    messages: Sequence[Dict[str, str]],
+    tokenizer,
+    max_tokens: int,
+    *,
+    message_token_costs: Optional[Sequence[int]] = None,
+    system_overhead: Optional[int] = None,
+) -> Tuple[Optional[str], int]:
+    """:func:`truncate_messages_drop_oldest` + :func:`render_prompt` in one call.
+
+    Returns ``(prompt_text, n_dropped)``; ``prompt_text`` is ``None`` exactly when the
+    truncation would be. The decode path and the training-prompt builders both call this,
+    which is what makes their texts byte-identical for the same messages and budget.
+    """
+    _, text, n_dropped = _fit_messages(
+        messages, tokenizer, max_tokens,
+        message_token_costs=message_token_costs, system_overhead=system_overhead,
+    )
+    return text, n_dropped
+
+
+@dataclass
+class TruncationCounter:
+    """Running totals of what :func:`generate_therapist_batch` did to its prompts.
+
+    Attributes:
+        prompts: Therapist prompts built (one per message list handed in).
+        truncated: Prompts that lost at least one turn to fit ``max_input_tokens``.
+        dropped_turns: Turns dropped, summed over all prompts.
+        overflow: Prompts that could not be built at all (newest turn alone over budget);
+            those items came back as ``None``.
+
+    The conversation loop prints the per-batch delta as ``trunc <truncated>/<prompts>``;
+    the trainers read :meth:`snapshot` at phase boundaries and log the delta. The rate is
+    a science-relevant number -- a truncated prompt is a policy that no longer sees the
+    start of the session -- so it is worth recording next to the per-iteration metadata.
+    """
+
+    prompts: int = 0
+    truncated: int = 0
+    dropped_turns: int = 0
+    overflow: int = 0
+
+    def snapshot(self) -> Dict[str, int]:
+        return {"prompts": self.prompts, "truncated": self.truncated,
+                "dropped_turns": self.dropped_turns, "overflow": self.overflow}
+
+    def delta_since(self, snapshot: Dict[str, int]) -> Dict[str, int]:
+        """The counts accumulated since *snapshot* (from :meth:`snapshot`)."""
+        now = self.snapshot()
+        return {k: now[k] - int(snapshot.get(k, 0)) for k in now}
+
+    def reset(self) -> None:
+        self.prompts = self.truncated = self.dropped_turns = self.overflow = 0
+
+
+#: The process-wide counter :func:`generate_therapist_batch` updates. Therapist generates are
+#: serialised by the GPU lock, so plain integer updates are safe.
+TRUNCATION_COUNTER = TruncationCounter()
+
+
 def generate_therapist_batch(
     model,
     tokenizer,
@@ -496,19 +906,21 @@ def generate_therapist_batch(
     temperature: float,
     max_input_tokens: int = 2048,
     stop_strings: Optional[Sequence[str]] = None,
-) -> Tuple[Optional[List[str]], Optional[str]]:
+) -> Tuple[Optional[List[Optional[str]]], Optional[str]]:
     """Generate one therapist reply per conversation in a single padded batch.
 
     Args:
         model: The therapist policy (base or PEFT-wrapped), already patched by
             :func:`patch_generate`.
-        tokenizer: From :func:`setup_tokenizer` (left padding, left truncation).
+        tokenizer: From :func:`setup_tokenizer` (left padding).
         batch_messages: One chat-message list per conversation, in the therapist's
             role convention (``system``/``user``/``assistant``).
         max_tokens: ``max_new_tokens`` per completion.
         temperature: Sampling temperature; sampling is always on (``do_sample=True``).
-        max_input_tokens: Prompt truncation budget. Truncation is LEFT, so the oldest
-            turns are dropped and the patient's latest utterance always survives.
+        max_input_tokens: Prompt budget in tokens, BOS included (the length of
+            :func:`prompt_token_ids`). An over-budget conversation drops its OLDEST turns
+            whole via :func:`build_prompt` -- the system message and the most recent
+            turns survive, and the prompt is never token-truncated.
         stop_strings: ``None`` means the :data:`STOP_STRINGS` default (base-therapist
             ChatML markers). An EMPTY sequence means "no string stopping" and is the
             correct value for Instruct arms -- generation then stops on the
@@ -517,11 +929,26 @@ def generate_therapist_batch(
 
     Returns:
         ``(responses, None)`` on success, where ``responses[i]`` corresponds to
-        ``batch_messages[i]`` and has already been through :func:`clean_completion`
-        (so ``""`` marks a degenerate turn). On failure:
-        ``(None, "oom")`` or ``(None, "runtime_error")``.
+        ``batch_messages[i]`` and is one of three things:
+
+        - a cleaned completion (:func:`clean_completion` applied),
+        - ``""`` -- a DEGENERATE turn (the model produced nothing usable), or
+        - ``None`` -- **no prompt could be built**: even the newest turn alone, with the
+          system message, exceeds ``max_input_tokens``. Nothing was generated for that
+          item; the others were. Callers must handle ``None`` as a failure of that item
+          (the conversation loop marks the conversation failed; look-ahead freezes the
+          sim) and never as an empty utterance.
+
+        On a batch-level failure: ``(None, "oom")`` or ``(None, "runtime_error")``.
 
     Notes:
+        **The prompt rule (module docstring).** Each message list is truncated at the
+        message level, rendered BOS-free, and tokenized with ``add_special_tokens=True``
+        when the tokenizer adds a BOS -- exactly one BOS on both therapist variants, and
+        the same ids TRL's ``GRPOTrainer`` produces from the prompt string. What was done
+        to the prompts is accumulated in :data:`TRUNCATION_COUNTER` (prompts / truncated /
+        dropped turns / overflow) for the batch line and the trainers' logs.
+
         **This never raises on OOM.** It returns ``(None, "oom")`` after
         ``gc.collect()`` + ``torch.cuda.empty_cache()`` so the caller can halve its
         batch and retry rather than lose the whole phase. RuntimeErrors whose text
@@ -554,11 +981,43 @@ def generate_therapist_batch(
 
     effective_stops = list(STOP_STRINGS if stop_strings is None else stop_strings)
 
-    prompts = [
-        tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True,
-                                      date_string=CHAT_TEMPLATE_DATE)
-        for messages in batch_messages
-    ]
+    # Build every prompt under the rule: message-level drop-oldest, BOS-free text. The system
+    # overhead is exact and identical for every list sharing a system prompt, so it is
+    # measured once per distinct system prompt in the batch rather than once per item.
+    overhead_by_system: Dict[str, int] = {}
+    prompts: List[Optional[str]] = []
+    n_truncated = 0
+    n_dropped = 0
+    for messages in batch_messages:
+        sys_text = (str(messages[0].get("content", ""))
+                    if messages and str(messages[0].get("role", "")) == "system" else None)
+        if sys_text is not None and sys_text not in overhead_by_system:
+            overhead_by_system[sys_text] = system_overhead(sys_text, tokenizer)
+        text, dropped = build_prompt(
+            messages, tokenizer, max_input_tokens,
+            system_overhead=overhead_by_system.get(sys_text) if sys_text is not None else None,
+        )
+        prompts.append(text)
+        if text is None:
+            continue  # overflow: counted below, nothing was dropped INTO a prompt
+        if dropped:
+            n_truncated += 1
+            n_dropped += dropped
+    live_idx = [i for i, p in enumerate(prompts) if p is not None]
+    n_overflow = len(prompts) - len(live_idx)
+
+    TRUNCATION_COUNTER.prompts += len(prompts)
+    TRUNCATION_COUNTER.truncated += n_truncated
+    TRUNCATION_COUNTER.dropped_turns += n_dropped
+    TRUNCATION_COUNTER.overflow += n_overflow
+    if n_overflow:
+        print(
+            f"  WARNING: {n_overflow}/{len(prompts)} therapist prompts could not be built -- "
+            f"the newest turn alone exceeds max_input_tokens={max_input_tokens}; those items "
+            f"return None"
+        )
+    if not live_idx:
+        return [None] * len(prompts), None
 
     # String criteria only when there are strings: an empty stop_strings=[] still pays the
     # per-call 128k-vocab criteria table build, so Instruct arms (empty stops) omit the kwargs
@@ -570,13 +1029,15 @@ def generate_therapist_batch(
     encoded = None
     outputs = None
     try:
+        # No `truncation=`: the prompts already fit by construction (message-level
+        # drop-oldest above), and token truncation would cut the system prompt and start
+        # mid-utterance. add_special_tokens follows the tokenizer's BOS behaviour, so the
+        # BOS-free text gets exactly one BOS -- the same ids TRL produces from the string.
         encoded = tokenizer(
-            prompts,
+            [prompts[i] for i in live_idx],
             return_tensors="pt",
             padding=True,
-            truncation=True,
-            max_length=max_input_tokens,
-            add_special_tokens=False,  # the chat template already supplies the framing
+            add_special_tokens=tokenizer_adds_bos(tokenizer),
         ).to(model.device)
 
         with torch.inference_mode():
@@ -608,11 +1069,11 @@ def generate_therapist_batch(
 
     padded_input_length = encoded.input_ids.shape[1]
 
-    responses: List[str] = []
-    for i in range(len(batch_messages)):
-        new_tokens = outputs[i][padded_input_length:]
+    responses: List[Optional[str]] = [None] * len(batch_messages)
+    for row, i in enumerate(live_idx):
+        new_tokens = outputs[row][padded_input_length:]
         decoded = tokenizer.decode(new_tokens, skip_special_tokens=True)
-        responses.append(clean_completion(decoded))
+        responses[i] = clean_completion(decoded)
 
     del encoded, outputs
 

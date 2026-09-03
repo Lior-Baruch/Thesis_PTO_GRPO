@@ -27,6 +27,16 @@ Nothing here re-implements generation. The pass is
 conversation produced by this tool is produced by the same code path -- and under the same knobs,
 because the generation config is rebuilt from the arm's own ``run_metadata.json`` when one exists.
 
+**4. THE PHASE 2 GATE, as a by-product.** The end-of-run summary measures the realised
+oracle-prompt length of every conversation it wrote (``tools.oracle_sanity.prompt_length_report``:
+rubric + full transcript, counted by the served model's own tokenizer through vLLM's
+``/tokenize``) against the served ``max_model_len``, and the pass exits nonzero when any prompt
+would not fit. An unscoreable conversation is otherwise simply absent from the score, and the
+absent ones are the longest -- an arm-dependent hole in the headline metric, not an error anyone
+sees. The same summary reports how many therapist prompts lost their oldest turns to the
+``therapist_max_input_tokens`` budget (``core.policy.TRUNCATION_COUNTER``), the other silent
+length effect: a truncated prompt is a policy that no longer sees the start of the session.
+
 Two hazards this file is mostly about
 -------------------------------------
 **VRAM arithmetic comes before any CUDA allocation.** On the local RTX 5070 Ti an over-budget
@@ -562,11 +572,24 @@ def resolve_patient_endpoint(binding, *, fatal: bool):
         _endpoint_failure(
             f"no server answering on port {spec.port} for {binding.model!r}", fatal=fatal,
             fix=(f"Start one (`vllm serve {binding.model} --port {spec.port} "
-                 f"--gpu-memory-utilization 0.25`), or pass --base-url for a server elsewhere."))
+                 f"--gpu-memory-utilization {_serve_util_hint(binding.model)} "
+                 f"--max-model-len {spec.max_model_len}`), or pass --base-url for a server "
+                 f"elsewhere."))
         return binding
 
     print(f"  adopted patient server: {handle.model} @ {handle.base_url}")
     return dataclasses.replace(binding, base_url=handle.base_url)
+
+
+def _serve_util_hint(model: str) -> str:
+    """The ``--gpu-memory-utilization`` to suggest for *model*: the sanctioned table value, or a
+    placeholder that says the model is unsized rather than a number nobody checked."""
+    from roles import default_serve_util
+
+    try:
+        return f"{default_serve_util(model):.2f}"
+    except ValueError:
+        return "<fraction sized from the model's weights; see roles.DEFAULT_SERVE_UTIL>"
 
 
 def _loopback_spec(binding):
@@ -809,6 +832,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--dry-run", action="store_true",
                         help="print the plan and exit before loading the model or spending "
                              "anything")
+    parser.add_argument("--skip-prompt-report", action="store_true",
+                        help="skip the end-of-run oracle-prompt-length report (the Phase 2 "
+                             "gate). Only for a throwaway smoke; a real state must be measured.")
     return parser
 
 
@@ -1005,7 +1031,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
           f"{' -> skipped' if existing else ''};  {len(todo)} to generate")
     print("  VRAM")
     print(budget.arithmetic())
-    print("  No oracle calls, no branching, no look-ahead, no training.")
+    print("  No oracle calls, no branching, no look-ahead, no training. At the end: the "
+          "oracle-prompt-length report over this state"
+          + (" (SKIPPED: --skip-prompt-report)." if args.skip_prompt_report else "."))
 
     if n_batches == 1:
         print("  !! ONE BATCH ONLY. The per-batch `vram <N>G` field is how an inter-batch "
@@ -1029,7 +1057,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     from core.concurrency import AsyncPrimitives
     from core.conversations import generate_all_conversations
-    from core.policy import vram_report
+    from core.policy import TRUNCATION_COUNTER, vram_report
     from roles import make_client
 
     policy, tokenizer = load_policy(
@@ -1050,6 +1078,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     )
 
     started = time.time()
+    trunc_before = TRUNCATION_COUNTER.snapshot()
     states = generate_all_conversations(
         policy, tokenizer, make_client(binding), binding, primitives,
         permutations, therapist_system_prompt, therapist_init_utterance,
@@ -1069,10 +1098,19 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         verbose_detailed=gen.verbose_detailed,
     )
     elapsed = time.time() - started
+    trunc = TRUNCATION_COUNTER.delta_since(trunc_before)
 
     _log_timing(paths, args.model_iter, elapsed, started, canonical=canonical, label=label)
-    _report(states, conv_dir, elapsed, n_requested, canonical=canonical, rule=rule)
-    return 0 if len(states) >= n_requested else 1
+    _report(states, conv_dir, elapsed, n_requested, trunc=trunc, canonical=canonical, rule=rule)
+
+    lengths_ok = True
+    if args.skip_prompt_report:
+        print("  !! oracle-prompt-length report SKIPPED (--skip-prompt-report); this state is "
+              "not yet known to be scoreable.")
+    else:
+        lengths_ok = _prompt_length_gate(conv_dir, config, binding, rule=rule)
+    print(rule)
+    return 0 if (len(states) >= n_requested and lengths_ok) else 1
 
 
 def _default_base_model_id() -> str:
@@ -1119,14 +1157,21 @@ def _log_timing(paths, model_iter: int, elapsed: float, started: float, *,
 
 
 def _report(states: Sequence[Any], conv_dir: str, elapsed: float, n_requested: int, *,
-            canonical: bool, rule: str) -> None:
-    """Print what the pass produced, including the session-end rate.
+            trunc: Dict[str, int], canonical: bool, rule: str) -> None:
+    """Print what the pass produced: the session-end rate and the therapist-prompt truncation rate.
 
     The session-end count is not decoration. :data:`core.conversations.SESSION_END_KEYWORD` is the
     only early-termination channel in the experiment and both system prompts ask for it in PROSE, so
     a patient model that is not steered to the protocol simply never emits it: every conversation
     runs to the utterance cap, nothing raises, and the only visible symptom is this number being
     zero. Exp4 swaps the patient off gpt-4o-mini, which is exactly when that would first appear.
+
+    ``trunc`` is the ``core.policy.TRUNCATION_COUNTER`` delta over this pass: how many therapist
+    prompts were built, how many lost their OLDEST turns to ``therapist_max_input_tokens`` (the
+    system prompt and the newest turns always survive), and how many could not be built at all
+    (``overflow`` -- the newest turn alone over budget; that conversation was marked failed).
+    A high truncation rate is a science-relevant number: those prompts no longer show the
+    policy the start of the session.
     """
     ended = sum(1 for s in states if getattr(s, "session_ended_by", ""))
     lengths = [s.n_utterances for s in states] or [0]
@@ -1140,6 +1185,14 @@ def _report(states: Sequence[Any], conv_dir: str, elapsed: float, n_requested: i
               "ignores the SESSION ENDED protocol (it is requested in prose, not enforced by a "
               "stop token), not necessarily of long conversations. Check a transcript before "
               "scoring this state.")
+    n_prompts = int(trunc.get("prompts", 0))
+    rate = (trunc.get("truncated", 0) / n_prompts) if n_prompts else 0.0
+    print(f"  Therapist prompts: {n_prompts} built, {trunc.get('truncated', 0)} truncated "
+          f"({100.0 * rate:.1f}%: oldest turns dropped, {trunc.get('dropped_turns', 0)} turns in "
+          f"total), {trunc.get('overflow', 0)} overflow (unbuildable -> conversation failed).")
+    if trunc.get("overflow", 0):
+        print("  !! OVERFLOW: a single newest turn exceeded therapist_max_input_tokens. That is a "
+              "budget misconfiguration, not policy behaviour -- check the patient's turn length.")
     if len(states) < n_requested:
         print(f"  !! {n_requested - len(states)} conversation(s) missing. Re-run: generation "
               f"resumes per persona, so only the gaps are regenerated.")
@@ -1149,7 +1202,57 @@ def _report(states: Sequence[Any], conv_dir: str, elapsed: float, n_requested: i
     else:
         print("  This is an ISOLATED draw (--conv-dir): it is not in the arm's conversations tree, "
               "so arm discovery will not see it. Point the scorer at it explicitly.")
-    print(rule)
+
+
+def _prompt_length_gate(conv_dir: str, config: Dict[str, Any], patient_binding, *,
+                        rule: str) -> bool:
+    """Measure every oracle prompt this state would send against the served ``max_model_len``.
+
+    Returns whether every prompt fits. The count goes through the patient's server when it is a
+    local one -- in the default stack the same vLLM process serves the oracle, so its
+    ``/tokenize`` IS the oracle's tokenizer; ``tools.oracle_sanity`` labels every fallback (a
+    vendor-API patient, an unreachable server) in the report. The oracle model id comes from the
+    arm's recorded roles when it has one, so the token count names the grader, not the patient.
+
+    Never raises: this is a report at the END of a pass whose conversations are already on disk,
+    and a report that took the exit code down with an exception would hide the numbers it exists
+    to print. A measurement failure prints as such and counts as "not known to fit".
+    """
+    from tools.oracle_sanity import (
+        check_prompt_lengths,
+        format_prompt_length_report,
+        prompt_length_report,
+    )
+
+    training = config.get("training") if isinstance(config.get("training"), Mapping) else {}
+    roles_cfg = config.get("roles") if isinstance(config.get("roles"), Mapping) else {}
+    oracle_rec = roles_cfg.get("oracle") if isinstance(roles_cfg.get("oracle"), Mapping) else {}
+    qids = tuple(int(q) for q in (training.get("questionnaire_ids") or (1, 2)))
+    oracle_model = str(oracle_rec.get("model") or _default_oracle_model_id())
+    base_url = patient_binding.base_url if patient_binding.is_local else None
+
+    print("\n" + rule)
+    print(f"  ORACLE PROMPT LENGTHS (Phase 2 gate): {len(qids)} rubric(s) x this state, counted "
+          f"{'by the server at ' + base_url if base_url else 'without a server (labelled fallback)'}")
+    try:
+        report = prompt_length_report(conv_dir, qids, base_url=base_url, model=oracle_model)
+    except Exception as exc:  # noqa: BLE001 - a report must not take a finished pass down
+        print(f"  !! could not measure the oracle prompt lengths ({type(exc).__name__}: {exc}). "
+              f"Run `python tools/oracle_sanity.py --conv-dir {conv_dir}` before scoring.")
+        return False
+    print(format_prompt_length_report(report))
+    passed, _reasons = check_prompt_lengths(report)
+    if not passed:
+        print("  !! PROMPT OVERFLOW: the exit code is 1 so a scripted pipeline cannot score this "
+              "state as if it were complete.")
+    return passed
+
+
+def _default_oracle_model_id() -> str:
+    """The default grader, from :mod:`roles` so there is one spelling of it."""
+    from roles import DEFAULT_ORACLE_MODEL
+
+    return DEFAULT_ORACLE_MODEL
 
 
 if __name__ == "__main__":

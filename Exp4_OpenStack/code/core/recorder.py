@@ -10,7 +10,10 @@ re-deriving them means paying for the whole iteration again.
 
 ``EDARecorder`` is a buffer, not a logger. The hot path calls :meth:`append` (a list append -- safe
 inside the async reward fn: it never blocks the event loop and never touches the Colab Drive-FUSE
-mount), and exactly one write happens per iteration, atomically, at the end.
+mount). GRPO writes the buffer exactly once per iteration, atomically, at the end
+(:meth:`EDARecorder.flush`); PTO appends the rows of each trunk depth as it completes
+(:meth:`EDARecorder.append_to_disk`, so a preempted build keeps its rows on disk) and normalises the
+file on resume (:meth:`EDARecorder.rewrite`). Both paths produce the same line format.
 
 One branch-centric row serves all three producers (GRPO groups, PTO greedy trunks, PTO independent
 branches). The prefix is stored ONCE per row and the candidates are nested under it, because the G
@@ -28,11 +31,44 @@ multiply the file by G::
         "reward_used": 3.3,                               # only when != score (GRPO substitution)
         "role": "chosen"|"rejected"|"neither"|None,       # PTO only
         "oracle": {"success": true, "attempts": 1},
-        "lookahead": {"tail": "..."|None, "realized_turns": 5, "ended_early": false}|None}, ...]}
+        "ended_by_candidate": false,                      # EVERY candidate (written by core.reward)
+        "not_graded_reason": "oracle_failed"|"patient_error"|"gpu_error"|"prompt_overflow"
+                             |"parse_error",             # ONLY when score is null
+        "lookahead": {"tail": "..."|None, "realized_turns": 5, "ended_early": false,
+                      "stop_reason": ""|"session_ended"|"degenerate"|"patient_error"
+                                     |"gpu_error"|"prompt_overflow"|"parse_error"}|None}, ...]}
+
+Two candidate keys are written by ``core.reward.CandidateScore.to_record`` ON TOP of
+:func:`build_candidate`'s dict (the recorder writes candidates as given):
+
+* ``ended_by_candidate`` (every candidate) -- True when the completion itself contained
+  ``SESSION ENDED``: the oracle graded only the text BEFORE the keyword, no rollout was run
+  (at K>0 the ``lookahead`` dict is a zero-turn record: ``tail ""``, ``realized_turns 0``,
+  ``ended_early true``, ``stop_reason "session_ended"``), and ``completion`` still carries the
+  keyword plus the model's explanation -- the row records what the policy emitted, and PTO's
+  trunk advance reads the keyword to freeze the trunk. What trained on it differs by method: a
+  DPO pair uses the SPLIT text (``pto_trainer._pair_text``, exactly what the oracle graded),
+  while GRPO trains on the completion ids TRL sampled (this string) with its reward computed on
+  the split text.
+* ``not_graded_reason`` (only when ``score`` is null) -- ``"oracle_failed"`` = the grader was
+  asked and could not answer; ``"patient_error"`` / ``"gpu_error"`` / ``"prompt_overflow"`` /
+  ``"parse_error"`` = the K-turn look-ahead froze before the oracle was ever called
+  (``core.lookahead``'s ``NOT_GRADED_STOP_REASONS``), so the candidate was left ungraded rather
+  than scored on a truncated future. Both kinds count as failures against ``min_success_ratio``.
+  On PTO rows ``"gpu_error"`` / ``"prompt_overflow"`` can also come from the BRANCH SAMPLER
+  (``pto_trainer._apply_sampling_failures``: the candidate was never generated -- the sampler
+  failed at chunk size 1, or the newest turn alone exceeded ``therapist_max_input_tokens``);
+  those rows carry ``score null``, ``degenerate false``, ``oracle {success: false, attempts: 0}``
+  and ``lookahead null``, which is how they are told apart from a look-ahead failure.
+
+``lookahead.stop_reason`` (K>0 only) is the simulator's own verdict; ``""`` means the rollout ran
+to K turns.
 
 Reconstruct the exact text the oracle scored as
 ``prefix + "\\n\\n[THERAPIST]: " + completion + (tail or "")`` -- which is why the transcript labels
-and the ``"\\n\\n"`` joiner in ``core/conversations.py`` are load-bearing here too.
+and the ``"\\n\\n"`` joiner in ``core/conversations.py`` are load-bearing here too. ⚠ For an
+``ended_by_candidate`` row split ``completion`` at the keyword first
+(``core.lookahead.split_session_end``): the graded text stops there, and ``tail`` is empty.
 
 ``persona_id`` is an Exp4 addition (Exp3 rows carried only ``conversation_id``, and its EDA had to
 replay the per-iteration persona shuffle to recover which patient a branch belonged to). Record it
@@ -61,6 +97,7 @@ __all__ = [
     "PHASE_INDEPENDENT",
     "GRPO_PHASES",
     "PTO_PHASES",
+    "NOT_GRADED_STOP_REASONS",
     "EDARecorder",
     "to_jsonable",
     "build_candidate",
@@ -83,6 +120,12 @@ PHASE_INDEPENDENT = "independent"  # PTO independent: one row per branch point o
 
 GRPO_PHASES = (PHASE_GROUP,)
 PTO_PHASES = (PHASE_TREE, PHASE_INDEPENDENT)
+
+#: ``lookahead.stop_reason`` values for which the candidate was left UNGRADED (the simulator
+#: froze before the oracle ran). Mirrors ``core.lookahead.NOT_GRADED_STOP_REASONS`` -- duplicated
+#: rather than imported because that module pulls torch in and this one must stay stdlib-only for
+#: the read-side EDA. Keep the two in step.
+NOT_GRADED_STOP_REASONS = frozenset({"patient_error", "gpu_error", "prompt_overflow", "parse_error"})
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -163,9 +206,16 @@ def build_candidate(
         role: PTO only -- "chosen" | "rejected" | "neither". ``"rejected"`` is what
             :meth:`EDARecorder.aggregate` counts as "a preference pair was emitted at this branch",
             so set it only when the tau filter actually passed.
-        lookahead: ``{"tail": str|None, "realized_turns": int, "ended_early": bool}`` (a ``"k"``
-            key is accepted and preserved). Pass ``None`` at K=0 -- an absent dict is what marks a
-            no-look-ahead run, and the look-ahead scalars are then simply not emitted.
+        lookahead: ``{"tail": str|None, "realized_turns": int, "ended_early": bool}`` (``"k"``
+            and ``"stop_reason"`` keys are accepted and preserved). Pass ``None`` at K=0 -- an
+            absent dict is what marks a no-look-ahead run, and the look-ahead scalars are then
+            simply not emitted.
+
+    Notes:
+        ``core.reward.CandidateScore.to_record`` adds two keys this builder does not know about:
+        ``ended_by_candidate`` (always) and ``not_graded_reason`` (only when *score* is None) --
+        see the module docstring. The recorder writes whatever dict it is handed, so a producer
+        that builds candidates here and wants those keys sets them on the result.
     """
     cand: Dict[str, Any] = {
         "idx": int(idx),
@@ -334,10 +384,10 @@ def _pstdev(values: Sequence[float]) -> float:
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 class EDARecorder:
-    """In-memory per-iteration buffer of branch records, flushed once, atomically.
+    """In-memory per-iteration buffer of branch records; GRPO flushes it once, PTO appends per depth.
 
     Args:
-        out_path: where :meth:`flush` writes the JSONL -- normally
+        out_path: where :meth:`flush` / :meth:`append_to_disk` write the JSONL -- normally
             ``iteration_N/eda/generations.jsonl``.
         enabled: when False every method is a no-op and nothing is written (the zero-overhead
             off-switch; ``SAVE_EDA_GENERATIONS=False``).
@@ -349,9 +399,12 @@ class EDARecorder:
             buffer lives for a whole iteration.
 
     Notes:
-        The buffer is a plain list; :meth:`append` does no I/O. All I/O is atomic (temp file +
-        ``os.replace``), so a crash mid-write can never leave a half-written JSONL that the EDA
-        would silently parse as a short iteration.
+        The buffer is a plain list; :meth:`append` does no I/O. Every whole-file write is atomic
+        (temp file + ``os.replace``), so a crash mid-write can never leave a half-written JSONL
+        that the EDA would silently parse as a short iteration. :meth:`append_to_disk` is the one
+        non-atomic write (an O_APPEND of the new rows); its caller (PTO's per-depth flush) records
+        the count only AFTER the append returned and normalises the file with :meth:`rewrite` on
+        resume, so a torn trailing line is dropped rather than parsed.
     """
 
     def __init__(self, out_path: str, *, enabled: bool = True, save_transcripts: bool = True):
@@ -399,29 +452,76 @@ class EDARecorder:
         ambiguous absence. Every value goes through :func:`to_jsonable` first and the dump runs
         with ``allow_nan=False``, so the output is strict JSON on every line.
         """
+        self._replace_with(path, self.records)
+        return path
+
+    @staticmethod
+    def jsonl_line(record: Dict[str, Any]) -> str:
+        """One JSONL line for *record*: strict JSON (``allow_nan=False``), ``to_jsonable`` first.
+
+        THE line format -- :meth:`flush`, :meth:`snapshot_to`, :meth:`append_to_disk` and
+        :meth:`rewrite` all go through it, so a file written by any of them reads back through
+        :func:`iter_jsonl` identically.
+        """
+        return json.dumps(to_jsonable(record), ensure_ascii=False, allow_nan=False, default=str) + "\n"
+
+    @staticmethod
+    def _replace_with(path: str, rows: Sequence[Dict[str, Any]]) -> None:
+        """Atomically make *path* hold exactly *rows* (temp file + ``os.replace``)."""
         parent = os.path.dirname(path)
         if parent:
             os.makedirs(parent, exist_ok=True)
         tmp = path + ".tmp"
         with open(tmp, "w", encoding="utf-8", newline="\n") as f:
-            for rec in self.records:
-                f.write(json.dumps(
-                    to_jsonable(rec), ensure_ascii=False, allow_nan=False, default=str,
-                ))
-                f.write("\n")
+            for rec in rows:
+                f.write(EDARecorder.jsonl_line(rec))
         os.replace(tmp, path)
-        return path
 
     def flush(self) -> Optional[str]:
         """Write the buffer to ``out_path``. Returns the path, or None when disabled.
 
-        One write per iteration is deliberate: the Colab output dir is a Drive-FUSE mount where
-        many small writes are both slow and failure-prone. Idempotent -- calling it twice rewrites
-        the same file.
+        One write per iteration is deliberate for GRPO: the Colab output dir is a Drive-FUSE mount
+        where many small writes are both slow and failure-prone. Idempotent -- calling it twice
+        rewrites the same file.
         """
         if not self.enabled:
             return None
         return self._write_jsonl(self.out_path)
+
+    def append_to_disk(self, n_already: int) -> int:
+        """APPEND ``records[n_already:]`` to ``out_path``; return the new on-disk count.
+
+        The incremental write PTO uses after every trunk depth (its build runs for ~an hour, and
+        a preemption must not lose the rows of the depths that finished). *n_already* is the
+        count the caller knows to be on disk; rows before it are never rewritten. An append of
+        zero rows still creates the file, so its presence keeps meaning "this build ran".
+
+        Returns ``len(self.records)`` on success, or 0 when disabled. Raises ``OSError`` /
+        ``ValueError`` on a failed write -- the caller decides what to count as flushed (see
+        ``pto_trainer._flush_eda_rows``, which then calls :meth:`rewrite` with the rows it knows
+        reached the disk, so a torn trailing line cannot survive into the next append).
+        """
+        if not self.enabled:
+            return 0
+        n_already = max(0, min(int(n_already), len(self.records)))
+        parent = os.path.dirname(self.out_path)
+        if parent:
+            os.makedirs(parent, exist_ok=True)
+        with open(self.out_path, "a", encoding="utf-8", newline="\n") as f:
+            for rec in self.records[n_already:]:
+                f.write(self.jsonl_line(rec))
+        return len(self.records)
+
+    def rewrite(self, rows: Sequence[Dict[str, Any]]) -> None:
+        """Atomically make ``out_path`` hold exactly *rows*. Does NOT touch the buffer.
+
+        The resume-side complement of :meth:`append_to_disk`: after a kill mid-append the file
+        may end in a torn line or hold rows the progress snapshot never counted, and this puts
+        it back on a clean line boundary before the next append. No-op when disabled.
+        """
+        if not self.enabled:
+            return
+        self._replace_with(self.out_path, rows)
 
     def snapshot_to(self, path: str) -> Optional[str]:
         """Write the current buffer beside an HF checkpoint (crash-recovery copy).
@@ -505,9 +605,11 @@ class EDARecorder:
 
         * always -- ``eda/n_branches``, ``eda/n_candidates``
         * when any candidate scored -- ``eda/mean_candidate_reward``, ``eda/reward_std``
-        * when any candidate exists -- ``eda/oracle_success_rate``
+        * when any candidate exists -- ``eda/oracle_success_rate``,
+          ``eda/ended_by_candidate_frac`` (completions that closed the session themselves)
         * when look-ahead ran (K>0) -- ``eda/lookahead_realized_turns_mean``,
-          ``eda/lookahead_ended_early_frac``
+          ``eda/lookahead_ended_early_frac``, ``eda/lookahead_not_graded_frac`` (rollouts the
+          simulator froze -- ``stop_reason`` in :data:`NOT_GRADED_STOP_REASONS`, left ungraded)
         * PTO rows only -- ``pto/branch_points``, ``pto/pref_pair_count``, ``pto/tau_filter_rate``
         * GRPO rows only -- ``grpo/num_groups``, and when group stats are present
           ``grpo/group_reward_std_mean``, ``grpo/frac_zero_std``
@@ -551,6 +653,9 @@ class EDARecorder:
             scalars["eda/oracle_success_rate"] = _mean(
                 [1.0 if _candidate_success(c) else 0.0 for c in cands]
             )
+            scalars["eda/ended_by_candidate_frac"] = _mean(
+                [1.0 if c.get("ended_by_candidate") else 0.0 for c in cands]
+            )
 
         las = [la for la in (_lookahead_of(c) for c in cands) if la is not None]
         if las:
@@ -559,6 +664,11 @@ class EDARecorder:
             )
             scalars["eda/lookahead_ended_early_frac"] = _mean(
                 [1.0 if la.get("ended_early") else 0.0 for la in las]
+            )
+            # Simulator failures as a rendered scalar rather than a log line: a rising curve is
+            # a saturating patient server, hours before the min_success_ratio gate fires.
+            scalars["eda/lookahead_not_graded_frac"] = _mean(
+                [1.0 if la.get("stop_reason") in NOT_GRADED_STOP_REASONS else 0.0 for la in las]
             )
 
         # PTO: one row per branch point; a pair exists iff tau passed there.

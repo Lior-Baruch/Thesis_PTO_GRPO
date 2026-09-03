@@ -62,11 +62,26 @@ Per-rubric counts need each call to be independent. The pooled row is then reduc
 ``score_conversation`` documents it -- the unweighted mean across rubrics, counted only where every
 rubric validated.
 
+The third gate: does the oracle prompt FIT?
+------------------------------------------
+Unrelated to the grader's judgement and just as silent: the full oracle prompt (rubric + the
+whole transcript) has to fit the server's ``max_model_len``, and a conversation whose prompt does
+not fit is simply absent from the score -- no error, just a missing row. The prompts that
+overflow are the LONGEST conversations, and session length varies by arm and by K, so the
+dropout would be arm-dependent: a bias on the very contrast the experiment measures. The 16384
+cap was sized on Exp3 transcripts written by ``gpt-4o-mini``; Exp4's Gemma patient may write
+longer turns. :func:`prompt_length_report` measures the REALISED distribution on real Exp4
+conversations (the Phase 2 gate), counting tokens through the served model's own tokenizer
+(vLLM's ``/tokenize``) whenever a server is reachable, and :func:`check_prompt_lengths` fails
+loudly when any prompt exceeds the served context length. ``tools/generate_convs.py`` runs it
+at the end of every pass.
+
 Usage::
 
     # CLI, from Exp4_OpenStack/code/
     python tools/oracle_sanity.py --quick
-    python tools/oracle_sanity.py --model google/gemma-4-E2B-it --out ../data/runs/<ARM>/
+    python tools/oracle_sanity.py --model google/gemma-4-E4B-it --out ../data/runs/<ARM>/
+    python tools/oracle_sanity.py --conv-dir ../data/conversations/<ARM>/model_iter_0   # lengths only
 
     # notebook, before iteration 1
     report = run_async(run_sanity(bindings["oracle"], quick=True))
@@ -74,6 +89,13 @@ Usage::
     ok, reasons = check_gates(report)
     if not ok:
         raise RuntimeError("oracle unfit: " + "; ".join(reasons))
+
+    # Phase 2: the realised oracle-prompt lengths on real Exp4 conversations -- a model-state
+    # folder, or a list of oracle-formatted transcripts already in memory (Run_Eval § 8)
+    lengths = prompt_length_report(conv_dir, (1, 2), base_url=bindings["oracle"].base_url,
+                                   model=bindings["oracle"].model)
+    print(format_prompt_length_report(lengths))
+    ok, reasons = check_prompt_lengths(lengths)
 """
 
 from __future__ import annotations
@@ -83,11 +105,14 @@ import asyncio
 import json
 import math
 import os
+import re
 import sys
 import time
+import urllib.error
+import urllib.request
 from dataclasses import dataclass
-from statistics import fmean, stdev
-from typing import Any, Dict, List, Optional, Sequence, Tuple
+from statistics import fmean, median, stdev
+from typing import Any, Callable, Dict, List, Mapping, Optional, Sequence, Tuple, Union
 
 # `python tools/oracle_sanity.py` puts tools/ on sys.path, NOT code/, so the project imports below
 # would not resolve when this file runs as a script. The trainer notebooks already prepend code/,
@@ -105,7 +130,7 @@ from core.oracle import (                                          # noqa: E402
     set_openai_compat_strict,
 )
 from naming import qtag_for                                        # noqa: E402
-from questionnaires import QuestionnaireID                         # noqa: E402
+from questionnaires import QuestionnaireID, get_prompt_eval_questionnaire   # noqa: E402
 from roles import (                                                # noqa: E402
     DEFAULT_ORACLE_MODEL,
     PROVIDERS,
@@ -113,7 +138,14 @@ from roles import (                                                # noqa: E402
     ServeSpec,
     make_binding,
 )
-from tools.vllm_serve import wait_until_ready                      # noqa: E402
+from tools.vllm_serve import (                                     # noqa: E402
+    _get_json,
+    _model_ids_match,
+    _models_url,
+    _served_model_ids,
+    served_max_model_len,
+    wait_until_ready,
+)
 
 __all__ = [
     "SCHEMA_VERSION",
@@ -123,11 +155,15 @@ __all__ = [
     "MIN_ITEMS_FOR_SPEARMAN",
     "QUICK_N_ITEMS",
     "REPORT_FILENAME",
+    "CHARS_PER_TOKEN_ESTIMATE",
+    "PROMPT_LENGTH_REPORT_FILENAME",
     "FixtureItem",
     "Fixture",
     "Observation",
     "MetricReport",
     "SanityReport",
+    "PromptLengthRow",
+    "PromptLengthReport",
     "load_fixture",
     "select_spanning",
     "metric_label",
@@ -137,6 +173,10 @@ __all__ = [
     "check_gates",
     "format_report",
     "write_report",
+    "prompt_length_report",
+    "check_prompt_lengths",
+    "format_prompt_length_report",
+    "write_prompt_length_report",
     "main",
 ]
 
@@ -204,6 +244,21 @@ REPORT_FILENAME = "oracle_sanity.json"
 #: Fixture key holding the frozen reference scores, and the sort key used to order the fixture by
 #: quality. ``Q1Q2`` is the pooled Exp1/Exp3 training reward.
 _REFERENCE_SORT_KEY = "Q1Q2"
+
+#: Characters per token for the LAST-RESORT prompt-length estimate (no server, no tokenizer).
+#: English prose on the Gemma / o200k / Llama-3 tokenizers runs ~3.5-4.2 chars per token, so
+#: dividing by 3.5 OVER-counts -- deliberately: an estimate that has to stand in for a gate
+#: should err toward reporting an overflow, never toward hiding one. A report built on it says
+#: so in its ``method`` column and must not be quoted as a measurement.
+CHARS_PER_TOKEN_ESTIMATE = 3.5
+
+#: Filename used when ``--out`` names a directory for the prompt-length report.
+PROMPT_LENGTH_REPORT_FILENAME = "oracle_prompt_lengths.json"
+
+#: Per-call ceiling for the ``/tokenize`` probe. Tokenizing a 10k-token prompt is milliseconds
+#: server-side; anything slower is a queue, and 96 x 2 calls behind a busy server are still
+#: bounded by this.
+_TOKENIZE_TIMEOUT_S = 30.0
 
 
 # ==============================================================================
@@ -767,33 +822,51 @@ class SanityReport:
 
 
 def _preflight(binding: RoleBinding, timeout: float) -> None:
-    """Fail fast when a local endpoint is not answering, before spending any oracle call.
+    """Fail fast when a local endpoint is not answering -- or is serving ANOTHER model.
 
     Raises:
-        RuntimeError: the endpoint did not answer within *timeout*.
+        RuntimeError: the endpoint did not answer within *timeout*, or it answered ``/models``
+            with entries none of which is ``binding.model``.
 
     Notes:
-        Without this, an unreachable server produces a full sweep of connection failures that look
-        exactly like schema failures -- ``n_fail == n_total`` on every rubric -- and the report
-        would read as "this grader cannot follow the schema" when the truth is "nothing was
-        listening". The gate cannot tell those apart after the fact, because
+        Without the readiness half, an unreachable server produces a full sweep of connection
+        failures that look exactly like schema failures -- ``n_fail == n_total`` on every rubric
+        -- and the report would read as "this grader cannot follow the schema" when the truth is
+        "nothing was listening". The gate cannot tell those apart after the fact, because
         ``core.oracle.get_evaluation_json`` deliberately converts every transport error into a
         failed call.
+
+        The model half exists because the archived report is titled with ``binding.model``. A
+        vLLM server serving a different model 404s every request (it only knows its own id), so
+        again every call fails -- but an OpenAI-compatible server that routes any ``model`` to
+        whatever it has loaded would grade the fixture with the WRONG grader and produce a
+        clean report about a model the server never ran. ``tools.vllm_serve._model_ids_match``
+        is the same equality ``adopt_if_running`` uses, so this refuses exactly what that
+        refuses. A server that lists no models at all is left to the sweep (nothing to compare).
 
         Synchronous and blocking inside the async caller on purpose: it runs before any task is
         scheduled, so there is nothing for it to block.
     """
-    if not (binding.is_local and binding.base_url and timeout > 0):
+    if not (binding.is_local and binding.base_url):
         return
-    try:
-        wait_until_ready(binding.base_url, timeout=timeout, poll_seconds=2.0)
-    except Exception as exc:
+    if timeout > 0:
+        try:
+            wait_until_ready(binding.base_url, timeout=timeout, poll_seconds=2.0)
+        except Exception as exc:
+            raise RuntimeError(
+                f"Oracle endpoint {binding.base_url} did not answer within {timeout:.0f}s ({exc}). "
+                f"Start the server first (tools/vllm_serve.py: serve_roles/start_server) and "
+                f"re-run. Without this check the sweep would report 100% schema failure for a "
+                f"server that is simply not there."
+            ) from exc
+
+    served = _served_model_ids(_get_json(_models_url(binding.base_url)))
+    if served and not any(_model_ids_match(binding.model, sid) for sid in served):
         raise RuntimeError(
-            f"Oracle endpoint {binding.base_url} did not answer within {timeout:.0f}s ({exc}). "
-            f"Start the server first (tools/vllm_serve.py: serve_roles/start_server) and re-run. "
-            f"Without this check the sweep would report 100% schema failure for a server that is "
-            f"simply not there."
-        ) from exc
+            f"Oracle endpoint {binding.base_url} serves {served!r}, not {binding.model!r}. "
+            f"Refusing to score: the report would be filed under a model the server never ran. "
+            f"Pass --model with the served id (or --base-url with the right server)."
+        )
 
 
 async def run_sanity(binding: RoleBinding,
@@ -1257,6 +1330,496 @@ def write_report(report: SanityReport, path: str) -> str:
 
 
 # ==============================================================================
+#                 THE ORACLE PROMPT LENGTH -- Phase 2: does it FIT?
+# ==============================================================================
+#
+# Measured on REAL conversations, never on the fixture: the question is what the Exp4 patient
+# makes the therapist's sessions look like, and the fixture is Exp3 text. Token counts come from
+# the served model's own tokenizer through vLLM's /tokenize endpoint whenever a server is
+# reachable, because the number that matters is the one the SERVER computes when it decides
+# whether the request fits. The fallbacks (a local HF tokenizer, then chars/3.5) are labelled in
+# the report so nobody quotes an estimate as a measurement.
+
+
+@dataclass(frozen=True)
+class PromptLengthRow:
+    """One (conversation, rubric) prompt and how long it is.
+
+    Attributes:
+        conversation_id: ``pers07`` -- the CSV stem.
+        persona_id: The stable persona index.
+        questionnaire_id: The rubric whose full prompt was measured.
+        label: ``Q1`` / ``Q2`` / ...
+        n_utterances: Conversation length (therapist + patient), to see length driving overflow.
+        n_chars: Characters in the full prompt (rubric + transcript).
+        n_tokens: Tokens in the full prompt, by ``method``.
+        method: How ``n_tokens`` was obtained -- see :class:`PromptLengthReport`.
+    """
+
+    conversation_id: str
+    persona_id: int
+    questionnaire_id: int
+    label: str
+    n_utterances: int
+    n_chars: int
+    n_tokens: int
+    method: str
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {"conversation_id": self.conversation_id, "persona_id": self.persona_id,
+                "questionnaire_id": self.questionnaire_id, "label": self.label,
+                "n_utterances": self.n_utterances, "n_chars": self.n_chars,
+                "n_tokens": self.n_tokens, "method": self.method}
+
+
+@dataclass(frozen=True)
+class PromptLengthReport:
+    """The realised oracle-prompt length distribution over one conversations folder.
+
+    Attributes:
+        conv_dir: The folder measured (one model state), or a ``<N transcript(s) in memory>``
+            label when :func:`prompt_length_report` was handed transcripts instead of a folder.
+        questionnaire_ids: Rubrics whose full prompts were built.
+        n_conversations: Conversations measured (also exported as ``n_transcripts``).
+        max_model_len: The context length the prompts are checked against.
+        max_model_len_source: Where that number came from -- ``"argument"``, ``"server:/tokenize"``,
+            ``"server:/v1/models"`` or ``"assumed:ServeSpec.max_model_len"``. An ASSUMED cap is
+            the spec's 16384, not the server's, and the report says so.
+        method: How tokens were counted, the same for every row: ``"vllm:/tokenize"`` (the served
+            tokenizer -- the measurement), ``"tokenizer:<id>"`` (a local HF tokenizer; the same
+            numbers iff it is the served model's) or ``"estimate:chars/3.5"`` (a labelled
+            over-count -- see :data:`CHARS_PER_TOKEN_ESTIMATE`).
+        base_url / model: The endpoint and model the count was resolved against, for provenance.
+        rows: One :class:`PromptLengthRow` per (conversation, rubric).
+        notes: Anything the resolver had to fall back over (an unreachable server, a rejected
+            ``/tokenize`` form), so the archived JSON explains its own ``method``.
+    """
+
+    conv_dir: str
+    questionnaire_ids: Tuple[int, ...]
+    n_conversations: int
+    max_model_len: int
+    max_model_len_source: str
+    method: str
+    base_url: Optional[str]
+    model: Optional[str]
+    rows: Tuple[PromptLengthRow, ...]
+    notes: Tuple[str, ...] = ()
+
+    @property
+    def measured(self) -> bool:
+        """True when the counts are the served tokenizer's, not a stand-in."""
+        return self.method.startswith("vllm:")
+
+    def rows_for(self, questionnaire_id: int) -> Tuple[PromptLengthRow, ...]:
+        return tuple(r for r in self.rows if r.questionnaire_id == int(questionnaire_id))
+
+    def summary(self, questionnaire_id: int) -> Dict[str, Any]:
+        """``{n, median, p95, max, n_over, frac_over, headroom}`` for one rubric."""
+        tokens = sorted(r.n_tokens for r in self.rows_for(questionnaire_id))
+        if not tokens:
+            return {"n": 0, "median": None, "p95": None, "max": None, "n_over": 0,
+                    "frac_over": 0.0, "headroom": None}
+        p95 = tokens[max(0, math.ceil(0.95 * len(tokens)) - 1)]
+        n_over = sum(1 for t in tokens if t > self.max_model_len)
+        return {
+            "n": len(tokens),
+            "median": median(tokens),
+            "p95": p95,
+            "max": tokens[-1],
+            "n_over": n_over,
+            "frac_over": n_over / len(tokens),
+            # Fraction of the cap the longest prompt leaves unused; negative = overflow.
+            "headroom": (self.max_model_len - tokens[-1]) / float(self.max_model_len),
+        }
+
+    @property
+    def n_over(self) -> int:
+        """Prompts, over every rubric, that exceed ``max_model_len``."""
+        return sum(1 for r in self.rows if r.n_tokens > self.max_model_len)
+
+    @property
+    def max_tokens(self) -> int:
+        """The longest measured prompt over every rubric (0 when nothing was measured)."""
+        return max((r.n_tokens for r in self.rows), default=0)
+
+    def to_dict(self) -> Dict[str, Any]:
+        """The archived / gate-readable shape.
+
+        Two spellings of the same facts are carried on purpose: ``per_rubric`` (keyed by metric
+        label, per-rubric ``headroom`` = fraction of the cap the longest prompt leaves unused --
+        what :func:`format_prompt_length_report` renders) and the flat keys
+        ``eda_analysis.scoring.check_prompt_length_gate`` reads -- ``n_transcripts``,
+        ``per_questionnaire`` (keyed by rubric id), ``n_over``, ``max_tokens`` (the longest
+        prompt) and top-level ``headroom`` = ``max_model_len / max_tokens`` (a RATIO; None
+        when nothing was measured). Renaming any of the flat keys makes that gate FAIL loudly.
+        """
+        ok, reasons = check_prompt_lengths(self)
+        longest = self.max_tokens
+        return {
+            "schema_version": "exp4-oracle-prompt-lengths/1",
+            "conv_dir": self.conv_dir,
+            "questionnaire_ids": list(self.questionnaire_ids),
+            "n_conversations": self.n_conversations,
+            "n_transcripts": self.n_conversations,
+            "max_model_len": self.max_model_len,
+            "max_model_len_source": self.max_model_len_source,
+            "method": self.method,
+            "measured": self.measured,
+            "grader": {"base_url": self.base_url, "model": self.model},
+            "per_rubric": {metric_label(q): self.summary(q) for q in self.questionnaire_ids},
+            "per_questionnaire": {str(int(q)): self.summary(q) for q in self.questionnaire_ids},
+            "n_over": self.n_over,
+            "max_tokens": longest,
+            "headroom": (self.max_model_len / float(longest)) if longest else None,
+            "gate": {"passed": ok, "failures": reasons},
+            "notes": list(self.notes),
+            "rows": [r.to_dict() for r in self.rows],
+        }
+
+
+def _tokenize_root(base_url: str) -> str:
+    """vLLM mounts ``/tokenize`` at the server ROOT, beside ``/v1``, not under it."""
+    root = base_url.rstrip("/")
+    if root.endswith("/v1"):
+        root = root[: -len("/v1")]
+    return root + "/tokenize"
+
+
+def _post_json(url: str, payload: Dict[str, Any], *, timeout: float) -> Dict[str, Any]:
+    """POST JSON, return the parsed JSON body. Raises ``urllib.error.URLError``/``ValueError``."""
+    body = json.dumps(payload).encode("utf-8")
+    req = urllib.request.Request(url, data=body, method="POST",
+                                 headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req, timeout=timeout) as resp:
+        parsed = json.loads(resp.read().decode("utf-8", errors="replace"))
+    if not isinstance(parsed, dict):
+        raise ValueError(f"{url} answered a non-object body")
+    return parsed
+
+
+def _vllm_tokenize(base_url: str, model: Optional[str], text: str) -> Tuple[int, Optional[int]]:
+    """``(count, max_model_len)`` from vLLM's ``/tokenize`` for the oracle's exact request shape.
+
+    The oracle sends ``messages=[{"role": "user", "content": prompt}]``, and the server applies
+    the model's chat template on top -- so the ``messages`` form is tried first (that is the
+    count the server will compare against ``max_model_len``), and the raw ``prompt`` form only if
+    the server rejects it. Raises on transport failure or an unusable body.
+    """
+    url = _tokenize_root(base_url)
+    payloads: List[Dict[str, Any]] = [
+        {"messages": [{"role": "user", "content": text}], "add_generation_prompt": True},
+        {"prompt": text},
+    ]
+    last: Optional[BaseException] = None
+    for payload in payloads:
+        if model:
+            payload["model"] = model
+        try:
+            parsed = _post_json(url, payload, timeout=_TOKENIZE_TIMEOUT_S)
+        except urllib.error.HTTPError as exc:
+            last = exc
+            if 400 <= exc.code < 500:
+                continue        # this form is not accepted; try the other
+            raise
+        count = parsed.get("count")
+        if count is None and isinstance(parsed.get("tokens"), list):
+            count = len(parsed["tokens"])
+        if count is None:
+            raise ValueError(f"{url} answered without a token count: {list(parsed)[:6]}")
+        raw_len = parsed.get("max_model_len")
+        try:
+            served_len = int(raw_len) if raw_len is not None else None
+        except (TypeError, ValueError):
+            served_len = None
+        return int(count), served_len
+    raise RuntimeError(f"{url} rejected both request forms ({last})")
+
+
+def _resolve_counter(base_url: Optional[str], model: Optional[str], tokenizer: Any,
+                     notes: List[str]) -> Tuple[Callable[[str], int], str, Optional[int]]:
+    """Pick the token counter: served ``/tokenize`` > HF tokenizer > chars/3.5 estimate.
+
+    Returns ``(count_fn, method_label, served_max_model_len_or_None)``. Every fallback is
+    recorded in *notes*, so the report can say why its method is not the measurement.
+    """
+    if base_url:
+        try:
+            _count, served_len = _vllm_tokenize(base_url, model, "probe")
+            return (lambda text: _vllm_tokenize(base_url, model, text)[0],
+                    "vllm:/tokenize", served_len)
+        except Exception as exc:  # noqa: BLE001 - every failure means "fall back, and say so"
+            notes.append(f"/tokenize at {base_url} unusable ({type(exc).__name__}: "
+                         f"{str(exc)[:120]}); falling back")
+
+    if tokenizer is None and model:
+        try:
+            from transformers import AutoTokenizer  # noqa: PLC0415 - optional, heavy
+
+            tokenizer = AutoTokenizer.from_pretrained(model, local_files_only=True)
+            notes.append(f"using the locally cached HF tokenizer for {model}")
+        except Exception as exc:  # noqa: BLE001 - not cached / not installed: estimate instead
+            notes.append(f"no local HF tokenizer for {model!r} ({type(exc).__name__}); "
+                         f"estimating at {CHARS_PER_TOKEN_ESTIMATE} chars/token")
+            tokenizer = None
+
+    if tokenizer is not None:
+        label = f"tokenizer:{getattr(tokenizer, 'name_or_path', None) or model or 'given'}"
+
+        def _count_hf(text: str) -> int:
+            try:
+                return len(tokenizer.encode(text, add_special_tokens=False))
+            except TypeError:
+                return len(tokenizer.encode(text))
+
+        return _count_hf, label, None
+
+    return (lambda text: int(math.ceil(len(text) / CHARS_PER_TOKEN_ESTIMATE)),
+            f"estimate:chars/{CHARS_PER_TOKEN_ESTIMATE}", None)
+
+
+#: One ``[THERAPIST]:`` / ``[PATIENT]:`` label at a line start = one utterance of an in-memory
+#: transcript (``format_conversation_for_oracle`` output). Unlabelled ``\n\n`` segments are
+#: continuations of the previous turn (``core.conversations.parse_transcript_to_messages``).
+_TURN_LABEL_RE = re.compile(r"(?m)^\[(?:THERAPIST|PATIENT)\]: ")
+
+
+def _count_labelled_turns(transcript: str) -> int:
+    return len(_TURN_LABEL_RE.findall(transcript))
+
+
+def prompt_length_report(source: Union[str, Sequence[str]],
+                         questionnaire_ids: Sequence[int] = (1, 2),
+                         *,
+                         base_url: Optional[str] = None,
+                         tokenizer: Any = None,
+                         model: Optional[str] = None,
+                         max_model_len: Optional[int] = None,
+                         progress: bool = False) -> PromptLengthReport:
+    """Measure the full oracle prompt for every conversation in *source*, per rubric.
+
+    Args:
+        source: EITHER a model-state folder of ``pers*.csv`` conversations
+            (``core.conversations`` layout; read with ``load_conversations_dir``, so an
+            unreadable file is skipped and counted as absent, never as short) OR a sequence of
+            oracle-formatted transcripts already in memory (``format_conversation_for_oracle``
+            output -- what ``eda_analysis.scoring.gather_transcripts`` yields for
+            ``Run_Eval`` § 8, the Phase 2 gate over EVERY arm on disk). In-memory transcripts
+            are labelled ``transcript_<i>`` with ``persona_id -1``, and their ``n_utterances``
+            is the count of turn labels.
+        questionnaire_ids: Rubrics to build prompts for. ``(1, 2)`` is the training reward.
+        base_url: A local OpenAI-compatible endpoint. When given, tokens are counted by the
+            server's own tokenizer via vLLM's ``/tokenize`` -- the measurement -- and the served
+            ``max_model_len`` is read from the same answer (or from ``/v1/models``).
+        tokenizer: A HF tokenizer to count with instead (used only if ``/tokenize`` is not
+            available). Counts agree with the server's iff it is the served model's tokenizer.
+        model: The served model id, sent with ``/tokenize`` and used to look for a cached HF
+            tokenizer when neither *base_url* nor *tokenizer* yields a count.
+        max_model_len: The cap the prompts are checked against when no server advertises one.
+            When a served cap IS read (``/tokenize`` or ``/v1/models``) and differs from this,
+            the SMALLER of the two is used and the report notes both -- the server decides
+            what fits, so a larger argument must not override the real cap, and a smaller one
+            is a deliberate tighter budget. With neither, ``ServeSpec.max_model_len`` (16384),
+            labelled ``assumed`` in the report because it is the spec's number, not the
+            server's.
+        progress: Print one line per conversation.
+
+    Returns:
+        A :class:`PromptLengthReport`. **It does not raise on overflow** -- call
+        :func:`check_prompt_lengths` to gate on it. It does raise when there is nothing to
+        measure.
+
+    Raises:
+        ValueError: *source* holds no readable conversations / no transcripts, or a rubric id
+            is unknown.
+
+    Notes:
+        The prompt measured is exactly what ``core.oracle.get_evaluation_json`` sends:
+        ``get_prompt_eval_questionnaire(qid, transcript)["prompt"]`` over
+        ``format_conversation_for_oracle(state.turns)``. There is no second prompt builder here.
+
+        Cheap: one ``/tokenize`` call per (conversation, rubric), 192 for a full state -- a
+        few seconds against an idle server, and zero model compute.
+    """
+    from core.conversations import format_conversation_for_oracle, load_conversations_dir
+
+    qids = _validate_questionnaire_ids(questionnaire_ids)
+    # (conversation_id, persona_id, n_utterances, transcript) per conversation, either source.
+    items: List[Tuple[str, int, int, str]]
+    if isinstance(source, str):
+        states = load_conversations_dir(source)
+        if not states:
+            raise ValueError(f"prompt_length_report: no readable conversations in {source!r}")
+        items = [(state.conversation_id, int(state.persona_id), int(state.n_utterances),
+                  format_conversation_for_oracle(state.turns))
+                 for state in (states[pid] for pid in sorted(states))]
+        label = os.path.abspath(source)
+    else:
+        texts = [str(t) for t in source]
+        if not texts:
+            raise ValueError("prompt_length_report: no transcripts to measure")
+        items = [(f"transcript_{i:04d}", -1, _count_labelled_turns(t), t)
+                 for i, t in enumerate(texts)]
+        label = f"<{len(texts)} transcript(s) in memory>"
+
+    notes: List[str] = []
+    count, method, served_len = _resolve_counter(base_url, model, tokenizer, notes)
+
+    # The served cap, from whichever surface answered: /tokenize carries it beside the count,
+    # /v1/models (vLLM's model card) is the fallback. None when no server advertised one.
+    if served_len is not None:
+        served_cap, served_source = int(served_len), "server:/tokenize"
+    else:
+        advertised = served_max_model_len(base_url, model=model) if base_url else None
+        served_cap = int(advertised) if advertised is not None else None
+        served_source = "server:/v1/models"
+
+    if max_model_len is not None and served_cap is not None and int(max_model_len) != served_cap:
+        # Both an explicit cap (the notebook's VLLM_MAX_MODEL_LEN, say) and a served one exist
+        # and disagree. The SERVER decides whether a request fits, so the smaller is the one a
+        # prompt has to clear -- and a caller's larger number must not silently override the
+        # real cap (the gate would pass prompts the server rejects), nor a caller's smaller one
+        # be discarded (it may be a deliberate tighter budget).
+        cap = min(int(max_model_len), served_cap)
+        cap_source = f"min(argument {int(max_model_len)}, {served_source} {served_cap})"
+        notes.append(f"explicit max_model_len={int(max_model_len)} differs from the served cap "
+                     f"{served_cap} ({served_source}); checking against the SMALLER, {cap}")
+    elif max_model_len is not None:
+        cap, cap_source = int(max_model_len), "argument"
+    elif served_cap is not None:
+        cap, cap_source = served_cap, served_source
+    else:
+        cap, cap_source = int(ServeSpec(model=model or DEFAULT_ORACLE_MODEL).max_model_len), \
+            "assumed:ServeSpec.max_model_len"
+        notes.append("max_model_len ASSUMED from ServeSpec (no server advertised one); "
+                     "the served cap may differ")
+
+    rows: List[PromptLengthRow] = []
+    for i, (conv_id, persona_id, n_utterances, transcript) in enumerate(items, start=1):
+        for qid in qids:
+            prompt = get_prompt_eval_questionnaire(questionnaire=qid, conversation=transcript)["prompt"]
+            n_tokens = int(count(prompt))
+            rows.append(PromptLengthRow(
+                conversation_id=conv_id, persona_id=persona_id,
+                questionnaire_id=int(qid), label=metric_label(qid),
+                n_utterances=n_utterances, n_chars=len(prompt),
+                n_tokens=n_tokens, method=method,
+            ))
+        if progress:
+            longest = max(r.n_tokens for r in rows[-len(qids):])
+            print(f"  [lengths] {i:>3}/{len(items)} {conv_id:<15} "
+                  f"{n_utterances:>3} utt  longest prompt {longest:>6} tok "
+                  f"{'OVER' if longest > cap else 'ok':<4} (cap {cap})")
+
+    return PromptLengthReport(
+        conv_dir=label, questionnaire_ids=qids, n_conversations=len(items),
+        max_model_len=cap, max_model_len_source=cap_source, method=method,
+        base_url=base_url, model=model, rows=tuple(rows), notes=tuple(notes),
+    )
+
+
+def check_prompt_lengths(report: PromptLengthReport) -> Tuple[bool, List[str]]:
+    """The HARD gate on the length report: no prompt may exceed the served context length.
+
+    Returns ``(passed, reasons)``. One reason per rubric with any overflow, naming the count,
+    the longest prompt and the cap; an empty report fails. A report whose method is an
+    ESTIMATE can still fail -- the estimate over-counts on purpose -- and its reason says so,
+    because the fix is different (measure against the real server before acting).
+    """
+    reasons: List[str] = []
+    if not report.rows:
+        return False, ["[length] nothing was measured -- the gate did not run, so it did not pass."]
+    for qid in report.questionnaire_ids:
+        s = report.summary(qid)
+        if s["n_over"]:
+            how = "" if report.measured else f" [{report.method} -- NOT a measurement; verify against the server]"
+            reasons.append(
+                f"[length] {metric_label(qid)}: {s['n_over']}/{s['n']} prompts exceed "
+                f"max_model_len={report.max_model_len} ({report.max_model_len_source}); longest "
+                f"{s['max']} tokens. Those conversations cannot be scored at all, and they are "
+                f"the LONGEST ones -- an arm-dependent hole in the headline metric, not noise. "
+                f"Raise VLLM_MAX_MODEL_LEN (never lower it) before scoring this state.{how}"
+            )
+    return (not reasons), reasons
+
+
+def format_prompt_length_report(report: Union[PromptLengthReport, Mapping[str, Any]]) -> str:
+    """Render the length report as an ASCII block: per-rubric table, cap provenance, verdict.
+
+    Accepts the :class:`PromptLengthReport` or its :meth:`~PromptLengthReport.to_dict` form (what
+    ``eda_analysis.scoring.prompt_length_gate`` hands ``Run_Eval``), rendered identically.
+    """
+    d: Mapping[str, Any] = report if isinstance(report, Mapping) else report.to_dict()
+    gate = d.get("gate") or {}
+    passed, reasons = bool(gate.get("passed", False)), list(gate.get("failures") or [])
+    grader = d.get("grader") or {}
+    qids = [int(q) for q in (d.get("questionnaire_ids") or ())]
+    per_rubric = d.get("per_rubric") or {}
+    rule = "=" * 88
+    lines = [rule, f"Exp4 oracle prompt lengths -- {d.get('conv_dir')}", "-" * 88,
+             f"conversations : {d.get('n_conversations', d.get('n_transcripts'))}",
+             f"rubrics       : {', '.join(f'{metric_label(q)} (id {q})' for q in qids)}",
+             f"token count   : {d.get('method')}"
+             + ("" if d.get("measured") else "   <-- NOT the served tokenizer; a stand-in"),
+             f"max_model_len : {d.get('max_model_len')} ({d.get('max_model_len_source')})",
+             f"grader        : {grader.get('model') or '?'} @ {grader.get('base_url') or '(no server)'}"]
+    for note in d.get("notes") or ():
+        lines.append(f"note          : {note}")
+    lines.append("")
+    headers = ["metric", "n", "median", "p95", "max", "over", "headroom"]
+    rows: List[List[str]] = []
+    for qid in qids:
+        s = per_rubric.get(metric_label(qid)) or {}
+        n_over, frac_over = int(s.get("n_over", 0)), float(s.get("frac_over", 0.0))
+        rows.append([
+            metric_label(qid), str(s.get("n", 0)), _fmt(s.get("median"), 0), _fmt(s.get("p95"), 0),
+            _fmt(s.get("max"), 0), f"{n_over} ({100.0 * frac_over:.1f}%)",
+            "n/a" if s.get("headroom") is None else f"{100.0 * s['headroom']:+.0f}%",
+        ])
+    lines += _render_table(headers, rows)
+    lines += ["  headroom = (max_model_len - longest prompt) / max_model_len; negative means",
+              "  the longest conversation of this state could not be scored."]
+    lines.append("")
+    lines.append("HARD GATE (blocks scoring)")
+    # Nothing measured is neither a pass nor an overflow: there was no prompt to check. The
+    # gate function still refuses such a report (an undecidable gate must not read as green),
+    # but rendering it as "FAIL -- prompts overflow" would name a failure that did not happen.
+    n_measured = d.get("n_transcripts", d.get("n_conversations"))
+    if n_measured is None:
+        n_measured = len(d.get("rows") or ())
+    if not n_measured:
+        lines.append("  [n/a ] nothing measured (vacuous pass): no transcript was checked, so "
+                     "no prompt overflowed and none was proven to fit")
+        lines.append("")
+        lines.append("VERDICT: nothing measured (vacuous pass) -- no transcripts; run the gate "
+                     "on a populated model state before scoring it")
+        lines.append(rule)
+        return "\n".join(lines)
+    if passed:
+        lines.append(f"  [PASS] every prompt fits max_model_len={d.get('max_model_len')}")
+    else:
+        lines += [f"  [FAIL] {r}" for r in reasons]
+    lines.append("")
+    lines.append("VERDICT: " + ("PASS -- every conversation of this state is scoreable" if passed
+                                else "FAIL -- prompts overflow the served context; do not score yet"))
+    lines.append(rule)
+    return "\n".join(lines)
+
+
+def write_prompt_length_report(report: PromptLengthReport, path: str) -> str:
+    """Write the length report as JSON; a non-``.json`` *path* is a directory (see :func:`write_report`)."""
+    target = os.path.abspath(path)
+    if os.path.isdir(target) or not os.path.basename(target).lower().endswith(".json"):
+        target = os.path.join(target, PROMPT_LENGTH_REPORT_FILENAME)
+    parent = os.path.dirname(target)
+    if parent:
+        os.makedirs(parent, exist_ok=True)
+    with open(target, "w", encoding="utf-8") as fh:
+        json.dump(report.to_dict(), fh, indent=2, ensure_ascii=False)
+    return target
+
+
+# ==============================================================================
 #                                   CLI
 # ==============================================================================
 
@@ -1352,7 +1915,32 @@ def _build_parser() -> argparse.ArgumentParser:
                              "the schema by the SERVER, not following the rubric; record it.")
     parser.add_argument("--quiet", action="store_true",
                         help="suppress per-call progress lines (the report still prints)")
+    parser.add_argument("--conv-dir", default=None,
+                        help="LENGTH MODE: measure the full oracle prompt of every conversation "
+                             "in this model-state folder against the served max_model_len "
+                             "(the Phase 2 gate) instead of scoring the fixture. Tokens are "
+                             "counted by the server at --base-url when it answers /tokenize.")
+    parser.add_argument("--max-model-len", type=int, default=None,
+                        help="length mode: override the served context length to check against")
     return parser
+
+
+def _main_lengths(args: argparse.Namespace, base_url: Optional[str]) -> int:
+    """``--conv-dir``: the prompt-length report. 0 fits, 1 overflow, 2 nothing measured."""
+    try:
+        report = prompt_length_report(
+            args.conv_dir, args.questionnaires,
+            base_url=base_url if args.provider == "openai_compat" else None,
+            model=args.model, max_model_len=args.max_model_len, progress=not args.quiet,
+        )
+    except (FileNotFoundError, ValueError, RuntimeError) as exc:
+        print(f"oracle_sanity: could not measure prompt lengths -- {exc}", file=sys.stderr)
+        return 2
+    print(format_prompt_length_report(report))
+    if args.out:
+        print(f"report written to {write_prompt_length_report(report, args.out)}")
+    passed, _reasons = check_prompt_lengths(report)
+    return 0 if passed else 1
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -1363,8 +1951,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
 
     Returns:
         Exit code: ``0`` every hard gate passed, ``1`` a HARD GATE FAILED (do not train against
-        this grader), ``2`` the check could not be run at all (missing fixture, unreachable
-        endpoint, bad binding).
+        this grader -- or, with ``--conv-dir``, do not score this state: a prompt overflows the
+        served context), ``2`` the check could not be run at all (missing fixture, unreachable
+        endpoint, bad binding, empty conversations folder).
 
     Notes:
         1 and 2 are kept apart on purpose. A CI step or a notebook that only checks "nonzero" is
@@ -1378,6 +1967,9 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     if base_url is None and args.provider == "openai_compat":
         # One source of truth for the default port: the same ServeSpec plan_servers builds.
         base_url = ServeSpec(model=args.model).base_url
+
+    if args.conv_dir:
+        return _main_lengths(args, base_url)
 
     if args.no_strict:
         set_openai_compat_strict(False)

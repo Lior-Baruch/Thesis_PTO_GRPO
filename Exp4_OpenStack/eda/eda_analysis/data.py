@@ -179,8 +179,9 @@ GENERATION_COLUMNS: Tuple[str, ...] = ARM_KEY_COLUMNS + (
     "conversation_id", "persona_id", "branch_id",
     "group_mean", "group_std", "chosen_idx",
     "candidate_idx", "is_chosen", "candidate_role", "score", "reward_used",
+    "not_graded_reason", "ended_by_candidate",
     "oracle_success", "oracle_attempts",
-    "lookahead_tail", "lookahead_realized_turns", "lookahead_ended_early",
+    "lookahead_tail", "lookahead_realized_turns", "lookahead_ended_early", "lookahead_stop_reason",
     "completion", "prefix",
 )
 
@@ -214,9 +215,11 @@ _COLUMN_DTYPES: Dict[str, str] = {
     "group_mean": "float64", "group_std": "float64", "chosen_idx": "float64",
     "candidate_idx": "int64", "is_chosen": "bool", "candidate_role": "object",
     "reward_used": "float64",
+    "not_graded_reason": "object", "ended_by_candidate": "bool",
     "oracle_success": "object", "oracle_attempts": "float64",
     "lookahead_tail": "object", "lookahead_realized_turns": "float64",
-    "lookahead_ended_early": "object", "completion": "object", "prefix": "object",
+    "lookahead_ended_early": "object", "lookahead_stop_reason": "object",
+    "completion": "object", "prefix": "object",
     "total_s": "float64", "production_s": "float64",
     "n_sessions": "int64", "n_sessions_production": "int64", "resumed": "bool",
     "pair_index": "int64", "prompt": "object", "chosen": "object", "rejected": "object",
@@ -1107,6 +1110,15 @@ def load_generations(arm: Arm, n: int, *, include_prefix: bool = True) -> pd.Dat
         Reconstruct a GRPO advantage as ``(reward_used - group_mean) / group_std``; those two are
         recorded as TRL computed them (sample SD, ddof=1), not as a pstdev over the graded
         siblings.
+
+        ``not_graded_reason`` says WHY a ``score`` is NaN (``oracle_failed`` = the grader was
+        asked; a ``core.lookahead.NOT_GRADED_STOP_REASONS`` value = the simulator froze and no
+        call was made; on PTO rows ``gpu_error`` / ``prompt_overflow`` with ``oracle_attempts``
+        0 and no look-ahead fields = the branch sampler never produced the candidate) and is
+        None on every graded row. ``ended_by_candidate`` marks a completion that contained
+        ``SESSION ENDED`` -- graded on its seed alone, no rollout, and ``completion`` still
+        carries the keyword, so split it before reconstructing the graded text.
+        ``lookahead_stop_reason`` is the simulator's verdict (``""`` ran to K).
     """
     path = arm.paths.generations_path(n)
     if not os.path.isfile(path):
@@ -1155,11 +1167,22 @@ def load_generations(arm: Arm, n: int, *, include_prefix: bool = True) -> pd.Dat
                 # `score` (GRPO's group-mean stand-in for a failed grader call), so the
                 # fallback is what makes this column total.
                 "reward_used": candidate.get("reward_used", candidate.get("score")),
+                # Why `score` is NaN: "oracle_failed" (the grader was asked), a look-ahead
+                # stop reason (the simulator froze; no call was made) or, on PTO rows, a
+                # branch-sampler failure (gpu_error / prompt_overflow with oracle_attempts 0
+                # and no lookahead dict). None on every graded candidate.
+                "not_graded_reason": candidate.get("not_graded_reason"),
+                # The completion contained SESSION ENDED: the seed alone was graded, no rollout
+                # ran, and `completion` still carries the keyword (split it before
+                # reconstructing the graded text).
+                "ended_by_candidate": bool(candidate.get("ended_by_candidate", False)),
                 "oracle_success": oracle.get("success"),
                 "oracle_attempts": oracle.get("attempts"),
                 "lookahead_tail": lookahead.get("tail"),
                 "lookahead_realized_turns": lookahead.get("realized_turns"),
                 "lookahead_ended_early": lookahead.get("ended_early"),
+                # "" ran to K | session_ended | degenerate (complete) | a NOT_GRADED reason.
+                "lookahead_stop_reason": lookahead.get("stop_reason"),
                 "completion": candidate.get("completion"),
             }
             for qid, value in (candidate.get("sub_scores") or {}).items():

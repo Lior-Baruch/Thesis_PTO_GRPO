@@ -37,6 +37,39 @@ at K=0, what the rollout extends at K>0, and what the EDA slices tails off. This
 rather than re-deriving it: a second copy of the joiner here is how the K=0 and K=5 arms would end
 up grading subtly different objects, and nothing downstream would say so.
 
+Two more rules keep the training reward the same object as the eval measurement:
+
+**A candidate that closes the session is graded the way the eval path would save it.** The
+conversation loop strips ``SESSION ENDED`` from a closing turn and discards the explanation the
+model wrote after it; the look-ahead does the same for every SIMULATED turn. The candidate itself
+must get the same treatment, or the oracle grades a therapist line containing the literal keyword
+plus text no saved conversation would carry, and at K>0 the patient is then asked to continue a
+session the therapist just ended. So the candidate is split with the same helper
+(``core.lookahead.split_session_end``), the text before the keyword is what the oracle reads, and
+a closing candidate is graded on its seed alone -- no rollout, and at K>0 it is recorded as a
+complete rollout of zero turns (``ended_early=True``, ``stop_reason="session_ended"``). A candidate
+that is ONLY the keyword has no utterance and is floored like any other degenerate turn. The
+candidate's :attr:`~CandidateScore.completion` keeps the keyword for two readers only: PTO's trunk
+advance, which reads it to freeze an ended trunk, and the EDA row, where ``ended_by_candidate``
+says the graded text stops before it. Neither optimizer trains on that string as-is. A DPO pair
+uses the SPLIT text (``pto_trainer._pair_text``) -- exactly what the oracle graded, so the pair's
+score describes the text it trains on; GRPO trains on the completion ids TRL sampled (the policy's
+own emission, keyword included) while its reward is computed on the split text, since the reward
+callable never rewrites TRL's completions.
+
+**A look-ahead the simulator failed to run is not graded.** ``simulate_lookahead_batch`` freezes a
+sim on a patient-call failure, a non-OOM generate error or an unparseable seed, and keeps the
+transcript it reached. Grading that transcript would score one sibling at K=0 (or K=1, K=2, ...)
+beside seven scored at K=5 -- a within-group K asymmetry that ``scale_rewards="group"`` amplifies
+into the advantages of all eight, and under server saturation the freezes correlate across a
+whole optimizer step while nothing raises, because the oracle still succeeds on the short text.
+Such a candidate gets ``score=None`` with a machine-readable ``not_graded_reason`` (its
+``stop_reason``), GRPO substitutes its group mean exactly as for an oracle failure, PTO excludes it
+from the tau comparison, and it counts as a FAILURE against ``min_success_ratio`` -- so a
+saturated patient server stops the run instead of quietly training the K=5 arm on K=0 rewards.
+A session that closes during the rollout, or a simulated turn that cleans to nothing, is a
+complete rollout and stays graded.
+
 TRL interface facts this module depends on (get them wrong and a run mistrains silently):
 
 * completions come back as **G-consecutive blocks per prompt** (``RepeatSampler`` with
@@ -59,10 +92,13 @@ from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 from core.concurrency import AsyncPrimitives
 from core.lookahead import (
+    NOT_GRADED_STOP_REASONS,
     LookaheadConfig,
+    LookaheadResult,
     LookaheadState,
     seed_transcript,
     simulate_lookahead_batch,
+    split_session_end,
 )
 from core.oracle import (
     REWARD_FLOOR,
@@ -74,11 +110,18 @@ from core.policy import clean_completion
 from core.recorder import PHASE_GROUP, build_branch_record, build_candidate
 
 __all__ = [
+    "ORACLE_FAILED_REASON",
     "CandidateScore",
     "make_reward_fn",
     "rewards_for_trl",
     "score_pref_candidates",
 ]
+
+#: ``CandidateScore.not_graded_reason`` for a candidate the oracle was asked about and could not
+#: grade (every retry failed on at least one rubric). The other values are the look-ahead's
+#: :data:`~core.lookahead.NOT_GRADED_STOP_REASONS`, for candidates the oracle never saw. Together
+#: they let the EDA separate grader failures from simulator failures on a ``score == null`` row.
+ORACLE_FAILED_REASON = "oracle_failed"
 
 
 # The text the oracle grades for a candidate at K=0 comes from
@@ -105,11 +148,19 @@ class CandidateScore:
     read when it preferred one branch over another.
 
     Attributes:
-        completion: the CLEANED completion (``""`` marks a degenerate turn).
+        completion: the CLEANED completion (``""`` marks a degenerate turn). ⚠ When
+            :attr:`ended_by_candidate` is set this still CONTAINS the ``SESSION ENDED`` keyword
+            and whatever the model wrote after it -- kept for PTO's trunk advance, which reads
+            the keyword to freeze an ended trunk, and for the EDA row. It is NOT what a DPO pair
+            trains on: the pair uses the split text (``pto_trainer._pair_text``), exactly what
+            the oracle graded. GRPO trains on the completion ids TRL sampled and only its reward
+            is computed on the split text. The oracle graded only the text BEFORE the keyword;
+            see :attr:`scored_text`.
         score: the RAW result -- the oracle's unweighted mean across questionnaires, or
             :data:`~core.oracle.REWARD_FLOOR` when :attr:`degenerate`, or ``None`` when the
-            oracle failed. ``None`` means "not graded", never "graded badly", and PTO must not
-            rank on a fabricated number -- it excludes such a candidate from the tau comparison.
+            candidate was NOT graded (:attr:`not_graded_reason` says why). ``None`` means "not
+            graded", never "graded badly", and PTO must not rank on a fabricated number -- it
+            excludes such a candidate from the tau comparison.
             ⚠ GRPO cannot pass ``None`` to TRL: the pinned trl 1.4.0 turns it into NaN and then
             ``nansum``s it to **0.0**, i.e. trains on it as the worst possible completion. The
             reward vector handed to TRL is therefore built by :func:`rewards_for_trl`, which
@@ -118,17 +169,33 @@ class CandidateScore:
         sub_scores: ``{questionnaire id (str): mean}``, or ``None``. Kept RAW-oracle, so a floored
             row is identifiable as ``score == REWARD_FLOOR`` with ``sub_scores is None``.
         success: did the oracle return a usable score for every requested questionnaire.
-            **False for a degenerate candidate too** -- no call was made, so there is no usable
-            score. That means the recorder's ``eda/oracle_success_rate`` mixes grader failures
-            with policy degeneracy; the gate metric is the one logged as ``oracle/success_rate``,
-            whose denominator is the candidates actually sent to the grader.
-        attempts: total oracle calls made for this candidate (retries included); 0 when degenerate.
-        degenerate: the completion cleaned to ``""``; no oracle call and no rollout were made.
-        scored_text: the exact string the oracle graded (or would have, when degenerate).
-        lookahead: ``{"k", "tail", "realized_turns", "ended_early"}`` when a rollout ran, else
-            ``None``. ``None`` at K=0 AND for degenerate candidates at K>0 -- in both cases no
-            simulation happened, and the recorder's look-ahead scalars are averages over sims
-            that actually ran.
+            **False for a degenerate candidate and for an ungraded look-ahead failure too** --
+            no call was made, so there is no usable score. That means the recorder's
+            ``eda/oracle_success_rate`` mixes grader failures with policy degeneracy and
+            simulator failures; the grader-health metric is the one logged as
+            ``oracle/success_rate``, whose denominator is the candidates actually sent to the
+            grader, and the GATE quantity is ``success_rate`` in the telemetry (graded over
+            gradable).
+        attempts: total oracle calls made for this candidate (retries included); 0 when degenerate
+            or when the look-ahead failed before the oracle was asked.
+        degenerate: the completion cleaned to ``""`` (or to nothing but the ``SESSION ENDED``
+            keyword); no oracle call and no rollout were made.
+        scored_text: the exact string the oracle graded (or would have, when degenerate); for an
+            ungraded look-ahead failure, the transcript the sim had reached when it froze.
+        lookahead: ``{"k", "tail", "realized_turns", "ended_early", "stop_reason"}`` when a
+            rollout ran OR the candidate itself closed the session at K>0 (a complete rollout of
+            zero turns: ``realized_turns=0``, ``ended_early=True``,
+            ``stop_reason="session_ended"``), else ``None``. ``None`` at K=0 AND for degenerate
+            candidates at K>0 -- no simulation happened there, and the recorder's look-ahead
+            scalars are averages over candidates that had a future to score.
+        not_graded_reason: ``None`` when :attr:`score` is a number. Otherwise
+            :data:`ORACLE_FAILED_REASON` (the grader failed) or the look-ahead ``stop_reason``
+            from :data:`~core.lookahead.NOT_GRADED_STOP_REASONS` (the simulator failed and the
+            oracle was never asked). Written to the EDA candidate so the two failure classes
+            can be separated without inspecting ``oracle.attempts``.
+        ended_by_candidate: the candidate contained ``SESSION ENDED``; it was graded on its seed
+            alone (no rollout) and, when it also carried an utterance, that utterance is what
+            the oracle read.
     """
 
     completion: str
@@ -139,6 +206,8 @@ class CandidateScore:
     degenerate: bool
     scored_text: str
     lookahead: Optional[Dict[str, Any]]
+    not_graded_reason: Optional[str] = None
+    ended_by_candidate: bool = False
 
     def to_record(
         self,
@@ -155,15 +224,20 @@ class CandidateScore:
                 only when the tau filter actually passed, because that is what the recorder
                 counts as "a preference pair was emitted here".
             reward_used: GRPO only -- the number actually handed to TRL, when it differs from
-                :attr:`score` (i.e. this candidate's oracle call failed and
-                :func:`rewards_for_trl` substituted its group's mean). Leave ``None`` when the
-                two agree; the key is then absent and the EDA falls back to ``score``.
+                :attr:`score` (i.e. this candidate was not graded and :func:`rewards_for_trl`
+                substituted its group's mean). Leave ``None`` when the two agree; the key is
+                then absent and the EDA falls back to ``score``.
 
         Notes:
             Both methods build their EDA rows through this, so a GRPO candidate and a PTO
             candidate are the same shape and the EDA needs no per-method branch.
+
+            Two keys ride on top of ``core.recorder.build_candidate``'s schema (the recorder
+            writes candidates as given): ``ended_by_candidate`` on EVERY candidate (a bool that
+            is always present, like ``eval_pass`` on the row, so nobody has to know that absence
+            means False), and ``not_graded_reason`` ONLY when :attr:`score` is ``None``.
         """
-        return build_candidate(
+        cand = build_candidate(
             idx,
             self.completion,
             score=self.score,
@@ -174,6 +248,10 @@ class CandidateScore:
             oracle_attempts=self.attempts,
             reward_used=reward_used,
         )
+        cand["ended_by_candidate"] = bool(self.ended_by_candidate)
+        if self.score is None and self.not_graded_reason:
+            cand["not_graded_reason"] = str(self.not_graded_reason)
+        return cand
 
 
 # =============================================================================
@@ -224,23 +302,41 @@ async def _score_candidates(
     prompt the simulated patient must answer with.
 
     Returns:
-        ``(candidates, telemetry)``. ``telemetry`` carries ``n``, ``n_degenerate``, ``n_oracle``,
-        ``n_success``, ``success_rate``, ``lookahead_seconds``, ``realized_turns_mean``,
-        ``n_ended_early`` -- enough for the batch log line and for ``log_metric``.
+        ``(candidates, telemetry)``. ``telemetry`` carries, all as floats:
+
+        * ``n``, ``n_degenerate``, ``n_ended_by_candidate`` (closed the session; seed graded);
+        * ``n_rollout`` (sims handed to the look-ahead), ``n_lookahead_failed`` (of those, frozen
+          by a simulator failure and NOT graded) and its breakdown ``n_la_patient_error`` /
+          ``n_la_gpu_error`` / ``n_la_prompt_overflow`` / ``n_la_parse_error``;
+        * ``n_oracle`` (candidates actually sent to the grader), ``n_success``,
+          ``oracle_success_rate`` (= ``n_success / n_oracle``; grader health) and
+          ``success_rate`` (= ``n_success / (n_oracle + n_lookahead_failed)``; **the gate**:
+          graded over gradable, so a saturated patient server fails it too);
+        * ``lookahead_seconds``, ``realized_turns_mean``, ``n_ended_early`` -- over GRADED
+          candidates that had a future to score (a session-closing candidate at K>0 contributes
+          zero realized turns and one early end).
 
     Raises:
         ValueError: ``transcripts`` and ``completions`` differ in length, or look-ahead / the
             oracle returned a result list of the wrong length. A length mismatch would pair a
             score with the wrong candidate, which is unrecoverable and invisible downstream, so
             it is fatal rather than warned about.
-        RuntimeError: the oracle success rate is below ``oracle_cfg.min_success_ratio`` and
-            *enforce_success_ratio* is set.
+        RuntimeError: ``success_rate`` is below ``oracle_cfg.min_success_ratio`` and
+            *enforce_success_ratio* is set -- whether the failures came from the grader or from
+            the look-ahead simulator.
 
     Notes:
         **Degenerate candidates are excluded from both the rollout and the oracle batch**, not
         scored and then overridden. That keeps the success-rate gate a measure of grader/server
         health rather than of policy degeneracy (an all-degenerate batch makes zero oracle calls
         and cannot trip the gate), and it is free -- the reward is the floor either way.
+
+        **Session-closing candidates are split before anything else** (see the module docstring):
+        the oracle reads the text before the keyword, no rollout is run, and a keyword-only
+        completion is degenerate.
+
+        **Look-ahead failures are excluded from the oracle batch and reported as ungraded**,
+        never scored on the short transcript they reached. They DO count against the gate.
 
         *state* must be ONE :class:`~core.lookahead.LookaheadState` per iteration. It carries the
         sub-batch that OOM halving arrived at, and that halving is only sticky across optimizer
@@ -253,15 +349,42 @@ async def _score_candidates(
             f"they must be parallel lists over candidates"
         )
 
-    cleaned: List[str] = [clean_completion(c) for c in completions]
-    degenerate: List[bool] = [not c for c in cleaned]
+    k = int(la_cfg.k)
+
+    # -- 0. Clean, then split a closing candidate exactly as the eval path would save it ------
+    # `cleaned` is the candidate as the policy emitted it (ChatML leak cut off) -- what PTO
+    # advances the trunk with and what the EDA row records. `utterance` is the text the oracle
+    # reads: the same string unless the candidate contains SESSION ENDED, in which case it is
+    # the text before the keyword (the explanation after it is dropped, as in a saved
+    # conversation) -- and that split text is also what a DPO pair trains on
+    # (pto_trainer._pair_text). A keyword-only candidate has no utterance and is degenerate.
+    cleaned: List[str] = []
+    utterance: List[str] = []
+    ended_by_candidate: List[bool] = []
+    for raw in completions:
+        c = clean_completion(raw)
+        content, ended = split_session_end(c) if c else ("", False)
+        cleaned.append(c)
+        utterance.append(content)
+        ended_by_candidate.append(ended)
+    degenerate: List[bool] = [not u for u in utterance]
     active: List[int] = [i for i in range(n) if not degenerate[i]]
+    # A candidate that closed the session has no future to simulate: seed graded, no rollout.
+    rollout: List[int] = [i for i in active if not ended_by_candidate[i]]
 
     telemetry: Dict[str, float] = {
         "n": float(n),
         "n_degenerate": float(n - len(active)),
-        "n_oracle": float(len(active)),
+        "n_ended_by_candidate": float(sum(1 for i in range(n) if ended_by_candidate[i])),
+        "n_rollout": 0.0,
+        "n_lookahead_failed": 0.0,
+        "n_la_patient_error": 0.0,
+        "n_la_gpu_error": 0.0,
+        "n_la_prompt_overflow": 0.0,
+        "n_la_parse_error": 0.0,
+        "n_oracle": 0.0,
         "n_success": 0.0,
+        "oracle_success_rate": 1.0,
         "success_rate": 1.0,
         "lookahead_seconds": 0.0,
         "realized_turns_mean": 0.0,
@@ -271,10 +394,12 @@ async def _score_candidates(
     # -- 1. Build the text the oracle will read, per active candidate ---------
     scored_text: Dict[int, str] = {}
     la_records: Dict[int, Dict[str, Any]] = {}
+    not_graded: Dict[int, str] = {}          # index -> look-ahead stop_reason
 
-    if la_cfg.k > 0 and active:
+    if k > 0 and rollout:
         # simulate_lookahead_batch already warns when every patient system prompt is empty and
         # raises on a length mismatch of its own three inputs; not duplicated here.
+        telemetry["n_rollout"] = float(len(rollout))
         la_start = time.time()
         results = await simulate_lookahead_batch(
             model,
@@ -282,66 +407,118 @@ async def _score_candidates(
             client,
             la_cfg,
             primitives,
-            [transcripts[i] for i in active],
-            [cleaned[i] for i in active],
+            [transcripts[i] for i in rollout],
+            [utterance[i] for i in rollout],
             sp_therapist or "",
-            [str(_at(sp_patient_list, i, "")) for i in active],
+            [str(_at(sp_patient_list, i, "")) for i in rollout],
             state=state,
         )
         telemetry["lookahead_seconds"] = time.time() - la_start
-        if len(results) != len(active):
+        if len(results) != len(rollout):
             raise ValueError(
                 f"simulate_lookahead_batch returned {len(results)} results for "
-                f"{len(active)} sims; refusing to pair scores with the wrong candidates"
+                f"{len(rollout)} sims; refusing to pair scores with the wrong candidates"
             )
 
-        realized: List[float] = []
-        for slot, i in enumerate(active):
+        for slot, i in enumerate(rollout):
             res = results[slot]
-            scored_text[i] = res.extended_transcript
             # LookaheadResult owns the recorder dict's shape; building it here by hand is how the
             # two would drift.
             la_records[i] = res.to_record()
-            realized.append(float(res.realized_turns))
-            if res.ended_early:
-                telemetry["n_ended_early"] += 1.0
-        telemetry["realized_turns_mean"] = statistics.fmean(realized) if realized else 0.0
+            # The transcript the sim reached is kept for the EDA either way; whether the oracle
+            # sees it is decided by stop_reason (module docstring: a simulator failure is a
+            # K=0 snapshot masquerading as a K=5 rollout, and is NOT graded).
+            scored_text[i] = res.extended_transcript
+            if not res.graded:
+                not_graded[i] = res.stop_reason
+                telemetry["n_lookahead_failed"] += 1.0
+                telemetry[f"n_la_{res.stop_reason}"] = telemetry.get(f"n_la_{res.stop_reason}", 0.0) + 1.0
+
+    if k > 0:
+        for i in active:
+            if ended_by_candidate[i]:
+                # The candidate closed the session itself: a COMPLETE rollout of zero turns, in
+                # the same record shape as a session that closes during the rollout.
+                scored_text[i] = seed_transcript(transcripts[i], utterance[i])
+                la_records[i] = LookaheadResult(
+                    extended_transcript=scored_text[i],
+                    tail="",
+                    realized_turns=0,
+                    ended_early=True,
+                    stop_reason="session_ended",
+                    k=k,
+                ).to_record()
     else:
         for i in active:
-            scored_text[i] = seed_transcript(transcripts[i], cleaned[i])
+            scored_text[i] = seed_transcript(transcripts[i], utterance[i])
 
-    # -- 2. Oracle ------------------------------------------------------------
+    # Look-ahead science scalars, over GRADED candidates that had a future to score.
+    realized: List[float] = []
+    for i in active:
+        rec = la_records.get(i)
+        if rec is None or i in not_graded:
+            continue
+        realized.append(float(rec["realized_turns"]))
+        if rec["ended_early"]:
+            telemetry["n_ended_early"] += 1.0
+    telemetry["realized_turns_mean"] = statistics.fmean(realized) if realized else 0.0
+
+    # -- 2. Oracle, over the gradable candidates only --------------------------
+    to_grade: List[int] = [i for i in active if i not in not_graded]
+    telemetry["n_oracle"] = float(len(to_grade))
     details: List[Dict[str, Any]] = []
-    if active:
+    if to_grade:
         details = list(
             await score_conversations_batch(
-                client, oracle_cfg, primitives, [scored_text[i] for i in active]
+                client, oracle_cfg, primitives, [scored_text[i] for i in to_grade]
             )
         )
-        if len(details) != len(active):
+        if len(details) != len(to_grade):
             raise ValueError(
                 f"score_conversations_batch returned {len(details)} results for "
-                f"{len(active)} conversations; refusing to pair scores with the wrong candidates"
+                f"{len(to_grade)} conversations; refusing to pair scores with the wrong candidates"
             )
 
     n_success = sum(1 for d in details if d.get("success"))
+    n_la_failed = len(not_graded)
     telemetry["n_success"] = float(n_success)
     # batch_success_ratio owns the empty-batch convention (1.0, not 0.0): an all-degenerate batch
     # makes no oracle call, carries no evidence about the grader, and must not kill the run.
-    telemetry["success_rate"] = batch_success_ratio(details)
+    telemetry["oracle_success_rate"] = batch_success_ratio(details)
+    # The GATE: graded over gradable. A look-ahead the simulator failed to run is a failure of
+    # the reward pipeline exactly as an oracle failure is -- both leave a non-random hole.
+    n_gradable = len(to_grade) + n_la_failed
+    telemetry["success_rate"] = (n_success / n_gradable) if n_gradable else 1.0
 
     line = (
         f"{_LOG}{label}: {n} candidates "
-        f"({int(telemetry['n_degenerate'])} degenerate -> floor), "
+        f"({int(telemetry['n_degenerate'])} degenerate -> floor"
     )
+    if telemetry["n_ended_by_candidate"]:
+        line += f", {int(telemetry['n_ended_by_candidate'])} closed the session -> seed graded"
+    line += "), "
     if active:
-        line += f"oracle {n_success}/{len(active)} ok ({telemetry['success_rate']:.0%})"
-        if la_cfg.k > 0:
+        if to_grade:
+            line += (
+                f"oracle {n_success}/{len(to_grade)} ok "
+                f"({telemetry['oracle_success_rate']:.0%})"
+            )
+        else:
+            line += "oracle not called"
+        if k > 0:
             line += (
                 f", look-ahead {telemetry['lookahead_seconds']:.1f}s "
-                f"(avg {telemetry['realized_turns_mean']:.1f}/{la_cfg.k} turns realized, "
-                f"{int(telemetry['n_ended_early'])} ended early)"
+                f"(avg {telemetry['realized_turns_mean']:.1f}/{k} turns realized, "
+                f"{int(telemetry['n_ended_early'])} ended early"
             )
+            if n_la_failed:
+                breakdown = ", ".join(
+                    f"{reason}={int(telemetry.get(f'n_la_{reason}', 0.0))}"
+                    for reason in sorted(NOT_GRADED_STOP_REASONS)
+                    if telemetry.get(f"n_la_{reason}", 0.0)
+                )
+                line += f", {n_la_failed} NOT graded: {breakdown}"
+            line += ")"
     else:
         line += "no oracle calls (every completion was degenerate)"
     print(line)
@@ -349,20 +526,22 @@ async def _score_candidates(
     # -- 3. The gate. Missingness here is not random -- see the module docstring.
     if enforce_success_ratio and active and telemetry["success_rate"] < oracle_cfg.min_success_ratio:
         raise RuntimeError(
-            f"Oracle success rate {telemetry['success_rate']:.1%} is below "
+            f"Reward success rate {telemetry['success_rate']:.1%} is below "
             f"min_success_ratio={oracle_cfg.min_success_ratio:.0%} "
-            f"({len(active) - n_success}/{len(active)} candidates failed). Aborting rather than "
-            f"training on a biased subset -- failures are not missing at random, and in GRPO a "
-            f"systematically-absent sibling shifts both the mean and the std of its group. "
-            f"Likely causes: the vLLM server died or is out of memory (check its log and "
-            f"tools/vllm_serve.ensure_alive), the grader started rejecting the json_schema "
-            f"response_format, transcripts have outgrown --max-model-len, or an API-backed "
-            f"oracle hit a spend cap / rate limit. The iteration resumes from its last "
-            f"checkpoint once the cause is fixed."
+            f"({n_gradable - n_success}/{n_gradable} gradable candidates were not graded: "
+            f"{len(to_grade) - n_success} oracle failures, {n_la_failed} look-ahead simulator "
+            f"failures). Aborting rather than training on a biased subset -- failures are not "
+            f"missing at random, and in GRPO a systematically-absent sibling shifts both the mean "
+            f"and the std of its group. Likely causes: the vLLM server died, is out of memory or "
+            f"is saturated (check its log and tools/vllm_serve.ensure_alive), the grader started "
+            f"rejecting the json_schema response_format, transcripts have outgrown "
+            f"--max-model-len, the look-ahead patient calls are timing out, or an API-backed role "
+            f"hit a spend cap / rate limit. The iteration resumes from its last checkpoint once "
+            f"the cause is fixed."
         )
 
     # -- 4. Assemble ----------------------------------------------------------
-    by_index = {i: details[slot] for slot, i in enumerate(active)}
+    by_index = {i: details[slot] for slot, i in enumerate(to_grade)}
     out: List[CandidateScore] = []
     for i in range(n):
         if degenerate[i]:
@@ -376,6 +555,23 @@ async def _score_candidates(
                     degenerate=True,
                     scored_text=seed_transcript(transcripts[i], ""),
                     lookahead=None,
+                    ended_by_candidate=ended_by_candidate[i],
+                )
+            )
+            continue
+        if i in not_graded:
+            out.append(
+                CandidateScore(
+                    completion=cleaned[i],
+                    score=None,
+                    sub_scores=None,
+                    success=False,
+                    attempts=0,
+                    degenerate=False,
+                    scored_text=scored_text[i],
+                    lookahead=la_records.get(i),
+                    not_graded_reason=not_graded[i],
+                    ended_by_candidate=ended_by_candidate[i],
                 )
             )
             continue
@@ -391,6 +587,8 @@ async def _score_candidates(
                 degenerate=False,
                 scored_text=scored_text[i],
                 lookahead=la_records.get(i),
+                not_graded_reason=(ORACLE_FAILED_REASON if score is None else None),
+                ended_by_candidate=ended_by_candidate[i],
             )
         )
     return out, telemetry
@@ -419,6 +617,10 @@ def rewards_for_trl(
     Substituting the group mean is the minimal-perturbation repair: the failed candidate gets
     advantage ~0 (it is trained neither toward nor away from), the group mean is unchanged, and
     the group SD moves only by the ddof shrinkage of one duplicated point.
+
+    "Failed" here is any ``score is None`` -- an oracle failure and a look-ahead the simulator
+    could not run (:attr:`CandidateScore.not_graded_reason` tells them apart) are repaired the
+    same way, because both are holes the policy did not earn.
 
     Args:
         candidates: the scored candidates, in TRL's order (G-consecutive blocks per prompt).
@@ -689,14 +891,26 @@ def make_reward_fn(
         if callable(log_metric):
             try:
                 if telemetry["n_oracle"] > 0:
-                    log_metric("oracle/success_rate", telemetry["success_rate"])
+                    # Grader health: successes over candidates actually sent to the oracle.
+                    log_metric("oracle/success_rate", telemetry["oracle_success_rate"])
                 if telemetry["n"] > 0:
                     log_metric(
                         "reward/degenerate_frac", telemetry["n_degenerate"] / telemetry["n"]
                     )
+                    log_metric(
+                        "reward/graded_frac",
+                        (telemetry["n_success"] + telemetry["n_degenerate"]) / telemetry["n"],
+                    )
                 if la_cfg.k > 0 and telemetry["n_oracle"] > 0:
                     log_metric(
                         "lookahead/realized_turns_mean", telemetry["realized_turns_mean"]
+                    )
+                if la_cfg.k > 0 and telemetry["n_rollout"] > 0:
+                    # Simulator failures left ungraded (K-asymmetry avoided, gate-counted). A
+                    # rising curve here is a saturating patient server, hours before the gate.
+                    log_metric(
+                        "lookahead/not_graded_frac",
+                        telemetry["n_lookahead_failed"] / telemetry["n_rollout"],
                     )
             except Exception as exc:  # logging must never take a run down
                 print(f"{_LOG}WARNING: log_metric failed (non-fatal): {exc}")
@@ -778,13 +992,19 @@ async def score_pref_candidates(
     Returns:
         One :class:`CandidateScore` per completion, in order. A candidate whose completion
         cleaned to empty carries ``score == REWARD_FLOOR`` and ``degenerate=True``; one whose
-        oracle call failed carries ``score is None`` -- exclude those from the tau comparison
-        rather than treating them as a low score.
+        oracle call failed, or whose look-ahead the simulator could not run, carries
+        ``score is None`` (with ``not_graded_reason``) -- exclude those from the tau comparison
+        rather than treating them as a low score. A candidate that closed the session keeps the
+        keyword in ``completion`` (so the trunk advance freezes the trunk, unchanged) but was
+        graded on the text before it, with no rollout; ``ended_by_candidate`` says so, and the
+        DPO pair must then be built from the split text (``pto_trainer._pair_text``), never
+        from ``completion``.
 
     Raises:
         ValueError: parallel lists disagree in length, or ``la_cfg.k > 0`` with no
             *sp_therapist*.
-        RuntimeError: oracle success rate below the configured floor.
+        RuntimeError: graded-over-gradable rate (oracle AND look-ahead failures) below the
+            configured floor.
 
     Notes:
         Feed the results straight to the recorder with

@@ -34,19 +34,39 @@ silently, since a freshly-initialised LoRA is numerically identity at step 0 and
 training proceeds. :func:`ensure_peft_policy` closes that gap, and it runs AFTER generation so
 that ``model_iter_0`` really is the untrained base.
 
-**``per_device_train_batch_size`` counts COMPLETIONS, not prompts**, and
-``gradient_accumulation_steps`` must never be collapsed to 1. Both are spelled out at the config
-site in :func:`build_grpo_config`, which is where somebody would otherwise "optimise" them.
+**``per_device_train_batch_size`` counts COMPLETIONS, not prompts, and it is the per-FORWARD
+shape** -- the VRAM lever, since trl runs the with-grad loss forward over the whole micro-batch
+in one pass. ``16 x gas 8`` keeps the 128-completion / 16-prompt optimizer step the design
+matches to PTO's 16 pairs; ``gradient_accumulation_steps`` must never be collapsed to 1. Both
+are spelled out at the config site in :func:`build_grpo_config`, which is where somebody would
+otherwise "optimise" them.
+
+**A mid-training resume must load the trained ``default`` adapter itself.** ``GRPOTrainer``
+adds a ``"ref"`` adapter at construction, so every HF checkpoint holds ``default`` at its root
+and ``ref/`` as a subdirectory -- and transformers' ``_load_from_checkpoint`` loads ONLY the
+subdirectories when any exist, so the trained weights were never restored and the resumed
+iteration silently continued from its starting point. :func:`restore_default_adapter` closes
+that gap between trainer construction (the ``ref`` copy must exist first) and ``train()``.
+
+**Training prompts are BOS-free text; TRL adds the one BOS.** ``core.policy`` renders every
+prompt without a BOS and every tokenization adds exactly one, so the ids TRL trains on equal
+the ids the policy generated from. :func:`assert_prompt_bos_rule` checks that on every
+iteration's samples rather than trusting the template.
 
 **The EDA recorder is reloaded from the checkpoint on resume.** HuggingFace resumes by
 fast-forwarding through batches that were already consumed, and a fast-forwarded batch never
 re-invokes the reward function. Without the snapshot reload an interrupted iteration's
 ``generations.jsonl`` silently contains only the rows produced after the resume point.
 
-**Timing is written through ``core.timing.log_session``, and that is the ONLY timing record.**
-Exp3's per-process fields undercounted a resumed iteration by up to 2x and cost 1,336 LOC of
-artifact-mtime archaeology to repair. Every phase this module measures gets logged; nothing is
-reconstructed later.
+**Timing is written through ``core.timing``, and that is the ONLY timing record.** Exp3's
+per-process fields undercounted a resumed iteration by up to 2x and cost 1,336 LOC of
+artifact-mtime archaeology to repair. Every phase this module measures gets logged as it
+completes; the training phase additionally logs its INCREMENT at every checkpoint save
+(``log_training_progress`` from the callback, ``finalize_training`` for the closing delta), so a
+preempted process leaves at most one save interval unrecorded. Nothing is reconstructed later.
+Every training ATTEMPT opens with ``begin_training_phase`` -- an in-kernel re-run of a crashed
+iteration is a second attempt in the same process, and without the reset its partials would be
+measured against the crashed attempt's total and vanish.
 
 **``run_metadata.json`` is rewritten each process, but the superseded payload survives** in
 ``run_metadata_history.jsonl``. Exp3 overwrote in place, so a resume under changed knobs
@@ -115,17 +135,26 @@ from core.conversations import (  # noqa: E402
 )
 from core.lookahead import LookaheadState  # noqa: E402
 from core.policy import (  # noqa: E402
+    TRUNCATION_COUNTER,
     attach_lora,
     list_hf_checkpoints,
     list_iteration_checkpoints,
     patch_generate,
+    prompt_token_ids,
     therapist_stop_token_ids,
+    tokenizer_adds_bos,
     validate_iteration_checkpoint,
 )
 from core.recorder import EDARecorder, to_jsonable  # noqa: E402
 from core.reward import make_reward_fn  # noqa: E402
 from core.tb import patch_trainer_tensorboard_callback, setup_tensorboard_logging  # noqa: E402
-from core.timing import log_session, metadata_fields  # noqa: E402
+from core.timing import (  # noqa: E402
+    begin_training_phase,
+    finalize_training,
+    log_session,
+    log_training_progress,
+    metadata_fields,
+)
 from roles import reset_client_cache  # noqa: E402
 from tools.vllm_serve import ensure_alive  # noqa: E402
 
@@ -134,15 +163,20 @@ __all__ = [
     "EXPERIMENT_METADATA_FILENAME",
     "TB_SUBDIR",
     "DATASET_COLUMNS",
+    "PROMPT_BOS_RULE",
     "CheckpointMetadataCallback",
+    "reset_peak_vram",
+    "peak_vram_gib",
     "select_persona_ids",
     "ensure_servers_alive",
     "ensure_peft_policy",
     "run_generation_phase",
+    "assert_prompt_bos_rule",
     "extract_training_prompts",
     "build_dataset",
     "build_grpo_config",
     "build_trl_grpo_config",
+    "restore_default_adapter",
     "run_training_phase",
     "save_iteration_checkpoint",
     "push_adapter_to_hub",
@@ -200,9 +234,22 @@ _CRITICAL_GRPO_FIELDS = (
     "max_completion_length",
     "per_device_train_batch_size",
     "gradient_accumulation_steps",
+    # Dropout OFF is the cross-method match (DPOConfig defaults it True); a trl that dropped the
+    # field would silently train GRPO under dropout again.
+    "disable_dropout",
+)
+
+#: The BOS contract between ``core.policy`` and TRL, stamped into ``run_metadata.json`` so an arm
+#: on disk says which rule its prompts were tokenized under. :func:`assert_prompt_bos_rule` checks
+#: it on every iteration's samples.
+PROMPT_BOS_RULE = (
+    "rendered prompt text carries NO BOS; every tokenization adds exactly one "
+    "(trl GRPOTrainer processing_class(text=prompt) == core.policy.prompt_token_ids(prompt))"
 )
 
 _LOG = "  "
+
+_GIB = float(1024 ** 3)
 
 
 def _warn(message: str) -> None:
@@ -228,6 +275,49 @@ def _write_json_atomic(path: str, payload: Mapping[str, Any]) -> str:
     return path
 
 
+def reset_peak_vram() -> None:
+    """Zero the CUDA peak-memory counters at a phase boundary. No-op without CUDA."""
+    if torch.cuda.is_available():
+        torch.cuda.reset_peak_memory_stats()
+
+
+def peak_vram_gib() -> Dict[str, float]:
+    """Peak CUDA memory since the last :func:`reset_peak_vram`, in GiB.
+
+    Returns:
+        ``{"peak_reserved_gib", "peak_allocated_gib"}`` -- the caching allocator's high-water
+        footprint (what the card actually had to hold) and the tensor-level peak. Zeros without
+        CUDA.
+
+    Notes:
+        This is the number a ``QUICK_TEST`` rehearsal exists to produce. The GRPO envelope beside
+        a vLLM server holding half the card -- ``2.5 + 8.8 + 4.4 + 4.0 = 19.7 GiB`` (weights +
+        LoRA + Adam, the 128-completion generate KV, the sub-batch-64 look-ahead, the
+        checkpointed loss forward; ~38 GiB of room on the 80 GB card, ~= 0 headroom on the 40 GB
+        fallback) -- is arithmetic until it is measured, and Exp3's only
+        measurement of the loss forward (~67 GB at ``per_device=64``) was taken with the whole
+        A100 free. Recorded per phase in ``iteration_metadata.json`` so "does it fit?" is
+        answered by a figure, not a guess.
+    """
+    if not torch.cuda.is_available():
+        return {"peak_reserved_gib": 0.0, "peak_allocated_gib": 0.0}
+    return {
+        "peak_reserved_gib": torch.cuda.max_memory_reserved() / _GIB,
+        "peak_allocated_gib": torch.cuda.max_memory_allocated() / _GIB,
+    }
+
+
+def _phase_peaks(label: str) -> Dict[str, float]:
+    """Read the phase's peaks, print them, and key them by *label* for the metadata record."""
+    peaks = peak_vram_gib()
+    print(
+        f"{_LOG}Peak VRAM ({label}): reserved {peaks['peak_reserved_gib']:.2f} GiB, "
+        f"allocated {peaks['peak_allocated_gib']:.2f} GiB"
+    )
+    return {f"peak_reserved_gib_{label}": peaks["peak_reserved_gib"],
+            f"peak_allocated_gib_{label}": peaks["peak_allocated_gib"]}
+
+
 # ==============================================================================
 #  Checkpoint callback
 # ==============================================================================
@@ -242,6 +332,14 @@ class CheckpointMetadataCallback(TrainerCallback):
             into every checkpoint so a checkpoint dug out of Drive months later is
             self-describing.
         recorder: the iteration's :class:`~core.recorder.EDARecorder`, or ``None``.
+        iter_dir: ``iteration_N/`` -- where the timing partial lines go. ``None`` disables the
+            partial timing log (the end-of-phase ``finalize_training`` then logs the whole phase).
+        train_started_at: ``time.time()`` at the start of this training ATTEMPT -- the SAME
+            clock :func:`run_training_phase` reads its ``training_s`` off, which is what makes
+            the partial lines and the closing delta sum to exactly the attempt's elapsed time.
+            :func:`run_training_phase` calls ``core.timing.begin_training_phase`` before taking
+            it, so nothing here assumes one attempt per process: a fresh callback is built per
+            attempt, and the ledger the partials are measured against is reset with it.
 
     Notes:
         **The snapshot is the reason this callback exists.** HuggingFace resumes an interrupted
@@ -253,6 +351,13 @@ class CheckpointMetadataCallback(TrainerCallback):
         :func:`run_one_iteration` can never restore rows from a checkpoint that was not the one
         resumed from.
 
+        **The timing partial is the second reason.** ``core.timing.log_training_progress`` logs
+        the training seconds accrued since the previous partial line at every save, so a Colab
+        preemption mid-training loses at most one save interval of ``training_s`` instead of
+        the whole session (Exp3's undercount). The end-of-phase call is
+        ``core.timing.finalize_training``, which logs only the remaining delta -- never
+        ``log_session(training_s=...)``, or the phase is double-counted.
+
         Both files are extra payload inside ``checkpoint-N/`` and are absent from
         ``core.policy.HF_TRAINER_FILES``, so writing them cannot make a checkpoint look valid,
         and failing to write them cannot make one look corrupt.
@@ -261,12 +366,34 @@ class CheckpointMetadataCallback(TrainerCallback):
         optimizer step that cost GPU-hours to reach.
     """
 
-    def __init__(self, *, iteration: int, metadata: Mapping[str, Any], recorder=None) -> None:
+    def __init__(
+        self,
+        *,
+        iteration: int,
+        metadata: Mapping[str, Any],
+        recorder=None,
+        iter_dir: Optional[str] = None,
+        train_started_at: Optional[float] = None,
+    ) -> None:
         self.iteration = int(iteration)
         self.metadata = dict(metadata or {})
         self.recorder = recorder
+        self.iter_dir = iter_dir
+        self.train_started_at = train_started_at
 
     def on_save(self, args, state, control, **kwargs):  # noqa: D102 - TrainerCallback protocol
+        # Timing FIRST, and independent of the checkpoint dir having landed: the seconds were
+        # spent either way, and a torn save must not also cost the cost record its increment.
+        if self.iter_dir and self.train_started_at is not None:
+            try:
+                log_training_progress(
+                    self.iter_dir,
+                    elapsed_s=time.time() - self.train_started_at,
+                    note=f"checkpoint-{state.global_step}",
+                )
+            except Exception as exc:  # noqa: BLE001 - telemetry never fails a run
+                _warn(f"could not log the training-time partial ({exc})")
+
         checkpoint_dir = os.path.join(args.output_dir, f"checkpoint-{state.global_step}")
         if not os.path.isdir(checkpoint_dir):
             # HF names the directory from global_step; if it is not there yet this hook fired for
@@ -474,17 +601,24 @@ def run_generation_phase(
         wall-clock this process spent here. The seconds go straight into
         ``core.timing.log_session``; they are per-process by construction, which is correct,
         because the session log sums across processes rather than trusting any one of them.
+        The CUDA peak counters are reset at entry, so :func:`peak_vram_gib` right after this
+        call reads the generation phase's peak.
 
     Notes:
         ``batch_size`` is a SAFETY setting on the local 12 GB card, not a throughput knob:
         weights plus roughly 1.1 GB per concurrent conversation, and an over-budget VRAM request
         there reboots the machine instead of raising. On the A100 a large batch is what amortises
         the patient round-trip across the whole batch.
+
+        ``num_utterances_for_data`` counts ADDITIONAL utterances after the scripted therapist
+        opener, so a conversation holds at most ``num_utterances_for_data + 1`` -- 50 at the
+        default 49.
     """
     start = time.time()
     banner = f" ({label})" if label else ""
     print(f"\n{_LOG}-- Generation{banner}: {len(persona_ids)} conversations -> {conv_dir}")
 
+    reset_peak_vram()
     policy.eval()
     policy.config.use_cache = True
 
@@ -527,6 +661,81 @@ def run_generation_phase(
 # ==============================================================================
 
 
+def assert_prompt_bos_rule(
+    samples: Sequence[Mapping[str, Any]], tokenizer, *, n_tokenize: int = 8
+) -> Dict[str, Any]:
+    """Check every sample's ``prompt`` against :data:`PROMPT_BOS_RULE`; raise on a violation.
+
+    Args:
+        samples: the per-turn samples (each carries a ``prompt`` string).
+        tokenizer: the therapist tokenizer -- the one TRL's ``processing_class`` will be.
+        n_tokenize: how many prompts (spread over the list) get the tokenization checks; the
+            string check runs on all of them.
+
+    Returns:
+        ``{"n_checked", "n_tokenized", "adds_bos", "bos_token_id"}`` for the iteration record.
+
+    Raises:
+        ValueError: a prompt starts with the BOS string (a double BOS once TRL tokenizes it), or
+            TRL's tokenization of a prompt -- ``tokenizer(text)["input_ids"]``, the exact call
+            trl 1.4.0's ``GRPOTrainer`` makes (installed ``grpo_trainer.py`` ~:1333) -- differs
+            from ``core.policy.prompt_token_ids``, the ids the policy generated from.
+
+    Notes:
+        The Instruct template writes ``<|begin_of_text|>`` into its rendered text; the base
+        ChatML template writes nothing. ``core.policy`` strips the former so both are BOS-free
+        and every consumer adds its single BOS, and this guard is what makes that a checked
+        invariant rather than a property of whichever template happens to be installed: a
+        double BOS shifts every prompt the policy trains on relative to what it generated from,
+        and nothing in TRL would notice.
+    """
+    prompts = [str(s["prompt"]) for s in samples]
+    bos = getattr(tokenizer, "bos_token", None)
+    bos_id = getattr(tokenizer, "bos_token_id", None)
+    adds_bos = tokenizer_adds_bos(tokenizer)
+
+    if bos:
+        offenders = [i for i, p in enumerate(prompts) if p.startswith(bos)]
+        if offenders:
+            raise ValueError(
+                f"{len(offenders)}/{len(prompts)} training prompts START with the BOS string "
+                f"{bos!r} (first at index {offenders[0]}). TRL adds a BOS when it tokenizes the "
+                f"prompt, so these would train under a double BOS. Prompts must come from "
+                f"core.policy.render_prompt / build_prompt, which strip it."
+            )
+
+    n_tok = 0
+    if prompts:
+        stride = max(1, len(prompts) // max(1, int(n_tokenize)))
+        for i in list(range(0, len(prompts), stride))[: int(n_tokenize)]:
+            text = prompts[i]
+            trl_ids = list(tokenizer(text)["input_ids"])
+            serve_ids = list(prompt_token_ids(text, tokenizer))
+            if trl_ids != serve_ids:
+                raise ValueError(
+                    f"prompt {i}: TRL's tokenization ({len(trl_ids)} ids) differs from the "
+                    f"serving-path ids ({len(serve_ids)}) -- the policy would train on a prompt "
+                    f"it did not generate from. First 4 ids: trl {trl_ids[:4]} vs serve "
+                    f"{serve_ids[:4]}."
+                )
+            if adds_bos and bos_id is not None:
+                if trl_ids[:2] == [bos_id, bos_id]:
+                    raise ValueError(f"prompt {i}: tokenizes to a DOUBLE BOS {trl_ids[:3]}")
+                if trl_ids.count(bos_id) != 1:
+                    raise ValueError(
+                        f"prompt {i}: expected exactly one BOS id {bos_id} in the tokenized "
+                        f"prompt, found {trl_ids.count(bos_id)}"
+                    )
+            n_tok += 1
+
+    return {
+        "n_checked": len(prompts),
+        "n_tokenized": n_tok,
+        "adds_bos": bool(adds_bos),
+        "bos_token_id": (None if bos_id is None else int(bos_id)),
+    }
+
+
 def extract_training_prompts(
     states: Sequence[Any],
     *,
@@ -544,13 +753,18 @@ def extract_training_prompts(
             sample's ``patient_system_prompt`` comes from.
 
     Returns:
-        One dict per eligible slice, carrying :data:`DATASET_COLUMNS`.
+        One dict per eligible slice, carrying :data:`DATASET_COLUMNS`. Every ``prompt`` is
+        BOS-free text (TRL adds the one BOS); :func:`assert_prompt_bos_rule` has checked it.
 
     Notes:
         MCL is the response to the reward-faithfulness finding: a partial cut is what the
         training reward grades, while the experiment evaluates whole conversations, and pairwise
         rank agreement between the two is barely above chance at 2 utterances and only clears 0.8
         near 10. A slice shorter than MCL is dropped rather than down-weighted.
+
+        ``max_prompt_tokens`` is BOS-inclusive and enforced by ``core.policy.build_prompt`` --
+        the same function the decode path uses -- so an over-budget slice drops its OLDEST turns
+        whole and keeps the system message, exactly as the policy saw it when it generated.
     """
     samples = extract_prompts_from_conversations(
         states,
@@ -564,6 +778,13 @@ def extract_training_prompts(
         f"{_LOG}Extracted {len(samples)} training prompts from {len(states)} conversations "
         f"(MCL={gen.min_conv_length}, max_prompt_tokens={gen.max_prompt_tokens})"
     )
+    if samples:
+        checked = assert_prompt_bos_rule(samples, tokenizer)
+        print(
+            f"{_LOG}BOS rule OK: {checked['n_checked']} prompts BOS-free, "
+            f"{checked['n_tokenized']} tokenized == serving-path ids "
+            f"(tokenizer adds BOS: {checked['adds_bos']})"
+        )
     return samples
 
 
@@ -711,26 +932,45 @@ def build_grpo_config(
             change what is trained while looking like it worked, so it stops the run.
 
     Notes:
-        **``per_device_train_batch_size`` counts COMPLETIONS, not prompts.** TRL's
-        ``RepeatSampler`` emits ``num_generations`` completions per prompt, so the unique prompts
-        consumed per optimizer step are
-        ``(per_device / num_generations) * gradient_accumulation_steps = (64/8) * 2 = 16`` --
+        **``per_device_train_batch_size`` counts COMPLETIONS, not prompts, and it is the
+        per-FORWARD shape.** TRL's ``RepeatSampler`` emits ``num_generations`` completions per
+        prompt, so the unique prompts consumed per optimizer step are
+        ``(per_device * gradient_accumulation_steps) / num_generations = (16 * 8) / 8 = 16`` --
         matched to PTO's 16 preference pairs per step so the two methods take
         comparable-sized steps. Read that number off ``cfg.prompts_per_step``.
 
-        **Keep ``gradient_accumulation_steps=2`` for the prompts/step match, not for gradient
-        scale.** On the pinned trl 1.4.0, ``gas`` changes are gradient-scale-NEUTRAL: trl
-        bypasses transformers' own ``training_step`` scaling by passing a non-None
-        ``compute_loss_func`` sentinel (installed trl ``grpo_trainer.py`` ~:652-657) and divides
-        the loss exactly once by ``current_gradient_accumulation_steps`` (~:2351-2352). The old
-        "net scale is 1/gas^2, halving gas doubles the gradient" story was measured on Exp3's
-        earlier stack and is FALSE here -- re-verify those two line references on any trl bump.
-        What ``gas=2`` still buys is the design match: 128 completions -> 16 unique prompts per
-        optimizer step, mirrored to PTO's 16 pairs.
+        **``16 x 8`` replaced ``64 x 2`` (2026-09-02) for VRAM, and the step is unchanged.**
+        The with-grad loss forward runs over the whole per-device micro-batch in ONE pass --
+        ``_compute_loss`` calls ``_get_per_token_logps_and_entropies`` without ``batch_size``
+        (installed trl ``grpo_trainer.py`` ~:2447-2460) and there is no OOM fallback -- and Exp3
+        measured ``per_device=64`` with checkpointing off at ~67 GB on an A100-80GB with the
+        whole card, while here ~38 GiB remain beside the vLLM server. The generation side is
+        untouched: ``generation_batch_size`` defaults to ``per_device x steps_per_generation``
+        with ``steps_per_generation = gas`` (``grpo_config.py`` ~:909-911), so it is still ONE
+        ``generate()`` of 128 completions for 16 unique prompts per optimizer step, buffered and
+        served to the 8 micro-batches of 16.
 
-        **And a bigger batch buys nothing.** TRL already issues ONE ``generate()`` per optimizer
-        step over the whole ``generation_batch_size`` (``per_device x gas``), so ``64 x 2`` and
-        ``128 x 1`` emit the same single call. There is no throughput on the table here.
+        **``gas`` is gradient-scale-NEUTRAL on the pinned trl 1.4.0**: trl bypasses transformers'
+        own ``training_step`` scaling by passing a non-None ``compute_loss_func`` sentinel
+        (~:652-657) and divides the loss exactly once by ``current_gradient_accumulation_steps``
+        (~:2568-2570 on the ``loss_type="grpo"`` path). The old "net scale is 1/gas^2, halving
+        gas doubles the gradient" story was measured on Exp3's earlier stack and is FALSE here --
+        re-verify those two line references on any trl bump.
+
+        **Gradient checkpointing is on, non-reentrant.** With PEFT that needs input grads, which
+        trl enables itself when ``args.gradient_checkpointing`` is set (~:380-381);
+        ``use_reentrant=False`` is what composes with frozen base parameters.
+
+        **Dropout is OFF (``disable_dropout=True``), matched with PTO.** ``DPOConfig`` defaults
+        it True and ``GRPOConfig`` False, so leaving both unset made ``LORA_DROPOUT`` real in one
+        method only. A reference-model method should not compare logps under stochastic dropout.
+
+        **The schedule uses FLOOR.** TRL's ``RepeatSampler`` DROPS the partial chunk of prompts
+        (installed ``trl/trainer/utils.py`` ~:736 -- ``chunk for chunk in indexes if len(chunk)
+        == self.batch_size``), so ``n_prompts // prompts_per_step`` optimizer steps happen per
+        epoch and the remainder trains nothing. ``ceil`` would over-size the warmup and print a
+        step count the run never reaches. Fewer prompts than one chunk is therefore ZERO steps,
+        not a padded one, and is refused here.
 
         **``generation_kwargs`` carries the stop mechanism and is not optional.** On a
         BASE-therapist arm it is ``{"stop_strings": ...}``: ``<|im_end|>`` is template text,
@@ -755,14 +995,22 @@ def build_grpo_config(
         like a broken schedule for a year.
     """
     prompts_per_step = max(1, int(cfg.prompts_per_step))
-    steps_per_epoch = max(1, math.ceil(max(1, int(num_train_prompts)) / prompts_per_step))
-    total_steps = max(1, steps_per_epoch * int(cfg.epochs_per_iteration))
+    # FLOOR: RepeatSampler drops the partial chunk (see the Notes), so the remainder never trains.
+    steps_per_epoch = int(num_train_prompts) // prompts_per_step
+    if steps_per_epoch < 1:
+        raise ValueError(
+            f"only {num_train_prompts} train prompts for {prompts_per_step} prompts/step: TRL's "
+            f"RepeatSampler drops a partial chunk, so this iteration would take ZERO optimizer "
+            f"steps and still write an adapter that learned nothing. Generate more conversations "
+            f"(NUM_CONVERSATIONS_PER_ITER) or lower MIN_CONV_LENGTH."
+        )
+    dropped = int(num_train_prompts) - steps_per_epoch * prompts_per_step
+    total_steps = steps_per_epoch * int(cfg.epochs_per_iteration)
     warmup_steps = max(0, math.ceil(total_steps * float(cfg.warmup_steps_ratio)))
-
-    if num_train_prompts < prompts_per_step:
-        _warn(
-            f"only {num_train_prompts} train prompts for {prompts_per_step} prompts/step -- this "
-            f"iteration takes a single, padded optimizer step per epoch."
+    if dropped:
+        print(
+            f"{_LOG}{dropped} of {num_train_prompts} train prompts fall in the partial chunk "
+            f"RepeatSampler drops (shuffled, so which ones differs per epoch)"
         )
 
     log_dir = tb_log_dir or os.path.join(output_dir, TB_SUBDIR)
@@ -796,6 +1044,8 @@ def build_grpo_config(
         "loss_type": cfg.grpo_loss_type,
         "scale_rewards": "group",                     # A = (r - mean_g) / std_g over the G siblings
         "max_completion_length": cfg.max_completion_length,
+        # Explicit: GRPOConfig defaults False, DPOConfig defaults True -- matched OFF (see Notes).
+        "disable_dropout": cfg.disable_dropout,
         # Without this the base policy self-plays the patient to the token cap (see the Notes).
         # Base-therapist arms stop on the ChatML strings; Instruct arms have EMPTY stop_strings
         # and stop on the eos-id list instead -- <|eot_id|>/<|eom_id|>/<|start_header_id|> are
@@ -821,10 +1071,14 @@ def build_grpo_config(
         "save_total_limit": cfg.save_total_limit,
         "report_to": list(cfg.report_to),
         "log_completions": cfg.log_completions,
+        # rich prints this many (prompt, completion, reward) rows per logging step into the
+        # notebook cell; None would print all 128 every step. The parquet capture is unaffected.
+        "num_completions_to_print": cfg.num_completions_to_print,
         "eval_strategy": "epoch" if has_eval else "no",
     }
     if cfg.gradient_checkpointing:
-        # Re-entrant checkpointing does not compose with PEFT's frozen base parameters.
+        # Re-entrant checkpointing does not compose with PEFT's frozen base parameters. trl
+        # enables the PEFT input grads itself when this flag is set (grpo_trainer.py ~:380-381).
         kwargs["gradient_checkpointing_kwargs"] = {"use_reentrant": False}
 
     known = _grpo_config_fields()
@@ -856,6 +1110,62 @@ build_trl_grpo_config = build_grpo_config
 # ==============================================================================
 
 
+def restore_default_adapter(policy, resume_checkpoint: str) -> None:
+    """Load the TRAINED ``default`` adapter weights from an HF checkpoint into *policy*.
+
+    Args:
+        policy: ``trainer.model`` AFTER ``GRPOTrainer`` was constructed -- so its ``"ref"`` copy
+            of the iteration-start weights already exists and is not overwritten here.
+        resume_checkpoint: the ``checkpoint-N`` directory ``train()`` is about to resume from.
+
+    Raises:
+        RuntimeError: the active adapter is not ``default`` afterwards, or a ``default``
+            parameter is not trainable -- either would mean the resumed step trains the wrong
+            thing.
+
+    Notes:
+        **Why transformers does not do this itself.** ``GRPOTrainer`` adds a ``"ref"`` adapter at
+        construction (installed trl ``grpo_trainer.py`` ~:368-375), so PEFT's ``save_pretrained``
+        writes every checkpoint as ``default`` at the root plus a ``ref/`` subdirectory.
+        transformers' ``_load_from_checkpoint`` (``trainer.py`` ~:3390-3400) then sees
+        ``adapter_subdirs=["ref"]`` and loads ONLY the subdirectories -- the root ``default`` is
+        never read, no warning is raised, and the "resumed" iteration continues from the
+        iteration-start weights while the optimizer state, scheduler and step counter all say
+        otherwise. Reproduced on the pinned stack: ``default``'s ``lora_B`` was back at its
+        iteration-start value after a resume.
+
+        ``PeftModel.load_adapter`` on an adapter name that already exists skips the
+        ``add_adapter`` branch and goes straight to ``set_peft_model_state_dict`` for that name
+        (``peft_model.py`` ``load_adapter``: the ``if adapter_name not in self.peft_config``
+        branch vs the unconditional weight load), so the checkpoint's root weights land in the
+        live ``default`` tensors and ``ref`` is untouched. ``is_trainable=True`` keeps the model
+        out of ``eval()`` (the ``False`` path calls it) and matches what transformers passes for
+        the active adapter. transformers' own load still runs inside ``train()`` afterwards and
+        (re)loads ``ref/`` -- the same iteration-start copy the crashed process saved -- which
+        is harmless.
+    """
+    policy.load_adapter(resume_checkpoint, "default", is_trainable=True)
+    active = getattr(policy, "active_adapter", None)
+    active_names = list(active) if isinstance(active, (list, tuple)) else [active]
+    if active_names != ["default"]:
+        raise RuntimeError(
+            f"after restoring the resume checkpoint the active adapter is {active_names}, "
+            f"not ['default'] -- the resumed steps would train the wrong adapter"
+        )
+    frozen = [n for n, p in policy.named_parameters() if ".default." in n and not p.requires_grad]
+    if frozen:
+        raise RuntimeError(
+            f"{len(frozen)} 'default' adapter parameters are frozen after the resume load "
+            f"(first: {frozen[0]}); the resumed steps would not train"
+        )
+    n_default = sum(1 for n, _ in policy.named_parameters() if ".default." in n)
+    print(
+        f"{_LOG}Restored the trained 'default' adapter from "
+        f"{os.path.basename(resume_checkpoint)} ({n_default} tensors, trainable, active) -- "
+        f"transformers loads only the ref/ subdir on its own"
+    )
+
+
 def run_training_phase(
     *,
     policy,
@@ -869,6 +1179,7 @@ def run_training_phase(
     recorder: Optional[EDARecorder] = None,
     resume_checkpoint: Optional[str] = None,
     tb_log_dir: Optional[str] = None,
+    iter_dir: Optional[str] = None,
 ) -> Tuple[Any, int, float]:
     """Build a ``GRPOTrainer``, train it, and hand the trainer back.
 
@@ -885,17 +1196,38 @@ def run_training_phase(
         resume_checkpoint: an HF ``checkpoint-*`` path, or ``None``. Applies to THIS call only --
             the caller must not pass it again for the next iteration.
         tb_log_dir: defaults to ``<output_dir>/tb_logs``.
+        iter_dir: ``iteration_N/``; when given, the callback logs a training-time partial at
+            every checkpoint save (see :class:`CheckpointMetadataCallback`).
 
     Returns:
         ``(trainer, step_delta, seconds)``. ``step_delta`` counts only steps executed in THIS
         call: on a resume, ``trainer.state.global_step`` includes the fast-forwarded ones, and
         adding those to the cumulative offset again would double-count the TensorBoard x-axis.
+        ``seconds`` is on the same clock the callback's partials used; the caller closes the
+        phase with ``core.timing.finalize_training(iter_dir, seconds, ...)``, never with
+        ``log_session(training_s=seconds)``. The CUDA peak counters are reset at entry, so
+        :func:`peak_vram_gib` right after this call reads the training phase's peak.
+
+        **Every call is one training ATTEMPT, and a process may make several for the same
+        iteration.** The documented in-kernel resume (fix the cause, re-run the loop cell) trains
+        the crashed iteration again in the SAME process, so this function opens each attempt
+        with ``core.timing.begin_training_phase(iter_dir)`` immediately before the clock is
+        taken: the per-process partial ledger is reset and the new attempt's partials are
+        measured from zero (the crashed attempt's lines stay on disk and still sum). Nothing
+        else in here or in :class:`CheckpointMetadataCallback` is process-scoped -- the trainer,
+        the callback and the clock are all built per call -- and the trained weights of a
+        resumed attempt are restored per call too, by :func:`restore_default_adapter` (below).
 
     Notes:
         **``peft_config`` is always ``None``.** The adapter is attached before the trainer exists
         (see :func:`ensure_peft_policy`); handing TRL a config as well would wrap an already
         wrapped model, and the nested ``adapter_config.json`` no longer describes the model you
         think it does.
+
+        **On a resume the trained ``default`` weights are loaded HERE**, by
+        :func:`restore_default_adapter`, after the trainer has snapshotted the handed-in policy
+        as ``ref`` and before ``train()`` -- transformers' own checkpoint load reads only the
+        ``ref/`` subdirectory and would leave ``default`` at its iteration-start values.
 
         **The TensorBoard directory is set BEFORE the trainer is constructed.**
         ``TensorBoardCallback.__init__`` reads its environment variable once and keeps the value,
@@ -919,10 +1251,15 @@ def run_training_phase(
         the LoRA weights carry over -- a warm restart per iteration. That is deliberate and is
         matched on the PTO side; it is not an artefact of the loop structure.
     """
-    start = time.time()
+    if iter_dir:
+        # A new training ATTEMPT (an in-kernel re-run of a crashed iteration is the second one in
+        # this process): reset the per-process partial ledger BEFORE the clock is taken.
+        begin_training_phase(iter_dir)
+    start = time.time()  # THE training clock: the callback's partials and finalize_training share it
     log_dir = tb_log_dir or os.path.join(grpo_args.output_dir, TB_SUBDIR)
     report_to = [str(t) for t in (getattr(grpo_args, "report_to", None) or [])]
 
+    reset_peak_vram()
     policy.config.use_cache = False
     policy.train()
 
@@ -939,7 +1276,11 @@ def run_training_phase(
         peft_config=None,  # the adapter is already attached -- see ensure_peft_policy
         callbacks=[
             CheckpointMetadataCallback(
-                iteration=iteration, metadata=iter_metadata or {}, recorder=recorder
+                iteration=iteration,
+                metadata=iter_metadata or {},
+                recorder=recorder,
+                iter_dir=iter_dir,
+                train_started_at=start,
             )
         ],
     )
@@ -956,6 +1297,9 @@ def run_training_phase(
         except ValueError:
             resumed_steps = 0
         print(f"{_LOG}Resuming from {os.path.basename(resume_checkpoint)} ({resumed_steps} steps)")
+        # AFTER construction (the ref copy of the iteration-start weights exists) and BEFORE
+        # train(): transformers' own load reads only the ref/ subdir. See restore_default_adapter.
+        restore_default_adapter(trainer.model, resume_checkpoint)
 
     trainer.train(resume_from_checkpoint=resume_checkpoint or None)
 
@@ -1003,6 +1347,15 @@ def save_iteration_checkpoint(
 
         The epoch checkpoint list is captured from ``iteration_N/training`` before either write,
         so the record names the checkpoints ``save_total_limit`` actually left on disk.
+
+        **``selected_adapters=["default"]`` whenever TRL's ``"ref"`` adapter is present** (it
+        always is once ``GRPOTrainer`` ran with ``beta != 0``; mirrors the PTO side).
+        ``GRPOTrainer`` adds a frozen copy of the iteration-start weights as a second adapter to
+        serve as the KL reference; saving without the filter persists that copy into
+        ``adapter/ref/`` (and every Hub push) as a redundant subfolder -- and a subfolder is
+        exactly what makes transformers' checkpoint loader skip the root ``default`` (see
+        :func:`restore_default_adapter`). ``PeftModel.from_pretrained`` on the next iteration
+        loads the root ``default``, and TRL recreates ``ref`` from it.
     """
     iter_dir = paths.ensure_iteration_dir(iteration)
     training_dir = paths.training_dir(iteration)
@@ -1013,7 +1366,9 @@ def save_iteration_checkpoint(
     _write_json_atomic(paths.iteration_metadata_path(iteration), payload)
 
     os.makedirs(adapter_dir, exist_ok=True)
-    policy.save_pretrained(adapter_dir)
+    adapters = getattr(policy, "peft_config", None) or {}
+    selected = ["default"] if "ref" in adapters else None
+    policy.save_pretrained(adapter_dir, selected_adapters=selected)
     tokenizer.save_pretrained(adapter_dir)
 
     print(f"{_LOG}Saved adapter -> {adapter_dir}")
@@ -1103,8 +1458,11 @@ def write_run_metadata(
         apart.
     """
     payload = config_to_metadata(cfg, roles, gen, oracle_cfg, la_cfg, paths)
-    if extra:
-        payload["runtime"] = to_jsonable(dict(extra))
+    runtime = dict(extra or {})
+    # Always stamped: which BOS rule the prompts were tokenized under is part of what an arm on
+    # disk IS, and assert_prompt_bos_rule checks it every iteration.
+    runtime["prompt_bos_rule"] = PROMPT_BOS_RULE
+    payload["runtime"] = to_jsonable(runtime)
     path = _write_metadata_payload(payload, paths)
     print(f"{_LOG}Run metadata -> {path}")
     return path
@@ -1260,6 +1618,10 @@ def run_one_iteration(
     persona_ids = select_persona_ids(
         len(permutations), gen.num_conversations_per_iter, seed=cfg.seed, iteration=iteration
     )
+    # Prompt-truncation telemetry per phase (core.policy.TRUNCATION_COUNTER is process-wide): a
+    # truncated prompt is a policy that no longer sees the session start, so the rate is a
+    # science-relevant number and goes into iteration_metadata.json next to the VRAM peaks.
+    trunc_before = TRUNCATION_COUNTER.snapshot()
     resuming_mid_training = bool(resume_checkpoint and iteration == start_iteration)
     if resuming_mid_training:
         # Mid-training resume: the crashed process already generated, extracted and SHUFFLED this
@@ -1313,6 +1675,15 @@ def run_one_iteration(
         note=("reloaded for mid-training resume" if resuming_mid_training
               else f"generation, iteration {iteration}"),
     )
+
+    generate_peaks = _phase_peaks("generate") if not resuming_mid_training else {}
+    trunc_generate = TRUNCATION_COUNTER.delta_since(trunc_before)
+    if trunc_generate["prompts"]:
+        print(
+            f"{_LOG}Therapist prompts (generation): {trunc_generate['truncated']}/"
+            f"{trunc_generate['prompts']} truncated (dropped {trunc_generate['dropped_turns']} "
+            f"turns), {trunc_generate['overflow']} overflow"
+        )
 
     # The generation KV caches are the largest thing alive right now, and the trainer is about to
     # allocate its own. Freeing between phases is not cosmetic: consecutive phases reach different
@@ -1396,6 +1767,7 @@ def run_one_iteration(
             num_generations=cfg.num_generations, lookahead_state=lookahead_state,
         )
 
+    trunc_before = TRUNCATION_COUNTER.snapshot()
     trainer, step_delta, training_s = run_training_phase(
         policy=policy,
         tokenizer=tokenizer,
@@ -1408,7 +1780,18 @@ def run_one_iteration(
         recorder=recorder,
         resume_checkpoint=(resume_checkpoint if iteration == start_iteration else None),
         tb_log_dir=tb_log_dir,
+        iter_dir=iter_dir,
     )
+    train_peaks = _phase_peaks("train")
+    # At K>0 these are the look-ahead therapist turns inside the reward fn; at K=0 the trainer
+    # builds no therapist prompt of its own (TRL tokenizes the dataset prompt), so all zeros.
+    trunc_train = TRUNCATION_COUNTER.delta_since(trunc_before)
+    if trunc_train["prompts"]:
+        print(
+            f"{_LOG}Therapist prompts (look-ahead): {trunc_train['truncated']}/"
+            f"{trunc_train['prompts']} truncated (dropped {trunc_train['dropped_turns']} "
+            f"turns), {trunc_train['overflow']} overflow"
+        )
     new_policy = trainer.model
     del trainer  # the model stays alive through new_policy
     gc.collect()
@@ -1437,13 +1820,15 @@ def run_one_iteration(
             )
 
     # -- 4. Timing + save ------------------------------------------------------
-    # The generation phase logged itself when it finished; this line records the training phase.
+    # The generation phase logged itself when it finished, and the checkpoint callback logged a
+    # training partial at every save; this closes the training phase with the REMAINING delta on
+    # the same clock (never log_session(training_s=...) -- that would double-count the partials).
     # Logged BEFORE the metadata is built, so metadata_fields() sees this session too. Only what
     # THIS process did: the session log sums across processes, and double-counting a phase that a
     # previous session already recorded is exactly the failure it exists to prevent.
-    log_session(
+    finalize_training(
         iter_dir,
-        training_s=training_s,
+        training_s,
         started_at=iter_start,
         note=(
             f"training, resumed from {os.path.basename(resume_checkpoint)}"
@@ -1467,7 +1852,22 @@ def run_one_iteration(
         "lookahead_sub_batch": lookahead_state.sub_batch,
         "lookahead_gpu_calls": lookahead_state.gpu_calls,
         "lookahead_oom_events": lookahead_state.oom_events,
+        # Non-OOM generate failures: those sims were left UNGRADED by core.reward (score None,
+        # not_graded_reason="gpu_error", counted against min_success_ratio), not scored short.
         "lookahead_runtime_errors": lookahead_state.runtime_errors,
+        # Sims whose newest turn alone exceeded LOOKAHEAD_MAX_INPUT_TOKENS (no prompt could be
+        # built): frozen as "prompt_overflow", ungraded. Non-zero is a budget fault, not a GPU one.
+        "lookahead_prompt_overflows": lookahead_state.prompt_overflows,
+        # Per-phase CUDA peaks (GiB): the QUICK_TEST rehearsal's answer to "does it fit?".
+        # Absent for the generate phase on a mid-training resume (nothing was generated).
+        **generate_peaks,
+        **train_peaks,
+        # Therapist prompts that lost >= 1 oldest turn / prompts built, per phase; overflow =
+        # prompts that could not be built at all (newest turn alone over budget).
+        "truncation_generate": trunc_generate,
+        "truncation_train": trunc_train,
+        "prompt_bos_rule": PROMPT_BOS_RULE,
+        "disable_dropout": bool(cfg.disable_dropout),
         **metadata_fields(iter_dir),
     }
     adapter_dir = save_iteration_checkpoint(
@@ -1614,6 +2014,7 @@ def run_final_eval(
     )
     n_states = len(states)
     avg_conv_len = (sum(s.n_utterances for s in states) / n_states) if n_states else 0.0
+    peaks = _phase_peaks("eval_generate")
 
     log_session(
         paths.iteration_dir(label),
@@ -1634,4 +2035,5 @@ def run_final_eval(
         "avg_conv_length": float(avg_conv_len),
         "eval_gen_s": seconds,
         "client": client,
+        **peaks,
     }

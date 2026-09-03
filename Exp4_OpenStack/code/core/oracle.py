@@ -74,6 +74,8 @@ from dataclasses import dataclass
 from statistics import fmean
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
+from openai import APIStatusError
+
 from core.concurrency import AsyncPrimitives
 from questionnaires import (
     QuestionnaireID,
@@ -86,6 +88,8 @@ __all__ = [
     "REWARD_FLOOR",
     "MAX_BACKOFF_SECONDS",
     "NON_RETRYABLE",
+    "RETRYABLE_4XX",
+    "is_non_retryable_http_error",
     "NESTED_QUESTIONNAIRE_IDS",
     "OPENAI_SHAPED_PROVIDERS",
     "OracleConfig",
@@ -129,6 +133,32 @@ MAX_BACKOFF_SECONDS = 30.0
 #: below therefore converts response-derived ``KeyError``/``TypeError`` into ``ValueError`` so this
 #: classification stays honest.
 NON_RETRYABLE = (KeyError, TypeError)
+
+#: The two 4xx statuses that DO mean "try again": 408 Request Timeout and 429 Too Many Requests.
+#: Every other 4xx is the server rejecting THIS request as sent -- a prompt over
+#: ``--max-model-len`` (400), a ``json_schema`` key the pinned vLLM does not accept (400/422), a
+#: wrong model id (404), a bad key (401/403) -- and resending the identical request
+#: ``max_retries`` times with backoff in between cannot change the answer. It only delays the
+#: failure by the whole retry budget per candidate, which at G=8 x 16 prompts x 2 rubrics is a
+#: long, silent stall before ``min_success_ratio`` finally fires. 5xx and connection errors are
+#: still retried: those are the server, not the request.
+RETRYABLE_4XX = frozenset({408, 429})
+
+
+def is_non_retryable_http_error(exc: BaseException) -> bool:
+    """Is *exc* an HTTP status error that a retry cannot fix (4xx other than 408/429)?
+
+    Checked against ``openai.APIStatusError`` (the pinned ``openai==2.36.0`` raises one subclass
+    per status -- ``BadRequestError``, ``NotFoundError``, ``UnprocessableEntityError``, ... -- all
+    carrying ``status_code``). ``RateLimitError`` (429) and a 408 are retryable and return False;
+    so does everything that is not an ``APIStatusError`` (timeouts, connection errors, 5xx,
+    validation ``ValueError``s).
+    """
+    if not isinstance(exc, APIStatusError):
+        return False
+    status = int(getattr(exc, "status_code", 0) or 0)
+    return 400 <= status < 500 and status not in RETRYABLE_4XX
+
 
 #: Questionnaires whose response is ``{globals: {...}, behaviors: {...}}`` rather than a flat
 #: ``scores`` array. They need their own validation branch (see :func:`_validate_nested`).
@@ -482,6 +512,12 @@ async def get_evaluation_json(client,
         ``max_retries`` is a per-call budget, so a batch of B conversations over Q questionnaires
         can in the worst case make ``B * Q * max_retries`` calls. That is the intended shape --
         short timeout, many attempts -- but it is why :data:`MAX_BACKOFF_SECONDS` exists.
+
+        **Two things short-circuit the budget**: a programming error (:data:`NON_RETRYABLE`) and
+        an HTTP 4xx other than 408/429 (:func:`is_non_retryable_http_error`) -- both are answers
+        that resending the same request cannot change. A response that parses but fails the
+        validation ladder is neither: it is retried, because a grader that produced a wrong-length
+        array once may well produce the right one next time.
     """
     qid = int(questionnaire_id)
     eval_dict = get_prompt_eval_questionnaire(questionnaire=qid, conversation=conversation_text)
@@ -538,6 +574,17 @@ async def get_evaluation_json(client,
             return None, n_questions, attempt + 1
 
         except Exception as e:
+            if is_non_retryable_http_error(e):
+                # The server rejected the request as sent (4xx other than 408/429); the same
+                # bytes will be rejected again. The JSON-validation ladder's ValueErrors are
+                # NOT in this branch -- those are grader failures, and retrying them is the
+                # point. Still a failure (score None), so it still counts against
+                # min_success_ratio.
+                print(
+                    f"  [oracle] HTTP {getattr(e, 'status_code', '?')} is not retryable "
+                    f"(qid={qid}): {e!r}"
+                )
+                return None, n_questions, attempt + 1
             if attempt >= cfg.max_retries - 1:
                 print(f"  [oracle] failed after {cfg.max_retries} attempts (qid={qid}): {e!r}")
                 return None, n_questions, cfg.max_retries

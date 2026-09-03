@@ -4,7 +4,7 @@
  "numbers": {
   "coverage.judges": {
    "value": [
-    "gemma4E2B"
+    "gemma4E4B"
    ],
    "source": "tables/coverage.md",
    "note": "graders present in the score lake"

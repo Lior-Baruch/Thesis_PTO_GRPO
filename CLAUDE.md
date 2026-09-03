@@ -39,7 +39,8 @@ Dirs renamed 2026-05-12 from `ICLR2025/`/`Extension/`/`NewExperiment/`.
 **Side project — [Exp4_OpenStack/](Exp4_OpenStack/).** The same PTO-vs-GRPO + look-ahead comparison
 on a **fully open model stack**: oracle and patient are a Gemma-4 model (default
 `google/gemma-4-E4B-it`, selectable) behind a local vLLM OpenAI-compatible server, so an arm costs
-**$0 in API** — the constraint that stopped GRPO_LA5 in Exp3. The therapist is also selectable
+**$0 in API** — the constraint that stopped GRPO_LA5 in Exp3 — and runs on a **Colab A100 80 GB**
+(GPU-hours are its only cost; the 40 GB card is a fallback). The therapist is also selectable
 per arm (Llama-3.2-1B **Instruct** — the default — or the base variant), encoded in the arm name. Not a thesis chapter unless the results earn it. It is **self-contained and additive**: its
 own spec, contract and status live in [Exp4_OpenStack/CLAUDE.md](Exp4_OpenStack/CLAUDE.md), nothing
 in this file describes it, and no Exp3 file was modified for it.

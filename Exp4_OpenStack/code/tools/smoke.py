@@ -13,6 +13,9 @@ It is also the Phase 0-4 gate table in CLAUDE.md, made executable::
     python tools/smoke.py config     # cell-1 globals freeze, and every validator fires
     python tools/smoke.py convs      # the transcript wire protocol and the MCL filter
     python tools/smoke.py vram       # the arithmetic, printed, before anything allocates
+    python tools/smoke.py resume     # the pinned peft/transformers: a mid-training resume
+                                     # restores the "default" adapter only with the explicit fix
+    python tools/smoke.py prompts    # the BOS rule on the real therapist tokenizers (HF cache)
     python tools/smoke.py serve      # a real vLLM server comes up and answers
     python tools/smoke.py roles      # Phase 1: schema + NO THINKING TOKENS + kill/restart
     python tools/smoke.py stopgen    # GPU: stop_strings actually binds
@@ -61,7 +64,7 @@ import sys
 # of gated therapist weights, so the flag is set from a pre-scan of argv -- the only point early
 # enough to matter. `--allow-download` opts out, and the serve/roles parts are deliberately NOT
 # covered: their vLLM subprocess inherits this environment and does need to fetch its model.
-if sys.argv[1:2] and sys.argv[1] in ("stopgen", "dpo", "grpo") \
+if sys.argv[1:2] and sys.argv[1] in ("stopgen", "dpo", "grpo", "prompts") \
         and "--allow-download" not in sys.argv:
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
@@ -121,8 +124,11 @@ from roles import (                                                           # 
     DEFAULT_JUDGE_MODEL,
     DEFAULT_ORACLE_MODEL,
     DEFAULT_PATIENT_MODEL,
+    DEFAULT_SERVE_UTIL,
+    DEFAULT_THERAPIST_MODEL,
     RoleBinding,
     ServeSpec,
+    default_serve_util,
     make_binding,
     model_tag,
 )
@@ -139,6 +145,8 @@ __all__ = [
     "SERVER_PARTS",
     "THINKING_MARKERS",
     "SMOKE_MODEL",
+    "CARDS_GIB",
+    "TRAINER_ENVELOPE_GIB",
     "Section",
     "StubTokenizer",
     "VramPlan",
@@ -146,6 +154,8 @@ __all__ = [
     "cmd_config",
     "cmd_convs",
     "cmd_vram",
+    "cmd_resume",
+    "cmd_prompts",
     "cmd_serve",
     "cmd_roles",
     "cmd_stopgen",
@@ -174,23 +184,55 @@ EXIT_SKIP = 3
 #: Subcommand order for ``all`` -- cheapest and most diagnostic first, so a broken grammar is
 #: reported before a GPU part spends two minutes loading weights to fail for the same reason.
 PARTS: Tuple[str, ...] = (
-    "naming", "config", "convs", "vram", "serve", "roles", "stopgen", "dpo", "grpo",
+    "naming", "config", "convs", "vram", "resume", "prompts", "serve", "roles",
+    "stopgen", "dpo", "grpo",
 )
 
 #: Parts that allocate VRAM. Each one guards itself; this tuple is for the ``all`` summary.
 GPU_PARTS: Tuple[str, ...] = ("stopgen", "dpo", "grpo")
 
-#: vLLM pre-allocation for the ``roles`` gate, per grader, sized on a 40 GB A100 from the
-#: MEASURED bf16 checkpoints (HF API, 2026-08-26): E4B 14.89 GiB -> 0.50 x 40 = 20 GiB, E2B
-#: 9.54 GiB -> 0.35 x 40 = 14 GiB, each leaving a usable KV pool. These mirror the notebooks'
-#: cell-1 values on purpose: the gate must serve the grader the way the arm will.
-_DEFAULT_SERVE_UTIL: Dict[str, float] = {
-    "google/gemma-4-E4B-it": 0.50,
-    "google/gemma-4-E2B-it": 0.35,
-}
-
 #: Parts that need a server (their own, or one already listening).
 SERVER_PARTS: Tuple[str, ...] = ("serve", "roles")
+
+#: The two Colab cards the VRAM arithmetic is checked against, in GiB. The 80 GB A100 is the
+#: target; 40 GB stays as the documented fallback and must still close, however thinly.
+CARDS_GIB: Tuple[Tuple[str, float], ...] = (("A100 80 GB (target)", 80.0),
+                                             ("A100 40 GB (fallback)", 40.0))
+
+#: The therapist trainer's VRAM envelope, per method, as (term, GiB) pairs -- PLANNING terms for
+#: the cell-1 config in force (GRPO 16 x 8 = 128 completions per step, generation batch 128,
+#: grad-checkpointing on, look-ahead sub-batch 64; PTO per_device 2 x gas 8 pairs), kept as
+#: terms rather than a total so the printed line shows its arithmetic. GRPO's terms are the
+#: CLAUDE.md § VRAM budget row, `2.5 + 8.8 + 4.4 + 4.0 = 19.7 GiB`: the KV terms are
+#: `n x 2,248 tokens x 32 KiB` (16 layers x 8 KV heads x 64 x bf16 x K/V), the loss term is a
+#: plan (`16 x 200 x 128,256 x 4 B ~= 1.5 GiB` of completion-only logits, x2 for old/ref
+#: log-probs, plus checkpointed activations) that no A100 run has measured yet -- the QUICK_TEST
+#: rehearsal's `peak_reserved_gib_train` is what replaces it. PTO's ~17 GiB is the Exp3
+#: measurement of the same DPO shape. The trainer docs (the notebooks' VRAM cells) quote the
+#: same four GRPO numbers; a change here is a change there.
+TRAINER_ENVELOPE_GIB: Dict[str, Tuple[Tuple[str, float], ...]] = {
+    "GRPO": (("1B bf16 weights + LoRA + optimizer", 2.5),
+             ("generate KV for 128 completions (16 x 8 x 2,248 tok x 32 KiB)", 8.8),
+             ("look-ahead rollout KV (sub-batch 64 x 2,248 tok x 32 KiB)", 4.4),
+             ("loss forward + grad-checkpointed activations (plan, unmeasured)", 4.0)),
+    "PTO": (("1B bf16 weights + LoRA + optimizer", 2.5),
+            ("DPO full-sequence 128k-vocab logits (per_device 2 x chosen/rejected)", 10.0),
+            ("grad-checkpointed activations + reference log-probs", 2.5),
+            ("branch sampling KV (M=8) + look-ahead", 2.0)),
+}
+
+#: The GRPO envelope's documented total, pinned so the terms above cannot drift from the
+#: CLAUDE.md row (`2.5 + 8.8 + 4.4 + 4.0`) without this gate noticing.
+_GRPO_ENVELOPE_DOCUMENTED_GIB = 19.7
+
+#: Headroom the two CUDA contexts (server + trainer) need beside their reservations.
+_CUDA_CONTEXTS_GIB = 1.0
+
+#: The card every envelope MUST close on with the CUDA contexts inside it; the other entries of
+#: :data:`CARDS_GIB` are fallbacks, where "closes with ~0 headroom" is a WARNING rather than a
+#: pass -- the escape hatches (look-ahead sub-batch halving, CONVERSATION_BATCH_SIZE) are then
+#: needed from the first iteration, and the gate must say so instead of printing green.
+_TARGET_CARD_GIB = 80.0
 
 #: Substrings that betray a reasoning preamble leaking into ``message.content``.
 #:
@@ -265,6 +307,19 @@ class Section:
     passed: int = 0
     failures: List[str] = field(default_factory=list)
     skipped: Optional[str] = None
+    warnings: List[str] = field(default_factory=list)
+
+    def warn(self, label: str, detail: str = "") -> None:
+        """Record and print a WARNING: a property that holds only thinly, or on a fallback.
+
+        Neither a pass nor a failure. It does not move the exit code, but it is counted and
+        printed in the verdict line so a run that closes with ~0 headroom on the fallback card
+        cannot read as an unqualified green -- the failure mode this exists to prevent is a
+        budget that "passed" because the check that should have hesitated did not.
+        """
+        suffix = f"  {detail}" if detail else ""
+        self.warnings.append(f"{label}{(' -- ' + detail) if detail else ''}")
+        print(f"  [WARN] {label}{suffix}")
 
     def check(self, ok: bool, label: str, detail: str = "") -> bool:
         """Record and print one check. Returns *ok*, so callers can branch on it.
@@ -326,6 +381,10 @@ class Section:
             head = f"{STATUS_FAIL} {self.name} ({len(self.failures)} of "
             head += f"{len(self.failures) + self.passed} checks failed)"
             return "\n".join([head] + [f"       - {f}" for f in self.failures])
+        if self.warnings:
+            head = (f"{STATUS_PASS} {self.name} ({self.passed} checks, "
+                    f"{len(self.warnings)} WARNING{'S' if len(self.warnings) != 1 else ''})")
+            return "\n".join([head] + [f"       ! {w}" for w in self.warnings])
         return f"{STATUS_PASS} {self.name} ({self.passed} checks)"
 
 
@@ -530,6 +589,27 @@ def cmd_naming(sec: Section, args: argparse.Namespace) -> None:
     sec.check(model_tag("gpt-4o-mini") == model_tag("gpt-4o-mini-2024-07-18") == "gpt4m",
               "model_tag is many-to-one by design (family, not snapshot)", "both -> gpt4m")
 
+    # ...and ONLY where sanctioned. model_tag's own guard sees an uncurated id landing on a
+    # curated tag; two CURATED entries typed with the same tag would be grouped silently, so
+    # the table is asserted against an explicit family list at import. Checked here both on
+    # the real table (every shared tag is sanctioned) and on a deliberately broken one (the
+    # guard still fires).
+    from roles import _CURATED_IDS_BY_TAG, _SANCTIONED_SHARED_TAGS, _check_curated_tag_families
+
+    shared = {tag: owners for tag, owners in _CURATED_IDS_BY_TAG.items() if len(owners) > 1}
+    sec.check(set(shared) == set(_SANCTIONED_SHARED_TAGS)
+              and all(len(_CURATED_IDS_BY_TAG.get(t, ())) > 1 for t in _SANCTIONED_SHARED_TAGS),
+              "every curated tag with >1 owner is a SANCTIONED family, and every sanctioned "
+              "family really has >1 owner", f"shared={shared} sanctioned={sorted(_SANCTIONED_SHARED_TAGS)}")
+    _expect_error(sec, "two curated ids on one UNSANCTIONED tag are REFUSED at import",
+                  "without sanction",
+                  lambda: _check_curated_tag_families(
+                      {"gemma4E4B": ("google/gemma-4-E4B-it", "google/gemma-4-E4B")},
+                      _SANCTIONED_SHARED_TAGS))
+    _check_curated_tag_families({"gpt4m": ("gpt-4o-mini", "gpt-4o-mini-2024-07-18"),
+                                 "L1B": ("meta-llama/Llama-3.2-1B",)}, _SANCTIONED_SHARED_TAGS)
+    sec.check(True, "a table whose only shared tag is a sanctioned family passes the guard")
+
     # But a base model and its Instruct sibling are DIFFERENT policies, never one family: an
     # earlier _slugify stripped "-Instruct" and would have tagged both therapists identically,
     # collapsing two different-policy arms into one folder.
@@ -538,6 +618,19 @@ def cmd_naming(sec: Section, args: argparse.Namespace) -> None:
               "the two therapist variants tag DIFFERENTLY (base L1B vs Instruct L1Bi)")
     sec.check(model_tag("some/Other-7B") != model_tag("some/Other-7B-Instruct"),
               "_slugify no longer strips -Instruct (any future base/Instruct pair stays distinct)")
+
+    # The four ids actually in play -- the default grader, its open fallback, and the two
+    # therapist variants -- must tag distinctly, or two arms would share a folder. The tags are
+    # pinned by value: a curated-table edit that made two of them equal must fail here.
+    in_play = (DEFAULT_ORACLE_MODEL, "google/gemma-4-E2B-it",
+               DEFAULT_THERAPIST_MODEL, "meta-llama/Llama-3.2-1B")
+    tags = [model_tag(m) for m in in_play]
+    sec.check(len(set(tags)) == len(in_play),
+              "the four model ids in play tag DISTINCTLY", dict(zip(in_play, tags)))
+    # _slugify strips "-it", so a base Gemma checkpoint would slug onto the instruction-tuned
+    # grader's tag. That is a refusal, not a silent merge of two graders into one arm name.
+    _expect_error(sec, "an uncurated id that slugs onto a curated tag is REFUSED (base Gemma vs -it)",
+                  "model_tag collision", lambda: model_tag("google/gemma-4-E4B"))
     sec.check(all(set(model_tag(m)) <= _NAME_CHARSET - {"_"}
                   for m in ("google/gemma-4-E2B-it", "meta-llama/Llama-3.2-1B",
                             "some.vendor/weird_model.v2-it")),
@@ -645,9 +738,18 @@ def _grpo_globals(data_root: str, **overrides: Any) -> Dict[str, Any]:
         "NUM_ITERATIONS": 10,
         "EPOCHS_PER_ITERATION": 1,
         "NUM_GENERATIONS": 8,
-        "TRAIN_BATCH_SIZE": 64,
-        "EVAL_BATCH_SIZE": 64,
-        "GRADIENT_ACCUMULATION_STEPS": 2,
+        # 16 completions per device x gas 8 = 128 completions per optimizer step = 16 unique
+        # prompts at G=8 (the Phase 3 gate number), with grad-checkpointing on so the 128-row
+        # generate batch fits beside the server. The old 64 x 2 reached the same 128 with a
+        # 4x larger backward pass per micro-step.
+        "TRAIN_BATCH_SIZE": 16,
+        "EVAL_BATCH_SIZE": 16,
+        "GRADIENT_ACCUMULATION_STEPS": 8,
+        "GRADIENT_CHECKPOINTING": True,
+        # 0.0 in BOTH notebooks: with dropout, model.train() samples a thinned adapter while
+        # generation and the eval pass run the full one, so the policy that is scored is not the
+        # policy that was updated. Matched across methods.
+        "LORA_DROPOUT": 0.0,
         "LEARNING_RATE": 1e-5,
         "SEED": 42,
         "DATA_ROOT": data_root,
@@ -676,6 +778,7 @@ def _pto_globals(data_root: str, **overrides: Any) -> Dict[str, Any]:
         "TRAIN_BATCH_SIZE": 2,
         "EVAL_BATCH_SIZE": 4,
         "GRADIENT_ACCUMULATION_STEPS": 8,
+        "LORA_DROPOUT": 0.0,
         "LEARNING_RATE": 1e-5,
         "SEED": 42,
         "DATA_ROOT": data_root,
@@ -712,10 +815,16 @@ def cmd_config(sec: Section, args: argparse.Namespace) -> None:
         sec.check(g_train.experiment_name == _DOCUMENTED_NAMES[0],
                   "GRPO cell-1 globals compute the documented arm name",
                   g_train.experiment_name)
-        sec.check(g_train.prompts_per_step == 16,
-                  "GRPO batch arithmetic gives 16 unique prompts/step (the Phase 3 gate number)",
+        sec.check(g_train.generation_batch_size == 128 and g_train.prompts_per_step == 16,
+                  "GRPO batch arithmetic: 16 x 8 = 128 completions -> 16 unique prompts/step "
+                  "(the Phase 3 gate number; generation batch unchanged at 128)",
                   f"{g_train.train_batch_size} x {g_train.gradient_accumulation_steps} = "
-                  f"{g_train.generation_batch_size} completions / G={g_train.num_generations}")
+                  f"{g_train.generation_batch_size} completions / G={g_train.num_generations} "
+                  f"= {g_train.prompts_per_step}")
+        sec.check(g_train.gradient_checkpointing is True and g_train.eval_batch_size == 16,
+                  "GRPO trains with grad-checkpointing at per_device 16 (eval 16)",
+                  f"gradient_checkpointing={g_train.gradient_checkpointing} "
+                  f"eval_batch_size={g_train.eval_batch_size}")
 
         pto = build_pto_config(_pto_globals(data_root), verbose=False)
         p_train, p_roles, p_gen, p_oracle, p_la, p_paths = pto
@@ -724,7 +833,17 @@ def cmd_config(sec: Section, args: argparse.Namespace) -> None:
                   "PTO cell-1 globals compute the documented arm name", p_train.experiment_name)
         sec.check(p_train.pairs_per_step == 16,
                   "PTO pairs/step matches GRPO's prompts/step (the matched-grid claim)",
-                  f"{p_train.train_batch_size} x {p_train.gradient_accumulation_steps} = 16")
+                  f"{p_train.train_batch_size} x {p_train.gradient_accumulation_steps} = "
+                  f"{p_train.pairs_per_step}")
+        sec.check(g_train.lora_dropout == 0.0 and p_train.lora_dropout == 0.0,
+                  "LoRA dropout is 0.0 in BOTH methods (the trained policy is the scored policy)",
+                  f"GRPO {g_train.lora_dropout} / PTO {p_train.lora_dropout}")
+        sec.check(p_gen.max_prompt_tokens == p_gen.therapist_max_input_tokens
+                  and g_gen.max_prompt_tokens == g_gen.therapist_max_input_tokens,
+                  "training prompt budget == serve-time prompt budget in both methods (same "
+                  "core.policy.build_prompt, so training text == generated-from text)",
+                  f"GRPO {g_gen.max_prompt_tokens}/{g_gen.therapist_max_input_tokens}  "
+                  f"PTO {p_gen.max_prompt_tokens}/{p_gen.therapist_max_input_tokens}")
 
         sec.check(g_paths.experiment_name == g_train.experiment_name
                   and g_paths.conv_dir_for(0).endswith(os.path.join(g_train.experiment_name,
@@ -822,7 +941,7 @@ def cmd_config(sec: Section, args: argparse.Namespace) -> None:
                                    verbose=False)
         sec.check(warned[0].experiment_name == g_train.experiment_name,
                   "a silently-mutable knob warns but still builds, under the SAME arm name",
-                  "gradient_accumulation_steps 2 -> 1")
+                  f"gradient_accumulation_steps 8 -> 1 (prompts/step {warned[0].prompts_per_step})")
 
         summary_ok = isinstance(RolesConfig.from_bindings(_smoke_bindings()), RolesConfig)
         sec.check(summary_ok, "RolesConfig.from_bindings accepts the serve_roles table")
@@ -1051,6 +1170,9 @@ def cmd_convs(sec: Section, args: argparse.Namespace) -> None:
                   lambda: build_truncated_training_prompt(long_turns, _SYS_THERAPIST, tokenizer,
                                                           _MAX_PROMPT_TOKENS,
                                                           truncation_mode="legacy"))
+    # The same rule with NO system message, on the stub (offline); `prompts` repeats it on the
+    # real tokenizers.
+    _check_systemless_budget(sec, "[stub]", tokenizer, budget=_MAX_PROMPT_TOKENS)
 
 
 # ==============================================================================
@@ -1144,7 +1266,14 @@ def cmd_vram(sec: Section, args: argparse.Namespace) -> None:
                                     "an over-budget request raises a catchable OutOfMemoryError "
                                     "and the loop retries smaller"))
 
-    plans = _candidate_plans(total_gib, WEIGHTS_GIB, PER_CONV_GIB, 0.25)
+    # The server share in every plan is the SANCTIONED fraction for the default grader, from
+    # the one table (roles.DEFAULT_SERVE_UTIL) -- never a literal: the flat 0.25 this used to
+    # print could not even hold E4B's weights, and a plan printed at a fraction nobody serves
+    # is arithmetic about a configuration that does not exist.
+    server_util = default_serve_util(DEFAULT_ORACLE_MODEL)
+    sec.note(f"server share in the plans below: gpu_memory_utilization {server_util:.2f} "
+             f"(roles.default_serve_util({DEFAULT_ORACLE_MODEL!r}))")
+    plans = _candidate_plans(total_gib, WEIGHTS_GIB, PER_CONV_GIB, server_util)
     n_safe = 0
     for plan in plans:
         safe = budget is not None and plan.total_gib <= budget
@@ -1173,22 +1302,421 @@ def cmd_vram(sec: Section, args: argparse.Namespace) -> None:
                   "on a 12 GiB card batch 32 is REFUSED (it rebooted this machine once)",
                   f"{estimate_batch_vram_gib(32):.1f} GiB > {budget:.1f} GiB budget")
 
-    # Server pre-allocation, checked against an explicit card size so the result does not
-    # depend on which machine runs the gate.
-    spec = ServeSpec(model=DEFAULT_ORACLE_MODEL, gpu_memory_utilization=0.25)
-    a100 = estimate_vram_gib(spec, total_gib=40.0)
-    sec.check(abs(a100 - 10.0) < 1e-6,
-              "gpu_memory_utilization is a PRE-ALLOCATION: 0.25 x 40 GiB = 10.0 GiB", f"{a100}")
+    # --- the serve-util table: one owner, sane values ---------------------------------
+    sec.check(set(DEFAULT_SERVE_UTIL) == {"google/gemma-4-E4B-it", "google/gemma-4-E2B-it"}
+              and DEFAULT_SERVE_UTIL["google/gemma-4-E4B-it"] == 0.50
+              and DEFAULT_SERVE_UTIL["google/gemma-4-E2B-it"] == 0.35,
+              "roles.DEFAULT_SERVE_UTIL pins E4B 0.50 / E2B 0.35 (the notebooks' cell-1 value)",
+              f"{DEFAULT_SERVE_UTIL}")
+    sec.check(all(0.0 < u < 1.0 for u in DEFAULT_SERVE_UTIL.values())
+              and all(model_tag(m) for m in DEFAULT_SERVE_UTIL),
+              "every table entry is a fraction of the card for a curated model id")
+    sec.check(default_serve_util(DEFAULT_ORACLE_MODEL) == DEFAULT_SERVE_UTIL[DEFAULT_ORACLE_MODEL],
+              "default_serve_util resolves the default grader from the table",
+              f"{DEFAULT_ORACLE_MODEL} -> {default_serve_util(DEFAULT_ORACLE_MODEL)}")
+    _expect_error(sec, "an unsized model has NO default fraction (a 0.25 nobody sized is how "
+                       "E4B failed to load)", "no sanctioned gpu_memory_utilization",
+                  lambda: default_serve_util("some/unsized-model"))
+    sec.check(default_serve_util("some/unsized-model", fallback=0.15) == 0.15,
+              "an explicit fallback= is honoured for a model outside the table")
+
+    # --- the Colab budget, BOTH cards, arithmetic printed ------------------------------
+    # The server's share is a pre-allocation (util x card); the trainer's envelope is the sum of
+    # its planning terms under the cell-1 config in force. Checked against explicit card sizes
+    # so the result does not depend on which machine runs the gate.
+    spec = ServeSpec(model=DEFAULT_ORACLE_MODEL,
+                     gpu_memory_utilization=default_serve_util(DEFAULT_ORACLE_MODEL))
     sec.check(spec.max_model_len == 16384,
               "the served context stays at 16384 (8192 drops 2.1% of Q2 prompts, and the "
               "longest conversations are the ones that would vanish)",
               f"max_model_len={spec.max_model_len}")
-    trainer_gib = 29.0
-    sec.note(f"reference (CLAUDE.md, Colab A100 40 GiB): {a100:.1f} server + "
-             f"{trainer_gib:.1f} trainer = {a100 + trainer_gib:.1f} GiB, "
-             f"headroom {40.0 - a100 - trainer_gib:.1f} GiB for two CUDA contexts")
-    sec.check(a100 + trainer_gib < 40.0,
-              "the documented Colab budget still leaves headroom")
+    envelopes = {method: VramPlan(f"{method} trainer envelope", terms)
+                 for method, terms in TRAINER_ENVELOPE_GIB.items()}
+    for method, plan in envelopes.items():
+        sec.note(f"{plan.label}: {plan.arithmetic()}")
+    grpo_terms = [gib for _, gib in TRAINER_ENVELOPE_GIB["GRPO"]]
+    sec.check(abs(envelopes["GRPO"].total_gib - _GRPO_ENVELOPE_DOCUMENTED_GIB) < 1e-6
+              and len(grpo_terms) == 4,
+              "the GRPO envelope is the documented 2.5 + 8.8 + 4.4 + 4.0 = 19.7 GiB (the loss "
+              "term is a plan, unmeasured -- the QUICK_TEST rehearsal replaces it)",
+              " + ".join(f"{g:.1f}" for g in grpo_terms)
+              + f" = {envelopes['GRPO'].total_gib:.1f} GiB")
+    sec.check(any(card == _TARGET_CARD_GIB for _, card in CARDS_GIB),
+              f"the target card ({_TARGET_CARD_GIB:.0f} GiB) is among the cards checked",
+              f"{[label for label, _ in CARDS_GIB]}")
+    for card_label, card_gib in CARDS_GIB:
+        is_target = card_gib == _TARGET_CARD_GIB
+        for grader in (DEFAULT_ORACLE_MODEL, "google/gemma-4-E2B-it"):
+            util = default_serve_util(grader)
+            server = estimate_vram_gib(ServeSpec(model=grader, gpu_memory_utilization=util),
+                                       total_gib=card_gib)
+            sec.check(abs(server - util * card_gib) < 1e-6,
+                      f"{card_label}, {model_tag(grader)}: the server PRE-ALLOCATES "
+                      f"{util:.2f} x {card_gib:.0f} = {server:.1f} GiB", f"{server:.1f} GiB")
+            for method, plan in envelopes.items():
+                trainer = plan.total_gib
+                headroom = card_gib - server - trainer
+                label = (f"{card_label}, {model_tag(grader)} + {method}: "
+                         f"{server:.1f} server + {trainer:.1f} trainer + "
+                         f"{_CUDA_CONTEXTS_GIB:.0f} CUDA contexts <= {card_gib:.0f}")
+                arithmetic = (f"{card_gib:.0f} - {server:.1f} - {trainer:.1f} = "
+                              f"{headroom:.1f} GiB headroom before the CUDA contexts")
+                if headroom >= _CUDA_CONTEXTS_GIB:
+                    sec.check(True, label, arithmetic)
+                elif not is_target and headroom >= 0.0:
+                    # The fallback card: the reservations fit but the CUDA contexts do not.
+                    # "~0 headroom" is the documented state of this cell (CLAUDE.md § VRAM
+                    # budget) and it is a WARNING, never a green pass -- the escape hatches
+                    # are needed from iteration 1, and the gate has to say so.
+                    sec.warn(label + " -- does NOT close: ~0 headroom on the FALLBACK card",
+                             arithmetic + f" (< the {_CUDA_CONTEXTS_GIB:.0f} GiB the two CUDA "
+                             f"contexts need); the escape hatches -- LOOKAHEAD_SUB_BATCH_SIZE "
+                             f"64->32, CONVERSATION_BATCH_SIZE 64->32, TRAIN_BATCH_SIZE 16->8 "
+                             f"with gas 16 -- are needed from the FIRST iteration here")
+                else:
+                    sec.check(False, label, arithmetic
+                              + (" -- the TARGET card must close with the CUDA contexts inside"
+                                 if is_target else " -- the fallback does not even fit the "
+                                                   "reservations"))
+    sec.note("the trainer terms are PLANNING numbers (PTO's DPO shape measured in Exp3; GRPO's "
+             "generate/look-ahead KV and loss forward unmeasured on an A100) -- read the real "
+             "weights + KV-pool figures off the vLLM log at the Phase 1 gate (serve_roles "
+             "prints both) and peak_reserved_gib_* from the QUICK_TEST rehearsal")
+
+
+# ==============================================================================
+#                                    resume
+# ==============================================================================
+#
+# Both trainers save TWO adapters into every HF checkpoint once TRL's PEFT path is live: the
+# trained "default" at the checkpoint ROOT and TRL's frozen reference copy "ref" in a ref/
+# subfolder (peft's save_pretrained layout). transformers' Trainer._load_from_checkpoint, on
+# seeing adapter subfolders, loads ONLY the subfolders and never the root -- so a mid-training
+# resume restores "ref" and leaves "default" at whatever the freshly-constructed trainer holds.
+# The step counter resumes, the loss curve looks continuous, and the policy silently restarts
+# from the iteration's beginning. Both notebooks therefore call
+#   trainer.model.load_adapter(ckpt, "default", is_trainable=True)
+# after constructing the trainer. This part pins BOTH halves on the installed peft/transformers:
+# the defect (so the fix is known to still be needed) and the fix (so it is known to work).
+# CPU, a 2-layer random Llama, no download.
+
+
+def _lora_param_state(model, adapter_name: str) -> Dict[str, Any]:
+    """``{param_name: tensor.clone()}`` for one adapter's LoRA parameters."""
+    return {name: p.detach().clone() for name, p in model.named_parameters()
+            if f".{adapter_name}." in name}
+
+
+def _all_close(a: Dict[str, Any], b: Dict[str, Any]) -> bool:
+    import torch
+
+    return set(a) == set(b) and all(torch.allclose(a[k], b[k]) for k in a)
+
+
+def cmd_resume(sec: Section, args: argparse.Namespace) -> None:
+    """Pin the mid-training resume behaviour of the installed peft + transformers.
+
+    Builds a tiny random Llama with a ``default`` LoRA adapter plus TRL's ``ref`` copy, saves a
+    checkpoint the way the trainers do, perturbs ``default`` in memory, then shows that
+    (a) loading only the adapter SUBFOLDERS -- exactly what ``Trainer._load_from_checkpoint``
+    does when subfolders exist -- leaves ``default`` unrestored, and (b) the trainers' REAL
+    helpers -- ``grpo_trainer.restore_default_adapter`` and
+    ``pto_trainer._restore_default_adapter_from_checkpoint`` -- restore it, keep it active and
+    trainable, and leave ``ref`` at the snapshot taken when it was built. No GPU, no download;
+    torch is imported (after trl/datasets, rule 2), and the trainer modules with it -- they
+    import trl at their top, so this part SKIPs where trl is absent.
+    """
+    if trl is None:
+        raise _Skip("trl is not installed; the trainers' resume helpers import it at their top")
+    assert_import_order()
+
+    import torch
+    from peft import LoraConfig, PeftModel, get_peft_model
+    from transformers import LlamaConfig, LlamaForCausalLM
+
+    from core.policy import ADAPTER_FILES
+    from grpo.grpo_trainer import restore_default_adapter
+    from pto.pto_trainer import _restore_default_adapter_from_checkpoint
+
+    torch.manual_seed(0)
+    config = LlamaConfig(vocab_size=128, hidden_size=64, intermediate_size=128,
+                         num_hidden_layers=2, num_attention_heads=4, num_key_value_heads=4,
+                         max_position_embeddings=64, tie_word_embeddings=False)
+    base = LlamaForCausalLM(config)
+    model: PeftModel = get_peft_model(base, LoraConfig(
+        r=4, lora_alpha=8, lora_dropout=0.0, target_modules=["q_proj", "v_proj"],
+        task_type="CAUSAL_LM"))
+    sec.note(f"peft {__import__('peft').__version__}, transformers "
+             f"{__import__('transformers').__version__}, tiny Llama: "
+             f"{sum(p.numel() for p in model.parameters()):,} params on CPU")
+
+    # TRL's reference adapter, built the way GRPOTrainer/DPOTrainer build it (trl 1.4.0
+    # grpo_trainer.py ~:371 / dpo_trainer.py ~:595): a second adapter sharing the config, with
+    # the default's weights copied in.
+    model.add_adapter("ref", model.peft_config["default"])
+    for name, param in model.named_parameters():
+        if ".default." in name:
+            model.get_parameter(name.replace(".default.", ".ref.")).data.copy_(param.data)
+    model.set_adapter("default")
+    # lora_B is zero-initialised; give "default" trained-looking weights so "restored" is
+    # distinguishable from "reset".
+    with torch.no_grad():
+        for name, param in model.named_parameters():
+            if ".default." in name:
+                param.normal_()
+    trained = _lora_param_state(model, "default")
+    # The reference as TRL built it: the iteration-start copy. Snapshotted NOW, before anything
+    # below touches the model, so "ref is untouched" compares against a value from before the
+    # fix rather than against itself.
+    ref_before = _lora_param_state(model, "ref")
+    sec.check(bool(ref_before) and not _all_close(ref_before, trained),
+              "'ref' holds the iteration-start copy, distinct from the trained 'default'",
+              f"{len(ref_before)} LoRA tensors")
+
+    with tempfile.TemporaryDirectory(prefix="exp4_smoke_resume_") as tmp:
+        ckpt = os.path.join(tmp, "checkpoint-10")
+        model.save_pretrained(ckpt)          # both adapters, as the HF checkpoint callback does
+        root_files = all(os.path.isfile(os.path.join(ckpt, f)) for f in ADAPTER_FILES)
+        subdirs = sorted(d for d in os.listdir(ckpt)
+                         if os.path.isdir(os.path.join(ckpt, d))
+                         and os.path.isfile(os.path.join(ckpt, d, "adapter_model.safetensors")))
+        sec.check(root_files and subdirs == ["ref"],
+                  "peft saves 'default' at the checkpoint ROOT and 'ref' in a subfolder",
+                  f"root adapter files present, subfolders={subdirs}")
+
+        # The weights a resumed process holds: a fresh trainer's adapter, i.e. NOT the trained one.
+        with torch.no_grad():
+            for name, param in model.named_parameters():
+                if ".default." in name:
+                    param.add_(1.0)
+        sec.check(not _all_close(_lora_param_state(model, "default"), trained),
+                  "the in-memory 'default' now differs from the saved one (a fresh process)")
+
+        # (a) THE DEFECT -- transformers' own resume path, verbatim in effect: with adapter
+        # subfolders present, Trainer._load_from_checkpoint loads each SUBFOLDER under its own
+        # name and calls set_adapter(active); the root 'default' is never read.
+        active = model.active_adapters[0]
+        for subdir_name in subdirs:
+            model.load_adapter(os.path.join(ckpt, subdir_name), subdir_name,
+                               is_trainable=(subdir_name == active), torch_device="cpu")
+        model.set_adapter(active)
+        sec.check(not _all_close(_lora_param_state(model, "default"), trained),
+                  "DEFECT PINNED: loading only the subfolders (transformers' resume path) leaves "
+                  "'default' UNRESTORED -- the explicit fix is still required on this stack",
+                  f"active={model.active_adapters}")
+
+        # (b) THE FIX -- the trainers' OWN helpers, not an inline load_adapter: what is pinned
+        # is the function the notebook calls between trainer construction and train().
+        # GRPO's first; then 'default' is perturbed again so PTO's proves the same thing
+        # rather than inheriting a restore that already happened.
+        restore_default_adapter(model, ckpt)
+        restored = _lora_param_state(model, "default")
+        sec.check(_all_close(restored, trained),
+                  "FIX PINNED (GRPO): grpo_trainer.restore_default_adapter restores the trained "
+                  "weights", f"{len(restored)} LoRA tensors match")
+        sec.check(model.active_adapters == ["default"],
+                  "'default' stays the ACTIVE adapter after the GRPO fix",
+                  f"{model.active_adapters}")
+        trainable = [p.requires_grad for n, p in model.named_parameters() if ".default." in n]
+        sec.check(bool(trainable) and all(trainable),
+                  "'default' is trainable after the GRPO fix (requires_grad on every LoRA tensor)",
+                  f"{sum(trainable)}/{len(trainable)}")
+
+        with torch.no_grad():
+            for name, param in model.named_parameters():
+                if ".default." in name:
+                    param.add_(1.0)
+        sec.check(not _all_close(_lora_param_state(model, "default"), trained),
+                  "'default' perturbed again before the PTO helper (its restore is its own)")
+        did_restore = _restore_default_adapter_from_checkpoint(model, ckpt)
+        sec.check(did_restore is True,
+                  "FIX PINNED (PTO): pto_trainer._restore_default_adapter_from_checkpoint "
+                  "returns True (PeftModel + root adapter files present)", f"returned {did_restore!r}")
+        restored_pto = _lora_param_state(model, "default")
+        sec.check(_all_close(restored_pto, trained),
+                  "and restores the trained weights", f"{len(restored_pto)} LoRA tensors match")
+        sec.check(model.active_adapters == ["default"],
+                  "'default' stays the ACTIVE adapter after the PTO fix",
+                  f"{model.active_adapters}")
+
+        ref_after = _lora_param_state(model, "ref")
+        sec.check(_all_close(ref_after, ref_before),
+                  "'ref' is untouched by both fixes (compared against the snapshot taken when "
+                  "TRL built it -- the reference stays the iteration-start copy)",
+                  f"{len(ref_after)} LoRA tensors == snapshot")
+        sec.check(not _all_close(ref_after, trained),
+                  "and 'ref' did not silently become the trained weights either")
+
+
+# ==============================================================================
+#                                    prompts
+# ==============================================================================
+#
+# THE PROMPT RULE (core.policy module docstring): rendered text never carries a BOS; every
+# tokenization adds exactly one. The Instruct template writes a literal <|begin_of_text|> into
+# its render and TRL's GRPOTrainer tokenizes prompt strings with add_special_tokens=True, so a
+# raw render would train on a DOUBLE BOS while the decode path saw one -- and the base ChatML
+# template writes none, so the old serving path fed the base policy no BOS at all. These checks
+# run on the real therapist tokenizers (from the HF cache, offline) and are what `convs` cannot
+# do with its stub.
+
+
+def _check_bos_rule(sec: Section, what: str, prompt: str, tokenizer) -> None:
+    """The three properties every training-prompt string must have on a real tokenizer."""
+    from core.policy import count_prompt_tokens, prompt_token_ids, tokenizer_adds_bos
+
+    bos, bos_id = tokenizer.bos_token, tokenizer.bos_token_id
+    if not bos or bos_id is None or not tokenizer_adds_bos(tokenizer):
+        sec.note(f"{what}: tokenizer adds no BOS; the BOS rule is vacuous here")
+        return
+    trl_ids = list(tokenizer(prompt)["input_ids"])      # what GRPOTrainer's processing_class does
+    ours = prompt_token_ids(prompt, tokenizer)
+    sec.check(not prompt.startswith(bos),
+              f"{what} text never starts with the BOS token", f"starts {prompt[:24]!r}")
+    sec.check(trl_ids.count(bos_id) == 1 and trl_ids[0] == bos_id,
+              f"{what} tokenized with add_special_tokens=True carries EXACTLY ONE BOS, first",
+              f"count={trl_ids.count(bos_id)}, len={len(trl_ids)}")
+    sec.check(trl_ids == ours,
+              f"{what}: TRL's ids == the decode path's ids (core.policy.prompt_token_ids)",
+              f"{count_prompt_tokens(prompt, tokenizer)} tokens")
+
+
+def cmd_prompts(sec: Section, args: argparse.Namespace) -> None:
+    """The BOS rule on the real therapist tokenizers, for both trainers' prompt builders.
+
+    SKIPs when the Instruct tokenizer is not in the local HF cache (it is gated; downloading
+    would make an offline gate need a network and a token). The base tokenizer is checked too
+    when cached, and noted when not.
+    """
+    from core.conversations import (
+        ConversationState,
+        build_truncated_training_prompt,
+        extract_prompts_from_conversations,
+        turns_to_messages,
+    )
+    from core.policy import (
+        CHAT_TEMPLATE_DATE,
+        build_prompt,
+        count_prompt_tokens,
+        setup_tokenizer,
+        tokenizer_adds_bos,
+    )
+
+    def _load(model_id: str):
+        try:
+            return setup_tokenizer(model_id)
+        except OSError as exc:   # huggingface_hub's offline/gated errors all subclass OSError
+            return exc
+
+    instruct = _load(DEFAULT_THERAPIST_MODEL)
+    if isinstance(instruct, Exception):
+        raise _Skip(f"{DEFAULT_THERAPIST_MODEL} is not in the local HF cache "
+                    f"({type(instruct).__name__}); the BOS rule needs the real tokenizer. "
+                    f"Pass --allow-download to fetch it.")
+    base = _load("meta-llama/Llama-3.2-1B")
+    tokenizers = [(DEFAULT_THERAPIST_MODEL, instruct)]
+    if isinstance(base, Exception):
+        sec.note(f"meta-llama/Llama-3.2-1B not cached ({type(base).__name__}); checking the "
+                 f"Instruct tokenizer only")
+    else:
+        tokenizers.append(("meta-llama/Llama-3.2-1B", base))
+
+    permutations = [{"patient_system_prompt": f"persona {i}"} for i in range(8)]
+    states = [ConversationState(persona_id=1, turns=_demo_turns(12)),
+              ConversationState(persona_id=2, turns=_demo_turns(30))]
+
+    for model_id, tokenizer in tokenizers:
+        tag = model_tag(model_id)
+        bos_id = tokenizer.bos_token_id
+        sec.check(tokenizer_adds_bos(tokenizer),
+                  f"[{tag}] the tokenizer prepends a BOS on tokenizer(text) (the TRL call)",
+                  f"bos_token={tokenizer.bos_token!r}")
+
+        # Why the rule exists, on the tokenizer where it bites: the native Instruct template
+        # writes the BOS into its text, so a raw render tokenized TRL's way carries TWO.
+        raw = tokenizer.apply_chat_template(turns_to_messages(_demo_turns(4), _SYS_THERAPIST),
+                                            tokenize=False, add_generation_prompt=True,
+                                            date_string=CHAT_TEMPLATE_DATE)
+        raw_count = list(tokenizer(raw)["input_ids"]).count(bos_id)
+        writes_bos = raw.startswith(tokenizer.bos_token)
+        sec.check(raw_count == (2 if writes_bos else 1),
+                  f"[{tag}] a RAW template render tokenized TRL's way carries "
+                  f"{'a DOUBLE BOS (the defect the rule removes)' if writes_bos else 'one BOS'}",
+                  f"template writes BOS: {writes_bos}; count={raw_count}")
+
+        # GRPO's prompt builder.
+        samples = extract_prompts_from_conversations(
+            states, _SYS_THERAPIST, tokenizer, min_conv_length=2, max_prompt_tokens=2048,
+            permutations=permutations)
+        sec.check(len(samples) == 6 + 15, f"[{tag}] GRPO extraction yields one sample per "
+                  f"patient turn", f"{len(samples)} samples")
+        _check_bos_rule(sec, f"[{tag}] the GRPO sample prompt", samples[-1]["prompt"], tokenizer)
+        sec.check(all(count_prompt_tokens(s["prompt"], tokenizer) <= 2048 for s in samples),
+                  f"[{tag}] every GRPO prompt fits max_prompt_tokens (BOS included)")
+
+        # PTO's prompt builder, under a cap that forces drop-oldest, and its identity with the
+        # decode path's build_prompt (byte-identical text = same policy input).
+        long_turns = _demo_turns(30)
+        capped = build_truncated_training_prompt(long_turns, _SYS_THERAPIST, tokenizer, 256)
+        sec.check(capped is not None and count_prompt_tokens(capped, tokenizer) <= 256 <
+                  count_prompt_tokens(
+                      build_prompt(turns_to_messages(long_turns, _SYS_THERAPIST), tokenizer,
+                                   10_000)[0], tokenizer),
+                  f"[{tag}] the DPO prompt is capped by dropping the oldest turns (BOS counted)",
+                  f"{count_prompt_tokens(capped or '', tokenizer)} tokens <= 256")
+        _check_bos_rule(sec, f"[{tag}] the DPO prompt", capped or "", tokenizer)
+        decode_text, n_dropped = build_prompt(turns_to_messages(long_turns, _SYS_THERAPIST),
+                                              tokenizer, 256)
+        sec.check(capped == decode_text and n_dropped > 0,
+                  f"[{tag}] the DPO prompt is BYTE-IDENTICAL to what the policy generates from "
+                  f"(same core.policy.build_prompt)", f"{n_dropped} oldest turns dropped")
+        sec.check(capped is not None and "counselor named David" in capped
+                  and long_turns[-1]["content"] in capped,
+                  f"[{tag}] the system prompt and the newest turn survive the cap")
+
+        # A message list WITHOUT a system message, over budget: the same drop-oldest rule with
+        # an empty head. Must never raise (the look-ahead patient side and any caller that
+        # builds a bare prompt hit this shape), and must return either the newest turns or None.
+        _check_systemless_budget(sec, f"[{tag}]", tokenizer, budget=256)
+
+
+def _check_systemless_budget(sec: Section, what: str, tokenizer, *, budget: int) -> None:
+    """``build_prompt`` on an over-budget list with NO system message: newest turns or None, never a raise."""
+    from core.policy import build_prompt, count_prompt_tokens
+
+    bare = turns_to_messages_stub(_demo_turns(30))
+    try:
+        text, n_dropped = build_prompt(bare, tokenizer, budget)
+    except Exception as exc:  # noqa: BLE001 - the check IS "does not raise"
+        sec.check(False, f"{what} build_prompt on a system-less over-budget list never raises",
+                  f"raised {type(exc).__name__}: {str(exc)[:160]}")
+        return
+    newest = bare[-1]["content"]
+    if text is None:
+        sec.check(n_dropped == len(bare),
+                  f"{what} build_prompt on a system-less over-budget list returned None, "
+                  f"reporting every turn dropped", f"n_dropped={n_dropped} of {len(bare)}")
+        return
+    sec.check(newest in text and count_prompt_tokens(text, tokenizer) <= budget < 10_000
+              and n_dropped > 0,
+              f"{what} build_prompt on a system-less over-budget list keeps the NEWEST turns "
+              f"within budget", f"{count_prompt_tokens(text, tokenizer)} tokens <= {budget}, "
+                                 f"{n_dropped} oldest turns dropped, no system message")
+    try:
+        none_text, none_dropped = build_prompt(bare, tokenizer, 3)
+    except Exception as exc:  # noqa: BLE001
+        sec.check(False, f"{what} an impossible system-less budget never raises",
+                  f"raised {type(exc).__name__}: {str(exc)[:160]}")
+        return
+    sec.check(none_text is None and none_dropped == len(bare),
+              f"{what} an impossible system-less budget returns None (not a mangled prompt)",
+              f"n_dropped={none_dropped}")
+
+
+def turns_to_messages_stub(turns: Sequence[Dict[str, str]]) -> List[Dict[str, str]]:
+    """Therapist-perspective ``user``/``assistant`` messages for *turns*, with NO system message."""
+    return [{"role": "assistant" if t["role"] == "therapist" else "user", "content": t["content"]}
+            for t in turns]
 
 
 # ==============================================================================
@@ -1294,9 +1822,24 @@ def cmd_serve(sec: Section, args: argparse.Namespace) -> None:
         sec.check(handle.base_url == base_url_for_port(spec.port),
                   "the endpoint is the one the plan promised", handle.base_url)
 
+        # A re-run of the serve cell in the SAME process gets its own owning handle back (the
+        # registry), not a process-less twin -- so it can still stop/restart what it started.
         adopted = adopt_if_running(spec)
-        sec.check(adopted is not None and adopted.process is None,
-                  "a second serve_roles call would adopt this server instead of binding again")
+        sec.check(adopted is handle,
+                  "a second serve_roles call adopts this process's OWN handle instead of "
+                  "binding again", f"same object: {adopted is handle}, owns process: "
+                                   f"{adopted is not None and adopted.owns_process}")
+        from tools.vllm_serve import find_loading_server, launched_servers, report_kv_cache_tokens
+
+        sec.check(launched_servers().get(spec.port) is handle
+                  and find_loading_server(spec) is handle,
+                  "the launch registry holds the handle (a re-run mid-load finds it before the "
+                  "port binds)", f"registry ports: {sorted(launched_servers())}")
+        kv_tokens = report_kv_cache_tokens(handle)
+        sec.check(kv_tokens is not None,
+                  "the KV-pool size is parseable from the startup log",
+                  f"{kv_tokens:,} tokens (~{kv_tokens / spec.max_model_len:.1f} x max_model_len)"
+                  if kv_tokens is not None else "not found -- vLLM may have reworded the line")
 
         weights = report_weights_gib(handle)
         sec.check(weights is not None,
@@ -1333,6 +1876,46 @@ def _thinking_leak(content: Optional[str]) -> Optional[str]:
     for marker in THINKING_MARKERS:
         if marker.lower() in lowered:
             return marker
+    return None
+
+
+#: Completion-token ceiling for the ``Reply with exactly: READY`` probe. One word is 1-2 tokens
+#: on any tokenizer in play; 8 leaves room for an end-of-turn token and a stray period, and no
+#: room at all for a reasoning preamble.
+_MAX_READY_TOKENS = 8
+
+
+def _plain_answer(content: Optional[str]) -> str:
+    """Normalise a one-word reply: strip whitespace, surrounding quotes and trailing punctuation."""
+    text = (content or "").strip().strip("\"'`").rstrip(".!")
+    return text.strip().upper()
+
+
+def _completion_tokens(response: Any) -> Optional[int]:
+    """``usage.completion_tokens`` from a chat completion, or ``None`` when the server sent none."""
+    usage = getattr(response, "usage", None)
+    value = getattr(usage, "completion_tokens", None)
+    try:
+        return None if value is None else int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _reasoning_field(message: Any) -> Optional[str]:
+    """The reasoning text a server routed OUT of ``content``, if any.
+
+    vLLM's reasoning parsers put it on ``reasoning_content`` (older) or ``reasoning`` (newer);
+    neither is an OpenAI SDK field, but the pinned openai 2.36.0 models are ``extra="allow"``
+    (``openai/_models.py``), so unknown keys survive on ``model_extra`` and, via pydantic's
+    ``__getattr__``, as attributes. Both spellings and both access paths are read.
+    """
+    extra = getattr(message, "model_extra", None) or {}
+    for key in ("reasoning_content", "reasoning"):
+        value = extra.get(key) if isinstance(extra, dict) else None
+        if value is None:
+            value = getattr(message, key, None)
+        if value:
+            return str(value)
     return None
 
 
@@ -1391,14 +1974,20 @@ def cmd_roles(sec: Section, args: argparse.Namespace) -> None:
             raise _Skip(f"nothing serving {model} on port {port} and {args.executable!r} is not "
                         f"on PATH. Run this on the GPU host, or pass --base-url.")
         # The default must hold the REAL grader's weights, because this gate serves the real
-        # grader: E4B is 14.89 GiB bf16 and E2B 9.54 GiB (HF API, 2026-08-26), so on a 40 GB
-        # A100 that is 0.50 and 0.35 of the card. The old flat 0.25 (~10 GiB) predates those
+        # grader: roles.DEFAULT_SERVE_UTIL is the one table (E4B 0.50, E2B 0.35, sized from the
+        # measured bf16 checkpoints). The old flat 0.25 (~10 GiB on a 40 GB card) predates those
         # measurements and cannot even load E4B -- the server would die during weight load and
         # surface as "could not reach or start a server", which reads like a serving bug rather
-        # than a budget one. Overridable with --gpu-memory-utilization for a different card.
-        _util = args.gpu_memory_utilization or _DEFAULT_SERVE_UTIL.get(model, 0.50)
-        sec.note(f"gpu_memory_utilization {_util} "
-                 f"({'explicit' if args.gpu_memory_utilization else 'derived from the model'})")
+        # than a budget one. A model outside the table gets 0.50 here with a note; override
+        # with --gpu-memory-utilization for a different card.
+        if args.gpu_memory_utilization:
+            _util, _how = args.gpu_memory_utilization, "explicit"
+        elif model in DEFAULT_SERVE_UTIL:
+            _util, _how = default_serve_util(model), "roles.DEFAULT_SERVE_UTIL"
+        else:
+            _util, _how = default_serve_util(model, fallback=0.50), \
+                "NOT in roles.DEFAULT_SERVE_UTIL -- 0.50 assumed; pass --gpu-memory-utilization"
+        sec.note(f"gpu_memory_utilization {_util} ({_how})")
         try:
             wired, handles = serve_roles(
                 bindings, base_port=port, log_dir=tempfile.gettempdir(), timeout=args.timeout,
@@ -1433,11 +2022,29 @@ def cmd_roles(sec: Section, args: argparse.Namespace) -> None:
         plain = run_async(_raw(binding, [{"role": "user",
                                           "content": "Reply with exactly: READY"}],
                                response_format=None, max_tokens=32))
-        content = plain.choices[0].message.content
+        message = plain.choices[0].message
+        content = message.content
         sec.check(bool(content and content.strip()), f"{role}: a plain chat completion answers",
                   repr((content or "")[:60]))
+        # THE thinking gate. Three independent witnesses, because each one alone is vacuous:
+        # vLLM strips special tokens from `content`, so a thinking block arrives as unmarked
+        # prose (the marker scan below cannot see it) -- but it cannot arrive as the single word
+        # READY, and it cannot fit in 8 completion tokens; and a server with a reasoning parser
+        # on routes the block to `reasoning_content` / `reasoning`, which is read here too.
+        answer = _plain_answer(content)
+        n_completion = _completion_tokens(plain)
+        reasoning = _reasoning_field(message)
+        sec.check(answer == "READY",
+                  f"{role}: the plain completion IS the requested word (thinking would arrive "
+                  f"as extra prose here)", f"content={content!r}")
+        sec.check(n_completion is not None and n_completion <= _MAX_READY_TOKENS,
+                  f"{role}: usage.completion_tokens <= {_MAX_READY_TOKENS} for a one-word reply",
+                  f"completion_tokens={n_completion}")
+        sec.check(reasoning in (None, ""),
+                  f"{role}: no reasoning_content/reasoning field on the message",
+                  f"reasoning={reasoning!r}" if reasoning else "absent/empty")
         leak = _thinking_leak(content)
-        sec.check(leak is None, f"{role}: NO thinking tokens in the plain completion",
+        sec.check(leak is None, f"{role}: NO thinking markers in the plain completion",
                   "clean" if leak is None else f"LEAKED {leak!r} -- the enable_thinking key is "
                                                f"being ignored by the chat template")
 
@@ -1448,8 +2055,13 @@ def cmd_roles(sec: Section, args: argparse.Namespace) -> None:
                                      response_format=schema_format, max_tokens=256))
         raw_json = constrained.choices[0].message.content
         leak = _thinking_leak(raw_json)
-        sec.check(leak is None, f"{role}: NO thinking tokens in the json_schema completion",
-                  "clean" if leak is None else f"LEAKED {leak!r}")
+        # Under json_schema the grammar forces an opening brace, so a reasoning block cannot
+        # show in `content` -- only the parsed-out field can betray it here.
+        reasoning_json = _reasoning_field(constrained.choices[0].message)
+        sec.check(leak is None and reasoning_json in (None, ""),
+                  f"{role}: NO thinking in the json_schema completion (markers + reasoning field)",
+                  "clean" if (leak is None and not reasoning_json)
+                  else f"LEAKED marker={leak!r} reasoning={reasoning_json!r}")
 
         # The authoritative validation is the oracle's own ladder (id echo, item count, type and
         # range), not a second copy of it here: a copy would drift from what actually grades.
@@ -1570,7 +2182,9 @@ def _lora_config():
 
     from core.config import DEFAULT_LORA_TARGET_MODULES
 
-    return LoraConfig(r=8, lora_alpha=16, lora_dropout=0.05, bias="none",
+    # lora_dropout=0.0 mirrors both notebooks' cell 1 (the trained policy is the scored policy);
+    # r=8 is a smoke-scale rank, not the arm's 16 -- rank does not change the step's mechanics.
+    return LoraConfig(r=8, lora_alpha=16, lora_dropout=0.0, bias="none",
                       task_type="CAUSAL_LM", target_modules=list(DEFAULT_LORA_TARGET_MODULES))
 
 
@@ -1609,16 +2223,23 @@ def cmd_stopgen(sec: Section, args: argparse.Namespace) -> None:
 
     from transformers import GenerationConfig
 
-    from core.policy import CHATML_MARKERS, STOP_STRINGS, clean_completion, vram_report
+    from core.policy import (
+        CHATML_MARKERS,
+        STOP_STRINGS,
+        clean_completion,
+        render_prompt,
+        tokenizer_adds_bos,
+        vram_report,
+    )
 
     tokenizer, model = _load_smoke_policy(sec, args)
     model.eval()
 
     messages = [{"role": "system", "content": _SYS_THERAPIST},
                 {"role": "user", "content": "Hi, I want to talk about my smoking."}]
-    encoded = tokenizer(
-        tokenizer.apply_chat_template(messages, add_generation_prompt=True, tokenize=False),
-        return_tensors="pt", add_special_tokens=False).to(model.device)
+    # The prompt rule: BOS-free text, one BOS added at tokenization (core.policy module docstring).
+    encoded = tokenizer(render_prompt(messages, tokenizer), return_tensors="pt",
+                        add_special_tokens=tokenizer_adds_bos(tokenizer)).to(model.device)
 
     def _generate(stops: Optional[Sequence[str]]) -> str:
         cfg = GenerationConfig(max_new_tokens=80, do_sample=False,
@@ -1686,6 +2307,7 @@ def cmd_dpo(sec: Section, args: argparse.Namespace) -> None:
     sec.check(capped is not None and "counselor named David" in capped
               and turns[-1]["content"][:12] in capped,
               "the system prompt and the newest turn survived the cap")
+    _check_bos_rule(sec, "the DPO prompt", capped or "", tokenizer)
 
     dataset = Dataset.from_list([
         {"prompt": capped,
@@ -1736,7 +2358,7 @@ def cmd_grpo(sec: Section, args: argparse.Namespace) -> None:
     from datasets import Dataset
     from trl import GRPOConfig, GRPOTrainer
 
-    from core.policy import STOP_STRINGS, patch_generate
+    from core.policy import STOP_STRINGS, patch_generate, render_prompt
 
     tokenizer, model = _load_smoke_policy(sec, args)
 
@@ -1746,12 +2368,15 @@ def cmd_grpo(sec: Section, args: argparse.Namespace) -> None:
         "My doctor told me to cut down.",
         "I feel stuck about my habit.",
     ]
+    # render_prompt, not a raw apply_chat_template: the trainer's prompts are BOS-free text and
+    # TRL's processing_class(text=prompts) adds the one BOS (core.policy module docstring).
     dataset = Dataset.from_list([
-        {"prompt": tokenizer.apply_chat_template(
+        {"prompt": render_prompt(
             [{"role": "system", "content": _SYS_THERAPIST}, {"role": "user", "content": q}],
-            add_generation_prompt=True, tokenize=False)}
+            tokenizer)}
         for q in questions
     ])
+    _check_bos_rule(sec, "the GRPO dataset prompt", dataset[0]["prompt"], tokenizer)
 
     def stub_reward(prompts: Sequence[str], completions: Sequence[str], **_: Any) -> List[float]:
         """Length in characters, scaled. Deterministic, free, and never None."""
@@ -1804,6 +2429,8 @@ _COMMANDS: Dict[str, Callable[[Section, argparse.Namespace], None]] = {
     "config": cmd_config,
     "convs": cmd_convs,
     "vram": cmd_vram,
+    "resume": cmd_resume,
+    "prompts": cmd_prompts,
     "serve": cmd_serve,
     "roles": cmd_roles,
     "stopgen": cmd_stopgen,
@@ -1835,7 +2462,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--port", type=int, default=None,
                         help=f"serve: default {SMOKE_PORT}; roles: default 8000")
     parser.add_argument("--gpu-memory-utilization", type=float, default=None,
-                        help="vLLM pre-allocation fraction (serve default 0.15, roles 0.25)")
+                        help="vLLM pre-allocation fraction (serve default 0.15; roles default "
+                             "roles.DEFAULT_SERVE_UTIL[model], 0.50 for a model outside it)")
     parser.add_argument("--max-model-len", type=int, default=None,
                         help="serve: served context length (default 4096 for the smoke model)")
     parser.add_argument("--timeout", type=float, default=900.0,
@@ -1851,7 +2479,7 @@ def _run_all(forwarded: Sequence[str]) -> int:
     """Run every part in its own subprocess and summarise. Returns the aggregate exit code.
 
     One process per part on purpose: each frees its VRAM on exit, and a part that takes the
-    interpreter down (or the machine, on the local card) does not cost the other eight.
+    interpreter down (or the machine, on the local card) does not cost the others.
     """
     results: List[Tuple[str, int]] = []
     for part in PARTS:

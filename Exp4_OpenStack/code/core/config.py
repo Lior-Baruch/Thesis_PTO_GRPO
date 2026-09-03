@@ -249,6 +249,10 @@ _SILENT_COMMON: Tuple[str, ...] = (
     "training.lora_r",
     "training.lora_alpha",
     "training.lora_dropout",
+    # True on both methods (DPOConfig's own default; GRPOConfig's default is False, so it is set
+    # explicitly by both builders from the same base field): a reference-model method must not
+    # compare logps under stochastic dropout. Common, so the completeness assert covers PTO too.
+    "training.disable_dropout",
     "training.lora_target_modules",
     "training.use_4bit",
     "training.seed",
@@ -678,7 +682,10 @@ class GenConfig:
 
     Attributes:
         num_conversations_per_iter: One per patient persona (96 = the full V3 permutation set).
-        num_utterances_for_data: Target conversation length in utterances (therapist + patient).
+        num_utterances_for_data: ADDITIONAL utterances generated after the scripted therapist
+            opener (one loop step = one utterance, therapist + patient alternating); a
+            conversation therefore holds at most ``num_utterances_for_data + 1`` utterances --
+            50 at the default 49.
         min_conv_length: ``MCL``. Slices/branches whose conversation-so-far is shorter are
             dropped. This is the response to the partial-conversation reward-faithfulness finding:
             pairwise rank agreement between a short cut and the full-conversation score is barely
@@ -688,11 +695,21 @@ class GenConfig:
         conversation_batch_size: Concurrent simulations per batch. On the local 12 GB card this is
             a SAFETY setting, not a throughput knob: weights ~2.6 GB + ~1.1 GB per concurrent
             conversation, and an over-budget request REBOOTS the machine rather than raising.
-        max_prompt_tokens: ``MAX_ALLOWED_PROMPT_LENGTH`` -- the cap
-            ``build_truncated_training_prompt`` enforces by dropping oldest turns. PTO needs it
-            because TRL 1.4.0's ``DPOConfig`` dropped ``max_prompt_length`` and caps
-            prompt+completion with one ``max_length`` under ``truncation_mode='keep_start'``,
-            which slices the RESPONSE off.
+        therapist_max_input_tokens: Therapist prompt budget at SERVE time (conversation loop,
+            look-ahead, PTO branch sampling), BOS INCLUDED -- the length of
+            ``core.policy.prompt_token_ids``. Over-budget conversations drop their OLDEST
+            turns whole and keep the system message (``core.policy.build_prompt``); never
+            token-truncated.
+        max_prompt_tokens: ``MAX_ALLOWED_PROMPT_LENGTH`` -- the TRAINING-prompt cap, BOS
+            included, that ``build_truncated_training_prompt`` / the GRPO prompt extraction
+            enforce with the SAME ``core.policy.build_prompt`` (drop oldest turns whole, keep
+            the system message). Keep it EQUAL to ``therapist_max_input_tokens`` so the text
+            a policy trains on is byte-identical to what it generated from; ``validate_config``
+            warns when the two differ and REFUSES for PTO (its branch candidates are sampled
+            and its DPO pair trained on ONE budget, asserted again at run time by
+            ``pto_trainer``). PTO needs the cap because TRL 1.4.0's ``DPOConfig``
+            dropped ``max_prompt_length`` and caps prompt+completion with one ``max_length``
+            under ``truncation_mode='keep_start'``, which slices the RESPONSE off.
         patient_concurrency: Bound on in-flight patient calls, shared by the conversation loop and
             the look-ahead rollout (one local server, one honest bound).
         stop_strings: See :data:`DEFAULT_STOP_STRINGS`.
@@ -769,8 +786,15 @@ class TrainingConfigBase:
     # -- LoRA -------------------------------------------------------------------
     lora_r: int = 16
     lora_alpha: int = 16
-    lora_dropout: float = 0.05
+    # 0.0, matched: dropout is OFF in both trainers (``disable_dropout`` below), so any non-zero
+    # value here would be inert and the config would say something the run does not do.
+    lora_dropout: float = 0.0
     lora_target_modules: Tuple[str, ...] = DEFAULT_LORA_TARGET_MODULES
+    # ONE definition for both methods, passed explicitly to DPOConfig AND GRPOConfig (whose
+    # defaults differ: True and False). Cell-1 readable as DISABLE_DROPOUT (default True) so a
+    # deliberate change is a recorded change: it is in the silently-mutable list for both
+    # methods, and both trainers stamp the value they actually passed into iteration_metadata.
+    disable_dropout: bool = True
 
     # -- checkpointing / logging ------------------------------------------------
     logging_steps: int = 1
@@ -814,28 +838,51 @@ class GRPOTrainingConfig(TrainingConfigBase):
     """GRPO-specific knobs on top of :class:`TrainingConfigBase`.
 
     Warning:
-        ``train_batch_size`` counts **completions**, not prompts, and
-        ``gradient_accumulation_steps=2`` exists for the DESIGN MATCH (128 completions -> 16
-        unique prompts per optimizer step, mirroring PTO's 16 pairs), not for gradient scale.
-        On the pinned trl 1.4.0, ``gas`` changes are gradient-scale-neutral: trl bypasses
-        transformers' ``training_step`` scaling with a non-None ``compute_loss_func`` sentinel
-        and divides the loss exactly once by ``current_gradient_accumulation_steps``. (The old
+        ``train_batch_size`` counts **completions**, not prompts. It is the per-FORWARD shape --
+        the with-grad loss forward runs over the whole per-device micro-batch with no chunking
+        (trl 1.4.0 ``_compute_loss`` -> ``_get_per_token_logps_and_entropies`` without
+        ``batch_size``, installed ``grpo_trainer.py`` ~:2447-2460) and no OOM fallback -- so it
+        is the VRAM lever. ``16 x 8`` replaces Exp3's ``64 x 2`` (2026-09-02): Exp3 measured
+        ``per_device=64`` with checkpointing OFF at ~67 GB reserved in the GRPO step on an
+        A100-80GB that had the whole card (``Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md``),
+        and here the trainer shares the card with a vLLM server holding 40 GiB.
+
+        The DESIGN MATCH is unchanged: ``generation_batch_size = per_device x gas = 128``
+        completions = 16 unique prompts per optimizer step, mirroring PTO's 16 pairs, and TRL
+        still issues ONE ``generate()`` of all 128 per step (``generation_batch_size`` defaults
+        to ``per_device x steps_per_generation`` with ``steps_per_generation = gas``, installed
+        ``grpo_config.py`` ~:909-911). ``gas`` is gradient-scale-neutral on the pinned trl:
+        it bypasses transformers' ``training_step`` scaling with a non-None
+        ``compute_loss_func`` sentinel (~:652-657) and divides the loss exactly once by
+        ``current_gradient_accumulation_steps`` (~:2568-2570 for ``loss_type="grpo"``). The old
         "1/gas^2, halving gas doubles the gradient" claim was Exp3's earlier stack; re-verify on
-        any trl bump.) Collapsing ``gas`` also buys nothing: TRL issues ONE ``generate()`` per
-        optimizer step over the whole ``generation_batch_size``, so 64x2 and 128x1 emit the same
-        single call.
+        any trl bump.
+
+        ``gradient_checkpointing`` defaults True here (the base default is False): with 16
+        completions x ~2.2k tokens per forward the activations, not the logits, are what
+        spikes, and trl enables PEFT input grads itself when checkpointing is on
+        (``grpo_trainer.py`` ~:380-381).
+
+        ``disable_dropout`` (True) lives on :class:`TrainingConfigBase`, ONE definition for both
+        methods: DPOConfig defaults it True and GRPOConfig defaults it False, so leaving both
+        unset made ``LORA_DROPOUT`` real in GRPO only. Matched OFF on both methods -- a
+        reference-model method should not compare logps under stochastic dropout. Cell-1
+        readable as ``DISABLE_DROPOUT`` and recorded in ``run_metadata.json`` (silently-mutable
+        list, common section) and in each iteration's metadata by both trainers.
     """
 
     method: str = "GRPO"
-    train_batch_size: int = 64            # completions per device
-    eval_batch_size: int = 64
-    gradient_accumulation_steps: int = 2  # -> 128 completions -> 16 unique prompts per step
+    train_batch_size: int = 16            # completions per device = the per-FORWARD shape (VRAM)
+    eval_batch_size: int = 16
+    gradient_accumulation_steps: int = 8  # -> 128 completions -> 16 unique prompts per step
+    gradient_checkpointing: bool = True   # the activations are the spike at 16 x ~2.2k tokens
     num_generations: int = 8              # G, matched to PTO's M
     grpo_beta: float = 0.01               # KL against the iteration's reference adapter
     grpo_temperature: float = 1.2
     grpo_loss_type: str = "grpo"
     grpo_inner_iterations: int = 1
     log_completions: bool = True
+    num_completions_to_print: int = 4     # rich prints this many rows per logging step (None = all 128)
 
     @property
     def generation_batch_size(self) -> int:
@@ -844,7 +891,7 @@ class GRPOTrainingConfig(TrainingConfigBase):
 
     @property
     def prompts_per_step(self) -> int:
-        """Unique prompts per optimizer step -- ``(64/8) x 2 = 16``, matched to PTO's 16 pairs.
+        """Unique prompts per optimizer step -- ``(16 x 8) / 8 = 16``, matched to PTO's 16 pairs.
 
         This is the Phase 3 gate's number; read it from here rather than recomputing it.
         """
@@ -1289,6 +1336,9 @@ def _common_training_kwargs(cell: _Cell1, questionnaire_ids: Tuple[int, ...],
         "lora_r": cell.int_("LORA_R", defaults.lora_r),
         "lora_alpha": cell.int_("LORA_ALPHA", defaults.lora_alpha),
         "lora_dropout": cell.float_("LORA_DROPOUT", defaults.lora_dropout),
+        # Read for BOTH methods from one global; each builder passes it explicitly to its TRL
+        # config, because DPOConfig and GRPOConfig default it differently (True / False).
+        "disable_dropout": cell.bool_("DISABLE_DROPOUT", defaults.disable_dropout),
         "lora_target_modules": cell.str_tuple("LORA_TARGET_MODULES", defaults.lora_target_modules),
         "logging_steps": cell.int_("LOGGING_STEPS", defaults.logging_steps),
         "save_strategy": cell.str_("SAVE_STRATEGY", defaults.save_strategy),
@@ -1386,7 +1436,9 @@ def build_grpo_config(globals_dict: dict, *, verbose: bool = True) -> Tuple[
         grpo_inner_iterations=cell.int_("GRPO_INNER_ITERATIONS",
                                         GRPOTrainingConfig.grpo_inner_iterations),
         log_completions=cell.bool_("LOG_COMPLETIONS", GRPOTrainingConfig.log_completions),
-        **_common_training_kwargs(cell, qids, GRPOTrainingConfig),
+        num_completions_to_print=cell.int_("NUM_COMPLETIONS_TO_PRINT",
+                                           GRPOTrainingConfig.num_completions_to_print),
+        **_common_training_kwargs(cell, qids, GRPOTrainingConfig),   # incl. disable_dropout
     )
 
     paths = _paths_from_globals(cell, experiment_name)
@@ -1575,6 +1627,14 @@ def _gen_errors(gen: GenConfig) -> List[str]:
         errs.append("max_tokens_per_response must be > 0")
     if gen.therapist_max_input_tokens <= 0 or gen.max_prompt_tokens <= 0:
         errs.append("therapist_max_input_tokens and max_prompt_tokens must be > 0")
+    elif gen.therapist_max_input_tokens != gen.max_prompt_tokens:
+        _warn(
+            f"therapist_max_input_tokens ({gen.therapist_max_input_tokens}) != max_prompt_tokens "
+            f"({gen.max_prompt_tokens}). Both go through core.policy.build_prompt (drop oldest "
+            f"turns whole, keep the system message, BOS counted), so unequal budgets mean the "
+            f"policy trains on a prompt that is NOT the text it generated its completion from. "
+            f"Keep THERAPIST_MAX_INPUT_TOKENS == MAX_ALLOWED_PROMPT_LENGTH unless you mean it."
+        )
     if gen.patient_concurrency <= 0:
         errs.append("patient_concurrency must be > 0")
     if gen.max_retries_without_progress < 0:
@@ -1673,6 +1733,15 @@ def _training_errors(train: TrainingConfigBase) -> List[str]:
         errs.append("logging_steps must be > 0")
     if train.save_total_limit is not None and train.save_total_limit < 1:
         errs.append("save_total_limit must be >= 1 or None")
+    # Both methods: DPOConfig and GRPOConfig are each passed disable_dropout explicitly from this
+    # one field, so a LoRA dropout under it is recorded but never applied in EITHER trainer.
+    if train.lora_dropout > 0 and train.disable_dropout:
+        _warn(
+            f"lora_dropout={train.lora_dropout} is INERT: disable_dropout=True zeroes every "
+            f"nn.Dropout in the model (LoRA's included) for the whole iteration, in both "
+            f"trainers. Set LORA_DROPOUT=0.0 so the config says what the run does, or "
+            f"DISABLE_DROPOUT=False on BOTH methods to keep them matched."
+        )
     if train.lora_r <= 0 or train.lora_alpha <= 0:
         errs.append("lora_r and lora_alpha must be > 0")
     if not (0.0 <= train.lora_dropout < 1.0):
@@ -1726,10 +1795,19 @@ def _grpo_errors(train: GRPOTrainingConfig) -> List[str]:
     if train.gradient_accumulation_steps == 1:
         _warn(
             "GRPO gradient_accumulation_steps=1. On the pinned trl 1.4.0 this is gradient-scale-"
-            "neutral (trl bypasses transformers' scaling and divides once itself), but it halves "
-            "the unique prompts per optimizer step -- 64x2 keeps prompts/step=16, matched to "
-            "PTO's 16 pairs -- and buys no throughput: TRL emits ONE generate() per optimizer "
-            "step either way. Use per_device=64 x gas=2 unless you mean to change the match."
+            "neutral (trl bypasses transformers' scaling and divides once itself), but it makes "
+            "per_device the WHOLE generation batch -- 16x8 keeps prompts/step=16, matched to "
+            "PTO's 16 pairs, with a 16-completion loss forward -- and buys no throughput: TRL "
+            "emits ONE generate() per optimizer step either way. Use per_device=16 x gas=8 "
+            "unless you mean to change the match (or the VRAM envelope)."
+        )
+    if train.train_batch_size > 16 and not train.gradient_checkpointing:
+        _warn(
+            f"GRPO per_device_train_batch_size={train.train_batch_size} with gradient "
+            f"checkpointing OFF. The loss forward runs over the whole per-device micro-batch in "
+            f"one pass (no chunking, no OOM fallback); Exp3 measured 64 x checkpointing-off at "
+            f"~67 GB on an A100-80GB with the whole card. Here ~38 GiB remain beside the vLLM "
+            f"server. per_device=16 x gas=8 + checkpointing is the config sized for that."
         )
     return errs
 
@@ -1769,6 +1847,16 @@ def _cross_errors(b: Dict[str, Any]) -> List[str]:
 
     if train is not None and gen is not None and getattr(train, "method", "") == "PTO":
         mode = str(train.pref_tree_mode).strip().lower()
+        if gen.therapist_max_input_tokens != gen.max_prompt_tokens:
+            # A warning for GRPO (_gen_errors), an ERROR for PTO: the branch candidates are
+            # sampled and the DPO pair trained on ONE core.policy.build_prompt budget, and
+            # pto_trainer asserts prompt parity per pair at run time -- refuse here, earlier.
+            errs.append(
+                f"PTO: therapist_max_input_tokens ({gen.therapist_max_input_tokens}) != "
+                f"max_prompt_tokens ({gen.max_prompt_tokens}). The branch candidates are sampled "
+                f"and the DPO pair trained on ONE core.policy.build_prompt budget; set "
+                f"THERAPIST_MAX_INPUT_TOKENS == MAX_ALLOWED_PROMPT_LENGTH"
+            )
         if mode == "greedy" and gen.min_conv_length % 2 != 0:
             errs.append(
                 f"pref_tree_mode='greedy' needs an EVEN min_conv_length (got "
@@ -2123,12 +2211,15 @@ def format_summary(*cfgs: Any) -> str:
             out.append(f"  batch        per_device {train.train_batch_size} x gas "
                        f"{train.gradient_accumulation_steps} = "
                        f"{train.generation_batch_size} completions -> "
-                       f"{train.prompts_per_step} prompts/step (G={train.num_generations})")
+                       f"{train.prompts_per_step} prompts/step (G={train.num_generations})"
+                       f"   grad_ckpt {train.gradient_checkpointing}"
+                       f"   disable_dropout {train.disable_dropout}")
         else:
             out.append(f"  batch        per_device {train.train_batch_size} x gas "
                        f"{train.gradient_accumulation_steps} = {train.pairs_per_step} pairs/step "
                        f"(M={train.num_branches_per_turn}, tau={train.pref_filter_tau}, "
-                       f"mode={train.pref_tree_mode})")
+                       f"mode={train.pref_tree_mode})"
+                       f"   disable_dropout {train.disable_dropout}")
         out.append(f"  checkpoint   {train.save_strategy}" +
                    (f" every {train.save_steps}" if train.save_strategy == "steps" else "") +
                    f" (keep {train.save_total_limit})   report_to {list(train.report_to)}")

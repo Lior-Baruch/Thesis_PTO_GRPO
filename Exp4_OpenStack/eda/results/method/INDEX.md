@@ -10,7 +10,7 @@ _Each subfamily below is written by `notebooks/method/<sub>.ipynb`. Exp4 artifac
 **Figures** -- `figures/`
 - `endpoint_distribution.png` -- No matched method pair to draw distributions for.
 - `method_contrast_forest.png` -- No method contrast to plot yet. NO DATA YET -- no scored conversations for these arms. Generate a PTO arm and a GRPO arm at the same K, run notebooks/scoring/Run_Eval.ipynb, and re-render.
-- `method_gap_by_state_gemma4E2B.png` -- No method contrast for grader gemma4E2B.
+- `method_gap_by_state_gemma4E4B.png` -- No method contrast for grader gemma4E4B.
 
 **Tables** -- `tables/`
 - `method_contrast_by_state.md` -- The paired PTO - GRPO contrast on Q1Q2 at EVERY model state both arms have scored, per grader. mean_delta = PTO - GRPO; gain is signed so positive means PTO was better. CIs bootstrap the per-persona DELTAS (seed=BOOT_SEED) and are therefore paired intervals. State 0 is the shared untrained base. No multiplicity correction across states -- this is one trajectory, not a family of tests.

@@ -32,14 +32,52 @@ rewritten, so:
 Wall-clock spans are recorded alongside the phase durations, so a reader can separate compute time
 from idle time without guessing.
 
+**The training phase is also logged INCREMENTALLY, at every checkpoint save.** "One line after
+training" protects the finished phases, but the training phase itself is the longest one in GRPO
+and it ends with ``trainer.train()`` returning -- a Colab preemption at step 90 of 135 would lose
+the whole phase, and the resumed process would log only its own 45 steps. That is Exp3's
+per-process undercount moved one phase to the right. So the trainers' ``on_save`` callback calls
+:func:`log_training_progress` with the elapsed time of THIS process's training phase, and the
+module appends only the INCREMENT since the last partial line it wrote (tracked per process, per
+iteration directory). When ``trainer.train()`` returns, :func:`finalize_training` logs the
+remaining delta. The sum over all of a process's training lines is therefore exactly the phase's
+elapsed time, with no double counting, and a process killed between two saves loses at most one
+save interval. Because every line carries the per-process token, the extra lines do not inflate
+``n_sessions`` / ``n_sessions_production``: those count distinct tokens.
+
+**The per-process ledger is per training ATTEMPT, not per process lifetime.** The increment
+bookkeeping above remembers, per iteration directory, how much ``training_s`` this process has
+already written. That memory must be reset when the same process starts the training phase of the
+same iteration AGAIN -- the documented in-kernel resume (fix the cause, re-run the loop cell) does
+exactly that, with a fresh ``train_started_at`` clock that restarts at 0 while the ledger still
+holds the crashed attempt's total. Without the reset every partial of the second attempt reads as a
+negative delta (nothing is written) and :func:`finalize_training` clamps to a zero line with a
+warning, so 120 s of real training records only the 70 s of the first attempt. The trainers
+therefore call :func:`begin_training_phase` at the start of EVERY training attempt, immediately
+before the attempt's training clock starts; it pops this process's ledger entry for that iteration
+and touches nothing on disk (the earlier attempt's lines stay on record, as they should).
+
 Usage (both trainers, after EACH phase)::
 
-    from core.timing import log_session, cumulative_seconds
+    from core.timing import (begin_training_phase, log_session, log_training_progress,
+                             finalize_training)
 
     log_session(iter_dir, generation_s=gen_time)         # right after the generation phase
     log_session(iter_dir, pref_pair_s=pref_time)         # PTO only, right after the build
-    log_session(iter_dir, training_s=train_time)         # right after the trainer returns
+
+    begin_training_phase(iter_dir)                       # EVERY training attempt, then start the clock
+    train_started_at = time.time()
+    # inside the TrainerCallback.on_save, with the phase's start time captured once:
+    log_training_progress(iter_dir, elapsed_s=time.time() - train_started_at,
+                          note=f"checkpoint-{state.global_step}")
+    # right after trainer.train() returns -- INSTEAD of log_session(training_s=...):
+    finalize_training(iter_dir, time.time() - train_started_at, started_at=iter_start,
+                      note=f"training, iteration {n}")
     totals = cumulative_seconds(iter_dir)                # {'generation_s': ..., 'total_s': ...}
+
+⚠ A trainer that wires ``on_save`` MUST end the phase with :func:`finalize_training`, never with
+``log_session(training_s=total)`` -- the latter would re-log everything the partial lines already
+recorded.
 
 Reading it back costs nothing and never raises: a missing or corrupt log returns zeros, so the EDA
 can read an arm that is still training, and a telemetry failure can never fail a run.
@@ -59,6 +97,9 @@ __all__ = [
     "PRODUCTION_PHASE_KEYS",
     "sessions_path",
     "log_session",
+    "begin_training_phase",
+    "log_training_progress",
+    "finalize_training",
     "read_sessions",
     "cumulative_seconds",
     "metadata_fields",
@@ -132,6 +173,31 @@ def log_session(iter_dir: str, *, generation_s: float = 0.0, training_s: float =
 
         Timing must never be able to fail a training run, so every error here is swallowed after a
         warning; the caller gets ``{}`` and should not branch on it.
+
+        ⚠ For the TRAINING phase, a trainer whose ``on_save`` callback calls
+        :func:`log_training_progress` must close the phase with :func:`finalize_training`, not
+        with ``training_s=`` here -- the partial lines already hold most of the phase.
+    """
+    return _append_record(
+        iter_dir,
+        generation_s=generation_s,
+        pref_pair_s=pref_pair_s,
+        training_s=training_s,
+        eval_gen_s=eval_gen_s,
+        started_at=started_at,
+        note=note,
+    )
+
+
+def _append_record(iter_dir: str, *, generation_s: float = 0.0, training_s: float = 0.0,
+                   pref_pair_s: float = 0.0, eval_gen_s: float = 0.0,
+                   started_at: Optional[float] = None, note: str = "",
+                   partial: bool = False) -> dict:
+    """Build one session line and append it. The single writer behind every public logger.
+
+    ``partial`` marks a mid-phase increment written by :func:`log_training_progress`; readers
+    sum :data:`PHASE_KEYS` regardless, so the flag is purely for audit (it lets a human see the
+    save cadence and the resume boundary in the raw log).
     """
     now = time.time()
     rec = {
@@ -139,6 +205,7 @@ def log_session(iter_dir: str, *, generation_s: float = 0.0, training_s: float =
         "pref_pair_s": float(pref_pair_s or 0.0),
         "training_s": float(training_s or 0.0),
         "eval_gen_s": float(eval_gen_s or 0.0),
+        "partial": bool(partial),
         "wall_start": float(started_at) if started_at else None,
         "wall_end": now,
         "wall_span_s": (now - float(started_at)) if started_at else None,
@@ -155,6 +222,144 @@ def log_session(iter_dir: str, *, generation_s: float = 0.0, training_s: float =
     except Exception as e:                                   # never break a run over telemetry
         print(f"  [timing] WARNING: could not append session log ({e})")
         return {}
+    return rec
+
+
+# ------------------------------------------------------------------------------
+#  Incremental training-phase logging (checkpoint-aligned)
+# ------------------------------------------------------------------------------
+
+#: ``training_s`` already written by THIS process, per iteration directory (normalised absolute
+#: path), for the CURRENT training attempt. Process-local by construction: a resumed process
+#: starts from zero, and its own partial lines are the only ones it must not repeat. The value is
+#: the attempt's cumulative elapsed training time at the last line written, so an increment is
+#: ``elapsed_s - value``. :func:`begin_training_phase` pops the entry so a second attempt in the
+#: same process (the in-kernel resume) starts from zero as well.
+_TRAINING_LOGGED: Dict[str, float] = {}
+
+
+def _iter_key(iter_dir: str) -> str:
+    return os.path.normcase(os.path.abspath(iter_dir))
+
+
+def begin_training_phase(iter_dir: str) -> None:
+    """Start a training ATTEMPT: forget what this process logged for *iter_dir* so far.
+
+    Call it at the start of every training attempt, immediately before the attempt's
+    ``train_started_at`` clock is taken -- i.e. before the first :func:`log_training_progress`
+    that will be measured on that clock. Nothing on disk is touched: the lines an earlier attempt
+    wrote stay on record and still sum into ``cumulative_seconds``; only the per-process "already
+    logged" ledger is reset, so the new attempt's partials are measured against zero.
+
+    Args:
+        iter_dir: ``iteration_N/`` directory.
+
+    Notes:
+        Why this is needed: the ledger is keyed by iteration directory only, and the trainers'
+        documented in-kernel resume (fix the cause, re-run the loop cell) runs a SECOND training
+        attempt for the same iteration in the SAME process with a fresh clock. Without the reset
+        the ledger still holds the crashed attempt's total, every new partial reads as a negative
+        delta (``{}``, nothing written) and :func:`finalize_training` clamps to a zero line -- the
+        second attempt's whole training time vanishes from the cost record. The negative-delta
+        warning in :func:`finalize_training` is kept for what it was meant for: two calls within
+        one attempt fed different clocks.
+
+        A process that only ever trains an iteration once (the normal Colab run, and a resume in a
+        fresh kernel) sees no difference: there is nothing to pop.
+    """
+    _TRAINING_LOGGED.pop(_iter_key(iter_dir), None)
+
+
+def log_training_progress(iter_dir: str, *, elapsed_s: float, note: str = "") -> dict:
+    """Append the training time accrued since this process's previous partial line.
+
+    Call it from the trainer's ``on_save`` callback (every ``save_steps`` optimizer steps) with
+    ``elapsed_s = time.time() - train_started_at``, where ``train_started_at`` is the clock this
+    process started its training phase on -- the SAME clock the final ``training_s`` is read off,
+    so the partial lines and the closing delta from :func:`finalize_training` sum to exactly the
+    phase's elapsed time. The attempt must have been opened with :func:`begin_training_phase`
+    (a second attempt on the same iteration in the same process otherwise measures against the
+    previous attempt's total).
+
+    Args:
+        iter_dir: ``iteration_N/`` directory.
+        elapsed_s: seconds since this process's training phase began (cumulative, not a delta --
+            the delta is computed here against the last line written for *iter_dir*).
+        note: free text, e.g. ``"checkpoint-40"``.
+
+    Returns:
+        The record written, ``{}`` when nothing new had accrued (``elapsed_s`` at or below the
+        last logged value) or when the write failed.
+
+    Notes:
+        Each line carries the per-process token, so however many partial lines a process writes,
+        ``cumulative_seconds`` counts it as ONE production session. A process killed between two
+        saves loses at most one save interval of ``training_s`` -- and its finished partials stay
+        on record, which is the whole point.
+
+        A ``training_s`` sum built from these lines is then a lower bound on the phase's true
+        cost by at most one save interval per preemption, instead of Exp3's per-process figure
+        that could be off by the entire pre-crash session.
+    """
+    key = _iter_key(iter_dir)
+    last = _TRAINING_LOGGED.get(key, 0.0)
+    increment = float(elapsed_s) - last
+    if increment <= 0.0:
+        return {}
+    rec = _append_record(
+        iter_dir,
+        training_s=increment,
+        note=f"training partial: {note}" if note else "training partial",
+        partial=True,
+    )
+    if rec:
+        _TRAINING_LOGGED[key] = float(elapsed_s)
+    return rec
+
+
+def finalize_training(iter_dir: str, total_s: float, *, started_at: Optional[float] = None,
+                      note: str = "") -> dict:
+    """Close this process's training phase: log only what the partial lines have not.
+
+    Args:
+        iter_dir: ``iteration_N/`` directory.
+        total_s: this process's whole training-phase elapsed time, on the same clock the
+            ``on_save`` partials were measured on.
+        started_at: ``time.time()`` at the start of this process's work on the iteration, for
+            the wall-clock span (as in :func:`log_session`).
+        note: free text, e.g. ``"training, iteration 3"``.
+
+    Returns:
+        The record written (``training_s`` = the remaining delta, possibly 0.0), or ``{}`` if the
+        write failed.
+
+    Notes:
+        A line is written even when the delta is zero, so the phase's completion is on record
+        with its note; a zero line changes no sum and, because the earlier partials from this
+        process already carry its token, no counter. Called with no preceding partials (a trainer
+        that never wired ``on_save``) this is exactly ``log_session(training_s=total_s)``.
+
+        Idempotent per process and training attempt: the logged total is remembered, so a second
+        call with the same ``total_s`` writes a zero delta rather than re-logging the phase.
+        ``total_s`` below the partials already logged is clamped to a zero delta with a warning
+        -- within one attempt it means the two calls were fed different clocks, which is a caller
+        bug worth seeing. (A NEW attempt on the same iteration is not a clock mismatch: it must
+        open with :func:`begin_training_phase`, which is what stops the warning from firing --
+        and the attempt's time from being lost -- on the in-kernel resume.)
+    """
+    key = _iter_key(iter_dir)
+    last = _TRAINING_LOGGED.get(key, 0.0)
+    delta = float(total_s) - last
+    if delta < 0.0:
+        print(
+            f"  [timing] WARNING: finalize_training total_s={float(total_s):.1f} is below the "
+            f"{last:.1f}s already logged by partial lines for {iter_dir}; logging a zero delta. "
+            f"log_training_progress and finalize_training must share one clock."
+        )
+        delta = 0.0
+    rec = _append_record(iter_dir, training_s=delta, started_at=started_at, note=note)
+    if rec:
+        _TRAINING_LOGGED[key] = max(last, float(total_s))
     return rec
 
 

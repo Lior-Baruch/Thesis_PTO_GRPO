@@ -56,11 +56,18 @@ import os
 import re
 import time
 from dataclasses import dataclass, field
-from functools import lru_cache
 from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from core.concurrency import AsyncPrimitives, run_async
 from roles import RoleBinding
+
+# The provider SDK's status-error class, for the 4xx short-circuit in generate_patient_response.
+# Optional at import so the read-only EDA (which never calls a patient) can load this module on
+# a host without the SDK; without it every failure simply stays retryable.
+try:
+    from openai import APIStatusError as _APIStatusError
+except ImportError:  # pragma: no cover - EDA host without the openai SDK
+    _APIStatusError = None  # type: ignore[assignment,misc]
 
 __all__ = [
     # Constants
@@ -83,6 +90,7 @@ __all__ = [
     "parse_transcript_to_messages",
     "turns_to_messages",
     "turns_to_patient_messages",
+    "has_session_end",
     "handle_session_end",
     # Generation
     "generate_patient_response",
@@ -109,6 +117,15 @@ __all__ = [
 #: ``num_utterances`` cap, session-end statistics go to zero, and nothing raises. Verify at the
 #: Phase 2 gate that some fraction of the 96 base conversations end early.
 SESSION_END_KEYWORD = "SESSION ENDED"
+
+# The ONE matcher for the keyword: case-insensitive, run on the ORIGINAL text so the match
+# offsets index that text. (An earlier revision took the index on ``.upper()`` of the string --
+# for some Unicode ``upper()`` changes the length, so the split could land mid-character.)
+# Presence is tested with :func:`has_session_end` -- the SAME regex -- everywhere: a presence
+# test written as ``KEYWORD in text.upper()`` disagrees with this matcher on Unicode case
+# folding (``"seßion ended".upper()`` is ``"SESSION ENDED"``, which the regex does not match),
+# and :func:`handle_session_end` then RAISES on text the caller had just declared terminal.
+_SESSION_END_RE = re.compile(re.escape(SESSION_END_KEYWORD), re.IGNORECASE)
 
 #: Transcript labels and joiner. See the module docstring: look-ahead slices on these EXACT
 #: strings, so they are constants rather than literals scattered through format/parse.
@@ -152,18 +169,10 @@ _ROLE_TO_LABEL = {
 }
 
 
-@lru_cache(maxsize=1)
-def _chat_template_date() -> str:
-    """``core.policy.CHAT_TEMPLATE_DATE``, imported lazily (policy is torch-side).
-
-    Every ``apply_chat_template`` call in this module pins ``date_string`` to this value: the
-    Llama-3.2 Instruct template interpolates the CURRENT date into its system header by default,
-    which would make prompts differ across resume days and renders irreproducible. Templates
-    that never read the variable (the hand-written ChatML one) ignore it.
-    """
-    from core.policy import CHAT_TEMPLATE_DATE
-
-    return CHAT_TEMPLATE_DATE
+# NOTE: this module renders NO chat template of its own. Every prompt string comes from
+# ``core.policy.render_prompt`` / ``build_prompt`` (imported lazily -- policy is torch-side),
+# which pin ``date_string=CHAT_TEMPLATE_DATE`` and strip the BOS. That is what keeps the training
+# prompts byte-identical to the decode path's, and it is why there is no date helper here.
 
 
 # ==============================================================================
@@ -368,13 +377,15 @@ def load_conversation_csv(path: str) -> ConversationState:
             silently paired against the wrong patient.
 
     Notes:
-        ``keep_default_na=False`` is required, not stylistic. Without it pandas turns an empty
-        ``session_ended_by`` into ``NaN`` (a float), and every consumer then has to handle
-        ``None``, ``float('nan')`` and the string ``"nan"``. With it, "" stays "".
+        ``keep_default_na=False`` + ``dtype=str`` are required, not stylistic. Without them
+        pandas turns an empty ``session_ended_by`` into ``NaN`` (a float) and infers a numeric
+        dtype for a column of digit-only utterances, and every consumer then has to handle
+        ``None``, ``float('nan')``, the string ``"nan"`` and non-string content. With them every
+        cell is a string and "" stays "" (any residual NaN is normalised to "" as well).
     """
     import pandas as pd  # lazy -- see save_conversation_csv
 
-    df = pd.read_csv(path, keep_default_na=False)
+    df = pd.read_csv(path, keep_default_na=False, dtype=str).fillna("")
 
     persona_id: Optional[int] = None
     if "persona_id" in df.columns and len(df) > 0:
@@ -510,6 +521,13 @@ def parse_transcript_to_messages(
         to the turn above is what makes the round trip exact; without it a multi-paragraph
         therapist turn re-enters the model as several turns and the speaker alternation desyncs
         from there on.
+
+        **Known limitation -- a label INSIDE a turn.** The inverse is exact only while no turn's
+        content itself contains a segment that starts with ``[PATIENT]: `` or ``[THERAPIST]: ``
+        right after a blank line (a model quoting the transcript format back). Such a segment is
+        indistinguishable from a real turn boundary and is parsed as one. Neither speaker is
+        prompted with the labels, so it has not been observed; it is documented rather than
+        guarded because any escaping scheme would change the transcript the oracle grades.
     """
     messages_therapist: List[Dict[str, str]] = [
         {"role": "system", "content": str(system_prompt_therapist)}
@@ -581,6 +599,28 @@ def turns_to_patient_messages(
     return messages
 
 
+def has_session_end(text: str) -> bool:
+    """Does *text* contain :data:`SESSION_END_KEYWORD`, by the ONE matcher the split uses?
+
+    This is the presence test every caller must use before :func:`handle_session_end` -- the
+    conversation loop, the look-ahead simulator (``core.lookahead.split_session_end``) and,
+    through it, the reward path and PTO's trunk advance -- so "is this utterance terminal" and
+    "where does it end" agree by construction.
+
+    Notes:
+        The obvious alternative, ``SESSION_END_KEYWORD in text.upper()``, is NOT equivalent:
+        ``str.upper`` applies full Unicode case mapping, so ``"seßion ended".upper()`` is
+        ``"SESSION ENDED"`` (``ß`` -> ``SS``) and the substring test says True, while the
+        ``re.IGNORECASE`` regex -- which matches character by character on the original string --
+        says False. A caller that tested presence with ``.upper()`` and then split with the regex
+        would raise ``ValueError`` from :func:`handle_session_end` on such a turn; inside a live
+        GRPO reward call that takes the whole optimizer step down. ``None`` is treated as absent.
+    """
+    if not text:
+        return False
+    return _SESSION_END_RE.search(text) is not None
+
+
 def handle_session_end(response_content: str, speaker_role: str) -> Tuple[str, str, str]:
     """Split a terminal utterance at :data:`SESSION_END_KEYWORD`.
 
@@ -594,24 +634,29 @@ def handle_session_end(response_content: str, speaker_role: str) -> Tuple[str, s
         everything after it.
 
     Raises:
-        ValueError: if the keyword is absent -- callers check first, so its absence here means
-            the caller and this function disagree about what a terminal utterance is.
+        ValueError: if the keyword is absent -- callers check first with :func:`has_session_end`
+            (the same regex), so its absence here means the caller tested presence some other way
+            and disagrees with this function about what a terminal utterance is.
 
     Notes:
-        The match is case-insensitive on the keyword but the split index is taken on the ORIGINAL
-        string, so the returned pieces preserve the model's own casing and spacing.
+        The match is case-insensitive (``re.IGNORECASE`` on the escaped keyword) and is run on the
+        ORIGINAL string, so the split offsets index that string and the returned pieces preserve
+        the model's own casing and spacing. Splitting on ``.upper()`` would not: for some Unicode
+        ``upper()`` changes the string's length and the index lands mid-character (and a presence
+        test on ``.upper()`` accepts ``"seßion ended"``, which this matcher does not -- see
+        :func:`has_session_end`).
 
         WARNING: this keyword is the only early-termination channel in the experiment and both system
         prompts ask for it in prose. A patient backend that is not steered to the same protocol
         never ends a session, and every conversation silently runs to the utterance cap.
     """
-    idx = response_content.upper().find(SESSION_END_KEYWORD)
-    if idx == -1:
+    match = _SESSION_END_RE.search(response_content)
+    if match is None:
         raise ValueError(f"handle_session_end: {SESSION_END_KEYWORD!r} not found in response")
     return (
         speaker_role,
-        response_content[idx + len(SESSION_END_KEYWORD):],
-        response_content[:idx],
+        response_content[match.end():],
+        response_content[:match.start()],
     )
 
 
@@ -627,7 +672,7 @@ def _apply_response(state: ConversationState, content: str, speaker_role: str) -
         state.active = False
         return False
 
-    if SESSION_END_KEYWORD in content.upper():
+    if has_session_end(content):
         ended_by, explanation, cleaned = handle_session_end(content, speaker_role)
         state.session_ended_by = ended_by
         state.session_ended_explanation = explanation.strip()
@@ -657,6 +702,34 @@ def _describe_error(exc: Optional[BaseException]) -> str:
         return "unknown error"
     text = str(exc).strip()
     return f"{type(exc).__name__}: {text}" if text else type(exc).__name__
+
+
+# 4xx statuses that ARE worth retrying: the request itself was fine, the server was busy.
+_RETRYABLE_4XX = frozenset({408, 429})
+
+
+def _non_retryable_status(exc: BaseException) -> Optional[int]:
+    """The HTTP status of *exc* when it is a 4xx the server will reject identically on retry.
+
+    ``None`` for everything else: timeouts, connection errors, 5xx, 408/429, and any exception
+    that is not the SDK's ``APIStatusError`` (including its 'no SDK installed' stand-in).
+    """
+    if _APIStatusError is None or not isinstance(exc, _APIStatusError):
+        return None
+    status = getattr(exc, "status_code", None)
+    if status is None:
+        return None
+    status = int(status)
+    if 400 <= status < 500 and status not in _RETRYABLE_4XX:
+        return status
+    return None
+
+
+def _body_excerpt(exc: BaseException, limit: int = 300) -> str:
+    """The response body the SDK attached to *exc*, cut to *limit* characters."""
+    body = getattr(exc, "body", None)
+    text = str(body) if body is not None else ""
+    return text[:limit] + ("..." if len(text) > limit else "") if text else "<none>"
 
 
 async def generate_patient_response(
@@ -689,9 +762,25 @@ async def generate_patient_response(
         The reply text.
 
     Raises:
-        RuntimeError: after ``binding.max_retries`` failed attempts, naming the last error.
+        RuntimeError: after ``binding.max_retries`` failed attempts, naming the last error --
+            OR immediately, without any retry, on a NON-RETRYABLE HTTP status (see below).
 
     Notes:
+        **4xx short-circuit.** An ``openai.APIStatusError`` with a 4xx status other than 408
+        (request timeout) and 429 (rate limit) is a request the server will reject the same way
+        eight times: a wrong model id (404), a prompt over ``max_model_len`` (400), a schema the
+        server cannot honour (422), a bad key (401). Retrying those with backoff costs up to
+        ``max_retries x request_timeout`` PER TURN PER CONVERSATION before anything surfaces, so
+        they raise at once with the status and a body excerpt. Timeouts, 408, 429, 5xx and
+        connection errors stay retryable. (Only the OpenAI SDK's class is recognised -- this
+        function speaks ``chat.completions``, so that is the only client that reaches it.)
+
+        **An EMPTY reply is a failure, not an utterance.** ``""`` / whitespace-only content is
+        retried like ``None`` and, if it persists, raises like any other exhausted call. Before
+        this, an empty patient reply ended the conversation as if it had reached the utterance
+        cap and the truncated conversation was SAVED -- a patient-infrastructure fault recorded
+        as a finished session. (The therapist's empty completion still ends a conversation
+        gracefully: that is policy behaviour, which the run is allowed to observe.)
         **Why a short per-attempt timeout times MANY retries, and never a long total budget**
         (this is Exp3 fix #1 -- Exp3's patient call had no timeout at all, so it inherited the
         SDK's 600 s default). Exhausting the budget does not merely lose one utterance: the
@@ -741,11 +830,21 @@ async def generate_patient_response(
             content = response.choices[0].message.content
             if content is None:
                 raise RuntimeError("patient returned message.content=None")
+            if not content.strip():
+                raise RuntimeError("patient returned an EMPTY message.content")
             return content
         except asyncio.CancelledError:
             # Cancellation is not a provider failure: retrying it would ignore a shutdown.
             raise
-        except Exception as exc:  # noqa: BLE001 -- every provider failure is retryable here
+        except Exception as exc:  # noqa: BLE001 -- classified below; most are retryable
+            status = _non_retryable_status(exc)
+            if status is not None:
+                raise RuntimeError(
+                    f"Patient call REJECTED with HTTP {status} by {binding.provider}:"
+                    f"{binding.model} on attempt {attempt} -- not retried (a 4xx other than "
+                    f"408/429 fails the same way every time). {_describe_error(exc)}. "
+                    f"Body: {_body_excerpt(exc)}"
+                ) from exc
             last_error = exc
             if attempt >= attempts:
                 break
@@ -825,8 +924,14 @@ async def conversation_loop_batch(
         client: Patient client.
         patient_binding: Patient role binding (model, timeout, retries, extra_body).
         primitives: Supplies ``patient_sem()`` and ``gpu_lock()``.
-        num_utterances: Hard cap on additional utterances; the loop also stops when nothing is
-            active.
+        num_utterances: Hard cap on ADDITIONAL utterances generated AFTER the scripted therapist
+            opener that :func:`new_conversation_state` seeds -- one loop step is one utterance,
+            and the seed already holds one. A conversation therefore has **at most
+            ``num_utterances + 1`` utterances in total: 50 at the default 49** (the value cell 1
+            passes as ``NUM_UTTERANCES_FOR_DATA``). The loop also stops when nothing is active.
+        therapist_max_input_tokens: Therapist prompt budget, BOS included; see
+            ``core.policy.generate_therapist_batch`` -- over-budget conversations drop their
+            OLDEST turns whole (system message kept), never token-truncate.
         stop_strings: Defaults to ``core.policy.STOP_STRINGS``.
 
     Returns:
@@ -838,6 +943,13 @@ async def conversation_loop_batch(
     Notes:
         **The GPU lock is held across ``generate`` and nothing else.** The patient round is
         awaited with the lock released, which is the invariant ``core.concurrency`` documents.
+
+        **A therapist prompt that cannot be built fails THAT conversation.**
+        ``generate_therapist_batch`` returns ``None`` (not ``""``) for an item whose newest turn
+        alone exceeds ``therapist_max_input_tokens``; such a state is marked ``failed`` -- it is
+        a budget misconfiguration, not policy behaviour, and saving it would record a
+        conversation the policy never actually continued. Truncation totals are accumulated in
+        ``core.policy.TRUNCATION_COUNTER``; the caller prints the per-batch delta.
 
         **Desync ends conversations gracefully, with ``failed=False``.** If one conversation's
         ``next_speaker`` disagrees with the batch's, it is retired where it stands and its turns
@@ -909,6 +1021,17 @@ async def conversation_loop_batch(
                     state.failed = True
                 return states, (error_type or "therapist_generation_failed"), desynced
             for state, response in zip(active, responses):
+                if response is None:
+                    # No prompt could be built within the budget (see the Notes). Not a
+                    # degenerate turn: nothing was generated, so the conversation is unusable.
+                    print(
+                        f"  Therapist prompt overflow for persona {state.persona_id} at "
+                        f"{state.n_utterances} utterances (budget {therapist_max_input_tokens} "
+                        f"tokens) -- marking the conversation failed"
+                    )
+                    state.active = False
+                    state.failed = True
+                    continue
                 _apply_response(state, response, _ROLE_THERAPIST)
 
         if verbose_detailed:
@@ -1022,6 +1145,9 @@ async def generate_all_conversations_async(
             (see the module docstring).
         save_dir: When set, each finished conversation is written to
             ``<save_dir>/pers<PID>.csv`` and personas already on disk there are skipped.
+        num_utterances: ADDITIONAL utterances after the scripted therapist opener, so a
+            conversation holds at most ``num_utterances + 1`` -- **50 at the default 49**. See
+            :func:`conversation_loop_batch`.
         batch_size: Conversations in flight at once. WARNING: a safety setting on the local 12 GB card
             (~1.1 GB per concurrent conversation on top of the weights, and an over-budget VRAM
             request there REBOOTS the machine instead of raising). Do the arithmetic first.
@@ -1040,6 +1166,13 @@ async def generate_all_conversations_async(
         batch line prints ``vram <N>G`` (the allocator's reserved high-water mark): **flat across
         batches is healthy, climbing means this was removed.** A single-batch smoke test cannot
         detect it -- it needs at least two.
+
+        **The batch line also prints ``trunc <n>/<B>``**: of the ``B`` therapist prompts built for
+        this batch (one per therapist turn per conversation), ``n`` lost at least one oldest turn
+        to ``therapist_max_input_tokens`` -- read off ``core.policy.TRUNCATION_COUNTER`` as a
+        per-batch delta (plus ``overflow <k>`` when any prompt could not be built at all). A
+        rising rate late in a pass is expected (conversations grow); a non-zero rate at the FIRST
+        therapist turn means the budget is smaller than the system prompt plus one turn.
 
         **Bounded no-progress retries.** A pass that adds no conversation at all increments a
         counter; after ``max_retries_without_progress`` such passes the function stops rather
@@ -1061,7 +1194,7 @@ async def generate_all_conversations_async(
     """
     import torch  # lazy: only the generation path needs it
 
-    from core.policy import vram_report
+    from core.policy import TRUNCATION_COUNTER, vram_report
     from roles import make_client
 
     # Re-resolve the client on THIS loop (make_client is loop-keyed): run_async gives every
@@ -1123,6 +1256,7 @@ async def generate_all_conversations_async(
         for batch_num, offset in enumerate(range(0, len(remaining), batch_size), 1):
             batch_ids = remaining[offset: offset + batch_size]
             batch_start = time.time()
+            trunc_before = TRUNCATION_COUNTER.snapshot()
 
             states, error_type, desynced = await _run_batch(
                 batch_ids,
@@ -1187,12 +1321,15 @@ async def generate_all_conversations_async(
 
             if verbose:
                 mem = vram_report()
+                trunc = TRUNCATION_COUNTER.delta_since(trunc_before)
+                overflow = f", overflow {trunc['overflow']}" if trunc["overflow"] else ""
                 print(
                     f"    Batch {batch_num}/{n_batches}: {saved}/{len(batch_ids)} saved -- "
                     f"{len(completed)}/{total} total ({len(completed) / total * 100:.0f}%) -- "
                     f"batch {time.time() - batch_start:.1f}s, "
                     f"total {time.time() - start_time:.1f}s, "
-                    f"vram {mem['reserved_gib']:.1f}G"
+                    f"vram {mem['reserved_gib']:.1f}G, "
+                    f"trunc {trunc['truncated']}/{trunc['prompts']}{overflow}"
                 )
 
         if progress or oom_this_pass:
@@ -1265,119 +1402,44 @@ def generate_all_conversations(*args, **kwargs) -> List[ConversationState]:
 #           utterances (therapist + patient combined). Short cuts are a weak proxy for the full
 #           conversation the thesis actually evaluates: rank agreement with the final-conversation
 #           score is barely above chance at 2 utterances and only clears 0.8 around 10.
-#   BUDGET  cap the rendered prompt at `max_prompt_tokens` by dropping the OLDEST turns. Exp3's
-#           alternative "legacy" mode kept the last N tokens of the rendered string, which slices
-#           through the template's control tokens; it is not ported.
+#   BUDGET  cap the prompt at `max_prompt_tokens` by dropping the OLDEST turns whole -- the SAME
+#           `core.policy.build_prompt` the therapist decode path uses, so a training prompt is
+#           byte-identical to the text the policy generated from for the same turns and budget.
+#           Exp3's alternative "legacy" mode kept the last N tokens of the rendered string, which
+#           slices through the template's control tokens; it is not ported.
+#
+# THE BOS RULE (core.policy module docstring): every `prompt` string returned from here is
+# BOS-FREE. TRL's GRPOTrainer tokenizes it with `processing_class(text=prompts)` -- i.e.
+# `add_special_tokens=True` -- which adds the one BOS back, matching the decode path's ids
+# exactly. (DPO's tokenization path is the PTO trainer's to verify; `strip_leading_bos` is the
+# tool.) Budgets count that BOS: `max_prompt_tokens` is the length of
+# `core.policy.prompt_token_ids(prompt)`, the model's actual input length.
 
 
-_TURN_PROBE = "XQZPROBE"
-
-
-@lru_cache(maxsize=4)
-def _turn_overheads(tokenizer) -> Dict[str, int]:
-    """Per-role wrapper token overhead, MEASURED on the tokenizer's own chat template.
-
-    Renders a three-message probe and differences the token counts, so the estimate tracks
-    whichever template :func:`core.policy.setup_tokenizer` left on the tokenizer -- the
-    hand-written ChatML wrapper on the base therapist, the native Llama-3 header/footer on the
-    Instruct one. An earlier revision hardcoded the ChatML wrapper strings here, which was exact
-    for the base template and would have silently over-billed every Instruct turn (its special
-    tokens are single ids, the ChatML markers ~6 BPE pieces each).
-
-    Approximate at message joins (a real render can merge tokens across a boundary), which is
-    fine: the estimate only picks a candidate drop point, and the exact render that follows is
-    what decides whether the prompt actually fits. Cached per tokenizer OBJECT -- three renders
-    per cache miss, reused for the ~2,300 slices of an extraction pass.
-    """
-    def _render(messages: List[Dict[str, str]]) -> str:
-        return tokenizer.apply_chat_template(messages, tokenize=False,
-                                             add_generation_prompt=False,
-                                             date_string=_chat_template_date())
-
-    def _ntok(text: str) -> int:
-        return len(tokenizer.encode(text, add_special_tokens=False))
-
-    sys_msgs = [{"role": "system", "content": _TURN_PROBE}]
-    user_msgs = sys_msgs + [{"role": "user", "content": _TURN_PROBE}]
-    both_msgs = user_msgs + [{"role": "assistant", "content": _TURN_PROBE}]
-    n_probe = _ntok(_TURN_PROBE)
-    n_sys = _ntok(_render(sys_msgs))
-    n_user = _ntok(_render(user_msgs))
-    n_both = _ntok(_render(both_msgs))
-    return {
-        "user": max(0, n_user - n_sys - n_probe),
-        "assistant": max(0, n_both - n_user - n_probe),
-    }
-
-
-def _estimate_turn_token_costs(turns: Sequence[Dict[str, str]], tokenizer) -> List[int]:
-    """Per-turn token cost: the turn's content plus its measured template wrapper overhead."""
-    overheads = _turn_overheads(tokenizer)
-    costs: List[int] = []
-    for turn in turns:
-        role = "assistant" if turn["role"] == _ROLE_THERAPIST else "user"
-        content_tokens = len(tokenizer.encode(turn["content"], add_special_tokens=False))
-        costs.append(content_tokens + overheads[role])
-    return costs
-
-
-def _compute_system_overhead(system_prompt: str, tokenizer) -> int:
-    """Fixed token cost of the system message plus the generation-prompt suffix.
-
-    Computed once per extraction pass and reused for every slice of every conversation. It is a
-    real render of the system-only prompt through the live template, so it automatically counts
-    whatever framing that template adds -- BOS, the Llama-3 date header, the ChatML system turn.
-    """
-    prompt = tokenizer.apply_chat_template(
-        [{"role": "system", "content": system_prompt}],
-        tokenize=False, add_generation_prompt=True, date_string=_chat_template_date(),
-    )
-    return len(tokenizer.encode(prompt, add_special_tokens=False))
-
-
-def _render_prompt(turns: Sequence[Dict[str, str]], system_prompt: str, tokenizer) -> str:
-    """Render turns through the chat template with a generation prompt appended."""
-    return tokenizer.apply_chat_template(
-        turns_to_messages(turns, system_prompt), add_generation_prompt=True, tokenize=False,
-        date_string=_chat_template_date(),
-    )
-
-
-def _truncate_by_dropping_turns(
+def _build_prompt_for_turns(
     turns: Sequence[Dict[str, str]],
     system_prompt: str,
     tokenizer,
     max_prompt_tokens: int,
+    *,
     turn_token_costs: Optional[Sequence[int]] = None,
     system_overhead: Optional[int] = None,
 ) -> Optional[str]:
-    """Drop the OLDEST turns until the rendered prompt fits. ``None`` if it never does.
+    """``core.policy.build_prompt`` over ``turns_to_messages(turns, system_prompt)``.
 
-    The estimated costs pick a drop point in one pass; the loop that follows verifies with real
-    renders and keeps dropping if the estimate was optimistic. The system message and the most
-    recent turn are what survive, which is the ordering that matters: the therapist is replying to
-    the patient's latest utterance, so that utterance must never be the thing that gets cut.
+    Returns the BOS-free rendered prompt, or ``None`` when even the newest turn alone exceeds
+    the budget. The optional estimates (from ``core.policy.estimate_message_costs`` /
+    ``system_overhead``) let the extraction pass avoid re-encoding every turn per slice.
     """
+    from core.policy import build_prompt  # lazy: torch-side module
+
     if not turns:
         return None
-    if turn_token_costs is None:
-        turn_token_costs = _estimate_turn_token_costs(turns, tokenizer)
-    if system_overhead is None:
-        system_overhead = _compute_system_overhead(system_prompt, tokenizer)
-
-    total = system_overhead + sum(turn_token_costs)
-    drop = 0
-    while total > max_prompt_tokens and drop < len(turns) - 1:
-        total -= turn_token_costs[drop]
-        drop += 1
-
-    remaining = list(turns[drop:])
-    while remaining:
-        prompt = _render_prompt(remaining, system_prompt, tokenizer)
-        if len(tokenizer.encode(prompt, add_special_tokens=False)) <= max_prompt_tokens:
-            return prompt
-        remaining = remaining[1:]
-    return None
+    text, _ = build_prompt(
+        turns_to_messages(turns, system_prompt), tokenizer, int(max_prompt_tokens),
+        message_token_costs=turn_token_costs, system_overhead=system_overhead,
+    )
+    return text
 
 
 def build_truncated_training_prompt(
@@ -1393,13 +1455,19 @@ def build_truncated_training_prompt(
         turns: Conversation-so-far, ending on the patient turn the therapist will answer.
         system_prompt: The therapist system prompt.
         tokenizer: From ``core.policy.setup_tokenizer`` (carries the therapist's chat template).
-        max_prompt_tokens: Budget, in tokens, for the rendered prompt.
+        max_prompt_tokens: Budget, in tokens, for the prompt -- the length of
+            ``core.policy.prompt_token_ids(prompt)``, i.e. INCLUDING the one BOS the tokenization
+            adds. Give it the same value as the decode path's ``max_input_tokens`` and the two
+            produce byte-identical text.
         truncation_mode: Only ``"drop_oldest"`` is supported.
 
     Returns:
-        The rendered prompt, or ``None`` when even a single most-recent turn exceeds the budget.
-        **A ``None`` means SKIP this sample.** Training on a prompt that was silently mangled to
-        fit is worse than training on one fewer pair.
+        The rendered prompt -- **BOS-FREE**: a leading ``<|begin_of_text|>`` written by the
+        Instruct template is stripped, so whoever tokenizes the string adds exactly one BOS
+        (TRL's ``processing_class(text=...)`` does; so does ``core.policy.prompt_token_ids``).
+        Or ``None`` when even a single most-recent turn exceeds the budget. **A ``None`` means
+        SKIP this sample.** Training on a prompt that was silently mangled to fit is worse than
+        training on one fewer pair.
 
     Raises:
         ValueError: on any other ``truncation_mode``. Exp3 had a ``"legacy"`` mode that kept the
@@ -1408,15 +1476,19 @@ def build_truncated_training_prompt(
             ported rather than left as a footgun with a default.
 
     Notes:
-        The single-conversation analogue of what
-        :func:`extract_prompts_from_conversations` applies to every GRPO prompt, so PTO's
-        pref-pair builder constructs its training prompt IDENTICALLY -- same budget, same rule.
-        Two reasons that matters. (1) It matches the therapist's inference-time context window,
-        so the policy is not trained on a context it never sees at serve time. (2) It stops a full
-        grown trunk (~2.4k tokens, up to ~6k) from reaching ``DPOTrainer`` verbatim: TRL 1.4.0's
-        ``DPOConfig`` has no ``max_prompt_length`` and caps prompt+completion with one
-        ``max_length`` under ``truncation_mode='keep_start'`` -- which slices the RESPONSE off the
-        end, leaving a pair whose chosen and rejected are both truncated to nothing.
+        This is ``core.policy.build_prompt`` -- the exact function
+        ``core.policy.generate_therapist_batch`` builds its prompts with -- applied to
+        ``turns_to_messages(turns, system_prompt)``. PTO samples its branch candidates through
+        that decode path and trains on THIS output, so the two being one function is what makes
+        the DPO prompt byte-identical to the text the candidates were sampled from (same turns,
+        same budget). :func:`extract_prompts_from_conversations` applies the same rule to every
+        GRPO prompt. Two further reasons the cap matters. (1) It matches the therapist's
+        inference-time context window, so the policy is not trained on a context it never sees
+        at serve time. (2) It stops a full grown trunk (~2.4k tokens, up to ~6k) from reaching
+        ``DPOTrainer`` verbatim: TRL 1.4.0's ``DPOConfig`` has no ``max_prompt_length`` and caps
+        prompt+completion with one ``max_length`` under ``truncation_mode='keep_start'`` -- which
+        slices the RESPONSE off the end, leaving a pair whose chosen and rejected are both
+        truncated to nothing.
     """
     if truncation_mode != "drop_oldest":
         raise ValueError(
@@ -1424,10 +1496,7 @@ def build_truncated_training_prompt(
             f"supported; only 'drop_oldest' exists in Exp4. (Exp3's 'legacy' token-tail mode "
             f"could cut through chat-template control tokens and was not ported.)"
         )
-    prompt = _render_prompt(turns, system_prompt, tokenizer)
-    if len(tokenizer.encode(prompt, add_special_tokens=False)) <= max_prompt_tokens:
-        return prompt
-    return _truncate_by_dropping_turns(turns, system_prompt, tokenizer, max_prompt_tokens)
+    return _build_prompt_for_turns(turns, system_prompt, tokenizer, max_prompt_tokens)
 
 
 def extract_prompts_from_conversations(
@@ -1450,14 +1519,17 @@ def extract_prompts_from_conversations(
             exists because the training reward grades these partial cuts while the thesis
             evaluates whole conversations: rank agreement with the final-conversation score is
             barely above chance at 2 utterances, clears 0.8 near 10 and 0.9 near 30.
-        max_prompt_tokens: Token budget per rendered prompt; over-budget slices drop their oldest
-            turns, and a slice that cannot fit at all is skipped.
+        max_prompt_tokens: Token budget per prompt, BOS included (see
+            :func:`build_truncated_training_prompt`); over-budget slices drop their oldest turns
+            whole, and a slice that cannot fit at all is skipped.
         permutations: The full ``generate_all_permutations()`` list, indexed by ``persona_id``.
 
     Returns:
-        One dict per slice with keys ``prompt`` (chat-template text for the model),
-        ``transcript`` (labelled plain text for the oracle), ``conversation_id`` (``"pers07"``),
-        ``persona_id`` (int) and ``patient_system_prompt``.
+        One dict per slice with keys ``prompt`` (chat-template text for the model -- **BOS-FREE**,
+        exactly what :func:`build_truncated_training_prompt` returns; TRL's ``GRPOTrainer``
+        tokenizes it with ``add_special_tokens=True`` and thereby adds the single BOS the decode
+        path also has), ``transcript`` (labelled plain text for the oracle), ``conversation_id``
+        (``"pers07"``), ``persona_id`` (int) and ``patient_system_prompt``.
 
     Notes:
         **WARNING -- ``patient_system_prompt`` is REQUIRED for look-ahead.** K-turn simulation has to
@@ -1470,11 +1542,14 @@ def extract_prompts_from_conversations(
         ``conversation_id`` is the file stem, so a sample can be traced back to the CSV it came
         from without a lookup, and ``persona_id`` is the stable int to join on.
 
-        The token budget is tracked as a running total using the per-turn estimates, so a slice
-        that is comfortably under budget skips the truncation path entirely -- ~2,300 slices per
-        iteration, each of which would otherwise pay an extra full render plus encode.
+        Every slice pays one exact render + count (the fit check), and only an over-budget slice
+        pays the drop-point estimate -- fed from per-turn costs measured ONCE per conversation
+        (``core.policy.estimate_message_costs``) rather than once per slice, ~2,300 slices per
+        iteration.
     """
-    system_overhead = _compute_system_overhead(system_prompt, tokenizer)
+    from core.policy import estimate_message_costs, system_overhead as _system_overhead
+
+    sys_overhead = _system_overhead(system_prompt, tokenizer)
     samples: List[Dict[str, Any]] = []
     n_missing_patient_prompt = 0
 
@@ -1491,30 +1566,22 @@ def extract_prompts_from_conversations(
         if not patient_system_prompt:
             n_missing_patient_prompt += 1
 
-        turn_costs = _estimate_turn_token_costs(turns, tokenizer)
-        running = system_overhead
+        # Order-aligned with `turns` (turns_to_messages adds only the system message in front).
+        turn_costs = estimate_message_costs(turns_to_messages(turns, system_prompt), tokenizer)
 
         for i, turn in enumerate(turns):
-            running += turn_costs[i]
             if turn["role"] != _ROLE_PATIENT:
                 continue
             if (i + 1) < min_conv_length:  # i+1 == utterances in the conversation-so-far
                 continue
 
             partial = turns[: i + 1]
-            if running <= max_prompt_tokens:
-                prompt = _render_prompt(partial, system_prompt, tokenizer)
-            else:
-                prompt = _truncate_by_dropping_turns(
-                    partial,
-                    system_prompt,
-                    tokenizer,
-                    max_prompt_tokens,
-                    turn_token_costs=turn_costs[: i + 1],
-                    system_overhead=system_overhead,
-                )
-                if prompt is None:
-                    continue  # even one most-recent turn exceeds the budget -- skip the sample
+            prompt = _build_prompt_for_turns(
+                partial, system_prompt, tokenizer, max_prompt_tokens,
+                turn_token_costs=turn_costs[: i + 1], system_overhead=sys_overhead,
+            )
+            if prompt is None:
+                continue  # even one most-recent turn exceeds the budget -- skip the sample
 
             samples.append({
                 "prompt": prompt,

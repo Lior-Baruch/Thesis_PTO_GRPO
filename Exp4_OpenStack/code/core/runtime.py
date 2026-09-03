@@ -34,6 +34,30 @@ Four jobs, each of which has bitten this project at least once:
    exception, and it does so by inspecting ``sys.modules`` only -- it never imports torch itself,
    so it is safe to call from the very top of a notebook.
 
+Running OFF Colab (a GPU server over SSH)
+-----------------------------------------
+Nothing here is Colab-specific except the secret and mount branches, and both fall through
+cleanly on any other Linux/Windows host:
+
+* :func:`detect_host` returns ``"local"`` -- there is no third value. Every "local" branch in
+  Exp4 means "not Colab", not "Lior's Windows laptop"; the sm_120 import-order guard is the one
+  local-only behaviour, and it is a no-op unless the pair it checks for is actually present
+  (bypass with ``EXP4_SKIP_IMPORT_ORDER_CHECK=1`` on a card that does not reproduce it).
+* Credentials come from environment variables, which :func:`get_secret` consults FIRST, before
+  Colab Secrets and before any key file: ``HF_TOKEN`` (or ``HUGGING_FACE_HUB_TOKEN`` /
+  ``HUGGINGFACE_TOKEN``), ``OPENAI_API_KEY``, ``ANTHROPIC_API_KEY``. Export them in the SSH
+  session (or the service's unit file) and :func:`authenticate` needs nothing else. A key file
+  (``HF_key.txt`` beside ``CLAUDE.md``) still works as the fallback it is on the laptop.
+* The workspace root resolves by walking up from the cwd (or from this file), so a clone at any
+  path works; ``EXP4_WORKSPACE_ROOT=/abs/path/Exp4_OpenStack`` overrides the search outright, for
+  a job launched from a scheduler whose cwd is elsewhere.
+* ``data/`` is not a Drive symlink there -- point the three subdirectories at real storage before
+  the first iteration; nothing in Exp4 requires Drive.
+* :func:`describe_environment` records the GPU's total memory in GiB and the installed vLLM
+  version into the run banner and ``run_metadata.json``, so an arm trained on an 80 GB A100 is
+  distinguishable from one trained on a 40 GB card after the fact -- the VRAM budget and the
+  server's ``gpu_memory_utilization`` are functions of that number.
+
 Module-level imports are pure stdlib, and every heavy import (huggingface_hub, torch,
 google.colab) happens inside a function. The read-only EDA imports this module for
 :func:`resolve_workspace_root` and must not pay for a torch import to get a path.
@@ -556,10 +580,14 @@ def authenticate(
                     f"HF_TOKEN is exported, so gated downloads should still work."
                 )
         else:
+            spec = SECRET_SPECS["hf"]
             print(
-                "WARNING: no Hugging Face token found (env, Colab Secrets, HF_key.txt). "
-                "meta-llama/Llama-3.2-1B is gated -- this only works if the weights are already "
-                "in the local HF cache."
+                f"WARNING: no Hugging Face token found. Looked at the environment variables "
+                f"{', '.join(spec.env_vars)}, then Colab Secrets "
+                f"({', '.join(spec.colab_keys)}; Colab only), then {', '.join(spec.filenames)} "
+                f"under the workspace root. meta-llama/Llama-3.2-1B is gated -- this only works "
+                f"if the weights are already in the local HF cache. Off Colab, export "
+                f"{spec.env_vars[0]} in the shell."
             )
 
     if openai:
@@ -722,6 +750,44 @@ def _probe_gpus() -> Optional[List[Dict[str, Any]]]:
     return gpus
 
 
+#: Packages whose installed version the banner records. Read through ``importlib.metadata`` --
+#: never imported -- so asking costs nothing and cannot change this process's import order.
+#: ``vllm`` is the one that matters most: it is the grader's server, it is not in
+#: ``requirements.txt``'s pinned set on every host, and its guided-decoding behaviour (the
+#: ``strict`` key, ``minItems`` enforcement) is version-dependent.
+_VERSIONED_PACKAGES = ("vllm", "torch", "transformers", "trl", "peft", "openai")
+
+
+def _installed_version(package: str) -> Optional[str]:
+    """Installed distribution version of *package*, or ``None`` -- WITHOUT importing it."""
+    try:
+        from importlib.metadata import version
+
+        return version(package)
+    except Exception:  # PackageNotFoundError, or a broken metadata dir; both mean "unknown"
+        return None
+
+
+def _torch_gpu_total_gib() -> Optional[float]:
+    """Device 0's total memory in GiB as torch reports it -- only if torch is ALREADY imported.
+
+    Read off ``sys.modules`` and never imported here: importing torch from a path helper would
+    arm the sm_120 import-order landmine for every later ``import trl``. When torch is present,
+    ``get_device_properties`` is the authoritative figure (it is the number the allocator budgets
+    against), and it is what tells an 80 GB A100 from a 40 GB one in ``run_metadata.json``.
+    ``None`` when torch is absent, CUDA is unavailable, or the query fails.
+    """
+    torch = sys.modules.get("torch")
+    if torch is None:
+        return None
+    try:
+        if not torch.cuda.is_available():
+            return None
+        return float(torch.cuda.get_device_properties(0).total_memory) / float(1024 ** 3)
+    except Exception:
+        return None
+
+
 def describe_environment() -> Dict[str, Any]:
     """Collect everything the run banner should state about this machine.
 
@@ -736,6 +802,13 @@ def describe_environment() -> Dict[str, Any]:
         * ``cuda_visible_devices`` -- the raw env var, or ``None`` if unset
         * ``gpus`` -- ``[{"name": str, "total_mib": int|None}, ...]`` or ``None``
         * ``gpu_name`` / ``gpu_total_mib`` -- device 0, hoisted for the banner
+        * ``gpu_total_gib`` -- device 0's total memory in GiB (``None`` if unknown), and
+          ``gpu_total_gib_source`` -- ``"torch"`` when torch was already imported and CUDA
+          answered (the allocator's own figure), else ``"nvidia-smi"``, else ``None``. This is
+          the field that tells an 80 GB A100 from a 40 GB one.
+        * ``vllm_version`` -- the installed vLLM distribution version, or ``None``; plus
+          ``package_versions`` -- ``{name: version|None}`` for :data:`_VERSIONED_PACKAGES`.
+          Read via ``importlib.metadata``, never by importing.
         * ``torch_imported`` / ``trl_imported`` -- ``sys.modules`` membership, for the guard
         * ``secrets`` -- ``{"hf": bool, "openai": bool, "anthropic": bool}``
 
@@ -745,9 +818,11 @@ def describe_environment() -> Dict[str, Any]:
         ``run_metadata.json``, and a masked key is still a leaked key once someone knows the
         vendor's prefix length.
 
-        Nothing here initialises CUDA (see :func:`_probe_gpus`) and nothing here imports torch.
-        ``torch_imported`` is a ``sys.modules`` lookup, so a ``False`` is meaningful: it says the
-        process is still in the state where :func:`assert_import_order` can be satisfied.
+        Nothing here imports torch (or vllm). ``torch_imported`` is a ``sys.modules`` lookup, so
+        a ``False`` is meaningful: it says the process is still in the state where
+        :func:`assert_import_order` can be satisfied. The GiB figure is read from torch ONLY when
+        the caller already imported it (``sys.modules``), and from ``nvidia-smi`` otherwise --
+        see :func:`_probe_gpus` for why the latter deliberately stays out of process.
 
         Cheap but not free -- ``nvidia-smi`` is a subprocess. Call it once for the banner, not per
         iteration.
@@ -768,6 +843,15 @@ def describe_environment() -> Dict[str, Any]:
     else:
         cuda_visible = bool(gpus)
 
+    gpu_total_mib = gpus[0]["total_mib"] if gpus else None
+    gpu_total_gib = _torch_gpu_total_gib()
+    gib_source: Optional[str] = "torch" if gpu_total_gib is not None else None
+    if gpu_total_gib is None and gpu_total_mib:
+        gpu_total_gib = float(gpu_total_mib) / 1024.0
+        gib_source = "nvidia-smi"
+
+    versions = {name: _installed_version(name) for name in _VERSIONED_PACKAGES}
+
     import platform  # stdlib, but only needed here
 
     info: Dict[str, Any] = {
@@ -781,7 +865,11 @@ def describe_environment() -> Dict[str, Any]:
         "cuda_visible_devices": cvd,
         "gpus": gpus,
         "gpu_name": gpus[0]["name"] if gpus else None,
-        "gpu_total_mib": gpus[0]["total_mib"] if gpus else None,
+        "gpu_total_mib": gpu_total_mib,
+        "gpu_total_gib": (None if gpu_total_gib is None else round(gpu_total_gib, 2)),
+        "gpu_total_gib_source": gib_source,
+        "vllm_version": versions["vllm"],
+        "package_versions": versions,
         "torch_imported": "torch" in sys.modules,
         "trl_imported": "trl" in sys.modules,
         "secrets": {name: get_secret(name) is not None for name in SECRET_SPECS},
@@ -817,13 +905,24 @@ def format_environment(info: Optional[Dict[str, Any]] = None) -> str:
         f"{name}={'yes' if ok else 'no'}" for name, ok in sorted(secrets.items())
     )
 
+    gib = info.get("gpu_total_gib")
+    gib_line = (
+        f"{gib:.1f} GiB (via {info.get('gpu_total_gib_source')})" if gib is not None else "unknown"
+    )
+    versions = info.get("package_versions") or {}
+    version_line = ", ".join(
+        f"{name}={ver or 'absent'}" for name, ver in versions.items()
+    )
+
     rows = [
         ("host", info.get("host")),
         ("python", f"{info.get('python')}  ({info.get('python_executable')})"),
         ("platform", info.get("platform")),
         ("workspace root", info.get("workspace_root") or "UNRESOLVED"),
         ("gpu", gpu),
+        ("gpu 0 total memory", gib_line),
         ("CUDA_VISIBLE_DEVICES", info.get("cuda_visible_devices") if info.get("cuda_visible_devices") is not None else "(unset)"),
+        ("packages", version_line or "(none probed)"),
         ("torch / trl imported", f"{info.get('torch_imported')} / {info.get('trl_imported')}"),
         ("secrets resolved", secret_line or "(none)"),
     ]

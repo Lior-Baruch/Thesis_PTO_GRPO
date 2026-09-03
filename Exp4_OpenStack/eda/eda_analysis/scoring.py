@@ -57,11 +57,20 @@ Usage (``Run_Eval.ipynb``)::
     from eda_analysis import scoring
     from core.concurrency import run_async
 
-    binding = scoring.judge_binding_for("google/gemma-4-E2B-it",
+    binding = scoring.judge_binding_for(roles.DEFAULT_JUDGE_MODEL,      # google/gemma-4-E4B-it
                                         base_url="http://127.0.0.1:8000/v1")
     plan = scoring.discover_scorable(judge=scoring.judge_tag(binding))
     print(scoring.estimate_calls(plan, binding=binding))       # look BEFORE you spend
     done = run_async(scoring.run_scoring(plan, binding=binding))
+    report = scoring.prompt_length_gate(scoring.gather_transcripts(),
+                                        model=binding.model, base_url=binding.base_url)
+    ok, messages = scoring.check_prompt_length_gate(report)    # the Phase 2 measurement
+    # (max_model_len= is the OFFLINE fallback only: with a base_url the SERVED cap wins)
+
+Where this runs: **on the GPU that serves the judge** -- Colab (A100 80 GB) or a GPU server over
+SSH. The local 12 GB card cannot host the E4B judge at all (14.89 GiB of weights alone), so it is
+for smoke tests only; ``Run_Eval.ipynb`` carries the same Drive-mount preamble as the trainer
+notebooks for exactly that reason.
 
 Import weight: pandas plus the stdlib-only canonical modules. No torch, no ``core.policy``, no
 ``core.lookahead``. The provider SDK is imported lazily by ``roles.make_client``, so this module
@@ -72,12 +81,13 @@ from __future__ import annotations
 
 import asyncio
 import glob
+import inspect
 import math
 import os
 import time
 from dataclasses import dataclass
 from statistics import fmean
-from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple, Union
+from typing import Any, Dict, Iterable, List, Mapping, Optional, Sequence, Tuple, Union
 
 import pandas as pd
 
@@ -129,6 +139,12 @@ __all__ = [
     "score_model_state",
     "run_scoring",
     "estimate_calls",
+    # The Phase 2 measurement (oracle prompt length vs the server's max_model_len)
+    "PROMPT_LENGTH_REPORT_SIGNATURE",
+    "TRANSCRIPT_COLUMNS",
+    "gather_transcripts",
+    "prompt_length_gate",
+    "check_prompt_length_gate",
     # Re-export, so a notebook can drive the coroutines without a second import
     "judge_tag",
     "run_async",
@@ -219,6 +235,8 @@ _COLUMN_DTYPES: Dict[str, str] = {
     "state_index": "int64", "n_conversations": "int64", "n_rows_existing": "int64",
     "n_rows": "int64", "n_failed": "int64", "n_calls": "int64",
     "elapsed_s": "float64",
+    # gather_transcripts
+    "persona_id": "int64", "n_utterances": "int64", "transcript": "object",
 }
 
 
@@ -249,10 +267,10 @@ def judge_binding_for(model: str,
     """Build the :class:`roles.RoleBinding` for an eval judge.
 
     Args:
-        model: Full model id as the provider spells it (``google/gemma-4-E2B-it``,
-            ``gpt-4o-mini``). Required and never defaulted: this id decides the ``judge=<tag>``
-            directory every score is written under, and an implicit grader is precisely the error
-            the partition scheme exists to make impossible.
+        model: Full model id as the provider spells it (``roles.DEFAULT_JUDGE_MODEL`` =
+            ``google/gemma-4-E4B-it``, ``gpt-4o-mini``). Required and never defaulted: this id
+            decides the ``judge=<tag>`` directory every score is written under, and an implicit
+            grader is precisely the error the partition scheme exists to make impossible.
         provider: ``openai_compat`` (default -- any OpenAI-compatible server: vLLM, llama.cpp,
             TGI) or ``openai``. See the raise below for why ``anthropic`` is refused.
         base_url: Endpoint for ``openai_compat``. Normally the value
@@ -1196,3 +1214,290 @@ def estimate_calls(plan: pd.DataFrame,
     out["cost"] = (f"${total:,.2f} (ESTIMATE -- verify pricing against the billing dashboard; "
                    f"retries could take it to ${total * max_retries:,.2f})")
     return out
+
+
+# ==============================================================================
+#  9. PROMPT-LENGTH GATE -- the Phase 2 measurement
+# ==============================================================================
+#
+# The server's ``max_model_len`` (16384) was sized on Exp3 transcripts written by a gpt-4o-mini
+# patient, counted with proxy tokenizers (o200k: Q2 max 10,042; Llama-3.2: 10,279). Exp4's Gemma
+# patient may write longer turns, and the prompts that would overflow the cap are the LONGEST
+# conversations -- whose length varies by arm and by K (CLAUDE.md § VRAM budget) -- so an overflow
+# is arm-dependent biased missingness on the headline metric, and it is silent: an unscoreable
+# conversation is simply absent, not an error. The spec therefore asks for the measurement to be
+# REPEATED on real Exp4 conversations at the Phase 2 gate. This section is where that lives in the
+# scoring path: gather every conversation on disk exactly as the oracle reads it, hand the list to
+# ``tools.oracle_sanity.prompt_length_report`` (the counter -- it owns the rubric prompt builder
+# and the tokenizer choice, so the number is the judge's own token count, not a proxy), and reduce
+# the report to a pass/fail the notebook can raise on.
+
+#: The call this module makes, spelled out so a signature drift is NAMED in the error rather than
+#: guessed at. ``tools.oracle_sanity.prompt_length_report`` belongs to the trainer-side tools
+#: layer (see CLAUDE.md § Module contract, ``code/tools/oracle_sanity.py``); the keys listed are
+#: the ones :func:`check_prompt_length_gate` reads.
+PROMPT_LENGTH_REPORT_SIGNATURE = (
+    "tools.oracle_sanity.prompt_length_report(source: str | Sequence[str], "
+    "questionnaire_ids: Sequence[int] = (1, 2), *, base_url: Optional[str] = None, "
+    "tokenizer=None, model: Optional[str] = None, max_model_len: Optional[int] = None) "
+    "-> PromptLengthReport (.to_dict())   "
+    "# dict keys read here: n_transcripts, max_model_len, per_questionnaire {qid: {n, median, "
+    "p95, max, n_over}}, max_tokens (longest prompt), n_over, headroom (= max_model_len / max_tokens)"
+)
+
+#: :func:`gather_transcripts` -- one row per conversation on disk.
+TRANSCRIPT_COLUMNS: Tuple[str, ...] = (
+    "experiment_name", "arm_label", "state_index", "model_state", "persona_id",
+    "n_utterances", "transcript",
+)
+
+
+def gather_transcripts(arms: Optional[Sequence[Arm]] = None,
+                       *,
+                       states: Optional[Sequence[int]] = None) -> pd.DataFrame:
+    """Every conversation on disk for *arms*, formatted exactly as the oracle reads it.
+
+    Args:
+        arms: Arms to walk; ``None`` discovers every arm under ``data/conversations/``.
+        states: Model-state indices to keep (``None`` = every state the arm has on disk).
+
+    Returns:
+        :data:`TRANSCRIPT_COLUMNS`; ``transcript`` is
+        ``core.conversations.format_conversation_for_oracle(turns)`` -- the SAME string
+        :func:`score_model_state` grades, so a length measured on it is a length the judge sees.
+        Empty and correctly typed when nothing is on disk.
+
+    Notes:
+        Reads every CSV, so it is not free on a large lake (a full four-arm grid is
+        ``4 x 11 x 96 = 4,224`` files); it runs once, after scoring, and the Drive symlink's
+        "empty directory" failure applies here as everywhere (check the cloud before believing a
+        zero).
+    """
+    arm_list = list(discover_arms() if arms is None else arms)
+    wanted = None if states is None else {int(s) for s in states}
+    rows: List[Dict[str, Any]] = []
+    for arm in arm_list:
+        key = arm.key()
+        for state in arm.iters:
+            if wanted is not None and int(state) not in wanted:
+                continue
+            for persona_id, conv in sorted(load_conversations_dir(arm.conv_dir(state)).items()):
+                rows.append({
+                    "experiment_name": key["experiment_name"],
+                    "arm_label": key["arm_label"],
+                    "state_index": int(state),
+                    "model_state": arm.model_state(state),
+                    "persona_id": int(persona_id),
+                    "n_utterances": len(conv.turns),
+                    "transcript": format_conversation_for_oracle(conv.turns),
+                })
+    if not rows:
+        return _empty_frame(TRANSCRIPT_COLUMNS)
+    return _order_columns(pd.DataFrame(rows), TRANSCRIPT_COLUMNS)
+
+
+def _accepted_keywords(fn: Any) -> Optional[set]:
+    """Keyword names *fn* accepts, or ``None`` when it takes ``**kwargs`` (or cannot be inspected)."""
+    try:
+        params = inspect.signature(fn).parameters.values()
+    except (TypeError, ValueError):
+        return None
+    if any(p.kind is inspect.Parameter.VAR_KEYWORD for p in params):
+        return None
+    return {p.name for p in params
+            if p.kind in (inspect.Parameter.POSITIONAL_OR_KEYWORD, inspect.Parameter.KEYWORD_ONLY)}
+
+
+def prompt_length_gate(transcripts: Union[pd.DataFrame, Sequence[str]],
+                       *,
+                       max_model_len: Optional[int] = None,
+                       questionnaire_ids: Optional[Sequence[int]] = (1, 2),
+                       model: Optional[str] = None,
+                       base_url: Optional[str] = None) -> Dict[str, Any]:
+    """Measure the realised oracle-prompt lengths against the SERVED ``max_model_len``.
+
+    Args:
+        transcripts: :func:`gather_transcripts` output, or a plain list of oracle-formatted
+            transcripts.
+        max_model_len: The OFFLINE fallback cap only. With a *base_url* the cap is what the
+            server itself reports through ``/tokenize`` (or ``/v1/models``) and this argument is
+            deliberately NOT forwarded -- an adopted server keeps whatever ``--max-model-len`` it
+            was launched with, and a notebook literal (``SERVE_MAX_MODEL_LEN``) must not be
+            allowed to override the number the server actually compares prompts against. If both
+            are given and the served cap differs, the report carries a ``note`` saying so.
+            Without a *base_url* (no server: a vendor judge, or an offline HF-tokenizer / chars
+            estimate) it is forwarded as the cap to check against; ``None`` there lets the tools
+            layer fall back to its assumed ``ServeSpec.max_model_len`` (labelled ``assumed``).
+        questionnaire_ids: Rubrics whose prompt to build around each transcript. ``None`` means
+            every stored instrument (:data:`STORED_METRICS`); the default ``(1, 2)`` is the
+            training reward, and Q2 carries the longest rubric.
+        model: The judge binding's model id -- sent with the server's ``/tokenize`` request and
+            the fallback HF tokenizer lookup, so the count is the served model's own.
+        base_url: The judge binding's endpoint. With it the report counts through vLLM's
+            ``/tokenize`` (THE measurement -- the number the server compares against its cap)
+            AND takes the cap from the same answer; without it the report falls back to a local
+            HF tokenizer or a labelled chars/3.5 estimate, and says so in its ``method``.
+
+    Returns:
+        The ``to_dict()`` of the report ``tools.oracle_sanity.prompt_length_report`` produced
+        (see :data:`PROMPT_LENGTH_REPORT_SIGNATURE`), with ``n_transcripts`` (and, on the
+        offline path, ``max_model_len``) filled in if the report omitted them. Reduce it with
+        :func:`check_prompt_length_gate`; render it with
+        ``tools.oracle_sanity.format_prompt_length_report`` (which accepts the dict). With zero
+        transcripts nothing is measured and the dict says so in the formatter's own vocabulary
+        (``gate.passed`` True with no failures, ``method`` ``"none"``, ``measured`` False) so a
+        vacuous pass renders as one, never as ``VERDICT: FAIL`` followed by ``GATE PASSED``.
+
+    Raises:
+        ImportError: when the tools layer has no ``prompt_length_report`` -- the measurement is
+            then simply not available in this checkout, and the error says which function is
+            missing rather than letting the gate silently pass.
+        TypeError: when the report is not a mapping.
+
+    Notes:
+        The call is keyword-filtered against the function's real signature: a keyword the tools
+        layer does not accept is dropped with a printed WARNING naming the documented call, so a
+        signature drift degrades to a visible message instead of a ``TypeError`` in the notebook.
+    """
+    try:
+        from tools import oracle_sanity as _sanity  # canonical copy; code/ is on sys.path
+    except ImportError as exc:
+        raise ImportError(
+            f"cannot import tools.oracle_sanity ({exc}); the prompt-length gate needs "
+            f"{PROMPT_LENGTH_REPORT_SIGNATURE}"
+        ) from exc
+    fn = getattr(_sanity, "prompt_length_report", None)
+    if fn is None:
+        raise ImportError(
+            "tools.oracle_sanity has no prompt_length_report, so the Phase 2 prompt-length "
+            "measurement is NOT available in this checkout. The gate refuses to pass on nothing "
+            f"measured. Expected: {PROMPT_LENGTH_REPORT_SIGNATURE}"
+        )
+
+    if isinstance(transcripts, pd.DataFrame):
+        texts = [str(t) for t in transcripts["transcript"].tolist()] if not transcripts.empty else []
+    else:
+        texts = [str(t) for t in transcripts]
+    if not texts:
+        # The vacuous case, in the formatter's own shape: an empty gate block is a PASS with no
+        # failures (the notebook reads gate.passed / n_over, the formatter reads gate + method +
+        # measured), and nothing claims a tokenizer or a cap that was never consulted.
+        return {
+            "conv_dir": "<0 transcripts in memory>",
+            "n_transcripts": 0, "n_conversations": 0,
+            "questionnaire_ids": [],
+            "max_model_len": None if max_model_len is None else int(max_model_len),
+            "max_model_len_source": "argument" if max_model_len is not None else "none",
+            "method": "none", "measured": False,
+            "grader": {"model": model, "base_url": base_url or None},
+            "per_rubric": {}, "per_questionnaire": {},
+            "n_over": 0, "max_tokens": 0, "headroom": None,
+            "gate": {"passed": True, "failures": []},
+            "notes": ["no conversations on disk -- nothing was measured (vacuous pass)"],
+        }
+
+    if questionnaire_ids is None:
+        qids: Tuple[int, ...] = tuple(
+            int(metric_registry(key).questionnaire_id) for key in STORED_METRICS
+        )
+    else:
+        qids = tuple(int(q) for q in questionnaire_ids)
+    kwargs: Dict[str, Any] = {"questionnaire_ids": qids}
+    if model is not None:
+        kwargs["model"] = model
+    if base_url:
+        # The SERVED cap wins: prompt_length_report reads it back from /tokenize (or /v1/models)
+        # when no explicit cap is passed, so the argument is withheld here on purpose.
+        kwargs["base_url"] = base_url
+    elif max_model_len is not None:
+        kwargs["max_model_len"] = int(max_model_len)
+    accepted = _accepted_keywords(fn)
+    dropped = [k for k in kwargs if accepted is not None and k not in accepted]
+    if dropped:
+        _log(f"WARNING: prompt_length_report does not accept {dropped}; calling without them. "
+             f"Documented call: {PROMPT_LENGTH_REPORT_SIGNATURE}")
+    report = fn(texts, **{k: v for k, v in kwargs.items() if k not in dropped})
+    if not isinstance(report, Mapping) and callable(getattr(report, "to_dict", None)):
+        report = report.to_dict()       # the tools layer's dataclass -> its archived shape
+    if not isinstance(report, Mapping):
+        raise TypeError(
+            f"prompt_length_report returned {type(report).__name__}, expected a dict "
+            f"({PROMPT_LENGTH_REPORT_SIGNATURE})"
+        )
+    out: Dict[str, Any] = dict(report)
+    out.setdefault("n_transcripts", len(texts))
+    if max_model_len is not None:
+        if not base_url:
+            out.setdefault("max_model_len", int(max_model_len))
+        else:
+            served = out.get("max_model_len")
+            if served is not None and int(served) != int(max_model_len):
+                notes = list(out.get("notes") or ())
+                notes.append(
+                    f"max_model_len={int(max_model_len)} was passed but NOT used: the served cap "
+                    f"({served}, {out.get('max_model_len_source', 'server')}) is what the server "
+                    f"compares prompts against. Keep the notebook literal in step with the "
+                    f"launch flag, or restart the server -- an adopted one keeps its old cap."
+                )
+                out["notes"] = notes
+    return out
+
+
+def check_prompt_length_gate(report: Mapping[str, Any],
+                             *,
+                             min_headroom: float = 1.25) -> Tuple[bool, List[str]]:
+    """Reduce a prompt-length report to ``(passed, messages)``.
+
+    Passes iff **no** measured prompt exceeds ``max_model_len``. Headroom below *min_headroom*
+    (``max_model_len / longest prompt``) is reported as a note, never a failure -- the spec's own
+    margin was ~1.6x over Exp3's longest prompt, and eating into it is a reason to raise the cap
+    before the next arm, not to refuse the scores already on disk.
+
+    Args:
+        report: :func:`prompt_length_gate` output.
+        min_headroom: Ratio below which a "raise the cap" note is emitted.
+
+    Returns:
+        ``(passed, messages)``. With zero transcripts measured the gate is vacuous: it passes and
+        says so, because a fresh checkout has nothing to measure and that is not a failure.
+        A report that carries neither ``n_over`` nor a per-prompt token list FAILS with a message
+        naming the documented shape -- an undecidable gate must not read as a green one.
+    """
+    max_model_len = report.get("max_model_len")
+    n_transcripts = int(report.get("n_transcripts") or 0)
+    if n_transcripts == 0:
+        return True, ["nothing measured: no conversations on disk (the gate is vacuous)"]
+
+    n_over = report.get("n_over")
+    if n_over is None:
+        counts = report.get("prompt_tokens") or report.get("token_counts")
+        if counts is None or max_model_len is None:
+            return False, [
+                "the prompt-length report carries neither 'n_over' nor a per-prompt token list "
+                f"('prompt_tokens'/'token_counts'), so the gate cannot decide. Keys present: "
+                f"{sorted(report)}. Documented shape: {PROMPT_LENGTH_REPORT_SIGNATURE}"
+            ]
+        n_over = sum(1 for c in counts if float(c) > float(max_model_len))
+    n_over = int(n_over)
+
+    messages: List[str] = []
+    max_tokens = report.get("max_tokens")
+    if n_over > 0:
+        messages.append(
+            f"{n_over} of {n_transcripts} conversations produce an oracle prompt over "
+            f"max_model_len={max_model_len}"
+            + (f" (longest {int(max_tokens):,} tokens)" if max_tokens else "")
+            + ". Those conversations CANNOT be graded, they are the longest ones, and session "
+              "length varies by arm and by K -- raise SERVE_MAX_MODEL_LEN here AND "
+              "VLLM_MAX_MODEL_LEN in both trainer notebooks above the longest prompt, then "
+              "re-score the affected partitions. Never lower the cap to save memory."
+        )
+    if max_tokens and max_model_len:
+        headroom = float(max_model_len) / float(max_tokens)
+        if headroom < float(min_headroom):
+            messages.append(
+                f"note: headroom is only {headroom:.2f}x (longest prompt {int(max_tokens):,} vs "
+                f"cap {max_model_len}); the spec sized the cap at ~1.6x Exp3's longest prompt. "
+                f"Raise the cap before the next arm rather than after the first overflow."
+            )
+    return n_over == 0, messages
