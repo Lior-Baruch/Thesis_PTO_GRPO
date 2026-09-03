@@ -2,8 +2,9 @@
 \label{sec:setup}
 
 \textbf{Task, simulator, oracle.} The therapist is \texttt{Llama-3.2-1B} (bf16, LoRA $r{=}16$,
-$\alpha{=}16$, lr $1\mathrm{e}{-}5$, seed 42). The patient is \texttt{gpt-4o-mini-2024-07-18}
-conditioned on one of \textbf{96} persona system prompts, the exhaustive enumeration of
+$\alpha{=}16$, lr $1\mathrm{e}{-}5$, seed 42). The patient is \texttt{gpt-4o-mini} (the
+2024-07-18 snapshot) conditioned on one of \textbf{96} persona system prompts, the exhaustive
+enumeration of
 $2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{problem} \times 2\ \text{duration}
 \times 2\ \text{prior attempts} \times 2\ \text{age}$. A session runs to a target of 49 turns with
 a 200-token cap per response and a 2{,}048-token therapist context; therapist decoding is at

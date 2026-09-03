@@ -4,11 +4,11 @@
 \textbf{Group-relative policy optimisation.} GRPO \citep{shao2024deepseekmath} replaces the learned
 value function of PPO \citep{schulman2017ppo, ouyang2022instructgpt} with a baseline computed
 across a group of sampled completions for the same prompt, and has since become the standard
-optimizer for RL on language models \citep{guo2025deepseekr1}. For dialogue the trade is
+optimiser for RL on language models \citep{guo2025deepseekr1}. For dialogue the trade is
 attractive, since a value function would have to be learned over conversation states, but it
 concentrates the entire learning signal in the \emph{relative} ranking of siblings, so the reward
-that produces the ranking is everything. Our contribution is orthogonal to the loss: we change what
-the reward observes and leave the group-relative machinery untouched.
+that produces the ranking is everything. We change what the reward observes and leave the
+group-relative machinery untouched.
 
 \textbf{Multi-turn RL for dialogue.} That a dialogue turn should be credited for its downstream
 consequences is the founding premise of RL for dialogue \citep{li2016deeprl}, and recent work

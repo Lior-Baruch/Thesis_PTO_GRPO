@@ -17,10 +17,9 @@ under both graders (Table~\ref{tab:endpoint}). On the rewarded rubric the gap is
 ($\dz\,0.905$) under the training oracle and $+0.616$ ($\dz\,1.030$) under the held-out judge.
 The held-out judge reports the \emph{larger} standardised effect, so the gain is not an artifact
 of the optimisation target. Against each arm's own base, look-ahead more than
-doubles what the same optimizer extracts from the same oracle: $+1.554$ vs.\ $+0.686$ under the
+doubles what the same optimiser extracts from the same oracle: $+1.554$ vs.\ $+0.686$ under the
 training oracle ($2.27\times$) and $+1.038$ vs.\ $+0.396$ under the held-out judge ($2.62\times$),
 from bases that are statistically indistinguishable ($2.963$ vs.\ $3.067$; $\dz\,0.115$, n.s.).
-The $\Kf$ policy ends at $4.517$ on a 1--5 scale against $3.753$ for $\Kz$.
 
 The instruments outside the reward move too, which is what separates a genuine gain from a
 target-specific one. MI-SAT ($\dz\,0.531$ / $0.829$ under the two graders), CSQ-8 ($0.482$ /

@@ -23,3 +23,6 @@ build.log
 _preview/
 b[0-9].log
 bib.log
+
+# the Overleaf upload bundle — regenerable with each paper's make_overleaf_zip.py
+overleaf.zip

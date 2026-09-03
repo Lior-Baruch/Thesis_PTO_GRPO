@@ -82,6 +82,16 @@ levels never compared across graders; behaviour claims name their denominator. C
 paper as the SSI-FM *workshop* poster (canonical BibTeX in
 [`../2025_iclr_pto_lookahead/README.md`](../2025_iclr_pto_lookahead/README.md)).
 
+## Overleaf
+
+`overleaf.zip` (gitignored; regenerate with `make_overleaf_zip.py`) holds exactly what Overleaf
+needs and nothing else: `main.tex`, `sections/*.tex`, `figures/*.png`, `refs.bib`, `acl.sty`,
+`acl_natbib.bst`. Upload it as a new project (New Project → Upload Project), set the compiler to
+**pdfLaTeX** and the main document to `main.tex`; Overleaf runs BibTeX itself. The draft is in
+`[review]` mode (line numbers, anonymous byline), which is the right mode for supervisor comments;
+`\usepackage[final]{acl}` in `main.tex` restores the author block and drops the line numbers.
+Figures are already cropped by `sync_figures.py`, so nothing in the zip depends on the repo.
+
 ## Build (MiKTeX on Windows — see ../README.md)
 
 ```bash

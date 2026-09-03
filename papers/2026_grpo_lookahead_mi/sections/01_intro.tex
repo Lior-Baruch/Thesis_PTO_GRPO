@@ -19,7 +19,7 @@ patient simulator and the current policy roll the conversation forward $K$ furth
 judge scores the extended transcript. The lever itself is not new: \citet{baruch2025pto} introduced
 $K$-turn look-ahead for this task inside preference-tree optimisation (PTO), where the look-ahead
 scores select a chosen and a rejected turn for DPO. We move it to Group Relative Policy
-Optimization \citep[GRPO;][]{shao2024deepseekmath}, now the workhorse optimizer for RL on language
+Optimization \citep[GRPO;][]{shao2024deepseekmath}, now the workhorse optimiser for RL on language
 models, whose group-relative advantage consumes \emph{every} scored candidate. Under GRPO the reward
 horizon no longer decides which pair survives; it reweights every gradient in the group. Whether
 the lever survives that move, and what it does to a policy trained on it for ten iterations, is the
@@ -50,7 +50,7 @@ conversations stays flat. The arm-level conclusion survives that; the per-conver
 not, and we mark every claim that depends on it.
 
 Our contributions are: (i) \LAGRPO, the look-ahead reward of \citet{baruch2025pto} moved from
-preference-tree DPO to a group-relative optimizer, with a controlled two-grader measurement of what
+preference-tree DPO to a group-relative optimiser, with a controlled two-grader measurement of what
 it buys in a multi-turn dialogue task and a replicated endpoint; (ii) evidence from a deterministic
 transcript statistic, not a model judge, that the reward horizon determines \emph{which} reward
 hack the policy finds; and (iii) a diagnosis of one-sided grader saturation, a failure mode of

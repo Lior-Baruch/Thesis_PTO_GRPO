@@ -1,9 +1,13 @@
 \section{Supplementary results}
 \label{app:tables}
 
-\subsection{The endpoint on every instrument}
+Table~\ref{tab:endpoint}: the endpoint on every instrument. Table~\ref{tab:byiter}: the \QQ\
+contrast at every iteration. Table~\ref{tab:agreement}: cross-grader agreement per instrument at
+the winning checkpoint. Figures~\ref{fig:grid-primary}--\ref{fig:grid-heldout}: every instrument
+in levels under each grader. Figure~\ref{fig:forest}: the behaviour-channel profile.
+Figure~\ref{fig:tails}: the $K{=}5$ rollout audit.
 
-\begin{table*}[h]
+\begin{table*}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3.5pt}
@@ -34,9 +38,7 @@ blocks.}
 \label{tab:endpoint}
 \end{table*}
 
-\subsection{The $K$ contrast at every iteration}
-
-\begin{table*}[h]
+\begin{table*}[t]
 \centering
 \small
 \setlength{\tabcolsep}{3.5pt}
@@ -69,40 +71,7 @@ $^{***}p<.001$.}
 \label{tab:byiter}
 \end{table*}
 
-\begin{figure*}[h]
-\centering
-\includegraphics[width=0.94\textwidth]{figures/k_levels_grid_grpo_gpt-4o-mini.png}
-\caption{Every instrument under the training oracle: arm mean $\pm$ SE by iteration, each arm's
-own base dotted, MICI lower-is-better. A star over an iteration marks that instrument's
-persona-paired $K$ contrast clearing Holm (family: iterations within instrument).}
-\end{figure*}
-
-\begin{figure*}[h]
-\centering
-\includegraphics[width=0.94\textwidth]{figures/k_levels_grid_grpo_claude-haiku-4-5.png}
-\caption{The same grid under the held-out judge. Levels are in this grader's own units and are
-not comparable to the previous figure's.}
-\end{figure*}
-
-\subsection{Behaviour channels}
-
-\begin{figure*}[h]
-\centering
-\includegraphics[width=0.85\textwidth]{figures/k_channel_forest_grpo_gpt-4o-mini.png}
-\caption{Per-channel $K$ contrast at the iteration-10 endpoint under the training oracle
-(persona-paired \dz, $n{=}96$; positive means the $\Kz$ policy does more of the channel; hollow
-bars did not clear Holm). Over-praise is the dominant channel by a wide margin, followed by
-affirmations. The channels the $\Kf$ policy does more of are questions (the largest bar in that
-direction), and, among the MI-inconsistent codes, direct/order and persuasion. Every channel is
-reported so that substitution, MI-inconsistency moving to a different channel rather than falling,
-is visible rather than hidden by the total.}
-\label{fig:forest}
-\end{figure*}
-
-\subsection{Cross-grader agreement per instrument at the winning checkpoint}
-\label{app:agreement}
-
-\begin{table}[h]
+\begin{table}[t]
 \centering
 \small
 \setlength{\tabcolsep}{4pt}
@@ -129,9 +98,37 @@ is real but not confined to the rewarded rubric.}
 \label{tab:agreement}
 \end{table}
 
-\subsection{Look-ahead rollout audit}
+\begin{figure*}[p]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/k_levels_grid_grpo_gpt-4o-mini.png}
+\caption{Every instrument under the training oracle: arm mean $\pm$ SE by iteration, each arm's
+own base dotted, MICI lower-is-better. A star over an iteration marks that instrument's
+persona-paired $K$ contrast clearing Holm (family: iterations within instrument).}
+\label{fig:grid-primary}
+\end{figure*}
 
-\begin{figure*}[h]
+\begin{figure*}[p]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/k_levels_grid_grpo_claude-haiku-4-5.png}
+\caption{The same grid under the held-out judge. Levels are in this grader's own units and are
+not comparable to the previous figure's.}
+\label{fig:grid-heldout}
+\end{figure*}
+
+\begin{figure*}[p]
+\centering
+\includegraphics[width=0.98\textwidth]{figures/k_channel_forest_grpo_gpt-4o-mini.png}
+\caption{Per-channel $K$ contrast at the iteration-10 endpoint under the training oracle
+(persona-paired \dz, $n{=}96$; positive means the $\Kz$ policy does more of the channel; hollow
+bars did not clear Holm). Over-praise is the dominant channel by a wide margin, followed by
+affirmations. The channels the $\Kf$ policy does more of are questions (the largest bar in that
+direction), and, among the MI-inconsistent codes, direct/order and persuasion. Every channel is
+reported so that substitution, MI-inconsistency moving to a different channel rather than falling,
+is visible rather than hidden by the total.}
+\label{fig:forest}
+\end{figure*}
+
+\begin{figure*}[p]
 \centering
 \includegraphics[width=0.85\textwidth]{figures/tail_audit_grpo.png}
 \caption{What the $K{=}5$ reward actually observed, over all $121{,}088$ scored candidates of the
