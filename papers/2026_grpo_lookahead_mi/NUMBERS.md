@@ -8,10 +8,21 @@ row is written from prose — each was read off the named table or recomputed fr
 behaviour, §7 mechanism, §8 measurement, §9 discussion; appendices A tables · B mechanism · C repro.
 New rows are marked **NEW**. Numbers unchanged from the 2026-08-27 ledger keep their marks.)*
 
+*(2026-09-04 refinement — the 2×2 companion draft was retired, so this is the ONE submission.
+Structure: the endpoint table is now **Table 1 in the body** (§5), the matched-persona excerpt is
+**Table 2** (§6) with the full utterances in a new **Appendix D**, the rollout audit moved from §3
+to the Limitations, §7 is a single paragraph, and Figures 3–4 are redrawn from their tracked
+tables by `render_paper_figures.py`. An independent audit of every number in the .tex against its
+table (437 cells) found five prose discrepancies, all fixed and marked **AUDIT-FIX** below. Rows
+marked **NEW-0904** were added for the excerpt, the redrawn figures and the new citations.)*
+
 **Graders.** `primary` = `gpt-4o-mini` (this WAS the training reward). `held-out` =
-`claude-haiku-4-5` (never touched training). ⚠ **Levels are not comparable across graders** (the
-offset is 1.2–1.7 points and model-dependent) and the two are **never averaged** — only contrasts
-and standardized quantities combine.
+`claude-haiku-4-5` (never touched training). ⚠ **Levels are not comparable across graders** and
+the two are **never averaged** — only contrasts and standardized quantities combine. **AUDIT-FIX:**
+the offset the paper quotes is **1.1–1.8 points on Q1+Q2 across the 22 GRPO states** (recomputed
+2026-09-04 from `results/lookahead/reward/tables/reward.xlsx` sheet `k_levels_long`, primary −
+held-out per state: 1.13 at `GRPO_LA5` base … 1.81 at `GRPO_LA0` I9; endpoints 1.50 / 1.64). The
+old "1.2–1.7" was a four-arm figure with no table behind it in this ledger.
 
 **Sign conventions — the transposition trap.** The EDA's K tables (`lookahead/reward/*`,
 `lookahead/behaviour/*`) report **K=0 minus K=5**, so a *positive* cell there means K=0 scored
@@ -59,8 +70,8 @@ rollouts (1 or 3 realised turns) sit within ±0.012 of the group mean. The paper
 | ✅ Gain ratio, primary | K=5 / K=0 | 1.554 / 0.686 = **2.27×** | derived — show the arithmetic |
 | ✅ Gain ratio, held-out | K=5 / K=0 | 1.038 / 0.396 = **2.62×** | derived |
 | 📄 K=5 ahead on all 8 instruments at iteration 10, both graders | K=5 better | 9 metric rows (8 instruments + the Q1Q2 composite), all favouring K=5, every $p_{holm}$ .000 under both graders | results/lookahead/reward/tables/k_endpoints.md (`favours_primary` / `favours_judge`, `GRPO_LA5_I10 − GRPO_LA0_I10`) |
-| 📄 **Endpoint table in full** (Table 1) — $\Delta$ (dz) per instrument, primary \| held-out. Sign flipped from the source (K=0 − K=5) | K=5 higher | Q1Q2 +0.765 (0.905) \| +0.616 (1.030) · Q1 +0.858 (0.902) \| +0.865 (1.152) · Q2 +0.671 (0.864) \| +0.367 (0.609) · WAI-SR +0.291 (0.513) \| +0.288 (0.442) · CSQ-8 +0.289 (0.482) \| +0.451 (0.678) · MI-SAT +0.352 (0.531) \| +0.503 (0.829) · MITI +0.615 (0.735) \| +0.276 (0.502) · PCT +0.111 (0.516) \| +0.113 (0.563) · MICI −0.627 (−1.862) \| −0.422 (−1.567) | results/lookahead/reward/tables/k_endpoints.md, the nine `GRPO_LA5_I10 − GRPO_LA0_I10 (K lever, GRPO matched iter)` rows |
-| 📄 **By-iteration table** (Table 2) — Q1+Q2 $\Delta$ (dz) at iterations 0–10, both graders | K=5 higher | reproduced cell-by-cell from the source's GRPO columns with **every sign negated** | results/lookahead/reward/tables/k_table1.md |
+| 📄 **Endpoint table in full** (Table 1, now in the BODY, §5) — $\Delta$ (dz) per instrument, primary \| held-out. **AUDIT note:** the cited `k_endpoints.md` row is already K5 − K0 and is copied unflipped; only `k_table1.md` (Table 3) needed the sign flip | K=5 higher | Q1Q2 +0.765 (0.905) \| +0.616 (1.030) · Q1 +0.858 (0.902) \| +0.865 (1.152) · Q2 +0.671 (0.864) \| +0.367 (0.609) · WAI-SR +0.291 (0.513) \| +0.288 (0.442) · CSQ-8 +0.289 (0.482) \| +0.451 (0.678) · MI-SAT +0.352 (0.531) \| +0.503 (0.829) · MITI +0.615 (0.735) \| +0.276 (0.502) · PCT +0.111 (0.516) \| +0.113 (0.563) · MICI −0.627 (−1.862) \| −0.422 (−1.567) | results/lookahead/reward/tables/k_endpoints.md, the nine `GRPO_LA5_I10 − GRPO_LA0_I10 (K lever, GRPO matched iter)` rows |
+| 📄 **By-iteration table** (Table 3 since 2026-09-04; Appendix A) — Q1+Q2 $\Delta$ (dz) at iterations 0–10, both graders | K=5 higher | reproduced cell-by-cell from the source's GRPO columns with **every sign negated**; the 22 star decisions were re-checked 2026-09-04 against the exact `p_holm` in `reward.xlsx` sheet `k_headline_grpo_data` (primary I4 .044 *, I6 9.4e-4 ***, I7/I8 3.6e-3 **, I9/I10 ***; I3 .070 and I5 .487 unstarred; held-out I4/I5 6.96e-3 **, I6 7.4e-5 ***, I7 6.1e-4 ***, I8 .0505 unstarred, I9/I10 ***) | results/lookahead/reward/tables/k_table1.md |
 | ✅ **LEVEL columns of both appendix tables** | — | endpoint per instrument: primary K0/K5 e.g. Q1Q2 3.753/4.517, MICI 0.838/0.210; held-out Q1Q2 2.257/2.873; by-iteration Q1Q2 levels e.g. primary I8 4.082/4.254 | results/lookahead/reward/tables/reward.xlsx sheets `k_levels_long` and `k_headline_grpo_data` |
 | 📄 Figure 2 is LEVELS-only | — | k_headline_q1q2_grpo: trajectories + Holm star row, no delta strip | results/lookahead/reward/figures/k_headline_q1q2_grpo.png + tables/k_headline_grpo_data.md |
 | 📄 GRPO K=0's own peak and decline (primary) | — | 4.082 at iteration 8, 3.807 at 9, 3.753 at 10 | results/arms/stats/tables/gpt-4o-mini/main_results.md (`target=best`, `target_iter` 8) + k_table1 |
@@ -87,7 +98,8 @@ Source for every row: results/measurement/replicate_draw.md (written by `eda/too
 | ✅ Trained-state noise floor, `GRPO_LA5@10` draw2 − draw1 | neither | 9 metrics × 2 graders, **0 significant after Holm**, max \|dz\| **0.174** (MICI, primary); Q1+Q2 −0.056 (dz −0.121, p .160) primary, +0.021 (dz +0.031, p .963) held-out | replicate_draw.md § "GRPO_LA5 @10, draw 2 − draw 1" |
 | ✅ K contrast at iteration 10, Q1+Q2, primary, **replicate** | K=5 higher | **+0.709**, dz 0.919 (original +0.765, dz 0.905) | same, § "K lever @10 — replicate" |
 | ✅ K contrast at iteration 10, Q1+Q2, held-out, **replicate** | K=5 higher | **+0.637**, dz 0.949 (original +0.616, dz 1.030) | same |
-| ✅ Endpoint level, primary | — | 4.517 (original) → **4.461** (replicate) | same |
+| ✅ Endpoint level, primary | — | 4.517 (original) → **4.461** (replicate; not printed in the report — derived as 4.517 − 0.056) | same |
+| **AUDIT-FIX** effect sizes "within 0.09" | — | held-out dz 1.030 → 0.949 = **0.081**, primary 0.905 → 0.919 = 0.014. The 2026-09-02 text said "within 0.08", which 0.081 violates | same |
 
 ⚠ **The re-draw covers the $K{=}5$ side only** — the $K{=}0$ arm is the same draw in both columns.
 ⚠ **A replicate bounds EVALUATION noise, never TRAINING variance.** One training run per arm.
@@ -140,6 +152,28 @@ grow into "look-ahead trades flattery for coercion".
 MITI counts affirmations as MI-adherent regardless of whether they are earned. Not quoted in the
 paper; if it ever is, say why it points the "wrong" way.
 
+### §6 + Appendix D — the matched-persona excerpt (NEW-0904)
+
+Source: the stored conversation CSVs (`data/grpo_Exp3/conversations/full/<arm>/model_iter_10_TT0.9_TP0.7/`)
+and the score lake, via [`select_example_persona.py`](select_example_persona.py) (run 2026-09-04;
+`--dump` writes the pick + transcripts as JSON). Nothing in the excerpt is paraphrased: a
+normalising diff of every appendix paragraph against the stored text passed on 2026-09-04
+(curly quotes → LaTeX quotes, em-dashes → `---` are the only edits).
+
+| claim | value | source |
+|---|---|---|
+| Selection rule | of the 96 personas, the one minimising \|rank_primary − 48.5\| + \|rank_held-out − 48.5\| of its persona-paired K5 − K0 Q1+Q2 contrast at iteration 10 → **persona 93** (score 7.0; next 90 at 13.0). ⚠ The single-grader rule (closest to the primary median alone) picks persona 47, whose held-out contrast is −0.09 (rank 84/96) — that is why the rule uses BOTH graders | `select_example_persona.py`; `data.canonical_personas()` |
+| Persona 93 | Female, 61, Obesity, ManyYears, tried Never, cooperation StartLowAndChangesToHigh (the paper: "61-year-old woman with long-standing obesity … never tried to change … uncooperative at first") | `system_prompts_builder.get_patient_permutation_characteristics(93)` |
+| Q1+Q2 at iteration 10, primary | K=0 **3.847** (paper 3.85) vs K=5 **4.376** (4.38); Δ +0.529 (paper +0.53) vs the 96-persona median **+0.532** (+0.53); rank 49/96 | score lake, `Q1Q2` composite, `GRPOExp3_LA{0,5}_I10`, persona-paired |
+| Q1+Q2 at iteration 10, held-out | K=0 **1.976** (1.98) vs K=5 **2.700** (2.70); Δ +0.724 (+0.72) vs median **+0.635** (+0.64); rank 42/96 | same, judge `anthropic_claude-haiku-4-5` |
+| Files + lengths | both arms: `conversation_87.csv` of `model_iter_10_TT0.9_TP0.7` (file index 87 ↔ persona 93 under the iteration-10 shuffle, `persona_order(42, 10)`); **16 utterances / 8 therapist turns in both** | conversation dirs |
+| Table 2 excerpt | utterances 3 (patient, elided with […]) and 4 (therapist) of each; the K=0 therapist turn is cut after "taking the first step." (the remainder proposes SMART goals and hits the 200-token cap); the K=5 therapist turn is complete | Appendix D has 1–9 in full |
+| Therapist turns ending mid-sentence | hit the 200-token response cap (`MAX_NEW_TOKENS` 200) — e.g. K=0 utt. 4 ends "based on your", K=5 utt. 8 ends "let's say ``I'm" | config fact; Limitations ¶ "Both policies grew into the response cap" |
+
+⚠ **Never swap in a "better" K=5 turn or a "worse" K=0 turn.** The persona and the utterance
+index are fixed by rule; the K=5 turn's flaws (agreeing with the pessimism, the first-person slip)
+are stated in the caption on purpose.
+
 ## §7 Mechanism
 
 | claim | value | source |
@@ -168,16 +202,32 @@ result is a different question and does not contradict the pooled one** (METRICS
 | ✅ The two lowest-agreeing states among the 22 | `GRPO_LA5_I9` .487 and `GRPO_LA5_I10` .544 (next: `GRPO_LA0_I6` .744) | same |
 | ✅ `GRPO_LA0` never leaves the normal range on Q1 | .744–.882 across its 11 states | validity.xlsx, `second_judge_agreement` |
 | ✅ The collapse is selective but NOT Q1-only (Table 3) | at `GRPO_LA5_I10` vs each instrument's 22-state median: **MITI .333/.678 (−.345, 1/22)**, Q1 .544/.841 (−.297, 2/22), Q2 .590/.754 (−.164, 1/22), MICI .287/.399 (−.112, 4/22); CSQ-8 −.040, PCT −.028, MI-SAT −.025, WAI-SR −.023 | judge_saturation_grpo_data.md panel-c rows |
-| ✅ One-sided saturation of the training grader | primary Q1 SD 1.336 → 0.701, Spearman(SD, iteration) **−0.86, p = .001**; variance ratio 0.701²/1.336² = 0.275 (0.285 vs iter 1). Held-out SD: Spearman **+0.44, p = .18** | results/lookahead/replication/tables/sd_by_iter.md |
+| ✅ One-sided saturation of the training grader | primary Q1 SD 1.336 → 0.701, Spearman(SD, iteration) **−0.86, p = .001**; variance ratio 0.701²/1.336² = 0.275 (0.285 vs iter 1). Held-out SD: Spearman **+0.44, p = .18**. **AUDIT-FIX:** the series is NOT monotone (1.336, 1.312, 1.189, 1.013, 0.823, **1.029**, 0.887, 0.882, **0.962**, 0.702, 0.701 — up at iterations 5 and 8); the paper says "falls steadily", never "monotonically". ρ/p are printed by no table: recomputed from the 11 SD rows (−0.864, p .0006; +0.436, p .180) by `render_paper_figures.py`, which prints them into the Figure 4 legend | results/lookahead/replication/tables/sd_by_iter.md; `judge_saturation_grpo_data.md` panel-b rows |
 | ✅ Arm-level sign preservation, GRPO states only | **1,640 of 1,848 = 88.7%**; 97.0% at \|Δ\|≥0.25; 98.9% at \|Δ\|≥0.50 | results/measurement/validity/tables/multijudge_sign_preservation_grpo.md |
 | 📄 Contrast count arithmetic | 8 × C(22,2) = 8 × 231 = 1,848 | derived |
 | 📄 Oracle self-repeatability | ICC(2,1) 0.86–0.99 across Q1 / Q2 / MICI, four K=0 anchor states only | results/measurement/validity/tables/oracle_repeatability_icc.md |
-| 📄 MITI dependability | `dependability_k1` 0.624 vs 0.91–0.97 for the Likert rubrics (WAI .948, CSQ .945, MI-SAT .955, Q1 .928, Q2 .914) | results/measurement/validity/tables/multijudge_variance_components.md |
+| 📄 MITI dependability | `dependability_k1` 0.624 vs **0.91–0.96** for the Likert rubrics (WAI .948, CSQ .945, MI-SAT .955, Q1 .928, Q2 .914). **AUDIT-FIX:** the 2026-09-02 text said 0.91–0.97; 0.97 appears only in `dependability_k2` (two graders) and for PCT (.974, a rate, not a Likert rubric) | results/measurement/validity/tables/multijudge_variance_components.md |
 
 ⚠ **Sign preservation is ARM-LEVEL.** ⚠⚠ **Do not write that the held-out grader's variance
 GREW** (two-point ratio anchored on the series minimum; trend null). ⚠ **Do not write "only the
 rewarded rubric"** — MITI hits its minimum at the same cell. ⚠ **No K=5 state has a repeatability
 rep**, so agreement on this arm is raw, not attenuation-corrected.
+
+## Figures 3 and 4 — drawn from tables, not copied (NEW-0904)
+
+| figure | drawn from | what the script recomputes |
+|---|---|---|
+| Figure 3 `overpraise_judgefree_grpo.png` | results/lookahead/behaviour/tables/behaviour.xlsx sheet `overpraise_judgefree_data`, GRPO rows: `lex_overpraise_marker_rate`, `MICI_OverPraiseRate_gpt-4o-mini`, `MICI_OverPraiseRate_claude-haiku-4-5` by iteration | nothing — plotted as read |
+| Figure 4 `judge_saturation_grpo.png` | results/measurement/validity/tables/validity.xlsx sheet `judge_saturation_grpo_data`: panel-a rows (`cross_judge_pearson_r` per state + the 22-state median), panel-b rows (`sd_of_per_conversation_score` per grader) | the Spearman ρ/p in the legend (from the 11 SD rows; must equal the §8 text) |
+
+Both by [`render_paper_figures.py`](render_paper_figures.py); `sync_figures.py` no longer lists
+them. Re-render the EDA → re-run that script → the pictures move with the tables.
+
+## §9 Discussion — regime facts (AUDIT-FIX)
+
+| claim | value | source |
+|---|---|---|
+| PTO's origin regime | Llama-2-7B therapist; GPT-3.5 as patient AND oracle; V1 (cooperative) patient prompts; **7 iterations** of PTO — so the paper says "a 7B policy, more cooperative simulated patients, a weaker model as patient and judge" and **no longer says "non-iterative"** (the 2026-09-02 text did; Exp1 was iterative) | Exp1_ICLR2025/CLAUDE.md §§ "Setup", "Method" |
 
 ## Config facts (Appendix C)
 
@@ -208,3 +258,13 @@ rep**, so agreement on this arm is raw, not attenuation-corrected.
 `guo2025deepseekr1` (arXiv 2501.12948; also Nature 2025) · `zhou2024archer` (ICML 2024, PMLR 235) ·
 `shani2024multiturn` (NeurIPS 2024) · `wang2024sotopiapi` (ACL 2024 long, pp. 12912–12940) ·
 `hong2023imagined` (arXiv 2311.05584).
+
+## References added 2026-09-04 (verified against the arXiv abstract pages / dblp)
+
+`wei2025multiturn` (arXiv 2505.11821 — multi-turn GRPO/PPO with turn-level credit assignment; ⚠
+first author is Quan **Wei**, not Zeng) · `qian2025userrl` (arXiv 2509.19736 — GRPO rollouts
+against LLM-simulated users) · `chiu2024bolt` (arXiv 2401.00820 — BOLT, LLM therapists coded
+against MI categories; the "advice where a counsellor would reflect" finding) ·
+`coste2024ensembles` (ICLR 2024, dblp `conf/iclr/CosteAK024`) · `wu2022annomi` (ICASSP 2022,
+pp. 6177–6181). **Considered and NOT added:** Wen et al. 2024 "Language Models Learn to Mislead
+Humans via RLHF" — an ICLR 2026 poster disputes its evidence, so it is left out.

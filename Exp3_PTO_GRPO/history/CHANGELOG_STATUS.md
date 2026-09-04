@@ -13,6 +13,27 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-09-04 — ONE submission after all: P1 (GRPO with look-ahead) goes to ARR October; the 2×2 (P2) retired
+
+**The decision.** Lior: "Archive P2, we are going with P1." `papers/2026_pto_grpo_mi/` (*Same
+Lever, Different Optimizer*, the full 2×2 — a complete, building ACL draft, the supervisors'
+2026-08-27 pick) moved to `papers/archive/2026_pto_grpo_mi/` by `git mv`, otherwise untouched; a
+retirement banner sits at the top of its README and its `NUMBERS.md` remains the trap list for
+every four-arm number. This closes the same-cycle dual-submission risk the two live drafts had
+carried since 2026-08-27 (the interaction cells and the K-lever subject were the same numbers).
+Until this day STATUS carried "two live papers"; from here on there is one.
+
+**P1 refined the same day** (`papers/2026_grpo_lookahead_mi/`, still iterations-only, still the
+two GRPO arms as data with PTO cited as origin): the endpoint-per-instrument table moved from the
+appendix into the body, a matched-persona transcript excerpt (K=0 vs K=5 at iteration 10, the
+persona at the median K contrast) added to the body with the longer excerpt in a new appendix, the
+rollout audit moved out of the method section into the results, the two body figures
+(over-praise three-panel, judge saturation) redrawn legibly from their tracked tables by the
+paper's own `render_paper_figures.py`, the "companion work" pointer in the discussion retired with
+P2, related work extended (multi-turn GRPO with simulated users, LLM-therapist behavioural
+assessment, AnnoMI, reward-model ensembles), and every number re-audited against its owning table.
+Details in the paper's README.
+
 ## 2026-08-27 (later) — P1 revived as a SECOND ARR October submission: "GRPO with look-ahead", PTO cited but never data
 
 **Same day, second decision.** Hours after choosing "one submission" (the entry below), Lior asked

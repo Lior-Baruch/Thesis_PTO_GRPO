@@ -3,26 +3,54 @@
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{figures/k_headline_q1q2_grpo.png}
+\includegraphics[width=0.74\textwidth]{figures/k_headline_q1q2_grpo.png}
 \caption{\QQ\ by iteration under each grader: mean $\pm$ SE over the 96 personas, each arm's own
-base as a dotted reference, endpoint means printed at iteration 10. Iteration 0 is each arm's
-independent base draw. A star marks an iteration at which the persona-paired $\Kf$ vs.\ $\Kz$
-contrast clears Holm (per-iteration deltas and effect sizes in Table~\ref{tab:byiter}). The two
-panels' $y$-axes are independent; grader levels are never comparable.}
+base dotted, endpoint means printed at iteration 10 (each arm's independent base draw is
+iteration 0). A star marks an iteration at which the persona-paired $\Kf$ vs.\ $\Kz$ contrast
+clears Holm (Table~\ref{tab:byiter}). The panels' $y$-axes are independent.}
 \label{fig:headline}
 \end{figure*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.5pt}
+\begin{tabular}{lrrrrrrrr}
+\toprule
+& \multicolumn{4}{c}{\primaryjudge\ (training oracle)} & \multicolumn{4}{c}{\heldoutjudge\ (held out)}\\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+Instrument & $\Kz$ & $\Kf$ & $\Delta$ & \dz & $\Kz$ & $\Kf$ & $\Delta$ & \dz\\
+\midrule
+Q1+Q2 (reward)  & $3.753$ & $4.517$ & $+0.765$ & $0.905$ & $2.257$ & $2.873$ & $+0.616$ & $1.030$\\
+\quad Q1        & $3.606$ & $4.465$ & $+0.858$ & $0.902$ & $1.867$ & $2.731$ & $+0.865$ & $1.152$\\
+\quad Q2        & $3.899$ & $4.570$ & $+0.671$ & $0.864$ & $2.648$ & $3.015$ & $+0.367$ & $0.609$\\
+WAI-SR          & $3.438$ & $3.729$ & $+0.291$ & $0.513$ & $2.669$ & $2.957$ & $+0.288$ & $0.442$\\
+CSQ-8           & $2.773$ & $3.062$ & $+0.289$ & $0.482$ & $2.484$ & $2.935$ & $+0.451$ & $0.678$\\
+MI-SAT          & $3.479$ & $3.832$ & $+0.352$ & $0.531$ & $2.825$ & $3.328$ & $+0.503$ & $0.829$\\
+MITI            & $3.922$ & $4.536$ & $+0.615$ & $0.735$ & $2.099$ & $2.375$ & $+0.276$ & $0.502$\\
+PCT             & $0.574$ & $0.685$ & $+0.111$ & $0.516$ & $0.612$ & $0.725$ & $+0.113$ & $0.563$\\
+MICI ($\downarrow$) & $0.838$ & $0.210$ & $-0.627$ & $-1.862$ & $1.050$ & $0.628$ & $-0.422$ & $-1.567$\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Every instrument at the matched iteration-10 endpoint}: each arm's mean over the
+96 personas under each grader, then the persona-paired contrast $\Kf - \Kz$ ($n{=}96$; positive
+favours look-ahead, as does MICI's negative $\Delta$, since it is lower-is-better). \textbf{Every
+row is Holm-significant at $p < .001$} (nine rows per grader). Levels are in each grader's own
+units and are never compared across the two blocks.}
+\label{tab:endpoint}
+\end{table*}
 
 \textbf{The headline.} At the matched iteration-10 endpoint, look-ahead wins on every instrument
 under both graders (Table~\ref{tab:endpoint}). On the rewarded rubric the gap is $+0.765$
 ($\dz\,0.905$) under the training oracle and $+0.616$ ($\dz\,1.030$) under the held-out judge.
 The held-out judge reports the \emph{larger} standardised effect, so the gain is not an artifact
-of the optimisation target. Against each arm's own base, look-ahead more than
-doubles what the same optimiser extracts from the same oracle: $+1.554$ vs.\ $+0.686$ under the
-training oracle ($2.27\times$) and $+1.038$ vs.\ $+0.396$ under the held-out judge ($2.62\times$),
-from bases that are statistically indistinguishable ($2.963$ vs.\ $3.067$; $\dz\,0.115$, n.s.).
+of the optimisation target. Against each arm's own base, look-ahead more than doubles what the same
+optimiser extracts from the same oracle: $+1.554$ vs.\ $+0.686$ under the training oracle
+($2.27\times$) and $+1.038$ vs.\ $+0.396$ under the held-out judge ($2.62\times$), from bases that
+are statistically indistinguishable ($2.963$ vs.\ $3.067$; $\dz\,0.115$, n.s.).
 
-The instruments outside the reward move too, which is what separates a genuine gain from a
-target-specific one. MI-SAT ($\dz\,0.531$ / $0.829$ under the two graders), CSQ-8 ($0.482$ /
+The instruments outside the reward move too, which separates a genuine gain from a
+target-specific one: MI-SAT ($\dz\,0.531$ / $0.829$ under the two graders), CSQ-8 ($0.482$ /
 $0.678$), WAI-SR ($0.513$ / $0.442$), the MITI coder ($0.735$ / $0.502$), and patient change talk
 ($0.516$ / $0.563$) all favour look-ahead under both graders, every row Holm-significant at
 $p<.001$. MI-inconsistent behaviour, the one lower-is-better axis, shows the largest standardised
@@ -33,21 +61,21 @@ the two graders stop agreeing about magnitude.
 iterations the two arms are indistinguishable on \QQ\ under both graders
 (Figure~\ref{fig:headline}). The advantage opens at iteration 4, is Holm-significant at 6 of 10
 iterations under each grader (training oracle: 4, 6--10; held-out: 4--7, 9, 10), and is largest at
-the endpoint. It is not a single-iteration artifact: the gap clears Holm at every iteration from 6
-to 10 under the training oracle. And it is not only $\Kf$ climbing: the $\Kz$ arm peaks at
-iteration 8 ($4.082$) and falls to $3.753$ over its last two iterations, while under the held-out
-judge its best state is iteration~3. \S\ref{sec:behaviour} identifies what that policy was doing
-over exactly those iterations. Early stopping does not rescue it: against the $\Kz$ arm's
-\emph{best} checkpoint under either grader's selection, the $\Kf$ endpoint still leads on \QQ\
-under both graders ($+0.435$ / $+0.256$, $\dz\,0.743$ / $0.384$ against iteration 8; $+0.524$ /
-$+0.236$, $\dz\,0.977$ / $0.386$ against iteration 3; all Holm-significant).
+the endpoint. It is not only $\Kf$ climbing: the $\Kz$ arm peaks at iteration 8 ($4.082$) and
+falls to $3.753$ over its last two iterations, while under the held-out judge its best state is
+iteration~3; \S\ref{sec:behaviour} identifies what that policy was doing over exactly those
+iterations. Early stopping does not rescue it: against the $\Kz$ arm's \emph{best} checkpoint
+under either grader's selection, the $\Kf$ endpoint still leads on \QQ\ under both graders
+(vs.\ iteration 8: $+0.435$ / $+0.256$, $\dz\,0.743$ / $0.384$; vs.\ iteration 3: $+0.524$ /
+$+0.236$, $\dz\,0.977$ / $0.386$; all Holm-significant).
 
 \textbf{The endpoint survives a second draw.} Every state here is scored on one 96-conversation
 sample, so we re-drew the winning one: 96 fresh conversations from the same $\Kf$ iteration-10
-adapter, same personas, same unseeded decoding, scored on all eight instruments by both graders.
-This gives a noise floor at a \emph{trained} checkpoint: across 9 instruments and both graders,
-the two draws of the same policy differ by at most $|\dz|\,0.174$, nothing significant. Substituting the replicate, the $\Kf - \Kz$ gap on \QQ\ is $+0.709$
-($\dz\,0.919$) / $+0.637$ ($\dz\,0.949$) against $+0.765$ / $+0.616$ originally: same sign, same
-significance, effect sizes within $0.08$. The endpoint level moves $4.517 \rightarrow 4.461$, the
-honest precision of a single-draw score. The re-draw covers the $\Kf$ side only, so it tests the
-contested endpoint rather than the whole contrast.
+adapter, personas, and decoding, scored on all eight instruments by both graders. This gives a
+noise floor at a \emph{trained} checkpoint: across 9 instruments and both graders, the two draws
+of the same policy differ by at most $|\dz|\,0.174$, nothing significant.
+Substituting the replicate, the $\Kf - \Kz$ gap on \QQ\ is $+0.709$ ($\dz\,0.919$) / $+0.637$
+($\dz\,0.949$) against $+0.765$ / $+0.616$ originally: same sign, same significance, effect sizes
+within $0.09$; the endpoint level moves $4.517 \rightarrow 4.461$. The re-draw covers the $\Kf$
+side only, so it tests the contested endpoint rather than the whole contrast. (An audit of what
+the $\Kf$ reward observed inside its rollout window is in the Limitations.)

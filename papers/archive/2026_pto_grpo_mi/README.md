@@ -1,5 +1,12 @@
 # Same Lever, Different Optimizer — the four-arm (2×2) paper
 
+> ⚠ **RETIRED 2026-09-04.** Lior chose the GRPO-with-look-ahead paper
+> (`../../2026_grpo_lookahead_mi/`) as the one ARR October 2026 submission ("Archive P2, we are
+> going with P1"). This folder was moved here by `git mv` and is otherwise untouched: a complete,
+> building ACL draft retired by scope decision, not defect. Do not edit it in place; its
+> `NUMBERS.md` remains the trap list for every four-arm number. The text below is as it stood on
+> the day it was retired.
+
 **THE submission — the single live paper** (decided with the supervisors on 2026-08-27; the
 GRPO-only companion P1 was archived the same day, its ICLR 2027 plan dropped).
 

@@ -6,17 +6,16 @@ turn that reads best on its own is often not the turn that leads anywhere good. 
 current policy continue the conversation for $K$ further turns, and the judge scores the
 continuation. The idea comes from preference-tree optimisation for motivational interviewing (MI);
 we move it to Group Relative Policy Optimization (GRPO), where the reward horizon reweights every
-sampled candidate rather than selecting a preference pair. In a controlled pair of runs (a 1B
-therapist, 96 simulated patients, 10 iterations, identical but for the horizon), $K{=}5$ more
-than doubles what GRPO extracts from the same judge: $+1.55$ vs.\ $+0.69$ rubric points over base
-under the training oracle and $+1.04$ vs.\ $+0.40$ under a held-out judge from another model
-family, ahead on all eight evaluation instruments under both graders, and replicated on a fresh
-evaluation draw. It also changes what is learned. Turn-level reward teaches flattery:
-MI-inconsistent behaviour quadruples, and a judge-free lexical marker finds over-praise in $67\%$
-of the $K{=}0$ policy's therapist turns at the endpoint against $6\%$ under $K{=}5$, which asks
-more questions instead. Two caveats travel with the result. Under the held-out judge, $K{=}5$'s
-MI-inconsistency still rises, at under half the $K{=}0$ rate; and at the best checkpoint the
+sampled candidate instead of selecting a preference pair. In a controlled pair of runs, identical
+but for the horizon, $K{=}5$ more than doubles what GRPO extracts from the same judge ($+1.55$
+vs.\ $+0.69$ rubric points over base under the training oracle, $+1.04$ vs.\ $+0.40$ under a
+held-out judge from another model family), leads on all eight evaluation instruments under both
+graders, and replicates on a fresh evaluation draw. It also changes what is learned. Turn-level
+reward teaches flattery: a judge-free lexical marker finds over-praise in $67\%$ of the $K{=}0$
+policy's therapist turns at the endpoint against $6\%$ under $K{=}5$, which asks questions
+instead. Two caveats travel with the result. Under the held-out judge the look-ahead policy's
+MI-inconsistency still rises, at under half the turn-level rate; and at the best checkpoint the
 training oracle saturates one-sidedly, losing three-quarters of its per-conversation variance
-while the held-out judge's spread over the same conversations does not move. The arm-level
-ordering survives both; the per-conversation scores at that checkpoint do not.
+while the held-out judge's does not move. The arm-level ordering survives both; the
+per-conversation scores at that checkpoint do not.
 \end{abstract}

@@ -8,8 +8,8 @@ method schematics under `Exp3_PTO_GRPO/eda/results/schematics/`).
 | Folder | Paper | Domain | Status |
 |---|---|---|---|
 | [`2025_iclr_pto_lookahead/`](2025_iclr_pto_lookahead/) | *Preference Tree Optimization: Enhancing Goal-Oriented Dialogue with Look-Ahead Simulations* | Exp1 | **published — frozen** (ICLR 2025 SSI-FM workshop, poster) |
-| [`2026_pto_grpo_mi/`](2026_pto_grpo_mi/) | *Same Lever, Different Optimizer: The Reward-Horizon $\times$ Optimizer Interaction in Simulated Motivational Interviewing* | Exp3, **all four arms** — the 2$\times$2, both graders, behaviour, ICLR-era regime re-scoring. **Iterations-only axis** (2026-08-27): no GPU/budget analysis; the data-per-iteration asymmetry is a Limitations disclosure | **live — targeting the ARR October 2026 cycle** (submission 2026-10-12, commitment 2026-12-20; feeds NAACL 2027 + COLING 2027, venue chosen in December from reviews) |
-| [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) | *GRPO with Look-Ahead in Motivational Interviewing: Rewarding a Therapist Turn by Where It Leads* (until 2026-09-02: *Scoring the Continuation*) | Exp3, the **two GRPO arms** as data; PTO cited openly as the lever's origin (`baruch2025pto`), its arms nowhere. Iterations-only axis; ACL format | **live — revived 2026-08-27 for the same ARR October 2026 cycle** (per Lior, "the story of GRPO with look-ahead"); **rewritten in full 2026-09-02** (new title, method section, rollout audit, best-checkpoint steelman, channel residue). ⚠ see the dual-submission note in its README |
+| [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) | *GRPO with Look-Ahead in Motivational Interviewing: Rewarding a Therapist Turn by Where It Leads* (until 2026-09-02: *Scoring the Continuation*) | Exp3, the **two GRPO arms** as data; PTO cited openly as the lever's origin (`baruch2025pto`), its arms nowhere. Iterations-only axis; ACL format | **THE submission — the single live paper, ARR October 2026** (submission 2026-10-12, commitment 2026-12-20; feeds NAACL 2027 + COLING 2027, venue chosen in December from reviews). Revived 2026-08-27, **rewritten in full 2026-09-02**, **refined 2026-09-04** (see its README) |
+| [`archive/2026_pto_grpo_mi/`](archive/2026_pto_grpo_mi/) | *Same Lever, Different Optimizer: The Reward-Horizon $\times$ Optimizer Interaction in Simulated Motivational Interviewing* | Exp3, **all four arms** — the 2$\times$2, both graders, behaviour, ICLR-era regime re-scoring. Iterations-only axis | **retired 2026-09-04** — Lior chose the GRPO-with-look-ahead paper as the one ARR October submission ("Archive P2, we are going with P1"). A complete, building draft retired by scope decision, not defect; its `NUMBERS.md` remains the trap list for every four-arm number |
 | [`archive/2026_grpo_lookahead_mi/`](archive/2026_grpo_lookahead_mi/) | *(same title — the ICLR-formatted version)* | Exp3, the two GRPO arms only (rescoped 2026-08-26 to GRPO-only, scores-not-deltas; 9-page ICLR body met) | **retired 2026-08-27** when the ICLR 2027 plan was dropped; **revived the same day** as the live ACL/ARR draft above (content ported, cost section replaced by a Limitations disclosure). Kept as the frozen ICLR-format record |
 | [`archive/2026_lookahead_pto_grpo/`](archive/2026_lookahead_pto_grpo/) | *Same Lever, Different Optimizer: Does $K$-Turn Look-Ahead Help a Small Motivational-Interviewing Therapist?* | Exp3, all four arms (both K, both optimizers, both graders); reads `results/{lookahead,compute}` | **retired 2026-08-25** — drafted while GRPO K=5 was right-censored at iteration 5; that arm has since finished at 10 (all states scored), so its endpoint/retention/iso-compute claims read a stale grid. Its `analysis/out/` remains the EDA's frozen fixture |
 | [`archive/2026_clpsych_mi_reward_hacking/`](archive/2026_clpsych_mi_reward_hacking/) | *Affirmation Without Inquiry: Reward Hacking When an LLM Judge Trains a Motivational Interviewing Therapist* | Exp3, `L0` view | **retired 2026-08-18** — its K=0 reward-hacking result was absorbed by *Same Lever*'s §6 |
@@ -20,30 +20,27 @@ method schematics under `Exp3_PTO_GRPO/eda/results/schematics/`).
 work: do not edit them in place. Their ledgers (`NUMBERS.md`) remain the fastest way to find the
 trap list for a number that appears in the live draft too.
 
-## Scope of the two live drafts — both aimed at ARR October 2026
+## Scope of the live draft — ARR October 2026
 
-Both target the **ARR October 2026 cycle** (submission 2026-10-12, commitment 2026-12-20; the
-single cycle feeds NAACL 2027 + COLING 2027, venue chosen in December from reviews), and both are
-on the **iterations-only axis** (2026-08-27): no GPU-hour / budget / samples analysis anywhere —
-the budget machinery stays in the EDA (`results/compute/cost/`), and each paper discloses its
-cost asymmetry in Limitations only.
-
-[`2026_pto_grpo_mi/`](2026_pto_grpo_mi/) — **the 2×2** (*Same Lever, Different Optimizer*; P2 of
-[`BRAINSTORM_2026-08-25.md`](BRAINSTORM_2026-08-25.md)): the interaction where the optimizer
-ranking flips with the reward horizon, the two-winners head-to-head, the two-optimizer behaviour
-comparison, the ICLR-era regime re-scoring, the full-grid (44-state) measurement section.
+One paper goes to the **ARR October 2026 cycle** (submission 2026-10-12, commitment 2026-12-20;
+the single cycle feeds NAACL 2027 + COLING 2027, venue chosen in December from reviews), on the
+**iterations-only axis** (2026-08-27): no GPU-hour / budget / samples analysis anywhere — the
+budget machinery stays in the EDA (`results/compute/cost/`), and the paper discloses its cost
+asymmetry in Limitations only.
 
 [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) — **the GRPO-with-look-ahead story**
 (*GRPO with Look-Ahead in Motivational Interviewing*, formerly *Scoring the Continuation*; revived
-2026-08-27 per Lior from the archived ICLR draft, rewritten in full 2026-09-02): PTO is
-cited openly as the lever's origin, and the contribution is moving $K$-turn look-ahead to GRPO;
-the two GRPO arms are the only data (`*_grpo` 22-state statistics), with the reward-hack,
-mechanism, and grader-saturation sections in depth.
+2026-08-27 per Lior from the archived ICLR draft, rewritten in full 2026-09-02, refined
+2026-09-04): PTO is cited openly as the lever's origin, and the contribution is moving $K$-turn
+look-ahead to GRPO; the two GRPO arms are the only data (`*_grpo` 22-state statistics), with the
+reward-hack, mechanism, and grader-saturation sections in depth.
 
-⚠ **Dual-submission overlap is the open risk.** The GRPO K-lever numbers appear in both papers —
-as the subject in one, as interaction cells in the other. The claims are disjoint and neither
-cites the other's prose, but two same-cycle ARR submissions from one experiment need the
-supervisors' sign-off against ARR's multiple-submission policy before 2026-10-12.
+The 2×2 (*Same Lever, Different Optimizer*, P2 of
+[`BRAINSTORM_2026-08-25.md`](BRAINSTORM_2026-08-25.md)) was the supervisors' 2026-08-27 pick and
+the live companion draft until **2026-09-04, when Lior chose P1 alone** and P2 was retired to
+[`archive/2026_pto_grpo_mi/`](archive/2026_pto_grpo_mi/). That also closed the same-cycle
+dual-submission risk the two drafts had carried: nothing else from this experiment is in the
+cycle.
 
 Every earlier Exp3 draft was retired to `archive/` because it predates the completed grid
 (GRPO K=5 finished at iteration 10 on 2026-08-25). A new draft starts from a fresh cold read of
@@ -91,7 +88,7 @@ Each paper's `sync_figures.py` copies every figure its `.tex` references from th
 ## Building (MiKTeX on Windows)
 
 Each paper folder vendors its own style files, so a draft builds with no network round-trip —
-both live drafts carry `acl.sty` + `acl_natbib.bst`; the archived ICLR-format P1 carries
+the live draft and the archived 2×2 carry `acl.sty` + `acl_natbib.bst`; the archived ICLR-format P1 carries
 `iclr2027_conference.{sty,bst}` + `natbib.sty` + `fancyhdr.sty` (from the official ICLR 2027
 zip). Four passes, no Perl, **no `latexmk`** (MiKTeX ships no Perl, and the `perl` bundled with Git for Windows is only
 on the PATH inside a Git Bash session — so a build that works in a terminal can still fail in VS

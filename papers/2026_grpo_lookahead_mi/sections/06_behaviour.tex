@@ -2,31 +2,67 @@
 \label{sec:behaviour}
 
 A higher score is not by itself evidence of better therapy. The sharpest result here is what the
-two rewards teach the policy to do.
+two rewards teach the policy to do, and Table~\ref{tab:excerpt} shows it before any statistic does.
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{0pt}
+\begin{tabular}{@{}p{\columnwidth}@{}}
+\toprule
+\textbf{Turn-level reward ($K{=}0$), iteration 10}\\[1pt]
+\textit{Patient:} Look, I don't really have any goals in mind. I'm just here because I was told
+to be. [\ldots] So, what's your plan here?\\[2pt]
+\textit{Therapist:} That's amazing! I'm so glad to hear that you're not motivated by external
+pressures or unrealistic expectations. I totally understand where you're coming from and I'm
+really here to support you in creating a realistic and sustainable plan that feels authentic to
+you. That's such a brave and honest statement, and I'm so proud of you for taking the first step.
+[\ldots]\\
+\midrule
+\textbf{Look-ahead reward ($K{=}5$), iteration 10}\\[1pt]
+\textit{Patient:} Well, I guess you could say I haven't really put in any effort. I just don't
+see the point. [\ldots] It just feels like a lot of talk without any real solutions. Why should I
+even bother?\\[2pt]
+\textit{Therapist:} You're right, it's not like anything you're doing is going to make a
+difference. When you talk about feeling like your pain and health problems are just a waste of
+time, that's exactly how I feel. I've been thinking about this for a long time, and it feels like
+I'm just spinning my wheels. Maybe we need to change our approach and focus on what's important
+to you. What would you like to change? What can you do differently that would make a difference?
+How can you start to see your problems as a challenge instead of something that's just
+frustrating?\\
+\bottomrule
+\end{tabular}
+\caption{The same patient persona at each arm's iteration-10 endpoint, utterances 3--4 of each
+conversation. The persona is the one of the 96 whose $K$ contrast on \QQ\ ranks closest to the
+median under both graders, a typical case, not a best case (scores and utterances 1--9 in
+Appendix~\ref{app:example}). The $K{=}0$ turn answers ``I'm just here because I was told to be''
+with praise, then proposes SMART goals until the 200-token cap. The $K{=}5$ turn is not clean
+either (it agrees with the patient's pessimism and slips into the first person), but it ends in
+three open questions.}
+\label{tab:excerpt}
+\end{table}
 
 \textbf{The $\Kz$ policy learns to over-praise.} Under turn-level reward the per-turn rate of
 MI-inconsistent behaviour rises from $0.211$ at base to $\mathbf{0.838}$ at iteration 10
 ($\dz\,1.717$), fourfold, over a run whose \QQ\ score was simultaneously going up. Almost all of it
-is one channel. At the endpoint the $\Kz$ policy commits $9.9$ coded MI-inconsistent acts per
-session, of which $8.3$ ($84\%$) are \textbf{over-praise}: unearned affirmation of whatever the
+is one channel: at the endpoint the $\Kz$ policy commits $9.9$ coded MI-inconsistent acts per
+session, of which $8.3$ ($84\%$) are \textbf{over-praise}, unearned affirmation of whatever the
 patient just said. Under look-ahead the per-turn rate reads $0.209 \rightarrow 0.210$
 ($\dz\,0.006$), and the endpoint session holds $2.9$ MI-inconsistent acts against the base's
-$2.7$, with the base's composition. Under the training oracle, the $\Kf$ policy's residual
-MI-inconsistency is the base policy's, in kind and in amount. (The held-out judge does not read
-$\Kf$ as flat; see below.) The mechanism is legible: Q1 and Q2 ask a simulated
-patient how satisfied they were and how strong the alliance felt. Praising the patient raises those
-ratings \emph{in the turn where it happens}; the cost, a session that never reaches change talk,
-lands several turns later, precisely the horizon a $K{=}0$ reward cannot see and a $K{=}5$ reward
-can.
+$2.7$, with the base's composition: under the training oracle, the $\Kf$ policy's residual
+MI-inconsistency is the base policy's, in kind and in amount (the held-out judge disagrees; see
+below). The mechanism is legible. Q1 and Q2 ask a simulated patient how satisfied they were and
+how strong the alliance felt; praising the patient raises those ratings \emph{in the turn where it
+happens}, and the cost, a session that never reaches change talk, lands several turns later,
+precisely the horizon a $K{=}0$ reward cannot see and a $K{=}5$ reward can.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.9\textwidth]{figures/overpraise_judgefree_grpo.png}
-\caption{Over-praise by iteration, three ways. \textbf{Left:} the deterministic lexical marker, the
+\includegraphics[width=0.86\textwidth]{figures/overpraise_judgefree_grpo.png}
+\caption{Over-praise by iteration, three ways. \textbf{(a)} The deterministic lexical marker, the
 share of therapist turns containing at least one over-praise keyword, with no model in the loop.
-\textbf{Middle, right:} the oracle-coded rate under each grader (per-turn counts; the three
-$y$-axes are independent). The judge-free panel tells the same story as the rated ones: the
-behavioural claim does not rest on an LLM's judgement of an LLM.}
+\textbf{(b, c)} The oracle-coded rate under each grader (acts per therapist turn; the three
+$y$-axes are independent).}
 \label{fig:overpraise}
 \end{figure*}
 
@@ -37,25 +73,25 @@ and therefore identical under both graders, gives the share of therapist turns c
 one such marker. At iteration 10 that share is $\mathbf{0.671}$ for $\Kz$ against $\mathbf{0.064}$
 for $\Kf$: two turns in three against one in sixteen ($10.5\times$). The oracle-coded over-praise
 rate on the same conversations is $0.698$ against $0.051$, the same story from an unrelated
-instrument (Figure~\ref{fig:overpraise}). The marker is a deliberately brittle regex kept as a
-direction check, and it is the agreement between the two that carries the argument. The
-channel-level contrast is significant late and consistently (over-praise is higher under $\Kz$ at
-iterations 5--10 under the training oracle and 4--10 under the held-out judge), and its onset
-matches the onset of the reward gap in \S\ref{sec:reward}, as a common cause predicts.
+instrument (Figure~\ref{fig:overpraise}). The marker is deliberately brittle; the agreement
+between the two carries the argument. The contrast is significant late and consistently
+(over-praise is higher under $\Kz$ at iterations 5--10 under the training oracle and 4--10 under
+the held-out judge), and its onset matches the onset of the reward gap in \S\ref{sec:reward}, as a
+common cause predicts.
 
 \textbf{What look-ahead does instead.} The $\Kf$ policy asks \textbf{more questions per therapist
-turn}, significantly so at 7 of 10 iterations (mean $\dz\,0.643$; $\dz\,1.30$ on question marks per
-turn at the endpoint), a deterministic text metric and so grader-free, and it affirms less
-($\dz\,0.75$ fewer affirmations per turn). Asking rather than affirming is the direction MI
-training is meant to move a counsellor, and the behavioural counterpart of the MI-SAT and MITI
-gains in Table~\ref{tab:endpoint}. The full channel profile (Appendix Figure~\ref{fig:forest})
-also shows a smaller residue in the other direction: at the endpoint the $\Kf$ policy is coded as
-more directive, with more direct/order ($\dz\,0.60$) and persuasion ($\dz\,0.52$) per turn, both
-MI-inconsistent, and under the held-out judge persuasion per turn is higher under $\Kf$ at six
-iterations. Look-ahead removes the dominant channel; part of what it selects is a therapist who
-pushes. Its sessions are also longer at the endpoint ($31.9$ vs.\ $25.2$ turns, $\dz\,0.43$),
-consistent with the keep-the-session-open pressure of the rollout (\S\ref{sec:method}); turn
-length, which grew about threefold in both arms, does not separate them.
+turn}, a grader-free text metric, significantly so at 7 of 10 iterations (mean $\dz\,0.643$;
+$\dz\,1.30$ on question marks per turn at the endpoint), and it affirms less ($\dz\,0.75$ fewer
+affirmations per turn). Asking rather than affirming is the direction MI training is meant to move
+a counsellor, and the behavioural counterpart of the MI-SAT and MITI gains in
+Table~\ref{tab:endpoint}. The full channel profile (Appendix Figure~\ref{fig:forest}) also shows a
+smaller residue in the other direction: at the endpoint the $\Kf$ policy is coded as more
+directive, with more direct/order ($\dz\,0.60$) and persuasion ($\dz\,0.52$) per turn, both
+MI-inconsistent. Look-ahead removes the dominant channel; part of what it selects is a therapist
+who pushes, the failure mode \citet{chiu2024bolt} report as characteristic of LLM therapists. Its
+sessions are also longer at the endpoint ($31.9$ vs.\ $25.2$ turns, $\dz\,0.43$), consistent with
+the keep-the-session-open pressure of the rollout (Limitations); turn length, which grew about
+threefold in both arms, does not separate them.
 
 \textbf{The honest version of this claim.}
 \label{sec:behaviour-honest}
@@ -64,6 +100,6 @@ it without that qualifier. The held-out judge reads the same $\Kf$ conversations
 $0.326$ to $0.628$ MI-inconsistent acts per turn ($\dz\,0.845$): real, not flat. What survives
 both graders is the \emph{comparison}: held out, $\Kf$'s rise is $0.301$ against $\Kz$'s $0.666$,
 under half the rate, and the endpoint contrast is $\dz\,-1.567$ in $\Kf$'s favour. The defensible
-sentence, and the one this paper uses, is that trajectory-level reward \textbf{slows the drift to
-under half its turn-level rate and removes its dominant channel}, not that it eliminates it.
-\S\ref{sec:measurement} explains why the graders' disagreement concentrates exactly here.
+sentence is that trajectory-level reward \textbf{slows the drift to under half its turn-level rate
+and removes its dominant channel}; \S\ref{sec:measurement} explains why the graders' disagreement
+concentrates exactly here.

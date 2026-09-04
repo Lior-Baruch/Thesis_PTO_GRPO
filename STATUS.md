@@ -6,7 +6,7 @@ things stand*, not *how they got here*. When an entry stops being current, move 
 [Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) rather than
 appending a new dated paragraph beneath the old one.
 
-**Last updated 2026-08-26.**
+**Last updated 2026-09-04.**
 
 ## Run status — ALL FOUR ARMS COMPLETE at iteration 10
 
@@ -355,29 +355,25 @@ vendor dashboard before quoting any figure.**
 `LIMITATIONS.md`, `METRICS_REFERENCE.md`, and the tree-wide censoring purge described above.
 What remains here is the **P1 draft's own open items**, listed in its README.
 
-**2. ✅ DECIDED (2026-08-27, revised later the same day): TWO submissions to ARR October 2026.**
-Submission **2026-10-12**, commitment 2026-12-20; the single cycle feeds **NAACL 2027 +
-COLING 2027** and the venue is chosen in December once reviews exist. Both papers are on the
-**iterations-only comparison axis** (Lior's call — no GPU-hour, budget, or samples analysis; the
-budget machinery stays EDA-only under `results/compute/cost/`; each paper discloses its cost
-asymmetry in Limitations only).
-   **P2** [`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/) (*Same Lever, Different
-Optimizer* — the full 2×2): §5 (cost) + budget appendix deleted; the two-winners head-to-head
-moved into §4 (`ssec:winners`); Limitations discloses matched-iterations ≠ matched-data (GRPO
-302,541 vs PTO 99,622 oracle calls over ten K=0 iterations = 3.04×; 289,983 vs 121,806 = 2.38×
-at K=5; sums over `compute/cost/tables/api_calls.md`). Ethics keeps only the ≈107 GPU-h total.
-   **P1** [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*GRPO with
-Look-Ahead in Motivational Interviewing* — retitled and rewritten in full on 2026-09-02; was
-*Scoring the Continuation*): first archived when the ICLR 2027 plan was
-dropped, then **revived the same day per Lior** as a second ARR submission — ported to ACL
-format, PTO now cited openly as the lever's origin (`baruch2025pto`) with the contribution
-framed as "we moved look-ahead to GRPO", PTO arms still nowhere as data, ICLR §5 (cost/budget)
-replaced by a Limitations disclosure (oracle calls ≈matched 302,541/289,983; ≈393k K=5-only
-look-ahead patient calls; median 1.92× per-step wall-clock) + a ≈79 GPU-h Ethics line. The
+**2. ✅ DECIDED (2026-09-04): ONE submission to ARR October 2026 — P1,
+[`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*GRPO with Look-Ahead in
+Motivational Interviewing*).** Submission **2026-10-12**, commitment 2026-12-20; the single cycle
+feeds **NAACL 2027 + COLING 2027** and the venue is chosen in December once reviews exist. Lior's
+call ("Archive P2, we are going with P1"): the 2×2 paper (P2, *Same Lever, Different Optimizer*,
+the supervisors' 2026-08-27 pick) is **retired to
+[`papers/archive/2026_pto_grpo_mi/`](papers/archive/2026_pto_grpo_mi/)** — a complete, building
+draft archived by scope decision, not defect; its `NUMBERS.md` stays the trap list for every
+four-arm number. The same-cycle dual-submission risk both drafts carried is closed with it.
+   **P1**: the two GRPO arms as data, PTO cited openly as the lever's origin (`baruch2025pto`) and
+never as data; **iterations-only comparison axis** (Lior, 2026-08-27 — no GPU-hour, budget, or
+samples analysis; the budget machinery stays EDA-only under `results/compute/cost/`; the cost
+asymmetry is a Limitations disclosure only: oracle calls ≈matched 302,541/289,983; ≈393k K=5-only
+look-ahead patient calls; median 1.92× per-step wall-clock; a ≈79 GPU-h Ethics line). Rewritten in
+full 2026-09-02 (retitled from *Scoring the Continuation*); **refined 2026-09-04** — the endpoint
+table and a matched-persona transcript excerpt moved into the body, the rollout audit moved out of
+the method section, the two body figures redrawn legibly from their tracked tables, related work
+extended, every number re-audited against its table (details in the paper's README). The
 ICLR-formatted version stays frozen at `papers/archive/2026_grpo_lookahead_mi/`.
-   ⚠ **Open risk: ARR's multiple-submission policy.** The GRPO K-lever numbers appear in both
-papers (subject vs interaction cells). Claims are disjoint and neither cites the other's prose,
-but two same-cycle submissions from one experiment need the supervisors' explicit sign-off.
    Candidate framings history: [`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md);
 the pre-completion four-arm draft remains archived at `papers/archive/2026_lookahead_pto_grpo/`
 with stale ledger keys (`iters1-5` → `iters1-10`).
@@ -433,15 +429,14 @@ RESOLVED" above; verified byte-identical on the complete data).
 
 ## Write-up decisions already made
 
-- **TWO live papers (2026-08-27), both → ARR October 2026** — P2
-  [`papers/2026_pto_grpo_mi/`](papers/2026_pto_grpo_mi/) (the full 2×2) and the revived P1
-  [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (GRPO with look-ahead;
-  PTO cited as origin, never data). Earlier drafts + the ICLR-format P1 are retired under
-  `papers/archive/`; the archived `NUMBERS.md` ledgers remain the trap list for any shared
-  number. ⚠ Same-cycle overlap needs supervisor sign-off (see § Next step 2).
+- **ONE live paper (2026-09-04): P1 → ARR October 2026** —
+  [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (GRPO with look-ahead; PTO
+  cited as origin, never data). The 2×2 (P2) is retired to `papers/archive/2026_pto_grpo_mi/`
+  beside every earlier draft and the ICLR-format P1; the archived `NUMBERS.md` ledgers remain the
+  trap list for any shared number. The same-cycle overlap risk went with it (see § Next step 2).
 - **The PAPER's comparison axis is iterations only (Lior, 2026-08-27)** — no GPU-hour or
-  samples/budget analysis in P2; the data-per-iteration asymmetry (GRPO ≈3.0×/2.4× PTO's oracle
-  calls at K=0/K=5) is a Limitations disclosure, and the budget machinery stays EDA-only. For the
+  samples/budget analysis in P1; the K=5-only look-ahead cost (≈393k patient calls, ≈1.9× per-step
+  wall-clock) is a Limitations disclosure, and the budget machinery stays EDA-only. For the
   THESIS the both-axes point still stands: matched-iteration and matched-budget answer different
   questions (at matched *iteration* GRPO K=5 wins; at any budget PTO can afford, PTO wins), and
   **never state a PTO-vs-GRPO verdict without naming K** — on either axis.

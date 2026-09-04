@@ -2,13 +2,13 @@
 \label{sec:method}
 
 Throughout, a \emph{turn} is one utterance by either speaker, a \emph{prefix} $c$ is a transcript
-ending on a patient turn, and $\pi_n$ is the therapist policy at the start of training
-iteration~$n$. The patient simulator $P$ and the oracle $O$ are fixed LLMs; $O$ returns a scalar
-MI score for a transcript.
+ending on a patient turn, $\oplus$ appends turns to a transcript, and $\pi_n$ is the therapist
+policy at the start of training iteration~$n$. The patient simulator $P$ and the oracle $O$ are
+fixed LLMs; $O$ returns a scalar MI score for a transcript.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.86\columnwidth]{figures/method_grpo_group.png}
+\includegraphics[width=0.84\columnwidth]{figures/method_grpo_group.png}
 \caption{One GRPO group under look-ahead. The policy samples $G{=}8$ completions of a prompt; each
 is rolled forward $K$ turns by the patient simulator and the current policy; the oracle scores the
 extended transcript; the scores are standardised within the group and every completion carries a
@@ -17,48 +17,33 @@ gradient. $K{=}0$ removes the rollout and recovers standard GRPO.}
 \end{figure}
 
 \textbf{The iterative loop.} Training is iterative self-play. At iteration $n$, $\pi_n$ holds 96
-conversations with $P$, one per patient persona. Each conversation is sliced after every patient
-turn whose prefix has at least MCL utterances (MCL${=}12$ here) to give a set of training prompts.
-GRPO updates $\pi_n$ on those prompts for two epochs, the adapter is saved as $\pi_{n+1}$, and the
-loop repeats with fresh conversations. The conversations generated at the start of iteration $n$
-double as the evaluation set of $\pi_n$; a generate-only pass after the last update evaluates the
-final policy, so ten iterations yield eleven evaluated model states per run.
+conversations with $P$, one per patient persona; each is sliced after every patient turn whose
+prefix has at least MCL utterances (MCL${=}12$ here) to give the training prompts. GRPO updates
+$\pi_n$ on those prompts for two epochs, the adapter is saved as $\pi_{n+1}$, and the loop repeats
+with fresh conversations. The conversations generated at the start of iteration $n$ double as the
+evaluation set of $\pi_n$; a generate-only pass after the last update evaluates the final policy,
+so ten iterations yield eleven evaluated model states per run.
 
 \textbf{The group.} For each prompt $c$, GRPO samples $G{=}8$ completions $t_1,\dots,t_G$ from the
 current policy, scores each with a reward $r_g$, and forms the group-relative advantage
 $A_g = (r_g - \operatorname{mean}_g r)/\operatorname{std}_g r$. The update is the PPO-clipped policy
-gradient on $A_g$ with a KL penalty toward the iteration-start policy. Every completion contributes
+gradient on $A_g$ with a KL penalty toward the iteration-start policy; every completion contributes
 a gradient, weighted by how it ranks against its seven siblings.
 
-\textbf{The look-ahead reward.} The only thing we change is the transcript the oracle scores when
-computing $r_g$ (Figure~\ref{fig:schematic}):
+\textbf{The look-ahead reward.} The only thing we change is the transcript the oracle scores
+(Figure~\ref{fig:schematic}). Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$
+replies, then $\pi_n$, then $P$, and so on for $K$ turns, stopping early if the patient closes the
+session; $\tau_0(x)$ is empty. Then
 \[
-r_g =
-\begin{cases}
-O(c + t_g) & K = 0\\[2pt]
-O\big(c + t_g + \underbrace{P + \pi_n + \cdots}_{K\ \text{turns}}\big) & K > 0.
-\end{cases}
+r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \]
-At $K{=}5$ the patient replies to the candidate, the current policy replies to that, and so on for
-five further turns; the oracle scores the whole extended transcript, and that score is the
-candidate's reward. Because the rollout uses the current policy, a candidate is credited for where
-it leads under the therapist that will actually follow it. The loss, the advantage, the KL penalty,
-the prompts, and the number of gradient steps are identical across $K$; the horizon changes only
-the evidence on which a candidate is ranked against its siblings. Where PTO used the look-ahead
-scores to pick one chosen and one rejected turn per branch point, here all eight scores enter the
-update.
-
-\textbf{What the lever costs.} Each $K{=}5$ reward adds three patient-simulator calls and two
-policy generations to the single oracle call both arms share, so oracle calls are matched across
-$K$ by construction while the look-ahead run makes about $393$k extra patient calls and its
-optimiser steps take a median $1.92\times$ as long (Limitations). All comparisons are at matched
-iteration count, not matched cost.
-
-\textbf{What the rollout actually observed.} A simulated session can end inside the look-ahead
-window, most often because the patient closes the conversation. Over every $K{=}5$ candidate of
-the run, $82\%$ of rollouts reached the full five turns (mean realised length $4.4$); the
-early-ending share ranged from $12\%$ at iteration 10 to $30\%$ at iteration 6, and in $16\%$ of
-candidates the patient closed. Early-ending candidates scored at or below their group mean (by up
-to $0.09$ points, depending on how the rollout ended) and were the group's best less often than
-chance ($0.10$ vs.\ $0.125$). The look-ahead reward thus carries a mild, built-in pressure to keep
-the session open (Appendix Figure~\ref{fig:tails}).
+At $K{=}5$ the oracle scores the candidate together with the five turns that followed it under the
+current policy, so a candidate is credited for where it leads under the therapist that will
+actually follow it. The loss, the advantage, the KL penalty, the prompts, and the number of gradient
+steps are identical across $K$; the horizon changes only the evidence on which a candidate is ranked
+against its siblings. Where PTO used the look-ahead scores to pick one chosen and one rejected turn
+per branch point, all eight scores enter the update here. The lever is not free: each $K{=}5$
+reward adds three patient-simulator calls and two policy generations to the single oracle call
+both arms share, so oracle calls are matched across $K$ by construction while the look-ahead run
+makes about $393$k extra patient calls and its optimiser steps take a median $1.92\times$ as long
+(Limitations). All comparisons are at matched iteration count, not matched cost.

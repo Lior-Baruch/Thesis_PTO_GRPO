@@ -33,11 +33,22 @@ says the effect is monotone in $K$, that 5 is optimal, or that a shorter horizon
 most of the benefit. An intermediate $K$ is the most valuable single follow-up.
 
 \paragraph{The look-ahead reward is also a reward for continuing.}
-A rollout that ends inside the window gives the oracle a shorter transcript, and such candidates
-were scored slightly below their group mean (\S\ref{sec:method}). The lever therefore carries a
-mild pressure to keep the session open that a turn-level reward does not, and the $\Kf$ policy's
-longer endpoint sessions are consistent with it. We cannot separate this from the horizon effect
-proper with two arms.
+A simulated session can end inside the look-ahead window, most often because the patient closes
+it, and such a candidate gives the oracle a shorter transcript. Over all $121{,}088$ scored $\Kf$
+candidates, $82\%$ of rollouts ran the full five turns (the early-ending share ranged from $12\%$
+at iteration 10 to $30\%$ at iteration 6, and in $16\%$ of candidates the patient closed);
+early-ending candidates scored at or below their group mean, by up to $0.09$ points depending on
+how the rollout ended, and were the group's best less often than chance ($0.10$ vs.\ $0.125$;
+Appendix Figure~\ref{fig:tails}). The lever was therefore applied as specified in the large
+majority of cases, but it carries a mild pressure to keep the session open that a turn-level
+reward does not, and the $\Kf$ policy's longer endpoint sessions (\S\ref{sec:behaviour}) are
+consistent with it. We cannot separate this from the horizon effect proper with two arms.
+
+\paragraph{Both policies grew into the response cap.}
+Therapist responses are capped at 200 tokens, and mean turn length roughly tripled over training in
+both arms, so many endpoint turns end mid-sentence (Appendix~\ref{app:example}). The cap is
+identical across arms and the truncated turn is what the patient simulator and both graders saw,
+so it does not bias the contrast, but it is part of what every score in this paper measures.
 
 \paragraph{Every number is in-sample with respect to the patient distribution.}
 The 96 personas are the exhaustive enumeration of the persona grid, and the self-training loop uses

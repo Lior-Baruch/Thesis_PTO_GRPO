@@ -18,11 +18,11 @@ items in total, matching \citet{baruch2025pto}.
 \citep{moyers2016miti}, patient change talk (PCT), and MI-inconsistent behaviour (MICI, a count of
 coded MI-inconsistent acts; lower is better). \QQ\ is thus both the optimisation target and a
 reported outcome; \S\ref{sec:measurement} and the Limitations treat that circularity explicitly,
-and it is why a held-out grader is central rather than supplementary.
+and it is why a held-out grader is central here.
 
-\textbf{The two arms.} The runs are a controlled pair, and this is checkable rather than asserted:
-their tracked run configurations differ in exactly two substantive fields, the look-ahead depth
-and its batching mirror (Appendix~\ref{app:repro}). Everything else is identical: $G{=}8$, KL
+\textbf{The two arms.} The runs are a controlled pair, checkable rather than asserted: their
+tracked run configurations differ in exactly two fields, the look-ahead depth and its batching
+size (Appendix~\ref{app:repro}). Everything else is identical: $G{=}8$, KL
 $\beta{=}0.01$, sampling temperature 1.2, batch $64 \times 2$ accumulation, learning rate, seed,
 MCL${=}12$, 96 conversations and 2 epochs per iteration, 10 iterations, oracle, and persona set.
 
@@ -32,8 +32,7 @@ judge} (\heldoutjudge), a different model family that never played the patient a
 training. All contrasts are \textbf{persona-paired} (personas are reshuffled every iteration, so
 pairing is on the recovered persona identity), with Wilcoxon signed-rank tests, Cohen's \dz,
 2{,}000-resample percentile bootstrap intervals at a fixed seed, and Holm correction within each
-family of tests. Two rules hold throughout. Grader \emph{levels} are not comparable (the held-out
-judge is harsher by 1.2--1.7 points, model-dependently), so only contrasts cross graders and the
-two are never averaged: an optimisation target and a held-out test are not two raters. And every
-behavioural claim names its denominator, because the arms differ in both turn count and turn
-length.
+family of tests. Grader \emph{levels} are not comparable (on \QQ\ the held-out judge is harsher by
+1.1--1.8 points, varying across the 22 states), so only contrasts cross graders and the two are
+never averaged: an optimisation target and a held-out test are not two raters. Every behavioural
+claim names its denominator, because the arms differ in both turn count and turn length.

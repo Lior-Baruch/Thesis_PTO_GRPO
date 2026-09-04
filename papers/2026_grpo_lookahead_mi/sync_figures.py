@@ -11,9 +11,14 @@ by ``Exp3_PTO_GRPO/eda/tools/render_results.py``, or at a hand-authored method s
 
 **Figure scope policy.** This is the GRPO-ONLY paper — its subjects are the two GRPO arms, so
 every results figure is a ``*_grpo`` artifact (recomputed/cropped to the 22 GRPO states); the
-four-arm artifacts belong to the companion 2x2 paper (papers/2026_pto_grpo_mi). Figures read
-SCORES (levels incl. each arm's base), not K5-K0 deltas. The comparison axis is ITERATIONS ONLY
-(decided 2026-08-27): no compute/budget or API-call figures.
+four-arm artifacts belonged to the 2x2 draft, retired 2026-09-04 to papers/archive/2026_pto_grpo_mi.
+Figures read SCORES (levels incl. each arm's base), not K5-K0 deltas. The comparison axis is
+ITERATIONS ONLY (decided 2026-08-27): no compute/budget or API-call figures.
+
+**Two body figures are NOT copied by this script (2026-09-04).** ``overpraise_judgefree_grpo.png``
+and ``judge_saturation_grpo.png`` are drawn by ``render_paper_figures.py`` from the tracked TABLES
+behind the EDA renders (the renders themselves are notebook-proportioned and illegible at ACL
+width). Re-run that script after a render pass, then this one.
 
 **Crops (added 2026-09-02).** The EDA renders carry a suptitle naming the family and grader
 ("[EVAL] Judge saturation, GRPO arms only — …", "GRPO only — every instrument in LEVELS …") and
@@ -48,10 +53,8 @@ FIGURES: list[tuple[Path, str]] = [
     (SCHEMATICS / "grpo_group_rollout.png", "method_grpo_group.png"),
     # --- sec:reward — the two arms' Q1+Q2 levels by iteration, one panel per grader --------------
     (REWARD / "k_headline_q1q2_grpo.png", "k_headline_q1q2_grpo.png"),
-    # --- sec:behaviour — judge-free lexical marker beside both graders' rated rates --------------
-    (BEHAVIOUR / "overpraise_judgefree_grpo.png", "overpraise_judgefree_grpo.png"),
-    # --- sec:measurement -------------------------------------------------------------------------
-    (MEASUREMENT / "judge_saturation_grpo.png", "judge_saturation_grpo.png"),
+    # sec:behaviour (overpraise_judgefree_grpo) and sec:measurement (judge_saturation_grpo) are
+    # drawn by render_paper_figures.py from the tracked tables -- see the module docstring.
     # --- appendix --------------------------------------------------------------------------------
     (REWARD / "k_levels_grid_grpo_gpt-4o-mini.png", "k_levels_grid_grpo_gpt-4o-mini.png"),
     (REWARD / "k_levels_grid_grpo_claude-haiku-4-5.png", "k_levels_grid_grpo_claude-haiku-4-5.png"),
@@ -63,10 +66,11 @@ FIGURES: list[tuple[Path, str]] = [
 # Each band removed is a title/footer line, checked by eye against the source render; the values
 # sit in the whitespace between that line and the first plot element it would otherwise touch.
 CROP: dict[str, tuple[float, float, float, float]] = {
-    "method_grpo_group.png": (0.0, 0.0, 1.0, 0.86),            # two footer lines (PTO cross-ref)
+    # footer (two lines cross-referencing the PTO figure) + the right-margin "no trunk: …" note,
+    # which contrasts GRPO with PTO's trunk and means nothing to a reader of this paper. The
+    # rightmost boxes end at x ≈ 0.80 of the width; the note starts at ≈ 0.84.
+    "method_grpo_group.png": (0.0, 0.0, 0.825, 0.86),
     "k_headline_q1q2_grpo.png": (0.0, 0.045, 1.0, 1.0),        # grey per-grader-axes subtitle
-    "overpraise_judgefree_grpo.png": (0.0, 0.05, 1.0, 1.0),    # "GRPO arms only …" suptitle
-    "judge_saturation_grpo.png": (0.0, 0.045, 1.0, 1.0),       # "[EVAL] Judge saturation …"
     "k_levels_grid_grpo_gpt-4o-mini.png": (0.0, 0.035, 1.0, 1.0),
     "k_levels_grid_grpo_claude-haiku-4-5.png": (0.0, 0.035, 1.0, 1.0),
     "tail_audit_grpo.png": (0.0, 0.07, 1.0, 1.0),              # "Look-ahead tails (K=5 arms) …"
