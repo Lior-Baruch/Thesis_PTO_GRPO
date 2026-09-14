@@ -141,6 +141,7 @@ from core.policy import (  # noqa: E402
     list_iteration_checkpoints,
     patch_generate,
     prompt_token_ids,
+    set_prefill_chunk_size,
     therapist_stop_token_ids,
     tokenizer_adds_bos,
     validate_iteration_checkpoint,
@@ -1587,6 +1588,7 @@ def run_one_iteration(
     """
     iter_start = time.time()
     iter_dir = paths.ensure_iteration_dir(iteration)
+    set_prefill_chunk_size(gen.prefill_chunk_size)   # every generate() this iteration, TRL's included
 
     print("\n" + "=" * 78)
     print(
@@ -1966,6 +1968,7 @@ def run_final_eval(
             ``iteration_N/`` directory the EDA then reads as a real, zero-cost iteration.
     """
     label = int(cfg.num_iterations)
+    set_prefill_chunk_size(gen.prefill_chunk_size)
     completed = list_iteration_checkpoints(paths.run_dir)
     last_done = completed[-1][0] if completed else 0
     if last_done != label:

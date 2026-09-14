@@ -209,6 +209,7 @@ from core.policy import (
     list_hf_checkpoints,
     list_iteration_checkpoints,
     patch_generate,
+    set_prefill_chunk_size,
     tokenizer_adds_bos,
 )
 from core.recorder import (
@@ -2834,6 +2835,7 @@ def run_one_iteration(
     """
     iter_started = time.time()
     _check_prompt_budgets(gen_cfg)      # fail before any generation, not at the build
+    set_prefill_chunk_size(gen_cfg.prefill_chunk_size)   # every generate() this iteration
     binding = patient_binding if patient_binding is not None else la_cfg.patient_binding
     la_state = lookahead_state if lookahead_state is not None else LookaheadState()
     sample_state = BranchSampleState()
@@ -3270,6 +3272,7 @@ def run_final_eval(
         ``iteration_metadata.json`` -- the only per-iteration record there is for the post-loop
         pass -- best-effort: a failed merge is a warning, never a failed pass.
     """
+    set_prefill_chunk_size(gen_cfg.prefill_chunk_size)
     binding = patient_binding
     if binding is None and la_cfg is not None:
         binding = la_cfg.patient_binding

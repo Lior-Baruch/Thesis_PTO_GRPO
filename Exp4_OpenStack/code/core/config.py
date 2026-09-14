@@ -713,6 +713,16 @@ class GenConfig:
         patient_concurrency: Bound on in-flight patient calls, shared by the conversation loop and
             the look-ahead rollout (one local server, one honest bound).
         stop_strings: See :data:`DEFAULT_STOP_STRINGS`.
+        prefill_chunk_size: Tokens per prefill chunk for EVERY therapist ``generate()`` (TRL's
+            128-completion rollout, the conversation pass, the look-ahead, PTO's branch sampling)
+            -- ``core.policy.patch_generate`` injects it. 0 disables. Memory-only, never in an
+            arm name: chunking the prefill along the sequence divides the activation-shaped
+            transients by ``prompt_len / chunk`` and leaves the KV cache, the logits and the
+            sampled tokens unchanged (``smoke.py prefill`` pins the equality). Why it exists:
+            the first Colab rehearsal OOM'd inside TRL's prefill of ``128 x <=2048`` tokens --
+            peft keeps the LoRA adapters in fp32 and ``generate`` runs outside autocast, so one
+            MLP projection's LoRA intermediate is ``128 x 2048 x 8192 x 4 B = 8 GiB``, several
+            live at once, beside the 42 GiB server. See ``core.policy.DEFAULT_PREFILL_CHUNK_SIZE``.
 
     Notes:
         There is no ``seed`` here: the seed lives once, on the training config, and is passed down.
@@ -730,6 +740,7 @@ class GenConfig:
     patient_concurrency: int = 96
     max_retries_without_progress: int = 3
     stop_strings: Tuple[str, ...] = DEFAULT_STOP_STRINGS
+    prefill_chunk_size: int = 512
     verbose: bool = True
     verbose_detailed: bool = False
 
@@ -1251,6 +1262,7 @@ def _gen_from_globals(cell: _Cell1, base_model_id: str) -> GenConfig:
         max_retries_without_progress=cell.int_("MAX_GEN_RETRIES_WITHOUT_PROGRESS",
                                                d.max_retries_without_progress),
         stop_strings=resolve_stop_strings(cell.raw("STOP_STRINGS", "auto"), base_model_id),
+        prefill_chunk_size=cell.int_("PREFILL_CHUNK_SIZE", d.prefill_chunk_size),
         verbose=cell.bool_("GEN_VERBOSE", d.verbose),
         verbose_detailed=cell.bool_("GEN_VERBOSE_DETAILED", d.verbose_detailed),
     )

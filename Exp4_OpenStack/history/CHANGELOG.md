@@ -49,6 +49,41 @@ cu129 rather than moving Colab to CUDA 13. The warm-runtime check now compares t
 the probe imports torch AND vllm and prints `torch.version.cuda`. All four wheels verified to
 exist for cp313 / x86_64 before the change shipped.
 
+**The rehearsal's first finding, the same day: TRL's first prefill OOM'd beside the server.**
+With the cu129 stack the session went further than any before it — the E4B server came up
+holding 42 GiB, the inline `oracle_sanity` gate passed, the QUICK_TEST generate pass produced
+16 conversations in 107 s at 5.43 GiB reserved, 82 training prompts were extracted, the BOS rule
+held — and TRL's FIRST `generate()` of 128 completions died in the prefill:
+`Tried to allocate 7.98 GiB … this process has 34.44 GiB in use, 25.90 allocated, 8.04 reserved
+but unallocated`. That 7.98 GiB is `128 × 2,048 × 8,192 × 4 B`: the fp32 LoRA intermediate of one
+MLP projection (the notebooks LoRA `up/down/gate_proj` too; peft keeps adapters in fp32 via
+`autocast_adapter_dtype`, and `generate` runs outside autocast, so `lora_B(lora_A(x))`
+materialises the whole thing in fp32), with the bf16 base projection (4.3 GiB) and its siblings
+live beside it. The VRAM budget had counted the generate phase as its KV cache (8.8 GiB) and
+never the prefill activations — the arithmetic was labelled "a PLAN, unmeasured", and the
+rehearsal exists to measure it. Fix, memory-only: **chunked prefill**, transformers'
+`GenerationConfig.prefill_chunk_size`, which splits the prefill along the sequence and divides
+every activation-shaped transient by `prompt_len / chunk` while the KV cache, the logits and the
+sampled tokens are unchanged. Wired as `PREFILL_CHUNK_SIZE = 512` in both cell 1s →
+`GenConfig.prefill_chunk_size` (so `run_metadata.json` records it) →
+`core.policy.set_prefill_chunk_size` at every `run_one_iteration` / `run_final_eval` entry →
+`patch_generate` injects it into EVERY `generate` that passes through it (set on TRL's
+`generation_config` object; as a kwarg on the conversation pass's loose-kwarg shape; skipped
+under `use_cache=False`). New `tools/smoke.py prefill` (8 checks, local GPU): the adapters are
+fp32; the peak of an 8-row left-padded prefill drops with the chunk at the production dtypes;
+in fp32 the next-token logits after a chunked prefill match the whole-prompt prefill's to
+`3e-5` on a logit scale of 20 and the 24-token greedy continuation is identical, for chunk 512
+and for chunk 96 (which does not divide the prompt); both injection shapes are observed at the
+real `generate`; `set_prefill_chunk_size(0)` removes it. Also `PYTORCH_CUDA_ALLOC_CONF=
+expandable_segments:True` in both import cells (above the trl import, which pulls torch): 8 GiB
+of the failed process was reserved-but-unallocated. Envelope: the GRPO generate phase gains a
+`6.0 GiB` prefill-transient term at chunk 512 (`2.5 + 8.8 + 6.0 + 4.4 + 4.0 = 25.7 GiB`;
+`smoke.TRAINER_ENVELOPE_GIB` + `_GRPO_ENVELOPE_DOCUMENTED_GIB` updated); the 40 GB fallback no
+longer fits at the documented shape and `smoke.py vram` now WARNS there with the four-hatch
+arithmetic (≈ 9 GiB recoverable) instead of failing. `PREFILL_CHUNK_SIZE` 512→256 joins the
+escape hatches. Nothing trained yet, so still no data; the rehearsal resumes from its
+16 on-disk conversations.
+
 **Should-fixes applied**
 - `roles.DEFAULT_SERVE_EXTRA_ARGS` + `default_serve_extra_args`, composed into every spec by
   `plan_servers` (caller flags appended; a caller spelling the same flag wins): both Gemmas get

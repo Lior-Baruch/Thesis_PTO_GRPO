@@ -418,6 +418,71 @@ def sync_pad_token(model, tokenizer) -> None:
         gen_cfg.bos_token_id = tokenizer.bos_token_id
 
 
+#: Prefill chunk (tokens) injected into EVERY ``generate()`` that goes through
+#: :func:`patch_generate` -- TRL's rollout, the conversation pass, the look-ahead, PTO's branch
+#: sampling. MEASURED on the first Colab rehearsal (2026-09-14, A100 80 GB, the E4B server
+#: holding 42 GiB): TRL's one ``generate()`` of 128 completions x <=2048-token prompts OOM'd in
+#: the prefill -- "Tried to allocate 7.98 GiB" with 34.4 GiB already in use. That allocation is
+#: the fp32 LoRA intermediate of ONE MLP projection: ``128 x 2048 x 8192 x 4 B = 8 GiB``. peft
+#: keeps the adapters in fp32 (``autocast_adapter_dtype``) and ``generate`` runs outside
+#: autocast, so ``lora_B(lora_A(x))`` on up/gate/down_proj materialises the whole intermediate
+#: in fp32; the bf16 base projection is another 4.3 GiB, and several are live at once. The KV
+#: cache the VRAM budget counted (8.8 GiB) is the SMALLER term. Chunking the prefill along the
+#: sequence (transformers' ``GenerationConfig.prefill_chunk_size``) divides every
+#: activation-shaped transient by ``prompt_len / chunk`` while the KV cache, the next-token
+#: logits and the sampled tokens are unchanged (``tools/smoke.py prefill`` pins the equality on
+#: the local card). 512 -> the 8 GiB transient becomes 2 GiB. Memory-only: never in an arm name,
+#: applied from iteration 1 of every arm, recorded through ``GenConfig.prefill_chunk_size`` in
+#: ``run_metadata.json``; the trainers call :func:`set_prefill_chunk_size` from it at every
+#: iteration entry. ``EXP4_PREFILL_CHUNK_SIZE`` overrides the default (0 disables).
+DEFAULT_PREFILL_CHUNK_SIZE = 512
+_prefill_chunk_size: Optional[int] = (
+    int(os.environ["EXP4_PREFILL_CHUNK_SIZE"]) or None
+    if os.environ.get("EXP4_PREFILL_CHUNK_SIZE", "").strip() else DEFAULT_PREFILL_CHUNK_SIZE
+)
+
+
+def set_prefill_chunk_size(chunk: Optional[int]) -> Optional[int]:
+    """Set the prefill chunk every patched ``generate()`` uses from now on; ``0``/``None`` disables.
+
+    Read at CALL time by the patched ``generate``, so it applies to models patched earlier too.
+    Returns the value in force.
+    """
+    global _prefill_chunk_size
+    new = int(chunk) if chunk else None
+    if new is not None and new <= 0:
+        raise ValueError(f"prefill_chunk_size must be positive or 0/None to disable, got {chunk}")
+    if new != _prefill_chunk_size:
+        print(f"  prefill chunk: {_prefill_chunk_size} -> {new} tokens"
+              + ("" if new else " (chunked prefill OFF)"))
+    _prefill_chunk_size = new
+    return _prefill_chunk_size
+
+
+def get_prefill_chunk_size() -> Optional[int]:
+    """The prefill chunk in force (``None`` = whole-prompt prefill)."""
+    return _prefill_chunk_size
+
+
+def _inject_prefill_chunk(kwargs: dict) -> None:
+    """Put the prefill chunk in force onto this ``generate`` call, whichever way it was configured.
+
+    With an explicit ``generation_config`` (TRL's path) the field is set on that object -- a
+    loose kwarg beside a config makes transformers warn; without one it rides as a kwarg that
+    ``generate`` merges into the model's config. A caller who already chose (either way) wins;
+    ``use_cache=False`` skips it, because chunked prefill needs the cache.
+    """
+    chunk = _prefill_chunk_size
+    if not chunk or "prefill_chunk_size" in kwargs or kwargs.get("use_cache") is False:
+        return
+    gen_cfg = kwargs.get("generation_config")
+    if gen_cfg is not None:
+        if getattr(gen_cfg, "prefill_chunk_size", None) is None:
+            gen_cfg.prefill_chunk_size = chunk
+    else:
+        kwargs["prefill_chunk_size"] = chunk
+
+
 def patch_generate(model, tokenizer) -> None:
     """Bind *tokenizer* into ``model.generate`` so ``stop_strings`` works. Idempotent.
 
@@ -470,11 +535,13 @@ def patch_generate(model, tokenizer) -> None:
             gen_cfg = kwargs.get("generation_config")
             if gen_cfg is not None:
                 setattr(gen_cfg, "disable_compile", kwargs.pop("disable_compile"))
+        _inject_prefill_chunk(kwargs)          # see DEFAULT_PREFILL_CHUNK_SIZE
         return self._original_generate(*args, **kwargs)
 
     model.generate = types.MethodType(generate_with_tokenizer, model)
     model._generate_patched = True
-    print(f"  OK patched generate() for {type(model).__name__}")
+    print(f"  OK patched generate() for {type(model).__name__} "
+          f"(prefill chunk {_prefill_chunk_size or 'off'})")
 
 
 def get_adapter_param_count(model) -> Dict[str, float]:

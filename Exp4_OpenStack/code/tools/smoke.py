@@ -21,6 +21,7 @@ It is also the Phase 0-4 gate table in CLAUDE.md, made executable::
     python tools/smoke.py stopgen    # GPU: stop_strings actually binds
     python tools/smoke.py dpo        # GPU: one DPO step, prompt capped, no OOM
     python tools/smoke.py grpo       # GPU: one GRPO step with a stub reward
+    python tools/smoke.py prefill    # GPU: chunked prefill = same tokens, less memory
     python tools/smoke.py all        # every part this host can run, one subprocess each
 
 Three rules this file exists to enforce
@@ -64,7 +65,7 @@ import sys
 # of gated therapist weights, so the flag is set from a pre-scan of argv -- the only point early
 # enough to matter. `--allow-download` opts out, and the serve/roles parts are deliberately NOT
 # covered: their vLLM subprocess inherits this environment and does need to fetch its model.
-if sys.argv[1:2] and sys.argv[1] in ("stopgen", "dpo", "grpo", "prompts") \
+if sys.argv[1:2] and sys.argv[1] in ("stopgen", "dpo", "grpo", "prefill", "prompts") \
         and "--allow-download" not in sys.argv:
     os.environ.setdefault("HF_HUB_OFFLINE", "1")
     os.environ.setdefault("TRANSFORMERS_OFFLINE", "1")
@@ -163,6 +164,7 @@ __all__ = [
     "cmd_stopgen",
     "cmd_dpo",
     "cmd_grpo",
+    "cmd_prefill",
     "run_part",
     "build_parser",
     "main",
@@ -187,11 +189,11 @@ EXIT_SKIP = 3
 #: reported before a GPU part spends two minutes loading weights to fail for the same reason.
 PARTS: Tuple[str, ...] = (
     "naming", "config", "convs", "vram", "resume", "prompts", "serve", "roles",
-    "stopgen", "dpo", "grpo",
+    "stopgen", "dpo", "grpo", "prefill",
 )
 
 #: Parts that allocate VRAM. Each one guards itself; this tuple is for the ``all`` summary.
-GPU_PARTS: Tuple[str, ...] = ("stopgen", "dpo", "grpo")
+GPU_PARTS: Tuple[str, ...] = ("stopgen", "dpo", "grpo", "prefill")
 
 #: Parts that need a server (their own, or one already listening).
 SERVER_PARTS: Tuple[str, ...] = ("serve", "roles")
@@ -215,6 +217,9 @@ CARDS_GIB: Tuple[Tuple[str, float], ...] = (("A100 80 GB (target)", 80.0),
 TRAINER_ENVELOPE_GIB: Dict[str, Tuple[Tuple[str, float], ...]] = {
     "GRPO": (("1B bf16 weights + LoRA + optimizer", 2.5),
              ("generate KV for 128 completions (16 x 8 x 2,248 tok x 32 KiB)", 8.8),
+             ("generate PREFILL transients, chunked at 512 tokens (fp32 LoRA MLP intermediate "
+              "128 x 512 x 8192 x 4 B = 2 GiB, ~3 live; measured 2026-09-14: unchunked, the "
+              "2048-token prefill asked for 8 GiB on top of 34 GiB in use)", 6.0),
              ("look-ahead rollout KV (sub-batch 64 x 2,248 tok x 32 KiB)", 4.4),
              ("loss forward + grad-checkpointed activations (plan, unmeasured)", 4.0)),
     "PTO": (("1B bf16 weights + LoRA + optimizer", 2.5),
@@ -224,8 +229,8 @@ TRAINER_ENVELOPE_GIB: Dict[str, Tuple[Tuple[str, float], ...]] = {
 }
 
 #: The GRPO envelope's documented total, pinned so the terms above cannot drift from the
-#: CLAUDE.md row (`2.5 + 8.8 + 4.4 + 4.0`) without this gate noticing.
-_GRPO_ENVELOPE_DOCUMENTED_GIB = 19.7
+#: CLAUDE.md row (`2.5 + 8.8 + 6.0 + 4.4 + 4.0`) without this gate noticing.
+_GRPO_ENVELOPE_DOCUMENTED_GIB = 25.7
 
 #: Headroom the two CUDA contexts (server + trainer) need beside their reservations.
 _CUDA_CONTEXTS_GIB = 1.0
@@ -271,7 +276,7 @@ _SYS_PATIENT = "You are a patient who is ambivalent about quitting smoking."
 #: Smoke-scale VRAM estimates, in GiB, for the three GPU parts. These are NOT the arm's budget
 #: (see CLAUDE.md's VRAM table for that) -- they are what a 1B bf16 policy plus a
 #: two-row LoRA step is expected to request at the tiny hyperparameters below.
-_GPU_NEED_GIB: Dict[str, float] = {"stopgen": 3.6, "dpo": 6.0, "grpo": 6.0}
+_GPU_NEED_GIB: Dict[str, float] = {"stopgen": 3.6, "dpo": 6.0, "grpo": 6.0, "prefill": 8.0}
 
 # Tiny training shapes. Small enough that the step is about mechanics, not throughput.
 _MAX_PROMPT_TOKENS = 128
@@ -1367,9 +1372,10 @@ def cmd_vram(sec: Section, args: argparse.Namespace) -> None:
         sec.note(f"{plan.label}: {plan.arithmetic()}")
     grpo_terms = [gib for _, gib in TRAINER_ENVELOPE_GIB["GRPO"]]
     sec.check(abs(envelopes["GRPO"].total_gib - _GRPO_ENVELOPE_DOCUMENTED_GIB) < 1e-6
-              and len(grpo_terms) == 4,
-              "the GRPO envelope is the documented 2.5 + 8.8 + 4.4 + 4.0 = 19.7 GiB (the loss "
-              "term is a plan, unmeasured -- the QUICK_TEST rehearsal replaces it)",
+              and len(grpo_terms) == 5,
+              "the GRPO envelope is the documented 2.5 + 8.8 + 6.0 + 4.4 + 4.0 = 25.7 GiB (the "
+              "prefill term is the 2026-09-14 rehearsal's finding, chunked; the loss term is a "
+              "plan, unmeasured -- the rehearsal's peak_reserved_gib_train replaces both)",
               " + ".join(f"{g:.1f}" for g in grpo_terms)
               + f" = {envelopes['GRPO'].total_gib:.1f} GiB")
     sec.check(any(card == _TARGET_CARD_GIB for _, card in CARDS_GIB),
@@ -1404,11 +1410,23 @@ def cmd_vram(sec: Section, args: argparse.Namespace) -> None:
                              f"contexts need); the escape hatches -- LOOKAHEAD_SUB_BATCH_SIZE "
                              f"64->32, CONVERSATION_BATCH_SIZE 64->32, TRAIN_BATCH_SIZE 16->8 "
                              f"with gas 16 -- are needed from the FIRST iteration here")
+                elif not is_target:
+                    # The fallback card no longer fits even the reservations at the documented
+                    # shape -- true since the 2026-09-14 rehearsal measured the prefill term
+                    # (+6.0 GiB). It is a WARNING, not a failure: nothing targets that card, and
+                    # the gate's job is to print what it would take, not to block the target.
+                    hatches = 2.2 + 2.2 + 1.5 + 3.0
+                    sec.warn(label + " -- does NOT fit on the FALLBACK card at the documented "
+                             "shape",
+                             arithmetic + " (negative); the escape hatches -- LOOKAHEAD_SUB_BATCH_SIZE "
+                             "64->32 (-2.2), CONVERSATION_BATCH_SIZE 64->32 (-2.2), TRAIN_BATCH_SIZE "
+                             "16->8 with gas 16 (-1.5), PREFILL_CHUNK_SIZE 512->256 (-3.0) -- recover "
+                             f"~{hatches:.1f} GiB, i.e. {headroom + hatches:.1f} GiB headroom before "
+                             f"the {_CUDA_CONTEXTS_GIB:.0f} GiB CUDA contexts; run there only with all "
+                             "four from iteration 1, or not at all")
                 else:
                     sec.check(False, label, arithmetic
-                              + (" -- the TARGET card must close with the CUDA contexts inside"
-                                 if is_target else " -- the fallback does not even fit the "
-                                                   "reservations"))
+                              + " -- the TARGET card must close with the CUDA contexts inside")
     sec.note("the trainer terms are PLANNING numbers (PTO's DPO shape measured in Exp3; GRPO's "
              "generate/look-ahead KV and loss forward unmeasured on an A100) -- read the real "
              "weights + KV-pool figures off the vLLM log at the Phase 1 gate (serve_roles "
@@ -2308,6 +2326,153 @@ def cmd_stopgen(sec: Section, args: argparse.Namespace) -> None:
              f"reserved {vram_report()['reserved_gib']:.2f} GiB")
 
 
+def cmd_prefill(sec: Section, args: argparse.Namespace) -> None:
+    """GPU: chunked prefill (``core.policy.DEFAULT_PREFILL_CHUNK_SIZE``) cuts memory, not outputs.
+
+    The first Colab rehearsal (2026-09-14) OOM'd inside TRL's one ``generate()`` of 128
+    completions x <=2048-token prompts: peft keeps the LoRA adapters in fp32 and ``generate``
+    runs outside autocast, so one MLP projection's LoRA intermediate is
+    ``128 x 2048 x 8192 x 4 B = 8 GiB``, several live at once, beside a 42 GiB server. Chunking
+    the prefill along the sequence divides those transients by ``prompt_len / chunk`` and leaves
+    the KV cache, the logits and the sampled tokens alone. This part pins the three halves of
+    that claim on the local card: (a) at the production dtypes (bf16 base, fp32 adapters with a
+    non-zero B) the peak of a left-padded 8-row prefill drops with the chunk; (b) in fp32, where
+    matmul blocking noise sits far below the greedy-decode threshold, chunked and whole-prompt
+    prefill give the same next-token logits and the same greedy continuation -- with a chunk
+    that divides the prompt and one that does not; (c) ``patch_generate`` injects the chunk on
+    BOTH call shapes, TRL's ``generation_config=`` object and the conversation pass's loose
+    kwargs, and ``set_prefill_chunk_size(0)`` removes it again.
+    """
+    import gc
+
+    torch = _require_gpu(sec, "prefill", args)
+
+    from transformers import GenerationConfig
+
+    from core.policy import (
+        DEFAULT_PREFILL_CHUNK_SIZE,
+        attach_lora,
+        get_prefill_chunk_size,
+        render_prompt,
+        set_prefill_chunk_size,
+        tokenizer_adds_bos,
+    )
+
+    tokenizer, base = _load_smoke_policy(sec, args)
+    # The notebooks' target set, MLP projections included -- that is where the 8 GiB lives.
+    model = attach_lora(base, r=16, alpha=16, dropout=0.0,
+                        target_modules=["q_proj", "k_proj", "v_proj", "o_proj",
+                                        "up_proj", "down_proj", "gate_proj"])
+    with torch.no_grad():
+        for name, p in model.named_parameters():
+            if "lora_B" in name:
+                p.normal_(0.0, 0.02)     # a fresh LoRA is the identity; make the adapter path real
+    model.eval()
+    lora_dtypes = {p.dtype for n, p in model.named_parameters() if "lora_" in n}
+    sec.check(lora_dtypes == {torch.float32},
+              "the LoRA adapters are fp32 beside the bf16 base (peft's autocast_adapter_dtype): "
+              "the dtype that makes the prefill transient 4 B per element",
+              f"{sorted(str(d) for d in lora_dtypes)}")
+
+    # Eight left-padded prompts of very different lengths, so padding AND chunk boundaries both
+    # fall inside real tokens -- the case the batched conversation pass presents every batch.
+    filler = ("I keep telling myself I will cut down next month, and then something comes up "
+              "at work and I am back to a pack a day. ")
+    prompts = []
+    for i in range(8):
+        messages = [{"role": "system", "content": _SYS_THERAPIST},
+                    {"role": "user", "content": filler * (4 + 5 * i)}]
+        prompts.append(render_prompt(messages, tokenizer))
+    tokenizer.padding_side = "left"
+    encoded = tokenizer(prompts, return_tensors="pt", padding=True,
+                        add_special_tokens=tokenizer_adds_bos(tokenizer)).to(model.device)
+    n_rows, n_tok = encoded["input_ids"].shape
+    real_lens = encoded["attention_mask"].sum(1)
+    sec.note(f"{n_rows} rows x {n_tok} tokens, left-padded "
+             f"({int(real_lens.min())}..{int(real_lens.max())} real tokens per row)")
+
+    # A recorder behind the patch: what kwargs does the REAL generate receive?
+    inner = model.get_base_model()
+    real_generate = inner._original_generate
+    seen: dict = {}
+
+    def _recording_generate(*a, **k):
+        seen.clear()
+        seen.update(k)
+        return real_generate(*a, **k)
+
+    inner._original_generate = _recording_generate
+
+    def _cfg_chunk() -> Optional[int]:
+        return getattr(seen.get("generation_config"), "prefill_chunk_size", None)
+
+    def _run(chunk: Optional[int], *, via_config: bool):
+        set_prefill_chunk_size(chunk)
+        common = dict(max_new_tokens=24, do_sample=False,
+                      pad_token_id=tokenizer.pad_token_id, eos_token_id=tokenizer.eos_token_id,
+                      return_dict_in_generate=True, output_logits=True)
+        torch.cuda.synchronize()
+        gc.collect()
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats()
+        with torch.no_grad():
+            if via_config:
+                out = model.generate(**encoded, generation_config=GenerationConfig(**common))
+            else:
+                out = model.generate(**encoded, **common)
+        torch.cuda.synchronize()
+        return out, torch.cuda.max_memory_allocated() / 2 ** 30
+
+    try:
+        # (a) memory, at the production dtypes
+        _, peak_whole = _run(None, via_config=True)
+        sec.check("prefill_chunk_size" not in seen and _cfg_chunk() is None,
+                  "set_prefill_chunk_size(None): nothing is injected on either path")
+        _, peak_chunked = _run(DEFAULT_PREFILL_CHUNK_SIZE, via_config=True)
+        sec.check(_cfg_chunk() == DEFAULT_PREFILL_CHUNK_SIZE and "prefill_chunk_size" not in seen,
+                  "TRL's call shape (generation_config=): the chunk lands ON the config object, "
+                  "not beside it", f"generation_config.prefill_chunk_size={_cfg_chunk()}")
+        saving = peak_whole - peak_chunked
+        scale = 128 * 2048 / (n_rows * n_tok)
+        sec.check(saving > 0.15,
+                  f"chunked prefill ({DEFAULT_PREFILL_CHUNK_SIZE} tokens) lowers the peak of a "
+                  f"{n_rows} x {n_tok} bf16-base / fp32-LoRA prefill",
+                  f"whole {peak_whole:.2f} GiB -> chunked {peak_chunked:.2f} GiB "
+                  f"(-{saving:.2f} GiB here; the production 128 x 2048 prefill is x{scale:.0f} "
+                  f"this batch)")
+        _run(DEFAULT_PREFILL_CHUNK_SIZE, via_config=False)
+        sec.check(seen.get("prefill_chunk_size") == DEFAULT_PREFILL_CHUNK_SIZE
+                  and "generation_config" not in seen,
+                  "the conversation pass's call shape (loose kwargs): the chunk rides as a kwarg",
+                  f"prefill_chunk_size={seen.get('prefill_chunk_size')}")
+        _run(0, via_config=False)
+        sec.check("prefill_chunk_size" not in seen,
+                  "set_prefill_chunk_size(0) switches the injection off again")
+
+        # (b) equality, in fp32 (bf16 matmul blocking noise would blur a greedy comparison)
+        model.float()
+        out_whole, _ = _run(None, via_config=True)
+        out_512, _ = _run(DEFAULT_PREFILL_CHUNK_SIZE, via_config=True)
+        out_96, _ = _run(96, via_config=True)       # a chunk that does NOT divide the prompt
+        first = out_whole.logits[0].float()
+        d512 = float((first - out_512.logits[0].float()).abs().max())
+        d96 = float((first - out_96.logits[0].float()).abs().max())
+        sec.check(d512 < 1e-2 and d96 < 1e-2,
+                  "fp32: the next-token logits after a chunked prefill equal the whole-prompt "
+                  "prefill's (chunk 512, and chunk 96 which does not divide the prompt)",
+                  f"max |dlogit| {d512:.2e} (512) / {d96:.2e} (96) on a logit scale of "
+                  f"{float(first.abs().max()):.1f}")
+        same_512 = bool(torch.equal(out_whole.sequences, out_512.sequences))
+        same_96 = bool(torch.equal(out_whole.sequences, out_96.sequences))
+        sec.check(same_512 and same_96,
+                  "fp32: the greedy continuation (24 tokens x 8 rows) is identical with and "
+                  "without chunking", f"identical: chunk 512 {same_512}, chunk 96 {same_96}")
+    finally:
+        inner._original_generate = real_generate
+        set_prefill_chunk_size(DEFAULT_PREFILL_CHUNK_SIZE)
+    sec.note(f"prefill chunk in force after the part: {get_prefill_chunk_size()}")
+
+
 def cmd_dpo(sec: Section, args: argparse.Namespace) -> None:
     """GPU: one tiny DPO step, proving the prompt cap holds and the first step does not OOM.
 
@@ -2467,6 +2632,7 @@ _COMMANDS: Dict[str, Callable[[Section, argparse.Namespace], None]] = {
     "stopgen": cmd_stopgen,
     "dpo": cmd_dpo,
     "grpo": cmd_grpo,
+    "prefill": cmd_prefill,
 }
 
 

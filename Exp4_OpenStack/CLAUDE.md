@@ -346,7 +346,13 @@ def setup_tokenizer(tokenizer_id: str, padding_side: str = "left")
         # keeps a shipped chat template (Instruct); installs CHATML_TEMPLATE when none (base)
 def setup_base_model(base_model_id: str, *, use_4bit: bool = False)
 def attach_lora(model, *, r, alpha, dropout, target_modules)
-def patch_generate(model, tokenizer)          # idempotent; injects tokenizer= for stop_strings
+def patch_generate(model, tokenizer)          # idempotent; injects tokenizer= for stop_strings AND the
+                                               # prefill chunk in force (on the generation_config object
+                                               # when one is passed -- TRL's shape -- else as a kwarg)
+DEFAULT_PREFILL_CHUNK_SIZE = 512               # § VRAM budget; EXP4_PREFILL_CHUNK_SIZE overrides, 0 = off
+def set_prefill_chunk_size(n) -> Optional[int] # read at CALL time by every patched generate; the trainers
+                                               # call it from GenConfig.prefill_chunk_size at iteration entry
+def get_prefill_chunk_size() -> Optional[int]
 def therapist_stop_token_ids(tokenizer) -> List[int]
         # eos + the LLAMA3_END_MARKERS present in vocab, deduped — [eot, eom, start_header] on
         # Instruct (its eos IS eot); inert extras on base. Passed as eos_token_id by every
@@ -564,6 +570,7 @@ class LookaheadConfig:
                                             # token-truncates
     patient_binding: RoleBinding = ...
     stop_strings: Tuple[str, ...] = ...
+    prefill_chunk_size: int = 512          # PREFILL_CHUNK_SIZE in cell 1; memory-only, § VRAM budget
     sub_batch_size: Optional[int] = None    # None = one padded generate over all active sims
 
 NOT_GRADED_STOP_REASONS = frozenset({"patient_error", "gpu_error", "prompt_overflow", "parse_error"})
@@ -1036,21 +1043,36 @@ tokens.
 | phase | GRPO (`per_device 16 × gas 8`, checkpointing ON) | PTO / DPO (`per_device 2 × gas 8`, checkpointing ON) |
 |---|---|---|
 | weights + LoRA + optimizer | **~2.5 GiB** (1B bf16 ≈ 2.3 GiB; LoRA r=16 + Adam states ≈ 0.1 GiB) | same |
-| generation | ONE `generate` per optimizer step of `per_device × steps_per_generation = 16 × 8 = 128` completions (`steps_per_generation` defaults to `gas`, installed trl `grpo_config.py:909–911`): `128 × 2,248 × 32 KiB ≈ 8.8 GiB` KV — **≤ 8.8 GiB** | branch sampling batched by `CONVERSATION_BATCH_SIZE=64`: `64 × 2,248 × 32 KiB ≈ 4.4 GiB` |
+| generation — KV | ONE `generate` per optimizer step of `per_device × steps_per_generation = 16 × 8 = 128` completions (`steps_per_generation` defaults to `gas`, installed trl `grpo_config.py:909–911`): `128 × 2,248 × 32 KiB ≈ 8.8 GiB` KV — **≤ 8.8 GiB** | branch sampling batched by `CONVERSATION_BATCH_SIZE=64`: `64 × 2,248 × 32 KiB ≈ 4.4 GiB` |
+| generation — PREFILL transients (**MEASURED 2026-09-14**, the term the earlier arithmetic missed) | peft keeps the LoRA adapters in fp32 and `generate` runs outside autocast, so ONE MLP projection's LoRA intermediate for the whole-prompt prefill is `128 × 2,048 × 8,192 × 4 B = 8 GiB`, the bf16 base projection another 4.3 GiB, several live at once — the rehearsal died asking for exactly 7.98 GiB with 34.4 GiB already in use. **Chunked prefill** (`PREFILL_CHUNK_SIZE=512`, `GenConfig.prefill_chunk_size`, injected by `patch_generate` into every `generate`) divides every activation-shaped transient by `2,048 / 512 = 4`: `128 × 512 × 8,192 × 4 B = 2 GiB` per tensor, ~3 live — **≈ 6 GiB** | same mechanism at 64 rows: `64 × 512 × 8,192 × 4 B = 1 GiB` per tensor — ≈ 3 GiB inside the build phase |
 | look-ahead (K=5) | `LOOKAHEAD_SUB_BATCH_SIZE=64`: `64 × 2,248 × 32 KiB ≈ 4.4 GiB` — **≤ 4.4 GiB** (auto-halves on OOM, sticky) | same 4.4 GiB, during the build phase |
 | loss forward | `per_device=16` sequences, logits over the completion only (`logits_to_keep`), fp32: `16 × 200 × 128,256 × 4 B ≈ 1.5 GiB`, ×2 for old/ref log-probs, checkpointed activations small — **~2–4 GiB** | full-sequence logits × 128k vocab (DPO keeps them all): `2 × 2,448 × 128,256 × 4 B ≈ 2.3 GiB` per forward, chosen + rejected; **~17 GiB measured** for the whole DPO step in Exp3 (`2 × 8`, ckpt on) |
-| **conservative envelope (sum)** | **`2.5 + 8.8 + 4.4 + 4.0 = 19.7 GiB`** (a PLAN, unmeasured — `smoke.TRAINER_ENVELOPE_GIB` carries the same four terms, so every entry point prints this one arithmetic) | **≈ 17 GiB** (Exp3 measurement) |
+| **conservative envelope (sum)** | **`2.5 + 8.8 + 6.0 + 4.4 + 4.0 = 25.7 GiB`** (the prefill term is the rehearsal's measurement, chunked; the rest a PLAN — `smoke.TRAINER_ENVELOPE_GIB` carries the same five terms, so every entry point prints this one arithmetic) | **≈ 17 GiB** (Exp3 measurement; the build phase's `2.5 + 4.4 + 3 ≈ 10` sits inside it) |
 
 The GRPO phases are sequential (the 128-completion KV is freed before the look-ahead runs, and both
-before the loss forward), so the true peak is nearer `2.5 + 8.8 ≈ 11–13 GiB`; the sum is the
-envelope to budget against until `peak_reserved_gib_*` says otherwise.
+before the loss forward), so the true peak is nearer the generate phase's `2.5 + 8.8 + 6.0 ≈ 17–19
+GiB`; the sum is the envelope to budget against until `peak_reserved_gib_*` says otherwise.
+
+**What the first rehearsal measured (2026-09-14, A100 80 GB, E4B server holding 42 GiB).** The
+generate pass of 16 conversations ran in 107 s at 5.43 GiB reserved (batch 8 — scale ×8 for the
+real arm's 64), the sanity gate passed, and TRL's FIRST `generate()` of 128 completions OOM'd in
+the prefill: `Tried to allocate 7.98 GiB … this process has 34.44 GiB in use, 25.90 allocated,
+8.04 reserved-but-unallocated`. The 7.98 GiB is the fp32 LoRA intermediate of one MLP projection
+above; the 8 GiB of fragmentation is why the import cells now set
+`PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True`. The 8.8 GiB KV term the table budgeted was the
+*smaller* generate-phase term. `tools/smoke.py prefill` pins the fix on the local card: at the
+production dtypes the peak drops with the chunk, and in fp32 the chunked prefill's next-token
+logits match the whole-prompt prefill's to `3e-5` with an identical greedy continuation (chunk 512
+and a chunk that does not divide the prompt) — chunking changes what is *live*, not what is
+computed. Read `peak_reserved_gib_train` from the rehearsal against the 25.7 GiB envelope; if it
+is within ~5 GiB of the room, `PREFILL_CHUNK_SIZE` 512→256 is the first hatch (memory-only).
 
 | | 80 GB (target) | 40 GB (fallback) |
 |---|---|---|
 | vLLM E4B pre-allocation | `0.50 × 80 = 40 GiB` | `0.50 × 40 = 20 GiB` |
 | room left for the trainer (card − server − ~2 GiB for two CUDA contexts) | `80 − 40 − 2 ≈ 38 GiB` | `40 − 20 − 1 ≈ 19 GiB` |
-| trainer envelope (GRPO, conservative) | 19.7 GiB | 19.7 GiB |
-| **headroom** (room − envelope) | **`38 − 19.7 ≈ 18 GiB`** | **`19 − 19.7 ≈ 0` → `smoke.py vram` WARNS; the fallback needs the escape hatches below from the start** |
+| trainer envelope (GRPO, conservative) | 25.7 GiB | 25.7 GiB |
+| **headroom** (room − envelope) | **`38 − 25.7 ≈ 12 GiB`** | **`19 − 25.7 ≈ −6 GiB` → does NOT fit at the documented shape; `smoke.py vram` WARNS with the arithmetic — all four escape hatches below recover ≈ 9 GiB, i.e. ≈ 3 GiB before the CUDA contexts. Run there with all four from iteration 1, or not at all** |
 
 **Why the old config was retired.** Exp3 measured `per_device 64 × gas 2` **without** checkpointing
 at **~67 GB** for the GRPO step on an A100-80GB with no vLLM beside it, and a DPO `16 × 1` without
@@ -1066,7 +1088,9 @@ iteration each started at (a one-arm speedup makes the cost multiplier non-compa
 2. `CONVERSATION_BATCH_SIZE` 64→32 (−2.2 GiB on the generation pass and PTO's branch sampling);
 3. `TRAIN_BATCH_SIZE` 16→8 with `gas` 8→16 — same 128-completion generation batch, same 16
    prompts/step, loss forward halves (−1–2 GiB);
-4. grader E4B→E2B (frees 12 GiB on 80 GB / 6 GiB on 40 GB — a science change: a new arm name).
+4. `PREFILL_CHUNK_SIZE` 512→256 (−3 GiB on the generate phase's transients; memory-only, the
+   outputs are unchanged — but set it in BOTH notebooks, it is matched);
+5. grader E4B→E2B (frees 12 GiB on 80 GB / 6 GiB on 40 GB — a science change: a new arm name).
 
 ⚠ **`max_model_len` is NOT an escape hatch** — lowering it below 16384 reintroduces the
 biased-missingness hazard above. ⚠ Nor is `gpu_memory_utilization` below the weights + a usable
@@ -1259,8 +1283,8 @@ trained; no `data/` exists yet.**
 | Phase | Gate | State |
 |---|---|---|
 | 0 Scaffold | `smoke.py naming` — arm names round-trip through the parser (incl. the therapist field + base/Instruct tag distinctness + sanctioned shared tags) | ✅ 32 checks |
-| — | `smoke.py config` · `convs` · `vram` | ✅ 29 · 29 · 27 checks (+ 1 vram WARNING on the 40 GB fallback card; `vram` gained the 4 text-only-flag composition checks on 2026-09-14) |
-| — | `smoke.py stopgen` · `dpo` · `grpo` — real TRL steps on the local 12 GB card | ✅ 3 · 7 · 6 checks |
+| — | `smoke.py config` · `convs` · `vram` | ✅ 29 · 29 · 26 checks (+ 2 vram WARNINGS: the 40 GB fallback card no longer fits the measured GRPO envelope at the documented shape; `vram` gained the 4 text-only-flag composition checks on 2026-09-14) |
+| — | `smoke.py stopgen` · `dpo` · `grpo` · `prefill` — real TRL steps on the local 12 GB card; `prefill` (2026-09-14) pins that chunked prefill lowers the peak and leaves logits + greedy tokens unchanged | ✅ 3 · 7 · 6 · 8 checks |
 | — | `smoke.py resume` · `prompts` — mid-training resume keeps the iteration-start reference and reloads the trained `default` through the trainers' real restore helpers; THE PROMPT RULE + drop-oldest truncation (system-led and system-less) on both therapist tokenizers | ✅ 13 · 30 checks |
 | 5 EDA | `_selfcheck` (full); every family renders on an empty lake (`render_results.py`: 4 rendered, 0 failed) | ✅ 14 passed, 0 failed, 4 skipped (no arms on disk) |
 | 2 Oracle path | request carries a real `json_schema`; validation ladder accepts a good answer, **rejects a short array and prose**; aggregation is the unweighted mean across rubrics | ✅ vs `tools/fake_oracle_server.py` |
@@ -1272,8 +1296,8 @@ trained; no `data/` exists yet.**
 | 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ |
 | 6 First real arm | one real-config iteration read for memory / latency / wall-clock, THEN the full GRPO K=0 arm on Colab, $0 API | ⬜ |
 
-Everything runnable without Colab is green: **176 smoke checks** (`32 + 29 + 29 + 27 + 13 + 30 + 3 +
-7 + 6`, GPU parts included, plus the one deliberate `vram` WARNING for the 40 GB fallback card;
+Everything runnable without Colab is green: **183 smoke checks** (`32 + 29 + 29 + 26 + 13 + 30 + 3 +
+7 + 6 + 8`, GPU parts included, plus the two deliberate `vram` WARNINGS for the 40 GB fallback card;
 `serve` / `roles` skip without vLLM on PATH) plus the EDA self-check. `dpo` runs a real `DPOTrainer` and `grpo` a real `GRPOTrainer` step whose completion
 lengths come back well under the cap, which is the anti-degeneracy stack working rather than merely
 wired up.
@@ -1297,6 +1321,17 @@ suite re-run green. Still pre-data. One line each; the narrative is in
   `0.26.0+cu129` / `2.11.0+cu129` from the PyTorch cu129 index (`--force-reinstall --no-deps`,
   then a deps-only pass — a plain `-U` keeps a `+cu130`). The warm-runtime check now compares
   the build tag (`0.26.0+cu129`, `torch 2.11.0+cu129`), and the import probe prints torch's CUDA.
+- **Rehearsal finding #1, fixed — TRL's first prefill OOM'd beside the server.** With the stack
+  up, the sanity gate green and 16 conversations generated (107 s, 5.43 GiB peak), the
+  128-completion whole-prompt prefill asked for 7.98 GiB on top of 34.4 GiB: the fp32 LoRA MLP
+  intermediate, `128 × 2,048 × 8,192 × 4 B = 8 GiB`, a term the VRAM arithmetic had missed. Fix:
+  **chunked prefill** — `PREFILL_CHUNK_SIZE = 512` in both cell 1s → `GenConfig.prefill_chunk_size`
+  (recorded) → `core.policy.set_prefill_chunk_size` at every iteration entry → `patch_generate`
+  injects it into EVERY `generate` (TRL's config object and the loose-kwarg shape alike). Memory-only:
+  `smoke.py prefill` pins identical fp32 logits (`3e-5`) and greedy tokens, and a lower peak at the
+  production dtypes. Plus `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` in both import cells
+  (8 GiB was reserved-but-unallocated at the OOM). Envelope `19.7 → 25.7 GiB`; the 40 GB fallback
+  no longer fits at the documented shape (`smoke.py vram` WARNS with the hatch arithmetic). § VRAM budget.
 - **The pip-check gate fails only on conflicts whose REQUIRING package the stack owns** (the
   pins + vllm + torch); stock Colab's own conflicts are printed and tolerated. A warm runtime is
   re-checked too.
@@ -1481,7 +1516,9 @@ it; do not jump to a full arm.
    lines summing to the phase, `resume_from_checkpoint` picking the valid checkpoint, TB
    `train/loss` continuing rather than restarting, the iteration-start adapter as the reference,
    and `iteration_N/adapter/` differing from the checkpoint it resumed from. Read
-   **`peak_reserved_gib_*` per phase** from `iteration_metadata.json`. **Then rename or delete
+   **`peak_reserved_gib_*` per phase** from `iteration_metadata.json` — `train` against the
+   25.7 GiB envelope (the 2026-09-14 attempt got through generation and the gate and OOM'd in
+   TRL's first prefill before chunked prefill existed; § VRAM budget). **Then rename or delete
    the `_G4_` / `_M3_` folders** (under both `runs/` and `conversations/`) before any `Run_Eval`
    or render — the EDA's arm discovery accepts them as real arms and would score and plot them.
 4. **One real-config iteration** (`QUICK_TEST=False`; `NUM_ITERATIONS` is not in the arm name, so
