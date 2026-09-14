@@ -8,6 +8,70 @@ CLAUDE.md § Status and were not moved — this file starts with the pre-run rev
 
 ---
 
+## 2026-09-14 — the pre-Colab review
+
+The last pass before the first Colab session, run because the previous rounds were closed on
+2026-09-03 and nothing had been checked against the *live* outside world since. Four read-only
+reviewers in parallel — the two notebooks and the Colab path; the serving layer against the
+current vLLM CLI docs, PyPI metadata and the published Gemma 4 chat template; the trainer loops
+and resume; oracle-sanity + scoring + EDA discovery — then the fixes applied by hand. Every local
+suite re-run afterwards: naming 32 · config 29 · convs 29 · vram 27 (+ the deliberate 40 GB
+WARNING) · prompts 30 · resume 13 · stopgen 3 · dpo 7 · grpo 6, all PASS; `_selfcheck` 14 passed /
+0 failed / 4 skipped (no arms on disk). Still pre-data.
+
+**The blocker.** The install cell left vLLM unpinned ("latest that clears the 0.19.1 floor").
+On 2026-09-14 PyPI's latest was **0.29.0** (2026-09-09), which declares `transformers>=5.10.4`
+and `torch==2.13.0`; the cell then re-asserts `transformers==5.8.1`, so its own `pip check` gate
+raised on the first fresh runtime, before anything ran. Fixed by pinning **`PINNED_VLLM =
+"0.26.0"`** (2026-07-25; `torch==2.11.0` — the torch the stack was validated on locally;
+`transformers>=5.5.3`, `openai>=2.0.0`, `safetensors>=0.6.2`, `torchvision==0.26.0`,
+`torchaudio==2.11.0`, all inside the pins — read off PyPI's `requires_dist`, not guessed). The
+gate itself was also wrong in the other direction: it raised on *any* `pip check` line, and stock
+Colab carries conflicts of its own (google-colab's pandas / numpy pins). It now raises only when
+the REQUIRING package is one the stack owns (the pins + vllm + torch), prints the rest as
+tolerated, and re-runs on a warm runtime too.
+
+**Should-fixes applied**
+- `roles.DEFAULT_SERVE_EXTRA_ARGS` + `default_serve_extra_args`, composed into every spec by
+  `plan_servers` (caller flags appended; a caller spelling the same flag wins): both Gemmas get
+  `--limit-mm-per-prompt '{"image":0,"audio":0}'`. The checkpoints are multimodal and vLLM
+  profiles the vision + audio towers inside the pre-allocation, shrinking the KV pool the § VRAM
+  budget arithmetic assumes. Four new `smoke.py vram` checks pin the composition.
+- GRPO `QUICK_TEST`: `NUM_CONVERSATIONS_PER_ITER` 8 → 16 (`CONVERSATION_BATCH_SIZE` stays 8, so
+  two batches). With G=4 a step needs `(16 × 8) / 4 = 32` eligible slices; 7 training
+  conversations clear that only when the patient rarely ends sessions early, and the "ZERO
+  optimizer steps" raise fires after the generate pass has been paid for.
+- `DISABLE_DROPOUT = True` added to the GRPO notebook's cell 1 (PTO already had it; GRPO relied
+  on the `TrainingConfigBase` default — matched, but not by the mechanism the spec described).
+- `core.timing.metadata_fields` now emits `cumulative_production_time_s` and
+  `n_timing_sessions_production` (the resume flag every doc points at was computed by
+  `cumulative_seconds` but never written to `iteration_metadata.json`).
+- `smoke.py --timeout` default 900 → 1800 s (matches `vllm_serve.DEFAULT_READY_TIMEOUT`; the
+  E4B cold start downloads 15 GiB and compiles CUDA graphs).
+- Comments corrected: the `enable_thinking` key is *verified* against the E4B `chat_template.jinja`
+  (`enable_thinking | default(false)`), and `strict` is inert on vLLM (`JsonSchemaResponseFormat`
+  applies the grammar whenever `type == "json_schema"`) rather than "what turns enforcement on".
+
+**Written down, not changed** (§ Next session): the 80 GB card is the A100 runtime with the
+High-RAM toggle (≈ 7.5 vs ≈ 5.4 compute units/h); grant the `huggingface` secret notebook access
+and check the auth line early (a missing token warns, then fails at model load); run `smoke.py
+roles` before the serve cell (it stops its own server; after the serve cell it adopts and skips
+kill→restart); the notebooks run the full `oracle_sanity` inline; skip `generate_convs.py` before
+the trainer has written `run_metadata.json`; kill during iteration 2 (the adapter-reload branch);
+check `nvidia-smi` / `pgrep -af vllm` for orphaned engine workers after a kill; rename the
+`_G4_` / `_M3_` rehearsal folders before scoring — `naming.ARM_RE` accepts them and the EDA would
+plot them as arms. Verified live: `google/gemma-4-E4B-it` is ungated (`"gated": false`,
+Apache 2.0); the vLLM flags the launcher emits all exist unchanged on the current CLI; no
+`--reasoning-parser` is passed, and none should be (with thinking off it bypassed structured
+output on 0.19.0).
+
+**Reviewer findings deliberately left alone:** TRL masks completions at `eos_token_id` only while
+the Instruct arm stops on `[eot, eom, start_header]` (rare, K-symmetric, token-exact stopping is
+the design); the `patient_seed` is one value per iteration (Exp3 convention); the "memoised
+StopStringCriteria" note in `core.policy` records the Exp3 measurement and is moot on the
+Instruct arm; the PTO notebook's cell-0 table and section-4 heading still say `--quick` while
+the code runs the full gate — cosmetic, the code is right.
+
 ## 2026-09-03 — the review-repair round
 
 Four adversarial reviewers, each over the whole 2026-09-02 batch (the pre-run review + its gate

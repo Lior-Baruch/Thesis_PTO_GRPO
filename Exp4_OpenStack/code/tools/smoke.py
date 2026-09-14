@@ -124,10 +124,12 @@ from roles import (                                                           # 
     DEFAULT_JUDGE_MODEL,
     DEFAULT_ORACLE_MODEL,
     DEFAULT_PATIENT_MODEL,
+    DEFAULT_SERVE_EXTRA_ARGS,
     DEFAULT_SERVE_UTIL,
     DEFAULT_THERAPIST_MODEL,
     RoleBinding,
     ServeSpec,
+    default_serve_extra_args,
     default_serve_util,
     make_binding,
     model_tag,
@@ -1320,6 +1322,35 @@ def cmd_vram(sec: Section, args: argparse.Namespace) -> None:
     sec.check(default_serve_util("some/unsized-model", fallback=0.15) == 0.15,
               "an explicit fallback= is honoured for a model outside the table")
 
+    # --- the text-only serve flags: every Gemma launch skips multimodal profiling ----------
+    # The Gemma 4 checkpoints carry vision + audio towers; without this flag vLLM profiles them
+    # inside the pre-allocation and the "~22 GiB KV pool" arithmetic silently shrinks. Composed
+    # by plan_servers, so the notebooks, `smoke.py roles` and Run_Eval all launch with it.
+    from roles import default_bindings, plan_servers
+    sec.check(set(DEFAULT_SERVE_EXTRA_ARGS) == set(DEFAULT_SERVE_UTIL)
+              and all("--limit-mm-per-prompt" in v for v in DEFAULT_SERVE_EXTRA_ARGS.values()),
+              "roles.DEFAULT_SERVE_EXTRA_ARGS gives every sized grader --limit-mm-per-prompt "
+              "(text-only: no multimodal profiling inside the pre-allocation)",
+              f"{DEFAULT_SERVE_EXTRA_ARGS}")
+    _planned = plan_servers(default_bindings(),
+                            gpu_memory_utilization=default_serve_util(DEFAULT_ORACLE_MODEL))
+    sec.check(len(_planned) == 1
+              and _planned[0].extra_args == default_serve_extra_args(DEFAULT_ORACLE_MODEL),
+              "plan_servers composes the model's sanctioned flags into the ONE default-stack spec",
+              f"{_planned[0].extra_args if _planned else _planned}")
+    _planned_more = plan_servers(default_bindings(), extra_args=("--seed", "7"),
+                                 gpu_memory_utilization=default_serve_util(DEFAULT_ORACLE_MODEL))
+    sec.check(_planned_more[0].extra_args
+              == default_serve_extra_args(DEFAULT_ORACLE_MODEL) + ("--seed", "7"),
+              "caller extra_args are APPENDED after the sanctioned flags, not dropped",
+              f"{_planned_more[0].extra_args}")
+    _planned_dup = plan_servers(default_bindings(),
+                                extra_args=("--limit-mm-per-prompt", '{"image":1}'),
+                                gpu_memory_utilization=default_serve_util(DEFAULT_ORACLE_MODEL))
+    sec.check(_planned_dup[0].extra_args == ("--limit-mm-per-prompt", '{"image":1}'),
+              "a caller who spells the same flag wins and the default is not duplicated",
+              f"{_planned_dup[0].extra_args}")
+
     # --- the Colab budget, BOTH cards, arithmetic printed ------------------------------
     # The server's share is a pre-allocation (util x card); the trainer's envelope is the sum of
     # its planning terms under the cell-1 config in force. Checked against explicit card sizes
@@ -2466,8 +2497,10 @@ def build_parser() -> argparse.ArgumentParser:
                              "roles.DEFAULT_SERVE_UTIL[model], 0.50 for a model outside it)")
     parser.add_argument("--max-model-len", type=int, default=None,
                         help="serve: served context length (default 4096 for the smoke model)")
-    parser.add_argument("--timeout", type=float, default=900.0,
-                        help="server readiness timeout, seconds")
+    parser.add_argument("--timeout", type=float, default=1800.0,
+                        help="server readiness timeout, seconds (default matches "
+                             "vllm_serve.DEFAULT_READY_TIMEOUT: E4B's cold start on Colab "
+                             "downloads 15 GiB and compiles CUDA graphs; 900 s cut it off)")
     parser.add_argument("--executable", default="vllm",
                         help="server binary for serve/roles")
     parser.add_argument("--keep", action="store_true",

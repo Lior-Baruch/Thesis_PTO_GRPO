@@ -209,12 +209,14 @@ def set_openai_compat_strict(enabled: bool) -> bool:
         incompatibility, not a bad schema; flip the flag once at notebook start (before any
         scoring) rather than editing call sites.
 
-        Omitting ``strict`` does not merely relax a formality -- on some builds it is what turns
-        guided decoding from "enforced" into "suggested". Everything still works because the
-        validation ladder below re-checks every field client-side, but expect the retry count to
-        rise, and treat a sudden jump in ``attempts`` as evidence the flag is off when it should
-        be on. Never disable it for the ``openai`` provider: this flag does not apply there, and
-        OpenAI without ``strict`` is genuinely unvalidated.
+        On vLLM the flag is accepted and INERT (checked 2026-09-14 against the pinned line's
+        ``JsonSchemaResponseFormat``: ``strict: bool | None = None``, and the grammar is applied
+        whenever ``type == "json_schema"``), so keeping it on costs nothing and turning it off
+        changes nothing about enforcement there. It is kept on so the request body is the same
+        shape for every ``openai_compat`` server, some of which do read it. Everything still
+        works with it off because the validation ladder below re-checks every field client-side.
+        Never disable it for the ``openai`` provider: OpenAI without ``strict`` is genuinely
+        unvalidated.
 
         Not thread-safe and not per-run state; set it once, early.
     """

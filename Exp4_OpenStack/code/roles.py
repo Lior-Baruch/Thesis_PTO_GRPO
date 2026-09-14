@@ -74,6 +74,8 @@ __all__ = [
     "THINKING_OFF_EXTRA_BODY_JSON",
     "DEFAULT_SERVE_UTIL",
     "default_serve_util",
+    "DEFAULT_SERVE_EXTRA_ARGS",
+    "default_serve_extra_args",
     "RoleBinding",
     "ServeSpec",
     "ORACLE_DEFAULT",
@@ -154,6 +156,30 @@ def default_serve_util(model_id: str, *, fallback: Optional[float] = None) -> fl
         return float(fallback)
 
 
+#: Per-model ``vllm serve`` flags every launch of that model carries, composed into the spec by
+#: :func:`plan_servers` (so the trainer notebooks, ``smoke.py roles`` and ``Run_Eval`` all serve
+#: the same command line without each spelling it). The Gemma 4 checkpoints are MULTIMODAL
+#: (``Gemma4ForConditionalGeneration``: vision + audio towers beside the text stack). Without
+#: this flag vLLM runs its multimodal memory profiling inside the ``gpu_memory_utilization``
+#: pre-allocation and sizes the KV pool around it, so the "~22 GiB KV pool" arithmetic in
+#: CLAUDE.md § VRAM budget silently shrinks. Exp4 is text-only; the official vLLM Gemma 4 recipe
+#: gives exactly this flag for text-only workloads ("skips multimodal profiling"). Not a science
+#: change: it alters what the server pre-allocates, never what it generates.
+DEFAULT_SERVE_EXTRA_ARGS: Dict[str, Tuple[str, ...]] = {
+    "google/gemma-4-E4B-it": ("--limit-mm-per-prompt", '{"image":0,"audio":0}'),
+    "google/gemma-4-E2B-it": ("--limit-mm-per-prompt", '{"image":0,"audio":0}'),
+}
+
+
+def default_serve_extra_args(model_id: str) -> Tuple[str, ...]:
+    """The sanctioned per-model ``vllm serve`` flags for *model_id* (``()`` when none).
+
+    Read from :data:`DEFAULT_SERVE_EXTRA_ARGS`; unlike :func:`default_serve_util` an unknown
+    model is not an error, because a model with no text-only flag simply has nothing to add.
+    """
+    return tuple(DEFAULT_SERVE_EXTRA_ARGS.get(model_id, ()))
+
+
 #: The providers :func:`make_client` knows how to construct. ``openai_compat`` is any
 #: OpenAI-compatible server (vLLM, llama.cpp, TGI) -- same call shape, including
 #: ``response_format={"type": "json_schema"}`` via guided decoding, which is what lets the
@@ -162,13 +188,15 @@ PROVIDERS = ("openai_compat", "openai", "anthropic")
 
 #: The per-request body that turns Gemma 4's thinking mode off.
 #:
-#: WARNING: the kwarg name ``enable_thinking`` is UNVERIFIED against Gemma 4's published chat
-#: template -- it is the convention several other thinking-capable open models use. The Phase 1
-#: smoke gate (``tools/smoke.py roles``) is what proves it: it asserts a completion comes back
-#: with no thinking block. A wrong key must fail LOUDLY there. It will not fail at request time
-#: on its own -- vLLM passes ``chat_template_kwargs`` straight into the Jinja render, where an
-#: unrecognised name is simply an unused variable, so the request succeeds and every subsequent
-#: call quietly burns reasoning tokens. Do not skip the gate.
+#: The kwarg name ``enable_thinking`` is VERIFIED against the published E4B ``chat_template.jinja``
+#: (read 2026-09-14): the template gates its ``<|think|>`` block on
+#: ``enable_thinking | default(false)``, so thinking is off by default and this body is
+#: belt-and-braces. It also matches the official vLLM Gemma 4 recipe and the model card. The
+#: Phase 1 smoke gate (``tools/smoke.py roles``) still asserts a completion comes back with no
+#: thinking block, because a wrong key would not fail at request time on its own -- vLLM passes
+#: ``chat_template_kwargs`` straight into the Jinja render, where an unrecognised name is simply
+#: an unused variable, so the request succeeds and every subsequent call quietly burns reasoning
+#: tokens. Do not skip the gate.
 THINKING_OFF_EXTRA_BODY_JSON = '{"chat_template_kwargs": {"enable_thinking": false}}'
 
 
@@ -406,10 +434,11 @@ def thinking_off_extra_body() -> str:
         ``'{"chat_template_kwargs": {"enable_thinking": false}}'``
 
     Notes:
-        WARNING -- the kwarg name is UNVERIFIED against Gemma 4's actual chat template; see
-        :data:`THINKING_OFF_EXTRA_BODY_JSON` for why a wrong key fails *silently* at request
-        time and why the Phase 1 smoke gate is the thing that proves it. If the gate shows
-        thinking is still on, change the key here: it is the single place it is spelled.
+        The kwarg name is verified against Gemma 4's published chat template (see
+        :data:`THINKING_OFF_EXTRA_BODY_JSON`), and thinking is off by default there, so this is
+        belt-and-braces. The Phase 1 smoke gate still proves it on the wire, because a wrong
+        key would fail *silently* at request time. If the gate ever shows thinking on, change
+        the key in :data:`THINKING_OFF_EXTRA_BODY_JSON`: it is the single place it is spelled.
 
         ``openai_compat`` only. Never attach this to an ``openai`` or ``anthropic`` binding --
         vendor APIs 400 on unknown body keys, and that failure arrives on the first real call
@@ -574,7 +603,21 @@ def plan_servers(bindings: Dict[str, RoleBinding],
             )
 
     models = sorted({b.model for b in bindings.values() if b.is_local})
-    return [ServeSpec(model=m, port=base_port + i, **spec_kw) for i, m in enumerate(models)]
+    caller_extra = tuple(spec_kw.pop("extra_args", None) or ())
+    specs = []
+    for i, m in enumerate(models):
+        # The model's sanctioned flags (DEFAULT_SERVE_EXTRA_ARGS) go FIRST, then whatever the
+        # caller added -- unless the caller already spelled the same flag, in which case theirs
+        # wins and the default is not duplicated (vLLM would take the last occurrence anyway,
+        # but a doubled flag in the printed command line reads like a mistake).
+        defaults = default_serve_extra_args(m)
+        default_flags = {a for a in defaults if a.startswith("--")}
+        if any(a.split("=", 1)[0] in default_flags for a in caller_extra):
+            extra = caller_extra
+        else:
+            extra = defaults + caller_extra
+        specs.append(ServeSpec(model=m, port=base_port + i, extra_args=extra, **spec_kw))
+    return specs
 
 
 # ---------------------------------------------------------------------------

@@ -464,5 +464,10 @@ def metadata_fields(iter_dir: str) -> Dict[str, float]:
     for k in PHASE_KEYS:
         out[f"cumulative_{k[:-2]}_time_s"] = round(totals[k], 3)
     out["cumulative_total_time_s"] = round(totals["total_s"], 3)
+    out["cumulative_production_time_s"] = round(totals["production_s"], 3)
     out["n_timing_sessions"] = int(totals["n_sessions"])
+    # The resume flag the docs point readers at: > 1 means this iteration was RESUMED (the
+    # post-loop eval-generation pass adds a session to the last iteration of every healthy arm,
+    # which is why ``n_timing_sessions`` alone cannot say). Mirrors ``cumulative_seconds``.
+    out["n_timing_sessions_production"] = int(totals["n_sessions_production"])
     return out

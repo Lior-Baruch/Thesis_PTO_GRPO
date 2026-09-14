@@ -21,7 +21,7 @@ Exp4 only. (The same warning Exp2↔Exp3 carries for a different reason.)
 | Patient | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable; E2B = fallback) |
 | Training oracle | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable) |
 | Eval judge | gpt-4o-mini + Claude Haiku 4.5 | **`google/gemma-4-E4B-it`** (selectable; `judge=` partitions from day 1) |
-| Serving | vendor APIs | **one local vLLM OpenAI-compatible server** (vLLM ≥ 0.19.1 for Gemma 4) |
+| Serving | vendor APIs | **one local vLLM OpenAI-compatible server** (vLLM **pinned at 0.26.0** in the install cell — the Gemma 4 floor is 0.19.1, but an unpinned install resolves to a build whose `transformers` floor the pinned stack cannot meet; see § Status → the 2026-09-14 review) |
 | Training questionnaire | Q1+Q2 (fixed) | **selectable** (default Q1+Q2) |
 | Logging | W&B + TensorBoard | **TensorBoard only** |
 | Cost per arm | ~$25–120 API | **$0 API** — GPU-hours only. Target card: **Colab A100 80 GB**; 40 GB is the fallback (§ VRAM budget) |
@@ -236,7 +236,15 @@ def default_serve_util(model_id: str, *, fallback: Optional[float] = None) -> fl
         # ValueError for an unsized model unless fallback= is given — a 0.25 nobody sized is how
         # E4B failed to load. Run_Eval deliberately does NOT read it: scoring on an idle GPU uses
         # its own SERVE_GPU_MEMORY_UTILIZATION = 0.85.
+DEFAULT_SERVE_EXTRA_ARGS: Dict[str, Tuple[str, ...]]   # {model id: vllm serve flags} — both Gemmas:
+                                               # ("--limit-mm-per-prompt", '{"image":0,"audio":0}'), the
+                                               # text-only flag that keeps multimodal profiling OUT of the
+                                               # pre-allocation (§ VRAM budget)
+def default_serve_extra_args(model_id: str) -> Tuple[str, ...]   # () for a model outside the table
 def thinking_off_extra_body() -> str           # '{"chat_template_kwargs": {"enable_thinking": false}}'
+                                               # VERIFIED against the E4B chat template (2026-09-14):
+                                               # `enable_thinking | default(false)`; the roles gate
+                                               # still proves it on the wire
 def make_binding(provider, model, *, base_url=None, disable_thinking=True, **kw) -> RoleBinding
 def plan_servers(bindings: Dict[str, RoleBinding], *, base_port=8000, **spec_kw) -> List[ServeSpec]
 def make_client(binding: RoleBinding, *, api_key: Optional[str] = None)
@@ -250,7 +258,10 @@ def make_client(binding: RoleBinding, *, api_key: Optional[str] = None)
 
 `plan_servers` **dedupes by model id**: patient + oracle + judge all on the same Gemma ⇒ exactly
 **one** `ServeSpec`, because one vLLM server serves every role (the roles differ only in per-request
-sampling params). Bindings whose provider is not `openai_compat` produce no spec.
+sampling params). Bindings whose provider is not `openai_compat` produce no spec. It also
+**composes each model's `DEFAULT_SERVE_EXTRA_ARGS` into the spec** ahead of any caller
+`extra_args` (a caller who spells the same flag wins, unduplicated), so every launch site — the
+notebooks' serve cells, `smoke.py roles`, `Run_Eval` — serves the same command line.
 
 ⚠ `extra_body` is for `openai_compat` only — the OpenAI API 400s on unknown body keys.
 
@@ -772,7 +783,10 @@ def finalize_training(iter_dir, total_s: float, *, started_at=None, note="") -> 
 def cumulative_seconds(iter_dir) -> Dict[str, float]
         # + total_s, production_s, n_sessions, n_sessions_production — partial lines sum like any
         # other (the flag is audit only); every line carries the per-process token
-def metadata_fields(iter_dir) -> Dict[str, float]         # cumulative_* to splat into metadata
+def metadata_fields(iter_dir) -> Dict[str, float]
+        # cumulative_<phase>_time_s, cumulative_total_time_s, cumulative_production_time_s,
+        # n_timing_sessions, n_timing_sessions_production — to splat into iteration_metadata.json;
+        # the resume flag readers want is n_timing_sessions_production > 1 (below)
 ```
 
 **Phases log themselves AS THEY COMPLETE** — one line after generation, one after the preference
@@ -974,6 +988,18 @@ The 80 GB card buys a ~4× KV pool at the same fraction, i.e. concurrency: that 
 `tools/vllm_serve.py`) at the Phase 1 gate: pool ÷ ~4k-token median prompt = how many oracle calls
 the server holds at once. `--max-model-len 16384` (next). Prefix caching on.
 
+**Text-only serving flag — every Gemma launch carries `--limit-mm-per-prompt '{"image":0,"audio":0}'`.**
+The Gemma 4 checkpoints are multimodal (`Gemma4ForConditionalGeneration`: vision + audio towers
+beside the text stack). Without the flag vLLM runs its multimodal memory profiling *inside* the
+pre-allocation and sizes the KV pool around it, so the "~22 GiB KV pool" above silently shrinks
+and the concurrency the arithmetic promises is not there. The flag is the official vLLM Gemma 4
+recipe's text-only form; it changes what the server pre-allocates, never what it generates. It
+lives ONCE, in `roles.DEFAULT_SERVE_EXTRA_ARGS`, and `plan_servers` composes it into every spec,
+so the trainer notebooks, `smoke.py roles` and `Run_Eval` launch the same command line without
+each spelling it (`smoke.py vram` pins the composition). **Read vLLM's
+`Maximum concurrency for 16,384 tokens per request` line at the Phase 1 gate**: with the flag in
+force it should print roughly 90× on the 80 GB card; far below that means the pool is being eaten.
+
 ### `max_model_len`
 
 ⚠ **`max_model_len` must be 16384, not 8192.** Measured against the 192 real Exp3 PTO_LA0
@@ -1049,13 +1075,14 @@ KV pool: the server either fails to start (no KV memory) or serves with near-zer
 trusting the arithmetic.
 
 **`QUICK_TEST` IS the VRAM rehearsal — it keeps every per-forward shape it can.** It shrinks only
-counts (G=4 / M=3, 8 conversations, 2 iterations) and leaves `TRAIN_BATCH_SIZE`, `gas`,
+counts (G=4 / M=3, 16 conversations for GRPO / 8 for PTO, 2 iterations) and leaves `TRAIN_BATCH_SIZE`, `gas`,
 `MAX_COMPLETION_LENGTH`, `THERAPIST_MAX_INPUT_TOKENS` and `LOOKAHEAD_SUB_BATCH_SIZE` at the real
 values, so the loss forward, GRPO's 128-completion generate and the K=5 look-ahead are measured at
 the real arm's shape. The one term it does NOT rehearse is the conversation pass:
-`CONVERSATION_BATCH_SIZE` drops to 8 because only 8 conversations exist (cell 1 of both notebooks),
-so the `64 × 2,248 × 32 KiB ≈ 4.4 GiB` generation / PTO branch-sampling KV term stays arithmetic
-(scale the rehearsal's generate-phase peak ×8). **Read the per-phase peaks from
+`CONVERSATION_BATCH_SIZE` drops to 8 (cell 1 of both notebooks — GRPO runs its 16 conversations as
+TWO batches of 8, which is what exposes an inter-batch allocator leak a single batch cannot; PTO
+runs one batch of 8), so the `64 × 2,248 × 32 KiB ≈ 4.4 GiB` generation / PTO branch-sampling KV
+term stays arithmetic (scale the rehearsal's generate-phase peak ×8). **Read the per-phase peaks from
 `iteration_metadata.json`** — the same flat keys in both trainers, `peak_reserved_gib_<phase>` (+
 `peak_allocated_gib_<phase>`): GRPO `generate` / `train` (the look-ahead runs inside `train`) /
 `eval_generate` on the post-loop pass; PTO `generate` / `build` (the look-ahead runs inside
@@ -1156,14 +1183,18 @@ explicitly. The knob lives ONCE, on `core.config.TrainingConfigBase.disable_drop
 change ([history/CHANGELOG.md](history/CHANGELOG.md)).
 
 **`QUICK_TEST` is the VRAM and resume rehearsal, so it keeps every per-forward SHAPE.** It shrinks
-only counts — `NUM_GENERATIONS` 8→4 (GRPO) / `NUM_BRANCHES_PER_TURN` 8→3 (PTO), 8 conversations,
-2 iterations, `SAVE_STEPS` 10→2 **in BOTH notebooks** (so the rehearsal's few optimizer steps
+only counts — `NUM_GENERATIONS` 8→4 (GRPO) / `NUM_BRANCHES_PER_TURN` 8→3 (PTO), 16 conversations
+for GRPO / 8 for PTO (GRPO needs `(16 × 8) / 4 = 32` eligible slices per optimizer step; 7 training
+conversations only clear that when the patient rarely ends sessions early, and the trainer raises
+"ZERO optimizer steps" *after* the generate pass has been paid for — 16 conversations give ~8 steps
+when sessions run long and still ≥ 2 when they do not), 2 iterations, `SAVE_STEPS` 10→2 **in BOTH
+notebooks** (so the rehearsal's few optimizer steps
 still produce a mid-iteration `checkpoint-*` to kill and resume on) — and leaves
 `TRAIN_BATCH_SIZE`, `gas`, `MAX_COMPLETION_LENGTH`, `THERAPIST_MAX_INPUT_TOKENS` and
 `LOOKAHEAD_SUB_BATCH_SIZE` at the real values, so its training / look-ahead peaks are the real
 arm's (`CONVERSATION_BATCH_SIZE` necessarily drops to 8 — see § VRAM budget for the one term that
-stays arithmetic). Steps/epoch floor rather than round, so 8 conversations still yield whole
-optimizer steps.
+stays arithmetic). Steps/epoch floor rather than round, so the rehearsal's few conversations still
+yield whole optimizer steps.
 
 ⚠ **PTO must pre-cap its DPO prompt.** TRL 1.4.0's `DPOConfig` dropped `max_prompt_length` and caps
 prompt+completion with one `max_length` under `truncation_mode='keep_start'` — which slices the
@@ -1186,9 +1217,10 @@ Nothing in Exp4 requires Colab; the Colab-only branches (Drive mount, Colab Secr
 `COLAB_CODE_DIR`) all fall through cleanly (`core.runtime`'s module docstring carries the full
 list). The differences:
 
-- **Install.** `pip install -U vllm` FIRST (≥ 0.19.1 for Gemma 4; it brings its own torch), then
-  `pip install -r requirements.txt` (the repo-root pins) on top, then `pip uninstall torchao` —
-  the same order the notebooks' install cell uses. That cell refuses to run outside Colab, so do
+- **Install.** `pip install vllm==0.26.0` FIRST (the notebooks' `PINNED_VLLM`; it brings its own
+  torch 2.11.0 — an *unpinned* install resolves to a build whose `transformers` floor the pinned
+  stack cannot meet), then `pip install -r requirements.txt` (the repo-root pins) on top, then
+  `pip uninstall torchao` — the same order the notebooks' install cell uses. That cell refuses to run outside Colab, so do
   this by hand once per environment.
 - **Credentials.** Export `HF_TOKEN` (Llama-3.2-1B is gated; `HUGGING_FACE_HUB_TOKEN` /
   `HUGGINGFACE_TOKEN` also work) and, only for a vendor-bound role, `OPENAI_API_KEY` /
@@ -1221,7 +1253,7 @@ trained; no `data/` exists yet.**
 | Phase | Gate | State |
 |---|---|---|
 | 0 Scaffold | `smoke.py naming` — arm names round-trip through the parser (incl. the therapist field + base/Instruct tag distinctness + sanctioned shared tags) | ✅ 32 checks |
-| — | `smoke.py config` · `convs` · `vram` | ✅ 29 · 29 · 23 checks (+ 1 vram WARNING on the 40 GB fallback card; final gate, 2026-09-03) |
+| — | `smoke.py config` · `convs` · `vram` | ✅ 29 · 29 · 27 checks (+ 1 vram WARNING on the 40 GB fallback card; `vram` gained the 4 text-only-flag composition checks on 2026-09-14) |
 | — | `smoke.py stopgen` · `dpo` · `grpo` — real TRL steps on the local 12 GB card | ✅ 3 · 7 · 6 checks |
 | — | `smoke.py resume` · `prompts` — mid-training resume keeps the iteration-start reference and reloads the trained `default` through the trainers' real restore helpers; THE PROMPT RULE + drop-oldest truncation (system-led and system-less) on both therapist tokenizers | ✅ 13 · 30 checks |
 | 5 EDA | `_selfcheck` (full); every family renders on an empty lake (`render_results.py`: 4 rendered, 0 failed) | ✅ 14 passed, 0 failed, 4 skipped (no arms on disk) |
@@ -1234,11 +1266,42 @@ trained; no `data/` exists yet.**
 | 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ |
 | 6 First real arm | one real-config iteration read for memory / latency / wall-clock, THEN the full GRPO K=0 arm on Colab, $0 API | ⬜ |
 
-Everything runnable without Colab is green: **172 smoke checks** (`32 + 29 + 29 + 23 + 13 + 30 + 3 +
+Everything runnable without Colab is green: **176 smoke checks** (`32 + 29 + 29 + 27 + 13 + 30 + 3 +
 7 + 6`, GPU parts included, plus the one deliberate `vram` WARNING for the 40 GB fallback card;
 `serve` / `roles` skip without vLLM on PATH) plus the EDA self-check. `dpo` runs a real `DPOTrainer` and `grpo` a real `GRPOTrainer` step whose completion
 lengths come back well under the cap, which is the anti-degeneracy stack working rather than merely
 wired up.
+
+### The 2026-09-14 pre-Colab review (the last pass before the first Colab session)
+
+Four read-only reviewers over the notebooks + Colab path, the serving layer (against the live
+vLLM / Gemma 4 sources), the trainer loops, and the oracle-sanity + scoring path; every local
+suite re-run green. Still pre-data. One line each; the narrative is in
+[history/CHANGELOG.md](history/CHANGELOG.md).
+
+- **BLOCKER, fixed — vLLM is now pinned (`PINNED_VLLM = "0.26.0"`, both install cells).** An
+  unpinned install resolved to 0.29.0, whose `transformers>=5.10.4` / `torch==2.13.0` the pinned
+  stack cannot meet, so the cell's own pip-check gate raised on a fresh runtime. 0.26.0 pins
+  torch 2.11.0 (the locally validated torch) and every one of its requirements is inside the pins.
+- **The pip-check gate fails only on conflicts whose REQUIRING package the stack owns** (the
+  pins + vllm + torch); stock Colab's own conflicts are printed and tolerated. A warm runtime is
+  re-checked too.
+- **Text-only serving flag** (`roles.DEFAULT_SERVE_EXTRA_ARGS`, composed by `plan_servers`):
+  the Gemma checkpoints are multimodal and vLLM profiled the vision + audio towers inside the KV
+  pre-allocation. § VRAM budget.
+- **GRPO `QUICK_TEST` runs 16 conversations, not 8** — a G=4 step needs 32 eligible slices and
+  8 conversations could raise "ZERO optimizer steps" after the generate pass; two batches of 8
+  also rehearse the inter-batch allocator. PTO stays at 8.
+- **`DISABLE_DROPOUT` is now a cell-1 global in BOTH notebooks** (GRPO relied on the
+  `TrainingConfigBase` default; matched either way, but the spec's mechanism claim was false).
+- `metadata_fields` emits `cumulative_production_time_s` + `n_timing_sessions_production` (the
+  resume flag the docs point readers at); `smoke.py roles` defaults to the 1800 s readiness
+  timeout; the `enable_thinking` key is verified against the E4B chat template and the "strict is
+  what enforces the grammar" comment corrected (inert on vLLM).
+- **Ladder mechanics written down** (§ Next session): the High-RAM toggle IS the 80 GB card;
+  `smoke.py roles` before the serve cell; the notebooks run the full sanity gate inline; kill
+  during iteration 2; check for orphaned engine workers after a kill; rename the `_G4_` / `_M3_`
+  rehearsal folders before scoring — the EDA treats them as arms.
 
 ### The 2026-09-02 pre-run review (blockers + should-fixes, applied while no data exists)
 
@@ -1366,22 +1429,45 @@ it; do not jump to a full arm.
 
 0. **Before Colab:** push `code/` AND `eda/` to Drive (additively; never `data/`) and add the
    `huggingface` Colab secret (Llama-3.2-1B is gated; **Gemma 4 is NOT** — Apache 2.0, no
-   click-through). Run the install cell: on a fresh runtime it installs vLLM first (≥ 0.19.1),
-   layers the pinned stack on top, drops Colab's torchao, and **raises to stop** — restart, re-run
-   the mount cell, continue; on a warm runtime it prints one line and skips. It refuses to install
-   anywhere but Colab, so opening a notebook locally cannot write into the repo `.venv`.
-1. **`smoke.py roles`** — chat + `json_schema` per binding, **no thinking tokens** on the wire,
-   kill→restart. Read the **measured weights line** (14.89 GiB E4B / 9.54 GiB E2B) and the
-   **KV cache tokens** line (pool ÷ ~4k median prompt = concurrent oracle calls the server holds).
+   click-through, verified on the Hub 2026-09-14). **Grant the secret notebook access and check
+   the auth line right after the mount cell** — a missing token only *warns* there and then fails
+   at model load, after the server start and the full sanity pass. **The 80 GB card is the A100
+   runtime with the High-RAM toggle ON** (Colab bills it at ≈ 7.5 compute units/h against ≈ 5.4
+   for the 40 GB card, which has ≈ 0 headroom — § VRAM budget). Run the install cell: on a fresh
+   runtime it installs vLLM 0.26.0 first (`PINNED_VLLM`), layers the pinned stack on top, drops
+   Colab's torchao, runs the pip-check gate (foreign conflicts tolerated, stack conflicts raise),
+   and **raises to stop** — restart, re-run the mount cell, continue; on a warm runtime it prints
+   one line, re-checks, and skips. It refuses to install anywhere but Colab, so opening a notebook
+   locally cannot write into the repo `.venv`.
+1. **`smoke.py roles` — in a FRESH runtime, before the notebook's serve cell.** It serves the
+   real grader itself (default timeout 1800 s), checks chat + `json_schema` per binding, **no
+   thinking tokens** on the wire, kill→restart, and **stops its server at the end**; after the
+   serve cell it would adopt the notebook's server and skip the kill→restart check. Read the
+   **measured weights line** (14.89 GiB E4B / 9.54 GiB E2B), the **KV cache tokens** line (pool ÷
+   ~4k median prompt = concurrent oracle calls the server holds) and vLLM's **maximum
+   concurrency** line (≈ 90× at the 16k cap on 80 GB with the text-only flag in force).
 2. **Full `oracle_sanity` on E4B** (12 transcripts, both hard gates, `--quick` is for vendor APIs
-   only). E2B only if E4B fails the gate.
-3. **`QUICK_TEST=True` rehearsal, both notebooks** (G=4 / M=3, 8 conversations, 2 iterations, real
-   per-forward shapes; lands in a disjoint `_G4_` / `_M3_` folder). **Kill the kernel on purpose
-   during iteration 1's training phase, after a `checkpoint-*` save, and resume:** `smoke.py
-   resume` pins the reference-anchoring semantics offline, the rehearsal proves them on the real
-   loop — expect `n_sessions_production == 2`, the partial `training_s` lines summing to the phase,
-   `resume_from_checkpoint` picking the valid checkpoint, and the iteration-start adapter as the
-   reference. Read **`peak_reserved_gib_*` per phase** from `iteration_metadata.json`.
+   only). **Both notebooks run this gate inline in their section 4** against the server they just
+   started, so the CLI is optional — its `oracle_sanity.json` lands in the run dir either way.
+   E2B only if E4B fails the gate. Skip `tools/generate_convs.py` here: the trainers generate
+   their own `model_iter_0`, and a standalone pass before `run_metadata.json` exists runs under
+   `GenConfig` defaults the arm will not record.
+3. **`QUICK_TEST=True` rehearsal, both notebooks** (G=4 / M=3, 16 conversations GRPO / 8 PTO,
+   2 iterations, real per-forward shapes; lands in a disjoint `_G4_` / `_M3_` folder). **Kill the
+   kernel on purpose during iteration 2's training phase, after a `checkpoint-*` save, and
+   resume** — iteration 2, not 1: it exercises the adapter-reload branch every real-arm resume
+   takes, iteration 1 only the bare-base branch. **After any kill, `!nvidia-smi` and
+   `!pgrep -af vllm` before re-running the serve cell:** vLLM's engine workers can outlive the
+   parent holding the 40 GiB, invisible to the `serve` registry, and a second launch then fails
+   at the free-memory check — kill leftovers by PID. `smoke.py resume` pins the
+   reference-anchoring semantics offline, the rehearsal proves them on the real loop — expect
+   `n_timing_sessions_production == 2` in `iteration_metadata.json`, the partial `training_s`
+   lines summing to the phase, `resume_from_checkpoint` picking the valid checkpoint, TB
+   `train/loss` continuing rather than restarting, the iteration-start adapter as the reference,
+   and `iteration_N/adapter/` differing from the checkpoint it resumed from. Read
+   **`peak_reserved_gib_*` per phase** from `iteration_metadata.json`. **Then rename or delete
+   the `_G4_` / `_M3_` folders** (under both `runs/` and `conversations/`) before any `Run_Eval`
+   or render — the EDA's arm discovery accepts them as real arms and would score and plot them.
 4. **One real-config iteration** (`QUICK_TEST=False`; `NUM_ITERATIONS` is not in the arm name, so
    the arm simply resumes into the full run later). Read: peak memory again (96 conversations now),
    the server's KV-cache-tokens line against the realised concurrency, oracle **p95 latency and the
