@@ -1290,11 +1290,26 @@ trained; no `data/` exists yet.**
 | 2 Oracle path | request carries a real `json_schema`; validation ladder accepts a good answer, **rejects a short array and prose**; aggregation is the unweighted mean across rubrics | ✅ vs `tools/fake_oracle_server.py` |
 | 2 Sanity gate | passes a healthy grader, **fails a degenerate one** (exit 1) | ✅ both directions |
 | 2 Generation | base policy + patient endpoint → `pers<PID>.csv` → reader round-trip → oracle score | ✅ full loop, local GPU |
-| 1 Serving | `smoke.py roles` on Colab — chat + json_schema per binding, **no thinking tokens**, kill→restart, real weights GiB, the KV-cache-tokens line | ⬜ needs Colab + vLLM |
-| 2 Real grader | 96-conv base pass vs the real Gemma patient; full `oracle_sanity` against the real Gemma oracle; `Run_Eval` § 8 prompt-length gate | ⬜ |
-| 3 GRPO | `QUICK_TEST` rehearsal trains, is killed mid-training on purpose and resumes; `generations.jsonl` valid; prompts/step = 16; `peak_reserved_gib_*` read | ⬜ |
-| 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ |
-| 6 First real arm | one real-config iteration read for memory / latency / wall-clock, THEN the full GRPO K=0 arm on Colab, $0 API | ⬜ |
+| 1 Serving | `smoke.py roles` on Colab — chat + json_schema per binding, **no thinking tokens**, kill→restart, real weights GiB, the KV-cache-tokens line | 🟡 the notebooks' serve cell brought E4B up on the A100 80 GB (`0.26.0+cu129`, measured weights **14.61 GiB**, text-only flag on) and the json_schema oracle path answered; `smoke.py roles` itself (the thinking-token assertion, kill→restart) has NOT been run |
+| 2 Real grader | 96-conv base pass vs the real Gemma patient; full `oracle_sanity` against the real Gemma oracle; `Run_Eval` § 8 prompt-length gate | 🟡 full `oracle_sanity` **passed** inline (12/12 schema-valid on both rubrics, no degeneracy; Q1 Spearman **0.90** vs the gpt-4o-mini reference, level offset −0.93); the 96-conv base pass exists (`model_iter_0` of the real arm); the § 8 prompt-length gate awaits the first `Run_Eval` |
+| 3 GRPO | `QUICK_TEST` rehearsal trains, is killed mid-training on purpose and resumes; `generations.jsonl` valid; prompts/step = 16; `peak_reserved_gib_*` read | 🟡 the rehearsal generated + extracted, then OOM'd in TRL's first prefill (fixed: chunked prefill); the REAL arm now trains through that step — kill→resume and the peak read are to be done ON the real arm (iteration 2, after `checkpoint-10`) |
+| 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ still the plan: run PTO's rehearsal first (its build/resume path and DPO-step memory are separate questions) |
+| 6 First real arm | one real-config iteration read for memory / latency / wall-clock, THEN the full GRPO K=0 arm on Colab, $0 API | 🟡 **running** — `GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi`, started 2026-09-14 (QUICK_TEST left False by accident; kept, since the real iteration 1 is rung 4 anyway). Iteration 1: generation 96 convs in **209 s**, training **~65 s/step**, every group with reward spread. Read `peak_reserved_gib_train` + the phase wall-clocks when iteration 1 closes |
+
+**What the live arm has already measured** (2026-09-14; the numbers the plan got wrong):
+- **Sessions are short.** Base conversations average **18.5 utterances** (min 2, max 28) against the 49
+  cap — the Gemma patient ends 60/96, the Instruct therapist wraps up 36/96 (two right after the
+  patient's first reply). The spec's "19 branch points per conversation" is **~4** here: `407`
+  MCL-eligible slices from 96 conversations → `386 / 16 ≈ 24` optimizer steps per iteration, not
+  ~108. An iteration is ~30 min (3.5 gen + ~26 train) ⇒ 10 iterations ≈ 5 GPU-h ≈ 38 CU on the 80 GB
+  card — cheap, but a quarter of the planned updates per iteration. Raising `NUM_ITERATIONS` is free
+  (not in the arm name); decide after the first arm's curve.
+- **Bare `SESSION ENDED` completions (~7 % of samples) take the 0.0 floor** — the documented rule
+  (`core.reward`: keyword-only = cleans to empty = degenerate), the same as Exp3's. They are the
+  group minimum, so GRPO pushes away from abrupt endings; expect session length to drift up.
+  Completions that say something and then end are graded normally (mean ≈ 3.9).
+- The old `_G4_` rehearsal folders (16 conversations, a headless `iteration_1/`) are still on Drive
+  under `runs/` and `conversations/` — rename or delete before any `Run_Eval`.
 
 Everything runnable without Colab is green: **183 smoke checks** (`32 + 29 + 29 + 26 + 13 + 30 + 3 +
 7 + 6 + 8`, GPU parts included, plus the two deliberate `vram` WARNINGS for the 40 GB fallback card;

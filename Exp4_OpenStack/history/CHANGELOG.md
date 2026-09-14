@@ -81,8 +81,22 @@ of the failed process was reserved-but-unallocated. Envelope: the GRPO generate 
 `smoke.TRAINER_ENVELOPE_GIB` + `_GRPO_ENVELOPE_DOCUMENTED_GIB` updated); the 40 GB fallback no
 longer fits at the documented shape and `smoke.py vram` now WARNS there with the four-hatch
 arithmetic (≈ 9 GiB recoverable) instead of failing. `PREFILL_CHUNK_SIZE` 512→256 joins the
-escape hatches. Nothing trained yet, so still no data; the rehearsal resumes from its
-16 on-disk conversations.
+escape hatches.
+
+**Then the first real arm started, by accident, and was kept.** After the chunked-prefill push the
+notebook was re-run with `QUICK_TEST` still `False`, so instead of the `_G4_` rehearsal the real
+GRPO K=0 arm (`GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi`) began at 13:01 local. Kept
+running: its iteration 1 IS the ladder's rung 4, the arm is pre-data and deletable, and the
+kill→resume rehearsal can be done on it at iteration 2. What it established by 13:15: the OOM
+step now completes (~65 s per optimizer step, every group of 8 with reward spread, mean SD 0.46,
+no zero-spread groups); `run_metadata.json` records the A100 80 GB, `vllm 0.26.0+cu129`,
+`torch 2.11.0+cu129`, weights 14.61 GiB, the text-only flag and `prefill_chunk_size 512`; the
+inline `oracle_sanity` passed (12/12 schema-valid on both rubrics, Q1 Spearman 0.90 against the
+gpt-4o-mini reference, level offset −0.93); generation of 96 conversations took 209 s. And the
+two numbers the plan had wrong: base sessions average 18.5 utterances, not ~49 (the Gemma patient
+ends 60/96, the Instruct therapist 36/96), so an iteration has ~24 optimizer steps rather than
+~108 and costs ~30 min; and ~7 % of sampled completions are the bare `SESSION ENDED` keyword,
+which the documented rule floors at 0.0. Status table + § Status carry both.
 
 **Should-fixes applied**
 - `roles.DEFAULT_SERVE_EXTRA_ARGS` + `default_serve_extra_args`, composed into every spec by
