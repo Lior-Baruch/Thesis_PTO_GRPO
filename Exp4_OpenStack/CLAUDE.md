@@ -21,7 +21,7 @@ Exp4 only. (The same warning Exp2↔Exp3 carries for a different reason.)
 | Patient | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable; E2B = fallback) |
 | Training oracle | `gpt-4o-mini-2024-07-18` | **`google/gemma-4-E4B-it`** (selectable) |
 | Eval judge | gpt-4o-mini + Claude Haiku 4.5 | **`google/gemma-4-E4B-it`** (selectable; `judge=` partitions from day 1) |
-| Serving | vendor APIs | **one local vLLM OpenAI-compatible server** (vLLM **pinned at 0.26.0** in the install cell — the Gemma 4 floor is 0.19.1, but an unpinned install resolves to a build whose `transformers` floor the pinned stack cannot meet; see § Status → the 2026-09-14 review) |
+| Serving | vendor APIs | **one local vLLM OpenAI-compatible server** (vLLM **pinned at `0.26.0+cu129`** in the install cell — the GitHub-release CUDA 12.9 wheel, with the torch trio forced to the matching `+cu129` build. The Gemma 4 floor is 0.19.1, but an unpinned install resolves to a build whose `transformers` floor the pinned stack cannot meet, and the PyPI wheel is a CUDA 13 build that cannot load beside Colab's CUDA 12 torch; see § Status → the 2026-09-14 review) |
 | Training questionnaire | Q1+Q2 (fixed) | **selectable** (default Q1+Q2) |
 | Logging | W&B + TensorBoard | **TensorBoard only** |
 | Cost per arm | ~$25–120 API | **$0 API** — GPU-hours only. Target card: **Colab A100 80 GB**; 40 GB is the fallback (§ VRAM budget) |
@@ -1217,10 +1217,16 @@ Nothing in Exp4 requires Colab; the Colab-only branches (Drive mount, Colab Secr
 `COLAB_CODE_DIR`) all fall through cleanly (`core.runtime`'s module docstring carries the full
 list). The differences:
 
-- **Install.** `pip install vllm==0.26.0` FIRST (the notebooks' `PINNED_VLLM`; it brings its own
-  torch 2.11.0 — an *unpinned* install resolves to a build whose `transformers` floor the pinned
-  stack cannot meet), then `pip install -r requirements.txt` (the repo-root pins) on top, then
-  `pip uninstall torchao` — the same order the notebooks' install cell uses. That cell refuses to run outside Colab, so do
+- **Install.** The torch trio FIRST, by exact CUDA build
+  (`pip install --force-reinstall --no-deps --extra-index-url https://download.pytorch.org/whl/cu129
+  torch==2.11.0+cu129 torchvision==0.26.0+cu129 torchaudio==2.11.0+cu129`, then the same
+  command without `--force-reinstall --no-deps` to fill in their cu12 runtime libs), then the
+  **`+cu129` vLLM wheel from the GitHub release** (the notebooks' `VLLM_WHEEL_URL`; the PyPI
+  `vllm==0.26.0` wheel is a CUDA 13 build and an *unpinned* install resolves to a version whose
+  `transformers` floor the pinned stack cannot meet), then `pip install -r requirements.txt`
+  (the repo-root pins) on top, then `pip uninstall torchao` — the same order the notebooks'
+  install cell uses. A host on a CUDA 13 driver (≥ 580) could use the PyPI wheels instead; that
+  is a different `VLLM_CUDA` and a stack change to re-gate. That cell refuses to run outside Colab, so do
   this by hand once per environment.
 - **Credentials.** Export `HF_TOKEN` (Llama-3.2-1B is gated; `HUGGING_FACE_HUB_TOKEN` /
   `HUGGINGFACE_TOKEN` also work) and, only for a vendor-bound role, `OPENAI_API_KEY` /
@@ -1283,6 +1289,14 @@ suite re-run green. Still pre-data. One line each; the narrative is in
   unpinned install resolved to 0.29.0, whose `transformers>=5.10.4` / `torch==2.13.0` the pinned
   stack cannot meet, so the cell's own pip-check gate raised on a fresh runtime. 0.26.0 pins
   torch 2.11.0 (the locally validated torch) and every one of its requirements is inside the pins.
+- **BLOCKER #2, found on the first Colab session and fixed — the CUDA BUILD is pinned too.**
+  The PyPI `vllm==0.26.0` wheel is a CUDA 13 build (`import vllm` died on a missing
+  `libcudart.so.13`), while Colab's pre-installed torch is a CUDA 12 build whose version already
+  satisfied `torch==2.11.0`, so pip never replaced it. The cell now installs the **`+cu129`
+  wheel from the GitHub release** and first forces the torch trio to `2.11.0+cu129` /
+  `0.26.0+cu129` / `2.11.0+cu129` from the PyTorch cu129 index (`--force-reinstall --no-deps`,
+  then a deps-only pass — a plain `-U` keeps a `+cu130`). The warm-runtime check now compares
+  the build tag (`0.26.0+cu129`, `torch 2.11.0+cu129`), and the import probe prints torch's CUDA.
 - **The pip-check gate fails only on conflicts whose REQUIRING package the stack owns** (the
   pins + vllm + torch); stock Colab's own conflicts are printed and tolerated. A warm runtime is
   re-checked too.
@@ -1434,9 +1448,11 @@ it; do not jump to a full arm.
    at model load, after the server start and the full sanity pass. **The 80 GB card is the A100
    runtime with the High-RAM toggle ON** (Colab bills it at ≈ 7.5 compute units/h against ≈ 5.4
    for the 40 GB card, which has ≈ 0 headroom — § VRAM budget). Run the install cell: on a fresh
-   runtime it installs vLLM 0.26.0 first (`PINNED_VLLM`), layers the pinned stack on top, drops
-   Colab's torchao, runs the pip-check gate (foreign conflicts tolerated, stack conflicts raise),
-   and **raises to stop** — restart, re-run the mount cell, continue; on a warm runtime it prints
+   runtime it forces the torch trio to the `+cu129` build, installs the `+cu129` vLLM 0.26.0
+   wheel from the GitHub release (`PINNED_VLLM` + `VLLM_CUDA`), layers the pinned stack on top,
+   drops Colab's torchao, runs the pip-check gate (foreign conflicts tolerated, stack conflicts
+   raise), probes `import torch, vllm` in a fresh interpreter (prints torch's CUDA), and
+   **raises to stop** — restart, re-run the mount cell, continue; on a warm runtime it prints
    one line, re-checks, and skips. It refuses to install anywhere but Colab, so opening a notebook
    locally cannot write into the repo `.venv`.
 1. **`smoke.py roles` — in a FRESH runtime, before the notebook's serve cell.** It serves the

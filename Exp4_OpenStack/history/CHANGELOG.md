@@ -31,6 +31,24 @@ Colab carries conflicts of its own (google-colab's pandas / numpy pins). It now 
 the REQUIRING package is one the stack owns (the pins + vllm + torch), prints the rest as
 tolerated, and re-runs on a warm runtime too.
 
+**The second blocker, found by the first Colab session the same day.** With the pin in place the
+gate passed (13 foreign conflicts tolerated, none in the stack — the classification worked), and
+then the fresh-interpreter probe failed: `import vllm` → `ImportError: libcudart.so.13`. Read off
+PyPI: the default `vllm==0.26.0` wheel is a **CUDA 13** build (`nvidia-cutlass-dsl[cu13]`; the
+GitHub release carries a separate `+cu129` asset), and the PyPI `torch==2.11.0` wheel is CUDA 13
+too (`cuda-toolkit[...]==13.0.2`, `nvidia-*-cu13`). Colab's pre-installed torch is a CUDA 12
+build whose version already satisfies `torch==2.11.0`, so pip never replaced it, and a CUDA 13
+vLLM landed beside a CUDA 12 torch. The version pin was right and the *build* was unpinned. Fix:
+`VLLM_CUDA = "cu129"` — the `+cu129` wheel from the GitHub release, and the torch trio FORCED to
+`torch==2.11.0+cu129` / `torchvision==0.26.0+cu129` / `torchaudio==2.11.0+cu129` from
+`download.pytorch.org/whl/cu129` (`--force-reinstall --no-deps` for the three wheels, then a
+deps-only pass for their cu12 runtime libs; a plain `-U` would keep a `+cu130` because pip ranks
+that local tag higher). CUDA 12.9 runs on any driver ≥ 525, i.e. every Colab card, which is why
+cu129 rather than moving Colab to CUDA 13. The warm-runtime check now compares the build tag
+(`importlib.metadata` reports `0.26.0+cu129`), the pip-check "owned" set includes the trio, and
+the probe imports torch AND vllm and prints `torch.version.cuda`. All four wheels verified to
+exist for cp313 / x86_64 before the change shipped.
+
 **Should-fixes applied**
 - `roles.DEFAULT_SERVE_EXTRA_ARGS` + `default_serve_extra_args`, composed into every spec by
   `plan_servers` (caller flags appended; a caller spelling the same flag wins): both Gemmas get
