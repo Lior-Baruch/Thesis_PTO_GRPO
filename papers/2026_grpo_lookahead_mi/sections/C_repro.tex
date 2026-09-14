@@ -46,6 +46,97 @@ Source: each arm's \texttt{run\_metadata.json}.}
 \label{tab:config}
 \end{table}
 
+\subsection{Instruments}
+\label{app:instruments}
+
+\begin{table*}[t]
+\centering
+\small
+\setlength{\tabcolsep}{6pt}
+\begin{tabular}{@{}llll@{}}
+\toprule
+Instrument & Source & Outputs per conversation & Reported here \\
+\midrule
+Q1 & \citet{yosef2024assessing} & 5 items, 1--5 & mean \\
+Q2 & \citet{yosef2024assessing} & 17 items, 1--5 & mean \\
+WAI-SR & \citet{hatcher2006waisr} & 12 items, 1--5 & mean \\
+CSQ-8 & \citet{larsen1979csq} & 8 items, 1--4 & mean \\
+MI-SAT & adapted, this work & 6 items, 1--5 & mean \\
+MITI & \citet{moyers2016miti} & 4 globals, 1--5; 7 behaviour counts & mean of the globals \\
+PCT & this work & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
+MICI & this work & 1 global, 1--5; 6 behaviour counts & acts per therapist turn \\
+\bottomrule
+\end{tabular}
+\caption{The eight instruments. \QQ\ is the mean of the Q1 and Q2 means. CT and ST are the
+patient's change-talk and sustain-talk utterance counts. MICI is lower-is-better; its per-channel
+counts and rates are the material of \S\ref{sec:behaviour}.}
+\label{tab:instruments}
+\end{table*}
+
+Table~\ref{tab:instruments} lists the eight instruments. Each is administered as one API call per
+conversation with a JSON-schema-constrained response, the fixed instructions and item texts first
+and the transcript last. For Q1 and Q2 the grader is addressed as ``a professional motivational
+interview therapist'' and told to rate each item from the patient's point of view on a 1--5 scale,
+every item carrying a one-paragraph explanation with an example of a good and of a bad therapist
+response (Q1: overall satisfaction with the chat and with its content, motivation facilitated,
+whether anything was learned, and its relevance to everyday life; Q2: seventeen relational items
+such as ``the therapist seemed to understand me'', ``the therapist did not judge me'', and ``the
+therapist made me feel like he cared about me''). WAI-SR, CSQ-8 and MI-SAT are scored from the
+patient's perspective with their item wording and response anchors. The three coders are addressed
+as a certified MITI coder. The MITI coder returns four global ratings (cultivating change talk,
+softening sustain talk, partnership, empathy) and assigns exactly one of seven behaviour codes to
+each therapist utterance (giving information, persuade, question, simple reflection, complex
+reflection, affirm, seeking collaboration). The PCT coder rates the patient's expressed importance,
+confidence and readiness to change and classifies every patient utterance as change talk, sustain
+talk or neutral. The MICI coder rates overall severity and counts six MI-inconsistent behaviours
+across the therapist's turns, any number per utterance: confront, advise without permission, warn,
+direct, judge/label, and over-praise, the last defined to the grader as ``effusive, generic, or
+excessive praise NOT tied to a specific client strength/effort (`you're amazing', `I'm so proud of
+you'). A genuine, specific MI affirmation does NOT count here.'' The per-turn rates in
+\S\ref{sec:behaviour} divide these counts by the number of therapist utterances, which the prompt
+states.
+
+\subsection{The simulated patient and the therapist prompt}
+\label{app:prompts}
+
+The patient's system prompt is assembled from the six persona attributes, quoted here verbatim
+including spelling: ``You are speaking with a motivational interviewing counselor therapist, and
+you are the patient in this conversation. Your name is [James / Emma], and you are [27 / 61] years
+old [male / female]. [cooperation clause]. [problem clause]. [history clause].'' followed by an
+instruction to avoid repetition and the rule for ending the session (write ``SESSION ENDED'' if
+the therapist is wrapping up, or if the patient is satisfied and believes they gained enough
+knowledge). The three cooperation clauses are: high (``Your level of cooperation is very high'');
+low (``Your level of cooperation is very low, you should be very suspicious about the advices you
+get from the therapist. In general you don't believe in therapy and you should respond
+adverserially to the therapist. You should cooperate only if the therpist said something that
+makes sense to you. You went to therapy only because someone forced you to do so''); and
+low-then-high, the low clause followed by ``But as the session progresses, you become more
+cooperative and more motivated to change''. The problem clause describes smoking (``You have been
+smoking for [a few months / many years], and it has become a daily habit. You are increasingly
+concerned about the impact of smoking on your health'') or obesity (``You have been struggling
+with obesity for [a few months / many years]. Your weight is negatively impacting your health. You
+have high blood pressure and experience joint pain''), and the history clause states either that
+the patient has never tried to change or that they have tried many times and relapsed. The
+therapist's system prompt, applied through the chat template in both arms and inside the
+look-ahead rollout, is ``You are a motivational interviewing counselor named David. You partner
+with the patient to understand his problems. You are empathetic towards him and help the patient
+explore their ambivalence regarding behavioral change. You are non-judgmental while encouraging
+the patient to change,'' followed by the same anti-repetition instruction and its own
+session-ending rule. Every conversation opens with the same scripted therapist line, omitted from
+Appendix~\ref{app:example}.
+
+\subsection{The lexical over-praise marker}
+\label{app:marker}
+
+The marker of \S\ref{sec:behaviour} is one case-insensitive regular expression matched against
+each therapist utterance; a turn counts if it contains any of ten patterns: ``I'm so proud'',
+``proud of you'', ``inspiration to me'', ``you got this'', ``beautiful'', ``beacon'',
+``shining'', ``warrior'', ``hero of your'', and ``you are a light'' or ``you are a beacon''. It
+exists as a direction check on the oracle's over-praise count and is deliberately crude
+(``beautiful'' matches any use of the word); it is reported as the share of therapist turns
+matched, never as a count of acts, and its absolute level is not a measurement. Its agreement with
+the oracle-coded rate (Figure~\ref{fig:overpraise}) is what \S\ref{sec:behaviour} relies on.
+
 \subsection{Anti-degeneracy}
 
 The base 1B model will occasionally continue past its own turn and write the patient's reply. All
@@ -86,9 +177,10 @@ sub-batch, so the per-step multiplier is quoted over the settled iterations 3--1
 Every number in this paper is traceable to a tracked table in the analysis-results tree of the
 accompanying code release, and the mapping from claim to table is the paper's \texttt{NUMBERS.md}
 ledger. Figures are copied from that same tree rather than regenerated here, so the draft compiles
-standalone and a submitted PDF is frozen against later re-renders; the two exceptions,
-Figures~\ref{fig:overpraise} and~\ref{fig:saturation}, are redrawn at page proportions by a script
-in the paper folder that reads only the tracked tables behind the corresponding tree figures. The
+standalone and a submitted PDF is frozen against later re-renders; the exceptions are
+Figure~\ref{fig:schematic}, a page-width redraw of the method schematic, and
+Figures~\ref{fig:overpraise} and~\ref{fig:saturation}, redrawn at page proportions by a script in
+the paper folder that reads only the tracked tables behind the corresponding tree figures. The
 transcript in Table~\ref{tab:excerpt} and Appendix~\ref{app:example} is reproduced verbatim from
 the stored conversation files; the persona was selected by the rule stated in the caption, with
 the selection script alongside the paper.

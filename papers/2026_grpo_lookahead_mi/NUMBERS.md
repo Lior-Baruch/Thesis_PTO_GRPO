@@ -253,6 +253,38 @@ them. Re-render the EDA → re-run that script → the pictures move with the ta
 | MITI is the least dependable instrument | results/LIMITATIONS.md § 2 |
 | Matched iterations ≠ matched cost — the call/wall-clock disclosure block above | this ledger |
 
+## 2026-09-14 review pass — new and retired numbers (NEW-0914)
+
+**Framing change.** The endpoint-anchored gain ratio ("more than doubles", 2.27× / 2.62×) is no
+longer the headline: it is anchored on the K=0 arm's post-decline LAST checkpoint (CLAUDE.md
+epistemic rule 2b). The paper now quotes both anchors and the range **1.3 to 2.6×**. §8's
+"one-sided saturation" is reframed as **ceiling-driven**: the training oracle's spread tracks its
+LEVEL along both arms, and the held-out judge keeps its spread because it has headroom.
+
+| claim | value | source |
+|---|---|---|
+| ✅ K=0 best-checkpoint gain, Q1+Q2, primary | 3.067 → 4.082 at I8 = **+1.016** (`target=best`, `target_iter` 8) | results/arms/stats/tables/gpt-4o-mini/main_results.md |
+| ✅ K=0 best-checkpoint gain, Q1+Q2, held-out | 1.861 → 2.637 at I3 = **+0.776** (`target=best`, `target_iter` 3) | results/arms/stats/tables/claude-haiku-4-5/main_results.md |
+| ✅ Gain ratio vs K=0's BEST checkpoint | primary 1.554 / 1.016 = **1.53×**; held-out 1.038 / 0.776 = **1.34×**. Paper range "1.3 to 2.6×" spans these and the endpoint ratios 2.27× / 2.62× | derived — show the arithmetic |
+| ✅ Training-oracle Q1 SD along K=0 (the new Figure 4b series) | iters 0–10: 1.296, 1.271, 1.278, 0.974, 0.943, 1.011, 0.921, 0.932, 0.977, 0.982, 1.142; means 3.021, 3.177, 3.302, 3.935, 3.898, 3.869, 3.810, 3.946, 3.935, 3.529, 3.606. Paper: "compresses to 0.92–1.01 while the mean sits near 3.9 over iterations 3–8 and re-expands to 1.14 when the mean falls at iteration 10". Spearman(SD, iter) −0.44, p .18 (printed by `render_paper_figures.py`, not quoted in the text) | results/lookahead/replication/tables/sd_by_iter.md, `gpt-4o-mini / Q1 / GRPO_LA0` rows (= `replication.xlsx` sheet `sd_by_iter`) |
+| ✅ Ceiling shares, training oracle, Q1, K=5 (Figure 4c + §8) | `share_ge45` 0.135 (base) → **0.583** (I10) = "14% → 58%"; `share_eq5` **0.396** at I10 = "40% receive the maximum score" | same table, `gpt-4o-mini / Q1 / GRPO_LA5` rows |
+| ✅ Held-out judge is nowhere near its ceiling | `share_ge45` = 0.000 at every GRPO state under claude-haiku-4-5 (Figure 4c note); K=5 I10 Q1 mean **2.731** = "near 2.7" | same table, `claude-haiku-4-5 / Q1` rows |
+| 📄 Base session length | 28.771 (K=0) / 28.292 (K=5) utterances → "base-policy sessions average 28 utterances" (§4) | results/lookahead/behaviour/tables/length_endpoints.md, iteration-0 columns |
+| 📄 Lexical over-praise marker = 10 patterns (Appendix C.4) | `RE_EFFUSIVE`: i'?m so proud · proud of you · inspiration to me · you got this · beautiful · beacon · shining · warrior · hero of your · you are a (light or beacon), case-insensitive | Exp3_PTO_GRPO/eda/eda_analysis/constants.py |
+| 📄 Instrument facts (Appendix C.2, Table 6) | Q1 5 items, Q2 17 (`yosef2024assessing`, CLPsych 2024), WAI-SR 12, CSQ-8 8 on a **1–4** scale, MI-SAT 6, MITI 4 globals + 7 counts, PCT 3 globals + 3 counts, MICI 1 global + 6 counts. Reported columns: `Q1_Mean`, `Q2_Mean`, `WAI_TotalMean`, `CSQ8_Mean`, `MI_Mean`, `MITI_GlobalMean`, `PCT_ChangeProp` = CT/(CT+ST), `MICI_Rate` = acts per therapist turn | Exp3_PTO_GRPO/code/questionnaires.py; eda_analysis/constants.py `QUESTIONNAIRES` |
+| 📄 Prompts (Appendix C.3) | patient template + the three cooperation clauses, the smoking/obesity clauses, names James/Emma, ages 27/61 (quoted verbatim incl. spelling); therapist = the `Good` counsellor prompt (`only_expert_therapist=True`), name David, applied through the chat template | Exp3_PTO_GRPO/code/system_prompts_builder.py; `_shared/convs.py` |
+| 📄 Figure 1 | drawn by `render_schematic.py` (landscape figure*, 6–7 pt labels); the EDA's portrait schematic is no longer copied by `sync_figures.py` | this folder |
+
+**Retired wording (do not reintroduce):** "more than doubles" as a headline or section title
+(endpoint-anchored); "which to our knowledge has not been isolated for LLM judges" (replaced by
+the ceiling framing); "the direct predecessor of this work" (now "the closest prior work");
+"ends more than twice as far from base" in §7 (now "further from base by a margin that survives
+the K=0 arm's best checkpoint").
+
+**References added 2026-09-14** (verified against arXiv / ACL Anthology / OpenReview that day):
+`kazemnejad2024vineppo` (arXiv 2410.01679) · `gao2024refuel` (ICLR 2025; arXiv 2410.04612) ·
+`wang2024patientpsi` (EMNLP 2024, `2024.emnlp-main.711`) · `zhou2025sweetrl` (arXiv 2503.15478).
+
 ## References added 2026-09-02 (verified against the venue pages)
 
 `guo2025deepseekr1` (arXiv 2501.12948; also Nature 2025) · `zhou2024archer` (ICML 2024, PMLR 235) ·

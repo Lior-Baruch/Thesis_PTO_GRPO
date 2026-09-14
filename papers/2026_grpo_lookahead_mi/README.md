@@ -43,6 +43,38 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
 - A Limitations paragraph on the 200-token response cap (both arms grew into it), and a
   camera-ready TODO on the author block in `main.tex`.
 
+**Revised 2026-09-14** (a full review pass before the supervisors' read; decisions Lior's):
+
+- **Headline reframed (robust anchors).** "More than doubles" was anchored on the K=0 arm's
+  post-decline last checkpoint; the paper now leads with "leads from iteration 4 on, beats K=0's
+  best checkpoint as well as its last" and quotes the gain ratio at BOTH anchors, 2.27× / 2.62×
+  (endpoint) and 1.53× / 1.34× (vs. K=0's best), i.e. "1.3 to 2.6×". §5 retitled. The 67%
+  over-praise figure is now given with its trajectory (27% → 9% → 67% over iterations 8–10) and
+  the separation-from-iteration-5 statement carries the claim.
+- **§8 reframed as ceiling-driven.** The training oracle's spread tracks its LEVEL along both arms
+  (K=0 compresses to 0.92–1.01 at a mean near 3.9 and re-expands when the mean falls); K=5 sits
+  at the ceiling (58% of conversations ≥ 4.5 on Q1, 40% at the maximum); the held-out judge has
+  headroom (0% ≥ 4.5). Figure 4 is now three panels with all four grader × arm series.
+  Contribution (iii), the related-work sentence and the discussion paragraph reworded to match.
+- **Novelty sentence** in the intro: a single rollout is a one-sample Monte Carlo estimate; PTO's
+  pair selection filters that noise, GRPO standardises within the group and trains on all eight.
+- **Figure 1 redrawn** as a landscape `figure*` by [`render_schematic.py`](render_schematic.py)
+  (the EDA's portrait schematic printed at ~4 pt in one column).
+- **Appendix C gained** an instruments table (sources, item counts, scales, what is reported), the
+  patient and therapist prompt templates, and the ten patterns of the lexical over-praise marker.
+  §4 now cites Yosef et al. (2024) for Q1/Q2, names MI-SAT as adapted and PCT/MICI as ours, says
+  CSQ-8 is 1–4, and states that sessions end when the patient closes them (base mean 28
+  utterances) and why MCL=12.
+- **Related work** adds VinePPO, REFUEL, SWEET-RL and PATIENT-Ψ (all verified against source).
+- **Prose thinned** to keep the body on 8 pages: numbers removed where a table holds them,
+  comma chains untangled, meta-commentary cut; abstract ~215 words.
+- Appendix floats: Appendix A starts on its own page, B follows on the same page, the tail-audit
+  figure is `[t]`.
+
+  Every new number is a NEW-0914 row in `NUMBERS.md`. ⚠ The Figure 4 source block sits at the top
+  of `sections/07_mechanism.tex` on purpose: a `figure*` met in a right-hand column is deferred two
+  pages, and that position lands it at the top of the page §8 occupies.
+
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
 preference trees + DPO — and this paper's contribution is **moving the lever to GRPO**. The PTO
@@ -90,10 +122,12 @@ flatter the judge.
 ## Scripts
 
 - [`sync_figures.py`](sync_figures.py) — copies (and crops) every EDA-rendered figure the .tex
-  references; `--check` reports drift. Does **not** cover Figures 3–4.
+  references; `--check` reports drift. Does **not** cover Figures 1, 3 and 4.
+- [`render_schematic.py`](render_schematic.py) — draws Figure 1 (the GRPO-group schematic) at
+  page width; reads no data.
 - [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 3–4 from the tracked
-  tables (`behaviour.xlsx::overpraise_judgefree_data`, `validity.xlsx::judge_saturation_grpo_data`).
-  Re-run after any EDA render pass, then `sync_figures.py`.
+  tables (`behaviour.xlsx::overpraise_judgefree_data`, `validity.xlsx::judge_saturation_grpo_data`,
+  `replication.xlsx::sd_by_iter`). Re-run after any EDA render pass, then `sync_figures.py`.
 - [`select_example_persona.py`](select_example_persona.py) — the persona-selection rule behind
   Table 2 / Appendix D, plus the transcript dump (`--dump out.json`). Needs the Drive-backed
   conversation data on disk.
@@ -133,8 +167,12 @@ To eyeball the layout, the repo `.venv` has PyMuPDF: `fitz.open("main.pdf")[p].g
 
 ## Before submission (open items)
 
-- Supervisors' read of the refined draft (they signed off on the 2×2 on 2026-08-27; this draft
+- Supervisors' read of the revised draft (they signed off on the 2×2 on 2026-08-27; this draft
   supersedes it as the submission and has not been through them since the 2026-09-02 rewrite).
+- **Responsible NLP checklist:** answer the generative-AI question truthfully — this draft was
+  written and its code built with substantial AI assistance (ACL policy allows it with disclosure;
+  a misleading checklist is desk-reject grounds). Camera-ready: the same disclosure in the
+  Acknowledgements (see the TODO comment in `main.tex`).
 - Camera-ready only: complete the author block in `main.tex` and switch `acl` to `[final]`.
 - Optional, if a co-author wants it: a human MI coder on a sample of the endpoint conversations
   would close the paper's most-cited limitation.

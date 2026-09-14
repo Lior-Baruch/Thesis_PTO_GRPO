@@ -4,9 +4,11 @@
 \paragraph{One training run per arm.}
 Every effect size reported here is computed across the 96 patient personas \emph{within} a single
 training run. There are no training-seed replicates, so run-to-run training variance is unmeasured,
-and we cannot separate ``look-ahead helps'' from ``this look-ahead run went well.'' This is the
-limitation a reader should weight most heavily. It is distinct from, and not bounded by, the
-evaluation noise floor below.
+and we cannot separate ``look-ahead helps'' from ``this look-ahead run went well.'' The $K{=}0$
+arm's decline over its last two iterations and its late over-praise spike are likewise events of
+one run, which is why \S\ref{sec:reward} reports the contrast against that arm's best checkpoint as
+well as its last. This is the limitation a reader should weight most heavily. It is distinct from,
+and not bounded by, the evaluation noise floor below.
 
 \paragraph{Evaluation draws: replicated at the endpoint, single elsewhere.}
 Therapist decoding is unseeded and each model state was evaluated on one 96-conversation sample.

@@ -49,8 +49,9 @@ DEST = HERE / "figures"
 
 # (source path, destination filename). Destination names are what the .tex references.
 FIGURES: list[tuple[Path, str]] = [
-    # --- sec:method — Figure 1, the GRPO group schematic (hand-authored) --------------------------
-    (SCHEMATICS / "grpo_group_rollout.png", "method_grpo_group.png"),
+    # sec:method — Figure 1 (method_grpo_group.png) is drawn by render_schematic.py (2026-09-14):
+    # the EDA's portrait schematic (SCHEMATICS / "grpo_group_rollout.png") printed at ~4 pt in one
+    # ACL column, so the paper carries a landscape figure* redraw of the same content instead.
     # --- sec:reward — the two arms' Q1+Q2 levels by iteration, one panel per grader --------------
     (REWARD / "k_headline_q1q2_grpo.png", "k_headline_q1q2_grpo.png"),
     # sec:behaviour (overpraise_judgefree_grpo) and sec:measurement (judge_saturation_grpo) are
@@ -66,10 +67,6 @@ FIGURES: list[tuple[Path, str]] = [
 # Each band removed is a title/footer line, checked by eye against the source render; the values
 # sit in the whitespace between that line and the first plot element it would otherwise touch.
 CROP: dict[str, tuple[float, float, float, float]] = {
-    # footer (two lines cross-referencing the PTO figure) + the right-margin "no trunk: …" note,
-    # which contrasts GRPO with PTO's trunk and means nothing to a reader of this paper. The
-    # rightmost boxes end at x ≈ 0.80 of the width; the note starts at ≈ 0.84.
-    "method_grpo_group.png": (0.0, 0.0, 0.825, 0.86),
     "k_headline_q1q2_grpo.png": (0.0, 0.045, 1.0, 1.0),        # grey per-grader-axes subtitle
     "k_levels_grid_grpo_gpt-4o-mini.png": (0.0, 0.035, 1.0, 1.0),
     "k_levels_grid_grpo_claude-haiku-4-5.png": (0.0, 0.035, 1.0, 1.0),

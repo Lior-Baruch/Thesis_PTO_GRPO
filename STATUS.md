@@ -6,7 +6,7 @@ things stand*, not *how they got here*. When an entry stops being current, move 
 [Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) rather than
 appending a new dated paragraph beneath the old one.
 
-**Last updated 2026-09-04.**
+**Last updated 2026-09-14.**
 
 ## Run status — ALL FOUR ARMS COMPLETE at iteration 10
 
@@ -372,8 +372,15 @@ look-ahead patient calls; median 1.92× per-step wall-clock; a ≈79 GPU-h Ethic
 full 2026-09-02 (retitled from *Scoring the Continuation*); **refined 2026-09-04** — the endpoint
 table and a matched-persona transcript excerpt moved into the body, the rollout audit moved out of
 the method section, the two body figures redrawn legibly from their tracked tables, related work
-extended, every number re-audited against its table (details in the paper's README). The
-ICLR-formatted version stays frozen at `papers/archive/2026_grpo_lookahead_mi/`.
+extended, every number re-audited against its table (details in the paper's README).
+**Revised 2026-09-14** after a full pre-supervisor review pass (Lior's four decisions: no second
+training seed, robust headline anchors, keep the voice and thin it, reframe §8 as ceiling-driven):
+the gain ratio is now quoted at both anchors ("1.3 to 2.6×", never "more than doubles"), §8 shows
+the training oracle's spread tracking its LEVEL along both arms with the held-out judge at 0 %
+ceiling, Figure 1 is a page-width redraw, and Appendix C carries the instruments table, the
+prompt templates and the lexical marker's ten patterns. Body still ends at the bottom of page 8.
+**Next: the supervisors' read**, then the ARR checklist (disclose the generative-AI assistance).
+The ICLR-formatted version stays frozen at `papers/archive/2026_grpo_lookahead_mi/`.
    Candidate framings history: [`papers/BRAINSTORM_2026-08-25.md`](papers/BRAINSTORM_2026-08-25.md);
 the pre-completion four-arm draft remains archived at `papers/archive/2026_lookahead_pto_grpo/`
 with stale ledger keys (`iters1-5` → `iters1-10`).

@@ -1,32 +1,33 @@
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-\textbf{The horizon of the reward selects the reward hack.} The useful question is not how much a
-policy games its judge but \emph{which} exploit is reachable given what the judge is shown. The
-$K{=}0$ arm finds unearned praise, whose
-payoff is immediate and whose cost is deferred. The $K{=}5$ arm cannot profit from that, because
+\textbf{The horizon of the reward selects the reward hack.} Which exploit a policy finds depends
+on what the judge is shown. The $K{=}0$ arm finds unearned praise, whose payoff is immediate and
+whose cost is deferred. The $K{=}5$ arm cannot profit from that, because
 the cost now lands inside the window the judge sees, and it moves toward asking questions and, to
 a smaller degree, toward pushing. Extending the horizon did not make the policy honest; it made
-the dishonest strategy unprofitable, a design lever cheaper to reason about than a better rubric.
+the dishonest strategy unprofitable.
 
 \textbf{Scope: one optimiser, one regime.} Everything here concerns a group-relative optimiser.
 The lever's origin is a preference-pair method: \citet{baruch2025pto} introduced it with
 preference trees and DPO in an earlier, easier regime of this task (a 7B policy, more cooperative
-simulated patients, a weaker model as patient and judge). Nothing here establishes that the lever
-helps every optimiser family in every regime; a controlled optimiser $\times$ horizon comparison
-is outside this paper's scope. What would change our minds is a second \emph{training} run
-reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a human
-MI coder disagreeing with the over-praise finding.
+patients, a weaker judge). Whether the lever helps other optimiser
+families in other regimes is outside this paper's scope. What would change our minds: a second
+\emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a
+horizon, or a human MI coder disagreeing with the over-praise finding.
 
-\textbf{One-sided grader saturation is worth naming.} A trained-against grader losing
-three-quarters of its variance while an independent grader's spread over the same conversations
-stays flat is invisible to arm-level agreement statistics, and it appears at the checkpoint a
-practitioner would ship. The diagnostic is cheap: track the training grader's per-conversation
-\emph{variance}, not only its mean, and keep a second grader in the loop.
+\textbf{Ceiling-driven grader saturation is worth naming.} Optimising against an LLM judge
+succeeds first on the judge's own terms: the scores it gives move to the top of its scale, and a
+bounded scale at its top cannot rank. Here the trained-against grader lost three-quarters of its
+per-conversation variance while a harsher independent grader's spread stayed flat, at the
+checkpoint a practitioner would ship, and arm-level agreement was blind to it. The diagnostic is
+cheap: track the training grader's per-conversation variance and share of ceiling scores, not
+only its mean, and keep a second grader with headroom.
 
-\textbf{Conclusion.} For a group-relative optimiser in a multi-turn dialogue task, what the judge
-is shown is a first-order design choice. Scoring the continuation rather than the turn more than
-doubled the gain from the same oracle, held under a held-out grader and a replicated draw, and
-decided which failure mode the policy learned, at the price of rollouts and wall-clock and with no
-new loss, value function, or tree. The reward horizon deserves to be reported as a hyperparameter,
-and the training grader's variance to be watched as a statistic.
+\textbf{Conclusion.} For a group-relative optimiser in multi-turn dialogue, what the judge
+is shown is a first-order design choice. Scoring the continuation rather than the turn raised what
+the same optimiser extracted from the same oracle, under a held-out grader, against the turn-level
+arm's best checkpoint and on a replicated draw, and decided which failure mode the policy
+learned, with no new loss, value function, or tree. The reward horizon
+deserves to be reported as a hyperparameter, and the training grader's variance to be watched as
+a statistic.
