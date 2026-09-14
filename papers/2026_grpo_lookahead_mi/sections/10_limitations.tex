@@ -38,8 +38,9 @@ most of the benefit. An intermediate $K$ is the most valuable single follow-up.
 \paragraph{The look-ahead reward is also a reward for continuing.}
 A simulated session can end inside the look-ahead window, most often because the patient closes
 it, and such a candidate gives the oracle a shorter transcript. Over the $121{,}088$ logged $\Kf$
-candidates, $82\%$ of rollouts ran the full five turns (the early-ending share ranged from $12\%$
-at iteration 10 to $30\%$ at iteration 6, and in $16\%$ of candidates the patient closed);
+candidates ($88\%$ of those scored), $82\%$ of rollouts ran the full five turns (the early-ending
+share ranged from $12\%$ at iteration 10 to $30\%$ at iteration 6, and in $16\%$ of candidates the
+patient closed);
 early-ending candidates scored at or below their group mean, by up to $0.09$ points depending on
 how the rollout ended, and were the group's best less often than chance ($0.10$ vs.\ $0.125$;
 Appendix Figure~\ref{fig:tails}). The lever was therefore applied as specified in the large

@@ -77,6 +77,9 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
   typical case. Figure 1 and Figure 4 text overlaps fixed (boxes widened, in-panel labels moved
   to the caption / legend). A numbers audit and a citations audit were run by two independent
   agents; their findings are logged below the NEW-0914 block in `NUMBERS.md`.
+- **After Lior's second read:** Figure 4a's legend re-placed; Figures 7 and 8 redrawn from their
+  tables with plain labels (Figure 8's EDA jargon was unreadable; Figure 7 now uses the paper's
+  sign convention); the better arm's level is bold in Tables 1 and 3.
 
   Every new number is a NEW-0914 row in `NUMBERS.md`. ⚠ The Figure 4 source block sits at the top
   of `sections/07_mechanism.tex` on purpose: a `figure*` met in a right-hand column is deferred two
@@ -132,9 +135,12 @@ flatter the judge.
   references; `--check` reports drift. Does **not** cover Figures 1, 3 and 4.
 - [`render_schematic.py`](render_schematic.py) — draws Figure 1 (the GRPO-group schematic) at
   page width; reads no data.
-- [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 3–4 from the tracked
-  tables (`behaviour.xlsx::overpraise_judgefree_data`, `validity.xlsx::judge_saturation_grpo_data`,
-  `replication.xlsx::sd_by_iter`). Re-run after any EDA render pass, then `sync_figures.py`.
+- [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 2, 3, 4, 7 and 8 from the
+  tracked tables (`reward.xlsx::k_headline_grpo_data`, `behaviour.xlsx::overpraise_judgefree_data`,
+  `validity.xlsx::judge_saturation_grpo_data`, `replication.xlsx::sd_by_iter`,
+  `behaviour.xlsx::k_channels_grpo_gpt-4o-mini` + `k_channels_text_grpo`, `mechanism.xlsx::tail_*`).
+  Figure 7 is drawn in the paper's sign (K=5 − K=0). Re-run after any EDA render pass, then
+  `sync_figures.py` (which now copies only the two level grids, Figures 5–6).
 - [`select_example_illustrative.py`](select_example_illustrative.py) — ranks every (persona,
   therapist-turn) pair at iteration 10 by lexical features of the contrast and dumps a persona's
   transcripts; the source of Table 2 / Appendix D.1 (the clear case, persona 84).

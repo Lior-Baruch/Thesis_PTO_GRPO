@@ -306,6 +306,27 @@ the K=0 arm's best checkpoint").
 `kazemnejad2024vineppo` (arXiv 2410.01679) · `gao2024refuel` (ICLR 2025; arXiv 2410.04612) ·
 `wang2024patientpsi` (EMNLP 2024, `2024.emnlp-main.711`) · `zhou2025sweetrl` (arXiv 2503.15478).
 
+## 2026-09-14, third pass (Lior's second read) — figures and tables
+
+- **Figures 7 and 8 are now drawn from tables** by `render_paper_figures.py` (`forest()` from
+  `behaviour.xlsx` sheets `k_channels_grpo_gpt-4o-mini` + `k_channels_text_grpo`, iteration-10
+  rows; `tail_audit()` from `mechanism.xlsx` sheets `tail_audit_by_iter`,
+  `tail_score_by_realized_turns`, `tail_within_group`, `GRPO_LA5` rows). ⚠ **Figure 7 is in the
+  PAPER's sign (K=5 − K=0): every dz is the sheet's value negated**, so the transposition trap the
+  old EDA copy carried is gone. Channels zero in both arms (confront, warn) and the per-session
+  duplicates of the per-turn rates are omitted. The script prints the pooled audit numbers
+  (ended early 0.182, patient closed 0.156, n 121,088) that the Figure 8 caption quotes.
+- **Bold in tables** = the better arm's level per row and grader (Table 1: K=5 in every row,
+  MICI being lower-is-better; Table 3: the higher level per row — K=0 at iterations 0 and 3 under
+  the training oracle and 0, 1, 3 under the held-out judge, exactly the rows the caption names as
+  "nominally ahead"). Tables 4–6 carry no scores to bold.
+- Figure 4a's legend moved to the empty lower-left with short labels (it had sat on the K=5 peak
+  at iteration 5 when placed at the top).
+- **Figure 2 is now drawn from `reward.xlsx` sheet `k_headline_grpo_data`** (`headline()`), the
+  same sheet the ledger already cites for its levels and star decisions; the EDA render's legend
+  printed at ~5 pt at column width. Same content: mean ± SE, each arm's base dotted, Holm stars,
+  endpoint means (3.75 / 4.52 primary, 2.26 / 2.87 held-out).
+
 ## 2026-09-14 audits (two independent agents, after Lior's read) — findings and what changed
 
 **Numbers audit** (~530 cells checked against their tables, every derived ratio recomputed): no

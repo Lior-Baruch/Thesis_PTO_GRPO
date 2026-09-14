@@ -11,28 +11,28 @@ $K{=}5$ rollout audit.
 \centering
 \small
 \setlength{\tabcolsep}{3.5pt}
-\begin{tabular}{rrrrrrrrr}
+\begin{tabular}{rrrrr@{\hspace{1.6em}}rrrr}
 \toprule
 & \multicolumn{4}{c}{\primaryjudge} & \multicolumn{4}{c}{\heldoutjudge}\\
 \cmidrule(lr){2-5}\cmidrule(lr){6-9}
 Iter & $\Kz$ & $\Kf$ & $\Delta$ & \dz & $\Kz$ & $\Kf$ & $\Delta$ & \dz\\
 \midrule
-0 (base) & $3.067$ & $2.963$ & $-0.104$ & $-0.11$ & $1.861$ & $1.834$ & $-0.026$ & $-0.04$\\
-1  & $3.269$ & $3.272$ & $+0.003$ & $+0.00$ & $2.074$ & $2.046$ & $-0.028$ & $-0.04$\\
-2  & $3.359$ & $3.435$ & $+0.076$ & $+0.08$ & $2.107$ & $2.142$ & $+0.035$ & $+0.05$\\
-3  & $3.993$ & $3.862$ & $-0.132$ & $-0.28$ & $2.637$ & $2.586$ & $-0.051$ & $-0.11$\\
-4  & $4.004$ & $4.120$ & $+0.115$ & $+0.25$\rlap{$^{*}$} & $2.550$ & $2.784$ & $+0.233$ & $+0.37$\rlap{$^{**}$}\\
-5  & $3.972$ & $4.042$ & $+0.070$ & $+0.13$ & $2.487$ & $2.798$ & $+0.311$ & $+0.43$\rlap{$^{**}$}\\
-6  & $3.966$ & $4.229$ & $+0.263$ & $+0.42$\rlap{$^{***}$} & $2.371$ & $2.903$ & $+0.533$ & $+0.55$\rlap{$^{***}$}\\
-7  & $4.074$ & $4.270$ & $+0.196$ & $+0.32$\rlap{$^{**}$} & $2.565$ & $2.912$ & $+0.347$ & $+0.45$\rlap{$^{***}$}\\
-8  & $4.082$ & $4.254$ & $+0.172$ & $+0.27$\rlap{$^{**}$} & $2.617$ & $2.776$ & $+0.159$ & $+0.22$\\
-9  & $3.807$ & $4.454$ & $+0.647$ & $+0.93$\rlap{$^{***}$} & $2.002$ & $2.858$ & $+0.856$ & $+0.90$\rlap{$^{***}$}\\
-10 & $3.753$ & $4.517$ & $+0.765$ & $+0.91$\rlap{$^{***}$} & $2.257$ & $2.873$ & $+0.616$ & $+1.03$\rlap{$^{***}$}\\
+0 (base) & $\mathbf{3.067}$ & $2.963$ & $-0.104$ & $-0.11$ & $\mathbf{1.861}$ & $1.834$ & $-0.026$ & $-0.04$\\
+1  & $3.269$ & $\mathbf{3.272}$ & $+0.003$ & $+0.00$ & $\mathbf{2.074}$ & $2.046$ & $-0.028$ & $-0.04$\\
+2  & $3.359$ & $\mathbf{3.435}$ & $+0.076$ & $+0.08$ & $2.107$ & $\mathbf{2.142}$ & $+0.035$ & $+0.05$\\
+3  & $\mathbf{3.993}$ & $3.862$ & $-0.132$ & $-0.28$ & $\mathbf{2.637}$ & $2.586$ & $-0.051$ & $-0.11$\\
+4  & $4.004$ & $\mathbf{4.120}$ & $+0.115$ & $+0.25$\rlap{$^{*}$} & $2.550$ & $\mathbf{2.784}$ & $+0.233$ & $+0.37$\rlap{$^{**}$}\\
+5  & $3.972$ & $\mathbf{4.042}$ & $+0.070$ & $+0.13$ & $2.487$ & $\mathbf{2.798}$ & $+0.311$ & $+0.43$\rlap{$^{**}$}\\
+6  & $3.966$ & $\mathbf{4.229}$ & $+0.263$ & $+0.42$\rlap{$^{***}$} & $2.371$ & $\mathbf{2.903}$ & $+0.533$ & $+0.55$\rlap{$^{***}$}\\
+7  & $4.074$ & $\mathbf{4.270}$ & $+0.196$ & $+0.32$\rlap{$^{**}$} & $2.565$ & $\mathbf{2.912}$ & $+0.347$ & $+0.45$\rlap{$^{***}$}\\
+8  & $4.082$ & $\mathbf{4.254}$ & $+0.172$ & $+0.27$\rlap{$^{**}$} & $2.617$ & $\mathbf{2.776}$ & $+0.159$ & $+0.22$\\
+9  & $3.807$ & $\mathbf{4.454}$ & $+0.647$ & $+0.93$\rlap{$^{***}$} & $2.002$ & $\mathbf{2.858}$ & $+0.856$ & $+0.90$\rlap{$^{***}$}\\
+10 & $3.753$ & $\mathbf{4.517}$ & $+0.765$ & $+0.91$\rlap{$^{***}$} & $2.257$ & $\mathbf{2.873}$ & $+0.616$ & $+1.03$\rlap{$^{***}$}\\
 \bottomrule
 \end{tabular}
-\caption{\QQ\ at every iteration: each arm's mean over the 96 personas, then the persona-paired
-contrast $\Kf - \Kz$ ($n{=}96$). Iteration 0 is the two arms' independent base draws and is the
-experiment's noise floor. $\Kz$ is nominally ahead at iterations 0 and 3 under the training oracle
+\caption{\QQ\ at every iteration: each arm's mean over the 96 personas (bold: the higher arm),
+then the persona-paired contrast $\Kf - \Kz$ ($n{=}96$). Iteration 0 is the two arms' independent
+base draws and is the experiment's noise floor. $\Kz$ is nominally ahead at iterations 0 and 3 under the training oracle
 (and 0, 1, 3 under the held-out judge); none of those clears Holm, though iteration 3's
 training-oracle $\Delta$ of $-0.132$ is uncorrected-significant ($p = .014$, $p_{\text{holm}} =
 .070$). Stars are Holm-corrected across iterations within a grader: $^{*}p<.05$, $^{**}p<.01$,
@@ -86,27 +86,35 @@ not comparable to the previous figure's.}
 
 \begin{figure*}[p]
 \centering
-\includegraphics[width=0.98\textwidth]{figures/k_channel_forest_grpo_gpt-4o-mini.png}
-\caption{Per-channel $K$ contrast at the iteration-10 endpoint under the training oracle
-(persona-paired \dz, $n{=}96$; positive means the $\Kz$ policy does more of the channel; hollow
-bars did not clear Holm). Over-praise is the dominant channel by a wide margin, followed by
-affirmations. The channels the $\Kf$ policy does more of are questions (the largest bar in that
-direction), and, among the MI-inconsistent codes, direct/order and persuasion. Every channel is
-reported so that substitution, MI-inconsistency moving to a different channel rather than falling,
-is visible rather than hidden by the total.}
+\includegraphics[width=0.92\textwidth]{figures/k_channel_forest_grpo_gpt-4o-mini.png}
+\caption{Every behaviour channel at the iteration-10 endpoint under the training oracle's
+coders: the persona-paired contrast $\Kf - \Kz$ as \dz\ ($n{=}96$; positive means the look-ahead
+policy does more of it; hollow bars did not clear Holm). Over-praise is the dominant channel by a
+wide margin, followed by affirmations; the channels the look-ahead policy does more of are
+questions and, among the MI-inconsistent codes, direct/order and persuasion. The share of
+MI-consistent codes is \emph{lower} under look-ahead because the MITI coder counts every
+affirmation as MI-adherent, earned or not. Every channel is shown so that substitution,
+MI-inconsistency moving to another channel rather than falling, would be visible rather than
+hidden by the total.}
 \label{fig:forest}
 \end{figure*}
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.85\textwidth]{figures/tail_audit_grpo.png}
-\caption{What the $K{=}5$ reward actually observed, over the $121{,}088$ logged candidates ($88\%$ of those scored) of the
-run. \textbf{(a)} Share of rollouts that ended before five turns, by iteration (pooled $18.2\%$;
-$15.6\%$ were the patient closing the session). \textbf{(b)} Reward relative to the group mean by
-realised rollout length and ending: candidates whose rollout ended early score at or below their
-group mean, by up to $0.09$ points when the therapist's own turn ended the rollout.
-\textbf{(c)} Probability that a candidate is its group's best, by whether its rollout ran to
-length (chance is $1/8$). The audit shows the lever was applied as specified in the large
-majority of cases, and quantifies the mild keep-the-session-open pressure it carries.}
+\includegraphics[width=0.96\textwidth]{figures/tail_audit_grpo.png}
+\caption{The $K{=}5$ rollout audit, over the $121{,}088$ logged candidates ($88\%$ of those
+scored). A rollout is meant to add five turns after the candidate; it is cut short when the
+patient closes the session or when the policy's own turn inside the rollout ends it.
+\textbf{(a)} How often that happened, by training iteration ($95\%$ bootstrap intervals; pooled
+$18\%$), and how much of it was the patient closing the session ($16\%$). \textbf{(b)} What a
+cut-short rollout cost the candidate: its reward minus the mean of its group, by how many turns
+were actually simulated and who ended them (\emph{pat.}: the patient closed the session;
+\emph{pol.}: the policy's own turn ended it; \emph{none}: the candidate itself ended the session).
+Candidates whose rollout ran all five turns sit at the group mean, those the patient closed sit
+close to it, and those the policy's own turn ended sit about $0.09$ below. \textbf{(c)} How often a candidate was its group's best, separately for
+rollouts that ran to length and rollouts that were cut short; the dotted line is chance, $1/8$.
+Read together: the lever was applied as specified in most cases, and a rollout that ended early
+cost the candidate a little, which is the keep-the-session-open pressure discussed in the
+Limitations.}
 \label{fig:tails}
 \end{figure*}

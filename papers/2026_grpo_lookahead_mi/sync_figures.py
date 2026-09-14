@@ -52,25 +52,23 @@ FIGURES: list[tuple[Path, str]] = [
     # sec:method — Figure 1 (method_grpo_group.png) is drawn by render_schematic.py (2026-09-14):
     # the EDA's portrait schematic (SCHEMATICS / "grpo_group_rollout.png") printed at ~4 pt in one
     # ACL column, so the paper carries a landscape figure* redraw of the same content instead.
-    # --- sec:reward — the two arms' Q1+Q2 levels by iteration, one panel per grader --------------
-    (REWARD / "k_headline_q1q2_grpo.png", "k_headline_q1q2_grpo.png"),
-    # sec:behaviour (overpraise_judgefree_grpo) and sec:measurement (judge_saturation_grpo) are
-    # drawn by render_paper_figures.py from the tracked tables -- see the module docstring.
+    # sec:reward (k_headline_q1q2_grpo, since 2026-09-14), sec:behaviour (overpraise_judgefree_grpo)
+    # and sec:measurement (judge_saturation_grpo) are drawn by render_paper_figures.py from the
+    # tracked tables -- see the module docstring.
     # --- appendix --------------------------------------------------------------------------------
     (REWARD / "k_levels_grid_grpo_gpt-4o-mini.png", "k_levels_grid_grpo_gpt-4o-mini.png"),
     (REWARD / "k_levels_grid_grpo_claude-haiku-4-5.png", "k_levels_grid_grpo_claude-haiku-4-5.png"),
-    (BEHAVIOUR / "k_channel_forest_grpo_gpt-4o-mini.png", "k_channel_forest_grpo_gpt-4o-mini.png"),
-    (MECHANISM / "tail_audit_grpo.png", "tail_audit_grpo.png"),
+    # The channel forest (k_channel_forest_grpo_gpt-4o-mini.png) and the rollout audit
+    # (tail_audit_grpo.png) are drawn by render_paper_figures.py from behaviour.xlsx and
+    # mechanism.xlsx since 2026-09-14 (paper sign convention, plain labels).
 ]
 
 # destination name -> crop box as FRACTIONS of (width, height): (left, top, right, bottom).
 # Each band removed is a title/footer line, checked by eye against the source render; the values
 # sit in the whitespace between that line and the first plot element it would otherwise touch.
 CROP: dict[str, tuple[float, float, float, float]] = {
-    "k_headline_q1q2_grpo.png": (0.0, 0.045, 1.0, 1.0),        # grey per-grader-axes subtitle
     "k_levels_grid_grpo_gpt-4o-mini.png": (0.0, 0.035, 1.0, 1.0),
     "k_levels_grid_grpo_claude-haiku-4-5.png": (0.0, 0.035, 1.0, 1.0),
-    "tail_audit_grpo.png": (0.0, 0.07, 1.0, 1.0),              # "Look-ahead tails (K=5 arms) …"
 }
 
 
