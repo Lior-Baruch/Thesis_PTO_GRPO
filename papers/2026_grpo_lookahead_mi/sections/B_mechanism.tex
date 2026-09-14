@@ -28,10 +28,10 @@ the policy on; it cannot separate them.
 There is exactly one cut in this design where the scoring rule is close to the only difference: the
 first iteration, where both arms start from the same base policy and differ only in whether five
 simulated turns were appended before the oracle saw each candidate. At that cut nothing is
-detectable. Both deltas straddle zero (training oracle: $+0.015$ $[-0.026, 0.059]$; held-out
-judge: $-0.014$ $[-0.075, 0.048]$), and the per-length-bin breakdown points in opposite directions
-on the two graders: 17 of 20 bins favour $\Kz$ under the training oracle, 17 of 20 favour $\Kf$
-under the held-out judge. A sign that flips with the grader is the shape of no effect. The
+detectable. Both deltas straddle zero ($\Kf - \Kz$ agreement, training oracle: $-0.015$
+$[-0.059, 0.026]$; held-out judge: $+0.014$ $[-0.048, 0.075]$), and the per-length-bin breakdown
+points in opposite directions on the two graders: 17 of 20 bins favour $\Kz$ under the training
+oracle, 17 of 20 favour $\Kf$ under the held-out judge. A sign that flips with the grader is the shape of no effect. The
 matched-policy cut is also the weakest-powered one (a single model state per arm, and only
 approximately matched, since the policy drifts within the iteration under $K$-specific rewards),
 so this is an absence of evidence rather than evidence of absence. It is not, however, a result we

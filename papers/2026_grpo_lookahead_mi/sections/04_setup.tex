@@ -2,13 +2,13 @@
 \label{sec:setup}
 
 \textbf{Task, simulator, oracle.} The therapist is \texttt{Llama-3.2-1B} (bf16, LoRA $r{=}16$,
-$\alpha{=}16$, lr $1\mathrm{e}{-}5$, seed 42), given a fixed MI-counsellor system prompt. The
+$\alpha{=}16$, lr $1\mathrm{e}{-}5$, seed 42) under a fixed counsellor system prompt. The
 patient is \texttt{gpt-4o-mini} conditioned on one of \textbf{96}
 persona system prompts, the exhaustive enumeration of
 $2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{problem} \times 2\ \text{duration}
 \times 2\ \text{prior attempts} \times 2\ \text{age}$ (Appendix~\ref{app:prompts}). A session runs
-until the patient closes it or a cap of 49 utterances is reached; most close earlier, and
-base-policy sessions average 28 utterances. Responses are capped at 200 tokens within a
+until the patient closes it or a cap of 49 utterances after the scripted opening is reached; most
+close earlier, and base-policy sessions average 28--29 utterances. Responses are capped at 200 tokens within a
 2{,}048-token therapist context; therapist decoding is at temperature 0.9, the patient at 0.7
 (Appendix~\ref{app:repro}). The oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
 output. The \emph{training} reward is the mean of Q1 and Q2 below, matching \citet{baruch2025pto}.
@@ -38,5 +38,4 @@ judge} (\heldoutjudge), a different model family that never touched training. Al
 pairing is on the recovered persona identity), with Wilcoxon signed-rank tests, Cohen's \dz,
 bootstrap intervals, and Holm correction within each family of tests. Grader \emph{levels} are not comparable (on \QQ\ the held-out judge is harsher by
 1.1--1.8 points, varying across the 22 states), so only contrasts cross graders and the two are
-never averaged. Every behavioural claim names its denominator, because the arms differ in both
-turn count and turn length.
+never averaged.

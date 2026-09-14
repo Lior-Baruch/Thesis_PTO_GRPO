@@ -70,6 +70,13 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
   comma chains untangled, meta-commentary cut; abstract ~215 words.
 - Appendix floats: Appendix A starts on its own page, B follows on the same page, the tail-audit
   figure is `[t]`.
+- **After Lior's read (same day):** Table 2 replaced by a **clear case** (persona 84, the first
+  therapist reply to a byte-identical patient opening: K=0 praises, K=5 asks), chosen from the
+  ranked list produced by [`select_example_illustrative.py`](select_example_illustrative.py); the
+  caption says it is an illustration, and the median-rule persona 93 stays in Appendix D.2 as the
+  typical case. Figure 1 and Figure 4 text overlaps fixed (boxes widened, in-panel labels moved
+  to the caption / legend). A numbers audit and a citations audit were run by two independent
+  agents; their findings are logged below the NEW-0914 block in `NUMBERS.md`.
 
   Every new number is a NEW-0914 row in `NUMBERS.md`. ⚠ The Figure 4 source block sits at the top
   of `sections/07_mechanism.tex` on purpose: a `figure*` met in a right-hand column is deferred two
@@ -128,9 +135,12 @@ flatter the judge.
 - [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 3–4 from the tracked
   tables (`behaviour.xlsx::overpraise_judgefree_data`, `validity.xlsx::judge_saturation_grpo_data`,
   `replication.xlsx::sd_by_iter`). Re-run after any EDA render pass, then `sync_figures.py`.
-- [`select_example_persona.py`](select_example_persona.py) — the persona-selection rule behind
-  Table 2 / Appendix D, plus the transcript dump (`--dump out.json`). Needs the Drive-backed
-  conversation data on disk.
+- [`select_example_illustrative.py`](select_example_illustrative.py) — ranks every (persona,
+  therapist-turn) pair at iteration 10 by lexical features of the contrast and dumps a persona's
+  transcripts; the source of Table 2 / Appendix D.1 (the clear case, persona 84).
+- [`select_example_persona.py`](select_example_persona.py) — the median-contrast rule behind
+  Appendix D.2 (the typical case, persona 93), plus the transcript dump (`--dump out.json`). Both
+  scripts need the Drive-backed conversation data on disk.
 - [`make_overleaf_zip.py`](make_overleaf_zip.py) — the Overleaf bundle (see below).
 
 ## Conventions

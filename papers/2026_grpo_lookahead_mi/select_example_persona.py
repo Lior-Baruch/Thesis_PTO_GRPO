@@ -1,11 +1,12 @@
-"""Select the persona shown in Table 2 / Appendix D and dump both arms' iteration-10 transcripts.
+"""Select the TYPICAL-case persona of Appendix D.2 and dump both arms' iteration-10 transcripts.
 
-Selection rule (stated in the paper): of the 96 personas, the one whose persona-paired K=5 - K=0
+Selection rule (stated in the appendix): of the 96 personas, the one whose persona-paired K=5 - K=0
 contrast on Q1+Q2 at iteration 10 ranks closest to the median under BOTH graders, i.e. the persona
 minimising |rank_primary - 48.5| + |rank_heldout - 48.5|. A typical case, chosen by rule rather
-than by eye. The transcripts are read verbatim from the stored conversation CSVs; the paper's
-sections/D_example.tex reproduces utterances 1-9 of each with only typographic changes
-(curly quotes -> LaTeX quotes, em-dashes -> ---).
+than by eye. (Table 2 and Appendix D.1 show a CLEAR case instead, picked from the ranked list of
+``select_example_illustrative.py`` -- Lior's call, 2026-09-14.) The transcripts are read verbatim
+from the stored conversation CSVs; sections/D_example.tex reproduces utterances 1-9 of each with
+only typographic changes (curly quotes -> LaTeX quotes, em-dashes -> ---).
 
 Runs against the repo's EDA package and the conversation data on disk:
 

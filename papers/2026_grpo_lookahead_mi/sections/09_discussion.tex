@@ -20,7 +20,7 @@ horizon, or a human MI coder disagreeing with the over-praise finding.
 succeeds first on the judge's own terms: the scores it gives move to the top of its scale, and a
 bounded scale at its top cannot rank. Here the trained-against grader lost three-quarters of its
 per-conversation variance while a harsher independent grader's spread stayed flat, at the
-checkpoint a practitioner would ship, and arm-level agreement was blind to it. The diagnostic is
+checkpoint a practitioner would ship, unseen by arm-level agreement. The diagnostic is
 cheap: track the training grader's per-conversation variance and share of ceiling scores, not
 only its mean, and keep a second grader with headroom.
 
@@ -28,6 +28,5 @@ only its mean, and keep a second grader with headroom.
 is shown is a first-order design choice. Scoring the continuation rather than the turn raised what
 the same optimiser extracted from the same oracle, under a held-out grader, against the turn-level
 arm's best checkpoint and on a replicated draw, and decided which failure mode the policy
-learned, with no new loss, value function, or tree. The reward horizon
-deserves to be reported as a hyperparameter, and the training grader's variance to be watched as
-a statistic.
+learned. Report the reward horizon as a hyperparameter, and watch the training grader's variance
+as a statistic.

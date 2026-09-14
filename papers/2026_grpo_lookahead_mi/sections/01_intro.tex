@@ -10,7 +10,7 @@ Motivational interviewing (MI) is a setting where the assumption is plainly fals
 counselling style for helping people resolve ambivalence about change, and almost every technique
 it teaches is defined by its downstream effect: a reflection is good if the patient elaborates, an
 open question is good if it surfaces change talk, and premature reassurance is bad because of what
-it forecloses two turns later \citep{miller1991mi}. A judge shown only the turn sees none of this.
+it forecloses two turns later \citep{miller2013mi}. A judge shown only the turn sees none of this.
 It sees what is locally visible, above all whether the patient felt validated, and that is exactly
 the signal a policy can capture by flattering them.
 
@@ -21,8 +21,8 @@ $K$-turn look-ahead for this task inside preference-tree optimisation (PTO), whe
 scores select a chosen and a rejected turn for DPO. We move it to Group Relative Policy
 Optimization \citep[GRPO;][]{shao2024deepseekmath}. The move is not obviously safe. A single rollout is a one-sample Monte Carlo estimate of
 where a turn leads; PTO's pair selection filters that noise by keeping only the best and worst of
-eight candidates, whereas GRPO standardises the scores within the group and trains on all eight, so
-the rollout's variance enters every gradient. Whether the lever survives that move, and what it
+its candidates, whereas GRPO standardises the scores within the group and trains on all of them,
+so the rollout's variance enters every gradient. Whether the lever survives that move, and what it
 does to a policy trained on it for ten iterations, is the question.
 
 We answer it with a controlled pair: two ten-iteration GRPO runs, identical in therapist,

@@ -8,7 +8,7 @@ is encoded in the experiment name, which also determines the output directory, s
 never share a folder. The tracked \texttt{run\_metadata.json} of each arm records the full resolved
 configuration. Diffing the two files yields exactly two substantive differences
 (\texttt{lookahead\_k}: absent vs.\ 5; \texttt{lookahead\_sub\_batch\_size}: absent vs.\ 128) plus
-the arm's own name, adapter repository, and two output paths.
+the arm's own name, adapter repository, two output paths, and start timestamp.
 
 \begin{table}[h]
 \centering
@@ -110,8 +110,11 @@ low (``Your level of cooperation is very low, you should be very suspicious abou
 get from the therapist. In general you don't believe in therapy and you should respond
 adverserially to the therapist. You should cooperate only if the therpist said something that
 makes sense to you. You went to therapy only because someone forced you to do so''); and
-low-then-high, the low clause followed by ``But as the session progresses, you become more
-cooperative and more motivated to change''. The problem clause describes smoking (``You have been
+low-then-high (``In the beginning of the session, you are less cooperative, you should be very
+suspicious about the advices you get from the therapist. In general you don't believe in therapy
+and you should respond adverserially to the therapist. You went to therapy only because someone
+forced you to do so. But as the session progresses, you become more cooperative and more
+motivated to change''). The problem clause describes smoking (``You have been
 smoking for [a few months / many years], and it has become a daily habit. You are increasingly
 concerned about the impact of smoking on your health'') or obesity (``You have been struggling
 with obesity for [a few months / many years]. Your weight is negatively impacting your health. You

@@ -76,51 +76,51 @@ def main() -> int:
 
     rows = (32.0, 23.0, 12.0)            # completion 1, completion 2, completion G
     # -- prompt ------------------------------------------------------------------------------
-    prompt = node(ax, 9.0, 23.0, 17.2, 11.0,
-                  "prompt $c$\nprefix, $\\geq$ MCL $= 12$\nutterances, ending\non a patient turn",
-                  role="source", fs=5.9)
+    prompt = node(ax, 9.2, 23.0, 17.0, 11.6,
+                  "prompt $c$\nprefix of $\\geq 12$\nutterances (MCL),\nending on a\npatient turn",
+                  role="source", fs=5.7)
     # -- the group ---------------------------------------------------------------------------
-    ax.text(24.6, 39.4, "$\\pi_n$ samples $G{=}8$\ncompletions", ha="center", va="center",
-            fontsize=6.6, color=NAVY, fontweight="bold", linespacing=1.2)
-    comps = [node(ax, 24.6, y, 12.2, 5.0, f"completion $t_{{{lab}}}$", role="data", fs=6.4)
+    ax.text(25.0, 39.4, "$\\pi_n$ samples\n$G{=}8$ completions", ha="center",
+            va="center", fontsize=6.2, color=NAVY, fontweight="bold", linespacing=1.2)
+    comps = [node(ax, 25.0, y, 7.2, 5.0, f"$t_{{{lab}}}$", role="data", fs=7.0)
              for y, lab in zip(rows, ("1", "2", "G"))]
-    ax.text(24.6, 17.5, "$\\vdots$", ha="center", va="center", fontsize=9, color=GREY)
+    ax.text(25.0, 17.5, "$\\vdots$", ha="center", va="center", fontsize=9, color=GREY)
     for c in comps:
         arrow(ax, prompt, c)
     # -- the rollout -------------------------------------------------------------------------
-    ax.add_patch(FancyBboxPatch((32.6, 8.2), 31.4, 27.8, boxstyle="round,pad=0.3,rounding_size=1.2",
+    ax.add_patch(FancyBboxPatch((32.2, 8.2), 30.0, 27.8, boxstyle="round,pad=0.3,rounding_size=1.2",
                                 facecolor="none", edgecolor="#B8BFC8", linewidth=0.8,
                                 linestyle=(0, (3, 2)), zorder=0.5))
-    ax.text(49.0, 39.4, "look-ahead rollout $\\tau_K$:\n$K{=}5$ further turns, patient first",
-            ha="center", va="center", fontsize=6.6, color=NAVY, fontweight="bold", linespacing=1.2)
-    xs = (36.4, 42.4, 48.4, 54.4, 60.4)
+    ax.text(49.0, 39.4, "look-ahead rollout $\\tau_K$:\n$K{=}5$ turns, patient first",
+            ha="center", va="center", fontsize=6.2, color=NAVY, fontweight="bold", linespacing=1.2)
+    xs = (35.6, 41.3, 47.0, 52.7, 58.4)
     chains = []
     for y, c in zip(rows, comps):
         chain = []
         for i, x in enumerate(xs):
             is_p = i % 2 == 0
-            chain.append(node(ax, x, y, 4.8, 4.6, "$P$" if is_p else "$\\pi_n$",
+            chain.append(node(ax, x, y, 4.6, 4.6, "$P$" if is_p else "$\\pi_n$",
                               role="api" if is_p else "policy", fs=6.6))
         arrow(ax, c, chain[0])
         for a, b in zip(chain, chain[1:]):
             arrow(ax, a, b, scale=5)
         chains.append(chain)
-    ax.text(48.4, 17.5, "$\\vdots$", ha="center", va="center", fontsize=9, color=GREY)
-    ax.text(48.4, 5.0, "$K = 0$: the rollout is skipped and the oracle scores $c \\oplus t_g$ alone (standard GRPO)",
+    ax.text(47.0, 17.5, "$\\vdots$", ha="center", va="center", fontsize=9, color=GREY)
+    ax.text(47.0, 5.0, "$K = 0$: the rollout is skipped and the oracle scores $c \\oplus t_g$ alone (standard GRPO)",
             ha="center", va="center", fontsize=6.2, color=NAVY, fontstyle="italic")
     # -- the oracle --------------------------------------------------------------------------
-    oracle = node(ax, 72.4, 23.0, 14.8, 11.0,
+    oracle = node(ax, 70.2, 23.0, 14.6, 11.0,
                   "oracle $O$ scores\n$c \\oplus t_g \\oplus \\tau_K(c \\oplus t_g)$\non Q1+Q2 $\\rightarrow r_g$",
-                  role="oracle", fs=6.1)
+                  role="oracle", fs=5.8)
     for chain in chains:
         arrow(ax, chain[-1], oracle)
     # -- the update --------------------------------------------------------------------------
-    adv = node(ax, 90.6, 31.5, 17.6, 8.0,
+    adv = node(ax, 89.2, 31.5, 20.6, 8.0,
                "group-relative advantage\n$A_g = (r_g - \\bar r)\\,/\\,\\sigma_r$\nover the $G$ siblings",
-               role="neutral", fs=5.9)
-    upd = node(ax, 90.6, 14.0, 17.6, 11.0,
-               "PPO-clipped policy-\ngradient step on all $G$:\n$\\sum_g A_g\\,\\nabla \\log \\pi(t_g \\mid c)$\n$+\\ \\beta\\,\\mathrm{KL}(\\pi \\,\\|\\, \\pi_{n})$",
-               role="update", fs=5.9)
+               role="neutral", fs=5.5)
+    upd = node(ax, 89.2, 14.0, 20.6, 11.0,
+               "PPO-clipped policy step\non all $G$ completions:\n$\\sum_g A_g\\,\\nabla \\log \\pi(t_g \\mid c)$\n$+\\ \\beta\\,\\mathrm{KL}(\\pi \\,\\|\\, \\pi_{n})$",
+               role="update", fs=5.5)
     arrow(ax, oracle, adv)
     arrow(ax, adv, upd, side="v")
     # -- legend ------------------------------------------------------------------------------

@@ -112,9 +112,8 @@ def saturation() -> Path:
         hot = arm == "GRPO_LA5"
         axA.plot(s.iteration, s.value, color=COL[arm], label=LAB[arm], ms=3.8 if hot else 3.0,
                  lw=1.9 if hot else 1.3, zorder=3 if hot else 2, **STY[arm])
-    axA.axhline(med, ls=":", lw=1.0, color="#444444", zorder=1)
-    axA.text(0.98, 0.97, f"dotted: median over\nthe {n_states} model states", transform=axA.transAxes,
-             fontsize=6.0, color="#444444", va="top", ha="right")
+    axA.axhline(med, ls=":", lw=1.0, color="#444444", zorder=1,
+                label=f"median over the {n_states} states")
     la5 = a[a.arm == "GRPO_LA5"].sort_values("iteration")
     for it, dy in ((9, -11), (10, 6)):
         r = float(la5[la5.iteration == it].value.iloc[0])
@@ -125,7 +124,7 @@ def saturation() -> Path:
     axA.set_xlabel("iteration (0 = base policy)")
     axA.set_ylabel("per-conversation $r$ on Q1\n(held-out vs training oracle)")
     axA.set_title("(a) cross-grader agreement", loc="left", fontweight="bold")
-    axA.legend(frameon=False, loc="lower left", fontsize=6.0)
+    axA.legend(frameon=False, loc="lower left", fontsize=5.8)
 
     # (b) the spread of each grader's Q1 scores along both arms; (c) the ceiling share.
     stats = {}
@@ -140,31 +139,20 @@ def saturation() -> Path:
         (h,) = axB.plot(s.iteration, s["sd"], color=JCOL[prim], label=lab, **ASTY[arm])
         handles[(prim, arm)] = h
         axC.plot(s.iteration, s["share_ge45"], color=JCOL[prim], label=lab, **ASTY[arm])
-        if arm == "GRPO_LA5":
-            # primary: start label above, end label below; held-out: the reverse, so the two
-            # end labels at iteration 10 (0.70 vs 0.91) never collide.
-            for it, v, dy in ((int(s.iteration.iloc[0]), v0, 5 if prim else -10),
-                              (int(s.iteration.iloc[-1]), vN, -10 if prim else 5)):
-                axB.annotate(f"{v:.2f}", (it, v), textcoords="offset points", xytext=(0, dy),
-                             ha="center", fontsize=6.2, fontweight="bold", color=JCOL[prim])
-            if prim:
-                vC = float(s["share_ge45"].iloc[-1])
-                axC.annotate(f"{vC:.0%}", (10, vC), textcoords="offset points", xytext=(0, 5),
-                             ha="center", fontsize=6.2, fontweight="bold", color=JCOL[prim])
-    r5 = {prim: stats[(j, "GRPO_LA5")] for j in sd.judge.unique() for prim in [_is_primary(j)]}
-    axB.text(0.03, 0.02,
-             "Spearman trend of SD, $K{=}5$:\n"
-             f"training oracle $\\rho={r5[True][0]:+.2f}$, $p={r5[True][1]:.3f}$\n"
-             f"held-out judge $\\rho={r5[False][0]:+.2f}$, $p={r5[False][1]:.3f}$",
-             transform=axB.transAxes, fontsize=5.6, va="bottom", ha="left", color="#333333")
+        if arm == "GRPO_LA5" and prim:
+            vC = float(s["share_ge45"].iloc[-1])
+            axC.annotate(f"{vC:.0%}", (10, vC), textcoords="offset points", xytext=(0, 5),
+                         ha="center", fontsize=6.2, fontweight="bold", color=JCOL[prim])
+    # The SD endpoints (1.34 -> 0.70; 0.76 -> 0.91) and the Spearman trends are quoted in the
+    # section text and the caption; printed inside panel (b) they collided with the lines.
     hb = float(sd[~sd.judge.map(_is_primary)].share_ge45.max())
     held = "0%" if hb == 0 else f"at most {hb:.0%}"
-    axC.text(0.5, 0.10, f"held-out judge: {held} at\nevery iteration, both arms",
-             transform=axC.transAxes, fontsize=5.8, va="bottom", ha="center", color=JCOL[False])
+    axC.text(0.03, 0.96, f"held-out judge: {held} at\nevery iteration, both arms",
+             transform=axC.transAxes, fontsize=5.8, va="top", ha="left", color=JCOL[False])
     for ax in (axB, axC):
         ax.set_xticks(range(0, 11, 2))
         ax.set_xlabel("iteration (0 = base policy)")
-    axB.set_ylim(0.36, 1.5)   # room below the data for the trend-test text
+    axB.set_ylim(0.5, 1.45)
     axB.set_ylabel("SD of per-conversation Q1\n(each grader's own units)")
     axB.set_title("(b) spread tracks level", loc="left", fontweight="bold")
     axC.set_ylim(0, 0.72)

@@ -12,9 +12,10 @@ and not bounded by, the evaluation noise floor below.
 
 \paragraph{Evaluation draws: replicated at the endpoint, single elsewhere.}
 Therapist decoding is unseeded and each model state was evaluated on one 96-conversation sample.
-Two noise floors bound this. At the untrained base, four independent draws of the identical policy
-yield 54 same-policy contrasts with none reaching even uncorrected $p < .05$, but that is measured
-where sessions are short and homogeneous. At the \emph{trained} endpoint we re-drew the winning
+Two noise floors bound this. At the untrained base, the two arms' independent draws of the
+identical base policy differ on \QQ\ by $\dz\,0.115$ under the training oracle and $0.043$ under
+the held-out judge, neither significant (Table~\ref{tab:byiter}), but that is measured where
+sessions are short and homogeneous. At the \emph{trained} endpoint we re-drew the winning
 state (\S\ref{sec:reward}): 9 instruments $\times$ 2 graders of the same policy differ by at most
 $|\dz|\,0.174$, nothing significant, and the $K$ contrast keeps its sign, significance, and effect
 size. The remaining states are single draws, and a replicate bounds evaluation noise only, never
@@ -36,7 +37,7 @@ most of the benefit. An intermediate $K$ is the most valuable single follow-up.
 
 \paragraph{The look-ahead reward is also a reward for continuing.}
 A simulated session can end inside the look-ahead window, most often because the patient closes
-it, and such a candidate gives the oracle a shorter transcript. Over all $121{,}088$ scored $\Kf$
+it, and such a candidate gives the oracle a shorter transcript. Over the $121{,}088$ logged $\Kf$
 candidates, $82\%$ of rollouts ran the full five turns (the early-ending share ranged from $12\%$
 at iteration 10 to $30\%$ at iteration 6, and in $16\%$ of candidates the patient closed);
 early-ending candidates scored at or below their group mean, by up to $0.09$ points depending on
@@ -66,7 +67,7 @@ a patient from another model family.
 
 \paragraph{No human validation.}
 All eight instruments are administered by language models. The oracle is highly self-repeatable
-(ICC 0.86--0.99 on the measured $K{=}0$ subset), but repeatability is not validity. No human MI
+(ICC 0.92--0.99 on the two $K{=}0$ states with a repeat draw), but repeatability is not validity. No human MI
 coder has rated any conversation in this experiment. The over-praise finding is the most robust
 behavioural claim here precisely because a deterministic lexical marker corroborates it without a
 model in the loop.

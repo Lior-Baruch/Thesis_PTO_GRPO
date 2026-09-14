@@ -6,9 +6,11 @@
 \caption{\textbf{(a)} Per-conversation cross-grader agreement on Q1 by iteration, one line per
 arm, against the 22-state median. \textbf{(b)} The spread of each grader's Q1 scores along each arm
 (SD is a spread, not a level, so the graders can share the axis): the training oracle's spread
-falls as its level rises and re-expands where the level falls; the held-out judge's does not move.
-\textbf{(c)} The share of conversations scored $4.5$ or above on Q1: the training oracle is at its
-ceiling along $\Kf$; the held-out judge never approaches it.}
+falls as its level rises and re-expands where the level falls (along $\Kf$: $1.34 \rightarrow
+0.70$, Spearman $\rho = -0.86$, $p = .001$); the held-out judge's shows no trend ($0.76
+\rightarrow 0.91$, $\rho = +0.44$, $p = .18$). \textbf{(c)} The share of conversations scored
+$4.5$ or above on Q1: the training oracle is at its ceiling along $\Kf$; the held-out judge never
+approaches it.}
 \label{fig:saturation}
 \end{figure*}
 
@@ -16,7 +18,7 @@ ceiling along $\Kf$; the held-out judge never approaches it.}
 \label{sec:mechanism}
 
 Three mechanisms were testable in this design, and none is confirmed
-(Appendix~\ref{app:mechanism} has the full analysis). \emph{A more faithful reward?} The training
+(Appendix~\ref{app:mechanism}). \emph{A more faithful reward?} The training
 reward scores a partial conversation while the evaluation scores the whole session. Pooled over
 the run, the $\Kf$ signal ranks candidates more like the full-session score does (pairwise rank
 agreement $0.909$ vs.\ $0.873$ under the training oracle, $0.800$ vs.\ $0.747$ held out), but the
@@ -34,4 +36,4 @@ not measurably better conditioned or more faithful at a fixed policy, ends furth
 margin that survives the $\Kz$ arm's best checkpoint. What differs is which of eight siblings is
 preferred at each step, a small, repeated difference compounded over ten iterations of a loop that
 regenerates its training data from the policy it just updated. Isolating that pathway needs the
-horizon swapped mid-run on one policy, a cut this design lacks.
+horizon swapped mid-run on one policy.

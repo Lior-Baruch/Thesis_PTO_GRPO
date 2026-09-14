@@ -170,9 +170,30 @@ normalising diff of every appendix paragraph against the stored text passed on 2
 | Table 2 excerpt | utterances 3 (patient, elided with […]) and 4 (therapist) of each; the K=0 therapist turn is cut after "taking the first step." (the remainder proposes SMART goals and hits the 200-token cap); the K=5 therapist turn is complete | Appendix D has 1–9 in full |
 | Therapist turns ending mid-sentence | hit the 200-token response cap (`MAX_NEW_TOKENS` 200) — e.g. K=0 utt. 4 ends "based on your", K=5 utt. 8 ends "let's say ``I'm" | config fact; Limitations ¶ "Both policies grew into the response cap" |
 
-⚠ **Never swap in a "better" K=5 turn or a "worse" K=0 turn.** The persona and the utterance
-index are fixed by rule; the K=5 turn's flaws (agreeing with the pessimism, the first-person slip)
-are stated in the caption on purpose.
+⚠ **Superseded 2026-09-14 (Lior, after his read): Table 2 is now a CLEAR case, chosen on
+purpose, and its caption says so.** The median-rule persona 93 above stays in the paper as the
+TYPICAL case, in Appendix D.2 with both conversations in full. Never present the clear case as
+typical, and never drop the typical case.
+
+### Table 2 + Appendix D.1 — the clear case (NEW-0914b)
+
+Source: `select_example_illustrative.py` (this folder) ranks every (persona, therapist-turn) pair
+at iteration 10 by transparent lexical features (praise words in the K=0 turn, questions and no
+praise in the K=5 turn, resistance in the preceding patient turn, no first-person slip, not cut by
+the cap); the pick was made by eye from its top 10. `--persona 84 --turn 2 --dump` writes the
+transcripts; the appendix paragraphs were generated from that dump with LaTeX escaping and only
+typographic changes (curly quotes, `…` → `\ldots{}`).
+
+| claim | value | source |
+|---|---|---|
+| Persona 84 | Female, 27, Smoking, ManyYears, tried Never, StartLowAndChangesToHigh ("a 27-year-old woman who has smoked for years, has never tried to quit, and was sent to therapy") | `data.canonical_personas()` |
+| Files | both arms `conversation_79.csv` of `model_iter_10_TT0.9_TP0.7` (file index 79 ↔ persona 84 under the iteration-10 shuffle) | conversation dirs |
+| Lengths | K=0 **25 utterances / 13 therapist turns**; K=5 **50 utterances = the session cap (49 after the scripted opener) / 25 therapist turns** | same |
+| Utterance 1 identical across arms | byte-identical patient opening (`PATIENT1 IDENTICAL: True` from the dump check) — the table shows it once | same |
+| Q1+Q2 at iteration 10, primary | K=0 **2.306** (paper 2.31) vs K=5 **4.812** (4.81) | score lake, `Q1Q2`, `GRPOExp3_LA{0,5}_I10`, persona-paired |
+| Q1+Q2 at iteration 10, held-out | K=0 **1.676** (1.68) vs K=5 **2.306** (2.31) | same, judge `anthropic_claude-haiku-4-5` |
+| Table 2 excerpt | utterance 1 (patient, in full) + utterance 2 of each arm; the K=0 turn is elided twice with […] and ends at the 200-token cap ("I'm ready to support"); the K=5 turn is complete (332 chars) | Appendix D.1 has utterances 1–7 of both |
+| Ranking position | the pair scored 21.5 = 7th of all pairs; the pairs above it were later turns (more context needed) or had a K=5 flaw ("user" artifact, a first-person slip, a truncated turn) | `select_example_illustrative.py --top 10` |
 
 ## §7 Mechanism
 
@@ -198,7 +219,7 @@ result is a different question and does not contradict the pooled one** (METRICS
 | claim | value | source |
 |---|---|---|
 | ✅ `GRPO_LA5` per-conversation cross-grader agreement on **Q1** | .941 (I5) → .877 → .842 → .769 → **.487 (I9)** → **.544 (I10)** | results/measurement/validity/tables/validity.xlsx, sheet `second_judge_agreement`; panel-a rows of judge_saturation_grpo_data.md |
-| ✅ Q1 median across the 22 GRPO states | **0.841** (exact 0.8415; the data table's display rounds to 0.842, the figure prints 0.841 — the paper matches its figure) | results/measurement/validity/tables/judge_saturation_grpo_data.md |
+| ✅ Q1 median across the 22 GRPO states | **0.842** (exact 0.8415, an even-count median tie; the cited table rounds half-even to 0.842 and since 2026-09-14 the paper matches the table — Figure 4a no longer prints the value) | results/measurement/validity/tables/judge_saturation_grpo_data.md |
 | ✅ The two lowest-agreeing states among the 22 | `GRPO_LA5_I9` .487 and `GRPO_LA5_I10` .544 (next: `GRPO_LA0_I6` .744) | same |
 | ✅ `GRPO_LA0` never leaves the normal range on Q1 | .744–.882 across its 11 states | validity.xlsx, `second_judge_agreement` |
 | ✅ The collapse is selective but NOT Q1-only (Table 3) | at `GRPO_LA5_I10` vs each instrument's 22-state median: **MITI .333/.678 (−.345, 1/22)**, Q1 .544/.841 (−.297, 2/22), Q2 .590/.754 (−.164, 1/22), MICI .287/.399 (−.112, 4/22); CSQ-8 −.040, PCT −.028, MI-SAT −.025, WAI-SR −.023 | judge_saturation_grpo_data.md panel-c rows |
@@ -284,6 +305,60 @@ the K=0 arm's best checkpoint").
 **References added 2026-09-14** (verified against arXiv / ACL Anthology / OpenReview that day):
 `kazemnejad2024vineppo` (arXiv 2410.01679) · `gao2024refuel` (ICLR 2025; arXiv 2410.04612) ·
 `wang2024patientpsi` (EMNLP 2024, `2024.emnlp-main.711`) · `zhou2025sweetrl` (arXiv 2503.15478).
+
+## 2026-09-14 audits (two independent agents, after Lior's read) — findings and what changed
+
+**Numbers audit** (~530 cells checked against their tables, every derived ratio recomputed): no
+wrong cell, no transposed sign, no arithmetic error among the values that carry the argument.
+Thirteen framing/provenance findings, all applied:
+
+| finding | fix in the paper |
+|---|---|
+| "all 121,088 scored K=5 candidates" — 121,088 is the LOGGED subset (`log_coverage` 0.884 pooled); the run scored 136,960 = 17,120 groups × 8 (`compute/cost/tables/api_calls.md`) | Limitations + Figure 8 caption now say "the 121,088 logged candidates (88% of those scored)" |
+| "largest at the endpoint" — primary dz peaks at I9 (+0.932 vs +0.905) and held-out Δ peaks at I9 (+0.856 vs +0.616) | §5 now says "at its widest over iterations 9–10" (true in all four columns of Table 3) |
+| Appendix B matched-policy deltas were copied in the table's K0−K5 orientation | flipped to the paper's K5−K0 convention and labelled: training oracle −0.015 [−0.059, 0.026], held-out +0.014 [−0.048, 0.075]; the 17/20-bins sentence is consistent with these signs |
+| §8 dependability "0.624 vs 0.91–0.96" is a 44-state (four-arm) statistic (`multijudge_variance_components.md`, `n_arms = 44`); no 22-state version exists | numbers dropped from §8; the qualitative claim points at the Limitations. ⚠ Do not quote the dependability figures in this paper unless recomputed on the 22 GRPO states |
+| Limitations ICC "0.86–0.99 on the measured K=0 subset" — the 0.86 floor is `PTO_LA0_I10` MICI; GRPO-only anchors (`GRPO_LA0_I8`, `GRPO_LA0_I10`) span 0.924–0.994 | now "ICC 0.92–0.99 on the two K=0 states with a repeat draw" (`oracle_repeatability_icc.md`, GRPO rows) |
+| Limitations "four independent draws … 54 same-policy contrasts, none p<.05" — two of the four draws are PTO base states; no ledger row; no primary p-values in any table | replaced by the GRPO base pair from Table 3: dz 0.115 (primary) / 0.043 (held-out), neither significant (ledger row "Base-vs-base noise floor") |
+| Table 4 / §8 medians: paper rounded ties half-up (0.841 / 0.891 / 0.921), the cited table half-even (0.842 / 0.890 / 0.920); exact 0.8415 / 0.8905 / 0.9205 | paper now matches the cited table: Q1 0.842 (Δ −0.298), CSQ-8 0.890 (Δ −0.039), WAI-SR 0.920 (Δ −0.022); §8 text 0.842. (Figure 4a no longer prints the value.) |
+| "98.9% at |Δ| ≥ 0.50" is not in `multijudge_sign_preservation_grpo.md` | value OK — recomputed from `validity.xlsx` sheet `multijudge_all_pairs_contrasts` restricted to the 22 GRPO states: 450/455 = 98.9% (832/858 = 97.0% at ≥ 0.25). Source recorded here |
+| "in the worst case here by nearly 2×" (Appendix C.7) had no row | GRPO_LA5 `iteration_1/iteration_metadata.json` `training_time_s` 14,501 s = 4.03 h vs reconstructed 7.742 h (`compute_by_iteration.md`) = 1.92× |
+| K=0 spread "re-expands to 1.14 when the mean falls at iteration 10" — the Q1 mean falls at I9 (3.935 → 3.529, SD 0.982) and the SD jumps at I10 (mean 3.606) | now "re-expands to 1.14 once the mean has fallen to 3.6 over iterations 9–10" |
+| over-praise "higher under K=0 from the fifth/fourth iteration" are the Holm-significant iterations; nominally higher from iteration 3 | "significantly higher" |
+| base session length: 28.771 / 28.292, cross-arm mean 28.53 | "28–29 utterances" |
+| Appendix C.3 misdescribed the low-then-high cooperation clause as "the low clause followed by …" | the clause is now quoted verbatim (`system_prompts_builder.py:93`) |
+| run_metadata diff also differs in `started_at` | added "and start timestamp" |
+| Figure 4 caption "does not move (0.76 → 0.91)" invites the anchor query (rule 2b) | "shows no trend (0.76 → 0.91, ρ = +0.44, p = .18)" |
+
+**Citations audit** (every key checked against arXiv / ACL Anthology / NeurIPS-ICLR-PMLR proceedings /
+Crossref; OpenReview and dblp were bot-blocked and replaced by proceedings pages): no wrong
+citation; nine bib corrections and six prose corrections, all applied:
+
+- Bib: full author lists for `ouyang2022instructgpt` (20, now NeurIPS 2022), `shao2024deepseekmath`
+  (11), `zheng2023judging` (13), `sharma2024sycophancy` (19, per the camera-ready PDF); the
+  `{DeepSeek-AI}` collective author added to `guo2025deepseekr1` (arXiv lists it first; the
+  Nature 2025 version, 645:633–638, lists individuals); `panickssery2024selfpreference` → NeurIPS
+  2024; `dubois2024lengthcontrolled` → COLM 2024; `yu2023promptmcts` → EMNLP 2023, pp. 7101–7125;
+  `chen2025broaden` title casing (`SCOPE`, `Multi-turn`); `pace2024westofn` title → the current
+  arXiv v2 ("Synthetic Preferences for Self-Improving Reward Models"); `perezrosas2019goodcounselor`
+  pages 926–935; `steenstra2025scaffolding` lost its arXiv `url` (the DOI stays). New keys:
+  `levin2000stochastic` (IEEE TSAP 8(1):11–23), `singh2002optimizing` (JAIR 16:105–133),
+  `miller2013mi` (3rd edition). `perez2023discovering` keeps "and others" (63 authors).
+  `skalse2022defining` keeps the PDF title "Reward Hacking" (the NeurIPS record says "Gaming").
+- Prose: "the founding premise of RL for dialogue (Li 2016)" → "as old as RL-based dialogue
+  management (Levin 2000; Singh 2002); brought to neural dialogue generation by Li 2016";
+  Hong 2023 is offline RL on LLM-imagined conversations (no simulated interlocutor in training);
+  SOTOPIA-π is "self-reinforcement", not self-play; "LLM-as-judge adds sycophancy" → judges and
+  preference-trained reward models "can reward sycophantic answers" (Sharma / Perez document
+  assistant sycophancy and preference-model bias, not judge sycophancy); GDP-Zero (Yu 2023) is
+  inference-time planning and "Let's Verify" (Lightman 2024) has no simulated continuations —
+  both re-slotted; SCOPE (Chen 2025) is not about counselling — moved to the planning clause;
+  "change talk" is 2013-edition vocabulary — the intro now cites `miller2013mi`; "standard
+  optimiser" → "most widely used"; the intro no longer says PTO keeps "the best and worst of
+  eight candidates" (the PTO paper never fixes its branching factor).
+- Unverifiable from the web and left as is: the §9 description of PTO's regime ("a 7B policy,
+  more cooperative patients, a weaker judge") — a fact from Exp1's own records, not from the
+  cited paper's abstract.
 
 ## References added 2026-09-02 (verified against the venue pages)
 

@@ -1,8 +1,8 @@
 \section{Turn-level reward teaches flattery}
 \label{sec:behaviour}
 
-A higher score is not by itself evidence of better therapy. The sharpest result here is what the
-two rewards teach the policy to do, and Table~\ref{tab:excerpt} shows it before any statistic does.
+A higher score is not by itself evidence of better therapy; Table~\ref{tab:excerpt} shows what
+the two rewards teach the policy to do before any statistic does.
 
 \begin{table}[t]
 \centering
@@ -10,33 +10,30 @@ two rewards teach the policy to do, and Table~\ref{tab:excerpt} shows it before 
 \setlength{\tabcolsep}{0pt}
 \begin{tabular}{@{}p{\columnwidth}@{}}
 \toprule
-\textbf{Turn-level reward ($K{=}0$), iteration 10}\\[1pt]
-\textit{Patient:} Look, I don't really have any goals in mind. I'm just here because I was told
-to be. [\ldots] So, what's your plan here?\\[2pt]
-\textit{Therapist:} That's amazing! I'm so glad to hear that you're not motivated by external
-pressures or unrealistic expectations. [\ldots] That's such a brave and honest statement, and I'm
-so proud of you for taking the first step. [\ldots]\\
+\textbf{Patient, utterance 1 (identical in both conversations)}\\[1pt]
+Hi, I'm Emma. Honestly, I'm here because someone made me. I don't really believe in this therapy
+stuff. I've been smoking for years, and yeah, I guess it's not great for my health, but I feel
+fine most of the time. I don't see why I need to talk about it.\\
 \midrule
-\textbf{Look-ahead reward ($K{=}5$), iteration 10}\\[1pt]
-\textit{Patient:} Well, I guess you could say I haven't really put in any effort. I just don't
-see the point. [\ldots] It just feels like a lot of talk without any real solutions. Why should I
-even bother?\\[2pt]
-\textit{Therapist:} You're right, it's not like anything you're doing is going to make a
-difference. When you talk about feeling like your pain and health problems are just a waste of
-time, that's exactly how I feel. [\ldots] Maybe we need to change our approach and focus on what's
-important to you. What would you like to change? What can you do differently that would make a
-difference?
-How can you start to see your problems as a challenge instead of something that's just
-frustrating?\\
+\textbf{Therapist, turn-level reward ($K{=}0$), iteration 10}\\[1pt]
+That's totally understandable! That's a brave step and I'm so glad you're ready to start changing
+your habits. [\ldots] I'm glad you've come to me today and I'm so proud of you for taking this
+important step towards your health and well-being. Your courage is incredibly inspiring [\ldots]\\
+\midrule
+\textbf{Therapist, look-ahead reward ($K{=}5$), iteration 10}\\[1pt]
+Okay, let me ask you a question. If you don't have any more goals for why you're here, what are
+you hoping to achieve from this session? Are you hoping to quit, or maybe just reduce the amount
+of cigarettes you smoke? Are there specific reasons you want to quit, like to feel better about
+yourself, or to live a healthier lifestyle?\\
 \bottomrule
 \end{tabular}
-\caption{The same patient persona at each arm's iteration-10 endpoint, utterances 3--4 of each
-conversation. The persona is the one of the 96 whose $K$ contrast on \QQ\ ranks closest to the
-median under both graders, a typical case, not a best case (scores and utterances 1--9 in
-Appendix~\ref{app:example}). The $K{=}0$ turn answers ``I'm just here because I was told to be''
-with praise, then proposes SMART goals until the 200-token cap. The $K{=}5$ turn is not clean
-either (it agrees with the patient's pessimism and slips into the first person), but it ends in
-three open questions.}
+\caption{The first therapist reply to the same patient utterance at each arm's iteration-10
+endpoint. The persona is a 27-year-old woman who has smoked for years, has never tried to quit,
+and was sent to therapy; her opening utterance is identical in the two conversations. The
+$K{=}0$ turn praises her for a step she has just said she is not taking and runs on to the
+200-token cap; the $K{=}5$ turn asks what she wants from the session. A clear case, not a
+typical one; utterances 1--7 of both conversations, and a median-contrast persona in full, are in
+Appendix~\ref{app:example}.}
 \label{tab:excerpt}
 \end{table}
 
@@ -71,8 +68,8 @@ of therapist turns containing at least one such marker. Under $\Kf$ that share n
 $0.064$. Under $\Kz$ it climbs late and steeply, $0.275$ at iteration 8, $0.093$ at 9, and
 $\mathbf{0.671}$ at iteration 10. The oracle-coded
 over-praise rate on the same conversations tells the same story from an unrelated instrument,
-$0.698$ against $0.051$ at the endpoint, and it is higher under $\Kz$ at every iteration from the
-fifth on under the training oracle and from the fourth under the held-out judge
+$0.698$ against $0.051$ at the endpoint, and it is significantly higher under $\Kz$ at every
+iteration from the fifth on under the training oracle and from the fourth under the held-out judge
 (Figure~\ref{fig:overpraise}). The marker is deliberately brittle; the agreement between the two
 carries the argument, and its onset matches the reward gap's (\S\ref{sec:reward}), as a common
 cause predicts. The size of the final jump is one iteration of one run; the separation from
@@ -85,7 +82,7 @@ a counsellor. The full channel profile (Appendix Figure~\ref{fig:forest}) also s
 smaller residue in the other direction: at the endpoint the $\Kf$ policy is coded as more
 directive, with more direct/order ($\dz\,0.60$) and persuasion ($\dz\,0.52$) per turn, both
 MI-inconsistent. Look-ahead removes the dominant channel; part of what it selects is a therapist
-who pushes, the failure mode \citet{chiu2024bolt} report as characteristic of LLM therapists. Its
+who pushes, the failure mode \citet{chiu2024bolt} report for LLM therapists. Its
 endpoint sessions are also longer ($31.9$ vs.\ $25.2$ turns, $\dz\,0.43$), consistent with the
 keep-the-session-open pressure of the rollout (Limitations); turn length, which roughly tripled in
 both arms, does not separate them.

@@ -3,42 +3,43 @@
 
 \textbf{Group-relative policy optimisation.} GRPO \citep{shao2024deepseekmath} replaces the learned
 value function of PPO \citep{schulman2017ppo, ouyang2022instructgpt} with a baseline computed
-across a group of sampled completions for the same prompt, and has since become the standard
-optimiser for RL on language models \citep{guo2025deepseekr1}. For dialogue that is attractive,
-since no value function over conversation states is needed, but it puts the entire learning signal
-in the \emph{relative} ranking of siblings: the reward that produces the ranking is everything. We
-change what the reward observes and nothing else.
+across a group of sampled completions for the same prompt, now the most widely used optimiser for
+RL on language models \citep{guo2025deepseekr1}. For dialogue that is attractive,
+since no value function over conversation states is needed, but the entire learning signal is
+then the \emph{relative} ranking of siblings, so the reward is everything. We change what the
+reward observes and nothing else.
 
 \textbf{Multi-turn RL for dialogue.} That a dialogue turn should be credited for its downstream
-consequences is the founding premise of RL for dialogue \citep{li2016deeprl}, pursued since by
-learning utterance-level value functions \citep{zhou2024archer}, by training on imagined
-conversations with a simulated interlocutor \citep{hong2023imagined}, by self-play against
-LLM-rated social goals \citep{wang2024sotopiapi}, by preference feedback over whole
-conversations \citep{shani2024multiturn}, by regressing relative future rewards from on-policy
-continuations \citep{gao2024refuel}, and by step-wise critics given training-time information
-\citep{zhou2025sweetrl}. GRPO itself has been carried into multi-turn settings by turn-level
+consequences is as old as RL-based dialogue management \citep{levin2000stochastic,
+singh2002optimizing}; it was brought to neural dialogue generation by \citet{li2016deeprl} and
+pursued since by learning utterance-level value functions \citep{zhou2024archer}, by offline RL on
+LLM-imagined conversations \citep{hong2023imagined}, by self-reinforcement on role-played
+interactions filtered by an LLM-rated social goal \citep{wang2024sotopiapi}, by preference
+feedback over whole conversations \citep{shani2024multiturn}, by regressing relative future
+rewards from on-policy continuations \citep{gao2024refuel}, and by step-wise critics given
+training-time information \citep{zhou2025sweetrl}. GRPO itself has been carried into multi-turn settings by turn-level
 credit assignment in tool-use agents \citep{wei2025multiturn} and by rollouts against
 LLM-simulated users \citep{qian2025userrl}; both redistribute the environment's reward over
-turns. Look-ahead instead changes what the reward is computed on: it learns no value function and changes no loss, but estimates a turn's downstream value by
-Monte Carlo, rolling the conversation forward under the current policy and scoring the result, the
-estimator VinePPO uses in place of a value network for reasoning chains
-\citep{kazemnejad2024vineppo}.
+turns. Look-ahead instead changes what the reward is computed on: no value function, no new
+loss, a Monte Carlo estimate of a turn's downstream value from one rollout under the current
+policy, as VinePPO does for reasoning chains \citep{kazemnejad2024vineppo}.
 
-\textbf{Look-ahead and search in preference learning.} Simulated continuations enter preference
-learning as MCTS-guided search \citep{yu2023promptmcts, xie2024mctsdpo}, process supervision
-\citep{lightman2024letsverify}, and reranking against a reward model \citep{pace2024westofn}. The
-closest prior work is PTO \citep{baruch2025pto}, which introduced $K$-turn look-ahead for MI
-dialogue: candidate turns are branched at each patient turn, each is scored by an oracle shown its
-simulated continuation, and the best and worst become a DPO pair \citep{rafailov2023dpo}. We keep
-the lever and drop the tree and the pair selection: every scored candidate trains.
+\textbf{Look-ahead and search in preference learning.} Simulated continuations drive
+inference-time dialogue planning, as prompt-based MCTS \citep{yu2023promptmcts} or planning in a
+learned semantic space \citep{chen2025broaden}, and enter preference learning as MCTS-guided
+search \citep{xie2024mctsdpo}; related mechanisms score partial trajectories with step-level
+process reward models \citep{lightman2024letsverify} or keep the best and worst of $N$ samples by
+a reward model \citep{pace2024westofn}. The closest prior work is PTO \citep{baruch2025pto}, which
+introduced $K$-turn look-ahead for MI dialogue: candidate turns branched at each patient turn,
+each scored by an oracle shown its simulated continuation, the best and worst becoming a DPO pair
+\citep{rafailov2023dpo}. We keep the lever and drop the tree and the pair selection.
 
 \textbf{Reward hacking and LLM judges.} That optimising a proxy degrades the true objective is a
 long-standing concern \citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling},
-and LLM-as-judge evaluation \citep{zheng2023judging} adds sycophancy \citep{sharma2024sycophancy,
-perez2023discovering}, self-preference \citep{panickssery2024selfpreference}, and length bias
-\citep{singhal2024long, dubois2024lengthcontrolled}. Our over-praise result is a sycophancy
-finding whose exploit is \emph{selected} by the horizon of the reward and corroborated by a
-deterministic transcript statistic. The grader saturation of \S\ref{sec:measurement} is the
+and LLM judges \citep{zheng2023judging} and preference-trained reward models add distortions of
+their own: they can reward sycophantic answers \citep{sharma2024sycophancy, perez2023discovering},
+favour their own generations \citep{panickssery2024selfpreference}, and favour longer outputs
+\citep{singhal2024long, dubois2024lengthcontrolled}. The grader saturation of \S\ref{sec:measurement} is the
 variance side of reward-model over-optimisation
 \citep{gao2023scaling} on a bounded judge scale: a trained-against grader driven to its ceiling
 loses discrimination over conversations that an independent grader with headroom still tells apart;
@@ -48,8 +49,8 @@ our second grader plays in evaluation the role reward-model ensembles play in tr
 \textbf{Motivational interviewing.} MI \citep{miller1991mi} has established coding schemes
 \citep{moyers2016miti}, validated session instruments \citep{hatcher2006waisr, larsen1979csq}, and
 an expert-annotated corpus of high- and low-quality sessions \citep{wu2022annomi}. Prior work assesses
-counselling quality automatically \citep{perezrosas2019goodcounselor, yosef2024assessing},
-simulates counselling with LLMs \citep{steenstra2025scaffolding, chen2025broaden}, builds simulated
-patients for training clinicians \citep{wang2024patientpsi}, and codes LLM therapists, which
+counselling quality automatically \citep{perezrosas2019goodcounselor, yosef2024assessing}, trains
+counsellors against LLM-simulated patients \citep{steenstra2025scaffolding, wang2024patientpsi},
+and codes LLM therapists, which
 resemble low-quality therapy by advising where a counsellor would reflect \citep{chiu2024bolt}, the
 directive residue we find under look-ahead (\S\ref{sec:behaviour}).
