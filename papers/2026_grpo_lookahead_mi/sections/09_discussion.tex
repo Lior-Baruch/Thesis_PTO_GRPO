@@ -3,30 +3,36 @@
 
 \textbf{The horizon of the reward selects the reward hack.} Which exploit a policy finds depends
 on what the judge is shown. The $K{=}0$ arm finds unearned praise, whose payoff is immediate and
-whose cost is deferred. The $K{=}5$ arm cannot profit from that, because
-the cost now lands inside the window the judge sees, and it moves toward asking questions and, to
-a smaller degree, toward pushing. Extending the horizon did not make the policy honest; it made
-the dishonest strategy unprofitable.
+whose cost is deferred. The $K{=}5$ arm cannot profit from it, because the cost now lands inside
+the window the judge sees; it moves toward asking questions and, to a smaller degree, toward the
+righting reflex of pushing the patient. Extending the horizon does not remove reward hacking; it
+changes which behaviour pays.
 
-\textbf{Scope: one optimiser, one regime.} Everything here concerns a group-relative optimiser.
-The lever's origin is a preference-pair method: \citet{baruch2025pto} introduced it with
+\textbf{What we could not isolate.}
+\label{sec:mechanism}
+Three mechanisms were testable in this design, and none is confirmed (Appendix~\ref{app:mechanism}).
+Pooled over the run, the $\Kf$ reward ranks candidates slightly more like the full-session score
+does (pairwise rank agreement $0.909$ vs.\ $0.873$ under the training oracle), but the
+iteration-level test does not clear $.05$ and at the one matched-policy cut (iteration 1) both
+deltas straddle zero. Look-ahead widens the best-minus-worst margin within a
+group ($1.300\times$), but the within-group standard deviation grows by the same factor
+($1.293\times$; ratio of ratios $1.006$ $[1.002, 1.010]$), a rescaling the advantage
+normalisation absorbs: look-ahead changes \emph{which} candidate the group prefers, not how
+confidently. What remains is a small, repeated difference in which of eight siblings is
+preferred, compounded over ten iterations of a loop that regenerates its training data from the
+policy it just updated; isolating that pathway needs the horizon swapped mid-run on one policy.
+
+\textbf{Scope: one optimiser, one regime.} The lever's origin is a preference-pair method: \citet{baruch2025pto} introduced it with
 preference trees and DPO in an earlier, easier regime of this task (a 7B policy, more cooperative
-patients, a weaker judge). Whether the lever helps other optimiser
-families in other regimes is outside this paper's scope. What would change our minds: a second
-\emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a
-horizon, or a human MI coder disagreeing with the over-praise finding.
+patients, a weaker judge). Whether the lever helps other optimiser families in other regimes is
+outside this paper's scope. Evidence that would overturn it: a second \emph{training} run
+reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a
+human MI coder disagreeing with the over-praise finding.
 
-\textbf{Ceiling-driven grader saturation is worth naming.} Optimising against an LLM judge
-succeeds first on the judge's own terms: the scores it gives move to the top of its scale, and a
-bounded scale at its top cannot rank. Here the trained-against grader lost three-quarters of its
-per-conversation variance while a harsher independent grader's spread stayed flat, at the
-checkpoint a practitioner would ship, unseen by arm-level agreement. The diagnostic is
-cheap: track the training grader's per-conversation variance and share of ceiling scores, not
-only its mean, and keep a second grader with headroom.
-
-\textbf{Conclusion.} For a group-relative optimiser in multi-turn dialogue, what the judge
-is shown is a first-order design choice. Scoring the continuation rather than the turn raised what
-the same optimiser extracted from the same oracle, under a held-out grader, against the turn-level
-arm's best checkpoint and on a replicated draw, and decided which failure mode the policy
-learned. Report the reward horizon as a hyperparameter, and watch the training grader's variance
-as a statistic.
+\textbf{Conclusion.} For a group-relative optimiser in multi-turn dialogue, what the judge is
+shown is a first-order design choice. Scoring the continuation rather than the turn raised what
+the same optimiser extracted from the same oracle, and it decided which failure mode the policy
+learned. An LLM judge optimised against also saturates: its scores move to the top of a
+bounded scale, where they stop ranking, unseen by arm-level agreement. We recommend
+reporting the reward horizon as a hyperparameter, tracking the training grader's variance and
+ceiling share, and keeping a second grader with headroom.

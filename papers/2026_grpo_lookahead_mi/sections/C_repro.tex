@@ -29,16 +29,16 @@ Conversations / iteration & 96 \\
 Group size $G$ & 8 \\
 KL $\beta$ & 0.01 \\
 GRPO temperature & 1.2 \\
-GRPO loss type & \texttt{grpo} \\
+GRPO loss variant & standard (\texttt{grpo}) \\
 Train batch $\times$ accumulation & $64 \times 2$ \\
-Eval split & 0.05 \\
-Min.\ context length (MCL) & 12 turns \\
-Session target & 49 turns \\
+Trainer eval split & 0.05 of prompts \\
+Min.\ context length (MCL) & 12 utterances \\
+Session cap & 49 utterances after the opening \\
 Max tokens / response & 200 \\
 Therapist context & 2{,}048 tokens \\
 Therapist / patient temperature & 0.9 / 0.7 \\
 Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
-Look-ahead $K$ & 0 (arm A) / 5 (arm B) \\
+Look-ahead $K$ & 0 ($\Kz$ arm) / 5 ($\Kf$ arm) \\
 \bottomrule
 \end{tabular}}
 \caption{Resolved configuration, identical across the two arms except the final row.
@@ -150,14 +150,13 @@ inside the $K{=}5$ rollout.
 
 \subsection{Evaluation and statistics}
 
-Model states are scored offline into a partitioned score archive keyed by grader $\times$
-replicate $\times$ instrument $\times$ training-oracle $\times$ model, one record per conversation,
-so a grader is an ordinary partition key rather than a privileged path and an interrupted scoring
-run resumes by skipping completed work. The reported draw is replicate 0 for each grader.
+Model states are scored offline into a score archive keyed by grader, replicate, instrument and
+model, one record per conversation; an interrupted scoring run resumes by skipping completed work.
+The reported draw is replicate 0 for each grader.
 
 All contrasts are persona-paired. The 96 personas are reshuffled every iteration, so pairing
 recovers the persona identity by replaying the shuffle; pairing on file order would join unrelated
-conversations across iterations and is the single easiest way to get these numbers wrong. Tests
+conversations across iterations. Tests
 are Wilcoxon signed-rank; effect sizes are Cohen's \dz; intervals are 2{,}000-resample percentile
 bootstraps at a fixed seed, so a re-render reproduces the same bounds. Holm correction is applied
 within each family (instruments within one matched contrast, or iterations within one sweep) and
@@ -178,11 +177,11 @@ sub-batch, so the per-step multiplier is quoted over the settled iterations 3--1
 \subsection{Artifacts}
 
 Every number in this paper is traceable to a tracked table in the analysis-results tree of the
-accompanying code release, and the mapping from claim to table is the paper's \texttt{NUMBERS.md}
-ledger. Figures are copied from that same tree rather than regenerated here, so the draft compiles
+code release, and the mapping from claim to table is a claims ledger released with it. Figures are copied from that same tree rather than regenerated here, so the draft compiles
 standalone and a submitted PDF is frozen against later re-renders; the exceptions are
 Figure~\ref{fig:schematic}, a page-width redraw of the method schematic, and
-Figures~\ref{fig:overpraise} and~\ref{fig:saturation}, redrawn at page proportions by a script in
+Figures~\ref{fig:headline}, \ref{fig:overpraise}, \ref{fig:saturation}, \ref{fig:forest}
+and~\ref{fig:tails}, each drawn at the width it is included at by a script in
 the paper folder that reads only the tracked tables behind the corresponding tree figures. The
 transcript in Table~\ref{tab:excerpt} and Appendix~\ref{app:example} is reproduced verbatim from
 the stored conversation files; the persona was selected by the rule stated in the caption, with

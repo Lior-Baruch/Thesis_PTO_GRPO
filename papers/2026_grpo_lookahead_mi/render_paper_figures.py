@@ -1,24 +1,31 @@
-"""Draw the two BODY figures whose EDA renders are not legible at ACL column/text width.
+"""Draw the paper's five data figures at page proportions, from the EDA's tracked tables.
 
-The EDA renders of ``overpraise_judgefree_grpo`` (3.7:1 aspect, 9-pt titles) and
-``judge_saturation_grpo`` (a 7.4 x 7.6 in two-panel figure) were designed for a notebook, not a
-two-column page: scaled to the ACL text/column width their tick labels fall below 4 pt. This script
-redraws exactly the same numbers at paper proportions. **Nothing here computes a number**: every
-plotted point is read from the tracked table the EDA rendered beside the original figure
-(``lookahead/behaviour/tables/behaviour.xlsx`` sheet ``overpraise_judgefree_data`` and
-``measurement/validity/tables/validity.xlsx`` sheet ``judge_saturation_grpo_data``), so the figures
-remain EDA-owned in the sense that matters -- re-render the EDA, re-run this, and the picture moves
-with the table. ``NUMBERS.md`` cites those tables for every value the captions quote.
+The EDA's own renders were designed for a notebook, not a two-column page: scaled to the ACL text
+width their tick labels fall below 4 pt. This script redraws exactly the same numbers at paper
+proportions. **Nothing here computes a number**: every plotted point is read from a tracked table
+the EDA rendered beside the original figure (the ``.xlsx`` workbooks under
+``Exp3_PTO_GRPO/eda/results/``), so the figures remain EDA-owned in the sense that matters --
+re-render the EDA, re-run this, and the picture moves with the table. ``NUMBERS.md`` cites those
+tables for every value the captions quote.
 
     & ..\\..\\.venv\\Scripts\\python.exe render_paper_figures.py
 
-Writes ``figures/overpraise_judgefree_grpo.png`` and ``figures/judge_saturation_grpo.png`` (the same
-destination names ``sync_figures.py`` used to copy, so the .tex is unchanged); ``sync_figures.py`` no
-longer lists those two.
+Writes, under ``figures/``: ``k_headline_q1q2_grpo`` (Fig. 2), ``overpraise_judgefree_grpo``
+(Fig. 3), ``judge_saturation_grpo`` (Fig. 4), ``k_channel_forest_grpo_gpt-4o-mini`` (Fig. 7) and
+``tail_audit_grpo`` (Fig. 8) -- the same destination names ``sync_figures.py`` used to copy, so the
+.tex is unchanged; ``sync_figures.py`` no longer lists them.
+
+SIZING (2026-09-16): each figure is drawn at the exact width ``sections/*.tex`` includes it at,
+so the point sizes in this file are true page point sizes -- see ``width_fracs`` / ``figsize``.
+A ``figure*`` pays a fixed text height (title, tick row, x-label) whatever its width, so the
+page-space lever is the ASPECT passed to ``figsize``, not the ``\\textwidth`` fraction: narrowing a
+figure only shrinks its type. Re-run after any width change; then rebuild and confirm the body
+still ends on page 8.
 """
 
 from __future__ import annotations
 
+import re
 import sys
 from pathlib import Path
 
@@ -38,19 +45,51 @@ REPLICATION_XLSX = RESULTS / "lookahead" / "replication" / "tables" / "replicati
 MECHANISM_XLSX = RESULTS / "lookahead" / "mechanism" / "tables" / "mechanism.xlsx"
 REWARD_XLSX = RESULTS / "lookahead" / "reward" / "tables" / "reward.xlsx"
 DEST = HERE / "figures"
+SECTIONS = HERE / "sections"
+
+# ACL \textwidth, read off main.log ("* \textwidth=455.24411pt", TeX points).
+TEXTWIDTH_IN = 455.24411 / 72.27
+
+# --- width-aware sizing (2026-09-16) ------------------------------------------------------------
+# Each figure is drawn at its EXACT on-page size, so \includegraphics scales it by 1.0 and every
+# point size in this file is a TRUE PAGE POINT SIZE. Before this, every figure was drawn 6.3 in
+# wide whatever width it was included at, so a figure at 0.64\textwidth printed its 7.5 pt labels
+# at 4.8 pt. The fractions are parsed from the .tex rather than hardcoded, so narrowing a figure
+# in the source re-sizes its render on the next run instead of silently shrinking its type.
+_INCLUDE_RE = re.compile(
+    r"\\includegraphics\[width=([0-9.]+)\\textwidth\]\{figures/([^}]+)\}")
+
+
+def width_fracs() -> dict[str, float]:
+    """name -> the \\textwidth fraction sections/*.tex includes it at (1.0 if never included)."""
+    out: dict[str, float] = {}
+    for tex in sorted(SECTIONS.glob("*.tex")):
+        for frac, name in _INCLUDE_RE.findall(tex.read_text(encoding="utf-8")):
+            out[name] = float(frac)
+    return out
+
+
+FRACS = width_fracs()
+
+
+def figsize(name: str, aspect: float) -> tuple[float, float]:
+    """On-page size of ``name`` at its included width, keeping height/width = ``aspect``."""
+    w = TEXTWIDTH_IN * FRACS.get(name, 1.0)
+    return (w, w * aspect)
+
 
 # Same two arm colours as the EDA's headline figure (Okabe-Ito vermilion / orange).
 COL = {"GRPO_LA0": "#d55e00", "GRPO_LA5": "#e69f00"}
-LAB = {"GRPO_LA0": "$K{=}0$ (turn-level reward)", "GRPO_LA5": "$K{=}5$ (look-ahead reward)"}
+LAB = {"GRPO_LA0": "$K{=}0$ (turn-level)", "GRPO_LA5": "$K{=}5$ (look-ahead)"}
 STY = {"GRPO_LA0": dict(marker="o", ls="-"), "GRPO_LA5": dict(marker="s", ls="--")}
 PRIMARY = "gpt-4o-mini"
 HELDOUT = "claude-haiku-4-5"
 
-# Sized for placement at ~0.86 of the ACL text width (6.3 in -> ~5.4 in), where these point sizes
-# land at 6-7 pt on the page.
+# TRUE PAGE POINT SIZES (see above). ACL body text is 11 pt and captions 10 pt; 6-7 pt is the
+# floor at which a scaled screenshot of the PDF still reads. Nothing here goes below 5.8.
 plt.rcParams.update({
-    "font.size": 7.5, "axes.titlesize": 7.5, "axes.labelsize": 7, "xtick.labelsize": 6.5,
-    "ytick.labelsize": 6.5, "legend.fontsize": 6.5, "axes.grid": True, "grid.alpha": 0.25,
+    "font.size": 7, "axes.titlesize": 7, "axes.labelsize": 6.8, "xtick.labelsize": 6.2,
+    "ytick.labelsize": 6.2, "legend.fontsize": 6.2, "axes.grid": True, "grid.alpha": 0.25,
     "axes.spines.top": False, "axes.spines.right": False, "savefig.dpi": 300,
 })
 
@@ -58,26 +97,27 @@ plt.rcParams.update({
 def overpraise() -> Path:
     op = pd.read_excel(BEHAVIOUR_XLSX, sheet_name="overpraise_judgefree_data")
     op = op[op.arm.isin(COL)].sort_values(["arm", "iteration"])
+    # Panel titles and axis labels are kept SHORT because each panel is one third of
+    # 0.64\textwidth (~1.0 in of axes): what each panel measures is spelled out in the caption.
     panels = [
-        ("lex_overpraise_marker_rate", "(a) judge-free lexical marker",
-         "share of therapist turns\nwith an over-praise marker"),
-        (f"MICI_OverPraiseRate_{PRIMARY}", "(b) training oracle",
-         "coded over-praise acts\nper therapist turn"),
-        (f"MICI_OverPraiseRate_{HELDOUT}", "(c) held-out judge",
-         "coded over-praise acts\nper therapist turn"),
+        ("lex_overpraise_marker_rate", "(a) lexical marker", "share of turns"),
+        (f"MICI_OverPraiseRate_{PRIMARY}", "(b) training oracle", "acts per turn"),
+        (f"MICI_OverPraiseRate_{HELDOUT}", "(c) held-out judge", "acts per turn"),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=(6.3, 1.8))
+    fig, axes = plt.subplots(1, 3, figsize=figsize("overpraise_judgefree_grpo.png", 0.21))
     for ax, (col, title, ylab) in zip(axes, panels):
         for arm, a in op.groupby("arm"):
             ax.plot(a.iteration, a[col], color=COL[arm], label=LAB[arm], ms=3.5, lw=1.4, **STY[arm])
         ax.set_title(title, loc="left", fontweight="bold")
         ax.set_ylabel(ylab)
-        ax.set_xlabel("training iteration")
+        ax.set_xlabel("iteration")
         ax.set_xticks(range(0, 11, 2))
         ax.set_ylim(bottom=0)
-    h, l = axes[0].get_legend_handles_labels()
-    fig.legend(h, l, loc="upper center", bbox_to_anchor=(0.5, 1.04), ncol=2, frameon=False)
-    fig.tight_layout(rect=(0, 0, 1, 0.94), w_pad=1.6)
+    # Legend INSIDE panel (a): all three series rise from ~0, so the upper left is empty, and a
+    # legend row above the figure costs ~0.2 in of a page-width float that the body cannot spare.
+    axes[0].legend(frameon=False, loc="upper left", fontsize=6.0, handlelength=1.5,
+                   borderaxespad=0.2, labelspacing=0.2, handletextpad=0.4)
+    fig.tight_layout(w_pad=1.2)
     out = DEST / "overpraise_judgefree_grpo.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
@@ -107,30 +147,35 @@ def saturation() -> Path:
             "GRPO_LA0": dict(ls="--", lw=1.1, marker="o", ms=2.6, alpha=0.75, zorder=2)}
     JWHO = {True: "training oracle", False: "held-out judge"}
 
-    fig, (axA, axB, axC) = plt.subplots(1, 3, figsize=(6.3, 2.05))
+    fig, (axA, axB, axC) = plt.subplots(1, 3, figsize=figsize("judge_saturation_grpo.png", 0.24))
     # (a) agreement per state
     for arm, s in a.groupby("arm"):
         s = s.sort_values("iteration")
         hot = arm == "GRPO_LA5"
         axA.plot(s.iteration, s.value, color=COL[arm], ms=3.8 if hot else 3.0,
-                 label="$K{=}5$ (look-ahead)" if hot else "$K{=}0$ (turn-level)",
+                 label="$K{=}5$" if hot else "$K{=}0$",
                  lw=1.9 if hot else 1.3, zorder=3 if hot else 2, **STY[arm])
-    axA.axhline(med, ls=":", lw=1.0, color="#444444", zorder=1,
-                label=f"median, {n_states} states")
+    # The dotted median line is named in the caption, not in the legend: a third entry makes the
+    # legend box as wide as this (0.68\textwidth / 3) panel and it then covers the K=5 line.
+    axA.axhline(med, ls=":", lw=1.0, color="#444444", zorder=1)
     la5 = a[a.arm == "GRPO_LA5"].sort_values("iteration")
-    for it, dy in ((9, -11), (10, 6)):
+    # Both minima annotated to the RIGHT of their points, on separate rows: the panel is one
+    # third of 0.68\textwidth, so a label extending leftward from iteration 9 reaches the legend.
+    # The x-limit is opened past 10 to hold them.
+    for it, dy in ((9, -8), (10, 7)):
         r = float(la5[la5.iteration == it].value.iloc[0])
-        axA.annotate(f"{r:.3f}", (it, r), textcoords="offset points", xytext=(0, dy), ha="center",
-                     fontsize=6.5, fontweight="bold", color=COL["GRPO_LA5"])
+        axA.annotate(f"{r:.3f}", (it, r), textcoords="offset points", xytext=(3, dy), ha="left",
+                     fontsize=6.2, fontweight="bold", color=COL["GRPO_LA5"])
+    axA.set_xlim(-0.7, 13.6)
     axA.set_xticks(range(0, 11, 2))
-    axA.set_ylim(0.4, 1.0)
-    axA.set_xlabel("iteration (0 = base policy)")
-    axA.set_ylabel("per-conversation $r$ on Q1\n(held-out vs training oracle)")
-    axA.set_title("(a) cross-grader agreement", loc="left", fontweight="bold")
+    axA.set_ylim(0.36, 1.02)
+    axA.set_xlabel("iteration")
+    axA.set_ylabel("per-conversation $r$ on Q1")
+    axA.set_title("(a) agreement", loc="left", fontweight="bold")
     # Lower-left is the one empty region: both lines stay above 0.74 until K=5 dives at 8-10,
-    # and the short labels keep the legend clear of the 0.487 / 0.544 annotations.
-    axA.legend(frameon=False, loc="lower left", fontsize=5.6, ncol=1, handlelength=2.0,
-               borderaxespad=0.3, labelspacing=0.25)
+    # and the two annotations sit bottom-RIGHT, under that dive.
+    axA.legend(frameon=False, loc="lower left", fontsize=5.8, ncol=1, handlelength=1.4,
+               borderaxespad=0.15, labelspacing=0.15, handletextpad=0.4)
 
     # (b) the spread of each grader's Q1 scores along both arms; (c) the ceiling share.
     stats = {}
@@ -153,22 +198,23 @@ def saturation() -> Path:
     # section text and the caption; printed inside panel (b) they collided with the lines.
     hb = float(sd[~sd.judge.map(_is_primary)].share_ge45.max())
     held = "0%" if hb == 0 else f"at most {hb:.0%}"
-    axC.text(0.03, 0.96, f"held-out judge: {held} at\nevery iteration, both arms",
+    axC.text(0.03, 0.97, f"held out: {held},\nboth arms",
              transform=axC.transAxes, fontsize=5.8, va="top", ha="left", color=JCOL[False])
     for ax in (axB, axC):
         ax.set_xticks(range(0, 11, 2))
-        ax.set_xlabel("iteration (0 = base policy)")
+        ax.set_xlabel("iteration")
     axB.set_ylim(0.5, 1.45)
-    axB.set_ylabel("SD of per-conversation Q1\n(each grader's own units)")
-    axB.set_title("(b) spread tracks level", loc="left", fontweight="bold")
+    # (b)/(c) y-labels kept short enough not to reach the legend row above the axes.
+    axB.set_ylabel("SD of Q1 scores")
+    axB.set_title("(b) spread", loc="left", fontweight="bold")
     axC.set_ylim(0, 0.72)
-    axC.set_ylabel("share of conversations\nscored $\\geq 4.5$ on Q1")
-    axC.set_title("(c) the ceiling", loc="left", fontweight="bold")
+    axC.set_ylabel("share of Q1 $\\geq 4.5$")
+    axC.set_title("(c) ceiling", loc="left", fontweight="bold")
     order = [(True, "GRPO_LA5"), (True, "GRPO_LA0"), (False, "GRPO_LA5"), (False, "GRPO_LA0")]
     fig.legend([handles[k] for k in order], [handles[k].get_label() for k in order],
-               loc="upper center", bbox_to_anchor=(0.5, 1.06), ncol=4, frameon=False,
-               fontsize=6.3, handlelength=2.4, columnspacing=1.4)
-    fig.tight_layout(rect=(0, 0, 1, 0.95), w_pad=1.3)
+               loc="upper center", bbox_to_anchor=(0.5, 1.02), ncol=4, frameon=False,
+               fontsize=6.0, handlelength=1.9, columnspacing=1.0, handletextpad=0.4)
+    fig.tight_layout(rect=(0, 0, 1, 0.9), w_pad=1.1)
     out = DEST / "judge_saturation_grpo.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
@@ -197,7 +243,7 @@ def tail_audit() -> Path:
     wi = wi.sort_values("it")
     col = COL["GRPO_LA5"]
 
-    fig, (a, b, c) = plt.subplots(1, 3, figsize=(6.3, 2.1))
+    fig, (a, b, c) = plt.subplots(1, 3, figsize=figsize("tail_audit_grpo.png", 0.3333))
     # (a) how often the rollout was cut short
     a.fill_between(bi.it, bi.ended_early_ci_lo, bi.ended_early_ci_hi, color=col, alpha=0.2, lw=0)
     a.plot(bi.it, bi.ended_early_rate, color=col, marker="s", ms=3.2, lw=1.6,
@@ -288,7 +334,7 @@ def forest() -> Path:
         r = src[sheet].loc[metric]
         rows.append((label, group, -float(r.dz), float(r.p_holm)))   # sign flipped to K=5 - K=0
     xlim = (-2.8, 2.6)
-    fig, ax = plt.subplots(figsize=(6.3, 3.6))
+    fig, ax = plt.subplots(figsize=figsize("k_channel_forest_grpo_gpt-4o-mini.png", 0.5714))
     y = 0
     ys, labels = [], []
     for g in ("mici", "miti", "shape"):
@@ -332,7 +378,7 @@ def headline() -> Path:
     d = pd.read_excel(REWARD_XLSX, sheet_name="k_headline_grpo_data")
     d = d[d.metric == "Q1Q2"]
     panels = [(PRIMARY, "(a) training oracle (gpt-4o-mini)"), (HELDOUT, "(b) held-out judge (Claude Haiku 4.5)")]
-    fig, axes = plt.subplots(1, 2, figsize=(6.3, 2.25))
+    fig, axes = plt.subplots(1, 2, figsize=figsize("k_headline_q1q2_grpo.png", 0.23))
     for ax, (judge, title) in zip(axes, panels):
         s = d[d.judge == judge].sort_values("iteration")
         for arm, mean, se, base in (("GRPO_LA0", "mean_K0", "se_K0", "base_K0"),
@@ -345,24 +391,30 @@ def headline() -> Path:
                         va="center", fontsize=6.5, fontweight="bold", color=COL[arm])
         lo = float(min(s.mean_K0.min(), s.mean_K5.min())) - 0.25
         hi = float(max(s.mean_K0.max(), s.mean_K5.max())) + 0.25
-        ax.set_ylim(lo, hi + 0.12 * (hi - lo))
+        # Headroom for the star row AND, in panel (a), the legend that now sits inside the axes.
+        # The legend takes a fixed FRACTION of the axes height, so the top margin m has to satisfy
+        # m - f(1 + m) > 0.06 to clear the stars; at f ~ 0.28 that needs m > 0.47.
+        ax.set_ylim(lo, hi + 0.62 * (hi - lo))
         star_y = hi + 0.06 * (hi - lo)
         for it, sig in zip(s.iteration, s.holm_sig):
             if bool(sig):
                 ax.text(it, star_y, "*", ha="center", va="center", fontsize=8, color="#222222")
-        ax.set_xticks(range(0, 11))
+        ax.set_xticks(range(0, 11, 2))
         ax.set_xlim(-0.4, 11.2)
-        ax.set_xlabel("iteration (0 = each arm's own base draw)")
-        ax.set_ylabel("Q1+Q2, mean $\\pm$ SE over 96 personas")
+        ax.set_xlabel("iteration (0 = each arm's own base)")
+        ax.set_ylabel("Q1+Q2 (mean $\\pm$ SE)")
         ax.set_title(title, loc="left", fontweight="bold")
-    h, l = axes[0].get_legend_handles_labels()
-    h.append(plt.Line2D([0], [0], color="#555555", ls=":", lw=0.9))
-    l.append("each arm's own base (iteration-0 mean)")
-    h.append(plt.Line2D([0], [0], marker="$*$", color="#222222", ls="none", ms=6))
-    l.append("$K{=}5$ vs $K{=}0$ clears Holm ($p<.05$)")
-    fig.legend(h, l, loc="upper center", bbox_to_anchor=(0.5, 1.06), ncol=4, frameon=False,
-               fontsize=6.3, columnspacing=1.2, handlelength=2.2)
-    fig.tight_layout(rect=(0, 0, 1, 0.94), w_pad=1.8)
+    # Two entries only, INSIDE panel (a), stacked: a legend row above the figure costs ~0.2 in of
+    # a page-width float the body cannot spare, and a four-entry box is wide enough to reach the
+    # star at iteration 4 whatever the top margin. The dotted base line and the star are defined
+    # in the caption instead.
+    # Bare "K=0" / "K=5" here (the parenthetical glosses reach the iteration-4 star); the arms
+    # are the paper's central notation by this point and the caption states the contrast.
+    hh, _ = axes[0].get_legend_handles_labels()
+    axes[0].legend(hh, ["$K{=}0$", "$K{=}5$"], loc="upper left", fontsize=5.8, ncol=1,
+                   frameon=False, handlelength=1.1, handletextpad=0.3, labelspacing=0.2,
+                   borderaxespad=0.1)
+    fig.tight_layout(w_pad=1.4)
     out = DEST / "k_headline_q1q2_grpo.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)

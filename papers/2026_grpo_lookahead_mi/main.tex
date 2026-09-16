@@ -17,6 +17,10 @@
 %  the ONE submission. Endpoint table + a matched-persona excerpt moved
 %  into the body; rollout audit moved to sec:reward; body figures 3-4
 %  redrawn from their tables (render_paper_figures.py); Appendix D added.
+%  Restructured 2026-09-16 (see README): Algorithm 1 + a longer method
+%  section; the mechanism section folded into the discussion; the
+%  saturation section halved and demoted from contribution (iii); the
+%  Limitations consolidated; register pass. Numbers unchanged.
 % =====================================================================
 %
 % COMPILING (MiKTeX, no Perl, no latexmk -- see ../README.md):
@@ -47,6 +51,9 @@
 \usepackage{xcolor}
 \usepackage{array}
 \usepackage{subcaption}
+\usepackage{algorithm}         % Algorithm 1 (sec:method)
+\usepackage{algorithmic}
+\renewcommand{\algorithmiccomment}[1]{\hfill$\triangleright$ \textit{#1}}
 
 % --- float packing: let top floats take more of a page and sit closer to text ---
 \renewcommand{\topfraction}{0.9}
@@ -101,8 +108,7 @@ Rewarding a Therapist Turn by Where It Leads}
 \input{sections/04_setup}
 \input{sections/05_reward}
 \input{sections/06_behaviour}
-\input{sections/07_mechanism}
-\input{sections/08_measurement}
+\input{sections/08_measurement}   % 07_mechanism retired 2026-09-16 (folded into 09)
 \input{sections/09_discussion}
 \input{sections/10_limitations}
 \input{sections/11_ethics}

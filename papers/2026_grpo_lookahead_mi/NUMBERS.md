@@ -8,6 +8,12 @@ row is written from prose — each was read off the named table or recomputed fr
 behaviour, §7 mechanism, §8 measurement, §9 discussion; appendices A tables · B mechanism · C repro.
 New rows are marked **NEW**. Numbers unchanged from the 2026-08-27 ledger keep their marks.)*
 
+*(2026-09-16 restructuring — sections renumbered again: §7 is now the saturation section (was §8)
+and §8 the discussion (was §9); the one-paragraph mechanism section was folded into §8 as the
+paragraph "What we could not isolate" (`\label{sec:mechanism}` still resolves there). §3 gained
+Algorithm 1. Numbers unchanged; the rows moved or added by this pass are in the **2026-09-16**
+block at the end.)*
+
 *(2026-09-04 refinement — the 2×2 companion draft was retired, so this is the ONE submission.
 Structure: the endpoint table is now **Table 1 in the body** (§5), the matched-persona excerpt is
 **Table 2** (§6) with the full utterances in a new **Appendix D**, the rollout audit moved from §3
@@ -396,3 +402,58 @@ against MI categories; the "advice where a counsellor would reflect" finding) ·
 `coste2024ensembles` (ICLR 2024, dblp `conf/iclr/CosteAK024`) · `wu2022annomi` (ICASSP 2022,
 pp. 6177–6181). **Considered and NOT added:** Wen et al. 2024 "Language Models Learn to Mislead
 Humans via RLHF" — an ICLR 2026 poster disputes its evidence, so it is left out.
+
+## 2026-09-16 restructuring pass (Claude, on Lior's "implement everything") — moves, additions, retirements
+
+**What changed structurally.** Abstract rewritten to end on the result (one caveat sentence);
+contributions cut to two, saturation demoted to "we also document"; §3 gained **Algorithm 1**, a
+"Why the transfer is not trivial" paragraph (the one-sample Monte Carlo argument, moved out of the
+intro), a "Minimum context length" paragraph and a "Cost" paragraph; §4 gained "Why MI" and a
+"Terminology" note; §5–§7 got neutral titles; the mechanism section became one paragraph of §8;
+§7 (saturation) was halved; the Limitations were consolidated from eleven paragraphs to seven; the
+appendices lost their lab-notes sentences. Body ends at the bottom of page 8; 22 pages in all
+(the extra page is Appendix D reflowing after the figure pass below).
+**No number that carries the argument changed.** Figure 1 was narrowed 0.93→0.82 `\textwidth`.
+Figures 2–4 were first narrowed to 0.64–0.68 (which only shrank their type) and then, the same
+day, restored to 0.94 with `render_paper_figures.py` made width-aware: each figure is drawn at
+its included width, so its point sizes are true page points, and the page budget is met through
+the drawn aspect (0.23 / 0.21 / 0.24) and legends placed inside the axes. Figure 2's legend now
+lists only the two arms; the dotted base line and the Holm star are defined in its caption.
+Figure 4's panel titles are "(a) agreement / (b) spread / (c) ceiling" with the quantities in the
+caption, and its median line is named in the caption rather than a legend entry. No value moved.
+
+| claim (new or moved) | value | source |
+|---|---|---|
+| **NEW** 📄 MCL rationale, §3 "Minimum context length" | quoted **without numbers**: "a pilot on an earlier configuration of this task" in which short-prefix rankings "agreed poorly … and recovered from roughly ten utterances". The Exp2 figures (~0.66–0.73 at `n_turns=2`, 0.8 at ~10) are deliberately not printed — METRICS_REFERENCE §6 forbids citing them as Exp3 outputs | Exp3_PTO_GRPO/eda/results/METRICS_REFERENCE.md § 6 (the ⚠ paragraph) |
+| **NEW** 📄 Faithfulness at the shortest admitted prefix (§3 "86–89%", Appendix B.1) | `n_turns=12`: GRPO_LA0 **0.860** [0.848, 0.872], GRPO_LA5 **0.886** [0.875, 0.895] (primary grader, iters 1–10 pooled); `n_turns=50`: **0.897** [0.869, 0.922] / **0.936** [0.904, 0.960]. Paper: "orders candidates as the full-session score does in 86–89% of pairs … agreement does not fall with prefix length". ⚠ This is a pooled-iterations, primary-grader statistic; the held-out columns are not quoted | results/lookahead/mechanism/tables/faithfulness_curve.md, rows 12 and 50, GRPO columns (= `arms/training/tables/gpt-4o-mini/reward_reliability_by_nturns.md`) |
+| ✅ PCT contrast now quoted in §6 (was Table 1 only) | K=5 higher: primary **+0.111** (dz 0.516), held-out **+0.113** (dz 0.563), both p_holm .000 | results/lookahead/reward/tables/k_endpoints.md, PCT row of `GRPO_LA5_I10 − GRPO_LA0_I10` (same row Table 1 prints) |
+| **NEW** citation fact, §6 — MITI 4.2.1 Affirm definition | manual: "Affirm should not be coded automatically for the clinician's agreeing with, approval of, cheerleading for, or non-specific praising of the client"; example list: "I am really proud of you. (Not coded; not specific)"; "You did great! (Not coded)". Paper: "the MITI manual codes an affirmation only when it is specific to a client strength or effort, excludes 'cheerleading' and non-specific praise, and lists 'I am really proud of you' as not coded" | Moyers et al. 2015, MITI 4.2.1 manual (casaa.unm.edu/assets/docs/miti4_2.pdf), Affirm (AF) section — verified 2026-09-16 |
+| **NEW** citation fact, §6 + §8 — "righting reflex" | the counsellor's urge to correct/persuade; Miller & Rollnick's term (the MITI 4.2.1 manual also uses it under the Partnership global) | `miller2013mi`; MITI 4.2.1 Partnership section — verified 2026-09-16 |
+| **NEW** wording, §4 "Why MI" | MITI globals "cultivating change talk" and "softening sustain talk" are named as trajectory-level ratings; change talk / sustain talk defined | `moyers2016miti`; the four globals are listed in Appendix C.2 (unchanged) |
+
+**Numbers that left the BODY but remain in an appendix** (nothing left the paper):
+held-out faithfulness 0.800 vs 0.747 (Appendix B.1); update-direction cosine 0.804 / 0.851 /
+ceiling 0.945 (Appendix B.4); the rollout audit detail — 121,088 logged (88%), early-ending range
+12% (iter 10) to 30% (iter 6), 16% patient closed, argmax 0.10 vs 0.125 (Appendix A intro text +
+Figure 8 caption; the Limitations keep 82%, "up to 0.09", "less often than chance"); Figure 4's
+caption no longer prints the SD endpoints (1.34→0.70, 0.76→0.91) or the Spearman ρ/p — §7's text
+does; §6 no longer says turn length tripled (the Limitations do).
+
+**Retired wording (do not reintroduce):** "flattery"/"flatter" (→ over-praise / unearned
+affirmation; the word survives only in Appendix D transcripts); "Turn-level reward teaches
+flattery", "Why it works, as far as we can tell", "Where the training grader stops discriminating",
+"Look-ahead leads on every instrument and keeps the lead" (section titles → neutral); "The move is
+not obviously safe"; "checkable rather than asserted"; "the defensible sentence"; "what changed is
+the ruler"; "did not make the policy honest … dishonest strategy"; "What would change our minds";
+"the limitation a reader should weight most heavily"; Appendix B "the shape of no effect" / "a
+result we can omit while quoting the pooled row"; Appendix C "the single easiest way to get these
+numbers wrong". Also retired: "so the gain is not an artifact of the optimisation target" and
+"separates a genuine gain from a target-specific one" (→ "consistent with a gain that is not
+specific to the optimisation target" — a larger held-out dz supports, it does not prove).
+
+**Qualifier added (ledger warning "the steelman is a Q1+Q2 statement"):** abstract and §1 now say
+"beats the K=0 policy's best checkpoint **on the rewarded rubric**". The turn = utterance
+definition now appears in §1 ("K=5 appends patient, therapist, patient, therapist, patient").
+
+**Label rename:** `sec:behaviour-honest` → `sec:behaviour-heldout` (referenced from §7 and Ethics).
+`sections/07_mechanism.tex` was retired (no longer `\input`) and deleted the same day.

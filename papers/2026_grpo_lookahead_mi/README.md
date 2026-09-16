@@ -8,7 +8,7 @@ cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in Decem
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
 mode (line numbers, anonymized); switch to `[final]` for camera-ready. **The body ends exactly at
-the bottom of page 8** (Limitations opens page 9); 20 pages in all.
+the bottom of page 8** (Limitations opens page 9); 22 pages in all.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten
@@ -81,9 +81,51 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
   tables with plain labels (Figure 8's EDA jargon was unreadable; Figure 7 now uses the paper's
   sign convention); the better arm's level is bold in Tables 1 and 3.
 
-  Every new number is a NEW-0914 row in `NUMBERS.md`. ⚠ The Figure 4 source block sits at the top
-  of `sections/07_mechanism.tex` on purpose: a `figure*` met in a right-hand column is deferred two
-  pages, and that position lands it at the top of the page §8 occupies.
+  Every new number is a NEW-0914 row in `NUMBERS.md`. The Figure 4 source block sat at the top
+  of `sections/07_mechanism.tex` on purpose (a `figure*` met in a right-hand column is deferred two
+  pages) until 2026-09-16, when it moved to `08_measurement.tex` — see the float rule below.
+
+**Restructured 2026-09-16** (Claude, on Lior's instruction to implement the whole of
+[`REVIEW_2026-09-16.md`](REVIEW_2026-09-16.md); numbers unchanged, every move logged in
+`NUMBERS.md` § "2026-09-16"):
+
+- **Focus rebalanced toward the method and the domain.** §3 gained **Algorithm 1** (the iterative
+  loop with the look-ahead reward), a "Why the transfer is not trivial" paragraph (the one-sample
+  Monte Carlo argument, moved out of the intro), a "Minimum context length" paragraph (the pilot
+  rationale, quoted without Exp2 numbers, plus the Exp3 faithfulness at 12 utterances), and a
+  "Cost" paragraph. §4 gained "Why MI" (change talk / sustain talk; MITI's trajectory-level
+  globals) and a "Terminology" note (training oracle · held-out judge · instruments · coders).
+- **Saturation demoted.** Contributions are now two; the saturation finding is "we also document".
+  The old §8 is now **§7**, halved (sign preservation, the per-conversation collapse, the ceiling
+  mechanism, what it undermines; the instrument-by-instrument paragraph is one sentence pointing at
+  Table 4). The old §7 (mechanism) is one paragraph of the discussion (now **§8**), "What we could
+  not isolate", with Appendix B unchanged; `sections/07_mechanism.tex` was deleted.
+- **MI vocabulary.** "Flattery" → over-praise / unearned affirmation throughout; §6 grounds the
+  over-praise code in the MITI 4.2.1 Affirm definition (which lists "I am really proud of you" as
+  not coded — almost the Table 2 turn), names the directive residue as MI's *righting reflex*, and
+  quotes the PCT contrast (K=5 elicits more change talk) that the section's mechanism sentence had
+  been asserting without its number.
+- **Register pass.** Neutral section titles ("Results: reward and evaluation instruments",
+  "Behavioural analysis: over-praise under turn-level reward", "Saturation of the training oracle
+  at the winning checkpoint"); the aphorisms and the lab-notes sentences in Appendices B–C
+  rewritten; the abstract ends on the result with one caveat sentence; "on the rewarded rubric"
+  added to the best-checkpoint claim in the abstract and §1 (the ledger's steelman warning).
+- **Limitations consolidated** from eleven paragraphs to seven; the rollout-audit numbers moved to
+  Appendix A's text (Figure 8's caption already had them). Table 5 lost "arm A / arm B" and glosses
+  its trainer-internal rows.
+- **Fitting to 8 pages.** The first pass narrowed Figures 2–4 to 0.64–0.68 `\textwidth`, which
+  only shrank their type (a `figure*` carries a fixed text height whatever its width, so the
+  labels printed at ~4.8 pt). Fixed the same day: `render_paper_figures.py` now draws each figure
+  at the exact width the `.tex` includes it at (parsed from `sections/*.tex`), so its point sizes
+  are **true page points** (7 pt labels, 6.2 pt ticks, nothing below 5.8), and the page-space
+  knob is the drawn **aspect** — Figures 2–4 are back at 0.94 `\textwidth` with aspects
+  0.23 / 0.21 / 0.24, legends moved inside an empty axes region, explanatory legend entries (base
+  line, star) moved to the captions. Figure 1 stays at 0.82. Float rule that holds: the Figure 4
+  block sits at the top of `08_measurement.tex` and must be met in the **left** column of page 7
+  to land on page 8 (comment in the source); Table 2 is `[tb]`. After any width or aspect change:
+  re-run the script, rebuild, and confirm page 9 opens with "Limitations".
+- Still open from the review: author block (co-authors), a human-coded sample, the E-questions in
+  the review for the cover note to the supervisors.
 
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
@@ -104,9 +146,10 @@ oracle; Claude Haiku 4.5 = held out). 2 arms × 11 states = 22 model states.
 ## The argument in one line
 
 Scoring a candidate therapist turn by the $K$-turn continuation it leads to, rather than by the
-turn itself, more than doubles what group-relative RL extracts from the same oracle, and it is
-the difference between a policy that learns motivational interviewing and one that learns to
-flatter the judge.
+turn itself, raises what group-relative RL extracts from the same oracle to 1.3–2.6× the
+turn-level gain (depending on grader and on whether the turn-level arm is read at its last or its
+best checkpoint), and it decides whether the policy learns motivational interviewing or learns to
+over-praise the patient.
 
 ## Section map (files under `sections/`)
 
@@ -115,18 +158,17 @@ flatter the judge.
 | 00_abstract | Abstract | |
 | 01_intro | §1 | the turn-only default; MI as the setting; GRPO with look-ahead and its PTO lineage; the controlled pair; results + the two caveats; three contributions |
 | 02_related | §2 | GRPO; multi-turn RL for dialogue (incl. multi-turn GRPO); look-ahead/search in preference learning + PTO; reward hacking & LLM judges (+ over-optimisation, ensembles); MI (+ AnnoMI, BOLT) |
-| 03_method | §3 | **GRPO with look-ahead** — the iterative loop, the group, the look-ahead reward (the $\tau_K$ equation), what the lever costs; Figure 1 = the group schematic |
-| 04_setup | §4 | task/simulator/oracle, instruments, the two arms, evaluation & statistics |
-| 05_reward | §5 | Figure 2 + **Table 1 (endpoint, every instrument, both graders)**; headline; onset + the best-checkpoint steelman; the replicate draw |
-| 06_behaviour | §6 | **Table 2 (the matched-persona excerpt)**; over-praise + composition; the judge-free marker (Figure 3); what look-ahead does instead; the honest version |
-| 07_mechanism | §7 | one paragraph: three candidate mechanisms, none confirmed (→ Appendix B) |
-| 08_measurement | §8 | arm-level sign preservation; the per-conversation collapse; not Q1-only; one-sided saturation (Figure 4); what it undermines |
-| 09_discussion | §9 | the horizon selects the hack; scope (one optimizer, one regime; what would change our minds); saturation as a named failure mode; conclusion |
-| 10_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; the continuation pressure (with the rollout audit numbers); the response cap; in-sample personas; generator not decoupled; no human validation; reward is an outcome; instrument reliability |
+| 03_method | §3 | **GRPO with look-ahead** — notation; Figure 1 = the group schematic; **Algorithm 1** = the iterative loop; the look-ahead reward (the $\tau_K$ equation); why the transfer is not trivial; minimum context length; cost |
+| 04_setup | §4 | task/simulator/oracle; **why MI**; instruments; terminology; the two arms; evaluation & statistics |
+| 05_reward | §5 | *Results: reward and evaluation instruments* — Figure 2 + **Table 1 (endpoint, every instrument, both graders)**; endpoint; gain vs. the turn-level arm (both anchors); onset + the K=0 decline + the best-checkpoint steelman; the replicate draw |
+| 06_behaviour | §6 | *Behavioural analysis: over-praise under turn-level reward* — **Table 2 (the clear-case excerpt)**; over-praise + composition + the MITI Affirm definition + the PCT contrast; the judge-free marker (Figure 3); what look-ahead does instead (righting reflex); under the held-out judge |
+| 08_measurement | §7 | *Saturation of the training oracle at the winning checkpoint* — Figure 4 (source block lives here); arm-level sign preservation; the per-conversation collapse (not Q1-only, one sentence); the ceiling mechanism; what it undermines |
+| 09_discussion | §8 | the horizon selects the hack; what we could not isolate (→ Appendix B); scope (one optimizer, one regime; evidence that would overturn it); conclusion with the monitoring recommendation |
+| 10_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments (reward is an outcome, MITI reliability, no per-channel reliability) |
 | 11_ethics | Ethics (page-exempt) | |
-| A_tables | Appendix A | by-iteration table, per-instrument agreement table, level grids ×2, channel forest, tail audit figure |
+| A_tables | Appendix A | by-iteration table, per-instrument agreement table, level grids ×2, channel forest, tail audit figure (+ the rollout-audit numbers in the intro text) |
 | B_mechanism | Appendix B | the mechanism analysis in full |
-| C_repro | Appendix C | configuration, anti-degeneracy, statistics, cost accounting, artifacts (incl. the two redrawn figures + the excerpt's provenance) |
+| C_repro | Appendix C | configuration, anti-degeneracy, statistics, cost accounting, artifacts (incl. the five script-drawn figures + the excerpt's provenance) |
 | D_example | Appendix D | utterances 1–9 of both iteration-10 conversations with persona 93, verbatim; selection rule and scores |
 
 ## Scripts

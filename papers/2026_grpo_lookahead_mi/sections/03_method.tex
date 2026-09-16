@@ -3,12 +3,13 @@
 
 Throughout, a \emph{turn} is one utterance by either speaker, a \emph{prefix} $c$ is a transcript
 ending on a patient turn, $\oplus$ appends turns to a transcript, and $\pi_n$ is the therapist
-policy at the start of training iteration~$n$. The patient simulator $P$ and the oracle $O$ are
-fixed LLMs; $O$ returns a scalar MI score for a transcript.
+policy at the start of training iteration~$n$ ($\pi_1$ is the base model). The patient simulator
+$P$ and the oracle $O$ are fixed LLMs; $O$ returns a scalar MI score for a transcript.
+Algorithm~\ref{alg:loop} states the procedure; Figure~\ref{fig:schematic} shows one group.
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.93\textwidth]{figures/method_grpo_group.png}
+\includegraphics[width=0.82\textwidth]{figures/method_grpo_group.png}
 \caption{One GRPO group under look-ahead. The policy samples $G{=}8$ completions of a prompt; each
 is rolled forward $K$ turns by the patient simulator $P$ and the current policy $\pi_n$; the oracle
 scores the extended transcript; the scores are standardised within the group and every completion
@@ -17,31 +18,67 @@ standard GRPO is recovered: the horizon changes only what the oracle sees.}
 \label{fig:schematic}
 \end{figure*}
 
-\textbf{The iterative loop.} At iteration $n$, $\pi_n$ holds 96
-conversations with $P$, one per patient persona; each is sliced after every patient turn whose
-prefix has at least MCL utterances to give the training prompts (MCL${=}12$ here, chosen from a
-pilot in which shorter prefixes were scored unreliably). GRPO updates $\pi_n$ on those prompts for two epochs, the adapter is saved as
-$\pi_{n+1}$, and the loop repeats with fresh conversations. The conversations generated at the
-start of iteration $n$ double as the evaluation set of $\pi_n$; a generate-only pass after the last
-update evaluates the final policy, so ten iterations yield eleven evaluated model states per run.
+\begin{algorithm}[t]
+\caption{\LAGRPO\ (one arm)}
+\label{alg:loop}
+\small
+\begin{algorithmic}[1]
+\REQUIRE base policy $\pi_1$; simulator $P$; oracle $O$; horizon $K$; group size $G$; MCL;
+  iterations $N$
+\FOR{$n = 1, \dots, N$}
+  \STATE $\mathcal{C} \gets$ 96 conversations of $\pi_n$ with $P$ \COMMENT{eval set of $\pi_n$}
+  \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$ with $\geq$ MCL turns
+  \FOR{each $c \in \mathcal{D}$ (two epochs)}
+    \STATE $t_1, \dots, t_G \sim \pi(\cdot \mid c)$
+    \STATE $r_g \gets O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big)$ for all $g$
+    \STATE $A_g \gets (r_g - \operatorname{mean}_g r)/\operatorname{std}_g r$
+    \STATE PPO-clipped step on $\{(c, t_g, A_g)\}_g$, KL to $\pi_n$
+  \ENDFOR
+  \STATE $\pi_{n+1} \gets \pi$
+\ENDFOR
+\STATE 96 conversations of $\pi_{N+1}$ with $P$ \COMMENT{eval set of $\pi_{N+1}$}
+\end{algorithmic}
+\end{algorithm}
 
-\textbf{The group.} For each prompt $c$, GRPO samples $G{=}8$ completions $t_1,\dots,t_G$ from the
-current policy, scores each with a reward $r_g$, and forms the group-relative advantage
-$A_g = (r_g - \operatorname{mean}_g r)/\operatorname{std}_g r$. The update is the PPO-clipped policy
-gradient on $A_g$ with a KL penalty toward the iteration-start policy.
+\textbf{The iterative loop.} At iteration $n$, $\pi_n$ holds 96 conversations with $P$, one per
+patient persona; each is sliced after every patient turn whose prefix has at least MCL utterances
+(the \emph{minimum context length}, 12 here; see below) to form the training prompts. For each
+prompt GRPO samples $G{=}8$ completions, scores them, standardises the
+scores within the group, and takes a PPO-clipped step with a KL penalty toward $\pi_n$; after two
+epochs the policy is saved as $\pi_{n+1}$ and the loop repeats with fresh conversations. The
+conversations generated at the start of iteration $n$ double as the evaluation set of $\pi_n$; a
+generate-only pass after the last update evaluates the final policy, so ten iterations yield
+eleven evaluated model states per run.
 
-\textbf{The look-ahead reward.} The only thing we change is the transcript the oracle scores
-(Figure~\ref{fig:schematic}). Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$
-replies, then $\pi_n$, then $P$, and so on for $K$ turns, stopping early if the patient closes the
-session; $\tau_0(x)$ is empty. Then
+\textbf{The look-ahead reward.} The only thing we change is the transcript the oracle scores.
+Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then $\pi_n$, then $P$,
+and so on for $K$ turns, stopping early if the patient closes the session; $\tau_0(x)$ is empty.
+Then
 \[
 r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \]
 At $K{=}5$ the oracle scores the candidate together with the five turns that followed it under the
 current policy, so a candidate is credited for where it leads under the therapist that will
-actually follow it. The loss, the advantage, the KL penalty, the prompts, and the number of gradient
-steps are identical across $K$; the horizon changes only the evidence on which a candidate is ranked
-against its siblings. The lever is not free: each $K{=}5$
-reward adds three patient-simulator calls and two policy generations to the single oracle call
-both arms share, and roughly doubles per-step wall-clock; the run-level cost is disclosed in the
-Limitations. All comparisons are at matched iteration count, not matched cost.
+actually follow it. Loss, advantage, KL penalty, prompts and number of gradient steps are identical
+across $K$; the horizon changes only the evidence on which a candidate is ranked against its
+siblings.
+
+\textbf{Why the transfer is not trivial.} A rollout is one sample from the distribution of
+continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value,
+with sampling noise from $P$ and $\pi_n$ added to the oracle's own. PTO filters that noise by
+construction, keeping only the best- and worst-scoring candidates, so an unlucky rollout can at
+most cost a pair; GRPO standardises the scores within the group and trains on all $G$ candidates,
+so the rollout variance enters every advantage. Whether the lever survives that exposure is the
+question the controlled pair answers.
+
+\textbf{Minimum context length.} Training prompts are prefixes, so the oracle scores a partial
+conversation while the evaluation scores a whole session. In a pilot on an earlier configuration
+of this task the oracle's ranking of very short prefixes agreed poorly with its ranking of the
+completed sessions and recovered from roughly ten utterances, so both arms discard prefixes
+shorter than MCL${=}12$. At that minimum, in the runs reported here, the training reward orders
+candidates as the full-session score does in $86$--$89\%$ of pairs under the training oracle, and
+agreement does not fall with prefix length (Appendix~\ref{app:mechanism}).
+
+\textbf{Cost.} Each $K{=}5$ reward adds three patient-simulator calls and two policy generations
+to the single oracle call both arms share, and roughly doubles per-step wall-clock (Limitations).
+All comparisons are at matched iteration count, not matched cost.

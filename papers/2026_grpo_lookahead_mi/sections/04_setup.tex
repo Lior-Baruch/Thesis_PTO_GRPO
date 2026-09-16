@@ -1,41 +1,54 @@
 \section{Experimental setup}
 \label{sec:setup}
 
-\textbf{Task, simulator, oracle.} The therapist is \texttt{Llama-3.2-1B} (bf16, LoRA $r{=}16$,
-$\alpha{=}16$, lr $1\mathrm{e}{-}5$, seed 42) under a fixed counsellor system prompt. The
-patient is \texttt{gpt-4o-mini} conditioned on one of \textbf{96}
-persona system prompts, the exhaustive enumeration of
-$2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{problem} \times 2\ \text{duration}
-\times 2\ \text{prior attempts} \times 2\ \text{age}$ (Appendix~\ref{app:prompts}). A session runs
-until the patient closes it or a cap of 49 utterances after the scripted opening is reached; most
-close earlier, and base-policy sessions average 28--29 utterances. Responses are capped at 200 tokens within a
-2{,}048-token therapist context; therapist decoding is at temperature 0.9, the patient at 0.7
-(Appendix~\ref{app:repro}). The oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
-output. The \emph{training} reward is the mean of Q1 and Q2 below, matching \citet{baruch2025pto}.
+\textbf{Task, simulator, oracle.} A session is a text conversation between a therapist policy and
+a simulated patient who is ambivalent about a health behaviour. The patient is
+\texttt{gpt-4o-mini} conditioned on one of \textbf{96} persona system prompts, the exhaustive
+enumeration of $2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{problem} \times
+2\ \text{duration} \times 2\ \text{prior attempts} \times 2\ \text{age}$
+(Appendix~\ref{app:prompts}). A session runs until the patient closes it or a cap of 49 utterances
+after the scripted opening is reached; most close earlier, and base-policy sessions average 28--29
+utterances. The therapist is \texttt{Llama-3.2-1B} under a fixed counsellor system prompt,
+trained with LoRA adapters; responses are capped at 200 tokens, and Table~\ref{tab:config} lists
+every hyperparameter and decoding setting. The oracle is the same \texttt{gpt-4o-mini} with
+JSON-schema-constrained output. The \emph{training} reward is the mean of Q1 and Q2 below,
+matching \citet{baruch2025pto}.
+
+\textbf{Why MI.} MI's constructs are defined by the patient's response rather than by the
+counsellor's utterance: its target outcome is \emph{change talk}, the patient's own statements in
+favour of change, as against \emph{sustain talk}, and the MITI coding scheme rates a session on
+\emph{cultivating change talk} and \emph{softening sustain talk}, properties of the trajectory
+rather than of any one turn \citep{miller2013mi, moyers2016miti}. The value of a therapist turn is
+therefore inherently delayed, which is what a reward horizon is meant to capture, and the field
+supplies validated instruments from both the patient's and a trained coder's perspective.
 
 \textbf{Instruments.} Evaluation uses eight instruments, each administered by a grader LLM shown
 the full transcript (items and prompts in Appendix~\ref{app:instruments}). Q1 and Q2 are the
 LLM-evaluator questionnaires of \citet{yosef2024assessing}, 5 and 17 patient-perspective Likert
-items on session satisfaction and on alliance and relational communication, shown there to be
-reliable and to separate levels of therapist expertise. WAI-SR \citep{hatcher2006waisr} and
+items on session satisfaction and on alliance and relational communication, shown there to
+separate levels of therapist expertise. WAI-SR \citep{hatcher2006waisr} and
 CSQ-8 \citep{larsen1979csq} are published patient-report instruments, and MI-SAT is a six-item
 intervention-satisfaction survey adapted for this task. Three coders count behaviour: a
-MITI~4.2.1-style coder \citep{moyers2016miti} whose four global ratings are averaged, a patient
-change-talk coder (PCT; the share of change talk among change and sustain talk), and an
-MI-inconsistent-behaviour coder (MICI; coded acts per therapist turn, lower is better). \QQ\ is
-thus both the optimisation target and a reported outcome; \S\ref{sec:measurement} and the
-Limitations treat that circularity explicitly, and it is why a held-out grader is central here.
+MITI~4.2.1-style coder \citep{moyers2016miti} whose four global ratings are averaged; a patient
+change-talk coder (PCT; the share of change talk among change and sustain talk, the patient-side
+outcome MI aims at); and an MI-inconsistent-behaviour coder (MICI; coded acts per therapist turn,
+lower is better). \QQ\ is thus both the optimisation target and a reported outcome;
+\S\ref{sec:measurement} and the Limitations treat that circularity explicitly, and it is why a
+held-out grader is central here.
 
-\textbf{The two arms.} The runs are a controlled pair, checkable rather than asserted: their
-tracked run configurations differ in exactly two fields, the look-ahead depth and its batching
-size (Appendix~\ref{app:repro}). Everything else is identical (Table~\ref{tab:config}): $G{=}8$,
-KL $\beta{=}0.01$, sampling temperature 1.2, learning rate, seed, MCL${=}12$, 96 conversations and
-2 epochs per iteration, 10 iterations, oracle, and persona set.
+\textbf{Terminology.} The two scoring models are the \textbf{training oracle} (\primaryjudge,
+which also plays the patient) and the \textbf{held-out judge} (\heldoutjudge, a different model
+family that never touched training); \emph{grader} refers to either. The eight \emph{instruments}
+are five patient-perspective Likert rubrics and three behaviour \emph{coders} (MITI, PCT, MICI).
+
+\textbf{The two arms.} The runs are a controlled pair: their tracked run configurations differ in
+exactly two fields, the look-ahead depth and its batching size (Appendix~\ref{app:repro}).
+Everything else, from $G{=}8$, KL $\beta{=}0.01$ and the sampling temperature to the seed, the
+oracle and the persona set, is identical (Table~\ref{tab:config}).
 
 \textbf{Evaluation and statistics.} Every model state is scored on all eight instruments for all
-96 personas by two graders: the \textbf{training oracle} (\primaryjudge) and a \textbf{held-out
-judge} (\heldoutjudge), a different model family that never touched training. All contrasts are \textbf{persona-paired} (personas are reshuffled every iteration, so
-pairing is on the recovered persona identity), with Wilcoxon signed-rank tests, Cohen's \dz,
-bootstrap intervals, and Holm correction within each family of tests. Grader \emph{levels} are not comparable (on \QQ\ the held-out judge is harsher by
-1.1--1.8 points, varying across the 22 states), so only contrasts cross graders and the two are
-never averaged.
+96 personas by both graders. All contrasts are \textbf{persona-paired} (personas are reshuffled
+every iteration, so pairing is on the recovered persona identity), with Wilcoxon signed-rank tests,
+Cohen's \dz, bootstrap intervals, and Holm correction within each family of tests. Grader
+\emph{levels} are not comparable (on \QQ\ the held-out judge is harsher by 1.1--1.8 points, varying
+across the 22 states), so only contrasts cross graders and the two are never averaged.
