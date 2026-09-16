@@ -113,6 +113,20 @@ def mark_synced() -> None:
     STATE.write_text(git("rev-parse", f"origin/{branch()}") + "\n")
 
 
+def incoming() -> list[str]:
+    """Overleaf commits made since the last sync: who edited, when, what they called it.
+
+    Overleaf squashes web editing into commits authored by whoever made them, so this is how a
+    supervisor's edits announce themselves. Their *comments* are NOT here -- Overleaf keeps
+    review-panel comments outside the file content, so git never sees them.
+    """
+    if not STATE.exists():
+        return []
+    old = STATE.read_text().strip()
+    log = git("log", "--format=%h  %an  %ar  %s", f"{old}..origin/{branch()}", check=False)
+    return [l for l in log.splitlines() if l.strip()]
+
+
 def repo_dirty() -> list[str]:
     out = git("status", "--porcelain", "--", str(HERE), cwd=HERE)
     return [l for l in out.splitlines() if l.strip()]
@@ -143,6 +157,8 @@ def cmd_status() -> int:
     differing, only_here, only_there = compare()
     print(f"Overleaf clone: {MIRROR}  (branch {branch()})")
     print(f"Overleaf project changed since last sync: {'YES -- pull first' if moved else 'no'}")
+    for line in incoming():
+        print("     ", line)
     for label, items in (("differ", differing), ("only in this repo", only_here),
                          ("only on Overleaf", only_there)):
         print(f"  {label}: {len(items)}")
@@ -163,6 +179,8 @@ def cmd_pull() -> int:
                          "(pull overwrites files from Overleaf).\n"
                          + "\n".join("  " + l for l in repo_dirty()))
     git("fetch", "origin", "--quiet")
+    for line in incoming():
+        print("  Overleaf commit:", line)
     git("reset", "--hard", f"origin/{branch()}", "--quiet")
     changed = []
     for rel, src in managed_in(MIRROR).items():
