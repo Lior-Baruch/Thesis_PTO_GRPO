@@ -1,4 +1,4 @@
-"""Draw the paper's five data figures at page proportions, from the EDA's tracked tables.
+"""Draw the paper's four data figures at page proportions, from the EDA's tracked tables.
 
 The EDA's own renders were designed for a notebook, not a two-column page: scaled to the ACL text
 width their tick labels fall below 4 pt. This script redraws exactly the same numbers at paper
@@ -11,9 +11,11 @@ tables for every value the captions quote.
     & ..\\..\\.venv\\Scripts\\python.exe render_paper_figures.py
 
 Writes, under ``figures/``: ``k_headline_q1q2_grpo`` (Fig. 2), ``overpraise_judgefree_grpo``
-(Fig. 3), ``judge_saturation_grpo`` (Fig. 4), ``k_channel_forest_grpo_gpt-4o-mini`` (Fig. 7) and
-``tail_audit_grpo`` (Fig. 8) -- the same destination names ``sync_figures.py`` used to copy, so the
-.tex is unchanged; ``sync_figures.py`` no longer lists them.
+(Fig. 3), ``k_channel_forest_grpo_gpt-4o-mini`` (Fig. 6) and ``tail_audit_grpo`` (Fig. 7) -- the
+same destination names ``sync_figures.py`` used to copy, so the .tex is unchanged;
+``sync_figures.py`` no longer lists them. ``saturation()`` (the former Fig. 4, dropped 2026-09-16)
+is kept for the Spearman / variance-ratio printout that checks section 7's numbers; ``main()`` does
+not call it.
 
 SIZING (2026-09-16): each figure is drawn at the exact width ``sections/*.tex`` includes it at,
 so the point sizes in this file are true page point sizes -- see ``width_fracs`` / ``figsize``.
@@ -97,14 +99,14 @@ plt.rcParams.update({
 def overpraise() -> Path:
     op = pd.read_excel(BEHAVIOUR_XLSX, sheet_name="overpraise_judgefree_data")
     op = op[op.arm.isin(COL)].sort_values(["arm", "iteration"])
-    # Panel titles and axis labels are kept SHORT because each panel is one third of
-    # 0.64\textwidth (~1.0 in of axes): what each panel measures is spelled out in the caption.
+    # Panel titles and axis labels are kept SHORT: the type is true 7 pt and each panel is one
+    # third of the text width, and what each panel measures is spelled out in the caption.
     panels = [
         ("lex_overpraise_marker_rate", "(a) lexical marker", "share of turns"),
         (f"MICI_OverPraiseRate_{PRIMARY}", "(b) training oracle", "acts per turn"),
         (f"MICI_OverPraiseRate_{HELDOUT}", "(c) held-out judge", "acts per turn"),
     ]
-    fig, axes = plt.subplots(1, 3, figsize=figsize("overpraise_judgefree_grpo.png", 0.21))
+    fig, axes = plt.subplots(1, 3, figsize=figsize("overpraise_judgefree_grpo.png", 0.29))
     for ax, (col, title, ylab) in zip(axes, panels):
         for arm, a in op.groupby("arm"):
             ax.plot(a.iteration, a[col], color=COL[arm], label=LAB[arm], ms=3.5, lw=1.4, **STY[arm])
@@ -224,7 +226,7 @@ def saturation() -> Path:
 
 
 def tail_audit() -> Path:
-    """Figure 8 (Appendix A): the K=5 rollout audit, from ``mechanism.xlsx`` sheets
+    """Figure 7 (Appendix A): the K=5 rollout audit, from ``mechanism.xlsx`` sheets
     ``tail_audit_by_iter``, ``tail_score_by_realized_turns`` and ``tail_within_group`` (the
     ``GRPO_LA5`` rows). The EDA's own render carried its jargon ("tails", arm codes, "ther. end");
     this one says in words what each panel shows. Nothing is computed here beyond reading."""
@@ -291,7 +293,7 @@ def tail_audit() -> Path:
     return out
 
 
-# Figure 7: every behaviour channel at iteration 10, in the PAPER's sign (K=5 - K=0), with plain
+# Figure 6: every behaviour channel at iteration 10, in the PAPER's sign (K=5 - K=0), with plain
 # labels. (sheet, metric, label, group). Channels that are zero in both arms (confront, warn) are
 # omitted; the per-session duplicates of the per-turn rates are omitted for space.
 FOREST_ROWS = [
@@ -322,7 +324,7 @@ GROUP_COL = {"mici": "#d55e00", "miti": "#0072b2", "shape": "#6e6e6e"}
 
 
 def forest() -> Path:
-    """Figure 7 (Appendix A): the channel forest at iteration 10 from ``behaviour.xlsx`` sheets
+    """Figure 6 (Appendix A): the channel forest at iteration 10 from ``behaviour.xlsx`` sheets
     ``k_channels_grpo_gpt-4o-mini`` and ``k_channels_text_grpo``. The sheets store K=0 - K=5; the
     paper reports K=5 - K=0, so every dz is negated here and the axis says so."""
     coder = pd.read_excel(BEHAVIOUR_XLSX, sheet_name="k_channels_grpo_gpt-4o-mini")
@@ -378,7 +380,7 @@ def headline() -> Path:
     d = pd.read_excel(REWARD_XLSX, sheet_name="k_headline_grpo_data")
     d = d[d.metric == "Q1Q2"]
     panels = [(PRIMARY, "(a) training oracle (gpt-4o-mini)"), (HELDOUT, "(b) held-out judge (Claude Haiku 4.5)")]
-    fig, axes = plt.subplots(1, 2, figsize=figsize("k_headline_q1q2_grpo.png", 0.23))
+    fig, axes = plt.subplots(1, 2, figsize=figsize("k_headline_q1q2_grpo.png", 0.34))
     for ax, (judge, title) in zip(axes, panels):
         s = d[d.judge == judge].sort_values("iteration")
         for arm, mean, se, base in (("GRPO_LA0", "mean_K0", "se_K0", "base_K0"),
@@ -392,9 +394,9 @@ def headline() -> Path:
         lo = float(min(s.mean_K0.min(), s.mean_K5.min())) - 0.25
         hi = float(max(s.mean_K0.max(), s.mean_K5.max())) + 0.25
         # Headroom for the star row AND, in panel (a), the legend that now sits inside the axes.
-        # The legend takes a fixed FRACTION of the axes height, so the top margin m has to satisfy
-        # m - f(1 + m) > 0.06 to clear the stars; at f ~ 0.28 that needs m > 0.47.
-        ax.set_ylim(lo, hi + 0.62 * (hi - lo))
+        # The legend takes a fixed FRACTION f of the axes height, so the top margin m has to
+        # satisfy m - f(1 + m) > 0.06 to clear the stars; at aspect 0.30 f ~ 0.19, so m > 0.31.
+        ax.set_ylim(lo, hi + 0.42 * (hi - lo))
         star_y = hi + 0.06 * (hi - lo)
         for it, sig in zip(s.iteration, s.holm_sig):
             if bool(sig):
@@ -423,7 +425,9 @@ def headline() -> Path:
 
 def main() -> int:
     DEST.mkdir(exist_ok=True)
-    for f in (headline, overpraise, saturation, tail_audit, forest):
+    # saturation() is not in the list: its figure left the paper on 2026-09-16 (sec 7's text
+    # carries every number it showed). Call it by hand to re-check those numbers.
+    for f in (headline, overpraise, tail_audit, forest):
         print("wrote", f())
     return 0
 

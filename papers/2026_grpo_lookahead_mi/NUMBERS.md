@@ -245,7 +245,7 @@ rep**, so agreement on this arm is raw, not attenuation-corrected.
 | figure | drawn from | what the script recomputes |
 |---|---|---|
 | Figure 3 `overpraise_judgefree_grpo.png` | results/lookahead/behaviour/tables/behaviour.xlsx sheet `overpraise_judgefree_data`, GRPO rows: `lex_overpraise_marker_rate`, `MICI_OverPraiseRate_gpt-4o-mini`, `MICI_OverPraiseRate_claude-haiku-4-5` by iteration | nothing — plotted as read |
-| Figure 4 `judge_saturation_grpo.png` | results/measurement/validity/tables/validity.xlsx sheet `judge_saturation_grpo_data`: panel-a rows (`cross_judge_pearson_r` per state + the 22-state median), panel-b rows (`sd_of_per_conversation_score` per grader) | the Spearman ρ/p in the legend (from the 11 SD rows; must equal the §8 text) |
+| former Figure 4 `judge_saturation_grpo.png` — **dropped from the paper 2026-09-16**; the same rows now back §7's text only | results/measurement/validity/tables/validity.xlsx sheet `judge_saturation_grpo_data`: panel-a rows (`cross_judge_pearson_r` per state + the 22-state median), panel-b rows (`sd_of_per_conversation_score` per grader) | the Spearman ρ/p (from the 11 SD rows; must equal the §7 text — `render_paper_figures.py::saturation()` prints them) |
 
 Both by [`render_paper_figures.py`](render_paper_figures.py); `sync_figures.py` no longer lists
 them. Re-render the EDA → re-run that script → the pictures move with the tables.
@@ -417,10 +417,14 @@ appendices lost their lab-notes sentences. Body ends at the bottom of page 8; 22
 Figures 2–4 were first narrowed to 0.64–0.68 (which only shrank their type) and then, the same
 day, restored to 0.94 with `render_paper_figures.py` made width-aware: each figure is drawn at
 its included width, so its point sizes are true page points, and the page budget is met through
-the drawn aspect (0.23 / 0.21 / 0.24) and legends placed inside the axes. Figure 2's legend now
-lists only the two arms; the dotted base line and the Holm star are defined in its caption.
-Figure 4's panel titles are "(a) agreement / (b) spread / (c) ceiling" with the quantities in the
-caption, and its median line is named in the caption rather than a legend entry. No value moved.
+the drawn aspect (Figures 2 and 3 at 0.34 / 0.29, close to their original proportions, once the
+saturation figure was dropped — see below; the body ends on page 8 with about half a column to
+spare) and legends placed inside the axes. Figure 2's legend now lists only the two arms; the
+dotted base line and the Holm star are defined in its caption.
+The saturation figure (then Figure 4) was then dropped at Lior's request: its three panels
+repeated numbers that §7's text states, so nothing left the paper; `saturation()` stays in the
+script, un-called by `main()`, for the Spearman / variance-ratio printout that checks those
+numbers. Figures renumber: level grids 4–5, channel forest 6, tail audit 7. No value moved.
 
 | claim (new or moved) | value | source |
 |---|---|---|
@@ -435,9 +439,10 @@ caption, and its median line is named in the caption rather than a legend entry.
 held-out faithfulness 0.800 vs 0.747 (Appendix B.1); update-direction cosine 0.804 / 0.851 /
 ceiling 0.945 (Appendix B.4); the rollout audit detail — 121,088 logged (88%), early-ending range
 12% (iter 10) to 30% (iter 6), 16% patient closed, argmax 0.10 vs 0.125 (Appendix A intro text +
-Figure 8 caption; the Limitations keep 82%, "up to 0.09", "less often than chance"); Figure 4's
-caption no longer prints the SD endpoints (1.34→0.70, 0.76→0.91) or the Spearman ρ/p — §7's text
-does; §6 no longer says turn length tripled (the Limitations do).
+the tail-audit figure's caption; the Limitations keep 82%, "up to 0.09", "less often than
+chance"); the SD endpoints (1.34→0.70, 0.76→0.91) and the Spearman ρ/p are in §7's text (the
+saturation figure that also showed them was dropped later the same day); §6 no longer says turn
+length tripled (the Limitations do).
 
 **Retired wording (do not reintroduce):** "flattery"/"flatter" (→ over-praise / unearned
 affirmation; the word survives only in Appendix D transcripts); "Turn-level reward teaches

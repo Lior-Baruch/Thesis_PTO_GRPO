@@ -15,10 +15,12 @@ four-arm artifacts belonged to the 2x2 draft, retired 2026-09-04 to papers/archi
 Figures read SCORES (levels incl. each arm's base), not K5-K0 deltas. The comparison axis is
 ITERATIONS ONLY (decided 2026-08-27): no compute/budget or API-call figures.
 
-**Two body figures are NOT copied by this script (2026-09-04).** ``overpraise_judgefree_grpo.png``
-and ``judge_saturation_grpo.png`` are drawn by ``render_paper_figures.py`` from the tracked TABLES
-behind the EDA renders (the renders themselves are notebook-proportioned and illegible at ACL
-width). Re-run that script after a render pass, then this one.
+**Four data figures are NOT copied by this script.** Body Figures 2 and 3
+(``k_headline_q1q2_grpo.png``, ``overpraise_judgefree_grpo.png``) and appendix Figures 6 and 7
+(``k_channel_forest_grpo_gpt-4o-mini.png``, ``tail_audit_grpo.png``) are drawn by
+``render_paper_figures.py`` from the tracked TABLES behind the EDA renders (the renders themselves
+are notebook-proportioned and illegible at ACL width); the saturation figure it also drew left the
+paper on 2026-09-16. Re-run that script after a render pass, then this one.
 
 **Crops (added 2026-09-02).** The EDA renders carry a suptitle naming the family and grader
 ("[EVAL] Judge saturation, GRPO arms only — …", "GRPO only — every instrument in LEVELS …") and
@@ -52,9 +54,9 @@ FIGURES: list[tuple[Path, str]] = [
     # sec:method — Figure 1 (method_grpo_group.png) is drawn by render_schematic.py (2026-09-14):
     # the EDA's portrait schematic (SCHEMATICS / "grpo_group_rollout.png") printed at ~4 pt in one
     # ACL column, so the paper carries a landscape figure* redraw of the same content instead.
-    # sec:reward (k_headline_q1q2_grpo, since 2026-09-14), sec:behaviour (overpraise_judgefree_grpo)
-    # and sec:measurement (judge_saturation_grpo) are drawn by render_paper_figures.py from the
-    # tracked tables -- see the module docstring.
+    # sec:reward (k_headline_q1q2_grpo, since 2026-09-14) and sec:behaviour
+    # (overpraise_judgefree_grpo) are drawn by render_paper_figures.py from the tracked tables --
+    # see the module docstring. sec:measurement has had no figure since 2026-09-16.
     # --- appendix --------------------------------------------------------------------------------
     (REWARD / "k_levels_grid_grpo_gpt-4o-mini.png", "k_levels_grid_grpo_gpt-4o-mini.png"),
     (REWARD / "k_levels_grid_grpo_claude-haiku-4-5.png", "k_levels_grid_grpo_claude-haiku-4-5.png"),

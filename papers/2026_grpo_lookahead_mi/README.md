@@ -118,12 +118,14 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
   labels printed at ~4.8 pt). Fixed the same day: `render_paper_figures.py` now draws each figure
   at the exact width the `.tex` includes it at (parsed from `sections/*.tex`), so its point sizes
   are **true page points** (7 pt labels, 6.2 pt ticks, nothing below 5.8), and the page-space
-  knob is the drawn **aspect** — Figures 2–4 are back at 0.94 `\textwidth` with aspects
-  0.23 / 0.21 / 0.24, legends moved inside an empty axes region, explanatory legend entries (base
-  line, star) moved to the captions. Figure 1 stays at 0.82. Float rule that holds: the Figure 4
-  block sits at the top of `08_measurement.tex` and must be met in the **left** column of page 7
-  to land on page 8 (comment in the source); Table 2 is `[tb]`. After any width or aspect change:
-  re-run the script, rebuild, and confirm page 9 opens with "Limitations".
+  knob is the drawn **aspect** — Figures 2–3 are back at 0.94 `\textwidth` at close to their
+  original proportions (aspects 0.34 / 0.29; the body ends on page 8 with roughly half a column
+  to spare), legends moved inside an empty axes region, explanatory legend entries (base line,
+  star) moved to the captions. Figure 1 stays at 0.82. The saturation figure (then Figure 4)
+  was dropped from §7 at Lior's request the same day: its three panels only repeated numbers the
+  section's text states, and it was the float whose placement rule (left column of page 7) made
+  the layout fragile. Table 2 is `[tb]`. After any width or aspect change: re-run the script,
+  rebuild, and confirm the body still ends by page 8.
 - Still open from the review: author block (co-authors), a human-coded sample, the E-questions in
   the review for the cover note to the supervisors.
 
@@ -162,7 +164,7 @@ over-praise the patient.
 | 04_setup | §4 | task/simulator/oracle; **why MI**; instruments; terminology; the two arms; evaluation & statistics |
 | 05_reward | §5 | *Results: reward and evaluation instruments* — Figure 2 + **Table 1 (endpoint, every instrument, both graders)**; endpoint; gain vs. the turn-level arm (both anchors); onset + the K=0 decline + the best-checkpoint steelman; the replicate draw |
 | 06_behaviour | §6 | *Behavioural analysis: over-praise under turn-level reward* — **Table 2 (the clear-case excerpt)**; over-praise + composition + the MITI Affirm definition + the PCT contrast; the judge-free marker (Figure 3); what look-ahead does instead (righting reflex); under the held-out judge |
-| 08_measurement | §7 | *Saturation of the training oracle at the winning checkpoint* — Figure 4 (source block lives here); arm-level sign preservation; the per-conversation collapse (not Q1-only, one sentence); the ceiling mechanism; what it undermines |
+| 08_measurement | §7 | *Saturation of the training oracle at the winning checkpoint* — no figure (dropped 2026-09-16; the text carries its numbers); arm-level sign preservation; the per-conversation collapse (not Q1-only, one sentence); the ceiling mechanism; what it undermines |
 | 09_discussion | §8 | the horizon selects the hack; what we could not isolate (→ Appendix B); scope (one optimizer, one regime; evidence that would overturn it); conclusion with the monitoring recommendation |
 | 10_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments (reward is an outcome, MITI reliability, no per-channel reliability) |
 | 11_ethics | Ethics (page-exempt) | |
@@ -174,15 +176,18 @@ over-praise the patient.
 ## Scripts
 
 - [`sync_figures.py`](sync_figures.py) — copies (and crops) every EDA-rendered figure the .tex
-  references; `--check` reports drift. Does **not** cover Figures 1, 3 and 4.
+  references; `--check` reports drift. Does **not** cover Figures 1, 2, 3, 6 and 7, which the
+  two render scripts below draw.
 - [`render_schematic.py`](render_schematic.py) — draws Figure 1 (the GRPO-group schematic) at
   page width; reads no data.
-- [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 2, 3, 4, 7 and 8 from the
+- [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 2, 3, 6 and 7 from the
   tracked tables (`reward.xlsx::k_headline_grpo_data`, `behaviour.xlsx::overpraise_judgefree_data`,
-  `validity.xlsx::judge_saturation_grpo_data`, `replication.xlsx::sd_by_iter`,
-  `behaviour.xlsx::k_channels_grpo_gpt-4o-mini` + `k_channels_text_grpo`, `mechanism.xlsx::tail_*`).
-  Figure 7 is drawn in the paper's sign (K=5 − K=0). Re-run after any EDA render pass, then
-  `sync_figures.py` (which now copies only the two level grids, Figures 5–6).
+  `behaviour.xlsx::k_channels_grpo_gpt-4o-mini` + `k_channels_text_grpo`, `mechanism.xlsx::tail_*`),
+  each at the exact width the `.tex` includes it at. Figure 6 is drawn in the paper's sign
+  (K=5 − K=0). Its `saturation()` (the saturation figure dropped 2026-09-16) is not called by
+  `main()`; run it by hand for the Spearman / variance-ratio printout that checks §7's numbers
+  (`validity.xlsx::judge_saturation_grpo_data`, `replication.xlsx::sd_by_iter`). Re-run after any
+  EDA render pass, then `sync_figures.py` (which now copies only the two level grids, Figures 4–5).
 - [`select_example_illustrative.py`](select_example_illustrative.py) — ranks every (persona,
   therapist-turn) pair at iteration 10 by lexical features of the contrast and dumps a persona's
   transcripts; the source of Table 2 / Appendix D.1 (the clear case, persona 84).

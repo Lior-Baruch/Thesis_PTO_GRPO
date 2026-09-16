@@ -1,20 +1,9 @@
 \section{Saturation of the training oracle at the winning checkpoint}
 \label{sec:measurement}
 
-% Figure 4 (fig:saturation). A figure* is placed no earlier than the top of the page AFTER the
-% one it is met on, and one met in a right-hand column is deferred a further page; with the body
-% ending exactly on page 8, the block must be met in the LEFT column of page 7, which is where
-% this section currently opens. Re-check the float pages after any edit that moves text.
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.94\textwidth]{figures/judge_saturation_grpo.png}
-\caption{Saturation of the training oracle (\S\ref{sec:measurement}). \textbf{(a)}
-Per-conversation cross-grader agreement on Q1 by iteration, per arm, against the 22-state median.
-\textbf{(b)} The spread (SD) of each grader's Q1 scores along each arm. \textbf{(c)} The share of
-conversations scored $4.5$ or above on Q1: the training oracle is at its ceiling along $\Kf$; the
-held-out judge never approaches it.}
-\label{fig:saturation}
-\end{figure*}
+% The saturation figure (three panels: cross-grader r, SD, ceiling share) was dropped 2026-09-16:
+% every number it showed is stated in the text below. render_paper_figures.py::saturation() still
+% prints the Spearman / variance-ratio checks for that text.
 
 
 \S\ref{sec:reward} rests on two graders agreeing about an ordering, and at the arm level they do:
@@ -27,7 +16,7 @@ conversations they stop agreeing at the winning checkpoint.
 Q1, per-conversation agreement between the two graders along the $\Kf$ arm reads $0.941$ at
 iteration 5, then $0.877$, $0.842$, $0.769$, and falls to $\mathbf{0.487}$ at iteration 9 and
 $\mathbf{0.544}$ at iteration 10, against a median of $0.842$ across the 22 states; the next-lowest
-state anywhere is $0.744$ (Figure~\ref{fig:saturation}a). The $\Kz$ arm never leaves the normal
+state anywhere is $0.744$. The $\Kz$ arm never leaves the normal
 range on Q1 ($0.744$--$0.882$). The collapse is not confined to the rewarded rubric: against each
 instrument's own 22-state distribution, MITI falls furthest, then Q1, Q2 and MICI, while the four
 patient-perspective Likert instruments barely move (Appendix Table~\ref{tab:agreement}). With one
@@ -35,10 +24,10 @@ training run per arm we cannot separate ``this checkpoint'' from ``long $K{=}5$ 
 
 \textbf{The mechanism is a ceiling, and only one grader is at it.} A correlation can collapse
 because the conversations became uniform or because one rater ran out of range. Here only one
-grader's spread moves (Figure~\ref{fig:saturation}b). Along the $\Kf$ arm the
+grader's spread moves. Along the $\Kf$ arm the
 training oracle's Q1 scores climb into the top of its 1--5 scale: the share of conversations at
 $4.5$ or above rises from $14\%$ at base to $58\%$ at iteration 10, where $40\%$ receive the
-maximum score (Figure~\ref{fig:saturation}c), and the per-conversation standard deviation falls
+maximum score, and the per-conversation standard deviation falls
 from $1.336$ to $0.701$ (Spearman $\rho = -0.86$, $p = .001$; variance ratio
 $0.701^2/1.336^2 = 0.275$, or $0.285$ against iteration 1). The same grader's spread along the
 $\Kz$ arm tracks that arm's level rather than its horizon: it compresses to $0.92$--$1.01$ while
