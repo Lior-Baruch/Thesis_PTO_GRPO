@@ -24,7 +24,12 @@
 % =====================================================================
 %
 % COMPILING (MiKTeX, no Perl, no latexmk -- see ../README.md):
-%     pdflatex main  ->  bibtex main  ->  pdflatex main  ->  pdflatex main
+%     & ..\..\.venv\Scripts\python.exe build.py
+%   = pdflatex -> bibtex -> pdflatex REPEATED until .aux/.out stop changing, then a scan of the
+%   PDF. NOT the usual four steps: acl.sty's [review] mode loads lineno with `switch`, i.e.
+%   pagewise mode, which reads each line's column from the PREVIOUS pass's .aux -- so after
+%   bibtex moves the back matter the four-step chain is one pass short and line numbers print
+%   ON the text (2026-09-16: 98 of them across seven pages, zero errors in the log).
 %   acl.sty + acl_natbib.bst are vendored next to this file.
 %
 \documentclass[11pt]{article}

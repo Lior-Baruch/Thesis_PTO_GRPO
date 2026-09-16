@@ -90,9 +90,19 @@ Each paper's `sync_figures.py` copies every figure its `.tex` references from th
 Each paper folder vendors its own style files, so a draft builds with no network round-trip —
 the live draft and the archived 2×2 carry `acl.sty` + `acl_natbib.bst`; the archived ICLR-format P1 carries
 `iclr2027_conference.{sty,bst}` + `natbib.sty` + `fancyhdr.sty` (from the official ICLR 2027
-zip). Four passes, no Perl, **no `latexmk`** (MiKTeX ships no Perl, and the `perl` bundled with Git for Windows is only
+zip). No Perl, **no `latexmk`** (MiKTeX ships no Perl, and the `perl` bundled with Git for Windows is only
 on the PATH inside a Git Bash session — so a build that works in a terminal can still fail in VS
-Code):
+Code).
+
+**The live ACL draft builds with its own [`build.py`](2026_grpo_lookahead_mi/build.py)**
+(`& ..\..\.venv\Scripts\python.exe build.py` from inside the folder), which runs `pdflatex`,
+`bibtex`, then `pdflatex` *until the `.aux` stops changing* and then scans the PDF. The fixed
+four-step chain is not enough for an ACL draft in `[review]` mode: `acl.sty` loads `lineno` in
+pagewise mode, which places each line number from the previous pass's `.aux`, so after `bibtex`
+shifts the back matter the fourth step is one pass short and line numbers print on top of the
+text (2026-09-16, 98 of them, clean log). Details in that folder's README.
+
+For the archived drafts (no line numbers), the manual chain still applies:
 
 ```bash
 export PATH="$LOCALAPPDATA/Programs/MiKTeX/miktex/bin/x64:$PATH"
@@ -103,7 +113,8 @@ pdflatex -interaction=nonstopmode -file-line-error main.tex
 ```
 
 Three `pdflatex` passes, not two: one to write `.aux`, one to absorb the `.bbl` and place floats,
-one to settle the resulting page and reference numbers.
+one to settle the resulting page and reference numbers — and, under `[review]` line numbering, as
+many more as it takes for the layout to stop moving.
 
 ## History
 

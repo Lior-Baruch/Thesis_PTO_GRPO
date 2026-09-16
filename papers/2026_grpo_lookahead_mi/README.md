@@ -126,8 +126,11 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
   section's text states, and it was the float whose placement rule (left column of page 7) made
   the layout fragile. Table 2 is `[tb]`. After any width or aspect change: re-run the script,
   rebuild, and confirm the body still ends by page 8.
-- Still open from the review: author block (co-authors), a human-coded sample, the E-questions in
-  the review for the cover note to the supervisors.
+- **Line numbers were printing on the text** (Lior, page 5; in fact 98 numbers on seven pages).
+  Cause and fix under "Build" below: the four-step chain is one pass short for `lineno`'s pagewise
+  mode; `build.py` now builds to convergence and scans the PDF.
+- Done since the review: the author block (as on the ICLR 2025 PTO paper). Still open: a
+  human-coded sample; the E-questions in the review for the cover note to the supervisors.
 
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
@@ -218,13 +221,21 @@ Figures are already cropped/drawn, so nothing in the zip depends on the repo.
 
 ## Build (MiKTeX on Windows — see ../README.md)
 
-```bash
-export PATH="$LOCALAPPDATA/Programs/MiKTeX/miktex/bin/x64:$PATH"
-pdflatex -interaction=nonstopmode -file-line-error main.tex
-bibtex main
-pdflatex -interaction=nonstopmode -file-line-error main.tex
-pdflatex -interaction=nonstopmode -file-line-error main.tex
+```powershell
+& ..\..\.venv\Scripts\python.exe build.py            # build until converged, then check
+& ..\..\.venv\Scripts\python.exe build.py --check    # audit the existing main.pdf only
 ```
+
+[`build.py`](build.py) runs `pdflatex`, `bibtex`, then `pdflatex` **until `main.aux`/`main.out`
+stop changing**, and then scans the PDF for line numbers printed inside a text column and for
+unresolved references (exit status non-zero on any of these, on LaTeX errors, or on
+non-convergence). ⚠ **Do not hand-run the usual `pdflatex · bibtex · pdflatex · pdflatex`.**
+`acl.sty`'s `[review]` mode loads `lineno` with `switch`, which is *pagewise* mode: each line's
+column is read back from the previous pass's `.aux`, so the line numbers are placed correctly only
+once two consecutive passes have the same layout, and after `bibtex` moves the back matter the
+four-step chain is one pass short. On 2026-09-16 that put 98 line numbers on top of the text
+across seven pages with a clean log (cold build: 477 → 6 → 114 → 98 → 0 misplaced by pass).
+Nothing in the log reports it; only the scan does.
 
 To eyeball the layout, the repo `.venv` has PyMuPDF: `fitz.open("main.pdf")[p].get_pixmap(dpi=100).save(...)`.
 
