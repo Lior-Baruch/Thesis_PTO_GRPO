@@ -85,6 +85,16 @@ Each paper's `sync_figures.py` copies every figure its `.tex` references from th
   boilerplate. The canonical BibTeX is in
   [`2025_iclr_pto_lookahead/README.md`](2025_iclr_pto_lookahead/README.md).
 
+## Overleaf
+
+⚠ **The live draft is two-way synced with an Overleaf project the supervisors can edit.** Run
+`overleaf.py pull` from [`2026_grpo_lookahead_mi/`](2026_grpo_lookahead_mi/) **before** editing
+any paper file, and `push` after a change is built and committed; `status` shows what differs in
+both directions, naming whoever made each Overleaf-side commit. Overleaf's review-panel comments
+do **not** sync — only edits do. Never re-upload `overleaf.zip` to an existing project: a second
+upload creates a new project and strands the comments on the old one. Full write-up in
+[`2026_grpo_lookahead_mi/README.md`](2026_grpo_lookahead_mi/README.md) § Overleaf.
+
 ## Building (MiKTeX on Windows)
 
 Each paper folder vendors its own style files, so a draft builds with no network round-trip —
