@@ -197,7 +197,8 @@ over-praise the patient.
 - [`select_example_persona.py`](select_example_persona.py) — the median-contrast rule behind
   Appendix D.2 (the typical case, persona 93), plus the transcript dump (`--dump out.json`). Both
   scripts need the Drive-backed conversation data on disk.
-- [`make_overleaf_zip.py`](make_overleaf_zip.py) — the Overleaf bundle (see below).
+- [`make_overleaf_zip.py`](make_overleaf_zip.py) — the Overleaf bundle, for the FIRST upload (see below).
+- [`overleaf.py`](overleaf.py) — two-way sync with the Overleaf project after that (see below).
 
 ## Conventions
 
@@ -211,12 +212,34 @@ their denominator. Cite the ICLR 2025 paper as the SSI-FM *workshop* poster (can
 
 ## Overleaf
 
-`overleaf.zip` (gitignored; regenerate with `make_overleaf_zip.py`) holds exactly what Overleaf
-needs and nothing else: `main.tex`, `sections/*.tex`, `figures/*.png`, `refs.bib`, `acl.sty`,
-`acl_natbib.bst`. Upload it as a new project (New Project → Upload Project), set the compiler to
-**pdfLaTeX** and the main document to `main.tex`; Overleaf runs BibTeX itself. The draft is in
-`[review]` mode (line numbers, anonymous byline), which is the right mode for supervisor comments;
-`\usepackage[final]{acl}` in `main.tex` restores the author block and drops the line numbers.
+**First upload.** `overleaf.zip` (gitignored; regenerate with `make_overleaf_zip.py`) holds
+exactly what Overleaf needs and nothing else: `main.tex`, `sections/*.tex`, `figures/*.png`,
+`refs.bib`, `acl.sty`, `acl_natbib.bst`. Upload it as a new project (New Project → Upload
+Project), set the compiler to **pdfLaTeX** and the main document to `main.tex`; Overleaf runs
+BibTeX itself. The draft is in `[review]` mode (line numbers, anonymous byline), which is the
+right mode for supervisor comments; `\usepackage[final]{acl}` in `main.tex` restores the author
+block and drops the line numbers.
+
+**Afterwards, sync — do not re-upload.** A second zip upload makes a NEW project with a new URL
+and strands the comments on the old one. Use [`overleaf.py`](overleaf.py) (needs Overleaf's Git
+access, a premium/site-licence feature) against the project's git URL, from Menu → Sync → Git:
+
+```powershell
+& ..\..\.venv\Scripts\python.exe overleaf.py init https://git.overleaf.com/<project-id>   # once
+& ..\..\.venv\Scripts\python.exe overleaf.py status   # what differs, both directions
+& ..\..\.venv\Scripts\python.exe overleaf.py pull     # Overleaf edits -> this folder
+& ..\..\.venv\Scripts\python.exe overleaf.py push     # this folder -> Overleaf
+```
+
+It keeps a throwaway clone of the Overleaf repo outside this tree
+(`%LOCALAPPDATA%\overleaf-mirrors\`) and copies across the same file list
+`make_overleaf_zip.py` defines, so the Overleaf project stays exactly the compilable paper and
+this repo's history stays linear and Overleaf-free — `NUMBERS.md`, the READMEs, the review notes
+and these scripts are never pushed. `push` refuses when the project has changed since the last
+sync (pull first), and `pull` refuses when this folder has uncommitted changes. Overleaf
+authentication is a Git token from Account Settings → Git integration, given as the *password*
+at the git prompt. Overleaf compiles with `latexmk`, which iterates to convergence on its own, so
+the line-number problem `build.py` exists to prevent is local-only.
 Figures are already cropped/drawn, so nothing in the zip depends on the repo.
 
 ## Build (MiKTeX on Windows — see ../README.md)
