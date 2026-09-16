@@ -67,6 +67,22 @@ def branch() -> str:
     return git("rev-parse", "--abbrev-ref", "HEAD")
 
 
+TEXT_SUFFIXES = {".tex", ".bib", ".sty", ".bst"}
+
+
+def same(a: Path, b: Path) -> bool:
+    """Same content? For text files, ignoring line endings.
+
+    Windows checks LaTeX sources out as CRLF while git and Overleaf both store LF, so a byte
+    comparison marks files identical in every way that matters as different -- and copying them
+    over would be churn, not a change. LaTeX does not care either way. Figures compare as bytes.
+    """
+    if a.suffix.lower() not in TEXT_SUFFIXES:
+        return filecmp.cmp(a, b, shallow=False)
+    norm = lambda p: p.read_bytes().replace(b"\r\n", b"\n")  # noqa: E731
+    return norm(a) == norm(b)
+
+
 def managed_in(root: Path) -> dict[str, Path]:
     out: dict[str, Path] = {}
     for pattern in MANAGED:
@@ -83,8 +99,7 @@ def sources() -> dict[str, Path]:
 def compare() -> tuple[list[str], list[str], list[str]]:
     """(differing, only-here, only-on-overleaf) over the managed files."""
     here, there = sources(), managed_in(MIRROR)
-    differing = [k for k in sorted(here.keys() & there.keys())
-                 if not filecmp.cmp(here[k], there[k], shallow=False)]
+    differing = [k for k in sorted(here.keys() & there.keys()) if not same(here[k], there[k])]
     return differing, sorted(here.keys() - there.keys()), sorted(there.keys() - here.keys())
 
 
@@ -108,7 +123,11 @@ def cmd_init(url: str) -> int:
         raise SystemExit(f"already initialised at {MIRROR}\nDelete that folder to re-clone.")
     MIRROR.parent.mkdir(parents=True, exist_ok=True)
     print(f"cloning {url}\n     -> {MIRROR}")
-    git("clone", url, str(MIRROR), cwd=MIRROR.parent)
+    # -c core.autocrlf=false: git's Windows default rewrites LF to CRLF on checkout, which would
+    # make every text file in the clone differ from its LF original here on byte comparison --
+    # 18 files "changed" with identical content. Compare and copy raw bytes, both ways.
+    git("clone", "-c", "core.autocrlf=false", "-c", "core.eol=lf", url, str(MIRROR),
+        cwd=MIRROR.parent)
     mark_synced()
     print(f"ok. Overleaf branch '{branch()}'. Next:  overleaf.py status")
     return 0
@@ -148,7 +167,7 @@ def cmd_pull() -> int:
     changed = []
     for rel, src in managed_in(MIRROR).items():
         dst = HERE / rel
-        if not dst.exists() or not filecmp.cmp(src, dst, shallow=False):
+        if not dst.exists() or not same(src, dst):
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dst)
             changed.append(rel)
@@ -173,7 +192,7 @@ def cmd_push(message: str, force: bool) -> int:
     changed = []
     for rel, src in here.items():
         dst = MIRROR / rel
-        if not dst.exists() or not filecmp.cmp(src, dst, shallow=False):
+        if not dst.exists() or not same(src, dst):
             dst.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(src, dst)
             changed.append(rel)
@@ -185,6 +204,9 @@ def cmd_push(message: str, force: bool) -> int:
         print("Overleaf is already up to date")
         return 0
     git("add", "-A")
+    if not git("status", "--porcelain"):        # e.g. differences git normalises away
+        print("Overleaf is already up to date (no net change)")
+        return 0
     git("commit", "-m", message)
     git("push", "origin", branch(), "--quiet")
     mark_synced()
