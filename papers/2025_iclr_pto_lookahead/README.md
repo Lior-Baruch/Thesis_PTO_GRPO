@@ -13,10 +13,10 @@ experiment directory that produced it.
 
 | Path | What |
 |---|---|
-| [`submitted/paper.pdf`](submitted/paper.pdf) | the published PDF, copied verbatim from [`Exp1_ICLR2025/paper.pdf`](../../Exp1_ICLR2025/paper.pdf) (both copies kept — Exp1 stays self-contained) |
+| [`submitted/PTO_paper.pdf`](submitted/PTO_paper.pdf) | the published PDF (13 pages, "Published as a conference paper at ICLR 2025" header). Replaced 2026-09-16 by Lior: until then this was `paper.pdf`, a byte-identical copy of [`Exp1_ICLR2025/paper.pdf`](../../Exp1_ICLR2025/paper.pdf); the current file is a different export of the same paper (516 bytes larger). Exp1 keeps its own copy so it stays self-contained |
 
 **No `.tex` sources.** The LaTeX for this paper was never in this repo, so unlike a draft there is
-nothing here to build — `submitted/paper.pdf` IS the artifact. `*.pdf` is gitignored by
+nothing here to build — `submitted/PTO_paper.pdf` IS the artifact. `*.pdf` is gitignored by
 [`../.gitignore`](../.gitignore), so this one is force-added (`git add -f`) under that file's
 "a PDF that was actually submitted or circulated" exception.
 
