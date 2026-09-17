@@ -357,9 +357,10 @@ repertoire / drift / diversity / responsiveness / patient side, all four arms) a
 `lookahead/process` (the new utterance-level `MIPROC` coder — yields, responsiveness, within-session
 change talk, parity). MIPROC is scored on the **GRPO grid under the primary grader only** (2 × 11 ×
 96 = 2,112 conversations, $≈1.3); **the held-out (claude-haiku-4-5) sweep is not run yet** — the
-Message-Batches submission (≈ $4.6 at the 50 % batch rate; ≈ 2,112 calls) needs Lior to launch it:
-`python <scratch>/miproc_sweep.py submit --go`, then `wait`, then `collect`, then re-render
-`lookahead/process`. Until then every `process/` number is single-grader. Read
+Message-Batches submission (≈ $4.6 at the 50 % batch rate; ≈ 2,112 calls) needs Lior to launch it
+from `Exp3_PTO_GRPO/eda/`: `python tools/score_miproc.py submit --go`, then `wait`, then `collect`,
+then `python tools/consolidate_scores.py build` and `python tools/render_results.py --family
+lookahead/process`. Until then every `process/` number is single-grader. Read
 `Exp3_PTO_GRPO/eda/results/lookahead/SUMMARY.md` §10–§11 before touching the paper.
 
 **1. ✅ DONE (2026-08-25) — the five `results/<top>/SUMMARY.md` are rewritten**, along with
