@@ -11,6 +11,9 @@ Supported questionnaires:
 - CSQ-8: Client Satisfaction Questionnaire (ID 4)
 - MI-SAT: MI Intervention Satisfaction (ID 6)
 - MITI: MI Treatment Integrity - Globals + Behaviors (ID 7)
+- PCT: Patient Change Talk - Globals + patient-utterance counts (ID 8)
+- MICI: MI-Inconsistent therapist behaviors - Global + counts (ID 9)
+- MIPROC: MI process coder - ONE code per utterance, both speakers (ID 10)
 """
 
 from typing import Union, Dict, List, Any, Optional
@@ -29,6 +32,7 @@ class QuestionnaireID(Enum):
     MITI = 7
     PCT = 8   # Patient Change Talk (patient-perspective; change/sustain talk + readiness)
     MICI = 9  # MI-Inconsistent therapist behaviors (negative-valence; higher = worse)
+    MIPROC = 10  # MI process coder: ONE MITI/MISC-style code per utterance, BOTH speakers
 
 
 class Questionnaire:
@@ -207,6 +211,52 @@ def make_mici_schema(questionnaire_id: Union[QuestionnaireID, int] = Questionnai
             },
         },
         "required": ["questionnaire_id", "globals", "behaviors"],
+        "additionalProperties": False,
+    }
+
+
+# MIPROC therapist / patient code vocabularies (MITI 4.2.1 / MISC grounded). The order here is the
+# column order of the per-code counts in the score lake (pipeline._build_miproc_row).
+MIPROC_TH_CODES = ["OQ", "CQ", "SR", "CR", "AF", "PRA", "GI", "PERS", "SEEK", "CONF", "OTH"]
+MIPROC_PT_CODES = ["CT", "ST", "NEU"]
+
+
+def make_miproc_schema(
+    questionnaire_id: Union[QuestionnaireID, int] = QuestionnaireID.MIPROC,
+    n_therapist: int = 0,
+    n_patient: int = 0,
+) -> dict:
+    """JSON Schema for MIPROC: one code per therapist utterance + one per patient utterance.
+
+    Both arrays are length-pinned (``minItems == maxItems`` == that speaker's utterance count) so
+    the coder returns exactly one code per utterance, in transcript order — the same guarantee
+    ``make_eval_schema`` gives the Likert rubrics. The Claude translator
+    (``judge._strip_unsupported_constraints``) restates the pinned length in ``description``;
+    ``parse_json_response(expected_counts=...)`` re-validates the lengths client-side either way.
+    Tolerates ``n_therapist == n_patient == 0`` (the batch-collect path builds the schema from an
+    empty transcript just to get the labels).
+    """
+    qid = questionnaire_id.value if isinstance(questionnaire_id, QuestionnaireID) else questionnaire_id
+    return {
+        "type": "object",
+        "properties": {
+            "questionnaire_id": {"type": "integer", "enum": [int(qid)]},
+            "therapist_codes": {
+                "type": "array",
+                "description": "One code per [THERAPIST #i] utterance, in transcript order.",
+                "items": {"type": "string", "enum": list(MIPROC_TH_CODES)},
+                "minItems": int(n_therapist),
+                "maxItems": int(n_therapist),
+            },
+            "patient_codes": {
+                "type": "array",
+                "description": "One code per [PATIENT #i] utterance, in transcript order.",
+                "items": {"type": "string", "enum": list(MIPROC_PT_CODES)},
+                "minItems": int(n_patient),
+                "maxItems": int(n_patient),
+            },
+        },
+        "required": ["questionnaire_id", "therapist_codes", "patient_codes"],
         "additionalProperties": False,
     }
 
@@ -901,6 +951,113 @@ def get_questionnaire_mici(conversation_text: str = "", change_goal: Optional[st
 
 
 # =============================================================================
+# MIPROC (MI process coder) — ONE code per utterance, BOTH speakers
+# =============================================================================
+#
+# Utterance-level sibling of MITI (therapist behaviour counts) + PCT (patient CT/ST counts): instead
+# of asking the grader for per-session totals, it asks for the code of EVERY utterance, in order,
+# so the counts are auditable per line and the derived MITI proficiency ratios (%CR, R:Q, %OQ) and
+# the patient change-talk proportion come from the same coding pass. The transcript is NUMBERED per
+# role ([THERAPIST #k] / [PATIENT #k]) so the coder can align its two arrays.
+
+MIPROC_LABELS = ["MIPROC_TherapistCodes", "MIPROC_PatientCodes"]
+
+# Representative output size for the cost estimator (``questions_count``): the grid's conversations
+# run 2-50 utterances (mean ~29), i.e. ~14 + ~14 codes; 54 is the two arrays at a long session.
+MIPROC_REPRESENTATIVE_N_ITEMS = 54
+
+MIPROC_TH_CODE_ITEMS = {
+    "OQ": "Open question: invites elaboration; cannot be answered with yes/no or a single fact.",
+    "CQ": "Closed question: answerable with yes/no or a specific fact.",
+    "SR": "Simple reflection: repeats or rephrases what the patient just said, adding little or no meaning.",
+    "CR": "Complex reflection: reflects with substantial added meaning or emphasis (inferred feeling, metaphor, double-sided reflection, continuing the paragraph).",
+    "AF": "Affirmation (MITI 4.2.1): comments on a SPECIFIC patient strength, ability, intention or effort (\"You kept going after three relapses; that takes persistence.\"). General praise is NOT an affirmation (see PRA).",
+    "PRA": "Non-specific praise / cheerleading / effusive reassurance not tied to a specific strength or effort (\"I'm so proud of you\", \"You're amazing\", \"You've got this\", \"You are a warrior\"), including praise for a step the patient has not actually taken.",
+    "GI": "Giving information: education, feedback, explanation, options, or structuring the session, delivered neutrally.",
+    "PERS": "Persuasion: arguing, lecturing, advising toward change, telling the patient what they should do, warning of consequences, moralizing (with or without permission).",
+    "SEEK": "Seeking collaboration / emphasizing autonomy: asking permission, inviting the patient's own ideas or choice, stating that the decision is theirs.",
+    "CONF": "Confront / direct / judge: disagreeing, arguing, shaming, criticizing, labeling, commanding (\"You must\", \"Stop making excuses\").",
+    "OTH": "Other: greeting, filler, small talk, logistics, incoherent or degenerate text, or none of the above.",
+}
+
+MIPROC_PT_CODE_ITEMS = {
+    "CT": "Change talk: any statement favouring change (desire, ability, reasons, need, commitment, activation, taking steps).",
+    "ST": "Sustain talk: any statement favouring the status quo (reasons not to change, inability, unwillingness, minimizing, commitment to not change).",
+    "NEU": "Neutral / other: neither (answering a factual question, small talk, off-topic, or balanced ambivalence with no lean). If an utterance contains both CT and ST, code the direction that dominates; if balanced, NEU.",
+}
+
+_ROLE_LINE_RE = re.compile(r"(?m)^(\s*)\[(THERAPIST|PATIENT)\]")
+
+
+def number_transcript_by_role(conversation_text: str) -> str:
+    """Replace the k-th ``[THERAPIST]`` / ``[PATIENT]`` line prefix with ``[THERAPIST #k]`` /
+    ``[PATIENT #k]`` (1-based, counted per role, in transcript order), keeping whatever follows the
+    marker (``: text`` or `` text``) untouched.
+
+    Matches the SAME ``^\\s*\\[ROLE\\]`` pattern as ``_count_therapist_utterances`` /
+    ``_count_patient_utterances``, so the highest number written equals the count the schema pins.
+    An empty transcript returns ``""``.
+    """
+    counts = {"THERAPIST": 0, "PATIENT": 0}
+
+    def _sub(m):
+        role = m.group(2)
+        counts[role] += 1
+        return f"{m.group(1)}[{role} #{counts[role]}]"
+
+    return _ROLE_LINE_RE.sub(_sub, conversation_text or "")
+
+
+def _build_miproc_prompt(n_therapist: int, n_patient: int, change_goal: Optional[str] = None) -> str:
+    """Rubric-first layout: preamble + codebook FIRST (the transcript-independent, cacheable
+    prefix), then ONE short line with the two utterance counts, then the output-format paragraph.
+    The numbered transcript is appended LAST by ``get_prompt_eval_questionnaire``."""
+    th_block = "\n".join(f"{code} - {desc}" for code, desc in MIPROC_TH_CODE_ITEMS.items())
+    pt_block = "\n".join(f"{code} - {desc}" for code, desc in MIPROC_PT_CODE_ITEMS.items())
+
+    cg = change_goal or (
+        "Use the main behavior change goal implied by the conversation. "
+        "If unclear, infer the most reasonable behavioral target from context."
+    )
+
+    return f"""You are an expert Motivational Interviewing (MI) process coder trained on the MITI 4.2.1 and MISC manuals. You will code a transcript of a counselling conversation between a THERAPIST and a PATIENT. Assign EXACTLY ONE code to EVERY therapist utterance (its dominant function: the function that occupies most of the utterance; if a turn praises at length and ends with one question, code the praise) and EXACTLY ONE code to EVERY patient utterance, in transcript order. [THERAPIST #1] is always the same scripted session opener (a greeting that ends by asking the patient to tell about themselves and why they are here): code it OQ.
+
+Change Goal (target behavior, for the patient CT/ST codes):
+- {cg}
+
+---
+### THERAPIST CODES (one per [THERAPIST #i] utterance)
+{th_block}
+
+---
+### PATIENT CODES (one per [PATIENT #i] utterance)
+{pt_block}
+
+---
+This transcript has N_T = {int(n_therapist)} therapist utterances ([THERAPIST #1] .. [THERAPIST #{int(n_therapist)}]) and N_P = {int(n_patient)} patient utterances ([PATIENT #1] .. [PATIENT #{int(n_patient)}]).
+
+**Output your response as a JSON object.** Return ONLY the JSON object {{"questionnaire_id": 10, "therapist_codes": [...], "patient_codes": [...]}}. therapist_codes has exactly N_T entries (therapist_codes[i-1] is the code for [THERAPIST #i], in order); patient_codes has exactly N_P entries (patient_codes[i-1] is the code for [PATIENT #i], in order). Use only the code labels listed above. Do NOT add commentary outside the JSON output."""
+
+
+def get_questionnaire_miproc(conversation_text: str = "", change_goal: Optional[str] = None) -> Questionnaire:
+    """Questionnaire 10: MI process coder (one code per therapist utterance + one per patient utterance).
+
+    ``questions_count`` is the fixed representative output size (the cost estimator reads it); the
+    real per-conversation sizes are the two utterance counts baked into the schema + prompt.
+    """
+    t_count = _count_therapist_utterances(conversation_text)
+    p_count = _count_patient_utterances(conversation_text)
+    return Questionnaire(
+        questionnaire_id=10,
+        questions_count=MIPROC_REPRESENTATIVE_N_ITEMS,
+        questionnaire_prompt=_build_miproc_prompt(t_count, p_count, change_goal=change_goal),
+        labels=MIPROC_LABELS,
+        scale_min=0,   # categorical codes — no numeric scale
+        scale_max=0,
+    )
+
+
+# =============================================================================
 # MAIN API FUNCTIONS
 # =============================================================================
 
@@ -913,11 +1070,13 @@ QUESTIONNAIRE_BUILDERS = {
     # MITI, PCT, MICI are handled separately since they need conversation_text
 }
 
-# Questionnaires whose builders require conversation_text (nested globals+behaviors schema).
+# Questionnaires whose builders require conversation_text (nested globals+behaviors schema,
+# or — MIPROC — per-utterance code arrays whose lengths are the utterance counts).
 _CONV_TEXT_QUESTIONNAIRE_BUILDERS = {
     QuestionnaireID.MITI.value: get_questionnaire_miti,
     QuestionnaireID.PCT.value: get_questionnaire_pct,
     QuestionnaireID.MICI.value: get_questionnaire_mici,
+    QuestionnaireID.MIPROC.value: get_questionnaire_miproc,
 }
 
 # Questionnaires using the nested {globals, behaviors} schema + parse branch.
@@ -997,14 +1156,20 @@ def get_prompt_eval_questionnaire(
             f'{{"questionnaire_id": <ID>, "scores": [<score1>, <score2>, ...]}}\n'
             f'Where scores is an array of integers ({q.scale_min}-{q.scale_max}) in the order of the questions.'
         )
+    # MIPROC codes every utterance, so its transcript is NUMBERED per role ([THERAPIST #k] /
+    # [PATIENT #k]) to let the coder align its two arrays. Every other rubric sees the raw text.
+    transcript = (
+        number_transcript_by_role(conversation)
+        if qid == QuestionnaireID.MIPROC.value else conversation
+    )
     parts += [
         q.questionnaire_prompt,
         "\nTranscript:",
         "--------------------",
-        conversation,
+        transcript,
         "--------------------",
     ]
-    
+
     # Build schema
     if qid == QuestionnaireID.MITI.value:
         schema = make_miti_schema(questionnaire)
@@ -1012,6 +1177,12 @@ def get_prompt_eval_questionnaire(
         schema = make_pct_schema(questionnaire)
     elif qid == QuestionnaireID.MICI.value:
         schema = make_mici_schema(questionnaire)
+    elif qid == QuestionnaireID.MIPROC.value:
+        schema = make_miproc_schema(
+            questionnaire,
+            _count_therapist_utterances(conversation),
+            _count_patient_utterances(conversation),
+        )
     else:
         schema = make_eval_schema(questionnaire, q.questions_count, q.scale_min, q.scale_max)
     
@@ -1041,22 +1212,32 @@ def scores_to_dict(scores: List[int], labels: List[str]) -> Dict[str, int]:
     return dict(zip(labels, scores))
 
 
-def parse_json_response(response_content: Union[str, Dict[str, Any]], questionnaire_id: Union[QuestionnaireID, int], labels: List[str]) -> Dict[str, Any]:
+def parse_json_response(
+    response_content: Union[str, Dict[str, Any]],
+    questionnaire_id: Union[QuestionnaireID, int],
+    labels: List[str],
+    expected_counts: Optional[tuple] = None,
+) -> Dict[str, Any]:
     """
     Parse JSON response from OpenAI.
-    
+
     Args:
         response_content: Raw JSON string from API
         questionnaire_id: Expected questionnaire ID (QuestionnaireID enum or int)
         labels: List of item labels
-    
+        expected_counts: MIPROC only — ``(n_therapist_utterances, n_patient_utterances)``; when
+            given, the two code arrays must have exactly these lengths (the Claude judge path
+            cannot enforce ``minItems``/``maxItems`` server-side). Ignored by every other rubric.
+
     Returns:
         dict with:
             - 'scores_dict': {label: score} mapping
             - 'scores_list': [scores] in order
             - 'mean_score': float mean of scores
             - 'questionnaire_id': int
-    
+        (MIPROC returns 'scores_dict' + 'therapist_codes' + 'patient_codes' instead — categorical
+        codes have no mean.)
+
     Raises:
         ValueError: If parsing fails or validation fails
     """
@@ -1143,6 +1324,30 @@ def parse_json_response(response_content: Union[str, Dict[str, Any]], questionna
             'behaviors': behaviors_dict,
             'mean_score': sum(global_scores) / len(global_scores),
             'behavior_total': sum(behavior_scores),
+            'questionnaire_id': questionnaire_id,
+        }
+
+    # MIPROC (MI process coder): one code per utterance for both speakers. Validate lengths
+    # (when the caller knows the utterance counts) and enum membership; no numeric aggregate.
+    if qid == QuestionnaireID.MIPROC.value:
+        th = list(data.get("therapist_codes") or [])
+        pt = list(data.get("patient_codes") or [])
+        if expected_counts is not None:
+            n_th, n_pt = expected_counts
+            if len(th) != int(n_th):
+                raise ValueError(f"Expected {int(n_th)} therapist codes, got {len(th)}")
+            if len(pt) != int(n_pt):
+                raise ValueError(f"Expected {int(n_pt)} patient codes, got {len(pt)}")
+        bad_th = [c for c in th if c not in MIPROC_TH_CODES]
+        if bad_th:
+            raise ValueError(f"Unknown therapist code(s): {bad_th}")
+        bad_pt = [c for c in pt if c not in MIPROC_PT_CODES]
+        if bad_pt:
+            raise ValueError(f"Unknown patient code(s): {bad_pt}")
+        return {
+            'scores_dict': {"MIPROC_TherapistCodes": th, "MIPROC_PatientCodes": pt},
+            'therapist_codes': th,
+            'patient_codes': pt,
             'questionnaire_id': questionnaire_id,
         }
 

@@ -29,7 +29,11 @@ each K), [`transfer/`](transfer/) (does the contrast survive the held-out judge 
 retention), [`behaviour/`](behaviour/) (channels, substitution, session shape, held-out instruments),
 [`mechanism/`](mechanism/) (the over-praise chain, signal dispersion, reward faithfulness at a matched
 policy, the K-step tail audit) and [`replication/`](replication/) (the ICLR transcripts re-scored under
-the modern grader; the SD/stability claim).
+the modern grader; the SD/stability claim). **Two families added 2026-09-17** that read the transcripts
+as *content* rather than as scores: [`text/`](text/) (embedding-space repertoire, drift, diversity,
+responsiveness, patient side, within-session profiles — judge-free, all four arms; §10) and
+[`process/`](process/) (the utterance-level `MIPROC` coder — yields, responsiveness, within-session
+change talk, parity; GRPO arms, primary grader so far; §11).
 
 **All four arms now run to iteration 10 and are fully scored by both graders** —
 4 arms × 11 model states = 44 states, and the held-out grid is complete at 44 × 8 × 96 = 33,792 cells
@@ -535,6 +539,104 @@ is true at every budget measured.**
 
 ⚠ The MI-consistency reading at matched budget is selection- *and* grader-dependent and must never be
 quoted bare; the three-way flip is worked out in [`../LIMITATIONS.md`](../LIMITATIONS.md) §5.
+
+## 10. `text/` — what each policy learned and unlearned, in the text (judge-free, all four arms)
+
+*(Added 2026-09-17. Every number below is read off `text/tables/`; the family is rendered from
+`notebooks/lookahead/text.ipynb`.)*
+
+**Repertoire.** Thirty k-means clusters fit on the base policy's therapist turns
+([`text/tables/repertoire_clusters.md`](text/tables/repertoire_clusters.md)) are mostly *topical*
+(smoking / weight / cravings / goals / eating) with a style component (turn length, `?` rate); the
+reading is stable — per-state `novel_share` and entropy rank-correlate 0.91–0.97 / 0.94–0.99 with the
+reference fit across k ∈ {20, 30, 40} × 3 seeds
+([`repertoire_stability.md`](text/tables/repertoire_stability.md)). What training does
+([`repertoire_learned_unlearned.md`](text/tables/repertoire_learned_unlearned.md),
+[`figures/repertoire_occupancy.png`](text/figures/repertoire_occupancy.png)): every arm **unlearns the
+short structuring turns** (the "session questions talk" cluster — 135 chars, `?` in 66 % of its base
+turns — goes from 5–6 % of turns to ≤ 1 % in all four arms; the short "smoking smoke habit problem"
+questions, 194 chars, `?` in 93 %, drop from 3–6 % to ≤ 1 % in three of four) and **learns one long
+encouraging-goals template** ("motivated progress goals stay", 418 chars; +0.12 to +0.28 of turns in
+every arm). The K=5 arms additionally concentrate on the long "smoking quit quitting nicotine" cluster
+(PTO K=5 0.08 → 0.27, GRPO K=5 0.08 → 0.23 of turns). The out-of-repertoire share stays ≤ 0.06 at
+every state of three arms; only GRPO K=0 leaves the base repertoire, at iterations 6, 7 and 9 (0.09,
+0.12, 0.20 — the iteration-9 anomaly again). Training mostly re-weights the base repertoire rather
+than leaving it.
+
+**Drift.** All four policies move steadily away from the base centroid
+([`drift_by_state.md`](text/tables/drift_by_state.md)). The two K arms of a method do **not** move the
+same way: at iteration 10 the cosine between the K=0 and K=5 displacements is 0.67 for PTO and 0.44 for
+GRPO, while the two K=5 arms of *different* optimisers are nearly parallel (0.90; K=0 pair 0.84)
+([`drift_cosines.md`](text/tables/drift_cosines.md)). Look-ahead, not the optimiser, decides where the
+policy goes. The realised drift is aligned with the training-side update direction, more so under K=5
+(iteration-10 cosine 0.84 PTO K=5, 0.57 GRPO K=5 vs 0.53 / 0.41 at K=0;
+[`update_alignment.md`](text/tables/update_alignment.md)).
+
+**Diversity.** Template similarity across personas at matched turn roughly doubles over training in
+every arm (0.26 → 0.46–0.58) and the between-persona variance share falls (0.38–0.43 → 0.19–0.32);
+the K=5 arms keep more persona sensitivity than their K=0 twins at the endpoint (0.30–0.32 vs
+0.19–0.20; [`diversity_by_state.md`](text/tables/diversity_by_state.md),
+[`figures/diversity.png`](text/figures/diversity.png)). Near-verbatim cross-conversation duplicates are
+a GRPO K=0 phenomenon (up to 0.15 of turns at iteration 9, ≈ 0 elsewhere).
+
+**Responsiveness and the patient side** ([`k_text_summary.md`](text/tables/k_text_summary.md),
+[`figures/k_text_forest.png`](text/figures/k_text_forest.png); sign `+ ⇒ K=0 higher`, Holm across
+iterations). Under both optimisers the K=5 therapist re-uses more of the patient's own words
+(`lex_recall_prev` K=5 higher at 8 of 10 iterations for both PTO and GRPO) but also repeats *itself*
+more within a session (`within_sim` K=5 higher at 9 / 6 of 10 for PTO / GRPO — a lower-better metric,
+so this one favours K=0). The patient talks more to the K=5 therapist (`pt_turn_len` K=5 higher at
+6 / 8 of 10) yet, under GRPO, shows *more* disengagement cues (`pt_disengage_rate` K=5 higher at 5 of
+10, endpoint dz 0.31 favouring K=0 — the cue list is a directional marker, read it with §11's coded
+change talk, which points the other way). ⚠ Neither `echo` nor `lex_recall_prev` tracks the oracle's MITI reflection
+counts (pooled ρ −0.09 to +0.02 under both graders,
+[`echo_validation_pooled.md`](text/tables/echo_validation_pooled.md)): they are topical-responsiveness
+measures, **not** judge-free reflection channels. The reflection story lives in §11.
+
+**Within-session profile** ([`session_profile.md`](text/tables/session_profile.md),
+[`figures/session_profile.png`](text/figures/session_profile.png)). At the endpoints the effusive cue
+in GRPO K=0 is already at 0.62 of turns in the first two therapist turns and 0.80 from turn 6 on; PTO
+K=0 ramps from 0.04 to 0.35; both K=5 arms stay ≤ 0.16 in every bin. Questions per turn fall with
+session position in every trained arm (GRPO K=0 to ≈ 0 from turn 3), against a flat base.
+
+## 11. `process/` — what each therapist behaviour does to the patient (MIPROC, GRPO arms, primary grader)
+
+*(Added 2026-09-17. Utterance-level codes exist for the GRPO arms under the primary grader only —
+the held-out sweep is pending — so nothing here has a cross-grader check yet; the same-grader
+parity check is the only validation. Sign `+ ⇒ K=0 higher`, Holm across iterations.)*
+
+**Code mix** ([`process_levels_gpt-4o-mini.md`](process/tables/process_levels_gpt-4o-mini.md),
+[`process/figures/code_mix_gpt-4o-mini.png`](process/figures/code_mix_gpt-4o-mini.png)). Both arms lose
+question-*turns* almost entirely (dominant-function `OQ` share 0.10 / 0.08 → 0.00 / 0.01 at iteration
+10; the `?` marks that survive sit at the end of long turns whose dominant function is something else —
+see the parity note). What replaces them differs by K: **K=0 learns non-specific praise** (`PRA` 0.03 →
+0.41 of turns; `AF` 0.03 → 0.20) and **K=5 learns complex reflections** (`CR` 0.02 → 0.23; `AF` 0.02 →
+0.15; `PRA` flat at 0.05), with a persuasion residue (`PERS` 0.21 → 0.28, K=5 higher at 6 of 10
+iterations — the "righting reflex" the paper already flags).
+
+**Yield** ([`yield_gpt-4o-mini.md`](process/tables/yield_gpt-4o-mini.md),
+[`figures/yield.png`](process/figures/yield.png)). At iteration 10 a K=5 complex reflection is followed
+by patient change talk 85 % of the time (n = 389 turns); K=0's rare complex reflections 10 % (n = 21).
+Praise yields change talk 58 % of the time at K=0 (n = 467) — below the same policy's affirmation
+turns (0.73) and level with its information turns (0.54). Every therapist behaviour yields more change
+talk under K=5 than under K=0 (GI 0.79 vs 0.54, AF 0.98 vs 0.73, PERS 0.53 vs 0.35).
+
+**Responsiveness — the cleanest MI-process contrast in the tree.** After the patient produces change
+talk, the K=5 endpoint reflects it 26 % of the time and the K=0 endpoint 0.3 % (`refl_after_ct`, K=5
+higher at 6 of 10 iterations); after sustain talk, the K=0 endpoint answers with praise 32 % of the time
+and K=5 1.6 % (`pra_after_st`, K=0 higher at iterations 8–10). Patient change talk is higher under K=5
+(`ct_prop` 0.68 vs 0.53 at the endpoint, K=5 higher at iterations 6–10; `reached_ct` 0.92 vs 0.87), and
+it *keeps rising* through the session under K=5 (0.85 CT share at patient turn 10+) where it falls back
+under K=0 (0.68 at turns 6–9 → 0.50 at 10+;
+[`ct_trajectory_gpt-4o-mini.md`](process/tables/ct_trajectory_gpt-4o-mini.md),
+[`figures/ct_trajectory.png`](process/figures/ct_trajectory.png)).
+
+**Parity** ([`parity_pooled_gpt-4o-mini.md`](process/tables/parity_pooled_gpt-4o-mini.md)). The
+per-utterance patient codes reproduce the conversation-level PCT counts (pooled ρ 0.88 CT, 0.90 ST). The
+therapist codes do **not** reproduce MITI's behaviour counts (ρ 0.02–0.43; MITI counts 5.5 questions
+per conversation, the dominant-function coder 1.7). This is a construct difference, not a bug — one
+code per turn vs. a count of every question-function in a 900-character turn — and it is why the
+paper's "K=5 asks more questions" (a `?`-count claim) and this family's "question-turns vanish in both
+arms" are both true. Quote each with its unit.
 
 ## 9. Caveats
 

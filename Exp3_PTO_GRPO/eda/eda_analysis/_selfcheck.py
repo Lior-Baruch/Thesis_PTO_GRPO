@@ -99,7 +99,7 @@ _KNOWN_TOL = 0.02
 _SUBMODULES = ("plotting", "plots", "figures", "data",
                "stats", "behavior", "training", "pref", "exports", "compute", "reliability",
                "lookahead", "transfer", "tails", "dispersion", "faithfulness", "crossgen",
-               "replication", "instruments")
+               "replication", "instruments", "text", "process")
 
 
 # ── check harness ─────────────────────────────────────────────────────────────
@@ -870,7 +870,12 @@ def _c_score_fold() -> str:
         a, b = fold[fi], csv[fi]
         assert list(a.index) == list(b.index), f"column mismatch at {fi}: {list(a.index)} vs {list(b.index)}"
         for c in a.index:
-            assert float(a[c]) == float(b[c]), f"value mismatch at {fi}.{c}: {a[c]} vs {b[c]}"
+            try:
+                same = float(a[c]) == float(b[c])
+            except (ValueError, TypeError):
+                # String payload columns (MIPROC_ThCodes / MIPROC_PtCodes): compare verbatim.
+                same = a[c] == b[c]
+            assert same, f"value mismatch at {fi}.{c}: {a[c]} vs {b[c]}"
 
     # Tamper with the recorded signature -> the guard must refuse to serve.
     A.reset_cache()

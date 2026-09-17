@@ -60,7 +60,8 @@ def _name_to_qid() -> dict:
     return {"Q1": QuestionnaireID.Q1, "Q2": QuestionnaireID.Q2,
             "WAI-SR": QuestionnaireID.WAI_SR, "CSQ-8": QuestionnaireID.CSQ8,
             "MI-SAT": QuestionnaireID.MI_SAT, "MITI": QuestionnaireID.MITI,
-            "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI}
+            "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI,
+            "MIPROC": QuestionnaireID.MIPROC}
 
 
 def _state_dir(judge_tag: str, rep: int) -> str:
@@ -80,6 +81,7 @@ class _Cell:
     oracle: str
     file_index: int
     n_therapist_utt: int     # MICI's rate denominator — stored so collection needs no conv data
+    n_patient_utt: int       # MIPROC's patient-array length (with n_therapist_utt for the therapist one)
     params: dict
 
 
@@ -130,6 +132,7 @@ def build_requests(judge: "_judge.JudgeSpec", combined_data: pd.DataFrame,
                 cells.append(_Cell(custom_id=f"c{idx:06d}", out_path=out_fp, metric=qname,
                                    model=str(model), oracle=oracle, file_index=int(row["id"]),
                                    n_therapist_utt=_pipeline._count_therapist_utterances(conv_str),
+                                   n_patient_utt=_pipeline._count_patient_utterances(conv_str),
                                    params=params))
                 idx += 1
     return cells
@@ -180,7 +183,8 @@ def submit_sweep(judge: "_judge.JudgeSpec", combined_data: pd.DataFrame,
             "manifest": [{"custom_id": c.custom_id, "out_path": os.path.relpath(
                               c.out_path, _judge.EVAL_SCORES_ROOT),
                           "metric": c.metric, "model": c.model, "oracle": c.oracle,
-                          "file_index": c.file_index, "n_therapist_utt": c.n_therapist_utt}
+                          "file_index": c.file_index, "n_therapist_utt": c.n_therapist_utt,
+                          "n_patient_utt": c.n_patient_utt}
                          for c in chunk],
         }
         fp = os.path.join(_state_dir(judge.tag, rep), f"{batch.id}.json")
@@ -317,15 +321,24 @@ def collect_batches(judge: "_judge.JudgeSpec", *, rep: Optional[int] = None,
                 payload = json.loads(text)
                 qid = qid_of[meta["metric"]]
                 ed = _pipeline.get_prompt_eval_questionnaire(questionnaire=qid, conversation="")
-                parsed = _pipeline.parse_json_response(response_content=payload,
-                                                       questionnaire_id=qid, labels=ed["labels"])
-                # MICI's rate needs the therapist-turn denominator; it was captured at submit time
-                # so collection never has to re-read conversation data.
-                if meta["metric"] == "MICI":
-                    rdf = pd.DataFrame([_pipeline._build_mici_row(parsed["scores_dict"],
-                                                                 meta["n_therapist_utt"])])
+                if meta["metric"] == "MIPROC":
+                    # The code arrays must be exactly one entry per utterance; the counts were
+                    # captured at submit time (n_patient_utt is absent from pre-MIPROC manifests,
+                    # which never contain MIPROC cells anyway).
+                    parsed = _pipeline.parse_json_response(
+                        response_content=payload, questionnaire_id=qid, labels=ed["labels"],
+                        expected_counts=(meta["n_therapist_utt"], meta.get("n_patient_utt", 0)))
+                    rdf = pd.DataFrame([_pipeline._build_miproc_row(parsed["scores_dict"])])
                 else:
-                    rdf = _pipeline._build_row(qid, parsed["scores_dict"], "")
+                    parsed = _pipeline.parse_json_response(response_content=payload,
+                                                           questionnaire_id=qid, labels=ed["labels"])
+                    # MICI's rate needs the therapist-turn denominator; it was captured at submit
+                    # time so collection never has to re-read conversation data.
+                    if meta["metric"] == "MICI":
+                        rdf = pd.DataFrame([_pipeline._build_mici_row(parsed["scores_dict"],
+                                                                     meta["n_therapist_utt"])])
+                    else:
+                        rdf = _pipeline._build_row(qid, parsed["scores_dict"], "")
                 if rdf is None or rdf.isnull().values.any():
                     raise ValueError("null values in parsed row")
             except Exception as e:

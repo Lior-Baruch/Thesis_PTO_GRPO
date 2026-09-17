@@ -1,0 +1,757 @@
+{
+ "_family": "lookahead/text",
+ "_name": "text_numbers",
+ "_judge": null,
+ "numbers": {
+  "repertoire.k": {
+   "value": 30,
+   "source": "repertoire_fit",
+   "note": "k-means clusters on the base pool"
+  },
+  "repertoire.novel_threshold": {
+   "value": 0.4576,
+   "source": "repertoire_fit",
+   "note": "5.0th pct of held-out base nearest-centroid cosine"
+  },
+  "repertoire.GRPO_LA0.final_iter": {
+   "value": 10,
+   "source": "repertoire_by_state",
+   "note": ""
+  },
+  "repertoire.GRPO_LA0.novel_share.base": {
+   "value": 0.0313,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.GRPO_LA0.novel_share.final": {
+   "value": 0.033,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.GRPO_LA0.entropy.base": {
+   "value": 3.1629,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.GRPO_LA0.entropy.final": {
+   "value": 2.2974,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.GRPO_LA0.eff_clusters.base": {
+   "value": 23.6391,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.GRPO_LA0.eff_clusters.final": {
+   "value": 9.9485,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.GRPO_LA5.final_iter": {
+   "value": 10,
+   "source": "repertoire_by_state",
+   "note": ""
+  },
+  "repertoire.GRPO_LA5.novel_share.base": {
+   "value": 0.0357,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.GRPO_LA5.novel_share.final": {
+   "value": 0.007,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.GRPO_LA5.entropy.base": {
+   "value": 3.1948,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.GRPO_LA5.entropy.final": {
+   "value": 2.2797,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.GRPO_LA5.eff_clusters.base": {
+   "value": 24.4065,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.GRPO_LA5.eff_clusters.final": {
+   "value": 9.7742,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.PTO_LA0.final_iter": {
+   "value": 10,
+   "source": "repertoire_by_state",
+   "note": ""
+  },
+  "repertoire.PTO_LA0.novel_share.base": {
+   "value": 0.0303,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.PTO_LA0.novel_share.final": {
+   "value": 0.0241,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.PTO_LA0.entropy.base": {
+   "value": 3.1757,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.PTO_LA0.entropy.final": {
+   "value": 2.4896,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.PTO_LA0.eff_clusters.base": {
+   "value": 23.9437,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.PTO_LA0.eff_clusters.final": {
+   "value": 12.056,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.PTO_LA5.final_iter": {
+   "value": 10,
+   "source": "repertoire_by_state",
+   "note": ""
+  },
+  "repertoire.PTO_LA5.novel_share.base": {
+   "value": 0.0435,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.PTO_LA5.novel_share.final": {
+   "value": 0.0282,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.PTO_LA5.entropy.base": {
+   "value": 3.2023,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.PTO_LA5.entropy.final": {
+   "value": 2.2921,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "repertoire.PTO_LA5.eff_clusters.base": {
+   "value": 24.5883,
+   "source": "repertoire_by_state",
+   "note": "iteration 0"
+  },
+  "repertoire.PTO_LA5.eff_clusters.final": {
+   "value": 9.8957,
+   "source": "repertoire_by_state",
+   "note": "iteration 10"
+  },
+  "drift.GRPO_LA0.drift_norm.final": {
+   "value": 0.4896,
+   "source": "drift_by_state",
+   "note": "vs pooled base centroid"
+  },
+  "drift.GRPO_LA5.drift_norm.final": {
+   "value": 0.4106,
+   "source": "drift_by_state",
+   "note": "vs pooled base centroid"
+  },
+  "drift.PTO_LA0.drift_norm.final": {
+   "value": 0.354,
+   "source": "drift_by_state",
+   "note": "vs pooled base centroid"
+  },
+  "drift.PTO_LA5.drift_norm.final": {
+   "value": 0.3684,
+   "source": "drift_by_state",
+   "note": "vs pooled base centroid"
+  },
+  "drift.cos_K0_K5_PTO.final": {
+   "value": 0.669,
+   "source": "drift_cosines",
+   "note": "iteration 10"
+  },
+  "drift.cos_K0_K5_GRPO.final": {
+   "value": 0.4379,
+   "source": "drift_cosines",
+   "note": "iteration 10"
+  },
+  "drift.cos_PTO_GRPO_K0.final": {
+   "value": 0.8439,
+   "source": "drift_cosines",
+   "note": "iteration 10"
+  },
+  "drift.cos_PTO_GRPO_K5.final": {
+   "value": 0.9034,
+   "source": "drift_cosines",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA0.template_sim.base": {
+   "value": 0.2651,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA0.template_sim.final": {
+   "value": 0.5846,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA0.persona_var_share.base": {
+   "value": 0.3744,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA0.persona_var_share.final": {
+   "value": 0.1922,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA0.dup_rate.base": {
+   "value": 0.0,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA0.dup_rate.final": {
+   "value": 0.0018,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA0.distinct_2.base": {
+   "value": 0.3435,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA0.distinct_2.final": {
+   "value": 0.1956,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA5.template_sim.base": {
+   "value": 0.2617,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA5.template_sim.final": {
+   "value": 0.4935,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA5.persona_var_share.base": {
+   "value": 0.4096,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA5.persona_var_share.final": {
+   "value": 0.3021,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA5.dup_rate.base": {
+   "value": 0.0016,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA5.dup_rate.final": {
+   "value": 0.0,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.GRPO_LA5.distinct_2.base": {
+   "value": 0.3246,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.GRPO_LA5.distinct_2.final": {
+   "value": 0.2928,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA0.template_sim.base": {
+   "value": 0.2639,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA0.template_sim.final": {
+   "value": 0.459,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA0.persona_var_share.base": {
+   "value": 0.4261,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA0.persona_var_share.final": {
+   "value": 0.2069,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA0.dup_rate.base": {
+   "value": 0.0,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA0.dup_rate.final": {
+   "value": 0.0,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA0.distinct_2.base": {
+   "value": 0.333,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA0.distinct_2.final": {
+   "value": 0.3433,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA5.template_sim.base": {
+   "value": 0.2556,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA5.template_sim.final": {
+   "value": 0.4543,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA5.persona_var_share.base": {
+   "value": 0.4083,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA5.persona_var_share.final": {
+   "value": 0.3166,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA5.dup_rate.base": {
+   "value": 0.0364,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA5.dup_rate.final": {
+   "value": 0.0,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "diversity.PTO_LA5.distinct_2.base": {
+   "value": 0.3273,
+   "source": "diversity_by_state",
+   "note": "iteration 0"
+  },
+  "diversity.PTO_LA5.distinct_2.final": {
+   "value": 0.339,
+   "source": "diversity_by_state",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.dist_to_base.base": {
+   "value": 0.2981,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.dist_to_base.final": {
+   "value": 0.2854,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.novel_share.base": {
+   "value": 0.0313,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.novel_share.final": {
+   "value": 0.033,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.within_sim.base": {
+   "value": 0.5036,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.within_sim.final": {
+   "value": 0.6254,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.echo.base": {
+   "value": 0.1797,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.echo.final": {
+   "value": 0.1082,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.lex_recall_prev.base": {
+   "value": 0.1175,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.lex_recall_prev.final": {
+   "value": 0.1867,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.patient_echo.base": {
+   "value": 0.2133,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.patient_echo.final": {
+   "value": 0.0972,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.pt_turn_len.base": {
+   "value": 387.2163,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.pt_turn_len.final": {
+   "value": 439.7171,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.pt_q_per_turn.base": {
+   "value": 0.6421,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.pt_q_per_turn.final": {
+   "value": 1.3755,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA0.pt_disengage_rate.base": {
+   "value": 0.3354,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA0.pt_disengage_rate.final": {
+   "value": 0.2133,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.dist_to_base.base": {
+   "value": 0.3023,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.dist_to_base.final": {
+   "value": 0.2917,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.novel_share.base": {
+   "value": 0.0357,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.novel_share.final": {
+   "value": 0.007,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.within_sim.base": {
+   "value": 0.5068,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.within_sim.final": {
+   "value": 0.6093,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.echo.base": {
+   "value": 0.1927,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.echo.final": {
+   "value": 0.2271,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.lex_recall_prev.base": {
+   "value": 0.1398,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.lex_recall_prev.final": {
+   "value": 0.2414,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.patient_echo.base": {
+   "value": 0.2287,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.patient_echo.final": {
+   "value": 0.2196,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.pt_turn_len.base": {
+   "value": 361.1163,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.pt_turn_len.final": {
+   "value": 600.3398,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.pt_q_per_turn.base": {
+   "value": 0.6851,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.pt_q_per_turn.final": {
+   "value": 0.793,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.GRPO_LA5.pt_disengage_rate.base": {
+   "value": 0.3372,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.GRPO_LA5.pt_disengage_rate.final": {
+   "value": 0.2761,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.dist_to_base.base": {
+   "value": 0.3128,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.dist_to_base.final": {
+   "value": 0.249,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.novel_share.base": {
+   "value": 0.0303,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.novel_share.final": {
+   "value": 0.0241,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.within_sim.base": {
+   "value": 0.5197,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.within_sim.final": {
+   "value": 0.5065,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.echo.base": {
+   "value": 0.228,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.echo.final": {
+   "value": 0.1563,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.lex_recall_prev.base": {
+   "value": 0.1448,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.lex_recall_prev.final": {
+   "value": 0.1538,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.patient_echo.base": {
+   "value": 0.2283,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.patient_echo.final": {
+   "value": 0.1711,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.pt_turn_len.base": {
+   "value": 387.9337,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.pt_turn_len.final": {
+   "value": 469.6222,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.pt_q_per_turn.base": {
+   "value": 0.6663,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.pt_q_per_turn.final": {
+   "value": 1.0041,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA0.pt_disengage_rate.base": {
+   "value": 0.3344,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA0.pt_disengage_rate.final": {
+   "value": 0.3675,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.dist_to_base.base": {
+   "value": 0.307,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.dist_to_base.final": {
+   "value": 0.2962,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.novel_share.base": {
+   "value": 0.0435,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.novel_share.final": {
+   "value": 0.0282,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.within_sim.base": {
+   "value": 0.4966,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.within_sim.final": {
+   "value": 0.5799,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.echo.base": {
+   "value": 0.2053,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.echo.final": {
+   "value": 0.2336,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.lex_recall_prev.base": {
+   "value": 0.1268,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.lex_recall_prev.final": {
+   "value": 0.2437,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.patient_echo.base": {
+   "value": 0.2296,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.patient_echo.final": {
+   "value": 0.1949,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.pt_turn_len.base": {
+   "value": 354.3913,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.pt_turn_len.final": {
+   "value": 557.594,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.pt_q_per_turn.base": {
+   "value": 0.6888,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.pt_q_per_turn.final": {
+   "value": 0.8102,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "levels.PTO_LA5.pt_disengage_rate.base": {
+   "value": 0.3212,
+   "source": "text_levels",
+   "note": "iteration 0"
+  },
+  "levels.PTO_LA5.pt_disengage_rate.final": {
+   "value": 0.3402,
+   "source": "text_levels",
+   "note": "iteration 10"
+  },
+  "echo_validation.claude-haiku-4-5.echo.GRPO.rho_vs_reflections": {
+   "value": -0.0456,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  },
+  "echo_validation.claude-haiku-4-5.echo.PTO.rho_vs_reflections": {
+   "value": -0.0087,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  },
+  "echo_validation.claude-haiku-4-5.lex_recall_prev.GRPO.rho_vs_reflections": {
+   "value": -0.0944,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  },
+  "echo_validation.claude-haiku-4-5.lex_recall_prev.PTO.rho_vs_reflections": {
+   "value": 0.0062,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  },
+  "echo_validation.gpt-4o-mini.echo.GRPO.rho_vs_reflections": {
+   "value": -0.0084,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  },
+  "echo_validation.gpt-4o-mini.echo.PTO.rho_vs_reflections": {
+   "value": 0.0181,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  },
+  "echo_validation.gpt-4o-mini.lex_recall_prev.GRPO.rho_vs_reflections": {
+   "value": -0.0615,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  },
+  "echo_validation.gpt-4o-mini.lex_recall_prev.PTO.rho_vs_reflections": {
+   "value": -0.0024,
+   "source": "echo_validation_pooled",
+   "note": "Fisher-z pooled within-state Spearman ρ"
+  }
+ }
+}

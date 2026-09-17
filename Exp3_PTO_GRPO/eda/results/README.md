@@ -61,6 +61,28 @@ per-arm cross-check table is
 channel composition and substitution:
 [`lookahead/behaviour/tables/k_mici_composition.md`](lookahead/behaviour/tables/k_mici_composition.md).
 
+**What the policies learned and unlearned, in the text itself (2026-09-17).** — Judge-free, all four
+arms: [`lookahead/text/figures/repertoire_occupancy.png`](lookahead/text/figures/repertoire_occupancy.png)
+(base-repertoire clusters by iteration; cards with exemplars in
+[`repertoire_clusters.md`](lookahead/text/tables/repertoire_clusters.md), the ranked deltas in
+[`repertoire_learned_unlearned.md`](lookahead/text/tables/repertoire_learned_unlearned.md));
+[`drift_cosines.md`](lookahead/text/tables/drift_cosines.md) (do the two K arms learn the same
+thing?); [`diversity_by_state.md`](lookahead/text/tables/diversity_by_state.md) (template collapse,
+persona sensitivity); the persona-paired K contrast on the text + patient-side metrics in
+[`k_text_summary.md`](lookahead/text/tables/k_text_summary.md). ⚠ `echo` / `lex_recall_prev` are
+responsiveness measures, not reflection proxies
+([`echo_validation_pooled.md`](lookahead/text/tables/echo_validation_pooled.md)).
+
+**What each therapist behaviour does to the patient (utterance-level MI process, 2026-09-17).** —
+GRPO arms, primary grader so far: [`lookahead/process/figures/yield.png`](lookahead/process/figures/yield.png)
+(P(change talk | therapist code), backing [`yield_gpt-4o-mini.md`](lookahead/process/tables/yield_gpt-4o-mini.md));
+the code mix by iteration [`code_mix_gpt-4o-mini.png`](lookahead/process/figures/code_mix_gpt-4o-mini.png);
+the K contrast on every process metric [`k_process_summary.md`](lookahead/process/tables/k_process_summary.md)
+(`refl_after_ct` / `pra_after_st` are the headline rows); within-session change talk
+[`ct_trajectory.png`](lookahead/process/figures/ct_trajectory.png); and the coder's parity with the
+conversation-level instruments [`parity_pooled_gpt-4o-mini.md`](lookahead/process/tables/parity_pooled_gpt-4o-mini.md)
+(patient side agrees, therapist side does not — a construct difference, stated in `METRICS_REFERENCE.md` §3e).
+
 **What a run cost, and who wins at matched budget.** —
 [`compute/cost/tables/compute_by_arm.md`](compute/cost/tables/compute_by_arm.md) (GPU-h; mtime
 reconstruction, never `iteration_metadata.json`); **quote the budget sweep, never one iso-compute

@@ -36,6 +36,7 @@ whose point of view the oracle adopts.
 | **MITI** | 7 | 4 globals + 7 counts | globals 1–5 | MI coder (therapist) | MI Treatment Integrity: how technically MI-consistent the therapist is | `MITI_GlobalMean` (mean of 4 globals) + behavior counts (§3) |
 | **PCT** | 8 | 3 globals + 3 counts | globals 1–5 | MI coder (patient) | **Patient** change-talk: did the *client* express motivation? | `PCT_ChangeProp` = CT / (CT + ST) |
 | **MICI** ↓ | 9 | 1 global + 6 counts | global 1–5 | MI coder (therapist) | **MI-INCONSISTENT** therapist moves (confront, unsolicited advice, over-praise/sycophancy). **Lower = better** | `MICI_Rate` = inconsistent behaviors / therapist turn |
+| **MIPROC** | 10 | one code per utterance | categorical | MI process coder (both speakers) | **Utterance-level MI process coding** (2026-09-17): the dominant function of EVERY therapist utterance (`OQ CQ SR CR AF PRA GI PERS SEEK CONF OTH`; `PRA` = non-specific praise, deliberately split from the MITI-defined `AF`) and the valence of EVERY patient utterance (`CT ST NEU`), in order — the positional version of the MITI/PCT counts, which is what makes sequential analysis (§3e) possible. Scored on the GRPO arms only so far | `MIPROC_ThCodes` / `MIPROC_PtCodes` (pipe-joined) + per-code counts/rates; the registry's numeric headline is `MIPROC_PctCR` |
 
 **Instrument provenance** (what "validated" means per instrument — cite accordingly in the thesis):
 
@@ -170,6 +171,38 @@ Regex/counting over the transcript — no LLM, fully reproducible.
 "I'm so proud", "beacon"…). **Deliberately excluded from the headline behavior metrics.** They exist
 only to validate the *direction* of the oracle's `B6_AF` / `MICI_OverPraise`. For the real
 affirmation/over-praise story, always use the oracle-coded counts, never these.
+
+### 3d · Embedding + text metrics on the eval conversations (`text.py`, family `lookahead/text`)
+Judge-free. Every therapist and patient utterance of every eval conversation is embedded with
+`all-MiniLM-L6-v2` (unit vectors; the same model and cache scheme as the training-side probe in
+`pref.py`, so update directions and eval drift live in one space). The scripted opener (utterance 0)
+is excluded from every content statistic.
+
+| Metric | Unit | Definition |
+|---|---|---|
+| **Repertoire occupancy** `c0..c29`, `novel_share`, `entropy`, `eff_clusters` | state (+ per conv for `novel_share`) | k-means (k = 30, `BOOT_SEED`) on the BASE policy's therapist turns (all four arms' iteration 0 pooled; even personas fit, odd personas calibrate). Every turn of every state → nearest centroid; `novel` = cosine below the 5th percentile of the held-out base turns' nearest-centroid cosine. Occupancy = share of turns per cluster; `entropy` (nats) and `exp(H)`. Growing clusters = *learned*, shrinking = *unlearned*. ⚠ MiniLM clusters are largely **topical** (smoking / weight / goals / cravings…) with a style component (turn length, question rate) — read the cards, not the numbers alone. Stability over k ∈ {20, 30, 40} × 3 seeds is a rendered table. |
+| **Drift** `drift_norm`, `step_norm`, `cos_to_final`; `cos_K0_K5_*`, `cos_PTO_GRPO_K*`; `update_alignment` | state / iteration | Centroid of therapist content turns; displacement = centroid − pooled base centroid. Cosines between displacement vectors say whether two arms learned the *same* thing. `cos_pooled_vs_cumdrift` = cos(`pref.direction_by_arm`, displacement): did the policy move where the update pushed? |
+| **Diversity** `template_sim`, `persona_var_share` (+CI), `dup_rate`, `distinct_{1,2,3}` | state | Mean pairwise cosine across conversations at the same therapist turn index (1–8); between-conversation share of embedding variance (bootstrap over conversations); share of turns with a ≥0.95-cosine twin in *another* conversation; unique/total n-grams on a fixed 400-turn sample (length-proof). |
+| **Responsiveness** `echo`, `lex_recall_prev`, `patient_echo` | per conv (mean over turns) | `echo` = cos(therapist turn, preceding patient turn) − mean cos to 32 random patient turns of the same state; `lex_recall_prev` = share of the preceding patient turn's content words the therapist re-uses; `patient_echo` mirrors `echo` for the patient. ⚠ **Neither is a reflection proxy**: pooled within-state ρ against the oracle's MITI reflections per turn is between −0.09 and +0.02 under both graders (`lookahead/text/tables/echo_validation_pooled.md`). They measure topical responsiveness only. |
+| **Patient side** `pt_turn_len`, `pt_q_per_turn`, `pt_disengage_rate` | per conv | Chars per patient turn, `?` per patient turn, share of patient turns matching `RE_DISENGAGE` ("I don't know", "waste of time", "told to come"… — a directional cue like the `lex_*` markers, not a measurement). |
+| **Within-session profile** | state × turn bin | Therapist `n_chars`, `q_count`, `effusive`, `affirm`, `echo`, `lex_recall_prev` by the therapist's own turn index (1–2 / 3–5 / 6–9 / 10+), plus the share of conversations reaching the bin. |
+| `dist_to_base`, `within_sim` | per conv | 1 − cos(conversation's therapist centroid, pooled base centroid); mean pairwise cosine among the conversation's own therapist turns (higher = more self-repetition). |
+
+### 3e · Utterance-level MI process metrics (`process.py`, family `lookahead/process`)
+From the `MIPROC` code strings (§1), with therapist #1 (the scripted opener) excluded from every rate
+and transition. Strict alternation, therapist first: therapist #i is answered by patient #i and
+answers patient #(i−1). All recomputed in the EDA from the stored codes, per grader.
+
+| Metric | Definition |
+|---|---|
+| `th_<CODE>_rate` | share of policy turns with that dominant code (`OQ CQ SR CR AF PRA GI PERS SEEK CONF OTH`) |
+| `pct_oq`, `pct_cr`, `rtoq` | OQ/(OQ+CQ); CR/(SR+CR); (SR+CR)/(OQ+CQ) — the MITI summary ratios on the per-utterance codes |
+| `mi_incons_rate`, `mi_adherent_rate` | (PRA+PERS+CONF)/turns; (OQ+SR+CR+AF+SEEK)/turns |
+| `ct_prop`, `st_prop`, `reached_ct`, `first_ct_pos`, `ct_late_minus_early` | patient change-talk / sustain-talk share; whether any CT occurred; patient turn index of the first CT (reached conversations only); CT share in the second half − first half of the session |
+| **Yield** `ct_after_q`, `ct_after_refl`, `ct_after_pra`; table `yield_<judge>` = P(next patient code \| therapist code) with Wilson intervals | what each therapist behaviour *produces* in the patient's next utterance |
+| **Responsiveness** `refl_after_ct`, `pra_after_st`; table `responsiveness_<judge>` = P(therapist code \| preceding patient code) | what the policy does after change talk vs sustain talk — reflecting change talk is the core MI skill; praising sustain talk is its purest failure |
+| `q_chain_rate` | share of questions that follow another question (interrogation chains) |
+| **Parity** `parity_<judge>`, `parity_pooled_<judge>` | MIPROC counts summed per conversation (opener included, as MITI does) vs the same grader's MITI behaviour counts and PCT counts: Spearman ρ across conversations within each state, Fisher-z pooled. ⚠ The dominant-function codes and MITI's counts **disagree on the therapist side** (pooled ρ 0.02–0.43; MITI counts ~5.5 questions per conversation where the dominant-function coder counts ~1.7 — a long turn that ends in a question is coded by what fills it) and **agree on the patient side** (ρ ≈ 0.88 / 0.90 for CT / ST). |
 
 ---
 

@@ -56,9 +56,12 @@ QUESTIONNAIRES = {
     # Added 2026-06-14 alongside the 5 global-eval rubrics (see EXTRA_METRICS below):
     "PCT":    ("PCT",    "PCT_ChangeProp"),   # patient change-talk proportion CT/(CT+ST); higher = better
     "MICI":   ("MICI",   "MICI_Rate"),        # MI-inconsistent behaviors per therapist turn; LOWER = better
+    # Utterance-level MI process coder (one MITI/MISC code per utterance, both speakers); headline
+    # column = % complex reflections CR/(SR+CR). Per-code counts/rates live in the same CSV.
+    "MIPROC": ("MIPROC", "MIPROC_PctCR"),
 }
 # Left-to-right plot order: the global-eval rubrics (+ Q1/Q2 components) then the added metrics.
-QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "Q1", "Q2"]
+QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "Q1", "Q2", "MIPROC"]
 
 # The 5 global-evaluation rubrics that share the dominant PC1 factor (the empirical halo /
 # redundancy set — NOT one official construct). "WARMTH_RUBRICS" is the historical code name,
@@ -174,6 +177,9 @@ LOWER_IS_BETTER = {
     "MICI_BehaviorTotal", "MICI_OverPraise", "MICI_AdviseNoPermission", "MICI_Confront",
     "MICI_Warn", "MICI_Direct", "MICI_Judge",
     "PCT_SustainTalk_prop",
+    # MIPROC: the MI-inconsistent therapist-code rates and patient sustain-talk share the valence.
+    "MIPROC_MIInconsistentRate", "MIPROC_TH_PRA_rate", "MIPROC_TH_PERS_rate",
+    "MIPROC_TH_CONF_rate", "MIPROC_PT_ST_prop",
 }
 
 
@@ -201,6 +207,9 @@ DISPLAY_NAMES = {
     "MI-SAT": "MI-SAT (MI Satisfaction)", "MITI": "MITI (MI Integrity)",
     # Standalone questionnaires of their own (NOT MITI-derived).
     "PCT": "PCT (Patient Change-Talk)", "MICI": "MICI (MI-Inconsistency)",
+    # Utterance-level coder: its headline column is % complex reflections from its OWN coding pass
+    # (not the MITI count rubric), hence the distinct "(MI process coder)" tag.
+    "MIPROC": "MIPROC %CR (MI process coder)",
     # Derived MITI-proficiency ratios (computed FROM the MITI behavior counts → tagged "(MITI)").
     "R:Q": "Reflection:Question (MITI)", "%CR": "% Complex Reflections (MITI)",
     "%MICO": "% MI-Consistent (MITI)",

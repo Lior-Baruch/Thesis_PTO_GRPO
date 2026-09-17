@@ -8,7 +8,9 @@ implement (PTO, GRPO, K-turn look-ahead, MCL, `EXPERIMENT_NAME` schemes) are spe
 ```
 code/
 ├── system_prompts_builder.py   V3 patient prompts — THE canonical copy (see "Canonical copies")
-├── questionnaires.py           V5 oracle rubrics — JSON schema, 8 instruments incl. PCT + MICI
+├── questionnaires.py           V5 oracle rubrics — JSON schema, 8 instruments incl. PCT + MICI, + the
+│                               utterance-level MIPROC process coder (id 10; numbered transcript, arrays
+│                               pinned to the utterance counts; eval-only, never a training reward)
 ├── roles.py                    which model plays patient / oracle / judge + the arm-naming contract
 ├── _shared/                    cross-method modules — BOTH trainers import these
 ├── GRPO_Exp3/                  train_GRPO_Iterative.ipynb + grpo_trainer.py

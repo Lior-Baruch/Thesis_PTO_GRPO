@@ -101,9 +101,14 @@ from .faithfulness import faithfulness_fig                             # noqa: F
 from .crossgen import crossgen_fig                                     # noqa: F401
 from .replication import shape_fig, sd_fig                             # noqa: F401
 from .instruments import wai_fig, hetero_fig                           # noqa: F401
+from .text import (  # noqa: F401
+    repertoire_occupancy_fig, learned_unlearned_fig, drift_fig, diversity_fig, levels_fig,
+    k_text_forest, profile_fig,
+)
+from .process import yield_fig, ct_trajectory_fig, transition_heatmap, code_mix_fig   # noqa: F401
 # The promoted modules are also reachable as submodules (``plotting.lookahead.K_STYLE`` etc.).
 from . import (lookahead, compute, tails, dispersion, faithfulness, crossgen,   # noqa: F401
-               replication, instruments)
+               replication, instruments, text, process)
 
 __all__ = [
     # style helpers (from plotting_style)
@@ -150,7 +155,12 @@ __all__ = [
     "shape_fig", "sd_fig",
     # instruments (WAI-SR subscale gains, heterogeneity grid)
     "wai_fig", "hetero_fig",
+    # text (embedding + judge-free text evals)
+    "repertoire_occupancy_fig", "learned_unlearned_fig", "drift_fig", "diversity_fig", "levels_fig",
+    "k_text_forest", "profile_fig",
+    # process (utterance-level MI process coding)
+    "yield_fig", "ct_trajectory_fig", "transition_heatmap", "code_mix_fig",
     # the promoted plotting submodules (K_STYLE lives on each; not re-exported here — see docstring)
     "lookahead", "compute", "tails", "dispersion", "faithfulness", "crossgen", "replication",
-    "instruments",
+    "instruments", "text", "process",
 ]

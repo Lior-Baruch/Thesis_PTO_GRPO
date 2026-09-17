@@ -351,6 +351,17 @@ vendor dashboard before quoting any figure.**
 
 **The experiment is data-complete. Everything below is analysis and write-up, not spend on training.**
 
+**0. NEW (2026-09-17) — two text-level result families landed ahead of the P1 refactor**, so the
+paper can carry MI *process* rather than only scores: `lookahead/text` (judge-free embedding
+repertoire / drift / diversity / responsiveness / patient side, all four arms) and
+`lookahead/process` (the new utterance-level `MIPROC` coder — yields, responsiveness, within-session
+change talk, parity). MIPROC is scored on the **GRPO grid under the primary grader only** (2 × 11 ×
+96 = 2,112 conversations, $≈1.3); **the held-out (claude-haiku-4-5) sweep is not run yet** — the
+Message-Batches submission (≈ $4.6 at the 50 % batch rate; ≈ 2,112 calls) needs Lior to launch it:
+`python <scratch>/miproc_sweep.py submit --go`, then `wait`, then `collect`, then re-render
+`lookahead/process`. Until then every `process/` number is single-grader. Read
+`Exp3_PTO_GRPO/eda/results/lookahead/SUMMARY.md` §10–§11 before touching the paper.
+
 **1. ✅ DONE (2026-08-25) — the five `results/<top>/SUMMARY.md` are rewritten**, along with
 `LIMITATIONS.md`, `METRICS_REFERENCE.md`, and the tree-wide censoring purge described above.
 What remains here is the **P1 draft's own open items**, listed in its README.

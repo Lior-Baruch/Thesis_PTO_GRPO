@@ -154,9 +154,26 @@ from .instruments import (  # noqa: E402
     instruments_numbers,
 )
 
+# text — embedding + judge-free text evals on the eval conversations (lookahead/text)
+from .text import (  # noqa: E402
+    TEXT_K_METRICS, TEXT_METRIC_LABELS, PROFILE_FEATURES, load_utterances, embed_utterances,
+    repertoire_fit, repertoire_assign, repertoire_occupancy, repertoire_by_state, repertoire_labels,
+    learned_unlearned, repertoire_stability, state_centroids, drift_by_state, drift_cosines,
+    update_alignment, per_conv_metrics, diversity_by_state, template_similarity_by_turn,
+    session_profile, profile_per_conv, profile_kcontrast, to_scores_long, echo_validation, utterance_features,
+    pooled_rho, state_table, text_numbers,
+)
+
+# process — utterance-level MI process coding (MIPROC): yields, responsiveness, trajectories, parity
+from .process import (  # noqa: E402
+    TH_CODES, PT_CODES, PROCESS_K_METRICS, PROCESS_METRIC_LABELS, PROCESS_FAMILIES,
+    load_miproc, conversation_metrics, utterance_long, transition_yield, responsiveness,
+    transition_matrix, ct_trajectory, parity, parity_pooled, process_numbers,
+)
+
 from . import (plotting, data, stats, behavior, training, pref, exports, reliability,
                compute, lookahead, transfer, tails, dispersion, faithfulness, crossgen,
-               replication, instruments)  # noqa: E402,F401
+               replication, instruments, text, process)  # noqa: E402,F401
 figures = plots = plotting              # notebooks: figures.set_style / plots.trajectory_grid
 # Register the plotting aliases as importable submodules too, so ``from eda_analysis.figures import X``
 # resolves — not only attribute access.
@@ -242,6 +259,17 @@ __all__ = [
     "instrument_frames_by_judge", "endpoints", "matched_endpoints",
     "wai_subscale_parity", "wai_subscales", "wai_kcontrast", "wai_fig_data", "pct_kcontrast",
     "q2_items", "hetero_kcontrast", "hetero_ceiling", "instruments_numbers",
+    # text — embedding + judge-free text evals on the eval conversations
+    "TEXT_K_METRICS", "TEXT_METRIC_LABELS", "PROFILE_FEATURES", "load_utterances", "embed_utterances",
+    "repertoire_fit", "repertoire_assign", "repertoire_occupancy", "repertoire_by_state",
+    "repertoire_labels", "learned_unlearned", "repertoire_stability", "state_centroids",
+    "drift_by_state", "drift_cosines", "update_alignment", "per_conv_metrics", "diversity_by_state",
+    "template_similarity_by_turn", "session_profile", "profile_per_conv", "profile_kcontrast",
+    "to_scores_long", "echo_validation", "pooled_rho", "state_table", "text_numbers", "utterance_features", "text",
+    # process — utterance-level MI process coding (MIPROC)
+    "TH_CODES", "PT_CODES", "PROCESS_K_METRICS", "PROCESS_METRIC_LABELS", "PROCESS_FAMILIES",
+    "load_miproc", "conversation_metrics", "utterance_long", "transition_yield", "responsiveness",
+    "transition_matrix", "ct_trajectory", "parity", "parity_pooled", "process_numbers", "process",
     "plotting", "data", "figures", "plots", "stats", "behavior", "training", "pref",
     "reliability", "compute",
     "lookahead", "transfer", "tails", "dispersion", "faithfulness", "crossgen", "replication",

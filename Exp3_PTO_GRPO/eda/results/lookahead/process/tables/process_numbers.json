@@ -1,0 +1,312 @@
+{
+ "_family": "lookahead/process",
+ "_name": "process_numbers",
+ "_judge": null,
+ "numbers": {
+  "levels.gpt-4o-mini.GRPO_LA0.ct_prop.base": {
+   "value": 0.4605,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.ct_prop.final": {
+   "value": 0.5276,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.mi_incons_rate.base": {
+   "value": 0.233,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.mi_incons_rate.final": {
+   "value": 0.4633,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.th_PRA_rate.base": {
+   "value": 0.0307,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.th_PRA_rate.final": {
+   "value": 0.4068,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.th_OQ_rate.base": {
+   "value": 0.0959,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.th_OQ_rate.final": {
+   "value": 0.0,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.rtoq.base": {
+   "value": 1.0163,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.rtoq.final": {
+   "value": 0.0,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.ct_after_q.base": {
+   "value": 0.398,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.ct_after_q.final": {
+   "value": 0.0,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.refl_after_ct.base": {
+   "value": 0.1223,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.refl_after_ct.final": {
+   "value": 0.0031,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.reached_ct.base": {
+   "value": 0.7396,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA0.reached_ct.final": {
+   "value": 0.8646,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.ct_prop.base": {
+   "value": 0.4353,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.ct_prop.final": {
+   "value": 0.6834,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.mi_incons_rate.base": {
+   "value": 0.2625,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.mi_incons_rate.final": {
+   "value": 0.3316,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.th_PRA_rate.base": {
+   "value": 0.0513,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.th_PRA_rate.final": {
+   "value": 0.0531,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.th_OQ_rate.base": {
+   "value": 0.0785,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.th_OQ_rate.final": {
+   "value": 0.0105,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.rtoq.base": {
+   "value": 2.3174,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.rtoq.final": {
+   "value": 2.875,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.ct_after_q.base": {
+   "value": 0.4238,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.ct_after_q.final": {
+   "value": 0.5139,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.refl_after_ct.base": {
+   "value": 0.1534,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.refl_after_ct.final": {
+   "value": 0.2644,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.reached_ct.base": {
+   "value": 0.7083,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.GRPO_LA5.reached_ct.final": {
+   "value": 0.9167,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.CQ.p_ct.final": {
+   "value": 0.0,
+   "source": "transition_yield",
+   "note": "n = 1 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.SR.p_ct.final": {
+   "value": 0.0833,
+   "source": "transition_yield",
+   "note": "n = 72 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.CR.p_ct.final": {
+   "value": 0.0952,
+   "source": "transition_yield",
+   "note": "n = 21 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.AF.p_ct.final": {
+   "value": 0.7294,
+   "source": "transition_yield",
+   "note": "n = 170 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.PRA.p_ct.final": {
+   "value": 0.5824,
+   "source": "transition_yield",
+   "note": "n = 467 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.GI.p_ct.final": {
+   "value": 0.5387,
+   "source": "transition_yield",
+   "note": "n = 284 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.PERS.p_ct.final": {
+   "value": 0.3462,
+   "source": "transition_yield",
+   "note": "n = 78 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.SEEK.p_ct.final": {
+   "value": 0.75,
+   "source": "transition_yield",
+   "note": "n = 4 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.CONF.p_ct.final": {
+   "value": 0.0,
+   "source": "transition_yield",
+   "note": "n = 1 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA0.OTH.p_ct.final": {
+   "value": 0.0,
+   "source": "transition_yield",
+   "note": "n = 1 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.OQ.p_ct.final": {
+   "value": 0.6923,
+   "source": "transition_yield",
+   "note": "n = 13 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.CQ.p_ct.final": {
+   "value": 0.0,
+   "source": "transition_yield",
+   "note": "n = 3 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.SR.p_ct.final": {
+   "value": 0.4035,
+   "source": "transition_yield",
+   "note": "n = 57 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.CR.p_ct.final": {
+   "value": 0.8535,
+   "source": "transition_yield",
+   "note": "n = 389 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.AF.p_ct.final": {
+   "value": 0.9816,
+   "source": "transition_yield",
+   "note": "n = 217 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.PRA.p_ct.final": {
+   "value": 0.7576,
+   "source": "transition_yield",
+   "note": "n = 66 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.GI.p_ct.final": {
+   "value": 0.7852,
+   "source": "transition_yield",
+   "note": "n = 256 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.PERS.p_ct.final": {
+   "value": 0.528,
+   "source": "transition_yield",
+   "note": "n = 428 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.GRPO_LA5.SEEK.p_ct.final": {
+   "value": 0.75,
+   "source": "transition_yield",
+   "note": "n = 4 turns, iteration 10"
+  },
+  "parity.gpt-4o-mini.MITI.B1_GI.rho_pooled": {
+   "value": 0.4264,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.MITI.B2_Persuade.rho_pooled": {
+   "value": 0.3155,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.MITI.B3_Q.rho_pooled": {
+   "value": 0.1927,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.MITI.B4_SR.rho_pooled": {
+   "value": 0.2809,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.MITI.B5_CR.rho_pooled": {
+   "value": 0.2158,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.MITI.B6_AF.rho_pooled": {
+   "value": 0.2046,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.MITI.B7_Seek.rho_pooled": {
+   "value": 0.0193,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.PCT.PCT_ChangeTalk.rho_pooled": {
+   "value": 0.8811,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.PCT.PCT_Neutral.rho_pooled": {
+   "value": 0.1719,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.gpt-4o-mini.PCT.PCT_SustainTalk.rho_pooled": {
+   "value": 0.8976,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  }
+ }
+}

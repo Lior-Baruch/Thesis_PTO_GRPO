@@ -47,7 +47,7 @@ import pandas as pd
 FAMILIES: Dict[str, List[str]] = {
     "arms":        ["outcomes", "questionnaires", "validity", "heterogeneity",
                     "training", "preference", "stats"],
-    "lookahead":   ["reward", "transfer", "behaviour", "mechanism", "replication"],
+    "lookahead":   ["reward", "transfer", "behaviour", "mechanism", "replication", "text", "process"],
     "method":      ["contrast"],
     "compute":     ["cost"],
     "measurement": ["validity"],

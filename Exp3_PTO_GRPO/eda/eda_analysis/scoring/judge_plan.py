@@ -128,7 +128,8 @@ def check_rubric_parity(questionnaire_names: Optional[Sequence[str]] = None) -> 
     name_to_qid = {"Q1": QuestionnaireID.Q1, "Q2": QuestionnaireID.Q2,
                    "WAI-SR": QuestionnaireID.WAI_SR, "CSQ-8": QuestionnaireID.CSQ8,
                    "MI-SAT": QuestionnaireID.MI_SAT, "MITI": QuestionnaireID.MITI,
-                   "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI}
+                   "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI,
+                   "MIPROC": QuestionnaireID.MIPROC}
 
     rows = []
     for name in names:
@@ -201,7 +202,8 @@ def prefix_report(questionnaire_names: Optional[Sequence[str]] = None,
     name_to_qid = {"Q1": QuestionnaireID.Q1, "Q2": QuestionnaireID.Q2,
                    "WAI-SR": QuestionnaireID.WAI_SR, "CSQ-8": QuestionnaireID.CSQ8,
                    "MI-SAT": QuestionnaireID.MI_SAT, "MITI": QuestionnaireID.MITI,
-                   "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI}
+                   "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI,
+                   "MIPROC": QuestionnaireID.MIPROC}
     conv_a = _DUMMY_CONV
     conv_b = "[THERAPIST] Good morning, what brings you in today?\n[PATIENT] My doctor sent me.\n"
 

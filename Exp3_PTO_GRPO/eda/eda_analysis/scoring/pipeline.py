@@ -29,7 +29,8 @@ try:
         MITI_GLOBAL_LABELS, MITI_BEHAVIOR_LABELS,
         PCT_GLOBAL_LABELS, PCT_BEHAVIOR_LABELS,
         MICI_GLOBAL_LABELS, MICI_BEHAVIOR_LABELS,
-        _count_therapist_utterances,
+        MIPROC_TH_CODES, MIPROC_PT_CODES,
+        _count_therapist_utterances, _count_patient_utterances,
     )
     EVAL_CODE_AVAILABLE = True
 except ImportError:
@@ -56,7 +57,7 @@ async def call_openai_json(
             response = await client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=temperature, seed=42, max_tokens=512,
+                temperature=temperature, seed=42, max_tokens=1024,
                 response_format={
                     "type": "json_schema",
                     "json_schema": {"name": schema_name, "schema": schema, "strict": True},
@@ -144,12 +145,56 @@ if EVAL_CODE_AVAILABLE:
         row["MICI_OverPraiseRate"] = float(op / n_th_turns) if (n_th_turns and not pd.isna(op)) else np.nan
         return row
 
+    def _build_miproc_row(scores: dict) -> dict:
+        """MIPROC (MI process coder): per-code counts + rates for both speakers, the derived
+        MITI-style proficiency ratios, and the raw code strings as an audit payload.
+
+        Column order: ``MIPROC_NTh, MIPROC_NPt`` → per-therapist-code ``MIPROC_TH_<c>`` (count)
+        and ``MIPROC_TH_<c>_rate`` (÷ n_th) → per-patient-code ``MIPROC_PT_<c>`` and
+        ``MIPROC_PT_<c>_prop`` (÷ n_pt) → derived ``PctCR`` = CR/(SR+CR), ``RtoQ`` = (SR+CR)/(OQ+CQ),
+        ``PctOQ`` = OQ/(OQ+CQ), ``ChangeProp`` = CT/(CT+ST), ``MIInconsistentRate`` =
+        (PRA+PERS+CONF)/n_th → LAST the ``"|"``-joined code strings ``MIPROC_ThCodes`` /
+        ``MIPROC_PtCodes``.
+
+        ⚠ Every ratio defaults to ``0.0`` on a zero denominator, NEVER NaN: the writers
+        (``_process`` here, ``run_judge_scoring``, ``collect_batches``) discard any row with a
+        NaN and retry it forever, so a conversation with no reflections would otherwise never land.
+        The empty-string payload uses a ``"-"`` sentinel for the same reason — an empty CSV cell
+        reads back as NaN.
+        """
+        th = list(scores.get("MIPROC_TherapistCodes") or [])
+        pt = list(scores.get("MIPROC_PatientCodes") or [])
+        n_th, n_pt = len(th), len(pt)
+
+        def _ratio(num, den) -> float:
+            return float(num) / float(den) if den else 0.0
+
+        row: dict = {"MIPROC_NTh": n_th, "MIPROC_NPt": n_pt}
+        th_n = {c: th.count(c) for c in MIPROC_TH_CODES}
+        for c in MIPROC_TH_CODES:
+            row[f"MIPROC_TH_{c}"] = th_n[c]
+            row[f"MIPROC_TH_{c}_rate"] = _ratio(th_n[c], n_th)
+        pt_n = {c: pt.count(c) for c in MIPROC_PT_CODES}
+        for c in MIPROC_PT_CODES:
+            row[f"MIPROC_PT_{c}"] = pt_n[c]
+            row[f"MIPROC_PT_{c}_prop"] = _ratio(pt_n[c], n_pt)
+        sr, cr, oq, cq = th_n["SR"], th_n["CR"], th_n["OQ"], th_n["CQ"]
+        row["MIPROC_PctCR"] = _ratio(cr, sr + cr)
+        row["MIPROC_RtoQ"] = _ratio(sr + cr, oq + cq)
+        row["MIPROC_PctOQ"] = _ratio(oq, oq + cq)
+        row["MIPROC_ChangeProp"] = _ratio(pt_n["CT"], pt_n["CT"] + pt_n["ST"])
+        row["MIPROC_MIInconsistentRate"] = _ratio(th_n["PRA"] + th_n["PERS"] + th_n["CONF"], n_th)
+        row["MIPROC_ThCodes"] = "|".join(th) or "-"
+        row["MIPROC_PtCodes"] = "|".join(pt) or "-"
+        return row
+
     def _build_row(qid_enum, scores: dict, conv_str: str = "") -> pd.DataFrame:
         """Dispatch to the right row builder based on questionnaire id.
 
         Returns a single-row DataFrame for any questionnaire (MITI's builder
         already returns a DataFrame; simple/WAI return dicts wrapped here).
-        ``conv_str`` is used only by MICI to compute per-therapist-turn rates.
+        ``conv_str`` is used only by MICI to compute per-therapist-turn rates
+        (MIPROC's denominators are the lengths of its own code arrays).
         """
         if qid_enum in _SIMPLE_ROW_SPECS:
             labels, mean_col, total_col = _SIMPLE_ROW_SPECS[qid_enum]
@@ -162,6 +207,8 @@ if EVAL_CODE_AVAILABLE:
             return pd.DataFrame([_build_pct_row(scores)])
         if qid_enum == QuestionnaireID.MICI:
             return pd.DataFrame([_build_mici_row(scores, _count_therapist_utterances(conv_str))])
+        if qid_enum == QuestionnaireID.MIPROC:
+            return pd.DataFrame([_build_miproc_row(scores)])
         # Unknown questionnaire — return raw scores dict as a single row.
         return pd.DataFrame([scores])
 
@@ -192,7 +239,11 @@ if EVAL_CODE_AVAILABLE:
                 model=model, temperature=eval_temperature,
             )
             result = parse_json_response(
-                response_content=resp, questionnaire_id=questionnaire_id, labels=ed["labels"]
+                response_content=resp, questionnaire_id=questionnaire_id, labels=ed["labels"],
+                # MIPROC length-validates its code arrays against the utterance counts;
+                # every other rubric ignores the kwarg.
+                expected_counts=(_count_therapist_utterances(conv_str),
+                                 _count_patient_utterances(conv_str)),
             )
             return _build_row(qid_enum, result["scores_dict"], conv_str)
         except Exception as e:
@@ -215,6 +266,7 @@ if EVAL_CODE_AVAILABLE:
             ("Q2", QuestionnaireID.Q2),
             ("PCT", QuestionnaireID.PCT),
             ("MICI", QuestionnaireID.MICI),
+            ("MIPROC", QuestionnaireID.MIPROC),
         ]
         return [
             {

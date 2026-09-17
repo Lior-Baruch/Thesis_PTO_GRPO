@@ -85,6 +85,7 @@ EVAL_QUESTIONNAIRE_DIRS = {
     "Q2":     "Q2",
     "PCT":    "PCT",     # Patient Change Talk (MI mechanism/outcome)
     "MICI":   "MICI",    # MI-Inconsistent therapist behaviors (negative-valence)
+    "MIPROC": "MIPROC",  # MI process coder: one MITI/MISC code per utterance, both speakers
 }
 
 

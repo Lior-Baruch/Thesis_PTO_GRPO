@@ -169,6 +169,12 @@ is **not** currently matched (live cell 1: GRPO 6, PTO 8) — it is volatile, so
 Reward (training) = **Q1 + Q2 only**, matching the ICLR look-ahead paper.
 Reward (eval) = **all 8 instruments** — the 6 MI questionnaires (Q1, Q2, WAI-SR, CSQ-8, MI-SAT,
 MITI) plus `PCT` (patient change-talk) and `MICI` (MI-inconsistent behaviour, lower = better).
+A ninth, **`MIPROC`** (id 10), is a *process coder*, not an outcome instrument: one MITI/MISC-style
+code per therapist utterance (`OQ CQ SR CR AF PRA GI PERS SEEK CONF OTH`) and per patient utterance
+(`CT ST NEU`), in order, stored as pipe-joined strings beside per-code counts. It feeds
+`lookahead/process` (yields, responsiveness, within-session change talk) and is scored where the
+EDA needs it (GRPO arms first), never used as a reward. Definitions: `results/METRICS_REFERENCE.md`
+§1 + §3e.
 
 **Shared infrastructure.** Both trainers import from
 [Exp3_PTO_GRPO/code/_shared/](Exp3_PTO_GRPO/code/_shared/) (runtime, model, convs, reward,
@@ -392,7 +398,7 @@ Exp3_PTO_GRPO/
 │                          conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
 ├── eda/           the analysis. eda_analysis/ package + notebooks/<top>/<sub>.ipynb (one per results
 │                  FAMILY: arms/{outcomes,questionnaires,validity,heterogeneity,training,preference,stats},
-│                  lookahead/{reward,transfer,behaviour,mechanism,replication}, method/contrast,
+│                  lookahead/{reward,transfer,behaviour,mechanism,replication,text,process}, method/contrast,
 │                  compute/cost, measurement/validity) + notebooks/scoring/ (the PAID side) + tools/
 │                  (render_results.py, consolidate_scores.py, score_crossgen.py, strip_notebook_outputs.py)
 │                  + results/. Artifacts nest results/<top>/<sub>/{figures,tables}/[<judge>/][<group>/]

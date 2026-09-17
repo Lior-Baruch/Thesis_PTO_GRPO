@@ -9,6 +9,52 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-09-17) — two text-level families + the `MIPROC` utterance-level coder (pre-refactor evals for P1).**
+
+Lior's brief: before refactoring the GRPO-with-look-ahead paper toward MI and results, run the
+evals that read the transcripts as *content* — embeddings for what the policies learned/unlearned,
+and MI process rather than scores. Landed as two judge-invariant families under `lookahead/`:
+
+- **`lookahead/text`** (`eda_analysis/text.py`, `plotting/text.py`, `notebooks/lookahead/text.ipynb`;
+  judge-free, all four arms, $0): every eval utterance embedded with MiniLM into the training-side
+  probe's space (`eda/.emb_cache/eval/`). Base-repertoire k-means (k = 30, half-persona split for an
+  out-of-sample novelty threshold) → occupancy per state, learned/unlearned cluster cards with
+  exemplars, stability over k × seed; centroid drift + `cos_K0_K5` / `cos_PTO_GRPO` + alignment with
+  `pref.direction_by_arm`; template similarity / persona variance share / near-duplicate rate /
+  distinct-n; per-conversation responsiveness (`echo`, `lex_recall_prev`, `patient_echo`) + patient
+  side (`pt_turn_len`, `pt_q_per_turn`, `pt_disengage_rate`) with the persona-paired K contrast
+  through `lookahead.paired_k_frames`; within-session profiles by turn bin. The echo/recall proxies
+  were cross-checked against MITI reflections under both graders and **failed** (pooled ρ −0.09 to
+  +0.02) — kept as responsiveness measures, labelled as such, never as reflection channels.
+- **`MIPROC` (id 10)** in `code/questionnaires.py` + the scoring layer (`pipeline`, `judge`,
+  `judge_batch`, `judge_plan`, `registry`, `constants`): one MITI/MISC-style dominant-function code
+  per therapist utterance (`OQ CQ SR CR AF PRA GI PERS SEEK CONF OTH`; `PRA` = non-specific praise,
+  split from the MITI-defined `AF`) and one valence code per patient utterance (`CT ST NEU`), arrays
+  pinned to the utterance counts, transcript numbered `[THERAPIST #k]` for alignment, opener pinned
+  to `OQ`. Stored as pipe-joined strings beside per-code counts/rates; every derived ratio 0.0 on a
+  zero denominator (the `_process` NaN gate). Parity gate green; 6-call validation clean (arrays
+  always the right length). Swept on the **GRPO grid, primary grader**: 2 × 11 × 96 = 2,112
+  conversations in 61 s, 0 errors, ≈ $1.3. The held-out Message-Batches submission (≈ $4.6) was
+  **not launched** — the session's tooling refused the paid submission; Lior runs it.
+- **`lookahead/process`** (`eda_analysis/process.py`, `plotting/process.py`,
+  `notebooks/lookahead/process.ipynb`): code mix + K contrast on every process metric, yield
+  P(CT | therapist code) with Wilson intervals, responsiveness P(therapist code | patient code),
+  within-session change-talk trajectory, time to first change talk, parity vs MITI/PCT. Renders one
+  table/figure per grader that has MIPROC on disk. Headline (primary grader): K=0 learns `PRA`
+  (0.03 → 0.41 of turns), K=5 learns `CR` (0.02 → 0.23); a K=5 complex reflection is followed by
+  change talk 85 % of the time; after change talk K=5 reflects 26 % vs K=0 0.3 %; after sustain
+  talk K=0 praises 32 % vs K=5 1.6 %. Parity: patient codes reproduce PCT (ρ 0.88/0.90), therapist
+  codes do not reproduce MITI counts (ρ 0.02–0.43) — a one-code-per-turn vs count-every-function
+  construct difference, documented in `METRICS_REFERENCE.md` §3e.
+
+Registered in `config.FAMILIES`, `_selfcheck._SUBMODULES`, both `__init__` re-export blocks.
+Renders: text 327 s cold / 138 s warm, process 56 s; parquet fold rebuilt (32 files, 78,528 rows);
+`_selfcheck` 24 pass, `score coverage` WARNs as designed (MIPROC on 22 of 44 states), `doc drift`'s
+only failures are pre-existing unit-suffixed arithmetic in `Exp4_OpenStack/CLAUDE.md`. Narrative in
+`results/lookahead/SUMMARY.md` §10–§11; navigation rows in `results/README.md`.
+
+---
+
 **Landed (2026-08-26, second pass) — GRPO-only companions + the levels redesign (the P1 rescope).**
 
 Lior's instruction: the GRPO paper must carry no PTO arms and should show scores, not K5−K0

@@ -158,7 +158,7 @@ async def call_openai_json_seeded(client, prompt: str, schema: dict, *, schema_n
             response = await client.chat.completions.create(
                 model=model,
                 messages=[{"role": "user", "content": prompt}],
-                temperature=temperature, seed=seed, max_tokens=512,
+                temperature=temperature, seed=seed, max_tokens=1024,
                 response_format={
                     "type": "json_schema",
                     "json_schema": {"name": schema_name, "schema": schema, "strict": True},
@@ -265,8 +265,12 @@ async def evaluate_conversation_with_judge(client, judge: JudgeSpec, conversatio
             resp = await call_anthropic_json(client, ed["prompt"], ed["schema"],
                                              model=judge.model, max_tokens=judge.max_tokens,
                                              thinking=judge.thinking)
-        result = _pipeline.parse_json_response(response_content=resp,
-                                               questionnaire_id=questionnaire_id, labels=ed["labels"])
+        result = _pipeline.parse_json_response(
+            response_content=resp, questionnaire_id=questionnaire_id, labels=ed["labels"],
+            # MIPROC: Claude cannot enforce minItems/maxItems server-side, so the code-array
+            # lengths are re-validated here against the utterance counts (other rubrics ignore it).
+            expected_counts=(_pipeline._count_therapist_utterances(conv_str),
+                             _pipeline._count_patient_utterances(conv_str)))
         return _pipeline._build_row(qid_enum, result["scores_dict"], conv_str)
     except Exception as e:
         print(f"  [judge_scoring] error ({judge.tag}, Q{qid_enum.value}): {e}")
@@ -307,7 +311,8 @@ async def run_judge_scoring(judge: JudgeSpec, combined_data: pd.DataFrame,
     name_to_qid = {"Q1": QuestionnaireID.Q1, "Q2": QuestionnaireID.Q2,
                    "WAI-SR": QuestionnaireID.WAI_SR, "CSQ-8": QuestionnaireID.CSQ8,
                    "MI-SAT": QuestionnaireID.MI_SAT, "MITI": QuestionnaireID.MITI,
-                   "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI}
+                   "PCT": QuestionnaireID.PCT, "MICI": QuestionnaireID.MICI,
+                   "MIPROC": QuestionnaireID.MIPROC}
 
     client = init_judge_client(judge)
     sem = asyncio.Semaphore(concurrency)
@@ -361,6 +366,7 @@ JUDGE_METRIC_COLS = {
     "WAI-SR": ("WAI_SR", "WAI_TotalMean"), "CSQ-8": ("CSQ8", "CSQ8_Mean"),
     "MI-SAT": ("MI_SAT", "MI_Mean"), "MITI": ("MITI", "MITI_GlobalMean"),
     "PCT": ("PCT", "PCT_ChangeProp"), "MICI": ("MICI", "MICI_Rate"),
+    "MIPROC": ("MIPROC", "MIPROC_PctCR"),   # utterance-level coder; headline = % complex reflections
 }
 
 
