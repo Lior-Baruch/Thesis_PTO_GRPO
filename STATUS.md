@@ -355,13 +355,13 @@ vendor dashboard before quoting any figure.**
 paper can carry MI *process* rather than only scores: `lookahead/text` (judge-free embedding
 repertoire / drift / diversity / responsiveness / patient side, all four arms) and
 `lookahead/process` (the new utterance-level `MIPROC` coder — yields, responsiveness, within-session
-change talk, parity). MIPROC is scored on the **GRPO grid under the primary grader only** (2 × 11 ×
-96 = 2,112 conversations, $≈1.3); **the held-out (claude-haiku-4-5) sweep is not run yet** — the
-Message-Batches submission (≈ $4.6 at the 50 % batch rate; ≈ 2,112 calls) needs Lior to launch it
-from `Exp3_PTO_GRPO/eda/`: `python tools/score_miproc.py submit --go`, then `wait`, then `collect`,
-then `python tools/consolidate_scores.py build` and `python tools/render_results.py --family
-lookahead/process`. Until then every `process/` number is single-grader. Read
-`Exp3_PTO_GRPO/eda/results/lookahead/SUMMARY.md` §10–§11 before touching the paper.
+change talk, parity). MIPROC is scored on the **GRPO grid under both graders** (2 × 11 × 96 = 2,112
+conversations each; primary ≈ $1.3 live, held-out ≈ $4.6 via Message Batches, 3 batch rows that came
+back one code short were re-scored on the live path). The PTO arms are unscored on MIPROC
+(`python tools/score_miproc.py` with `MIPROC_ARM_RE` widened, ≈ the same cost again) — `_selfcheck`'s
+`score coverage` WARNs about that by design. Read `Exp3_PTO_GRPO/eda/results/lookahead/SUMMARY.md`
+§10–§11 before touching the paper: the two graders agree that K=0 learns praise and K=5 learns complex
+reflections + reflects change talk, and disagree on how much K=5 praises.
 
 **1. ✅ DONE (2026-08-25) — the five `results/<top>/SUMMARY.md` are rewritten**, along with
 `LIMITATIONS.md`, `METRICS_REFERENCE.md`, and the tree-wide censoring purge described above.

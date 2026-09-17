@@ -34,17 +34,22 @@ and MI process rather than scores. Landed as two judge-invariant families under 
   to `OQ`. Stored as pipe-joined strings beside per-code counts/rates; every derived ratio 0.0 on a
   zero denominator (the `_process` NaN gate). Parity gate green; 6-call validation clean (arrays
   always the right length). Swept on the **GRPO grid, primary grader**: 2 × 11 × 96 = 2,112
-  conversations in 61 s, 0 errors, ≈ $1.3. The held-out Message-Batches submission (≈ $4.6) was
-  **not launched** — the session's tooling refused the paid submission; Lior runs it.
+  conversations in 61 s, 0 errors, ≈ $1.3. The held-out Message-Batches sweep (claude-haiku-4-5,
+  ≈ $4.6) followed the same day on Lior's go-ahead: one batch of 2,112, ended in ~10 min, 2,109
+  parsed; 3 rows came back one patient code short and were re-scored on the live judge path
+  (`tools/score_miproc.py` is the durable entry point: plan / primary / submit / wait / collect).
 - **`lookahead/process`** (`eda_analysis/process.py`, `plotting/process.py`,
   `notebooks/lookahead/process.ipynb`): code mix + K contrast on every process metric, yield
   P(CT | therapist code) with Wilson intervals, responsiveness P(therapist code | patient code),
   within-session change-talk trajectory, time to first change talk, parity vs MITI/PCT. Renders one
-  table/figure per grader that has MIPROC on disk. Headline (primary grader): K=0 learns `PRA`
-  (0.03 → 0.41 of turns), K=5 learns `CR` (0.02 → 0.23); a K=5 complex reflection is followed by
-  change talk 85 % of the time; after change talk K=5 reflects 26 % vs K=0 0.3 %; after sustain
-  talk K=0 praises 32 % vs K=5 1.6 %. Parity: patient codes reproduce PCT (ρ 0.88/0.90), therapist
-  codes do not reproduce MITI counts (ρ 0.02–0.43) — a one-code-per-turn vs count-every-function
+  table/figure per grader that has MIPROC on disk. Headline (primary / held-out): K=0 learns `PRA`
+  (0.03 → 0.41 / 0.04 → 0.76 of turns), K=5 learns `CR` (0.02 → 0.23 / 0.24); a K=5 complex
+  reflection is followed by change talk 85 % / 89 % of the time; after change talk K=5 reflects
+  26 % on both vs K=0 0.3 % / 0.6 %; after sustain talk K=0 praises 32 % / 72 % vs K=5 1.6 % /
+  1.1 %. The graders disagree on how much K=5 praises (0.05 vs 0.20 of turns), so the
+  MI-inconsistent verdict is a K=5 win on the primary and mixed on the held-out judge. Parity:
+  patient codes reproduce PCT (ρ ≈ 0.9 on both), therapist codes reproduce MITI counts only partly
+  (primary ρ 0.02–0.43; held-out 0.10–0.73) — a one-code-per-turn vs count-every-function
   construct difference, documented in `METRICS_REFERENCE.md` §3e.
 
 Registered in `config.FAMILIES`, `_selfcheck._SUBMODULES`, both `__init__` re-export blocks.

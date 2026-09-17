@@ -1,5 +1,7 @@
+- **code_mix_claude-haiku-4-5** — [claude-haiku-4-5] The therapist's MIPROC code mix by iteration (stacked shares of policy turns), one panel per arm.
 - **code_mix_gpt-4o-mini** — [gpt-4o-mini] The therapist's MIPROC code mix by iteration (stacked shares of policy turns), one panel per arm.
 - **ct_trajectory** — Change-talk share by patient turn bin: each arm at its endpoint (K=0 solid, K=5 dashed) against the pooled base, one panel per grader.
+- **k_process_forest_claude-haiku-4-5** — [claude-haiku-4-5] Persona-paired dz of K=0 − K=5 on every process metric at each method's last matched iteration; lower-better metrics sign-flipped so a bar to the right always reads 'K=0 better'. Holm stars across iterations within (method, metric).
 - **k_process_forest_gpt-4o-mini** — [gpt-4o-mini] Persona-paired dz of K=0 − K=5 on every process metric at each method's last matched iteration; lower-better metrics sign-flipped so a bar to the right always reads 'K=0 better'. Holm stars across iterations within (method, metric).
 - **transition_endpoints** — Row-normalised therapist-code × next-patient-code contingency at each arm's endpoint, per grader; n per row on the y labels. The yield table in matrix form.
 - **yield** — P(next patient utterance = change talk | therapist code) at each arm's endpoint beside the pooled base, Wilson 95% intervals, one panel per grader; codes with fewer than 20 turns in a state are left blank.

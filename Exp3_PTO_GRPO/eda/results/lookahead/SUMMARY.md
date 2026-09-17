@@ -33,7 +33,7 @@ the modern grader; the SD/stability claim). **Two families added 2026-09-17** th
 as *content* rather than as scores: [`text/`](text/) (embedding-space repertoire, drift, diversity,
 responsiveness, patient side, within-session profiles — judge-free, all four arms; §10) and
 [`process/`](process/) (the utterance-level `MIPROC` coder — yields, responsiveness, within-session
-change talk, parity; GRPO arms, primary grader so far; §11).
+change talk, parity; GRPO arms, both graders; §11).
 
 **All four arms now run to iteration 10 and are fully scored by both graders** —
 4 arms × 11 model states = 44 states, and the held-out grid is complete at 44 × 8 × 96 = 33,792 cells
@@ -598,45 +598,64 @@ in GRPO K=0 is already at 0.62 of turns in the first two therapist turns and 0.8
 K=0 ramps from 0.04 to 0.35; both K=5 arms stay ≤ 0.16 in every bin. Questions per turn fall with
 session position in every trained arm (GRPO K=0 to ≈ 0 from turn 3), against a flat base.
 
-## 11. `process/` — what each therapist behaviour does to the patient (MIPROC, GRPO arms, primary grader)
+## 11. `process/` — what each therapist behaviour does to the patient (MIPROC, GRPO arms, both graders)
 
-*(Added 2026-09-17. Utterance-level codes exist for the GRPO arms under the primary grader only —
-the held-out sweep is pending — so nothing here has a cross-grader check yet; the same-grader
-parity check is the only validation. Sign `+ ⇒ K=0 higher`, Holm across iterations.)*
+*(Added 2026-09-17; held-out grader added the same day. Utterance-level codes exist for the GRPO
+arms under both graders — 2 × 11 × 96 = 2,112 conversations each — so every claim below is stated
+per grader and never averaged. Sign `+ ⇒ K=0 higher`, Holm across iterations. Primary =
+`gpt-4o-mini` (the training oracle), held-out = `claude-haiku-4-5`.)*
 
 **Code mix** ([`process_levels_gpt-4o-mini.md`](process/tables/process_levels_gpt-4o-mini.md),
-[`process/figures/code_mix_gpt-4o-mini.png`](process/figures/code_mix_gpt-4o-mini.png)). Both arms lose
-question-*turns* almost entirely (dominant-function `OQ` share 0.10 / 0.08 → 0.00 / 0.01 at iteration
-10; the `?` marks that survive sit at the end of long turns whose dominant function is something else —
-see the parity note). What replaces them differs by K: **K=0 learns non-specific praise** (`PRA` 0.03 →
-0.41 of turns; `AF` 0.03 → 0.20) and **K=5 learns complex reflections** (`CR` 0.02 → 0.23; `AF` 0.02 →
-0.15; `PRA` flat at 0.05), with a persuasion residue (`PERS` 0.21 → 0.28, K=5 higher at 6 of 10
-iterations — the "righting reflex" the paper already flags).
+[`process_levels_claude-haiku-4-5.md`](process/tables/process_levels_claude-haiku-4-5.md);
+[`process/figures/code_mix_gpt-4o-mini.png`](process/figures/code_mix_gpt-4o-mini.png),
+[`process/figures/code_mix_claude-haiku-4-5.png`](process/figures/code_mix_claude-haiku-4-5.png)).
+Both arms lose open-question *turns* (dominant-function `OQ` share, primary 0.10 / 0.08 → 0.00 / 0.01
+at iteration 10; held-out 0.18 / 0.17 → 0.00 / 0.03 — the held-out coder credits the K=5 endpoint with
+a few, K=5 higher at iterations 6–10). What replaces them differs by K, and both graders agree on the
+two headline moves: **K=0 learns non-specific praise** (`PRA` primary 0.03 → 0.41 of turns, held-out
+0.04 → **0.76**; K=0 higher at 2 / 5 of 10 iterations) and **K=5 learns complex reflections** (`CR`
+primary 0.02 → 0.23, held-out 0.02 → 0.24; K=5 higher at 6 / 5 of 10). The persuasion residue holds on
+both (`PERS` K=5 higher at 6 / 7 of 10). ⚠ **The graders disagree on how much K=5 praises**: the
+primary keeps K=5's `PRA` flat at 0.05, the held-out judge reads 0.20 of its endpoint turns as
+non-specific praise (and 0.40 of its turns as persuasion at iteration 5), so `mi_incons_rate` is a K=5
+win on the primary (K=5 lower at 6 of 10) but *mixed* on the held-out judge (K=0 higher at 8 and 10,
+K=5 higher at 3 and 5) — the same "look-ahead halves the drift rather than preventing it" reading the
+held-out MICI gives in §5, now at the utterance level.
 
 **Yield** ([`yield_gpt-4o-mini.md`](process/tables/yield_gpt-4o-mini.md),
+[`yield_claude-haiku-4-5.md`](process/tables/yield_claude-haiku-4-5.md),
 [`figures/yield.png`](process/figures/yield.png)). At iteration 10 a K=5 complex reflection is followed
-by patient change talk 85 % of the time (n = 389 turns); K=0's rare complex reflections 10 % (n = 21).
-Praise yields change talk 58 % of the time at K=0 (n = 467) — below the same policy's affirmation
-turns (0.73) and level with its information turns (0.54). Every therapist behaviour yields more change
-talk under K=5 than under K=0 (GI 0.79 vs 0.54, AF 0.98 vs 0.73, PERS 0.53 vs 0.35).
+by patient change talk 85 % (primary, n = 389 turns) / 89 % (held-out, n = 431) of the time; K=0's
+rare complex reflections 10 % / 9 % (n = 21 / 23). K=0's praise yields change talk 58 % / 49 % of the
+time (n = 467 / 813) — below or level with the same policy's information turns (0.54 / 0.71). The
+striking held-out row is K=5's praise: 97 % change talk (n = 299) — because, as the responsiveness table
+shows, K=5 praises *after change talk* and K=0 praises *after sustain talk* (`ct_after_pra` K=5 higher
+at 6 of 10 held-out iterations). Every therapist behaviour except persuasion yields more change talk
+under K=5 than under K=0 on both graders (GI 0.79 / 0.83 vs 0.54 / 0.71; AF 0.98 / 0.95 vs 0.73 /
+0.75).
 
-**Responsiveness — the cleanest MI-process contrast in the tree.** After the patient produces change
-talk, the K=5 endpoint reflects it 26 % of the time and the K=0 endpoint 0.3 % (`refl_after_ct`, K=5
-higher at 6 of 10 iterations); after sustain talk, the K=0 endpoint answers with praise 32 % of the time
-and K=5 1.6 % (`pra_after_st`, K=0 higher at iterations 8–10). Patient change talk is higher under K=5
-(`ct_prop` 0.68 vs 0.53 at the endpoint, K=5 higher at iterations 6–10; `reached_ct` 0.92 vs 0.87), and
-it *keeps rising* through the session under K=5 (0.85 CT share at patient turn 10+) where it falls back
-under K=0 (0.68 at turns 6–9 → 0.50 at 10+;
-[`ct_trajectory_gpt-4o-mini.md`](process/tables/ct_trajectory_gpt-4o-mini.md),
+**Responsiveness — the cleanest MI-process contrast in the tree, and it replicates.** After the
+patient produces change talk, the K=5 endpoint reflects it 26 % of the time on both graders and the K=0
+endpoint 0.3 % / 0.6 % (`refl_after_ct`, K=5 higher at 6 / 5 of 10 iterations); after sustain talk, the
+K=0 endpoint answers with praise 32 % (primary) / **72 %** (held-out) of the time and K=5 1.6 % / 1.1 %
+(`pra_after_st`, K=0 higher at iterations 8–10 / 5–10). Patient change talk is higher under K=5
+(`ct_prop` 0.68 / 0.72 vs 0.53 / 0.55 at the endpoint, K=5 higher at iterations 6–10 / 4–10;
+`reached_ct` 0.92 / 0.95 vs 0.87 / 0.89), and it *keeps rising* through the session under K=5 (0.85 /
+0.88 CT share at patient turn 10+) where it falls back under K=0 (0.68 / 0.62 at turns 6–9 → 0.50 /
+0.50 at 10+; [`ct_trajectory_gpt-4o-mini.md`](process/tables/ct_trajectory_gpt-4o-mini.md),
+[`ct_trajectory_claude-haiku-4-5.md`](process/tables/ct_trajectory_claude-haiku-4-5.md),
 [`figures/ct_trajectory.png`](process/figures/ct_trajectory.png)).
 
-**Parity** ([`parity_pooled_gpt-4o-mini.md`](process/tables/parity_pooled_gpt-4o-mini.md)). The
-per-utterance patient codes reproduce the conversation-level PCT counts (pooled ρ 0.88 CT, 0.90 ST). The
-therapist codes do **not** reproduce MITI's behaviour counts (ρ 0.02–0.43; MITI counts 5.5 questions
-per conversation, the dominant-function coder 1.7). This is a construct difference, not a bug — one
-code per turn vs. a count of every question-function in a 900-character turn — and it is why the
-paper's "K=5 asks more questions" (a `?`-count claim) and this family's "question-turns vanish in both
-arms" are both true. Quote each with its unit.
+**Parity** ([`parity_pooled_gpt-4o-mini.md`](process/tables/parity_pooled_gpt-4o-mini.md),
+[`parity_pooled_claude-haiku-4-5.md`](process/tables/parity_pooled_claude-haiku-4-5.md)). The
+per-utterance patient codes reproduce each grader's own conversation-level PCT counts (pooled ρ 0.88 /
+0.92 CT, 0.90 / 0.94 ST). The therapist codes reproduce MITI's behaviour counts only partly: on the
+primary ρ 0.02–0.43 (MITI counts 5.5 questions per conversation, the dominant-function coder 1.7); on
+the held-out judge questions, information and persuasion agree (ρ 0.73 / 0.68 / 0.55) but reflections,
+affirmations and seeking do not (0.10–0.30). This is a construct difference, not a bug — one code per
+turn vs. a count of every function in a 900-character turn — and it is why the paper's "K=5 asks more
+questions" (a `?`-count claim) and this family's "open-question turns vanish in both arms" are both
+true. Quote each with its unit.
 
 ## 9. Caveats
 

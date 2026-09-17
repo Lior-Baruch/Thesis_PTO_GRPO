@@ -163,6 +163,166 @@
    "source": "process_levels",
    "note": "iteration 10"
   },
+  "levels.claude-haiku-4-5.GRPO_LA0.ct_prop.base": {
+   "value": 0.4807,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.ct_prop.final": {
+   "value": 0.5449,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.mi_incons_rate.base": {
+   "value": 0.1935,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.mi_incons_rate.final": {
+   "value": 0.795,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.th_PRA_rate.base": {
+   "value": 0.0358,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.th_PRA_rate.final": {
+   "value": 0.7617,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.th_OQ_rate.base": {
+   "value": 0.1815,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.th_OQ_rate.final": {
+   "value": 0.0,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.rtoq.base": {
+   "value": 0.2925,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.rtoq.final": {
+   "value": NaN,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.ct_after_q.base": {
+   "value": 0.4894,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.ct_after_q.final": {
+   "value": NaN,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.refl_after_ct.base": {
+   "value": 0.0365,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.refl_after_ct.final": {
+   "value": 0.0065,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.reached_ct.base": {
+   "value": 0.7292,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA0.reached_ct.final": {
+   "value": 0.8854,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.ct_prop.base": {
+   "value": 0.4448,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.ct_prop.final": {
+   "value": 0.7208,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.mi_incons_rate.base": {
+   "value": 0.2356,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.mi_incons_rate.final": {
+   "value": 0.4712,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.th_PRA_rate.base": {
+   "value": 0.0409,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.th_PRA_rate.final": {
+   "value": 0.2028,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.th_OQ_rate.base": {
+   "value": 0.1688,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.th_OQ_rate.final": {
+   "value": 0.0323,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.rtoq.base": {
+   "value": 0.5909,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.rtoq.final": {
+   "value": 4.9593,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.ct_after_q.base": {
+   "value": 0.3645,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.ct_after_q.final": {
+   "value": 0.437,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.refl_after_ct.base": {
+   "value": 0.0226,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.refl_after_ct.final": {
+   "value": 0.258,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.reached_ct.base": {
+   "value": 0.6979,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.GRPO_LA5.reached_ct.final": {
+   "value": 0.9479,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
   "yield.gpt-4o-mini.GRPO_LA0.CQ.p_ct.final": {
    "value": 0.0,
    "source": "transition_yield",
@@ -258,6 +418,86 @@
    "source": "transition_yield",
    "note": "n = 4 turns, iteration 10"
   },
+  "yield.claude-haiku-4-5.GRPO_LA0.CR.p_ct.final": {
+   "value": 0.087,
+   "source": "transition_yield",
+   "note": "n = 23 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA0.AF.p_ct.final": {
+   "value": 0.75,
+   "source": "transition_yield",
+   "note": "n = 12 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA0.PRA.p_ct.final": {
+   "value": 0.4859,
+   "source": "transition_yield",
+   "note": "n = 813 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA0.GI.p_ct.final": {
+   "value": 0.7094,
+   "source": "transition_yield",
+   "note": "n = 203 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA0.PERS.p_ct.final": {
+   "value": 0.4062,
+   "source": "transition_yield",
+   "note": "n = 32 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA0.SEEK.p_ct.final": {
+   "value": 0.375,
+   "source": "transition_yield",
+   "note": "n = 16 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.OQ.p_ct.final": {
+   "value": 0.5909,
+   "source": "transition_yield",
+   "note": "n = 44 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.CQ.p_ct.final": {
+   "value": 0.1429,
+   "source": "transition_yield",
+   "note": "n = 14 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.CR.p_ct.final": {
+   "value": 0.8886,
+   "source": "transition_yield",
+   "note": "n = 431 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.AF.p_ct.final": {
+   "value": 0.9487,
+   "source": "transition_yield",
+   "note": "n = 78 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.PRA.p_ct.final": {
+   "value": 0.9732,
+   "source": "transition_yield",
+   "note": "n = 299 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.GI.p_ct.final": {
+   "value": 0.8299,
+   "source": "transition_yield",
+   "note": "n = 194 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.PERS.p_ct.final": {
+   "value": 0.3725,
+   "source": "transition_yield",
+   "note": "n = 349 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.SEEK.p_ct.final": {
+   "value": 0.7273,
+   "source": "transition_yield",
+   "note": "n = 22 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.CONF.p_ct.final": {
+   "value": 0.0,
+   "source": "transition_yield",
+   "note": "n = 1 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.GRPO_LA5.OTH.p_ct.final": {
+   "value": 1.0,
+   "source": "transition_yield",
+   "note": "n = 1 turns, iteration 10"
+  },
   "parity.gpt-4o-mini.MITI.B1_GI.rho_pooled": {
    "value": 0.4264,
    "source": "parity_pooled",
@@ -305,6 +545,56 @@
   },
   "parity.gpt-4o-mini.PCT.PCT_SustainTalk.rho_pooled": {
    "value": 0.8976,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.MITI.B1_GI.rho_pooled": {
+   "value": 0.6773,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.MITI.B2_Persuade.rho_pooled": {
+   "value": 0.5499,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.MITI.B3_Q.rho_pooled": {
+   "value": 0.7306,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.MITI.B4_SR.rho_pooled": {
+   "value": 0.1965,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.MITI.B5_CR.rho_pooled": {
+   "value": 0.3032,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.MITI.B6_AF.rho_pooled": {
+   "value": 0.2154,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.MITI.B7_Seek.rho_pooled": {
+   "value": 0.1007,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.PCT.PCT_ChangeTalk.rho_pooled": {
+   "value": 0.9151,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.PCT.PCT_Neutral.rho_pooled": {
+   "value": 0.5125,
+   "source": "parity_pooled",
+   "note": "Fisher-z pooled within-state ρ"
+  },
+  "parity.claude-haiku-4-5.PCT.PCT_SustainTalk.rho_pooled": {
+   "value": 0.9421,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   }
