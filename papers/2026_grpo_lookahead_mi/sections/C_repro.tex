@@ -30,6 +30,7 @@ Group size $G$ & 8 \\
 KL $\beta$ & 0.01 \\
 GRPO temperature & 1.2 \\
 GRPO loss variant & standard (\texttt{grpo}) \\
+Policy updates per sampled batch & 1 \\
 Train batch $\times$ accumulation & $64 \times 2$ \\
 Trainer eval split & 0.05 of prompts \\
 Min.\ context length (MCL) & 12 utterances \\
@@ -177,12 +178,9 @@ sub-batch, so the per-step multiplier is quoted over the settled iterations 3--1
 \subsection{Artifacts}
 
 Every number in this paper is traceable to a tracked table in the analysis-results tree of the
-code release, and the mapping from claim to table is a claims ledger released with it. Figures are copied from that same tree rather than regenerated here, so the draft compiles
-standalone and a submitted PDF is frozen against later re-renders; the exceptions are
-Figure~\ref{fig:schematic}, a page-width redraw of the method schematic, and
-Figures~\ref{fig:headline}, \ref{fig:overpraise}, \ref{fig:forest}
-and~\ref{fig:tails}, each drawn at the width it is included at by a script in
-the paper folder that reads only the tracked tables behind the corresponding tree figures. The
-transcript in Table~\ref{tab:excerpt} and Appendix~\ref{app:example} is reproduced verbatim from
-the stored conversation files; the persona was selected by the rule stated in the caption, with
-the selection script alongside the paper.
+code release, through a claims ledger released with it. Figures~\ref{fig:grid-primary}
+and~\ref{fig:grid-heldout} are copied from that tree; Figures~\ref{fig:schematic},
+\ref{fig:headline}, \ref{fig:overpraise}, \ref{fig:forest} and~\ref{fig:tails} are drawn from
+its tracked tables by scripts in the paper folder, at the width each is included at. The
+transcripts in Table~\ref{tab:excerpt} and Appendix~\ref{app:example} are reproduced verbatim
+from the stored conversation files, and the selection scripts are released with the paper.

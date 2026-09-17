@@ -1,43 +1,23 @@
-% =====================================================================
-%  GRPO with Look-Ahead in Motivational Interviewing:
-%  Rewarding a Therapist Turn by Where It Leads
-%
-%  Target: ARR October 2026 cycle (submission 2026-10-12, commitment
-%  2026-12-20; the cycle feeds NAACL 2027 + COLING 2027).
-%  ACL long paper: 8-page body + unlimited refs/appendix; Limitations
-%  mandatory and page-exempt; Ethics optional and page-exempt.
-% =====================================================================
-%   acl.sty + acl_natbib.bst are vendored next to this file.
-%
+% GRPO with Look-Ahead in Motivational Interviewing: Rewarding a Therapist Turn by Where It Leads
+% ARR October 2026. ACL long paper: 8-page body; Limitations and Ethics are page-exempt.
+% [review] = anonymous byline + line numbers. Switch to [final] for the camera-ready.
+
 \documentclass[11pt]{article}
+\usepackage[review]{acl}
 
-\IfFileExists{acl.sty}{%
-  \usepackage[review]{acl}      % ARR submission mode; swap to [final] for camera-ready
-}{%
-  \usepackage[margin=1in]{geometry}
-  \usepackage{natbib}
-  \bibliographystyle{plainnat}
-  \typeout{^^J*** acl.sty not found - building in FALLBACK single-column mode. ***^^J}
-}
-
-\usepackage{times}             % REQUIRED: scalable Type 1 fonts. Without this,
-\usepackage{latexsym}          % microtype's font expansion fails on bitmap CM.
+\usepackage{times}
+\usepackage{latexsym}
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage{microtype}
 \usepackage{graphicx}
 \usepackage{booktabs}
-\usepackage{multirow}
 \usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{xcolor}
-\usepackage{array}
-\usepackage{subcaption}
-\usepackage{algorithm}         % Algorithm 1 (sec:method)
+\usepackage{algorithm}
 \usepackage{algorithmic}
 \renewcommand{\algorithmiccomment}[1]{\hfill$\triangleright$ \textit{#1}}
 
-% --- float packing: let top floats take more of a page and sit closer to text ---
+% Floats: let top floats take more of a page and sit closer to the text.
 \renewcommand{\topfraction}{0.9}
 \renewcommand{\dbltopfraction}{0.9}
 \renewcommand{\textfraction}{0.07}
@@ -47,33 +27,19 @@
 \setcounter{dbltopnumber}{3}
 \setcounter{totalnumber}{4}
 
-% --- draft aids: \todo{...} and \note{...} vanish when \draftfalse -------------
-\newif\ifdraft\drafttrue
-\ifdraft
-  \newcommand{\todo}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
-  \newcommand{\note}[1]{\textcolor{blue}{\textit{[#1]}}}
-\else
-  \newcommand{\todo}[1]{}
-  \newcommand{\note}[1]{}
-\fi
-
-% --- shorthands ---------------------------------------------------------------
+% Shorthands
 \newcommand{\QQ}{Q1{+}Q2}
-\newcommand{\mici}{MICI}
 \newcommand{\dz}{\ensuremath{d_z}}
 \newcommand{\primaryjudge}{\textsc{gpt-4o-mini}}
 \newcommand{\heldoutjudge}{\textsc{Claude Haiku 4.5}}
 \newcommand{\Kz}{\ensuremath{K{=}0}}
 \newcommand{\Kf}{\ensuremath{K{=}5}}
-\newcommand{\GRPO}{GRPO}
 \newcommand{\LAGRPO}{GRPO with look-ahead}
 
 \title{GRPO with Look-Ahead in Motivational Interviewing:\\
 Rewarding a Therapist Turn by Where It Leads}
 
-% Hidden in [review] mode; shown under [final]. Authors, order and affiliations as on the
-% ICLR 2025 PTO paper (papers/2025_iclr_pto_lookahead/submitted/PTO_paper.pdf, title page).
-% \And places two authors side by side, \AND starts the next row (acl.sty).
+% Hidden in [review] mode, shown under [final].
 \author{
   Lior Baruch \\
   School of Computer Science \\
@@ -106,16 +72,15 @@ Rewarding a Therapist Turn by Where It Leads}
 \input{sections/04_setup}
 \input{sections/05_reward}
 \input{sections/06_behaviour}
-\input{sections/08_measurement}   % 07_mechanism retired 2026-09-16 (folded into 09)
-\input{sections/09_discussion}
-\input{sections/10_limitations}
-\input{sections/11_ethics}
+\input{sections/07_measurement}
+\input{sections/08_discussion}
+\input{sections/09_limitations}
+\input{sections/10_ethics}
 
 \bibliography{refs}
 
-% TODO camera-ready: an Acknowledgements paragraph, including the generative-AI assistance
-% disclosure ACL policy asks for (drafting and code assistance); in [review] mode it stays out
-% for anonymity and the disclosure goes into the Responsible NLP checklist instead.
+% Camera-ready: add an Acknowledgements paragraph with the generative-AI assistance disclosure
+% (drafting and code). In [review] mode the disclosure goes in the Responsible NLP checklist.
 
 \clearpage
 \appendix

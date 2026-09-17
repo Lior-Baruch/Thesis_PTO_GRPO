@@ -8,7 +8,7 @@ cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in Decem
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
 mode (line numbers, anonymized); switch to `[final]` for camera-ready. **The body ends exactly at
-the bottom of page 8** (Limitations opens page 9); 22 pages in all.
+the bottom of page 8** (Limitations opens page 9); 21 pages in all.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten
@@ -132,6 +132,36 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
 - Done since the review: the author block (as on the ICLR 2025 PTO paper). Still open: a
   human-coded sample; the E-questions in the review for the cover note to the supervisors.
 
+**Cleaned up 2026-09-17** (Claude, on Lior's "clean it up for me and my supervisors"; no
+number changed; logged in `NUMBERS.md` § "2026-09-17"):
+
+- **`main.tex` reduced to what compiles the paper.** Gone: the `acl.sty`-missing fallback branch,
+  the `\todo`/`\note` draft macros and their `\ifdraft` switch (nothing used them), the unused
+  `\mici`/`\GRPO` shorthands, and the unused packages (`multirow`, `amssymb`, `xcolor`, `array`,
+  `subcaption`). The comments left are a three-line header, the float-packing note, the
+  author-block note and the camera-ready Acknowledgements reminder.
+- **Section files renumbered contiguously** (the gap the retired `07_mechanism` left):
+  `08_measurement` → `07_measurement`, `09_discussion` → `08_discussion`, `10_limitations` →
+  `09_limitations`, `11_ethics` → `10_ethics`. Section numbers in the paper are unchanged.
+  `overleaf.py push` removes the old names on Overleaf.
+- **`refs.bib` regrouped by topic** (seven groups); the dated "added/verified on …" comments are
+  gone, one line keeps the warning that `baruch2025pto` is the SSI-FM *workshop* paper. Entries
+  verbatim; the six uncited entries stay (they do not render).
+- **§3 states the objective.** The reward equation is numbered (Eq. 1) and Algorithm 1 cites it;
+  a new "The update" paragraph gives the GRPO objective (Eq. 2, the DeepSeekMath form that TRL's
+  `loss_type="grpo"` implements) and says that with one policy update per sampled batch (new
+  Table 5 row, from `grpo_inner_iterations: 1` in both arms' `run_metadata.json`) the ratio is one
+  and the clipping is inactive, so the step is the advantage-weighted policy gradient with the KL
+  penalty. "PPO-clipped step" is retired. Algorithm 1 gained `π ← π_n`, §3 defines π (the policy
+  being updated) beside π_n (the iteration-start policy), and the rollout is stated to use π,
+  which is what the trainer does (the reward function rolls out with the live `trainer.model`).
+  **Figure 1 redrawn** to match: rollout nodes labelled π, the update box an objective
+  (maximise Σ A_g log π − β KL) rather than a gradient plus a penalty.
+- §6: the "(the held-out judge differs; see below)" parenthetical folded into its sentence. C.8
+  shortened to one paragraph, which also removed a near-empty page (four lines of Appendix C had
+  spilled onto their own page before the float page). 21 pages; the body still ends at the bottom
+  of page 8; `build.py` CHECK OK.
+
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
 preference trees + DPO — and this paper's contribution is **moving the lever to GRPO**. The PTO
@@ -167,10 +197,10 @@ over-praise the patient.
 | 04_setup | §4 | task/simulator/oracle; **why MI**; instruments; terminology; the two arms; evaluation & statistics |
 | 05_reward | §5 | *Results: reward and evaluation instruments* — Figure 2 + **Table 1 (endpoint, every instrument, both graders)**; endpoint; gain vs. the turn-level arm (both anchors); onset + the K=0 decline + the best-checkpoint steelman; the replicate draw |
 | 06_behaviour | §6 | *Behavioural analysis: over-praise under turn-level reward* — **Table 2 (the clear-case excerpt)**; over-praise + composition + the MITI Affirm definition + the PCT contrast; the judge-free marker (Figure 3); what look-ahead does instead (righting reflex); under the held-out judge |
-| 08_measurement | §7 | *Saturation of the training oracle at the winning checkpoint* — no figure (dropped 2026-09-16; the text carries its numbers); arm-level sign preservation; the per-conversation collapse (not Q1-only, one sentence); the ceiling mechanism; what it undermines |
-| 09_discussion | §8 | the horizon selects the hack; what we could not isolate (→ Appendix B); scope (one optimizer, one regime; evidence that would overturn it); conclusion with the monitoring recommendation |
-| 10_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments (reward is an outcome, MITI reliability, no per-channel reliability) |
-| 11_ethics | Ethics (page-exempt) | |
+| 07_measurement | §7 | *Saturation of the training oracle at the winning checkpoint* — no figure (dropped 2026-09-16; the text carries its numbers); arm-level sign preservation; the per-conversation collapse (not Q1-only, one sentence); the ceiling mechanism; what it undermines |
+| 08_discussion | §8 | the horizon selects the hack; what we could not isolate (→ Appendix B); scope (one optimizer, one regime; evidence that would overturn it); conclusion with the monitoring recommendation |
+| 09_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments (reward is an outcome, MITI reliability, no per-channel reliability) |
+| 10_ethics | Ethics (page-exempt) | |
 | A_tables | Appendix A | by-iteration table, per-instrument agreement table, level grids ×2, channel forest, tail audit figure (+ the rollout-audit numbers in the intro text) |
 | B_mechanism | Appendix B | the mechanism analysis in full |
 | C_repro | Appendix C | configuration, anti-degeneracy, statistics, cost accounting, artifacts (incl. the five script-drawn figures + the excerpt's provenance) |

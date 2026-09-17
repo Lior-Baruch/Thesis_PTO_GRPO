@@ -6,7 +6,7 @@ about 4 pt. This redraws the same content as a left-to-right pipeline sized for 
 ``\\textwidth`` (6.3 in), so every label prints at 6-7 pt. Nothing here reads data: it is a
 diagram of the method as ``sec:method`` states it (G = 8 completions per prompt, a K-turn rollout
 with the patient first, one oracle call per candidate, group-standardised advantages, a
-PPO-clipped step with a KL penalty).
+policy step with a KL penalty).
 
     & ..\\..\\.venv\\Scripts\\python.exe render_schematic.py
 
@@ -80,7 +80,7 @@ def main() -> int:
                   "prompt $c$\nprefix of $\\geq 12$\nutterances (MCL),\nending on a\npatient turn",
                   role="source", fs=5.7)
     # -- the group ---------------------------------------------------------------------------
-    ax.text(25.0, 39.4, "$\\pi_n$ samples\n$G{=}8$ completions", ha="center",
+    ax.text(25.0, 39.4, "$\\pi$ samples\n$G{=}8$ completions", ha="center",
             va="center", fontsize=6.2, color=NAVY, fontweight="bold", linespacing=1.2)
     comps = [node(ax, 25.0, y, 7.2, 5.0, f"$t_{{{lab}}}$", role="data", fs=7.0)
              for y, lab in zip(rows, ("1", "2", "G"))]
@@ -99,7 +99,7 @@ def main() -> int:
         chain = []
         for i, x in enumerate(xs):
             is_p = i % 2 == 0
-            chain.append(node(ax, x, y, 4.6, 4.6, "$P$" if is_p else "$\\pi_n$",
+            chain.append(node(ax, x, y, 4.6, 4.6, "$P$" if is_p else "$\\pi$",
                               role="api" if is_p else "policy", fs=6.6))
         arrow(ax, c, chain[0])
         for a, b in zip(chain, chain[1:]):
@@ -119,13 +119,13 @@ def main() -> int:
                "group-relative advantage\n$A_g = (r_g - \\bar r)\\,/\\,\\sigma_r$\nover the $G$ siblings",
                role="neutral", fs=5.5)
     upd = node(ax, 89.2, 14.0, 20.6, 11.0,
-               "PPO-clipped policy step\non all $G$ completions:\n$\\sum_g A_g\\,\\nabla \\log \\pi(t_g \\mid c)$\n$+\\ \\beta\\,\\mathrm{KL}(\\pi \\,\\|\\, \\pi_{n})$",
+               "policy step on all $G$\ncompletions, maximising\n$\\sum_g A_g\\,\\log \\pi(t_g \\mid c)$\n$-\\ \\beta\\,\\mathrm{KL}(\\pi \\,\\|\\, \\pi_{n})$",
                role="update", fs=5.5)
     arrow(ax, oracle, adv)
     arrow(ax, adv, upd, side="v")
     # -- legend ------------------------------------------------------------------------------
     ax.text(1.0, 1.0, "green: transcripts produced    purple: patient simulator $P$ (API)    "
-                      "blue: the policy $\\pi_n$ being trained    orange: oracle $O$    yellow: the update",
+                      "blue: the policy $\\pi$ being trained    orange: oracle $O$    yellow: the update",
             ha="left", va="bottom", fontsize=5.9, color=GREY)
 
     OUT.parent.mkdir(exist_ok=True)

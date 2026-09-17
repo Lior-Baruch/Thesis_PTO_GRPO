@@ -462,3 +462,24 @@ definition now appears in §1 ("K=5 appends patient, therapist, patient, therapi
 
 **Label rename:** `sec:behaviour-honest` → `sec:behaviour-heldout` (referenced from §7 and Ethics).
 `sections/07_mechanism.tex` was retired (no longer `\input`) and deleted the same day.
+
+## 2026-09-17 clean-up pass (Claude, on Lior's "clean it up for me and my supervisors") — no number changed
+
+**Structure.** Section files renumbered contiguously (`07_measurement`, `08_discussion`,
+`09_limitations`, `10_ethics`); the paper's section NUMBERS are unchanged (§7 saturation, §8
+discussion), so every row above still resolves. `main.tex` lost its fallback branch, draft macros
+and unused packages; `refs.bib` was regrouped by topic with its entries verbatim. Body still ends
+at the bottom of page 8; 21 pages.
+
+| claim (new) | value | source |
+|---|---|---|
+| **NEW** ✅ CONFIG FACT — policy updates per sampled batch (Table 5 row; §3 "The update") | `grpo_inner_iterations: 1` in BOTH arms (= TRL `GRPOConfig.num_iterations=1`) | `run_metadata.json` of `GRPO_Iterative_Q1Q2_Llama32-1B_LA{0,5}_MCL12_G8`, key `grpo_inner_iterations`; wired in `code/GRPO_Exp3/grpo_trainer.py` (`num_iterations=cfg.grpo_inner_iterations`) — verified 2026-09-17 |
+| **NEW** code fact — "ρ = 1 at the update, the clipping is inactive" (§3) | with `num_iterations == 1` and `steps_per_generation <= gradient_accumulation_steps` (both arms: grad accum 2, `steps_per_generation` at its default = grad accum) TRL sets `old_per_token_logps = per_token_logps.detach()`, so the importance ratio is identically 1 and the min/clip is a no-op; the gradient is the token-averaged Σ_g A_g ∇log π(t_g|c) minus β ∇KL | trl 1.4.0 `trainer/grpo_trainer.py` (the comment + code just above `coef_1 = torch.exp(log_importance_weights)`), `requirements.txt` pin — verified 2026-09-17 |
+| **NEW** citation fact — Eq. 2 is the DeepSeekMath objective with TRL's `grpo` normalisation | per-sequence mean over tokens, then mean over the batch; KL estimated per token to the reference, which is π_n here (the iteration-start adapter) | Shao et al. 2024 eq. (3); trl 1.4.0 `grpo_trainer.py`: `if self.loss_type in ["grpo", "sapo"]: loss = ((per_token_loss * mask).sum(-1) / mask.sum(-1)…).mean()` |
+| **NEW** code fact — the look-ahead rollout uses the LIVE policy π, not the frozen π_n (§3 notation + "The look-ahead reward", Algorithm 1 line 4, Figure 1 labels) | the reward functions are built with `therapist_model=policy`, the same object `GRPOTrainer(model=policy)` trains in place (already a PEFT model, so no wrapping copy); the abstract and §1 already said "the current policy" | `grpo_trainer.py` (`therapist_model=policy` in the reward-function factory; `GRPOTrainer(model=policy, …)`; `patch_generate(trainer.model, …)`) — verified 2026-09-17 |
+
+**Retired wording (do not reintroduce):** "PPO-clipped step" (→ "one step on Eq. 2" in
+Algorithm 1 and "one step on the group-standardised scores" in the loop paragraph; the clip is
+formally in Eq. 2 and stated inactive). Figure 1's update box no longer reads "Σ A_g ∇log π + β KL"
+(a gradient plus a penalty) but "maximising Σ_g A_g log π(t_g | c) − β KL(π ‖ π_n)"; its rollout
+nodes read π, not π_n.

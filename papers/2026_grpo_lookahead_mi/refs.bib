@@ -1,6 +1,7 @@
 % ---------------------------------------------------------------------------
-% Motivational Interviewing
+% Motivational interviewing
 % ---------------------------------------------------------------------------
+
 @book{miller1991mi,
   author    = {Miller, William R. and Rollnick, Stephen},
   title     = {Motivational Interviewing: Preparing People to Change Addictive Behavior},
@@ -36,7 +37,30 @@
   url       = {https://aclanthology.org/2024.clpsych-1.1/}
 }
 
-% Verified 2026-08-18 against arXiv:2502.18673 and the ACM DL record (CHI '25).
+@inproceedings{perezrosas2019goodcounselor,
+  author    = {P{\'e}rez-Rosas, Ver{\'o}nica and Wu, Xinyi and Resnicow, Kenneth and Mihalcea, Rada},
+  title     = {What Makes a Good Counselor? {L}earning to Distinguish between High-quality and Low-quality Counseling Conversations},
+  booktitle = {Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (ACL)},
+  pages     = {926--935},
+  year      = {2019}
+}
+
+@inproceedings{wu2022annomi,
+  author    = {Wu, Zixiu and Balloccu, Simone and Kumar, Vivek and Helaoui, Rim and Reiter, Ehud and
+               Reforgiato Recupero, Diego and Riboni, Daniele},
+  title     = {{Anno-MI}: A Dataset of Expert-Annotated Counselling Dialogues},
+  booktitle = {IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
+  pages     = {6177--6181},
+  year      = {2022}
+}
+
+@article{chiu2024bolt,
+  author  = {Chiu, Yu Ying and Sharma, Ashish and Lin, Inna Wanyin and Althoff, Tim},
+  title   = {A Computational Framework for Behavioral Assessment of {LLM} Therapists},
+  journal = {arXiv preprint arXiv:2401.00820},
+  year    = {2024}
+}
+
 @inproceedings{steenstra2025scaffolding,
   author    = {Steenstra, Ian and Nouraei, Farnaz and Bickmore, Timothy W.},
   title     = {Scaffolding Empathy: Training Counselors with Simulated Patients and Utterance-level Performance Visualizations},
@@ -46,13 +70,19 @@
   doi       = {10.1145/3706598.3714014}
 }
 
+@inproceedings{wang2024patientpsi,
+  title={{PATIENT-$\Psi$}: Using large language models to simulate patients for training mental health professionals},
+  author={Wang, Ruiyi and Milani, Stephanie and Chiu, Jamie C. and Zhi, Jiayin and Eack, Shaun M. and Labrum, Travis and Murphy, Samuel M. and Jones, Nev and Hardy, Kate V. and Shen, Hong and Fang, Fei and Chen, Zhiyu},
+  booktitle={Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  year={2024}
+}
+
+
 % ---------------------------------------------------------------------------
 % This line of work
 % ---------------------------------------------------------------------------
-% RESOLVED: this is the ICLR 2025 SSI-FM *workshop* (poster), NOT the main conference.
-% The PDF's header line reads "Published as a conference paper at ICLR 2025" -- that is stock
-% template boilerplate left unchanged, and citing it as a main-conference paper would be wrong.
-% Canonical entry from papers/2025_iclr_pto_lookahead/README.md; do not "simplify" it back.
+
+% ICLR 2025 SSI-FM *workshop* (poster), not the main conference: the PDF's "conference paper" header is template boilerplate.
 @inproceedings{baruch2025pto,
   author    = {Baruch, Lior and Butman, Moshe and Bar, Kfir and Friedman, Doron},
   title     = {Preference Tree Optimization: Enhancing Goal-Oriented Dialogue with
@@ -62,13 +92,10 @@
   year      = {2025}
 }
 
-% Earliest well-known use of simulated future turns as the reward for a dialogue turn.
-@inproceedings{li2016deeprl,
-  author    = {Li, Jiwei and Monroe, Will and Ritter, Alan and Jurafsky, Dan and Galley, Michel and Gao, Jianfeng},
-  title     = {Deep Reinforcement Learning for Dialogue Generation},
-  booktitle = {Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
-  year      = {2016}
-}
+
+% ---------------------------------------------------------------------------
+% Reinforcement learning for dialogue and multi-turn agents
+% ---------------------------------------------------------------------------
 
 @article{levin2000stochastic,
   author  = {Levin, Esther and Pieraccini, Roberto and Eckert, Wieland},
@@ -89,15 +116,90 @@
   year    = {2002}
 }
 
+@inproceedings{li2016deeprl,
+  author    = {Li, Jiwei and Monroe, Will and Ritter, Alan and Jurafsky, Dan and Galley, Michel and Gao, Jianfeng},
+  title     = {Deep Reinforcement Learning for Dialogue Generation},
+  booktitle = {Proceedings of the 2016 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
+  year      = {2016}
+}
+
+@inproceedings{zhou2024archer,
+  author    = {Zhou, Yifei and Zanette, Andrea and Pan, Jiayi and Levine, Sergey and Kumar, Aviral},
+  title     = {{ArCHer}: Training Language Model Agents via Hierarchical Multi-Turn {RL}},
+  booktitle = {Proceedings of the 41st International Conference on Machine Learning (ICML)},
+  year      = {2024}
+}
+
+@article{hong2023imagined,
+  author  = {Hong, Joey and Levine, Sergey and Dragan, Anca},
+  title   = {Zero-Shot Goal-Directed Dialogue via {RL} on Imagined Conversations},
+  journal = {arXiv preprint arXiv:2311.05584},
+  year    = {2023}
+}
+
+@inproceedings{wang2024sotopiapi,
+  author    = {Wang, Ruiyi and Yu, Haofei and Zhang, Wenxin and Qi, Zhengyang and
+               Sap, Maarten and Neubig, Graham and Bisk, Yonatan and Zhu, Hao},
+  title     = {{SOTOPIA}-$\pi$: Interactive Learning of Socially Intelligent Language Agents},
+  booktitle = {Proceedings of the 62nd Annual Meeting of the Association for Computational
+               Linguistics (Volume 1: Long Papers)},
+  pages     = {12912--12940},
+  year      = {2024}
+}
+
+@inproceedings{shani2024multiturn,
+  author    = {Shani, Lior and Rosenberg, Aviv and Cassel, Asaf and Lang, Oran and
+               Calandriello, Daniele and Zipori, Avital and Noga, Hila and Keller, Orgad and
+               Piot, Bilal and Szpektor, Idan and Hassidim, Avinatan and Matias, Yossi and
+               Munos, R{\'e}mi},
+  title     = {Multi-turn Reinforcement Learning from Preference Human Feedback},
+  booktitle = {Advances in Neural Information Processing Systems 37 (NeurIPS)},
+  year      = {2024}
+}
+
+@inproceedings{gao2024refuel,
+  title={Regressing the relative future: Efficient policy optimization for multi-turn {RLHF}},
+  author={Gao, Zhaolin and Zhan, Wenhao and Chang, Jonathan D. and Swamy, Gokul and Brantley, Kiant{\'e} and Lee, Jason D. and Sun, Wen},
+  booktitle={International Conference on Learning Representations (ICLR)},
+  year={2025}
+}
+
+@article{zhou2025sweetrl,
+  title={{SWEET-RL}: Training multi-turn {LLM} agents on collaborative reasoning tasks},
+  author={Zhou, Yifei and Jiang, Song and Tian, Yuandong and Weston, Jason and Levine, Sergey and Sukhbaatar, Sainbayar and Li, Xian},
+  journal={arXiv preprint arXiv:2503.15478},
+  year={2025}
+}
+
+@article{wei2025multiturn,
+  author  = {Wei, Quan and Zeng, Siliang and Li, Chenliang and Wang, Zhongruo and Brown, William and
+             Frunza, Oana and Deng, Wei and Schneider, Anderson and Nevmyvaka, Yuriy and
+             Zhao, Yang Katie and Garcia, Alfredo and Hong, Mingyi},
+  title   = {Reinforcing Multi-Turn Reasoning in {LLM} Agents via Fine-Grained Reward Structure and Credit Assignment},
+  journal = {arXiv preprint arXiv:2505.11821},
+  year    = {2025}
+}
+
+@article{qian2025userrl,
+  author  = {Qian, Cheng and Liu, Zuxin and Prabhakar, Akshara and Qiu, Jielin and Liu, Zhiwei and
+             Chen, Haolin and Kokane, Shirley and Ji, Heng and Yao, Weiran and Heinecke, Shelby and
+             Savarese, Silvio and Xiong, Caiming and Wang, Huan},
+  title   = {{UserRL}: Training Interactive User-Centric Agent via Reinforcement Learning},
+  journal = {arXiv preprint arXiv:2509.19736},
+  year    = {2025}
+}
+
+
 % ---------------------------------------------------------------------------
-% Preference optimization / RLHF
+% Policy optimisation and preference learning
 % ---------------------------------------------------------------------------
-@inproceedings{rafailov2023dpo,
-  author    = {Rafailov, Rafael and Sharma, Archit and Mitchell, Eric and
-               Ermon, Stefano and Manning, Christopher D. and Finn, Chelsea},
-  title     = {Direct Preference Optimization: Your Language Model is Secretly a Reward Model},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
-  year      = {2023}
+
+@article{schulman2017ppo,
+  author  = {Schulman, John and Wolski, Filip and Dhariwal, Prafulla and
+             Radford, Alec and Klimov, Oleg},
+  title   = {Proximal Policy Optimization Algorithms},
+  journal = {arXiv preprint arXiv:1707.06347},
+  year    = {2017}
 }
 
 @inproceedings{christiano2017deeprl,
@@ -119,14 +221,6 @@
   year      = {2022}
 }
 
-@article{schulman2017ppo,
-  author  = {Schulman, John and Wolski, Filip and Dhariwal, Prafulla and
-             Radford, Alec and Klimov, Oleg},
-  title   = {Proximal Policy Optimization Algorithms},
-  journal = {arXiv preprint arXiv:1707.06347},
-  year    = {2017}
-}
-
 @article{shao2024deepseekmath,
   author  = {Shao, Zhihong and Wang, Peiyi and Zhu, Qihao and Xu, Runxin and
              Song, Junxiao and Bi, Xiao and Zhang, Haowei and Zhang, Mingchuan and
@@ -144,38 +238,19 @@
   year    = {2025}
 }
 
-@inproceedings{zhou2024archer,
-  author    = {Zhou, Yifei and Zanette, Andrea and Pan, Jiayi and Levine, Sergey and Kumar, Aviral},
-  title     = {{ArCHer}: Training Language Model Agents via Hierarchical Multi-Turn {RL}},
-  booktitle = {Proceedings of the 41st International Conference on Machine Learning (ICML)},
-  year      = {2024}
+@article{kazemnejad2024vineppo,
+  title={{VinePPO}: Unlocking {RL} potential for {LLM} reasoning through refined credit assignment},
+  author={Kazemnejad, Amirhossein and Aghajohari, Milad and Portelance, Eva and Sordoni, Alessandro and Reddy, Siva and Courville, Aaron and Le Roux, Nicolas},
+  journal={arXiv preprint arXiv:2410.01679},
+  year={2024}
 }
 
-@inproceedings{shani2024multiturn,
-  author    = {Shani, Lior and Rosenberg, Aviv and Cassel, Asaf and Lang, Oran and
-               Calandriello, Daniele and Zipori, Avital and Noga, Hila and Keller, Orgad and
-               Piot, Bilal and Szpektor, Idan and Hassidim, Avinatan and Matias, Yossi and
-               Munos, R{\'e}mi},
-  title     = {Multi-turn Reinforcement Learning from Preference Human Feedback},
-  booktitle = {Advances in Neural Information Processing Systems 37 (NeurIPS)},
-  year      = {2024}
-}
-
-@inproceedings{wang2024sotopiapi,
-  author    = {Wang, Ruiyi and Yu, Haofei and Zhang, Wenxin and Qi, Zhengyang and
-               Sap, Maarten and Neubig, Graham and Bisk, Yonatan and Zhu, Hao},
-  title     = {{SOTOPIA}-$\pi$: Interactive Learning of Socially Intelligent Language Agents},
-  booktitle = {Proceedings of the 62nd Annual Meeting of the Association for Computational
-               Linguistics (Volume 1: Long Papers)},
-  pages     = {12912--12940},
-  year      = {2024}
-}
-
-@article{hong2023imagined,
-  author  = {Hong, Joey and Levine, Sergey and Dragan, Anca},
-  title   = {Zero-Shot Goal-Directed Dialogue via {RL} on Imagined Conversations},
-  journal = {arXiv preprint arXiv:2311.05584},
-  year    = {2023}
+@inproceedings{rafailov2023dpo,
+  author    = {Rafailov, Rafael and Sharma, Archit and Mitchell, Eric and
+               Ermon, Stefano and Manning, Christopher D. and Finn, Chelsea},
+  title     = {Direct Preference Optimization: Your Language Model is Secretly a Reward Model},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
+  year      = {2023}
 }
 
 @article{yuan2024selfrewarding,
@@ -202,9 +277,11 @@
   year    = {2024}
 }
 
+
 % ---------------------------------------------------------------------------
-% Search-based preference data / dialogue planning
+% Search-based preference data and dialogue planning
 % ---------------------------------------------------------------------------
+
 @article{xie2024mctsdpo,
   author  = {Xie, Yuxi and Goyal, Anirudh and Zheng, Wenyue and Kan, Min-Yen and
              Lillicrap, Timothy and Kawaguchi, Kenji and Shieh, Michael},
@@ -219,6 +296,13 @@
   title   = {Advancing {LLM} Reasoning Generalists with Preference Trees},
   journal = {arXiv preprint arXiv:2404.02078},
   year    = {2024}
+}
+
+@inproceedings{lightman2024letsverify,
+  author    = {Lightman, Hunter and Kosaraju, Vineet and Burda, Yura and Edwards, Harri and Baker, Bowen and Lee, Teddy and Leike, Jan and Schulman, John and Sutskever, Ilya and Cobbe, Karl},
+  title     = {Let's Verify Step by Step},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024}
 }
 
 @inproceedings{yu2023promptmcts,
@@ -236,14 +320,16 @@
   year      = {2025}
 }
 
+
 % ---------------------------------------------------------------------------
 % Reward hacking, sycophancy, LLM judges
 % ---------------------------------------------------------------------------
-@inproceedings{gao2023scaling,
-  author    = {Gao, Leo and Schulman, John and Hilton, Jacob},
-  title     = {Scaling Laws for Reward Model Overoptimization},
-  booktitle = {International Conference on Machine Learning (ICML)},
-  year      = {2023}
+
+@article{amodei2016concrete,
+  author  = {Amodei, Dario and Olah, Chris and Steinhardt, Jacob and Christiano, Paul and Schulman, John and Man{\'e}, Dan},
+  title   = {Concrete Problems in {AI} Safety},
+  journal = {arXiv preprint arXiv:1606.06565},
+  year    = {2016}
 }
 
 @inproceedings{skalse2022defining,
@@ -251,6 +337,36 @@
   title     = {Defining and Characterizing Reward Hacking},
   booktitle = {Advances in Neural Information Processing Systems (NeurIPS)},
   year      = {2022}
+}
+
+@inproceedings{pan2022effects,
+  author    = {Pan, Alexander and Bhatia, Kush and Steinhardt, Jacob},
+  title     = {The Effects of Reward Misspecification: Mapping and Mitigating Misaligned Models},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2022}
+}
+
+@inproceedings{gao2023scaling,
+  author    = {Gao, Leo and Schulman, John and Hilton, Jacob},
+  title     = {Scaling Laws for Reward Model Overoptimization},
+  booktitle = {International Conference on Machine Learning (ICML)},
+  year      = {2023}
+}
+
+@inproceedings{coste2024ensembles,
+  author    = {Coste, Thomas and Anwar, Usman and Kirk, Robert and Krueger, David},
+  title     = {Reward Model Ensembles Help Mitigate Overoptimization},
+  booktitle = {International Conference on Learning Representations (ICLR)},
+  year      = {2024}
+}
+
+@inproceedings{zheng2023judging,
+  author    = {Zheng, Lianmin and Chiang, Wei-Lin and Sheng, Ying and Zhuang, Siyuan and Wu, Zhanghao and
+               Zhuang, Yonghao and Lin, Zi and Li, Zhuohan and Li, Dacheng and Xing, Eric P. and
+               Zhang, Hao and Gonzalez, Joseph E. and Stoica, Ion},
+  title     = {Judging {LLM}-as-a-Judge with {MT-Bench} and {Chatbot Arena}},
+  booktitle = {Advances in Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track},
+  year      = {2023}
 }
 
 @inproceedings{sharma2024sycophancy,
@@ -271,13 +387,18 @@
   year      = {2023}
 }
 
-@inproceedings{zheng2023judging,
-  author    = {Zheng, Lianmin and Chiang, Wei-Lin and Sheng, Ying and Zhuang, Siyuan and Wu, Zhanghao and
-               Zhuang, Yonghao and Lin, Zi and Li, Zhuohan and Li, Dacheng and Xing, Eric P. and
-               Zhang, Hao and Gonzalez, Joseph E. and Stoica, Ion},
-  title     = {Judging {LLM}-as-a-Judge with {MT-Bench} and {Chatbot Arena}},
-  booktitle = {Advances in Neural Information Processing Systems (NeurIPS), Datasets and Benchmarks Track},
-  year      = {2023}
+@inproceedings{panickssery2024selfpreference,
+  author    = {Panickssery, Arjun and Bowman, Samuel R. and Feng, Shi},
+  title     = {{LLM} Evaluators Recognize and Favor Their Own Generations},
+  booktitle = {Advances in Neural Information Processing Systems 37 (NeurIPS)},
+  year      = {2024}
+}
+
+@inproceedings{singhal2024long,
+  author    = {Singhal, Prasann and Goyal, Tanya and Xu, Jiacheng and Durrett, Greg},
+  title     = {A Long Way to Go: Investigating Length Correlations in {RLHF}},
+  booktitle = {First Conference on Language Modeling (COLM)},
+  year      = {2024}
 }
 
 @inproceedings{dubois2024lengthcontrolled,
@@ -287,35 +408,10 @@
   year      = {2024}
 }
 
-@inproceedings{panickssery2024selfpreference,
-  author    = {Panickssery, Arjun and Bowman, Samuel R. and Feng, Shi},
-  title     = {{LLM} Evaluators Recognize and Favor Their Own Generations},
-  booktitle = {Advances in Neural Information Processing Systems 37 (NeurIPS)},
-  year      = {2024}
-}
 
 % ---------------------------------------------------------------------------
-% Measurement
+% Instruments and reliability
 % ---------------------------------------------------------------------------
-@article{koo2016icc,
-  author  = {Koo, Terry K. and Li, Mae Y.},
-  title   = {A Guideline of Selecting and Reporting Intraclass Correlation Coefficients for Reliability Research},
-  journal = {Journal of Chiropractic Medicine},
-  volume  = {15},
-  number  = {2},
-  pages   = {155--163},
-  year    = {2016}
-}
-
-@article{shrout1979icc,
-  author  = {Shrout, Patrick E. and Fleiss, Joseph L.},
-  title   = {Intraclass Correlations: Uses in Assessing Rater Reliability},
-  journal = {Psychological Bulletin},
-  volume  = {86},
-  number  = {2},
-  pages   = {420--428},
-  year    = {1979}
-}
 
 @article{hatcher2006waisr,
   author  = {Hatcher, Robert L. and Gillaspy, J. Arthur},
@@ -337,119 +433,22 @@
   year    = {1979}
 }
 
-% ---------------------------------------------------------------------------
-% Added 2026-08-18 (verified against arXiv / ACL Anthology / venue pages)
-% ---------------------------------------------------------------------------
-@article{amodei2016concrete,
-  author  = {Amodei, Dario and Olah, Chris and Steinhardt, Jacob and Christiano, Paul and Schulman, John and Man{\'e}, Dan},
-  title   = {Concrete Problems in {AI} Safety},
-  journal = {arXiv preprint arXiv:1606.06565},
+@article{koo2016icc,
+  author  = {Koo, Terry K. and Li, Mae Y.},
+  title   = {A Guideline of Selecting and Reporting Intraclass Correlation Coefficients for Reliability Research},
+  journal = {Journal of Chiropractic Medicine},
+  volume  = {15},
+  number  = {2},
+  pages   = {155--163},
   year    = {2016}
 }
 
-@inproceedings{pan2022effects,
-  author    = {Pan, Alexander and Bhatia, Kush and Steinhardt, Jacob},
-  title     = {The Effects of Reward Misspecification: Mapping and Mitigating Misaligned Models},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year      = {2022}
-}
-
-@inproceedings{singhal2024long,
-  author    = {Singhal, Prasann and Goyal, Tanya and Xu, Jiacheng and Durrett, Greg},
-  title     = {A Long Way to Go: Investigating Length Correlations in {RLHF}},
-  booktitle = {First Conference on Language Modeling (COLM)},
-  year      = {2024}
-}
-
-@inproceedings{lightman2024letsverify,
-  author    = {Lightman, Hunter and Kosaraju, Vineet and Burda, Yura and Edwards, Harri and Baker, Bowen and Lee, Teddy and Leike, Jan and Schulman, John and Sutskever, Ilya and Cobbe, Karl},
-  title     = {Let's Verify Step by Step},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year      = {2024}
-}
-
-@inproceedings{perezrosas2019goodcounselor,
-  author    = {P{\'e}rez-Rosas, Ver{\'o}nica and Wu, Xinyi and Resnicow, Kenneth and Mihalcea, Rada},
-  title     = {What Makes a Good Counselor? {L}earning to Distinguish between High-quality and Low-quality Counseling Conversations},
-  booktitle = {Proceedings of the 57th Annual Meeting of the Association for Computational Linguistics (ACL)},
-  pages     = {926--935},
-  year      = {2019}
-}
-
-% ---------------------------------------------------------------------------
-% Added 2026-09-04 (verified against the arXiv abstract pages / venue records)
-% ---------------------------------------------------------------------------
-% arXiv 2505.11821 -- multi-turn GRPO/PPO variants with turn-level credit assignment (tool use).
-@article{wei2025multiturn,
-  author  = {Wei, Quan and Zeng, Siliang and Li, Chenliang and Wang, Zhongruo and Brown, William and
-             Frunza, Oana and Deng, Wei and Schneider, Anderson and Nevmyvaka, Yuriy and
-             Zhao, Yang Katie and Garcia, Alfredo and Hong, Mingyi},
-  title   = {Reinforcing Multi-Turn Reasoning in {LLM} Agents via Fine-Grained Reward Structure and Credit Assignment},
-  journal = {arXiv preprint arXiv:2505.11821},
-  year    = {2025}
-}
-
-% arXiv 2509.19736 -- GRPO with multi-turn rollouts against LLM-simulated users.
-@article{qian2025userrl,
-  author  = {Qian, Cheng and Liu, Zuxin and Prabhakar, Akshara and Qiu, Jielin and Liu, Zhiwei and
-             Chen, Haolin and Kokane, Shirley and Ji, Heng and Yao, Weiran and Heinecke, Shelby and
-             Savarese, Silvio and Xiong, Caiming and Wang, Huan},
-  title   = {{UserRL}: Training Interactive User-Centric Agent via Reinforcement Learning},
-  journal = {arXiv preprint arXiv:2509.19736},
-  year    = {2025}
-}
-
-% arXiv 2401.00820 -- BOLT: LLM therapists coded against MI behaviour categories.
-@article{chiu2024bolt,
-  author  = {Chiu, Yu Ying and Sharma, Ashish and Lin, Inna Wanyin and Althoff, Tim},
-  title   = {A Computational Framework for Behavioral Assessment of {LLM} Therapists},
-  journal = {arXiv preprint arXiv:2401.00820},
-  year    = {2024}
-}
-
-% ICLR 2024 (dblp conf/iclr/CosteAK024).
-@inproceedings{coste2024ensembles,
-  author    = {Coste, Thomas and Anwar, Usman and Kirk, Robert and Krueger, David},
-  title     = {Reward Model Ensembles Help Mitigate Overoptimization},
-  booktitle = {International Conference on Learning Representations (ICLR)},
-  year      = {2024}
-}
-
-% ICASSP 2022, pp. 6177-6181.
-@inproceedings{wu2022annomi,
-  author    = {Wu, Zixiu and Balloccu, Simone and Kumar, Vivek and Helaoui, Rim and Reiter, Ehud and
-               Reforgiato Recupero, Diego and Riboni, Daniele},
-  title     = {{Anno-MI}: A Dataset of Expert-Annotated Counselling Dialogues},
-  booktitle = {IEEE International Conference on Acoustics, Speech and Signal Processing (ICASSP)},
-  pages     = {6177--6181},
-  year      = {2022}
-}
-
-% ---- added 2026-09-14 (review pass): verified against the venue/arXiv pages that day ----------
-@article{kazemnejad2024vineppo,
-  title={{VinePPO}: Unlocking {RL} potential for {LLM} reasoning through refined credit assignment},
-  author={Kazemnejad, Amirhossein and Aghajohari, Milad and Portelance, Eva and Sordoni, Alessandro and Reddy, Siva and Courville, Aaron and Le Roux, Nicolas},
-  journal={arXiv preprint arXiv:2410.01679},
-  year={2024}
-}
-
-@inproceedings{gao2024refuel,
-  title={Regressing the relative future: Efficient policy optimization for multi-turn {RLHF}},
-  author={Gao, Zhaolin and Zhan, Wenhao and Chang, Jonathan D. and Swamy, Gokul and Brantley, Kiant{\'e} and Lee, Jason D. and Sun, Wen},
-  booktitle={International Conference on Learning Representations (ICLR)},
-  year={2025}
-}
-
-@inproceedings{wang2024patientpsi,
-  title={{PATIENT-$\Psi$}: Using large language models to simulate patients for training mental health professionals},
-  author={Wang, Ruiyi and Milani, Stephanie and Chiu, Jamie C. and Zhi, Jiayin and Eack, Shaun M. and Labrum, Travis and Murphy, Samuel M. and Jones, Nev and Hardy, Kate V. and Shen, Hong and Fang, Fei and Chen, Zhiyu},
-  booktitle={Proceedings of the 2024 Conference on Empirical Methods in Natural Language Processing (EMNLP)},
-  year={2024}
-}
-
-@article{zhou2025sweetrl,
-  title={{SWEET-RL}: Training multi-turn {LLM} agents on collaborative reasoning tasks},
-  author={Zhou, Yifei and Jiang, Song and Tian, Yuandong and Weston, Jason and Levine, Sergey and Sukhbaatar, Sainbayar and Li, Xian},
-  journal={arXiv preprint arXiv:2503.15478},
-  year={2025}
+@article{shrout1979icc,
+  author  = {Shrout, Patrick E. and Fleiss, Joseph L.},
+  title   = {Intraclass Correlations: Uses in Assessing Rater Reliability},
+  journal = {Psychological Bulletin},
+  volume  = {86},
+  number  = {2},
+  pages   = {420--428},
+  year    = {1979}
 }

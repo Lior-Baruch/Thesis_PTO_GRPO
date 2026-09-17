@@ -2,19 +2,20 @@
 \label{sec:method}
 
 Throughout, a \emph{turn} is one utterance by either speaker, a \emph{prefix} $c$ is a transcript
-ending on a patient turn, $\oplus$ appends turns to a transcript, and $\pi_n$ is the therapist
-policy at the start of training iteration~$n$ ($\pi_1$ is the base model). The patient simulator
-$P$ and the oracle $O$ are fixed LLMs; $O$ returns a scalar MI score for a transcript.
-Algorithm~\ref{alg:loop} states the procedure; Figure~\ref{fig:schematic} shows one group.
+ending on a patient turn, $\oplus$ appends turns to a transcript, $\pi_n$ is the therapist policy
+at the start of training iteration~$n$ ($\pi_1$ is the base model), and $\pi$ is the policy being
+updated within an iteration ($\pi = \pi_n$ at its start). The patient simulator $P$ and the oracle
+$O$ are fixed LLMs; $O$ returns a scalar MI score for a transcript. Algorithm~\ref{alg:loop}
+states the procedure; Figure~\ref{fig:schematic} shows one group.
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.82\textwidth]{figures/method_grpo_group.png}
 \caption{One GRPO group under look-ahead. The policy samples $G{=}8$ completions of a prompt; each
-is rolled forward $K$ turns by the patient simulator $P$ and the current policy $\pi_n$; the oracle
-scores the extended transcript; the scores are standardised within the group and every completion
-carries a gradient. At $K{=}0$ the rollout is skipped, the oracle scores the candidate alone, and
-standard GRPO is recovered: the horizon changes only what the oracle sees.}
+is rolled forward $K$ turns by the patient simulator $P$ and the policy $\pi$ being trained; the
+oracle scores the extended transcript; the scores are standardised within the group and every
+completion carries a gradient. At $K{=}0$ the rollout is skipped, the oracle scores the candidate
+alone, and standard GRPO is recovered.}
 \label{fig:schematic}
 \end{figure*}
 
@@ -28,11 +29,13 @@ standard GRPO is recovered: the horizon changes only what the oracle sees.}
 \FOR{$n = 1, \dots, N$}
   \STATE $\mathcal{C} \gets$ 96 conversations of $\pi_n$ with $P$ \COMMENT{eval set of $\pi_n$}
   \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$ with $\geq$ MCL turns
+  \STATE $\pi \gets \pi_n$
   \FOR{each $c \in \mathcal{D}$ (two epochs)}
     \STATE $t_1, \dots, t_G \sim \pi(\cdot \mid c)$
     \STATE $r_g \gets O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big)$ for all $g$
+      \COMMENT{Eq.~\ref{eq:reward}}
     \STATE $A_g \gets (r_g - \operatorname{mean}_g r)/\operatorname{std}_g r$
-    \STATE PPO-clipped step on $\{(c, t_g, A_g)\}_g$, KL to $\pi_n$
+    \STATE one step on Eq.~\ref{eq:grpo} over $\{(c, t_g, A_g)\}_g$, KL to $\pi_n$
   \ENDFOR
   \STATE $\pi_{n+1} \gets \pi$
 \ENDFOR
@@ -43,33 +46,47 @@ standard GRPO is recovered: the horizon changes only what the oracle sees.}
 \textbf{The iterative loop.} At iteration $n$, $\pi_n$ holds 96 conversations with $P$, one per
 patient persona; each is sliced after every patient turn whose prefix has at least MCL utterances
 (the \emph{minimum context length}, 12 here; see below) to form the training prompts. For each
-prompt GRPO samples $G{=}8$ completions, scores them, standardises the
-scores within the group, and takes a PPO-clipped step with a KL penalty toward $\pi_n$; after two
-epochs the policy is saved as $\pi_{n+1}$ and the loop repeats with fresh conversations. The
-conversations generated at the start of iteration $n$ double as the evaluation set of $\pi_n$; a
-generate-only pass after the last update evaluates the final policy, so ten iterations yield
-eleven evaluated model states per run.
+prompt GRPO samples $G{=}8$ completions, scores them, and takes one step on the group-standardised
+scores; after two epochs the policy is saved as $\pi_{n+1}$ and the loop repeats with fresh
+conversations. The conversations generated at the
+start of iteration $n$ double as the evaluation set of $\pi_n$; a generate-only pass after the
+last update evaluates the final policy, so ten iterations yield eleven evaluated model states per
+run.
 
 \textbf{The look-ahead reward.} The only thing we change is the transcript the oracle scores.
-Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then $\pi_n$, then $P$,
+Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then $\pi$, then $P$,
 and so on for $K$ turns, stopping early if the patient closes the session; $\tau_0(x)$ is empty.
 Then
-\[
+\begin{equation}
+\label{eq:reward}
 r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
-\]
+\end{equation}
 At $K{=}5$ the oracle scores the candidate together with the five turns that followed it under the
 current policy, so a candidate is credited for where it leads under the therapist that will
-actually follow it. Loss, advantage, KL penalty, prompts and number of gradient steps are identical
-across $K$; the horizon changes only the evidence on which a candidate is ranked against its
-siblings.
+actually follow it.
+
+\textbf{The update.} The step maximises the GRPO objective of \citet{shao2024deepseekmath}: the
+per-token surrogate
+\begin{equation}
+\label{eq:grpo}
+\ell_{g,i} = \min(\rho_{g,i} A_g,\,\bar{\rho}_{g,i} A_g) - \beta\,\mathrm{KL}_{g,i},
+\end{equation}
+averaged over the tokens of each completion and then over the group, where $\rho_{g,i}$ is the
+$i$-th token's probability ratio between $\pi$ and the sampling policy, $\bar{\rho}_{g,i}$ its
+clip to $[1{-}\epsilon, 1{+}\epsilon]$, and $\mathrm{KL}_{g,i}$ the per-token KL estimate to
+$\pi_n$. Both arms make one update per sampled batch
+(Table~\ref{tab:config}), so $\rho_{g,i}{=}1$ at the update, the clipping is inactive, and the
+step is the advantage-weighted policy gradient over the group with the KL penalty. Loss,
+advantage, prompts and number of gradient steps are identical across $K$; the horizon enters
+only through $r_g$.
 
 \textbf{Why the transfer is not trivial.} A rollout is one sample from the distribution of
 continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value,
-with sampling noise from $P$ and $\pi_n$ added to the oracle's own. PTO filters that noise by
+with sampling noise from $P$ and $\pi$ added to the oracle's own. PTO filters that noise by
 construction, keeping only the best- and worst-scoring candidates, so an unlucky rollout can at
 most cost a pair; GRPO standardises the scores within the group and trains on all $G$ candidates,
-so the rollout variance enters every advantage. Whether the lever survives that exposure is the
-question the controlled pair answers.
+so the rollout variance enters every advantage. Whether the lever survives that exposure is what
+the controlled pair tests.
 
 \textbf{Minimum context length.} Training prompts are prefixes, so the oracle scores a partial
 conversation while the evaluation scores a whole session. In a pilot on an earlier configuration
