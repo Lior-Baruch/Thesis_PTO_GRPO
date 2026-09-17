@@ -520,3 +520,30 @@ taken from the abstract only.
 §2 was rewritten around these (the multi-turn paragraph now ends on the two nearest works and a
 one-sentence placement of look-ahead; the reward-hacking paragraph was tightened by two lines to
 pay for it). No number changed.
+
+## Reference currency pass, 2026-09-17 (web-verifying agent + spot checks by hand)
+
+Scope: every arXiv-cited entry checked for a since-published version; canonical DOI/URL sought for
+the rest. **Applied only what was read off the venue's own page** (Nature, PMLR, proceedings.iclr.cc,
+ACL Anthology, JAIR) or the publisher's Crossref deposit (IEEE, ACM). OpenReview and dblp were
+behind bot walls all day, so nothing rests on them.
+
+| entry | change | evidence |
+|---|---|---|
+| `guo2025deepseekr1` | arXiv → **Nature 645(8081):633–638, 2025**, DOI 10.1038/s41586-025-09422-z; printed title "DeepSeek-R1 incentivizes reasoning in LLMs through reinforcement learning"; Nature lists 194 individual authors and no "DeepSeek-AI" collective, so the author line is now "Guo, Daya … Bi, Xiao and others". In-text citation becomes (Guo et al., 2025) | nature.com/articles/s41586-025-09422-z + Crossref |
+| `kazemnejad2024vineppo` | arXiv → **ICML 2025, PMLR 267:29557–29590**; retitled on the venue page "VinePPO: Refining Credit Assignment in RL Training of LLMs". Key kept (in-text now 2025) | proceedings.mlr.press/v267/kazemnejad25a.html |
+| `yuan2024selfrewarding` (uncited) | arXiv → **ICML 2024, PMLR 235:57905–57923**; the bib had omitted the 4th author, Xian Li | proceedings.mlr.press/v235/yuan24d.html |
+| `yuan2024eurus` (uncited) | arXiv → **ICLR 2025**; the bib's author list had skipped Boji Shan and Zeyuan Liu before Jia Deng | proceedings.iclr.cc 2025 hash 3e2c12c1… |
+| `yosef2024assessing` | + pages 1–11, address, DOI 10.18653/v1/2024.clpsych-1.1 (author order kept as "Brunstein Klomek", her actual name; the Anthology record inverts it) | aclanthology.org/2024.clpsych-1.1 |
+| `perezrosas2019goodcounselor` | + publisher, address, DOI 10.18653/v1/P19-1088, URL | aclanthology.org/P19-1088 |
+| `wang2024patientpsi` | + pages 12772–12797, publisher, address, DOI 10.18653/v1/2024.emnlp-main.711, URL | aclanthology.org/2024.emnlp-main.711 |
+| `li2016deeprl` | + pages 1192–1202, publisher, address, DOI 10.18653/v1/D16-1127, URL | aclanthology.org/D16-1127 |
+| `wu2022annomi` | + publisher IEEE, DOI 10.1109/ICASSP43922.2022.9746035 (booktitle wording left as is: Xplore itself was blocked) | IEEE Crossref deposit |
+| `steenstra2025scaffolding` | + pages 1–22, address | ACM Crossref deposit |
+| `levin2000stochastic` | + DOI 10.1109/89.817450 | IEEE Crossref deposit |
+| `singh2002optimizing` | + DOI 10.1613/jair.859, URL | jair.org |
+| `moyers2016miti` | + URL casaa.unm.edu/assets/docs/miti4_21.pdf — the PDF was downloaded and its first page read: "Motivational Interviewing Treatment Integrity Coding Manual 4.2.1 … Revised June 2015", Moyers, Manuel & Ernst. (The 2026-09-16 ledger row named `miti4_2.pdf`; `miti4_21.pdf` is the file that resolves today.) Year stays 2015 | the PDF itself |
+| `yang2026mithinker`, `hoang2026standardised` | + DOIs (from the Anthology records read earlier today) | aclanthology.org |
+| `baruch2025pto` | venue string **confirmed** (SSI-FM workshop; listed without an Oral tag on the workshop's accepted-papers page). No URL added: the OpenReview forum returned a bot challenge, so the id could not be opened | sites.google.com/berkeley.edu/selfimprovingfoundationmodels/accepted-papers; iclr.cc/virtual/2025/workshop/23971 |
+| `chiu2024bolt`, `hong2023imagined`, `zhou2025sweetrl`, `wei2025multiturn`, `qian2025userrl`, `pace2024westofn`, `xie2024mctsdpo`, `shao2024deepseekmath`, `schulman2017ppo`, `guo2024oaif` | **no change** — still arXiv-only as far as the arXiv record (no journal-ref / acceptance comment), the iclr.cc / neurips.cc virtual sites, ML Anthology and the ACL 2026 / EMNLP 2026 accepted lists show. `wei2025multiturn` matches arXiv v3 (2026-08-21) exactly; its ICLR 2026 and `qian2025userrl`'s ICLR 2026 submissions could not be read on OpenReview | arXiv abstract pages |
+| 24 entries **not re-verified** (zhou2024archer, wang2024sotopiapi, shani2024multiturn, gao2024refuel, christiano2017deeprl, ouyang2022instructgpt, rafailov2023dpo, lightman2024letsverify, yu2023promptmcts, chen2025broaden, amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling, coste2024ensembles, zheng2023judging, sharma2024sycophancy, perez2023discovering, panickssery2024selfpreference, singhal2024long, dubois2024lengthcontrolled, hatcher2006waisr, larsen1979csq, koo2016icc, shrout1979icc) | none — the agent's parallel checks for these had not returned. Each was verified against its venue page when added (2026-08-18 / 09-04 / 09-14 blocks above); none is an arXiv preprint, so no currency change is expected | — |
