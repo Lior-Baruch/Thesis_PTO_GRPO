@@ -1,11 +1,43 @@
+\clearpage
 \section{Saturation of the training oracle at the winning checkpoint}
-\label{sec:measurement}
+\label{app:saturation}
+
+This appendix documents a property of the design that \Sef{sec:reward} and
+\Sef{sec:therapist} rely on: the held-out judge, not the training oracle, carries every
+per-conversation claim about the look-ahead arm's late checkpoints.
 
 \S\ref{sec:reward} rests on two graders agreeing about an ordering, and at the arm level they do:
 across the 22 model states, the held-out judge preserves the sign of $1{,}640$ of
 $8 \times \binom{22}{2} = 1{,}848$ pairwise state $\times$ instrument contrasts ($88.7\%$), and
 $98.9\%$ of those the training oracle scores at $|\Delta| \geq 0.50$. At the level of individual
 conversations they stop agreeing at the winning checkpoint.
+
+\begin{table}[t]
+\centering
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+Instrument & $r$ @I10 & med. & $\Delta$ med. & rank\\
+\midrule
+MITI (coding)   & $0.333$ & $0.678$ & $-0.345$ & $1/22$\\
+Q1 (rewarded)   & $0.544$ & $0.842$ & $-0.298$ & $2/22$\\
+Q2 (rewarded)   & $0.590$ & $0.754$ & $-0.164$ & $1/22$\\
+MICI (coding)   & $0.287$ & $0.399$ & $-0.112$ & $4/22$\\
+\midrule
+CSQ-8           & $0.851$ & $0.890$ & $-0.039$ & $4/22$\\
+PCT             & $0.928$ & $0.956$ & $-0.028$ & $3/22$\\
+MI-SAT          & $0.906$ & $0.931$ & $-0.025$ & $4/22$\\
+WAI-SR          & $0.898$ & $0.920$ & $-0.022$ & $3/22$\\
+\bottomrule
+\end{tabular}
+\caption{Per-conversation cross-grader agreement (Pearson $r$, $n{=}96$) at the winning checkpoint
+against each instrument's own median and rank across the 22 model states ($1/22$ = this
+instrument's worst-agreeing state in the experiment). Instruments must be compared down their own
+column, never across: their baseline agreement differs by more than the effect. The disagreement
+is real but not confined to the rewarded rubric.}
+\label{tab:agreement}
+\end{table}
 
 \textbf{Per-conversation agreement collapses at the winning checkpoint.} On the rewarded rubric
 Q1, per-conversation agreement between the two graders along the $\Kf$ arm reads $0.941$ at
@@ -37,4 +69,4 @@ discriminating, ranks $\Kf$ above $\Kz$ at $\dz\,1.030$, a larger effect than th
 oracle reports. It does undermine per-conversation claims about $\Kf$'s late checkpoints on Q1,
 Q2, MITI, or MICI; the absolute endpoint level $4.517$ in the compressed top of the training
 oracle's range; and the precise magnitude of the residual MI-inconsistency in
-\S\ref{sec:behaviour-heldout}.
+\S\ref{sec:therapist}.

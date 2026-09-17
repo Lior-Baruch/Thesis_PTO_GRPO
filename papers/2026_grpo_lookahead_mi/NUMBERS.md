@@ -573,3 +573,61 @@ entry is now verified on its venue's page or the publisher's Crossref deposit. A
 Not applied by choice: `editor` lists (acl_natbib prints them and they would double the length of
 a dozen entries); `volume={2024}`-style ICLR volumes; the "(ACL)/(EMNLP)" suffix removal the
 Anthology's own strings would imply (a style choice, kept as is).
+
+## 2026-09-17 (c) — the MI-process refactor (Claude, on Lior's "the story is GRPO with look-ahead in MI and a deep analysis")
+
+**Structure.** §6 *What look-ahead teaches the therapist* (was *Behavioural analysis*) + a new
+§7 *What the therapist's turns do to the patient*; the saturation section moved whole to
+**Appendix E** (`E_saturation.tex`, `\label{app:saturation}`; its Table 4 is now Table 7 there;
+no number changed); §8 keeps the horizon paragraph with the mechanism paragraph folded in, the
+"Scope" paragraph moved to the Limitations as *One optimiser, one regime*; the method's *Cost*
+paragraph folded into *The look-ahead reward*. New **Figure 3** (`process_grpo.png`, body) and
+**Table 3** (process endpoint, body); the judge-free marker figure is now single-panel and in
+Appendix A (**Figure 4**); new appendix figures **5** (`process_grpo_heldout.png`), **6**
+(`responsiveness_grpo.png`), **7** (`text_grpo.png`). Body ends at the bottom of page 8; 25 pages.
+Every table below is under `Exp3_PTO_GRPO/eda/results/lookahead/{process,text}/tables/` (family
+notebooks `lookahead/process.ipynb`, `lookahead/text.ipynb`; rendered 2026-09-17 on the four-arm
+grid, GRPO rows quoted). ⚠ `k_process_paired` / `k_text_paired` store **K=0 − K=5**; every
+contrast below is in the PAPER's sign (K=5 − K=0); levels are levels.
+
+**The coder (config facts).** `questionnaires.py` id 10; therapist codes OQ CQ SR CR AF PRA GI
+PERS SEEK CONF OTH, patient codes CT ST NEU; transcript numbered `[THERAPIST #k]`/`[PATIENT #k]`;
+arrays pinned to the utterance counts; opener pinned to OQ and excluded from every rate; both
+graders; 2 × 11 × 96 = **2,112** conversations per grader, complete (three held-out batch rows
+came back one code short and were re-scored on the live path). Derived quantities are recomputed
+in `eda_analysis/process.py::conversation_metrics` from the stored code strings.
+
+| claim | direction | value | source |
+|---|---|---|---|
+| 📄 Code shares at base (iteration 0), primary / held-out | levels | GRPO_LA0 base: OQ 0.096 / 0.182, CQ 0.050 / 0.273, SR 0.127 / 0.005, CR 0.016 / 0.042, AF 0.033 / 0.023, PRA 0.031 / 0.036, GI 0.394 / 0.191, PERS 0.198 / 0.151; GRPO_LA5 base: OQ 0.078 / 0.169, CR 0.020 / 0.020, PRA 0.051 / 0.041, PERS 0.208 / 0.180 | `process.xlsx::process_levels_<judge>`, `th_<CODE>_rate`, iteration 0 |
+| 📄 **K=0 learns non-specific praise** — `PRA` share at iteration 10 | level | **0.407** primary / **0.762** held-out (base 0.031 / 0.036) | `process_levels_<judge>`, GRPO_LA0 iteration 10 |
+| 📄 **K=5 learns complex reflections** — `CR` share at iteration 10 | level | **0.230** / **0.242** (base 0.020 / 0.020); K=0 endpoint 0.020 / 0.016 | same, GRPO_LA5 / GRPO_LA0 |
+| 📄 Open-question turns at the endpoints | level | K=0 0.000 / 0.000; K=5 0.011 / 0.032 ("0.00–0.03") | same |
+| 📄 Persuasion under K=5 | level | 0.208 → 0.279 primary (paper: 0.21 → 0.28); held-out 0.180 → 0.268 | same |
+| 📄 MI-adherent share (OQ+SR+CR+AF+SEEK) at iteration 10 | level | K=5 0.438 / 0.360 vs K=0 0.290 / 0.037 | same, `mi_adherent_rate` |
+| 📄 Held-out judge's praise share for K=5 at iteration 10 | level | PRA 0.203 (paper "0.20"; primary 0.053, "0.05") | `process_levels_claude-haiku-4-5`, GRPO_LA5 |
+| 📄 **Table 3, therapist block** (iteration 10, persona-paired dz, K5−K0) primary \| held-out | K=5 − K=0 | PRA 0.407→0.053 dz −1.19 \| 0.762→0.203 dz −2.19 · CR 0.020→0.230 +0.90 \| 0.016→0.242 +0.94 · PERS 0.055→0.279 +0.79 \| 0.033→0.268 +0.84 · MI-adherent 0.290→0.438 +0.40 (p_holm .0044) \| 0.037→0.360 +1.35 · MI-inconsistent 0.463→0.332 −0.37 (p_holm .020) \| 0.795→0.471 −1.08; all others p_holm < 1e-6 | `process.xlsx::k_process_paired`, `method = GRPO`, `iteration = 10`, columns `mean_K0, mean_K5, dz, p_holm` — **dz and delta negated** |
+| 📄 Table 3, responsiveness block | K=5 − K=0 | refl_after_ct 0.003→0.264 dz +0.99 (n 76) \| 0.006→0.258 +0.99 (n 80) · pra_after_st 0.315→0.015 dz −1.10 (n 65) \| 0.723→0.011 −3.10 (n 64) | same rows; `n` = conversations where the condition occurred |
+| 📄 Table 3, patient row + the "any change talk" sentence | K=5 − K=0 | ct_prop 0.528→0.683 dz +0.57 \| 0.545→0.721 +0.70; reached_ct 0.865→0.917 dz +0.13 (p_holm 1.0) \| 0.885→0.948 +0.18 (p_holm .75) — quoted in §7 as "0.92 vs 0.87, n.s." | same |
+| 📄 Not in Table 3 (space); in the text / figures only | K=5 − K=0 | AF 0.196→0.147 dz −0.18 (n.s.) \| 0.009→0.067 +0.56; OQ 0.000→0.011 +0.33 (p_holm .027) \| 0.000→0.032 +0.57 | same |
+| 📄 **Trend rows** (which of the ten matched iterations clear Holm) primary \| held-out | direction as named | PRA higher under K=0 at 8, 10 \| 5, 6, 8, 9, 10 · CR higher under K=5 at 4, 5, 7–10 \| 6–10 (paper: "six / five") · PERS higher under K=5 at 2, 6–10 \| 3–6, 8–10 ("six / seven") · refl_after_ct higher under K=5 at 1, 6–10 \| 6–10 ("six / five") · pra_after_st higher under K=0 at 8–10 \| 5–10 · ct_prop higher under K=5 at 6–10 \| 4–10 ("sixth / fourth on") · mi_incons_rate: primary K=0 higher at 10, K=5 higher at 2, 6, 9; **held-out K=0 higher at 8, 10 and K=5 higher at 3, 5** (the "along the run … mixed" sentence) | `process.xlsx::k_process_summary`, `method = GRPO`, `iters_sig_K0_higher` / `iters_sig_K5_higher` |
+| 📄 **Yields at iteration 10** (Figure 3c / 5c, §7) | P(CT next) | CR: K=5 **0.854** (n 389) / **0.889** (n 431); K=0 0.095 (n 21) / 0.087 (n 23) · PRA: K=0 0.582 (n 467) / 0.486 (n 813); K=5 0.758 (n 66) / 0.973 (n 299) · GI: K=0 0.539 / 0.709 ("no better than its plain information-giving turns": 0.582 vs 0.539 primary, 0.486 vs 0.709 held-out) · AF: K=0 0.729 (n 170) / [n 12, not quoted], K=5 0.982 / 0.949 · PERS: K=0 0.346 / 0.406, K=5 0.528 / 0.372 | `process.xlsx::yield_<judge>`, GRPO rows, `iteration = 10`, `p_ct`, `n`; Wilson bounds `p_ct_lo/hi` |
+| 📄 Praise yield at base | P(CT next) | GRPO_LA0 base PRA 0.971 (n 34) primary / 0.722 (n 36) held-out ("97% / 72%") | `yield_<judge>`, iteration 0 |
+| 📄 Responsiveness at base | level | refl_after_ct: GRPO_LA0 0.122 / 0.036, GRPO_LA5 0.153 / 0.023 ("4–15%"); pra_after_st ≤ 0.032 at every base ("at most 3%") | `process_levels_<judge>`, iteration 0 |
+| 📄 **Within-session change talk** (Figure 3d / 5d) | CT share by patient-turn bin | iteration 10, primary: K=5 0.177 / 0.538 / 0.796 / **0.846**; K=0 0.167 / 0.472 / **0.680** / **0.496**. Held-out: K=5 0.323 / 0.583 / 0.790 / **0.876**; K=0 0.328 / 0.479 / **0.623** / **0.499**. Bins 1-2 / 3-5 / 6-9 / 10+; the 10+ bin is reached by 77% (K=5) / 65% (K=0) of conversations | `process.xlsx::ct_trajectory_<judge>`, GRPO rows, `ct_prop`, `share_convs_reaching` |
+| 📄 Base 10+ bin (the "below the base" claim) | CT share | primary 0.650 (LA0 base) / 0.516 (LA5 base); held-out 0.655 / 0.503 — K=0's endpoint 0.496 / 0.499 is below both | same, iteration 0 |
+| 📄 **Parity of the coder with the same grader's instruments** (Appendix C.3, Limitations) | pooled within-state Spearman ρ, GRPO states only | primary: PCT CT **0.881**, ST **0.898**; MITI B1_GI 0.426, B2_Persuade 0.315, B3_Q 0.193, B4_SR 0.281, B5_CR 0.216, B6_AF 0.205, B7_Seek 0.019 ("0.02–0.43"). Held-out: CT **0.915**, ST **0.942**; B3_Q 0.731, B1_GI 0.677, B2_Persuade 0.550, B4_SR 0.196, B5_CR 0.303, B6_AF 0.215, B7_Seek 0.101 ("0.10–0.30"). MITI mean questions 5.469 vs coder 1.723 per conversation, primary ("5.5 vs 1.7") | derived: Fisher-z, n-weighted pool of the 22 GRPO rows of `process.xlsx::parity_<judge>` (the rendered `parity_pooled_<judge>` pools all 44 states — do not quote that one here) |
+| 📄 Embedding drift (§6, Figure 7a) | cosine between the two GRPO arms' displacement vectors | iteration 10 **0.438**; iterations 3–8: 0.714, 0.642, 0.578, 0.328, 0.469, 0.585 ("0.33–0.71"); iteration 9 −0.053 | `text.xlsx::drift_cosines`, `cos_K0_K5_GRPO` |
+| 📄 Persona variance share (§6, Figure 7b) | level | GRPO_LA0 0.374 → 0.192; GRPO_LA5 0.410 → 0.302 ("0.37 → 0.19", "0.41 → 0.30") | `text.xlsx::diversity_by_state`, `persona_var_share`, iterations 0 and 10 |
+| 📄 Template similarity (Figure 7c) | level | GRPO_LA0 0.265 → 0.585; GRPO_LA5 0.262 → 0.494 | same, `template_sim` |
+| 📄 Patient-side text contrasts at iteration 10 (§7) | K=5 − K=0 | pt_turn_len 439.7 → 600.3 chars, dz +1.24 ("600 vs 440"); pt_disengage_rate 0.213 → 0.276, dz +0.31 (p_holm .026) | `text.xlsx::k_text_paired`, `method = GRPO`, `iteration = 10` — **negated** |
+| 📄 Echo proxies are NOT reflection proxies (why §6 does not call them that) | pooled ρ vs MITI reflections | −0.09 to +0.02 under both graders | `text.xlsx::echo_validation_pooled` |
+| 📄 Abstract's "2,112 evaluation conversations" | count | 2 arms × 11 states × 96 = 2,112 per grader | coverage (`tools/score_miproc.py plan`) |
+
+**Retired sentences.** "the look-ahead policy asks questions instead" (abstract / §1 / old §6):
+the dominant-function coder shows open-question *turns* vanishing in both arms; the `?`-count
+claim ("more questions per therapist turn, 7 of 10 iterations, mean dz 0.643") survives only as
+the unit note in Appendix C.3. "Look-ahead prevents the over-praise drift under the training
+oracle" → "removes the praise habit and roughly halves the MI-inconsistency the held-out judge
+sees" (the held-out coder reads 0.20 of K=5's endpoint turns as praise). The "1.3–2.6×" gain
+sentence is unchanged.

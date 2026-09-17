@@ -70,11 +70,14 @@ MI-SAT & adapted, this work & 6 items, 1--5 & mean \\
 MITI & \citet{moyers2016miti} & 4 globals, 1--5; 7 behaviour counts & mean of the globals \\
 PCT & this work & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
 MICI & this work & 1 global, 1--5; 6 behaviour counts & acts per therapist turn \\
+\midrule
+process coder & this work & one code per therapist and per patient utterance & \S\ref{sec:therapist}--\ref{sec:patient} \\
 \bottomrule
 \end{tabular}
-\caption{The eight instruments. \QQ\ is the mean of the Q1 and Q2 means. CT and ST are the
-patient's change-talk and sustain-talk utterance counts. MICI is lower-is-better; its per-channel
-counts and rates are the material of \S\ref{sec:behaviour}.}
+\caption{The eight instruments and the process coder. \QQ\ is the mean of the Q1 and Q2 means. CT
+and ST are the patient's change-talk and sustain-talk utterance counts. MICI is lower-is-better;
+its per-channel counts and rates are the material of \S\ref{sec:therapist}. The process coder is
+described in \S\ref{app:coder}.}
 \label{tab:instruments}
 \end{table*}
 
@@ -98,8 +101,51 @@ across the therapist's turns, any number per utterance: confront, advise without
 direct, judge/label, and over-praise, the last defined to the grader as ``effusive, generic, or
 excessive praise NOT tied to a specific client strength/effort (`you're amazing', `I'm so proud of
 you'). A genuine, specific MI affirmation does NOT count here.'' The per-turn rates in
-\S\ref{sec:behaviour} divide these counts by the number of therapist utterances, which the prompt
+\S\ref{sec:therapist} divide these counts by the number of therapist utterances, which the prompt
 states.
+
+\subsection{The utterance-level process coder}
+\label{app:coder}
+
+The process coder is administered as one further call per conversation under each grader, with the
+same rubric-first layout. The grader is addressed as an MI process coder trained on the MITI
+4.2.1 and MISC manuals and told to assign exactly one code to every therapist utterance, its
+dominant function (the function that occupies most of the utterance; a turn that praises at
+length and ends in one question is coded as praise), and exactly one code to every patient
+utterance, in transcript order. The therapist codes are: open question (invites elaboration);
+closed question; simple reflection (repeats or rephrases, adding little or no meaning); complex
+reflection (adds substantial meaning or emphasis: an inferred feeling, a metaphor, a double-sided
+reflection); affirmation, in the MITI~4.2.1 sense of a comment on a specific client strength,
+ability, intention or effort; non-specific praise (cheerleading or effusive reassurance not tied to
+a specific strength or effort, including praise for a step the patient has not taken); giving
+information; persuasion (arguing, lecturing, advising toward change, warning, moralising, with or
+without permission); seeking collaboration or emphasising autonomy; confront / direct / judge; and
+other (greeting, filler, logistics, degenerate text). The patient codes are change talk (any
+statement favouring change), sustain talk (any statement favouring the status quo) and neutral,
+with an utterance containing both coded by the direction that dominates. The transcript is
+numbered by role (``[THERAPIST \#k]'', ``[PATIENT \#k]'') so that the arrays align, their
+lengths are pinned to the utterance counts in the response schema, a response of the wrong length
+is rejected and re-requested, and the scripted opener is pinned to open question and excluded
+from every rate and transition. Every one of the $2 \times 11 \times 96 = 2{,}112$ evaluation
+conversations is coded under both graders; three held-out rows that came back one code short on
+the batch path were re-scored on the live path.
+
+All process quantities are recomputed from the stored code sequences. Alternation is strict and
+the therapist speaks first, so therapist turn $i$ is answered by patient turn $i$ and answers
+patient turn $i-1$; the yield of a code is the share of its turns whose patient reply is change
+talk, and the responsiveness rates condition on the patient's preceding code. As a check of the
+coder against the session-level instruments of the same grader, the per-utterance codes summed
+per conversation are compared with the MITI behaviour counts and the PCT change-talk counts:
+across the 22 model states, the patient-side counts agree closely (Spearman $\rho$ pooled within
+state: change talk $0.88$ / $0.92$, sustain talk $0.90$ / $0.94$ under the training oracle / the
+held-out judge), while the therapist-side counts agree only partly (training oracle
+$0.02$--$0.43$ over the seven MITI codes; held-out judge $0.73$ for questions, $0.68$ for giving
+information, $0.55$ for persuasion, $0.10$--$0.30$ for reflections, affirmations and seeking
+collaboration). The two instruments count different things: the MITI coder counts every function a
+long turn performs, the process coder its dominant one, which is why the MITI coder reports
+$5.5$ questions per conversation where the process coder reports $1.7$ question-turns under the
+training oracle. \S\ref{sec:therapist} therefore quotes ``open-question turns'' and
+\S\ref{sec:reward} ``questions per turn'' with their units.
 
 \subsection{The simulated patient and the therapist prompt}
 \label{app:prompts}
@@ -136,14 +182,14 @@ Appendix~\ref{app:example}.
 \subsection{The lexical over-praise marker}
 \label{app:marker}
 
-The marker of \S\ref{sec:behaviour} is one case-insensitive regular expression matched against
+The marker of \S\ref{sec:therapist} is one case-insensitive regular expression matched against
 each therapist utterance; a turn counts if it contains any of ten patterns: ``I'm so proud'',
 ``proud of you'', ``inspiration to me'', ``you got this'', ``beautiful'', ``beacon'',
 ``shining'', ``warrior'', ``hero of your'', and ``you are a light'' or ``you are a beacon''. It
 exists as a direction check on the oracle's over-praise count and is deliberately crude
 (``beautiful'' matches any use of the word); it is reported as the share of therapist turns
 matched, never as a count of acts, and its absolute level is not a measurement. Its agreement with
-the oracle-coded rate (Figure~\ref{fig:overpraise}) is what \S\ref{sec:behaviour} relies on.
+the coded praise share (Figure~\ref{fig:process}a) is what \S\ref{sec:therapist} relies on.
 
 \subsection{Anti-degeneracy}
 
@@ -186,7 +232,8 @@ sub-batch, so the per-step multiplier is quoted over the settled iterations 3--1
 Every number in this paper is traceable to a tracked table in the analysis-results tree of the
 code release, through a claims ledger released with it. Figures~\ref{fig:grid-primary}
 and~\ref{fig:grid-heldout} are copied from that tree; Figures~\ref{fig:schematic},
-\ref{fig:headline}, \ref{fig:overpraise}, \ref{fig:forest} and~\ref{fig:tails} are drawn from
-its tracked tables by scripts in the paper folder, at the width each is included at. The
+\ref{fig:headline}, \ref{fig:process}, \ref{fig:overpraise}, \ref{fig:process-heldout},
+\ref{fig:responsiveness}, \ref{fig:textspace}, \ref{fig:forest} and~\ref{fig:tails} are drawn
+from its tracked tables by scripts in the paper folder, at the width each is included at. The
 transcripts in Table~\ref{tab:excerpt} and Appendix~\ref{app:example} are reproduced verbatim
 from the stored conversation files, and the selection scripts are released with the paper.

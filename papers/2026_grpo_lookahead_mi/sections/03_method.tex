@@ -63,7 +63,9 @@ r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \end{equation}
 At $K{=}5$ the oracle scores the candidate together with the five turns that followed it under the
 current policy, so a candidate is credited for where it leads under the therapist that will
-actually follow it.
+actually follow it, at the price of three patient-simulator calls and two policy generations per
+candidate and roughly twice the per-step wall-clock (comparisons are at matched iteration count;
+the Limitations give the matched-cost reading).
 
 \textbf{The update.} The step maximises the GRPO objective of \citet{shao2024deepseekmath}: the
 per-token surrogate
@@ -83,19 +85,13 @@ $K$; the horizon enters only through $r_g$.
 \textbf{Why the transfer is not trivial.} A rollout is one sample from the distribution of
 continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value,
 with sampling noise from $P$ and $\pi$ added to the oracle's own. PTO filters that noise by
-construction, keeping only the best- and worst-scoring candidates, so an unlucky rollout can at
-most cost a pair; GRPO standardises the scores within the group and trains on all $G$ candidates,
-so the rollout variance enters every advantage.
+keeping only the best- and worst-scoring candidates, so an unlucky rollout can at most cost a
+pair; GRPO trains on all $G$ candidates, so the rollout variance enters every advantage.
 
 \textbf{Minimum context length.} Training prompts are prefixes, so the oracle scores a partial
 conversation while the evaluation scores a whole session. In a pilot on an earlier configuration
 of this task the oracle's ranking of very short prefixes agreed poorly with its ranking of the
 completed sessions and recovered from roughly ten utterances, so both arms discard prefixes
-shorter than MCL${=}12$. At that minimum, in the runs reported here, the training reward orders
-candidates as the full-session score does in $86$--$89\%$ of pairs under the training oracle, and
-agreement does not fall with prefix length (Appendix~\ref{app:mechanism}).
-
-\textbf{Cost.} Each $K{=}5$ reward adds three patient-simulator calls and two policy generations
-to the single oracle call both arms share, and roughly doubles per-step wall-clock. All
-comparisons are at matched iteration count, not matched cost; the Limitations give the
-matched-cost reading.
+shorter than MCL${=}12$; at that minimum the training reward orders candidates as the
+full-session score does in $86$--$89\%$ of pairs, and agreement does not fall with prefix length
+(Appendix~\ref{app:mechanism}).

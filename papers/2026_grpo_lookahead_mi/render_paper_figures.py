@@ -97,30 +97,192 @@ plt.rcParams.update({
 
 
 def overpraise() -> Path:
+    """Figure 3 (single column since 2026-09-17): the judge-free lexical over-praise marker by
+    iteration, from ``behaviour.xlsx`` sheet ``overpraise_judgefree_data``. The two oracle-coded
+    panels it used to carry are superseded by the per-utterance code mix of Figure 4, which shows
+    the same drift on both graders with the coder's own praise code."""
     op = pd.read_excel(BEHAVIOUR_XLSX, sheet_name="overpraise_judgefree_data")
     op = op[op.arm.isin(COL)].sort_values(["arm", "iteration"])
-    # Panel titles and axis labels are kept SHORT: the type is true 7 pt and each panel is one
-    # third of the text width, and what each panel measures is spelled out in the caption.
-    panels = [
-        ("lex_overpraise_marker_rate", "(a) lexical marker", "share of turns"),
-        (f"MICI_OverPraiseRate_{PRIMARY}", "(b) training oracle", "acts per turn"),
-        (f"MICI_OverPraiseRate_{HELDOUT}", "(c) held-out judge", "acts per turn"),
-    ]
-    fig, axes = plt.subplots(1, 3, figsize=figsize("overpraise_judgefree_grpo.png", 0.29))
-    for ax, (col, title, ylab) in zip(axes, panels):
-        for arm, a in op.groupby("arm"):
-            ax.plot(a.iteration, a[col], color=COL[arm], label=LAB[arm], ms=3.5, lw=1.4, **STY[arm])
-        ax.set_title(title, loc="left", fontweight="bold")
-        ax.set_ylabel(ylab)
-        ax.set_xlabel("iteration")
-        ax.set_xticks(range(0, 11, 2))
-        ax.set_ylim(bottom=0)
-    # Legend INSIDE panel (a): all three series rise from ~0, so the upper left is empty, and a
-    # legend row above the figure costs ~0.2 in of a page-width float that the body cannot spare.
-    axes[0].legend(frameon=False, loc="upper left", fontsize=6.0, handlelength=1.5,
-                   borderaxespad=0.2, labelspacing=0.2, handletextpad=0.4)
-    fig.tight_layout(w_pad=1.2)
+    fig, ax = plt.subplots(figsize=figsize("overpraise_judgefree_grpo.png", 0.62))
+    for arm, a in op.groupby("arm"):
+        ax.plot(a.iteration, a["lex_overpraise_marker_rate"], color=COL[arm], label=LAB[arm],
+                ms=3.5, lw=1.4, **STY[arm])
+    ax.set_ylabel("share of therapist turns with a marker")
+    ax.set_xlabel("iteration")
+    ax.set_xticks(range(0, 11, 2))
+    ax.set_ylim(0, 0.75)
+    ax.legend(frameon=False, loc="upper left", fontsize=6.0, handlelength=1.5,
+              borderaxespad=0.2, labelspacing=0.2, handletextpad=0.4)
+    fig.tight_layout()
     out = DEST / "overpraise_judgefree_grpo.png"
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+# --- the utterance-level process figures (2026-09-17) -------------------------------------------
+PROCESS_XLSX = RESULTS / "lookahead" / "process" / "tables" / "process.xlsx"
+TEXT_XLSX = RESULTS / "lookahead" / "text" / "tables" / "text.xlsx"
+CODES = ["OQ", "CQ", "SR", "CR", "AF", "PRA", "GI", "PERS", "SEEK", "CONF", "OTH"]
+CODE_LABEL = {"OQ": "open question", "CQ": "closed question", "SR": "simple reflection",
+              "CR": "complex reflection", "AF": "affirmation", "PRA": "non-specific praise",
+              "GI": "giving information", "PERS": "persuasion", "SEEK": "seeking collaboration",
+              "CONF": "confront / direct", "OTH": "other"}
+# Reflections blue, questions teal, affirmation green, praise vermilion (the turn-level hack),
+# information grey, persuasion purple, the rest light.
+CODE_COL = {"OQ": "#1b9e77", "CQ": "#a6dbc9", "SR": "#9ecae1", "CR": "#08519c", "AF": "#33a02c",
+            "PRA": "#d55e00", "GI": "#bdbdbd", "PERS": "#984ea3", "SEEK": "#f0e442",
+            "CONF": "#7f7f7f", "OTH": "#e5e5e5"}
+YIELD_CODES = ["CR", "SR", "AF", "GI", "PRA", "PERS"]
+BINS = ["1-2", "3-5", "6-9", "10+"]
+JUDGE_TITLE = {PRIMARY: "training oracle", HELDOUT: "held-out judge"}
+
+
+def _process_panels(judge: str, name: str) -> Path:
+    """Four panels from ``process.xlsx``: (a, b) each arm's code mix by iteration
+    (``process_levels_<judge>``, stacked ``th_<CODE>_rate``), (c) P(change talk | therapist code)
+    at iteration 10 with Wilson intervals (``yield_<judge>``; codes with fewer than 20 turns in an
+    arm are left blank), (d) change-talk share by patient turn bin at the endpoint against the
+    pooled base (``ct_trajectory_<judge>``)."""
+    lv = pd.read_excel(PROCESS_XLSX, sheet_name=f"process_levels_{judge}")
+    lv = lv[lv.arm.isin(COL)]
+    yd = pd.read_excel(PROCESS_XLSX, sheet_name=f"yield_{judge}")
+    yd = yd[yd.arm.isin(COL) & (yd.iteration == 10)]
+    tr = pd.read_excel(PROCESS_XLSX, sheet_name=f"ct_trajectory_{judge}")
+    tr = tr[tr.arm.isin(COL)]
+    fig, axes = plt.subplots(1, 4, figsize=figsize(name, 0.23),
+                             gridspec_kw={"width_ratios": [1.15, 1.15, 1.05, 0.95]})
+    for ax, arm, title in zip(axes[:2], ("GRPO_LA0", "GRPO_LA5"),
+                              ("(a) $K{=}0$: code mix", "(b) $K{=}5$: code mix")):
+        g = lv[lv.arm == arm].sort_values("iteration")
+        ax.stackplot(g.iteration, *[g[f"th_{c}_rate"].fillna(0).to_numpy() for c in CODES],
+                     labels=[CODE_LABEL[c] for c in CODES], colors=[CODE_COL[c] for c in CODES],
+                     lw=0.25, edgecolor="white")
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, 1)
+        ax.set_xticks(range(0, 11, 2))
+        ax.set_xlabel("iteration")
+        ax.set_title(title, loc="left", fontweight="bold")
+        ax.grid(False)
+    axes[0].set_ylabel("share of therapist turns")
+    # (c) yield of each therapist behaviour at the endpoint
+    ax = axes[2]
+    x = np.arange(len(YIELD_CODES))
+    w = 0.38
+    for i, arm in enumerate(("GRPO_LA0", "GRPO_LA5")):
+        d = yd[yd.arm == arm].set_index("th_code").reindex(YIELD_CODES)
+        ok = d["n"].fillna(0) >= 20
+        v = d["p_ct"].where(ok)
+        err = np.vstack([np.clip(v - d["p_ct_lo"], 0, None).fillna(0),
+                         np.clip(d["p_ct_hi"] - v, 0, None).fillna(0)])
+        ax.bar(x + (i - 0.5) * w, v, w, color=COL[arm], label=LAB[arm], yerr=err,
+               error_kw={"elinewidth": 0.6, "capsize": 1.5, "ecolor": "#333333"})
+    ax.set_xticks(x)
+    ax.set_xticklabels(YIELD_CODES, fontsize=5.8)
+    ax.set_ylim(0, 1.05)
+    ax.set_ylabel("P(change talk next)")
+    ax.set_xlabel("therapist code, iteration 10")
+    ax.set_title("(c) yield of each code", loc="left", fontweight="bold")
+    # (d) within-session change talk
+    ax = axes[3]
+    xb = np.arange(len(BINS))
+    base = tr[tr.iteration == 0].groupby("bin")["ct_prop"].mean().reindex(BINS)
+    ax.plot(xb, base.values, color="#555555", ls=":", lw=1.3, marker="d", ms=3.2, label="base")
+    for arm in ("GRPO_LA0", "GRPO_LA5"):
+        g = tr[(tr.arm == arm) & (tr.iteration == 10)].set_index("bin")["ct_prop"].reindex(BINS)
+        ax.plot(xb, g.values, color=COL[arm], ms=3.4, lw=1.5, label=LAB[arm], **STY[arm])
+    ax.set_xticks(xb)
+    ax.set_xticklabels(BINS)
+    ax.set_ylim(0, 1.05)
+    ax.set_xlabel("patient turn in the session")
+    ax.set_ylabel("change-talk share")
+    ax.set_title("(d) change talk, iter. 10", loc="left", fontweight="bold")
+    ax.legend(frameon=False, loc="lower right", fontsize=5.6, handlelength=1.2, borderaxespad=0.2)
+    # One shared legend for the code colours, above panels (a)-(c): three rows, 11 entries.
+    hh, ll = axes[0].get_legend_handles_labels()
+    fig.legend(hh, ll, loc="lower center", bbox_to_anchor=(0.40, 0.985), ncol=6, frameon=False,
+               fontsize=5.6, handlelength=1.0, columnspacing=0.8, handletextpad=0.4)
+    fig.tight_layout(w_pad=1.3)
+    out = DEST / name
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+def process() -> Path:
+    """Figure 4 (body): the utterance-level process picture under the training oracle."""
+    return _process_panels(PRIMARY, "process_grpo.png")
+
+
+def process_heldout() -> Path:
+    """Appendix twin of Figure 4 under the held-out judge."""
+    return _process_panels(HELDOUT, "process_grpo_heldout.png")
+
+
+def responsiveness() -> Path:
+    """Appendix: what the policy does after the patient's change talk and after sustain talk, by
+    iteration, under each grader (``process_levels_<judge>``: ``refl_after_ct``, ``pra_after_st``,
+    the per-conversation means)."""
+    panels = [(PRIMARY, "refl_after_ct", "(a) reflects CT, oracle"),
+              (HELDOUT, "refl_after_ct", "(b) reflects CT, held out"),
+              (PRIMARY, "pra_after_st", "(c) praises ST, oracle"),
+              (HELDOUT, "pra_after_st", "(d) praises ST, held out")]
+    fig, axes = plt.subplots(1, 4, figsize=figsize("responsiveness_grpo.png", 0.26))
+    for ax, (judge, col, title) in zip(axes, panels):
+        lv = pd.read_excel(PROCESS_XLSX, sheet_name=f"process_levels_{judge}")
+        for arm in ("GRPO_LA0", "GRPO_LA5"):
+            g = lv[lv.arm == arm].sort_values("iteration")
+            ax.fill_between(g.iteration, g[col] - g[f"{col}_se"], g[col] + g[f"{col}_se"],
+                            color=COL[arm], alpha=0.18, lw=0)
+            ax.plot(g.iteration, g[col], color=COL[arm], label=LAB[arm], ms=3.2, lw=1.4, **STY[arm])
+        ax.set_xticks(range(0, 11, 2))
+        ax.set_ylim(0, 0.8)
+        ax.set_xlabel("iteration")
+        ax.set_title(title, loc="left", fontweight="bold", fontsize=6.6)
+    axes[0].set_ylabel("P(reflect | patient CT)")
+    axes[2].set_ylabel("P(praise | patient ST)")
+    axes[0].legend(frameon=False, loc="upper left", fontsize=5.8, handlelength=1.2, borderaxespad=0.2)
+    fig.tight_layout(w_pad=1.3)
+    out = DEST / "responsiveness_grpo.png"
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+def textspace() -> Path:
+    """Appendix: the two policies in sentence-embedding space (``text.xlsx``): (a) the cosine
+    between their displacements from the base centroid (``drift_cosines``), (b) the
+    between-persona share of embedding variance with its bootstrap band and (c) the template
+    similarity across personas at matched turn (``diversity_by_state``)."""
+    cos = pd.read_excel(TEXT_XLSX, sheet_name="drift_cosines").sort_values("iteration")
+    dv = pd.read_excel(TEXT_XLSX, sheet_name="diversity_by_state")
+    dv = dv[dv.arm.isin(COL)]
+    fig, (a, b, c) = plt.subplots(1, 3, figsize=figsize("text_grpo.png", 0.29))
+    a.axhline(0, color="#444444", lw=0.8)
+    a.plot(cos.iteration, cos.cos_K0_K5_GRPO, color="#333333", marker="o", ms=3.4, lw=1.5)
+    a.set_ylim(-0.2, 1.0)
+    a.set_xticks(range(1, 11))
+    a.set_xlabel("iteration")
+    a.set_ylabel("cosine of the arms' displacements")
+    a.set_title("(a) same direction?", loc="left", fontweight="bold")
+    for ax, col, ylab, title in ((b, "persona_var_share", "between-persona variance share",
+                                  "(b) tailoring to the patient"),
+                                 (c, "template_sim", "mean cosine at matched turn",
+                                  "(c) convergence on a template")):
+        for arm in ("GRPO_LA0", "GRPO_LA5"):
+            g = dv[dv.arm == arm].sort_values("iteration")
+            if f"{col}_lo" in g.columns:
+                ax.fill_between(g.iteration, g[f"{col}_lo"], g[f"{col}_hi"], color=COL[arm], alpha=0.18, lw=0)
+            ax.plot(g.iteration, g[col], color=COL[arm], label=LAB[arm], ms=3.2, lw=1.4, **STY[arm])
+        ax.set_xticks(range(0, 11, 2))
+        ax.set_xlabel("iteration")
+        ax.set_ylabel(ylab)
+        ax.set_title(title, loc="left", fontweight="bold")
+    b.set_ylim(0.1, 0.5)
+    c.set_ylim(0.2, 0.65)
+    b.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.2, borderaxespad=0.2)
+    fig.tight_layout(w_pad=1.4)
+    out = DEST / "text_grpo.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     return out
@@ -380,7 +542,7 @@ def headline() -> Path:
     d = pd.read_excel(REWARD_XLSX, sheet_name="k_headline_grpo_data")
     d = d[d.metric == "Q1Q2"]
     panels = [(PRIMARY, "(a) training oracle (gpt-4o-mini)"), (HELDOUT, "(b) held-out judge (Claude Haiku 4.5)")]
-    fig, axes = plt.subplots(1, 2, figsize=figsize("k_headline_q1q2_grpo.png", 0.34))
+    fig, axes = plt.subplots(1, 2, figsize=figsize("k_headline_q1q2_grpo.png", 0.31))
     for ax, (judge, title) in zip(axes, panels):
         s = d[d.judge == judge].sort_values("iteration")
         for arm, mean, se, base in (("GRPO_LA0", "mean_K0", "se_K0", "base_K0"),
@@ -427,7 +589,8 @@ def main() -> int:
     DEST.mkdir(exist_ok=True)
     # saturation() is not in the list: its figure left the paper on 2026-09-16 (sec 7's text
     # carries every number it showed). Call it by hand to re-check those numbers.
-    for f in (headline, overpraise, tail_audit, forest):
+    for f in (headline, overpraise, process, process_heldout, responsiveness, textspace,
+              tail_audit, forest):
         print("wrote", f())
     return 0
 

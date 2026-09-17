@@ -12,7 +12,7 @@ it teaches is defined by its downstream effect: a reflection is good if the pati
 open question is good if it surfaces change talk, and premature reassurance is bad because of what
 it forecloses two turns later \citep{miller2013mi}. A judge shown only the turn sees none of this;
 we hypothesise that it rewards what is locally visible, above all whether the patient felt
-validated, a signal a policy can exploit with unearned praise.
+validated, which a policy can exploit with unearned praise.
 
 This paper presents \textbf{\LAGRPO}. Before the judge scores a candidate therapist turn, the
 patient simulator and the current policy roll the conversation forward $K$ further turns, and the
@@ -20,34 +20,37 @@ judge scores the extended transcript (a turn is one utterance, so $K{=}5$ append
 therapist, patient, therapist, patient). The lever itself is not new:
 \citet{baruch2025pto} introduced $K$-turn look-ahead for this task inside preference-tree
 optimisation (PTO), where the look-ahead scores select a chosen and a rejected turn for DPO. We
-move it to Group Relative Policy Optimization \citep[GRPO;][]{shao2024deepseekmath}. The transfer
-is not trivial (\S\ref{sec:method}): a single rollout is a one-sample estimate of where a turn
-leads, and GRPO trains on every candidate rather than on a filtered pair. We ask whether the
-look-ahead reward retains its benefit under group-relative optimisation, and how it shapes the
-policy over ten iterations.
+move it to Group Relative Policy Optimization \citep[GRPO;][]{shao2024deepseekmath}, where a
+single rollout is a one-sample estimate of where a turn leads and every candidate, not a filtered
+pair, is trained on (\S\ref{sec:method}). We ask whether the look-ahead reward retains its
+benefit under group-relative optimisation and, in more depth, what it does to the therapist the
+policy becomes.
 
 We answer with a controlled pair: two ten-iteration GRPO runs, identical in therapist,
-simulated patients, oracle, hyperparameters, and personas, whose tracked configurations differ
+simulated patients, oracle, hyperparameters and personas, whose tracked configurations differ
 only in whether the oracle scores the candidate turn alone ($K{=}0$) or with its five-turn
 continuation ($K{=}5$). Every model state is scored on eight MI instruments by the training oracle
-and by a held-out judge from a different model family.
+and by a held-out judge from a different model family, and every utterance of every evaluation
+conversation is coded with an MI process coder, so that the analysis can follow what each
+therapist turn is and what the patient says next.
 
-The result is large and consistent. Look-ahead leads on the rewarded rubric from the fourth
-iteration on under both graders, leads on all eight instruments at the matched endpoint, beats the
-turn-level policy's \emph{best} checkpoint on the rewarded rubric as well as its last, and
-survives an independent re-draw of the evaluation set (\S\ref{sec:reward}). The horizon also
-decides what the policy learns (\S\ref{sec:behaviour}): turn-level reward induces over-praise,
-the MI-inconsistent behaviour of affirming the patient regardless of what they said, at a rate
-that quadruples over the run and that a judge-free lexical marker corroborates
-(Table~\ref{tab:excerpt}); the look-ahead policy asks questions instead and elicits more change
-talk, although under the held-out judge its MI-inconsistency still rises, at under half the
-turn-level rate.
+The reward result is large and consistent: look-ahead leads on the rewarded rubric from the
+fourth iteration on under both graders, leads on all eight instruments at the matched endpoint,
+beats the turn-level policy's \emph{best} checkpoint as well as its last, and survives an
+independent re-draw of the evaluation set (\S\ref{sec:reward}). The process analysis is the
+paper's centre. Under turn-level reward the policy converges on non-specific praise, the
+MI-inconsistent behaviour of affirming the patient regardless of what they said, delivered most
+often after the patient's \emph{sustain} talk; a judge-free lexical marker corroborates the coded
+rate (\S\ref{sec:therapist}). Under look-ahead it converges on complex reflections, delivered
+after the patient's \emph{change} talk; a look-ahead reflection is followed by change talk in
+$85$--$89\%$ of cases, and patient change talk keeps rising through the session where under
+turn-level reward it falls back late (\S\ref{sec:patient}). Both graders agree on that picture
+and disagree on how much the look-ahead policy still praises.
 
 Our contributions are: (i) \LAGRPO, the look-ahead reward of \citet{baruch2025pto} moved from
 preference-tree DPO to a group-relative optimiser, evaluated in a controlled two-grader design
-with a replicated endpoint; and (ii) evidence that the reward horizon decides which behaviour a
-therapist policy learns: turn-level reward induces over-praise, look-ahead prevents it under the
-training oracle and halves its rate under the held-out judge, and a judge-free transcript
-statistic corroborates the coded rate. We also document the training oracle's saturation at the
-winning checkpoint (\S\ref{sec:measurement}), a ceiling effect invisible to arm-level agreement
-that motivates a held-out judge with headroom.
+with a replicated endpoint; and (ii) an utterance-level account of what each reward horizon
+teaches, in MI's own terms: which therapist behaviours each policy learns and unlearns, what each
+behaviour yields in the patient's next turn, and how change talk develops over a session.
+Appendix~\ref{app:saturation} documents the training oracle's saturation at the winning
+checkpoint, the reason the held-out judge carries the per-conversation claims.

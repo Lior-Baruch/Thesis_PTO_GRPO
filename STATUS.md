@@ -368,6 +368,13 @@ trading praise for persuasion rather than for reflections.
 `LIMITATIONS.md`, `METRICS_REFERENCE.md`, and the tree-wide censoring purge described above.
 What remains here is the **P1 draft's own open items**, listed in its README.
 
+**1b. ✅ DONE (2026-09-17) — the P1 draft was refactored around the MI process analysis** (Lior:
+"the story is GRPO with look-ahead in MI and a deep analysis"): §6 *What look-ahead teaches the
+therapist* + new §7 *What the therapist's turns do to the patient* (Figure 3 = code mix / yields /
+change-talk trajectory, Table 3 = the process endpoint on both graders), the saturation section
+demoted whole to Appendix E, body on 8 pages, pushed to Overleaf. The supervisors have not read
+it. Ledger: `papers/2026_grpo_lookahead_mi/NUMBERS.md` § "2026-09-17 (c)".
+
 **2. ✅ DECIDED (2026-09-04): ONE submission to ARR October 2026 — P1,
 [`papers/2026_grpo_lookahead_mi/`](papers/2026_grpo_lookahead_mi/) (*GRPO with Look-Ahead in
 Motivational Interviewing*).** Submission **2026-10-12**, commitment 2026-12-20; the single cycle

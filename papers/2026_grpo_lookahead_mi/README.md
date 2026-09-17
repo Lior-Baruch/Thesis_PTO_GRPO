@@ -8,7 +8,7 @@ cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in Decem
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
 mode (line numbers, anonymized); switch to `[final]` for camera-ready. **The body ends exactly at
-the bottom of page 8** (Limitations opens page 9); 22 pages in all.
+the bottom of page 8** (Limitations opens page 9); 25 pages in all.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten
@@ -194,6 +194,31 @@ submission"; logged in `NUMBERS.md` § "2026-09-17 (b)"):
 - References: a currency pass (arXiv preprints since published; canonical DOIs/URLs) was run by a
   web-verifying agent; its verified changes are logged in `NUMBERS.md` under the same heading.
 
+**Refactored 2026-09-17 (c)** (Claude, on Lior's "the story is GRPO with look-ahead in MI and a
+deep analysis"; every new number in `NUMBERS.md` § "2026-09-17 (c)"):
+
+- **Two new EDA families feed the paper**: `lookahead/process` (the `MIPROC` utterance-level MI
+  process coder — one MITI/MISC-style code per therapist utterance, one valence per patient
+  utterance, both graders, all 2 × 11 × 96 = 2,112 GRPO evaluation conversations) and
+  `lookahead/text` (sentence-embedding repertoire / drift / diversity, judge-free).
+- **The body is now the process analysis.** §6 *What look-ahead teaches the therapist* (code
+  mix, the judge-free marker, where the graders disagree, embedding space) and a new §7 *What the
+  therapist's turns do to the patient* (yields, responsiveness, the within-session change-talk
+  trajectory), with **Figure 3** (`process_grpo.png`: code mix × 2, yields, trajectory) and
+  **Table 3** (the process endpoint under both graders). §5 is shorter; the saturation section is
+  **Appendix E** whole (Table 7); the marker figure is single-panel in Appendix A (Figure 4);
+  Appendix A also gains the held-out process figure (5), the responsiveness trajectories (6) and
+  the embedding-space figure (7); Appendix C gains C.3 *The utterance-level process coder*
+  (codebook, numbering, parity with MITI/PCT). Contributions are (i) the method and (ii) the
+  utterance-level account; the abstract and §1 lead with praise-after-sustain-talk vs
+  reflection-after-change-talk. The mechanism paragraph and the scope paragraph are compressed
+  (scope now a Limitations paragraph). Body ends at the bottom of page 8; 25 pages.
+- `render_paper_figures.py` now draws Figures 2–7, 10 and 11 (`process()`, `process_heldout()`,
+  `responsiveness()`, `textspace()` read `process.xlsx` / `text.xlsx`); `sync_figures.py` still
+  copies only the two level grids.
+- Section files: `06_behaviour.tex` → `06_therapist.tex`, new `07_patient.tex`,
+  `07_measurement.tex` → `E_saturation.tex`. `overleaf.py push` removes the old names.
+
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
 preference trees + DPO — and this paper's contribution is **moving the lever to GRPO**. The PTO
@@ -215,8 +240,10 @@ oracle; Claude Haiku 4.5 = held out). 2 arms × 11 states = 22 model states.
 Scoring a candidate therapist turn by the $K$-turn continuation it leads to, rather than by the
 turn itself, raises what group-relative RL extracts from the same oracle to 1.3–2.6× the
 turn-level gain (depending on grader and on whether the turn-level arm is read at its last or its
-best checkpoint), and it decides whether the policy learns motivational interviewing or learns to
-over-praise the patient.
+best checkpoint), and it decides what kind of therapist the policy becomes: coded utterance by
+utterance, the turn-level policy learns non-specific praise delivered after the patient's sustain
+talk, and the look-ahead policy learns complex reflections delivered after the patient's change
+talk, which are followed by change talk 85–89% of the time.
 
 ## Section map (files under `sections/`)
 
@@ -227,16 +254,17 @@ over-praise the patient.
 | 02_related | §2 | GRPO; multi-turn RL for dialogue (incl. multi-turn GRPO); look-ahead/search in preference learning + PTO; reward hacking & LLM judges (+ over-optimisation, ensembles); MI (+ AnnoMI, BOLT) |
 | 03_method | §3 | **GRPO with look-ahead** — notation; Figure 1 = the group schematic; **Algorithm 1** = the iterative loop; the look-ahead reward (the $\tau_K$ equation); why the transfer is not trivial; minimum context length; cost |
 | 04_setup | §4 | task/simulator/oracle; **why MI**; instruments; terminology; the two arms; evaluation & statistics |
-| 05_reward | §5 | *Results: reward and evaluation instruments* — Figure 2 + **Table 1 (endpoint, every instrument, both graders)**; endpoint; gain vs. the turn-level arm (both anchors); onset + the K=0 decline + the best-checkpoint steelman; the replicate draw |
-| 06_behaviour | §6 | *Behavioural analysis: over-praise under turn-level reward* — **Table 2 (the clear-case excerpt)**; over-praise + composition + the MITI Affirm definition + the PCT contrast; the judge-free marker (Figure 3); what look-ahead does instead (righting reflex); under the held-out judge |
-| 07_measurement | §7 | *Saturation of the training oracle at the winning checkpoint* — no figure (dropped 2026-09-16; the text carries its numbers); arm-level sign preservation; the per-conversation collapse (not Q1-only, one sentence); the ceiling mechanism; what it undermines |
-| 08_discussion | §8 | the horizon selects the hack; what we could not isolate (→ Appendix B); scope (one optimizer, one regime; evidence that would overturn it); conclusion with the monitoring recommendation |
-| 09_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments (reward is an outcome, MITI reliability, no per-channel reliability) |
+| 05_reward | §5 | *Results: reward and evaluation instruments* — Figure 2 + **Table 1 (endpoint, every instrument, both graders)**; endpoint + gain ratios (both anchors); onset + the K=0 decline + the best-checkpoint steelman; the replicate draw |
+| 06_therapist | §6 | *What look-ahead teaches the therapist* — **Table 2 (the clear-case excerpt)**; **Figure 3 (code mix × 2, yields, within-session change talk)**; the two policies learn different behaviours (praise vs complex reflections, the MI-adherent share, open-question turns vanish in both, the persuasion residue); the judge-free marker (Appendix Figure 4) + the MICI composition; where the graders disagree; embedding space (Appendix Figure 7) |
+| 07_patient | §7 | *What the therapist's turns do to the patient* — **Table 3 (the process endpoint, both graders)**; yields per code; responsiveness (reflects change talk / praises sustain talk; Appendix Figure 6); the session as a whole (change-talk trajectory, patient turn length, the disengagement cue) |
+| 08_discussion | §8 | the horizon selects which behaviour pays (+ the compressed mechanism paragraph → Appendix B); conclusion with the process-coding recommendation |
+| 09_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; one optimiser, one regime (moved from §8); the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments and the process coder (reward is an outcome, MITI reliability, the coder's one-code-per-turn construct and its partial parity with MITI) |
 | 10_ethics | Ethics (page-exempt) | |
-| A_tables | Appendix A | by-iteration table, per-instrument agreement table, level grids ×2, channel forest, tail audit figure (+ the rollout-audit numbers in the intro text) |
+| A_tables | Appendix A | by-iteration table, the judge-free marker figure, the held-out process figure, the responsiveness trajectories, the embedding-space figure, level grids ×2, channel forest, tail audit figure (+ the rollout-audit numbers in the intro text) |
 | B_mechanism | Appendix B | the mechanism analysis in full |
-| C_repro | Appendix C | configuration, anti-degeneracy, statistics, cost accounting, artifacts (incl. the five script-drawn figures + the excerpt's provenance) |
+| C_repro | Appendix C | configuration, instruments, **C.3 the utterance-level process coder** (codebook, numbering, parity), prompts, the marker, anti-degeneracy, statistics, cost accounting, artifacts |
 | D_example | Appendix D | utterances 1–9 of both iteration-10 conversations with persona 93, verbatim; selection rule and scores |
+| E_saturation | Appendix E | *Saturation of the training oracle at the winning checkpoint* (the former §7, moved whole 2026-09-17; Table 7 = the per-instrument agreement table) |
 
 ## Scripts
 

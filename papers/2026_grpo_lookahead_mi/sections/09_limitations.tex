@@ -7,7 +7,8 @@ training run. There are no training-seed replicates, so run-to-run training vari
 and we cannot separate ``look-ahead helps'' from ``this look-ahead run went well.'' The $K{=}0$
 arm's decline over its last two iterations and its late over-praise spike are likewise events of
 one run, which is why \S\ref{sec:reward} reports the contrast against that arm's best checkpoint as
-well as its last. We regard this as the principal limitation; it is distinct from, and not bounded
+well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at how many of the ten
+matched iterations each process contrast clears Holm rather than the endpoint alone. We regard this as the principal limitation; it is distinct from, and not bounded
 by, the evaluation noise discussed next.
 
 \paragraph{Evaluation draws.}
@@ -41,6 +42,13 @@ There is no dose--response evidence between the two levels and nothing above 5, 
 says the effect is monotone in $K$, that 5 is optimal, or that a shorter horizon would not capture
 most of the benefit. An intermediate $K$ is the most valuable single follow-up.
 
+\paragraph{One optimiser, one regime.}
+\citet{baruch2025pto} introduced the lever with preference trees and DPO in an easier regime of
+this task (a 7B policy, more cooperative patients, a weaker judge); other optimisers and regimes
+are outside this paper's scope. Evidence that would overturn the paper's reading: a second
+\emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a
+horizon, or a human MI coder disagreeing with \S\ref{sec:therapist}--\ref{sec:patient}.
+
 \paragraph{The look-ahead reward is also a reward for continuing.}
 A simulated session can end inside the look-ahead window, most often because the patient closes
 it, and such a candidate gives the oracle a shorter transcript. In the rollout audit
@@ -49,7 +57,7 @@ five turns; early-ending candidates scored at or below their group mean, by up t
 depending on how the rollout ended, and were the group's best less often than chance. The lever was
 therefore applied as specified in the large majority of cases, but it carries a mild pressure to
 keep the session open that a turn-level reward does not, and the $\Kf$ policy's longer endpoint
-sessions (\S\ref{sec:behaviour}) are consistent with it. Two arms cannot separate this from the
+sessions ($31.9$ vs.\ $25.2$ utterances, $\dz\,0.43$) are consistent with it. Two arms cannot separate this from the
 horizon effect proper.
 
 \paragraph{Simulation only, in sample, without human validation.}
@@ -72,12 +80,18 @@ mid-sentence (Appendix~\ref{app:example}); the cap is identical across arms and 
 is what the patient simulator and both graders saw, so it does not bias the contrast, but it is
 part of what every score in this paper measures.
 
-\paragraph{Instruments.}
+\paragraph{Instruments and the process coder.}
 \QQ\ is both the optimisation target and a headline metric, so ``\QQ\ improved'' is partly
 circular; we treat the held-out judge and the instruments outside the reward as the load-bearing
-evidence, and \S\ref{sec:measurement} quantifies what happens to the trained-against grader's
-discriminative range over a long run. The MITI-style coder is the least dependable instrument at
-the arm level, and we do not lean on its differences alone. There is no reliability estimate for
-any individual MI-inconsistency channel, including over-praise, which is the granularity
-\S\ref{sec:behaviour} argues at; that is the main reason the section's conclusion rests on the
-deterministic marker.
+evidence, and Appendix~\ref{app:saturation} quantifies what happens to the trained-against
+grader's discriminative range over a long run. The MITI-style coder is the least dependable
+instrument at the arm level, and we do not lean on its differences alone. The process coder of
+\S\ref{sec:therapist}--\ref{sec:patient} assigns one dominant code per utterance, so a
+900-character turn that reflects, informs and ends in a question is coded once; its patient-side
+codes reproduce the session-level change-talk counts of the same grader (pooled $\rho$
+$0.88$--$0.95$ across the 22 states), but its therapist-side codes reproduce the MITI behaviour
+counts only partly (Appendix~\ref{app:coder}), because the two instruments count different
+things. Its most consequential therapist-side judgement, praise against affirmation, is also the
+one the two graders apply differently to the look-ahead policy (\S\ref{sec:therapist}), and no
+human coder has checked either; the sequential claims of \S\ref{sec:patient} are the claims a
+human-coded sample should test first.

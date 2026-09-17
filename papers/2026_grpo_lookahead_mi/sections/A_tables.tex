@@ -1,11 +1,14 @@
 \section{Supplementary results}
 \label{app:tables}
 
-Table~\ref{tab:byiter}: the \QQ\ contrast at every iteration. Table~\ref{tab:agreement}:
-cross-grader agreement per instrument at the winning checkpoint.
+Table~\ref{tab:byiter}: the \QQ\ contrast at every iteration.
 Figures~\ref{fig:grid-primary}--\ref{fig:grid-heldout}: every instrument in levels under each
-grader. Figure~\ref{fig:forest}: the behaviour-channel profile. Figure~\ref{fig:tails}: the
-$K{=}5$ rollout audit, summarised in the Limitations. Over the $121{,}088$ logged $\Kf$
+grader. Figure~\ref{fig:overpraise}: the judge-free over-praise marker of
+\S\ref{sec:therapist}. Figure~\ref{fig:process-heldout}: the process picture of Figure~\ref{fig:process} under
+the held-out judge. Figure~\ref{fig:responsiveness}: the two responsiveness rates of
+Table~\ref{tab:process} by iteration under both graders. Figure~\ref{fig:textspace}: the two
+policies in sentence-embedding space. Figure~\ref{fig:forest}: the session-level behaviour-channel
+profile. Figure~\ref{fig:tails}: the $K{=}5$ rollout audit, summarised in the Limitations. Over the $121{,}088$ logged $\Kf$
 candidates ($88\%$ of those scored), $82\%$ of rollouts ran the full five turns; the early-ending
 share ranged from $12\%$ at iteration 10 to $30\%$ at iteration 6, and in $16\%$ of candidates
 the patient closed the session. Early-ending candidates scored at or below their group mean (by
@@ -45,32 +48,49 @@ $^{***}p<.001$.}
 \label{tab:byiter}
 \end{table*}
 
-\begin{table}[t]
+\begin{figure}[t]
 \centering
-\small
-\setlength{\tabcolsep}{4pt}
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Instrument & $r$ @I10 & med. & $\Delta$ med. & rank\\
-\midrule
-MITI (coding)   & $0.333$ & $0.678$ & $-0.345$ & $1/22$\\
-Q1 (rewarded)   & $0.544$ & $0.842$ & $-0.298$ & $2/22$\\
-Q2 (rewarded)   & $0.590$ & $0.754$ & $-0.164$ & $1/22$\\
-MICI (coding)   & $0.287$ & $0.399$ & $-0.112$ & $4/22$\\
-\midrule
-CSQ-8           & $0.851$ & $0.890$ & $-0.039$ & $4/22$\\
-PCT             & $0.928$ & $0.956$ & $-0.028$ & $3/22$\\
-MI-SAT          & $0.906$ & $0.931$ & $-0.025$ & $4/22$\\
-WAI-SR          & $0.898$ & $0.920$ & $-0.022$ & $3/22$\\
-\bottomrule
-\end{tabular}
-\caption{Per-conversation cross-grader agreement (Pearson $r$, $n{=}96$) at the winning checkpoint
-against each instrument's own median and rank across the 22 model states ($1/22$ = this
-instrument's worst-agreeing state in the experiment). Instruments must be compared down their own
-column, never across: their baseline agreement differs by more than the effect. The disagreement
-is real but not confined to the rewarded rubric.}
-\label{tab:agreement}
-\end{table}
+\includegraphics[width=0.47\textwidth]{figures/overpraise_judgefree_grpo.png}
+\caption{The judge-free over-praise marker by iteration: the share of therapist turns containing
+at least one of ten praise keywords (Appendix~\ref{app:marker}), no model in the loop.}
+\label{fig:overpraise}
+\end{figure}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/process_grpo_heldout.png}
+\caption{Figure~\ref{fig:process} under the held-out judge: \textbf{(a, b)} each arm's code mix
+by iteration, \textbf{(c)} the change-talk yield of each therapist code at iteration 10 (Wilson
+$95\%$ intervals; bars omitted below 20 turns), \textbf{(d)} the change-talk share of patient
+utterances by position in the session at iteration 10 against the pooled base. The held-out judge
+reads more of the $K{=}5$ policy's turns as non-specific praise than the training oracle does
+($0.20$ vs.\ $0.05$ at the endpoint) and agrees on everything else in the picture.}
+\label{fig:process-heldout}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/responsiveness_grpo.png}
+\caption{Responsiveness by iteration, under each grader (mean $\pm$ SE over the conversations in
+which the condition occurred). \textbf{(a, b)} The share of the patient's change-talk utterances
+the therapist answers with a reflection. \textbf{(c, d)} The share of the patient's sustain-talk
+utterances the therapist answers with non-specific praise. The endpoint values are the middle
+block of Table~\ref{tab:process}.}
+\label{fig:responsiveness}
+\end{figure*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/text_grpo.png}
+\caption{The two policies in sentence-embedding space (every therapist turn embedded with
+\texttt{all-MiniLM-L6-v2}; the scripted opener excluded). \textbf{(a)} The cosine between the two
+arms' displacements from the base centroid at each iteration: $1$ would mean they learned the
+same thing. \textbf{(b)} The share of embedding variance that lies between conversations, a
+measure of how much the therapist's turns depend on which patient it is talking to, with a
+$95\%$ bootstrap band over conversations. \textbf{(c)} The mean pairwise cosine between turns at
+the same position in different conversations: convergence on a template.}
+\label{fig:textspace}
+\end{figure*}
 
 \begin{figure*}[p]
 \centering

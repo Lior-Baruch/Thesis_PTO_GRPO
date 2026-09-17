@@ -9,13 +9,13 @@ further turns and the judge scores the continuation. The look-ahead reward comes
 preference-tree optimisation for MI; moved to Group Relative Policy Optimization (GRPO), it
 reweights every sampled candidate instead of selecting a preference pair. In a controlled pair of
 ten-iteration runs that differ only in the horizon, $K{=}5$ leads on the rewarded rubric from the
-fourth iteration on, beats the $K{=}0$ policy's best checkpoint on that rubric as well as its
-last, leads on all eight MI evaluation instruments under both the training oracle and a held-out
-judge from another model family, and replicates on a fresh evaluation draw. The horizon also
-decides what is learned. Turn-level reward induces over-praise, an MI-inconsistent behaviour whose
-rate quadruples over the $K{=}0$ run and which a judge-free lexical marker corroborates; the
-look-ahead policy asks questions instead, elicits more change talk, and under the held-out judge
-drifts toward MI-inconsistency at under half the turn-level rate. Each arm is a single training
-run, and at the winning checkpoint the training oracle's scores reach the ceiling of its scale, so
-the held-out judge carries the per-conversation claims.
+fourth iteration on, leads on all eight MI evaluation instruments under both the training oracle
+and a held-out judge from another model family, and replicates on a fresh evaluation draw. The
+horizon also decides what is learned. Coding every utterance of the $2{,}112$ evaluation
+conversations with an MI process coder, under both graders, we find that turn-level reward
+teaches non-specific praise, delivered after the patient's sustain talk, while look-ahead teaches
+complex reflections, delivered after the patient's change talk; a look-ahead reflection is
+followed by change talk in $85$--$89\%$ of cases, and patient change talk keeps rising through the
+session under look-ahead where it falls back late under turn-level reward. Each arm is a single
+training run, and the two graders disagree on how much the look-ahead policy still praises.
 \end{abstract}
