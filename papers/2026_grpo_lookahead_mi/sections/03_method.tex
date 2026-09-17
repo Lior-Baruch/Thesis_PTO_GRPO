@@ -76,17 +76,16 @@ $i$-th token's probability ratio between $\pi$ and the sampling policy, $\bar{\r
 clip to $[1{-}\epsilon, 1{+}\epsilon]$, and $\mathrm{KL}_{g,i}$ the per-token KL estimate to
 $\pi_n$. Both arms make one update per sampled batch
 (Table~\ref{tab:config}), so $\rho_{g,i}{=}1$ at the update, the clipping is inactive, and the
-step is the advantage-weighted policy gradient over the group with the KL penalty. Loss,
-advantage, prompts and number of gradient steps are identical across $K$; the horizon enters
-only through $r_g$.
+step is the advantage-weighted policy gradient over the group with the KL penalty. The loss, the
+advantage normalisation, the KL penalty and the prompt-construction rule are identical across
+$K$; the horizon enters only through $r_g$.
 
 \textbf{Why the transfer is not trivial.} A rollout is one sample from the distribution of
 continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value,
 with sampling noise from $P$ and $\pi$ added to the oracle's own. PTO filters that noise by
 construction, keeping only the best- and worst-scoring candidates, so an unlucky rollout can at
 most cost a pair; GRPO standardises the scores within the group and trains on all $G$ candidates,
-so the rollout variance enters every advantage. Whether the lever survives that exposure is what
-the controlled pair tests.
+so the rollout variance enters every advantage.
 
 \textbf{Minimum context length.} Training prompts are prefixes, so the oracle scores a partial
 conversation while the evaluation scores a whole session. In a pilot on an earlier configuration
@@ -97,5 +96,6 @@ candidates as the full-session score does in $86$--$89\%$ of pairs under the tra
 agreement does not fall with prefix length (Appendix~\ref{app:mechanism}).
 
 \textbf{Cost.} Each $K{=}5$ reward adds three patient-simulator calls and two policy generations
-to the single oracle call both arms share, and roughly doubles per-step wall-clock (Limitations).
-All comparisons are at matched iteration count, not matched cost.
+to the single oracle call both arms share, and roughly doubles per-step wall-clock. All
+comparisons are at matched iteration count, not matched cost; the Limitations give the
+matched-cost reading.

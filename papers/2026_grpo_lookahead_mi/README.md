@@ -8,7 +8,7 @@ cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in Decem
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
 mode (line numbers, anonymized); switch to `[final]` for camera-ready. **The body ends exactly at
-the bottom of page 8** (Limitations opens page 9); 21 pages in all.
+the bottom of page 8** (Limitations opens page 9); 22 pages in all.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten
@@ -162,6 +162,38 @@ number changed; logged in `NUMBERS.md` § "2026-09-17"):
   spilled onto their own page before the float page). 21 pages; the body still ends at the bottom
   of page 8; `build.py` CHECK OK.
 
+**Submission-readiness pass, 2026-09-17** (Claude, on Lior's "make the paper more ready for
+submission"; logged in `NUMBERS.md` § "2026-09-17 (b)"):
+
+- **Mechanical audit against the ARR CFP** (fetched that day): PDF metadata carries no author or
+  title; all 22 embedded fonts are Type 1, none Type 3; no identifying string in the sections (the
+  self-citation is third person); Limitations present and page-exempt; body ends on page 8.
+- **A false claim in §3 fixed.** "prompts and number of gradient steps are identical across $K$"
+  was never true: the prompts are sliced from each policy's own conversations, so the counts
+  differ (**1,128 optimizer steps for K=0 vs 1,070 for K=5** over ten iterations; per iteration
+  80–158 vs 70–136, `compute/cost/tables/compute_by_iteration.md`). §3 now says the loss, the
+  advantage normalisation, the KL penalty and the prompt-construction rule are identical; the step
+  counts are a Table 5 row and are quoted beside the oracle-call counts in the Limitations
+  ("approximately matched by construction" — K=5 in fact took *fewer* steps).
+- **The iso-compute reading is now disclosed** (one passage in the Limitations "Matched
+  iterations are not matched cost" paragraph, quoted from `budget_sweep_GRPO_K_*`): 27.9 vs 51.2
+  GPU-hours for the two runs; at ~13 GPU-h the turn-level arm leads (dz −0.74 / −0.78), at ~23
+  GPU-h level under the training oracle (dz 0.07, n.s.) and look-ahead ahead under the held-out
+  judge (dz 0.33, p_holm .012), beyond K=0's total budget the best-checkpoint comparison of §5.
+  ⚠ This touches the 2026-08-27 "iterations only" decision: the axis is unchanged (no
+  GPU-hour figure or table, no budget analysis in the body), but the Limitations no longer say
+  "nothing here compares the arms at matched cost". Lior can revert the passage if he wants the
+  stricter line.
+- **Reproducibility rows added to Table 5**: software versions (TRL 1.4.0, transformers 5.8.1,
+  PEFT 0.19.1, from `requirements.txt`), hardware (one A100, Google Colab), optimizer steps.
+  Appendix C.7 now also says where the step counts come from and carries `\label{app:repro-cost}`.
+- **[`CHECKLIST_ARR.md`](CHECKLIST_ARR.md)** (local only, never pushed): draft answers to every
+  Responsible NLP checklist question with the backing section, the generative-AI disclosure
+  wording, and the pre-submission list (supervisors' read, anonymised code archive as a .zip —
+  the CFP rejects cloud-drive links — the preprint option, the two explicit checklist statements).
+- References: a currency pass (arXiv preprints since published; canonical DOIs/URLs) was run by a
+  web-verifying agent; its verified changes are logged in `NUMBERS.md` under the same heading.
+
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
 preference trees + DPO — and this paper's contribution is **moving the lever to GRPO**. The PTO
@@ -303,3 +335,4 @@ To eyeball the layout, the repo `.venv` has PyMuPDF: `fitz.open("main.pdf")[p].g
 - Camera-ready only: complete the author block in `main.tex` and switch `acl` to `[final]`.
 - Optional, if a co-author wants it: a human MI coder on a sample of the endpoint conversations
   would close the paper's most-cited limitation.
+- The full pre-submission list, with the checklist answers, is in [`CHECKLIST_ARR.md`](CHECKLIST_ARR.md).

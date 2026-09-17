@@ -1,8 +1,8 @@
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-\textbf{The horizon of the reward selects the reward hack.} Which exploit a policy finds depends
-on what the judge is shown. The $K{=}0$ arm finds unearned praise, whose payoff is immediate and
+\textbf{The horizon of the reward selects the reward hack.} The $K{=}0$ arm finds unearned
+praise, whose payoff is immediate and
 whose cost is deferred. The $K{=}5$ arm cannot profit from it, because the cost now lands inside
 the window the judge sees; it moves toward asking questions and, to a smaller degree, toward the
 righting reflex of pushing the patient. Extending the horizon does not remove reward hacking; it
@@ -16,23 +16,23 @@ does (pairwise rank agreement $0.909$ vs.\ $0.873$ under the training oracle), b
 iteration-level test does not clear $.05$ and at the one matched-policy cut (iteration 1) both
 deltas straddle zero. Look-ahead widens the best-minus-worst margin within a
 group ($1.300\times$), but the within-group standard deviation grows by the same factor
-($1.293\times$; ratio of ratios $1.006$ $[1.002, 1.010]$), a rescaling the advantage
-normalisation absorbs: look-ahead changes \emph{which} candidate the group prefers, not how
-confidently. What remains is a small, repeated difference in which of eight siblings is
-preferred, compounded over ten iterations of a loop that regenerates its training data from the
-policy it just updated; isolating that pathway needs the horizon swapped mid-run on one policy.
+($1.293\times$), a rescaling the advantage normalisation absorbs: look-ahead changes
+\emph{which} candidate the group prefers, not how confidently. What remains is a small, repeated difference in which sibling is preferred,
+compounded over ten iterations of a loop that regenerates its training data from the policy it
+just updated; isolating it needs the horizon swapped mid-run on one policy.
 
-\textbf{Scope: one optimiser, one regime.} The lever's origin is a preference-pair method: \citet{baruch2025pto} introduced it with
-preference trees and DPO in an earlier, easier regime of this task (a 7B policy, more cooperative
-patients, a weaker judge). Whether the lever helps other optimiser families in other regimes is
-outside this paper's scope. Evidence that would overturn it: a second \emph{training} run
+\textbf{Scope: one optimiser, one regime.} The lever's origin is a preference-pair method:
+\citet{baruch2025pto} introduced it with preference trees and DPO in an easier regime of this
+task (a 7B policy, more cooperative patients, a weaker judge); whether it helps other optimiser
+families in other regimes is outside this paper's scope. Evidence that would overturn it: a
+second \emph{training} run
 reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a
 human MI coder disagreeing with the over-praise finding.
 
 \textbf{Conclusion.} For a group-relative optimiser in multi-turn dialogue, what the judge is
 shown is a first-order design choice. Scoring the continuation rather than the turn raised what
 the same optimiser extracted from the same oracle, and it decided which failure mode the policy
-learned. An LLM judge optimised against also saturates: its scores move to the top of a
-bounded scale, where they stop ranking, unseen by arm-level agreement. We recommend
-reporting the reward horizon as a hyperparameter, tracking the training grader's variance and
-ceiling share, and keeping a second grader with headroom.
+learned. An LLM judge optimised against also saturates, its scores moving to the top of a
+bounded scale where they stop ranking, unseen by arm-level agreement. We recommend reporting
+the reward horizon as a hyperparameter, tracking the training grader's variance and ceiling
+share, and keeping a second grader with headroom.

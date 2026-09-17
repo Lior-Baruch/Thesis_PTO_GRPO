@@ -39,11 +39,15 @@ Max tokens / response & 200 \\
 Therapist context & 2{,}048 tokens \\
 Therapist / patient temperature & 0.9 / 0.7 \\
 Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
+Software & TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 \\
+Hardware & one NVIDIA A100 (Google Colab) \\
 Look-ahead $K$ & 0 ($\Kz$ arm) / 5 ($\Kf$ arm) \\
+Optimizer steps, 10 iterations & $1{,}128$ ($\Kz$) / $1{,}070$ ($\Kf$) \\
 \bottomrule
 \end{tabular}}
-\caption{Resolved configuration, identical across the two arms except the final row.
-Source: each arm's \texttt{run\_metadata.json}.}
+\caption{Resolved configuration, identical across the two arms except the final two rows.
+Source: each arm's \texttt{run\_metadata.json}; the step counts are read from the per-step
+training artifacts (\S\ref{app:repro-cost}).}
 \label{tab:config}
 \end{table}
 
@@ -164,11 +168,13 @@ within each family (instruments within one matched contrast, or iterations withi
 is not pooled across families.
 
 \subsection{Cost accounting behind the disclosures}
+\label{app:repro-cost}
 
 The API-call counts quoted in the Limitations section are exact counts read from the per-iteration
 generation logs (one record per oracle call and per patient call, summed over the ten training
-iterations of each arm). The GPU-hour total in the Ethics Statement and the per-step wall-clock
-multiplier are reconstructed from the modification times of per-step training artifacts, because
+iterations of each arm), and the optimizer-step counts are the number of per-step training
+artifacts each arm wrote. The GPU-hour totals in the Limitations and the Ethics Statement and the
+per-step wall-clock multiplier are reconstructed from the modification times of those artifacts, because
 the run metadata's elapsed-time fields are per-process and undercount any iteration that crashed
 and resumed, in the worst case here by nearly $2\times$. An inter-step gap outside
 $(0, 3600\,\mathrm{s})$ is treated as a resume gap and imputed at the phase median; imputation

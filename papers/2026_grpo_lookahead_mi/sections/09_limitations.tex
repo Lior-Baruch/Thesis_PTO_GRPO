@@ -21,12 +21,20 @@ never the training variance above.
 
 \paragraph{Matched iterations are not matched cost.}
 An iteration is 96 conversations and $G{=}8$ scored candidates per prompt in both arms, so oracle
-scoring calls are approximately matched by construction ($302{,}541$ for $\Kz$ vs.\ $289{,}983$
-for $\Kf$ over ten iterations). But each $\Kf$ reward requires a five-turn simulated continuation,
-about $393$k patient-simulator calls over the run that the $\Kz$ arm never makes, and roughly
-doubles per-step wall-clock (median $1.92\times$ over the settled iterations 3--10). More
-compute per iteration is built into the lever; we disclose the asymmetry rather than equalise it,
-and nothing here compares the arms at matched cost.
+scoring calls ($302{,}541$ for $\Kz$ vs.\ $289{,}983$ for $\Kf$ over ten iterations) and
+optimizer steps ($1{,}128$ vs.\ $1{,}070$) are approximately matched by construction. But each
+$\Kf$ reward requires a five-turn simulated continuation, about $393$k patient-simulator calls
+over the run that the $\Kz$ arm never makes, and roughly doubles per-step wall-clock (median
+$1.92\times$ over the settled iterations 3--10; $27.9$ vs.\ $51.2$ GPU-hours for the two runs).
+More compute per iteration is built into the lever, and we disclose the asymmetry rather than
+equalise it. Read at matched GPU-hours instead, with each arm at its best checkpoint within the
+budget under the selecting grader, the comparison is budget-dependent: at about 13 GPU-hours the
+turn-level arm is ahead on \QQ\ ($\dz\,-0.74$ under the training oracle, $-0.78$ held out), at
+about 23 GPU-hours the two are level under the training oracle ($\dz\,0.07$, n.s.) and look-ahead
+leads under the held-out judge ($\dz\,0.33$, $p_{\text{holm}} = .012$), and beyond the turn-level
+arm's total budget the comparison is the best-checkpoint one of \S\ref{sec:reward}. GPU-hours are
+reconstructed from artifact timestamps (Appendix~\ref{app:repro}), so this reading is coarser
+than the iteration-matched one.
 
 \paragraph{$K \in \{0, 5\}$ only.}
 There is no dose--response evidence between the two levels and nothing above 5, so nothing here
@@ -51,7 +59,10 @@ the self-training loop uses the same 96 for training rollouts and for evaluation
 iteration, so generalisation to unseen patients is unmeasurable without authoring new personas.
 The held-out judge decouples the grading half, but every conversation was generated against a
 \texttt{gpt-4o-mini} patient, the same model as the training oracle; a fully decoupled replication
-would regenerate all conversations with a patient from another model family. No human MI coder has
+would regenerate all conversations with a patient from another model family. The simulated
+patient is a known weak point in itself: given identical profiles, LLM-simulated MI patients
+express themselves more uniformly positively than human patients do
+\citep{hoang2026standardised}, which bears directly on a finding about praise. No human MI coder has
 rated any conversation in this experiment; the oracle is highly self-repeatable (ICC 0.92--0.99 on
 the two $K{=}0$ states with a repeat draw), but repeatability is not validity, and the over-praise
 finding is the most robust behavioural claim here precisely because a deterministic lexical marker

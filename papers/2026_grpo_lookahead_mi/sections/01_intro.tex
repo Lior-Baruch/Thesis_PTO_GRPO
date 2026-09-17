@@ -21,10 +21,10 @@ therapist, patient, therapist, patient). The lever itself is not new:
 \citet{baruch2025pto} introduced $K$-turn look-ahead for this task inside preference-tree
 optimisation (PTO), where the look-ahead scores select a chosen and a rejected turn for DPO. We
 move it to Group Relative Policy Optimization \citep[GRPO;][]{shao2024deepseekmath}. The transfer
-is not trivial: a single rollout is a one-sample Monte Carlo estimate of where a turn leads, and
-where PTO's pair selection filters that noise, GRPO trains on every candidate
-(\S\ref{sec:method}). We ask whether the look-ahead reward retains its benefit under
-group-relative optimisation, and how it shapes the policy over ten iterations.
+is not trivial (\S\ref{sec:method}): a single rollout is a one-sample estimate of where a turn
+leads, and GRPO trains on every candidate rather than on a filtered pair. We ask whether the
+look-ahead reward retains its benefit under group-relative optimisation, and how it shapes the
+policy over ten iterations.
 
 We answer with a controlled pair: two ten-iteration GRPO runs, identical in therapist,
 simulated patients, oracle, hyperparameters, and personas, whose tracked configurations differ

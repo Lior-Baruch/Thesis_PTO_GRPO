@@ -483,3 +483,40 @@ Algorithm 1 and "one step on the group-standardised scores" in the loop paragrap
 formally in Eq. 2 and stated inactive). Figure 1's update box no longer reads "Σ A_g ∇log π + β KL"
 (a gradient plus a penalty) but "maximising Σ_g A_g log π(t_g | c) − β KL(π ‖ π_n)"; its rollout
 nodes read π, not π_n.
+
+## 2026-09-17 (b) submission-readiness pass — new rows
+
+| claim | value | source |
+|---|---|---|
+| **NEW** 📄 Optimizer steps per arm over the ten training iterations (Table 5 last row; Limitations "matched by construction"; §3 no longer claims equal step counts) | GRPO_LA0 **1,128** (per iteration 108, 94, 118, 100, 118, 116, 128, 108, 80, 158; range 80–158); GRPO_LA5 **1,070** (108, 104, 112, 106, 88, 70, 106, 110, 130, 136; range 70–136). Ratio 1,070/1,128 = 0.949, consistent with the oracle-call ratio 289,983/302,541 = 0.958 | results/compute/cost/tables/compute_by_iteration.md, `n_steps` (= per-step `training/completions/*.parquet` count), GRPO rows, iterations 1–10; summed 2026-09-17 |
+| **NEW** 📄 GPU-hours per run (Limitations; Ethics already had the ≈79 total) | GRPO_LA0 **27.906** → "27.9"; GRPO_LA5 **51.205** → "51.2"; sum 79.111 ≈ 79 | results/compute/cost/tables/compute_by_arm.md, `total_gpu_h` |
+| **NEW** 📄 Iso-compute reading, ~13 GPU-h (Limitations) | budget 13.27 GPU-h, select+eval on Q1Q2: primary LA5_I2 vs LA0_I4, Δ −0.569, **dz −0.742**, p_holm .000; held-out LA5_I2 vs LA0_I3, Δ −0.495, **dz −0.780**, p_holm .000. Paper: "dz −0.74 under the training oracle, −0.78 held out" (K=5 minus K=0; the table's `dz` column is already in that direction, `dz_K0_minus_K5` is the flipped one) | results/compute/cost/tables/budget_sweep_GRPO_K_gpt-4o-mini.md and …_claude-haiku-4-5.md, `budget_gpu_h = 13.270`, `select_metric = eval_metric = Q1Q2` |
+| **NEW** 📄 Iso-compute reading, ~23 GPU-h (Limitations) | budget 23.21 GPU-h: primary LA5_I4 (23.21 h) vs LA0_I8 (22.28 h), Δ +0.038, **dz 0.074**, p .789 → "level, n.s."; held-out LA5_I4 vs LA0_I3 (8.21 h; K=0's held-out best), Δ +0.147, **dz 0.331**, **p_holm .012** | same tables, `budget_gpu_h = 23.210` |
+| **NEW** 📄 "beyond the turn-level arm's total budget the comparison is the best-checkpoint one of §5" | K=0's total is 27.9 GPU-h, so at every budget ≥ 27.9 its best-within-budget state is its overall best under the selecting grader (I8 primary / I3 held-out) — exactly the §5 steelman rows (at 51.2 GPU-h: LA5_I10 vs LA0_I8, +0.435, dz 0.743, matching §5's "+0.435 / dz 0.743") | same tables, rows `budget_gpu_h ≥ 30.53`; §5 steelman row in this ledger |
+| **NEW** CONFIG FACT — software versions (Table 5) | TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 (also accelerate 1.13.0, datasets 4.8.5, openai 2.36.0, anthropic 0.116.0 — not printed) | `requirements.txt` (repo root), the pin both Colab install cells use |
+| **NEW** CONFIG FACT — hardware (Table 5) | one NVIDIA A100 on Google Colab (memory size deliberately not printed: the Exp3 runs were tuned for "A100 Colab" and the card size is not recorded per run) | CLAUDE.md § Exp3 "Throughput config (tuned for A100 Colab)"; Ethics Statement already said "a single cloud A100-class GPU" |
+
+**Retired wording:** "prompts and number of gradient steps are identical across $K$" (false; → "the
+loss, the advantage normalisation, the KL penalty and the prompt-construction rule are identical
+across $K$"); "nothing here compares the arms at matched cost" (→ the iso-compute passage above).
+
+## References added 2026-09-17 (verified against the arXiv abstract pages / ACL Anthology that day)
+
+Added after two web searches for 2025–2026 work a reviewer would expect (multi-turn GRPO with
+simulated users and next-turn / future-turn credit; RL-trained MI and clinical dialogue agents;
+faithfulness of LLM-simulated MI patients). Each entry's title, authors, date and venue were read
+off the page named in the source column; the one-line characterisation in §2 / Limitations is
+taken from the abstract only.
+
+| key | what the paper says it does (from its abstract) | where cited | source |
+|---|---|---|---|
+| `zhao2026faca` | FACA: in interactive GRPO, the next user turn is "noisy, temporally local evidence about the preceding" assistant segment; a locally normalised "reaction advantage" is added to the terminal-outcome advantage "without an extra critic or rollout" | §2 multi-turn ("treat the next user turn of an interactive GRPO rollout as local credit evidence for the preceding assistant segment") | arxiv.org/abs/2608.17499 (submitted 2026-08-18; no venue) |
+| `peng2026atgrpo` | AT-GRPO: dialogue trajectories as trees; "each node … aggregate[s] rewards from a stage-aware range" of future turns; two-agent game with a user agent | §2 multi-turn ("aggregate rewards over a stage-dependent window of future turns in a tree-structured GRPO against a user agent") | arxiv.org/abs/2602.08533 (v2 2026-02-10) |
+| `li2026patr` | PATR: process-scorer-guided adaptive tree rollout for multi-turn agent RL; "uses task-appropriate process feedback to score partial trajectories, selectively branches from promising states" (FrozenLake, SWE-Bench) | §2 look-ahead/search ("let process scores decide where a multi-turn rollout tree branches") | arxiv.org/abs/2607.15610 (submitted 2026-07-17; preprint) |
+| `yang2026mithinker` | MIThinker: "two-stage training combining supervised fine-tuning and reinforcement learning" of a thinker for MI counselling agents | §2 MI ("supervised and RL stages for MI") | aclanthology.org/2026.findings-acl.163 — Findings of ACL 2026, pp. 3292–3328, DOI 10.18653/v1/2026.findings-acl.163 |
+| `lievin2026residencyrl` | ResidencyRL: multi-turn RL "through simulated multi-turn clinical encounters (up to 60 dialogue turns …)" against "LLM simulators capable of complex, adversarial behaviors" with a structured reward; 35 authors → first eight + "and others" | §2 MI ("multi-turn RL for clinical encounters") | arxiv.org/abs/2608.07418 (submitted 2026-08-07) |
+| `hoang2026standardised` | LLM-simulated MI patients vs human patients "given identical profiles": "semantically similar content … their modes of expression differ substantially"; "human patients exhibit a mix of positive and negative responses, LLM patients skew toward uniformly [positive] ones" | Limitations "Simulation only" ("express themselves more uniformly positively than human patients do … bears directly on a finding about praise") | aclanthology.org/2026.clpsych-1.21 — CLPsych 2026, pp. 258–270, DOI 10.18653/v1/2026.clpsych-1.21 |
+
+§2 was rewritten around these (the multi-turn paragraph now ends on the two nearest works and a
+one-sentence placement of look-ahead; the reward-hacking paragraph was tightened by two lines to
+pay for it). No number changed.
