@@ -547,3 +547,29 @@ behind bot walls all day, so nothing rests on them.
 | `baruch2025pto` | venue string **confirmed** (SSI-FM workshop; listed without an Oral tag on the workshop's accepted-papers page). No URL added: the OpenReview forum returned a bot challenge, so the id could not be opened | sites.google.com/berkeley.edu/selfimprovingfoundationmodels/accepted-papers; iclr.cc/virtual/2025/workshop/23971 |
 | `chiu2024bolt`, `hong2023imagined`, `zhou2025sweetrl`, `wei2025multiturn`, `qian2025userrl`, `pace2024westofn`, `xie2024mctsdpo`, `shao2024deepseekmath`, `schulman2017ppo`, `guo2024oaif` | **no change** — still arXiv-only as far as the arXiv record (no journal-ref / acceptance comment), the iclr.cc / neurips.cc virtual sites, ML Anthology and the ACL 2026 / EMNLP 2026 accepted lists show. `wei2025multiturn` matches arXiv v3 (2026-08-21) exactly; its ICLR 2026 and `qian2025userrl`'s ICLR 2026 submissions could not be read on OpenReview | arXiv abstract pages |
 | 24 entries **not re-verified** (zhou2024archer, wang2024sotopiapi, shani2024multiturn, gao2024refuel, christiano2017deeprl, ouyang2022instructgpt, rafailov2023dpo, lightman2024letsverify, yu2023promptmcts, chen2025broaden, amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling, coste2024ensembles, zheng2023judging, sharma2024sycophancy, perez2023discovering, panickssery2024selfpreference, singhal2024long, dubois2024lengthcontrolled, hatcher2006waisr, larsen1979csq, koo2016icc, shrout1979icc) | none — the agent's parallel checks for these had not returned. Each was verified against its venue page when added (2026-08-18 / 09-04 / 09-14 blocks above); none is an arXiv preprint, so no currency change is expected | — |
+
+### Addendum, same day: the agent's final report covered all 51 entries
+
+The "24 entries not re-verified" row above is superseded: the parallel checks returned and every
+entry is now verified on its venue's page or the publisher's Crossref deposit. Applied:
+
+| entry | change | evidence |
+|---|---|---|
+| `wang2024sotopiapi` | **author order corrected** to … Sap, **Bisk, Neubig**, Zhu (the bib had Neubig before Bisk); + DOI 10.18653/v1/2024.acl-long.698, URL | aclanthology.org/2024.acl-long.698 (.bib) |
+| `rafailov2023dpo` | **author order corrected** to … Mitchell, **Manning, Ermon**, Finn (the bib had Ermon before Manning); + pages 53728–53741, DOI 10.52202/075280-2338, URL | proceedings.neurips.cc 2023 bibtex endpoint |
+| `perez2023discovering` | booktitle → "Findings of the Association for Computational Linguistics: ACL 2023" (year was missing); + pages 13387–13434, DOI, URL; author list stays "and others" (63 authors) | aclanthology.org/2023.findings-acl.847 |
+| `gao2023scaling` | booktitle → "Proceedings of the 40th ICML", PMLR 202:10835–10866, URL | proceedings.mlr.press/v202/gao23h.html |
+| `zhou2024archer` | + PMLR 235:62178–62209, URL | proceedings.mlr.press/v235/zhou24t.html |
+| `shani2024multiturn` | + pages 118953–118993, DOI 10.52202/079017-3779, URL. Title kept as "from Preference Human Feedback": the camera-ready PDF and arXiv print "from"; only the proceedings metadata prints "with" | proceedings.neurips.cc 2024 + camera-ready PDF |
+| `ouyang2022instructgpt`, `skalse2022defining`, `zheng2023judging`, `panickssery2024selfpreference` | + pages, DOI (10.52202/…), proceedings URL; `christiano2017deeprl` + URL only (the official NIPS 2017 bib has no pages) | proceedings.neurips.cc bibtex endpoints |
+| `lightman2024letsverify`, `gao2024refuel`, `chen2025broaden`, `sharma2024sycophancy` | + proceedings.iclr.cc pages and the OpenReview URL whose id the iclr.cc poster page carries; `coste2024ensembles` + pages only (its OpenReview id came from a third-party mirror and was not added); `pan2022effects` + OpenReview URL (iclr.cc poster page). Lightman's author spellings kept as arXiv/bib (Yura Burda, Harri Edwards); ICLR prints the OpenReview profile forms | iclr.cc/virtual poster pages; proceedings.iclr.cc bibtex |
+| `singhal2024long`, `dubois2024lengthcontrolled` | + OpenReview URL from colmweb.org's accepted-papers list; Dubois title/author line kept (colmweb lists 3 authors and a different subtitle; arXiv v2 and the author's page give the bib's form — unresolved, flagged) | colmweb.org/2024/AcceptedPapers.html |
+| `yu2023promptmcts` | + DOI 10.18653/v1/2023.emnlp-main.439, URL | aclanthology.org |
+| `hatcher2006waisr`, `larsen1979csq`, `koo2016icc`, `shrout1979icc` | + DOIs (10.1080/10503300500352500; 10.1016/0149-7189(79)90094-6; 10.1016/j.jcm.2016.02.012; 10.1037/0033-2909.86.2.420) | publishers' Crossref deposits |
+| every arXiv-only entry | + `url = https://arxiv.org/abs/<id>` derived from the journal field, so all entries but the two books, the manual and the PTO workshop paper now carry a link | — |
+| `baruch2025pto` | OpenReview id fTVhWlzCuk reported (via the workshop's ML Anthology mirror) but **not added**: OpenReview could not be opened. Lior can paste the forum URL from his own account | — |
+| `miller1991mi`, `miller2013mi`, `chiu2024bolt`, `hong2023imagined` (NeurIPS 2023 FMDM workshop only), `zhou2025sweetrl`, `wei2025multiturn`, `qian2025userrl`, `guo2024oaif`, `pace2024westofn` (ICLR 2024 DPFM workshop only), `xie2024mctsdpo` (NeurIPS 2024 System-2 workshop only), `shao2024deepseekmath`, `schulman2017ppo`, `amodei2016concrete` | no venue change | LOC records; arXiv abstract pages; iclr.cc / neurips.cc workshop pages; ACL 2026 + EMNLP 2026 lists |
+
+Not applied by choice: `editor` lists (acl_natbib prints them and they would double the length of
+a dozen entries); `volume={2024}`-style ICLR volumes; the "(ACL)/(EMNLP)" suffix removal the
+Anthology's own strings would imply (a style choice, kept as is).
