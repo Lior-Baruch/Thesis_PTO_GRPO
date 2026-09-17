@@ -163,6 +163,166 @@
    "source": "process_levels",
    "note": "iteration 10"
   },
+  "levels.gpt-4o-mini.PTO_LA0.ct_prop.base": {
+   "value": 0.4535,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.ct_prop.final": {
+   "value": 0.5477,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.mi_incons_rate.base": {
+   "value": 0.2236,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.mi_incons_rate.final": {
+   "value": 0.2829,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.th_PRA_rate.base": {
+   "value": 0.0161,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.th_PRA_rate.final": {
+   "value": 0.1351,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.th_OQ_rate.base": {
+   "value": 0.1095,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.th_OQ_rate.final": {
+   "value": 0.0233,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.rtoq.base": {
+   "value": 1.8457,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.rtoq.final": {
+   "value": 0.7222,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.ct_after_q.base": {
+   "value": 0.4856,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.ct_after_q.final": {
+   "value": 0.6389,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.refl_after_ct.base": {
+   "value": 0.1621,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.refl_after_ct.final": {
+   "value": 0.0184,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.reached_ct.base": {
+   "value": 0.7396,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA0.reached_ct.final": {
+   "value": 0.9375,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.ct_prop.base": {
+   "value": 0.4576,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.ct_prop.final": {
+   "value": 0.6291,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.mi_incons_rate.base": {
+   "value": 0.2149,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.mi_incons_rate.final": {
+   "value": 0.3389,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.th_PRA_rate.base": {
+   "value": 0.0442,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.th_PRA_rate.final": {
+   "value": 0.039,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.th_OQ_rate.base": {
+   "value": 0.1072,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.th_OQ_rate.final": {
+   "value": 0.0274,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.rtoq.base": {
+   "value": 2.2582,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.rtoq.final": {
+   "value": 2.58,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.ct_after_q.base": {
+   "value": 0.4412,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.ct_after_q.final": {
+   "value": 0.42,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.refl_after_ct.base": {
+   "value": 0.148,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.refl_after_ct.final": {
+   "value": 0.1135,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.reached_ct.base": {
+   "value": 0.75,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.gpt-4o-mini.PTO_LA5.reached_ct.final": {
+   "value": 0.9062,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
   "levels.claude-haiku-4-5.GRPO_LA0.ct_prop.base": {
    "value": 0.4807,
    "source": "process_levels",
@@ -323,6 +483,166 @@
    "source": "process_levels",
    "note": "iteration 10"
   },
+  "levels.claude-haiku-4-5.PTO_LA0.ct_prop.base": {
+   "value": 0.4544,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.ct_prop.final": {
+   "value": 0.5833,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.mi_incons_rate.base": {
+   "value": 0.2508,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.mi_incons_rate.final": {
+   "value": 0.4671,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.th_PRA_rate.base": {
+   "value": 0.0356,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.th_PRA_rate.final": {
+   "value": 0.4022,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.th_OQ_rate.base": {
+   "value": 0.1168,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.th_OQ_rate.final": {
+   "value": 0.0335,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.rtoq.base": {
+   "value": 0.197,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.rtoq.final": {
+   "value": 0.451,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.ct_after_q.base": {
+   "value": 0.4706,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.ct_after_q.final": {
+   "value": 0.4951,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.refl_after_ct.base": {
+   "value": 0.0581,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.refl_after_ct.final": {
+   "value": 0.02,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.reached_ct.base": {
+   "value": 0.7396,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA0.reached_ct.final": {
+   "value": 0.9375,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.ct_prop.base": {
+   "value": 0.4455,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.ct_prop.final": {
+   "value": 0.6534,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.mi_incons_rate.base": {
+   "value": 0.2107,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.mi_incons_rate.final": {
+   "value": 0.5028,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.th_PRA_rate.base": {
+   "value": 0.0369,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.th_PRA_rate.final": {
+   "value": 0.1248,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.th_OQ_rate.base": {
+   "value": 0.1512,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.th_OQ_rate.final": {
+   "value": 0.0322,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.rtoq.base": {
+   "value": 0.2307,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.rtoq.final": {
+   "value": 1.1444,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.ct_after_q.base": {
+   "value": 0.3803,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.ct_after_q.final": {
+   "value": 0.4765,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.refl_after_ct.base": {
+   "value": 0.0307,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.refl_after_ct.final": {
+   "value": 0.0543,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.reached_ct.base": {
+   "value": 0.6979,
+   "source": "process_levels",
+   "note": "iteration 0"
+  },
+  "levels.claude-haiku-4-5.PTO_LA5.reached_ct.final": {
+   "value": 0.9271,
+   "source": "process_levels",
+   "note": "iteration 10"
+  },
   "yield.gpt-4o-mini.GRPO_LA0.CQ.p_ct.final": {
    "value": 0.0,
    "source": "transition_yield",
@@ -418,6 +738,106 @@
    "source": "transition_yield",
    "note": "n = 4 turns, iteration 10"
   },
+  "yield.gpt-4o-mini.PTO_LA0.OQ.p_ct.final": {
+   "value": 0.6667,
+   "source": "transition_yield",
+   "note": "n = 18 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.CQ.p_ct.final": {
+   "value": 0.3333,
+   "source": "transition_yield",
+   "note": "n = 3 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.SR.p_ct.final": {
+   "value": 0.1132,
+   "source": "transition_yield",
+   "note": "n = 53 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.CR.p_ct.final": {
+   "value": 0.122,
+   "source": "transition_yield",
+   "note": "n = 41 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.AF.p_ct.final": {
+   "value": 0.6928,
+   "source": "transition_yield",
+   "note": "n = 166 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.PRA.p_ct.final": {
+   "value": 0.8037,
+   "source": "transition_yield",
+   "note": "n = 107 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.GI.p_ct.final": {
+   "value": 0.6635,
+   "source": "transition_yield",
+   "note": "n = 318 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.PERS.p_ct.final": {
+   "value": 0.3742,
+   "source": "transition_yield",
+   "note": "n = 155 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.SEEK.p_ct.final": {
+   "value": 0.7857,
+   "source": "transition_yield",
+   "note": "n = 14 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA0.OTH.p_ct.final": {
+   "value": 1.0,
+   "source": "transition_yield",
+   "note": "n = 4 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.OQ.p_ct.final": {
+   "value": 0.8085,
+   "source": "transition_yield",
+   "note": "n = 47 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.CQ.p_ct.final": {
+   "value": 0.1111,
+   "source": "transition_yield",
+   "note": "n = 9 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.SR.p_ct.final": {
+   "value": 0.411,
+   "source": "transition_yield",
+   "note": "n = 73 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.CR.p_ct.final": {
+   "value": 0.7541,
+   "source": "transition_yield",
+   "note": "n = 122 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.AF.p_ct.final": {
+   "value": 0.9778,
+   "source": "transition_yield",
+   "note": "n = 135 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.PRA.p_ct.final": {
+   "value": 1.0,
+   "source": "transition_yield",
+   "note": "n = 56 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.GI.p_ct.final": {
+   "value": 0.8314,
+   "source": "transition_yield",
+   "note": "n = 433 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.PERS.p_ct.final": {
+   "value": 0.3939,
+   "source": "transition_yield",
+   "note": "n = 396 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.SEEK.p_ct.final": {
+   "value": 0.3333,
+   "source": "transition_yield",
+   "note": "n = 6 turns, iteration 10"
+  },
+  "yield.gpt-4o-mini.PTO_LA5.OTH.p_ct.final": {
+   "value": 1.0,
+   "source": "transition_yield",
+   "note": "n = 1 turns, iteration 10"
+  },
   "yield.claude-haiku-4-5.GRPO_LA0.CR.p_ct.final": {
    "value": 0.087,
    "source": "transition_yield",
@@ -498,103 +918,208 @@
    "source": "transition_yield",
    "note": "n = 1 turns, iteration 10"
   },
+  "yield.claude-haiku-4-5.PTO_LA0.OQ.p_ct.final": {
+   "value": 0.5556,
+   "source": "transition_yield",
+   "note": "n = 27 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.CQ.p_ct.final": {
+   "value": 0.2941,
+   "source": "transition_yield",
+   "note": "n = 17 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.SR.p_ct.final": {
+   "value": 0.25,
+   "source": "transition_yield",
+   "note": "n = 4 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.CR.p_ct.final": {
+   "value": 0.1429,
+   "source": "transition_yield",
+   "note": "n = 35 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.AF.p_ct.final": {
+   "value": 0.7059,
+   "source": "transition_yield",
+   "note": "n = 34 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.PRA.p_ct.final": {
+   "value": 0.5471,
+   "source": "transition_yield",
+   "note": "n = 340 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.GI.p_ct.final": {
+   "value": 0.6721,
+   "source": "transition_yield",
+   "note": "n = 305 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.PERS.p_ct.final": {
+   "value": 0.2879,
+   "source": "transition_yield",
+   "note": "n = 66 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.SEEK.p_ct.final": {
+   "value": 0.3191,
+   "source": "transition_yield",
+   "note": "n = 47 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA0.OTH.p_ct.final": {
+   "value": 0.5,
+   "source": "transition_yield",
+   "note": "n = 4 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.OQ.p_ct.final": {
+   "value": 0.8167,
+   "source": "transition_yield",
+   "note": "n = 60 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.CQ.p_ct.final": {
+   "value": 0.4286,
+   "source": "transition_yield",
+   "note": "n = 35 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.SR.p_ct.final": {
+   "value": 0.0,
+   "source": "transition_yield",
+   "note": "n = 1 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.CR.p_ct.final": {
+   "value": 0.6923,
+   "source": "transition_yield",
+   "note": "n = 117 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.AF.p_ct.final": {
+   "value": 0.9623,
+   "source": "transition_yield",
+   "note": "n = 53 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.PRA.p_ct.final": {
+   "value": 0.9728,
+   "source": "transition_yield",
+   "note": "n = 184 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.GI.p_ct.final": {
+   "value": 0.8202,
+   "source": "transition_yield",
+   "note": "n = 317 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.PERS.p_ct.final": {
+   "value": 0.443,
+   "source": "transition_yield",
+   "note": "n = 474 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.SEEK.p_ct.final": {
+   "value": 0.56,
+   "source": "transition_yield",
+   "note": "n = 25 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.CONF.p_ct.final": {
+   "value": 0.0,
+   "source": "transition_yield",
+   "note": "n = 2 turns, iteration 10"
+  },
+  "yield.claude-haiku-4-5.PTO_LA5.OTH.p_ct.final": {
+   "value": 1.0,
+   "source": "transition_yield",
+   "note": "n = 10 turns, iteration 10"
+  },
   "parity.gpt-4o-mini.MITI.B1_GI.rho_pooled": {
-   "value": 0.4264,
+   "value": 0.4753,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.MITI.B2_Persuade.rho_pooled": {
-   "value": 0.3155,
+   "value": 0.3723,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.MITI.B3_Q.rho_pooled": {
-   "value": 0.1927,
+   "value": 0.2283,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.MITI.B4_SR.rho_pooled": {
-   "value": 0.2809,
+   "value": 0.3245,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.MITI.B5_CR.rho_pooled": {
-   "value": 0.2158,
+   "value": 0.2492,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.MITI.B6_AF.rho_pooled": {
-   "value": 0.2046,
+   "value": 0.2206,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.MITI.B7_Seek.rho_pooled": {
-   "value": 0.0193,
+   "value": 0.0231,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.PCT.PCT_ChangeTalk.rho_pooled": {
-   "value": 0.8811,
+   "value": 0.8875,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.PCT.PCT_Neutral.rho_pooled": {
-   "value": 0.1719,
+   "value": 0.1831,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.gpt-4o-mini.PCT.PCT_SustainTalk.rho_pooled": {
-   "value": 0.8976,
+   "value": 0.9015,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.MITI.B1_GI.rho_pooled": {
-   "value": 0.6773,
+   "value": 0.7036,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.MITI.B2_Persuade.rho_pooled": {
-   "value": 0.5499,
+   "value": 0.5995,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.MITI.B3_Q.rho_pooled": {
-   "value": 0.7306,
+   "value": 0.7345,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.MITI.B4_SR.rho_pooled": {
-   "value": 0.1965,
+   "value": 0.1572,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.MITI.B5_CR.rho_pooled": {
-   "value": 0.3032,
+   "value": 0.2649,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.MITI.B6_AF.rho_pooled": {
-   "value": 0.2154,
+   "value": 0.2368,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.MITI.B7_Seek.rho_pooled": {
-   "value": 0.1007,
+   "value": 0.1382,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.PCT.PCT_ChangeTalk.rho_pooled": {
-   "value": 0.9151,
+   "value": 0.9185,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.PCT.PCT_Neutral.rho_pooled": {
-   "value": 0.5125,
+   "value": 0.4749,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   },
   "parity.claude-haiku-4-5.PCT.PCT_SustainTalk.rho_pooled": {
-   "value": 0.9421,
+   "value": 0.9465,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
   }

@@ -598,12 +598,14 @@ in GRPO K=0 is already at 0.62 of turns in the first two therapist turns and 0.8
 K=0 ramps from 0.04 to 0.35; both K=5 arms stay ≤ 0.16 in every bin. Questions per turn fall with
 session position in every trained arm (GRPO K=0 to ≈ 0 from turn 3), against a flat base.
 
-## 11. `process/` — what each therapist behaviour does to the patient (MIPROC, GRPO arms, both graders)
+## 11. `process/` — what each therapist behaviour does to the patient (MIPROC, all four arms, both graders)
 
-*(Added 2026-09-17; held-out grader added the same day. Utterance-level codes exist for the GRPO
-arms under both graders — 2 × 11 × 96 = 2,112 conversations each — so every claim below is stated
-per grader and never averaged. Sign `+ ⇒ K=0 higher`, Holm across iterations. Primary =
-`gpt-4o-mini` (the training oracle), held-out = `claude-haiku-4-5`.)*
+*(Added 2026-09-17; held-out grader and the PTO arms added the same day. Utterance-level codes exist
+for all four arms under both graders — 4 × 11 × 96 = 4,224 conversations per grader, minus one
+held-out cell (`PTOExp3_LA5_I3` conversation 38) the held-out judge never returned at the pinned
+length — so every claim below is stated per grader and never averaged. Sign `+ ⇒ K=0 higher`, Holm
+across iterations. Primary = `gpt-4o-mini` (the training oracle), held-out = `claude-haiku-4-5`. The
+GRPO paragraphs come first because the live paper is GRPO-only; the PTO reading closes the section.)*
 
 **Code mix** ([`process_levels_gpt-4o-mini.md`](process/tables/process_levels_gpt-4o-mini.md),
 [`process_levels_claude-haiku-4-5.md`](process/tables/process_levels_claude-haiku-4-5.md);
@@ -656,6 +658,21 @@ affirmations and seeking do not (0.10–0.30). This is a construct difference, n
 turn vs. a count of every function in a 900-character turn — and it is why the paper's "K=5 asks more
 questions" (a `?`-count claim) and this family's "open-question turns vanish in both arms" are both
 true. Quote each with its unit.
+
+**PTO under the same lens — look-ahead removes the praise habit but does not install reflections.**
+PTO K=0 drifts toward praise too, more mildly than GRPO K=0 (`PRA` primary 0.02 → 0.14, held-out 0.04
+→ 0.40; `pra_after_st` 0.003 → 0.07 / 0.03 → 0.37) and its K=5 twin stays flat on praise (`PRA` 0.04 /
+0.13 at the endpoint; `th_PRA_rate` K=0 higher at 5 of 10 held-out iterations, `pra_after_st` K=0
+higher at 7–10). But PTO K=5 does **not** learn complex reflections the way GRPO K=5 does (`CR` 0.02 →
+0.09 primary / 0.07 held-out vs GRPO K=5's 0.23 / 0.24; no significant K contrast on `th_CR_rate` for
+PTO on either grader) and it *does* learn persuasion (`PERS` 0.16 → 0.30 primary / 0.15 → 0.38
+held-out; K=5 higher at 6 / 8 of 10 iterations), so its MI-inconsistent share is *higher* than K=0's
+mid-run on the held-out judge (K=5 higher at iterations 4–7). Patient change talk still ends higher
+under PTO K=5 (`ct_prop` 0.63 / 0.65 vs 0.55 / 0.58) and keeps rising through the session (0.80
+held-out CT share at patient turn 10+ vs 0.46 for PTO K=0), but the responsiveness contrast that
+defines the GRPO story is weak here (`refl_after_ct` 0.11 / 0.05 vs 0.02 / 0.02 at the endpoint; K=5
+higher at 2 of 10 held-out iterations). Read with §5: for PTO, look-ahead relocates the reward hack
+from praise to persuasion rather than replacing it with reflective listening.
 
 ## 9. Caveats
 

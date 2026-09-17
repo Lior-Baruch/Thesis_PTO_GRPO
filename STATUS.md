@@ -355,13 +355,14 @@ vendor dashboard before quoting any figure.**
 paper can carry MI *process* rather than only scores: `lookahead/text` (judge-free embedding
 repertoire / drift / diversity / responsiveness / patient side, all four arms) and
 `lookahead/process` (the new utterance-level `MIPROC` coder — yields, responsiveness, within-session
-change talk, parity). MIPROC is scored on the **GRPO grid under both graders** (2 × 11 × 96 = 2,112
-conversations each; primary ≈ $1.3 live, held-out ≈ $4.6 via Message Batches, 3 batch rows that came
-back one code short were re-scored on the live path). The PTO arms are unscored on MIPROC
-(`python tools/score_miproc.py` with `MIPROC_ARM_RE` widened, ≈ the same cost again) — `_selfcheck`'s
-`score coverage` WARNs about that by design. Read `Exp3_PTO_GRPO/eda/results/lookahead/SUMMARY.md`
-§10–§11 before touching the paper: the two graders agree that K=0 learns praise and K=5 learns complex
-reflections + reflects change talk, and disagree on how much K=5 praises.
+change talk, parity). MIPROC is scored on **all four arms under both graders** (4 × 11 × 96 = 4,224
+conversations per grader; primary ≈ $2.6 live, held-out ≈ $9.3 via Message Batches; batch rows that
+came back one code short were re-scored on the live path, and exactly one held-out cell,
+`PTOExp3_LA5_I3` conversation 38, never returned at the pinned length — `_selfcheck`'s `score
+coverage` WARNs about it by design). Read `Exp3_PTO_GRPO/eda/results/lookahead/SUMMARY.md` §10–§11
+before touching the paper: the two graders agree that GRPO K=0 learns praise and GRPO K=5 learns
+complex reflections + reflects change talk, disagree on how much GRPO K=5 praises, and show PTO K=5
+trading praise for persuasion rather than for reflections.
 
 **1. ✅ DONE (2026-08-25) — the five `results/<top>/SUMMARY.md` are rewritten**, along with
 `LIMITATIONS.md`, `METRICS_REFERENCE.md`, and the tree-wide censoring purge described above.

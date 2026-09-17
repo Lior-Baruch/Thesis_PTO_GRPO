@@ -38,6 +38,9 @@ and MI process rather than scores. Landed as two judge-invariant families under 
   ≈ $4.6) followed the same day on Lior's go-ahead: one batch of 2,112, ended in ~10 min, 2,109
   parsed; 3 rows came back one patient code short and were re-scored on the live judge path
   (`tools/score_miproc.py` is the durable entry point: plan / primary / submit / wait / collect).
+  The PTO arms followed the same evening (both graders, same shape; one held-out cell,
+  `PTOExp3_LA5_I3`/38, never came back at the pinned length after three tries — left absent, so
+  the lake holds 4,224 primary + 4,223 held-out MIPROC cells).
 - **`lookahead/process`** (`eda_analysis/process.py`, `plotting/process.py`,
   `notebooks/lookahead/process.ipynb`): code mix + K contrast on every process metric, yield
   P(CT | therapist code) with Wilson intervals, responsiveness P(therapist code | patient code),
