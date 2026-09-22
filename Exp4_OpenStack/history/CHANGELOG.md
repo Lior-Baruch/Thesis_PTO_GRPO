@@ -8,6 +8,62 @@ CLAUDE.md § Status and were not moved — this file starts with the pre-run rev
 
 ---
 
+## 2026-09-22 — both GRPO arms are trained; the lake is still empty
+
+The first Colab campaign is over. `GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi` started
+2026-09-14 and `..._LA5_...` started 2026-09-16; both ran the full 10 iterations and the post-loop
+eval pass, so each has `model_iter_0 … model_iter_10` at 96 conversations — `2 × 11 × 96 = 2,112`
+conversations, $0 in API. **No conversation has been scored**: `data/eval_scores/` is empty, so
+every family in `eda/results/` is still the empty-lake render and no eval number about Exp4 exists.
+
+**What the campaign proved about the stack.** vLLM 0.26.0+cu129 held E4B through two multi-hour
+arms on one A100 80 GB beside the trainer, with `enable_thinking: false` on every request. Across
+all 696 optimizer steps the training oracle reports `oracle/success_rate` = 1.000 and
+`reward/graded_frac` = 1.000 — not one dropped or ungradeable call, and `lookahead_oom_events` and
+`lookahead_prompt_overflows` are 0 on the K=5 arm. `peak_reserved_gib_train` sat at 20.2–20.6 GiB
+against the 25.7 GiB envelope the arithmetic predicted, so the envelope was conservative in the
+right direction. Chunked prefill (the rehearsal's one finding) held.
+
+**The K cost multiplier survives the stack swap.** Median optimizer step 64.5 s at K=0 vs 136.2 s
+at K=5 = **2.11×** (2.09× on means). Exp3 measured ~1.9× per step against gpt-4o-mini. Whole-arm
+wall-clock is `15.89 / 8.13 = 1.95×`, lower because the 1.05–1.11 h generation phase is
+K-independent. Totals: K=0 `1.05 gen + 7.08 train = 8.13 h` over 346 steps; K=5
+`1.11 + 14.77 = 15.89 h` over 350 steps; ≈ `(8.13 + 15.89) × 7.5 ≈ 180 CU` of production time.
+
+**The 2026-09-14 prediction about session length was right.** Bare `SESSION ENDED` completions take
+the 0.0 floor and are the group minimum, so GRPO pushes away from abrupt endings:
+`train/reward/degenerate_frac` falls 0.048 → 0.000 by iteration 4 on K=0 and 0.030 → 0.000 by
+iteration 4 on K=5, mean conversation length rises 18.5 → 22.0 and 19.8 → 24.2, and the
+MCL-eligible slice count rises with it (407 → 575 and 465 → 677 prompts, i.e. 24 → 34 and 27 → 40
+optimizer steps per iteration). Longer sessions are why a late iteration costs more than an early
+one. The 2026-09-14 worry that ~24 steps/iteration was a quarter of the planned update budget
+partly resolved itself.
+
+**Two things to distrust in the training-side curves.**
+- The mean training reward rises 3.69 → 4.16 (K=0) and 3.72 → 4.15 (K=5), but those two columns are
+  **not on the same axis** — K=5's oracle grades 5 extra simulated turns — and each iteration's
+  reward is computed on that iteration's own self-generated prompts, so neither series is held out.
+  The comparison that counts is the full-conversation eval, which does not exist yet.
+- `train/entropy` collapses ~3 nats on both arms (4.81 → 1.51, 4.83 → 1.90) while
+  `train/completions/clipped_ratio` falls 0.28 → 0.04 and `train/reward_std` falls ~60 %
+  (0.97 → 0.38, 0.87 → 0.44). A reward that rises while the output distribution contracts is the
+  saturation shape from Exp3, and it is the first thing the EDA should test for mode collapse.
+
+**Gates that did NOT get exercised, and should not be recorded as passed.** All 20 iterations
+recorded `n_timing_sessions == 1` — nothing ever crashed, so the mid-arm resume path has still only
+ever run under `smoke.py resume` offline. `smoke.py roles` was never run either: the serve cell's
+two-arm survival is stronger evidence for serving, but the thinking-token assertion and the
+kill→restart check specifically were never made. And PTO has not executed a single line on Colab,
+which now puts its rehearsal on the critical path.
+
+**Housekeeping still owed.** The `_G4_` rehearsal folders remain on Drive under both `runs/` and
+`conversations/`; `discover_arms()` will treat them as a real arm at the first `Run_Eval` or render.
+
+Status table, the measured-numbers table and "Next session — start here" in
+[CLAUDE.md](../CLAUDE.md) § Status rewritten to match.
+
+---
+
 ## 2026-09-14 — the pre-Colab review
 
 The last pass before the first Colab session, run because the previous rounds were closed on

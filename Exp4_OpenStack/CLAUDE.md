@@ -1277,8 +1277,10 @@ GRPO data "pref data".
 
 ## Status
 
-**Code complete, locally gated, and through the 2026-09-02 pre-run review (below). Nothing has been
-trained; no `data/` exists yet.**
+**Both GRPO arms are TRAINED — K=0 and K=5, 10 iterations each, on the A100 80 GB, $0 API. Nothing
+is SCORED yet: `data/eval_scores/` is empty, so no eval number exists and no family renders with
+arms. PTO has not started.** The look-ahead lever (RQ-i) is now a question the data can answer; the
+method contrast (RQ-ii) still needs the two PTO arms.
 
 | Phase | Gate | State |
 |---|---|---|
@@ -1290,26 +1292,53 @@ trained; no `data/` exists yet.**
 | 2 Oracle path | request carries a real `json_schema`; validation ladder accepts a good answer, **rejects a short array and prose**; aggregation is the unweighted mean across rubrics | ✅ vs `tools/fake_oracle_server.py` |
 | 2 Sanity gate | passes a healthy grader, **fails a degenerate one** (exit 1) | ✅ both directions |
 | 2 Generation | base policy + patient endpoint → `pers<PID>.csv` → reader round-trip → oracle score | ✅ full loop, local GPU |
-| 1 Serving | `smoke.py roles` on Colab — chat + json_schema per binding, **no thinking tokens**, kill→restart, real weights GiB, the KV-cache-tokens line | 🟡 the notebooks' serve cell brought E4B up on the A100 80 GB (`0.26.0+cu129`, measured weights **14.61 GiB**, text-only flag on) and the json_schema oracle path answered; `smoke.py roles` itself (the thinking-token assertion, kill→restart) has NOT been run |
-| 2 Real grader | 96-conv base pass vs the real Gemma patient; full `oracle_sanity` against the real Gemma oracle; `Run_Eval` § 8 prompt-length gate | 🟡 full `oracle_sanity` **passed** inline (12/12 schema-valid on both rubrics, no degeneracy; Q1 Spearman **0.90** vs the gpt-4o-mini reference, level offset −0.93); the 96-conv base pass exists (`model_iter_0` of the real arm); the § 8 prompt-length gate awaits the first `Run_Eval` |
-| 3 GRPO | `QUICK_TEST` rehearsal trains, is killed mid-training on purpose and resumes; `generations.jsonl` valid; prompts/step = 16; `peak_reserved_gib_*` read | 🟡 the rehearsal generated + extracted, then OOM'd in TRL's first prefill (fixed: chunked prefill); the REAL arm now trains through that step — kill→resume and the peak read are to be done ON the real arm (iteration 2, after `checkpoint-10`) |
-| 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ still the plan: run PTO's rehearsal first (its build/resume path and DPO-step memory are separate questions) |
-| 6 First real arm | one real-config iteration read for memory / latency / wall-clock, THEN the full GRPO K=0 arm on Colab, $0 API | 🟡 **running** — `GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi`, started 2026-09-14 (QUICK_TEST left False by accident; kept, since the real iteration 1 is rung 4 anyway). Iteration 1: generation 96 convs in **209 s**, training **~65 s/step**, every group with reward spread. Read `peak_reserved_gib_train` + the phase wall-clocks when iteration 1 closes |
+| 1 Serving | `smoke.py roles` on Colab — chat + json_schema per binding, **no thinking tokens**, kill→restart, real weights GiB, the KV-cache-tokens line | 🟡 the notebooks' serve cell brought E4B up on the A100 80 GB (`0.26.0+cu129`, measured weights **14.61 GiB**, text-only flag on) and served **two full arms** end to end without a restart; `smoke.py roles` itself (the thinking-token assertion, kill→restart) was never run and now never will be on this evidence — the arms are the stronger gate |
+| 2 Real grader | 96-conv base pass vs the real Gemma patient; full `oracle_sanity` against the real Gemma oracle; `Run_Eval` § 8 prompt-length gate | 🟡 full `oracle_sanity` **passed** inline (12/12 schema-valid on both rubrics, no degeneracy; Q1 Spearman **0.90** vs the gpt-4o-mini reference, level offset −0.93), and across both arms the training oracle answered **`oracle/success_rate` = 1.000 and `reward/graded_frac` = 1.000 at every one of the 696 optimizer steps** — the grader never dropped a call. The § 8 prompt-length gate still awaits the first `Run_Eval` |
+| 3 GRPO | `QUICK_TEST` rehearsal trains, is killed mid-training on purpose and resumes; `generations.jsonl` valid; prompts/step = 16; `peak_reserved_gib_*` read | 🟡 superseded on everything but resume: two real arms trained clean, `generations.jsonl` written per iteration, `prompts_per_step` = 16, `peak_reserved_gib_train` = **20.2–20.6 GiB** against the 25.7 GiB envelope. ⚠ **Resume was never exercised** — `n_timing_sessions == 1` in all 20 iterations, so no arm ever crashed and the restore path is still only pinned by `smoke.py resume` offline |
+| 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ unchanged — nothing PTO has run. Its build/resume path and DPO-step memory are still separate questions, and it is now the critical path |
+| 6 First real arms | the full GRPO arms on Colab, $0 API | ✅ **both done.** `GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi` (started 2026-09-14) and `..._LA5_...` (started 2026-09-16), 10 iterations each, `model_iter_0…10` × 96 conversations each (`2 × 11 × 96 = 2,112` conversations). QUICK_TEST was left False on the K=0 arm by accident and kept |
+| 7 Scoring | `Run_Eval` over both arms → `data/eval_scores/judge=gemma4E4B/rep=0/` | ⬜ **not started — the lake is empty.** `2 arms × 11 states × 96 convs × 8 instruments = 16,896` judge calls, $0 API but Colab GPU (E4B does not fit the local 12 GB card). **Nothing in `results/` means anything until this runs** |
 
-**What the live arm has already measured** (2026-09-14; the numbers the plan got wrong):
-- **Sessions are short.** Base conversations average **18.5 utterances** (min 2, max 28) against the 49
-  cap — the Gemma patient ends 60/96, the Instruct therapist wraps up 36/96 (two right after the
-  patient's first reply). The spec's "19 branch points per conversation" is **~4** here: `407`
-  MCL-eligible slices from 96 conversations → `386 / 16 ≈ 24` optimizer steps per iteration, not
-  ~108. An iteration is ~30 min (3.5 gen + ~26 train) ⇒ 10 iterations ≈ 5 GPU-h ≈ 38 CU on the 80 GB
-  card — cheap, but a quarter of the planned updates per iteration. Raising `NUM_ITERATIONS` is free
-  (not in the arm name); decide after the first arm's curve.
-- **Bare `SESSION ENDED` completions (~7 % of samples) take the 0.0 floor** — the documented rule
-  (`core.reward`: keyword-only = cleans to empty = degenerate), the same as Exp3's. They are the
-  group minimum, so GRPO pushes away from abrupt endings; expect session length to drift up.
-  Completions that say something and then end are graded normally (mean ≈ 3.9).
-- The old `_G4_` rehearsal folders (16 conversations, a headless `iteration_1/`) are still on Drive
-  under `runs/` and `conversations/` — rename or delete before any `Run_Eval`.
+**What the two GRPO arms measured** (read off `iteration_metadata.json` + the per-iteration TB logs;
+these are TRAINING-side numbers — no eval score exists yet):
+
+| | K=0 | K=5 |
+|---|---|---|
+| Optimizer steps (10 iters) | 346 | 350 |
+| Median step time | 64.5 s | 136.2 s |
+| Generation / training / total | 1.05 / 7.08 / **8.13 h** | 1.11 / 14.77 / **15.89 h** |
+| `peak_reserved_gib_train` | 20.2–20.6 | 19.9–20.6 |
+| Mean conv length, iter 1 → 10 | 18.5 → 22.0 | 19.8 → 24.2 |
+| Mean training reward, iter 1 → 10 | 3.69 → 4.16 | 3.72 → 4.15 |
+| `train/reward_std`, iter 1 → 10 | 0.97 → 0.38 | 0.87 → 0.44 |
+| `train/entropy`, iter 1 → 10 | 4.81 → 1.51 | 4.83 → 1.90 |
+
+- **The K cost multiplier on the open stack is `136.2 / 64.5 = 2.11×` per optimizer step** (2.09× on
+  means; `15.89 / 8.13 = 1.95×` on whole-arm wall-clock, which is lower because generation is
+  K-independent). Exp3's gpt-4o-mini measurement was ~1.9× per step — so the multiplier survives
+  the stack swap. At ≈ 7.5 compute units/h, the two arms cost ≈ `(8.13 + 15.89) × 7.5 ≈ 180 CU` of
+  production time, plus install + serve + sanity per session.
+- ⚠ **The two reward columns are NOT on the same axis.** K=0's reward grades the slice + completion;
+  K=5's grades the completion plus 5 simulated turns. That `3.69 → 4.16` vs `3.72 → 4.15` looks like
+  a dead heat is an artefact of reading two different measurements side by side — the comparison
+  that counts is the full-conversation eval, which does not exist yet.
+- ⚠ **Each iteration's reward is also computed on that iteration's own self-generated prompts**, so
+  the rising series is not a held-out curve; a policy that shortens or simplifies its own sessions
+  moves the number without improving.
+- **Sessions got LONGER, as predicted.** The 2026-09-14 note said bare `SESSION ENDED` completions
+  take the 0.0 floor and are the group minimum, so GRPO would push away from abrupt endings —
+  `train/reward/degenerate_frac` falls **0.048 → 0.000 by iteration 4 (K=0) and 0.030 → 0.000 by
+  iteration 4 (K=5)** and mean conversation length rises ~3.5 utterances. The MCL-eligible slice
+  count rises with it: 407 → 575 prompts (K=0), 465 → 677 (K=5), i.e. 24 → 34 and 27 → 40 optimizer
+  steps per iteration. Longer sessions are the mechanism by which an iteration got more expensive.
+- ⚠ **Entropy collapses by ~3 nats on both arms** (4.81 → 1.51 / 4.83 → 1.90) while
+  `train/completions/clipped_ratio` falls 0.28 → 0.04 and `reward_std` falls ~60 %. That is a policy
+  narrowing hard, and it is the first thing the EDA should test for mode collapse — a reward that
+  rises while the output distribution contracts is exactly the shape Exp3's saturation story had.
+  Do not read the reward curve as "it learned MI" until the text diversity is looked at.
+- The old `_G4_` rehearsal folders (16 conversations, a headless `iteration_1/`) are **still on
+  Drive** under both `runs/` and `conversations/` — the EDA's arm discovery accepts them as a real
+  arm. **Rename or delete before any `Run_Eval` or render.**
 
 Everything runnable without Colab is green: **183 smoke checks** (`32 + 29 + 29 + 26 + 13 + 30 + 3 +
 7 + 6 + 8`, GPU parts included, plus the two deliberate `vram` WARNINGS for the 40 GB fallback card;
@@ -1488,73 +1517,55 @@ FALSE on the pinned trl 1.4.0 and rewritten at all its sites.
 
 ### Next session — start here
 
-**The gate ladder, on Colab (A100 80 GB), in this order.** Each rung is cheap next to the one after
-it; do not jump to a full arm.
+**The two GRPO arms exist and are worth nothing until they are scored.** Everything below is
+ordered by that: measurement first, then the arms that complete the 2×2.
 
-0. **Before Colab:** push `code/` AND `eda/` to Drive (additively; never `data/`) and add the
-   `huggingface` Colab secret (Llama-3.2-1B is gated; **Gemma 4 is NOT** — Apache 2.0, no
-   click-through, verified on the Hub 2026-09-14). **Grant the secret notebook access and check
-   the auth line right after the mount cell** — a missing token only *warns* there and then fails
-   at model load, after the server start and the full sanity pass. **The 80 GB card is the A100
-   runtime with the High-RAM toggle ON** (Colab bills it at ≈ 7.5 compute units/h against ≈ 5.4
-   for the 40 GB card, which has ≈ 0 headroom — § VRAM budget). Run the install cell: on a fresh
-   runtime it forces the torch trio to the `+cu129` build, installs the `+cu129` vLLM 0.26.0
-   wheel from the GitHub release (`PINNED_VLLM` + `VLLM_CUDA`), layers the pinned stack on top,
-   drops Colab's torchao, runs the pip-check gate (foreign conflicts tolerated, stack conflicts
-   raise), probes `import torch, vllm` in a fresh interpreter (prints torch's CUDA), and
-   **raises to stop** — restart, re-run the mount cell, continue; on a warm runtime it prints
-   one line, re-checks, and skips. It refuses to install anywhere but Colab, so opening a notebook
-   locally cannot write into the repo `.venv`.
-1. **`smoke.py roles` — in a FRESH runtime, before the notebook's serve cell.** It serves the
-   real grader itself (default timeout 1800 s), checks chat + `json_schema` per binding, **no
-   thinking tokens** on the wire, kill→restart, and **stops its server at the end**; after the
-   serve cell it would adopt the notebook's server and skip the kill→restart check. Read the
-   **measured weights line** (14.89 GiB E4B / 9.54 GiB E2B), the **KV cache tokens** line (pool ÷
-   ~4k median prompt = concurrent oracle calls the server holds) and vLLM's **maximum
-   concurrency** line (≈ 90× at the 16k cap on 80 GB with the text-only flag in force).
-2. **Full `oracle_sanity` on E4B** (12 transcripts, both hard gates, `--quick` is for vendor APIs
-   only). **Both notebooks run this gate inline in their section 4** against the server they just
-   started, so the CLI is optional — its `oracle_sanity.json` lands in the run dir either way.
-   E2B only if E4B fails the gate. Skip `tools/generate_convs.py` here: the trainers generate
-   their own `model_iter_0`, and a standalone pass before `run_metadata.json` exists runs under
-   `GenConfig` defaults the arm will not record.
-3. **`QUICK_TEST=True` rehearsal, both notebooks** (G=4 / M=3, 16 conversations GRPO / 8 PTO,
-   2 iterations, real per-forward shapes; lands in a disjoint `_G4_` / `_M3_` folder). **Kill the
-   kernel on purpose during iteration 2's training phase, after a `checkpoint-*` save, and
-   resume** — iteration 2, not 1: it exercises the adapter-reload branch every real-arm resume
-   takes, iteration 1 only the bare-base branch. **After any kill, `!nvidia-smi` and
-   `!pgrep -af vllm` before re-running the serve cell:** vLLM's engine workers can outlive the
-   parent holding the 40 GiB, invisible to the `serve` registry, and a second launch then fails
-   at the free-memory check — kill leftovers by PID. `smoke.py resume` pins the
-   reference-anchoring semantics offline, the rehearsal proves them on the real loop — expect
-   `n_timing_sessions_production == 2` in `iteration_metadata.json`, the partial `training_s`
-   lines summing to the phase, `resume_from_checkpoint` picking the valid checkpoint, TB
-   `train/loss` continuing rather than restarting, the iteration-start adapter as the reference,
-   and `iteration_N/adapter/` differing from the checkpoint it resumed from. Read
-   **`peak_reserved_gib_*` per phase** from `iteration_metadata.json` — `train` against the
-   25.7 GiB envelope (the 2026-09-14 attempt got through generation and the gate and OOM'd in
-   TRL's first prefill before chunked prefill existed; § VRAM budget). **Then rename or delete
-   the `_G4_` / `_M3_` folders** (under both `runs/` and `conversations/`) before any `Run_Eval`
-   or render — the EDA's arm discovery accepts them as real arms and would score and plot them.
-4. **One real-config iteration** (`QUICK_TEST=False`; `NUM_ITERATIONS` is not in the arm name, so
-   the arm simply resumes into the full run later). Read: peak memory again (96 conversations now),
-   the server's KV-cache-tokens line against the realised concurrency, oracle **p95 latency and the
-   timeout count** (`oracle/success_rate`, `lookahead/not_graded_frac`, `reward/graded_frac`), the
-   `trunc <n>/<B>` field on the batch lines, and the phase wall-clocks from `timing_sessions.jsonl`.
-   **Extrapolate before committing 10 iterations × 4 arms.** Per iteration, both methods, K=0:
-   `96 convs × 19 branch points × 8 candidates × 2 rubrics ≈ 29k oracle calls`
-   (`(50 − 12) / 2 = 19` patient turns at or past MCL=12 in a 50-utterance conversation). K=5 adds
-   `96 × 19 × 8 × 3 patient turns ≈ 44k patient calls` per iteration (5 extra utterances = 3
-   patient + 2 therapist turns per candidate) on top of the oracle calls.
-5. **Then** the first real arm: GRPO K=0, Instruct therapist. Score it with `Run_Eval.ipynb` on the
-   same GPU; its § 8 prompt-length gate is the Phase 2 measurement (the 16384 cap stands on Exp3's
-   gpt-4o-mini patient until then).
+0. **Housekeeping, before anything reads `data/`.** Rename or delete the `_G4_` rehearsal folders
+   under BOTH `data/runs/` and `data/conversations/` — `eda_analysis.data.discover_arms()` accepts
+   `GRPO4_Q1Q2_LA0_MCL12_G4_...` as a real arm and would score its 16 conversations and plot them
+   beside the real ones. (Its `run_metadata.json` + `oracle_sanity.json` are the only record that
+   the rehearsal happened; move them, don't just delete.)
+1. **`Run_Eval.ipynb` over both arms — THE gating step.** On Colab, same serve cell, same E4B
+   grader. `2 arms × 11 model states × 96 conversations × 8 instruments = 16,896` judge calls, $0
+   API. The § 8 prompt-length gate runs inside it and is the Phase-2 measurement that has been
+   pending since the plan was written; the 16384 `max_model_len` still stands on Exp3's
+   gpt-4o-mini patient until that gate reports. Writes
+   `data/eval_scores/judge=gemma4E4B/rep=0/metric=<M>/oracle=gemma4E4B/<Arm>/pers<PID>.csv`.
+   ⚠ The default judge **shares a model with the training oracle** — that is train-on-test for the
+   primary grader, exactly as in Exp3. A held-out second judge is a separate `judge=<tag>`
+   partition and a separate decision; do not let the first number that lands get quoted as
+   held-out.
+2. **Render + read `lookahead/reward` and `arms/outcomes` first.** RQ-i (K=0 vs K=5 within GRPO) is
+   answerable the moment the lake has both arms — it is the one question Exp4 can already settle,
+   and it is the replication test for Exp3's look-ahead result on a stack that costs $0. Read the
+   TABLES before any narrative, including the ones above in this file.
+3. **Test the entropy collapse before believing the reward curve.** Both arms lose ~3 nats of
+   `train/entropy` while `reward_std` and `clipped_ratio` fall together. Whatever the eval says,
+   check output diversity across iterations (distinct n-grams / self-similarity across the 96
+   conversations of each `model_iter_N`) — a rising reward under a contracting output distribution
+   is the saturation shape, not an MI-quality shape.
+4. **PTO's `QUICK_TEST=True` rehearsal, then the two PTO arms.** The PTO notebook is already at the
+   real config (`QUICK_TEST=False`, `NUM_ITERATIONS=10`, `LOOKAHEAD_K=0`, `PREF_TREE_MODE="greedy"`,
+   `M=8`), so the rehearsal needs the flag flipped. Run it anyway: **no PTO code has ever executed
+   on Colab**, its pref-build phase is the dominant cost in Exp3, and its resume path
+   (`pairs.csv` / `_progress.json`) is untested on a real arm. Land it in the disjoint `_M3_`
+   folder, kill the kernel during iteration 2's training after a `checkpoint-*` save, resume, then
+   **delete the `_M3_` folders** before any render. After `!nvidia-smi` and `!pgrep -af vllm`:
+   vLLM engine workers can outlive the parent and hold 40 GiB invisibly.
+5. **Budget.** The GRPO pair cost ≈ `(8.13 + 15.89) × 7.5 ≈ 180 CU` of production time. PTO's shape
+   is different — an iteration is `generate + build + train`, and in Exp3 the build dominated — so
+   do NOT extrapolate the GRPO numbers onto it. Read PTO iteration 1's phase wall-clocks from
+   `timing_sessions.jsonl` and extrapolate before committing to 10 iterations × 2 arms.
 
-⚠ **What is still unverified because nothing has run on Colab:** the vLLM build's behaviour
-(`smoke.py roles` gates serving, thinking-off on the wire, and `json_schema` handling — the
-`enable_thinking` key matches the official recipe and thinking is off by default, so this is
-belt-and-braces rather than a coin flip); the trainer envelope (`2.5 + 8.8 + 4.4 + 4.0 = 19.7 GiB`
-conservative beside the 40 GiB E4B server on 80 GB is arithmetic, not a measurement — the
-rehearsal measures it); and
-whether either Gemma actually measures MI quality — a grader can honour the schema perfectly and
-return near-constant scores, which is exactly what `oracle_sanity`'s degeneracy gate exists for.
+**Still unverified, honestly.**
+- **Resume has never run on a real arm.** All 20 GRPO iterations recorded
+  `n_timing_sessions == 1` — nothing ever crashed, which is good luck rather than evidence. The
+  restore path is pinned only by `smoke.py resume` offline.
+- **`smoke.py roles` was never run.** The thinking-token assertion and kill→restart are unproven as
+  such; what IS proven is that the serve cell brought E4B up and held it through two full arms with
+  `enable_thinking: false` on every request and a 100 % oracle success rate.
+- **Whether Gemma-4 E4B actually measures MI quality.** `oracle_sanity` says it honours the schema
+  and is not degenerate, and Q1 correlates 0.90 with gpt-4o-mini on 12 transcripts. Twelve
+  transcripts is a gate, not a validation. The eval lake is what turns this into a real answer.
+- **Nothing in `eda/results/` has been rendered against real arms.** The last render was on an empty
+  lake (4 families, 0 failed, 4 skipped).
