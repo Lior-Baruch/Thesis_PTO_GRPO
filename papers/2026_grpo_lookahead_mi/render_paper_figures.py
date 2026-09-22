@@ -585,12 +585,49 @@ def headline() -> Path:
     return out
 
 
+def faithfulness() -> Path:
+    """Appendix B.1 (added 2026-09-22 on Doron's "ref specific subsection and related figure"):
+    the faithfulness of the training reward by prefix length, GRPO arms, iterations 1-10 pooled,
+    one panel per grader -- from ``mechanism.xlsx`` sheet ``faithfulness_curve_long`` (the rows
+    the EDA's four-arm ``faithfulness.png`` draws). The ``all`` (pooled-over-length) rows are not
+    drawn. Prints the 12- and 50-utterance values, which must match the B.1 text."""
+    d = pd.read_excel(MECHANISM_XLSX, sheet_name="faithfulness_curve_long")
+    # n_turns mixes exact lengths with the pooled rows ("all") and the binned ones ("12-20");
+    # only the exact lengths are a curve.
+    d["n_turns"] = pd.to_numeric(d.n_turns, errors="coerce")
+    d = d[d.arm.isin(COL) & d.n_turns.notna()].copy()
+    d["n_turns"] = d.n_turns.astype(int)
+    fig, axes = plt.subplots(1, 2, figsize=figsize("faithfulness_grpo.png", 0.30), sharey=True)
+    panels = ((PRIMARY, "(a) training oracle"), (HELDOUT, "(b) held-out judge"))
+    for ax, (judge, title) in zip(axes, panels):
+        for arm, g in d[d.judge == judge].groupby("arm"):
+            g = g.sort_values("n_turns")
+            ax.fill_between(g.n_turns, g.ci_lo, g.ci_hi, color=COL[arm], alpha=0.18, lw=0)
+            ax.plot(g.n_turns, g.agreement, color=COL[arm], label=LAB[arm], ms=3.0, lw=1.4,
+                    **STY[arm])
+        ax.set_xticks(range(10, 51, 10))
+        ax.set_xlabel("prefix length (utterances)")
+        ax.set_title(title, loc="left", fontweight="bold")
+    axes[0].set_ylim(0.70, 0.96)
+    axes[0].set_ylabel("agreement with the\nfull-session ranking")
+    axes[0].legend(frameon=False, loc="lower right", fontsize=6.0)
+    fig.tight_layout(w_pad=1.6)
+    out = DEST / "faithfulness_grpo.png"
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    at = d[d.n_turns.isin([12, 50])].pivot_table(index=["judge", "arm"], columns="n_turns",
+                                                  values="agreement")
+    print("faithfulness at 12 / 50 utterances (must match Appendix B.1):")
+    print(at.round(3).to_string())
+    return out
+
+
 def main() -> int:
     DEST.mkdir(exist_ok=True)
     # saturation() is not in the list: its figure left the paper on 2026-09-16 (sec 7's text
     # carries every number it showed). Call it by hand to re-check those numbers.
     for f in (headline, overpraise, process, process_heldout, responsiveness, textspace,
-              tail_audit, forest):
+              tail_audit, forest, faithfulness):
         print("wrote", f())
     return 0
 

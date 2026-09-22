@@ -6,7 +6,8 @@
 
 A session is a text conversation between a therapist policy and
 a simulated patient who is ambivalent about a health behaviour. The patient is simulated by
-\texttt{gpt-4o-mini} conditioned on one of \textbf{96} persona system prompts [ref some kfir paper?], the exhaustive
+\texttt{gpt-4o-mini} conditioned on one of the \textbf{96} persona system prompts introduced by
+\citet{yosef2024assessing} and used in \citet{baruch2025pto}, the exhaustive
 enumeration of $2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{problem} \times
 2\ \text{duration} \times 2\ \text{prior attempts} \times 2\ \text{age}$
 (Appendix~\ref{app:prompts}). A session runs until the patient closes it or a cap of 49 utterances
@@ -80,19 +81,21 @@ start of iteration $n$ double as the evaluation set of $\pi_n$; a generate-only 
 last update evaluates the final policy, so ten iterations yield eleven evaluated model states per
 run.
 
-\textbf{The look-ahead reward.} The only thing we change [from what??] is the transcript the oracle scores.
-Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then $\pi$, then $P$,
-and so on for $K$ turns, stopping early if the patient closes the session; $\tau_0(x)$ is empty.
-Then
+\textbf{The look-ahead reward.} The two arms differ in one thing: whether a candidate turn is
+rolled forward by a simulated $K$-turn look-ahead before it is scored, and hence which transcript
+the oracle rewards. Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then
+$\pi$, then $P$, and so on for $K$ turns, stopping early if the patient closes the session;
+$\tau_0(x)$ is empty. Then
 \begin{equation}
 \label{eq:reward}
 r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \end{equation}
-At $K{=}5$ the oracle scores the candidate together with the five turns that followed it under the
-current policy, so a candidate is credited for where it leads under the therapist that will
-actually follow it, [at the price of three [why? is this important?] patient-simulator calls and two policy generations per
-candidate and roughly twice the per-step wall-clock (comparisons are at matched iteration count;
-the Limitations give the matched-cost reading). this all seems too AI. rephrase to make it clear and focus on what is interesting..]
+At $K{=}0$ the oracle scores the candidate alone. At $K{=}5$ it scores the candidate together with
+the five turns that followed it under the current policy, so a candidate is credited for where it
+leads under the therapist that will actually follow it. A rollout is one sample from the
+distribution of continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's
+downstream value, with sampling noise from $P$ and $\pi$ added to the oracle's own; GRPO trains on
+all $G$ candidates, so that variance enters every advantage.
 
 \textbf{The update.} The step maximises the GRPO objective of \citet{shao2024deepseekmath}: the
 per-token surrogate
@@ -109,19 +112,13 @@ step is the advantage-weighted policy gradient over the group with the KL penalt
 advantage normalisation, the KL penalty and the prompt-construction rule are identical across
 $K$; the horizon enters only through $r_g$.
 
-\textbf{Why the transfer is not trivial.} [which transfer? ] A rollout is one sample from the distribution of
-continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value,
-with sampling noise from $P$ and $\pi$ added to the oracle's own. PTO filters that noise by
-keeping only the best- and worst-scoring candidates, so an unlucky rollout can at most cost a
-pair; GRPO trains on all $G$ candidates, so the rollout variance enters every advantage.
-
 \textbf{Minimum context length.} Training prompts are prefixes, so the oracle scores a partial
 conversation while the evaluation scores a whole session. In a pilot on an earlier configuration
 of this task the oracle's ranking of very short prefixes agreed poorly with its ranking of the
 completed sessions and recovered from roughly ten utterances, so both arms discard prefixes
 shorter than MCL${=}12$; at that minimum the training reward orders candidates as the
 full-session score does in $86$--$89\%$ of pairs, and agreement does not fall with prefix length
-(Appendix~\ref{app:mechanism}). [ref specific subsection and related figure]
+(Appendix~\ref{app:faithfulness}, Figure~\ref{fig:faithfulness}).
 
 \subsection{Evaluation design}
 \label{sec:setup}

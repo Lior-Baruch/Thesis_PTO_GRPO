@@ -260,7 +260,7 @@ talk, which are followed by change talk 85–89% of the time.
 | 09_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; one optimiser, one regime (moved from §8); the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments and the process coder (reward is an outcome, MITI reliability, the coder's one-code-per-turn construct and its partial parity with MITI) |
 | 10_ethics | Ethics (page-exempt) | |
 | A_tables | Appendix A | by-iteration table, the judge-free marker figure, the held-out process figure, the responsiveness trajectories, the embedding-space figure, level grids ×2, channel forest, tail audit figure (+ the rollout-audit numbers in the intro text) |
-| B_mechanism | Appendix B | the mechanism analysis in full |
+| B_mechanism | Appendix B | the mechanism analysis in full; **Figure B.1 = faithfulness by prefix length, both graders** (`faithfulness_grpo.png`, added 2026-09-22 on Doron's note) in B.1 (`app:faithfulness`) |
 | C_repro | Appendix C | configuration, instruments, **C.3 the utterance-level process coder** (codebook, numbering, parity), prompts, the marker, anti-degeneracy, statistics, cost accounting, artifacts |
 | D_example | Appendix D | utterances 1–9 of both iteration-10 conversations with persona 93, verbatim; selection rule and scores |
 | E_saturation | Appendix E | *Saturation of the training oracle at the winning checkpoint* (the former §7, moved whole 2026-09-17; Table 7 = the per-instrument agreement table) |
@@ -272,7 +272,7 @@ talk, which are followed by change talk 85–89% of the time.
   two render scripts below draw.
 - [`render_schematic.py`](render_schematic.py) — draws Figure 1 (the GRPO-group schematic) at
   page width; reads no data.
-- [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 2, 3, 6 and 7 from the
+- [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 2, 3, 6, 7 and the Appendix B faithfulness figure from the
   tracked tables (`reward.xlsx::k_headline_grpo_data`, `behaviour.xlsx::overpraise_judgefree_data`,
   `behaviour.xlsx::k_channels_grpo_gpt-4o-mini` + `k_channels_text_grpo`, `mechanism.xlsx::tail_*`),
   each at the exact width the `.tex` includes it at. Figure 6 is drawn in the paper's sign
