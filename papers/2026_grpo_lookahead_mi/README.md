@@ -7,8 +7,10 @@
 cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in December once reviews
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
-mode (line numbers, anonymized); switch to `[final]` for camera-ready. **The body ends exactly at
-the bottom of page 8** (Limitations opens page 9); 25 pages in all.
+mode (line numbers, anonymized); switch to `[final]` for camera-ready. ⚠ **The body currently
+runs ~30 lines into page 9** (Table 3 + the end of the Discussion; 27 pages in all) since Doron's
+2026-09-21 rewrite of §1–2 — accepted as is: the length pass is deliberately **last**, after the
+supervisors' notes are all in (Lior, 2026-09-22). Do not trim ahead of that.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten
@@ -218,6 +220,33 @@ deep analysis"; every new number in `NUMBERS.md` § "2026-09-17 (c)"):
   copies only the two level grids.
 - Section files: `06_behaviour.tex` → `06_therapist.tex`, new `07_patient.tex`,
   `07_measurement.tex` → `E_saturation.tex`. `overleaf.py push` removes the old names.
+
+**Supervisor pass 1, 2026-09-21/22** (Doron's Overleaf edit of 2026-09-21, pulled as `944f26a`;
+Lior: keep ALL his edits, answer his notes; nothing pushed until he said so):
+
+- **§1 rewritten by Doron** — opens two levels up (RL from model-generated feedback; verifiable
+  vs non-verifiable domains; multi-turn = temporal credit assignment; counselling; MI), the
+  results-preview paragraphs are commented out (his call: no "executive summary"), and a new
+  two-part contributions paragraph he marked *"most important — we will get back to it at the
+  end"* (**open**). **§2 restructured** by him into four paragraphs (GRPO; delayed credit; reward
+  models and judges; MI) with a new hinge — in dialogue the future is jointly produced with the
+  interlocutor. Five of his citation keys were renamed onto existing entries; "from our group"
+  anonymised (`[review]` mode). His American spelling is left for the final copyedit.
+- **§3 + §4 merged into one §3 Method** on his note (*"unify 3 and 4; setup before algorithm"*):
+  3.1 Task, simulator and oracle (+ Why MI) · 3.2 GRPO with look-ahead · 3.3 Evaluation design
+  (`sec:setup`). `04_setup.tex` retired; results are §4–§6. His §3 notes answered: the arms differ
+  in the $K$-turn rollout and hence the rewarded transcript (K=0 scores the candidate alone); the
+  cost clause is out of §3.2 (Limitations/Appendix C keep it); "Why the transfer is not trivial"
+  deleted (no PTO arms here — one PTO-free sentence on the one-sample estimate kept); the
+  process-coder sentence rewritten; the 96 personas cite Yosef et al. 2024 (introduced) + the PTO
+  paper; and a **new Appendix B.1 figure** (`faithfulness_grpo.png`, `render_paper_figures.py::
+  faithfulness`, from `mechanism.xlsx::faithfulness_curve_long`, GRPO arms, both graders).
+- **Open from his pass:** the Q1+Q2 training-reward justification (his note stays in §3.1; "here
+  briefly, also in intro and/or discussion — the excuse is following Yosef et al."), the
+  contributions paragraph, `rafailov2023dpo` now uncited (DPO is named in §1), the abstract still
+  opens with the pre-rewrite pitch, and the length (see the top). More notes are coming; the
+  length pass waits for them.
+- A pre-existing `\S<CR>ef` corruption in `E_saturation.tex` (ours, not his) repaired.
 
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
