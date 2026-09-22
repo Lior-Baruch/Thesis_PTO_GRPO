@@ -5,6 +5,12 @@
     & ..\\..\\.venv\\Scripts\\python.exe overleaf.py pull     # Overleaf -> this folder
     & ..\\..\\.venv\\Scripts\\python.exe overleaf.py push     # this folder -> Overleaf
 
+``push`` makes ONE OVERLEAF COMMIT PER CHANGED FILE (a section is a file), each titled with the
+subject of the latest commit in this repo that touched it, so Overleaf's history reads like the
+paper's own and a co-author can follow the changes section by section (Lior, 2026-09-22).
+Commit per section locally, then push. A file with uncommitted local changes gets the ``-m``
+message instead; ``--single`` restores the old one-commit push.
+
 The Overleaf project holds ONLY the files that compile the paper -- the same list
 ``make_overleaf_zip.py`` uses, imported here so there is one definition of "what Overleaf needs".
 The ledger, the READMEs, the render/build scripts and the review notes stay in this repo and are
@@ -198,7 +204,16 @@ def cmd_pull() -> int:
     return 0
 
 
-def cmd_push(message: str, force: bool) -> int:
+def local_subject(rel: str, fallback: str) -> str:
+    """Subject of the latest commit in THIS repo that touched ``rel`` (a deleted file still has
+    one: the commit that removed it), or ``fallback`` when the file has uncommitted changes, so
+    a message never claims a state the repo does not hold."""
+    if git("status", "--porcelain", "--", rel, cwd=HERE):
+        return fallback
+    return git("log", "-1", "--format=%s", "--", rel, cwd=HERE) or fallback
+
+
+def cmd_push(message: str, force: bool, single: bool = False) -> int:
     need_mirror()
     if remote_moved() and not force:
         raise SystemExit("the Overleaf project has changed since the last sync.\n"
@@ -221,16 +236,31 @@ def cmd_push(message: str, force: bool) -> int:
     if not changed:
         print("Overleaf is already up to date")
         return 0
-    git("add", "-A")
-    if not git("status", "--porcelain"):        # e.g. differences git normalises away
+    commits: list[tuple[str, str]] = []                  # (file, message) as committed
+    if single:
+        git("add", "-A")
+        if git("status", "--porcelain"):                  # else: differences git normalises away
+            git("commit", "-m", message, "--quiet")
+            commits.append(("all", message))
+    else:
+        # One Overleaf commit per file, titled after the repo commit that produced it, so the
+        # Overleaf history is followable section by section (see the module docstring).
+        for entry in changed:
+            rel = entry.removesuffix(" (deleted)")
+            git("add", "-A", "--", rel)
+            if not git("diff", "--cached", "--name-only"):
+                continue
+            subject = local_subject(rel, message)
+            git("commit", "-m", subject, "--quiet")
+            commits.append((entry, subject))
+    if not commits:
         print("Overleaf is already up to date (no net change)")
         return 0
-    git("commit", "-m", message)
     git("push", "origin", branch(), "--quiet")
     mark_synced()
-    print(f"pushed to Overleaf: {len(changed)} file(s)")
-    for c in changed:
-        print("  ", c)
+    print(f"pushed to Overleaf: {len(changed)} file(s) in {len(commits)} commit(s)")
+    for entry, subject in commits:
+        print(f"   {entry}  --  {subject}")
     return 0
 
 
@@ -242,9 +272,14 @@ def main(argv: list[str]) -> int:
     sub.add_parser("status", help="show what differs, change nothing")
     sub.add_parser("pull", help="Overleaf -> this folder")
     p_push = sub.add_parser("push", help="this folder -> Overleaf")
-    p_push.add_argument("-m", "--message", default="Update from Claude Code")
+    p_push.add_argument("-m", "--message", default="Update from Claude Code",
+                        help="message for a file whose local changes are not committed "
+                             "(committed files take their repo commit's subject)")
     p_push.add_argument("--force", action="store_true",
                         help="push even though Overleaf changed (discards those changes)")
+    p_push.add_argument("--single", action="store_true",
+                        help="one Overleaf commit for everything, titled -m (the pre-2026-09-22 "
+                             "behaviour) instead of one per changed file")
     a = ap.parse_args(argv)
     if a.cmd == "init":
         return cmd_init(a.url)
@@ -252,7 +287,7 @@ def main(argv: list[str]) -> int:
         return cmd_status()
     if a.cmd == "pull":
         return cmd_pull()
-    return cmd_push(a.message, a.force)
+    return cmd_push(a.message, a.force, a.single)
 
 
 if __name__ == "__main__":

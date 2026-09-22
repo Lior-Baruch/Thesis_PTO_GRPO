@@ -317,7 +317,7 @@ access, a premium/site-licence feature) against the project's git URL, from Menu
 & ..\..\.venv\Scripts\python.exe overleaf.py init https://git.overleaf.com/<project-id>   # once
 & ..\..\.venv\Scripts\python.exe overleaf.py status   # what differs, both directions
 & ..\..\.venv\Scripts\python.exe overleaf.py pull     # Overleaf edits -> this folder
-& ..\..\.venv\Scripts\python.exe overleaf.py push     # this folder -> Overleaf
+& ..\..\.venv\Scripts\python.exe overleaf.py push     # this folder -> Overleaf, one commit per changed file (--single: one commit)
 ```
 
 It keeps a throwaway clone of the Overleaf repo outside this tree
