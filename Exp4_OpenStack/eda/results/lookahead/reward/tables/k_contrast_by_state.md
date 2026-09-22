@@ -1,1 +1,13 @@
-> **EMPTY TABLE.** The producing notebook saved `k_contrast_by_state` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.
+| judge   | contrast      |   iteration | metric   |   n |   mean_delta |   ci_lo |   ci_hi |   gain |   gain_ci_lo |   gain_ci_hi |     dz |   sign |
+|:--------|:--------------|------------:|:---------|----:|-------------:|--------:|--------:|-------:|-------------:|-------------:|-------:|-------:|
+| gpt4m   | GRPO: K5 - K0 |           0 | Q1Q2     |  96 |        0.002 |  -0.099 |   0.101 |  0.002 |       -0.099 |        0.101 |  0.003 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           1 | Q1Q2     |  96 |        0.078 |  -0.004 |   0.158 |  0.078 |       -0.004 |        0.158 |  0.194 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           2 | Q1Q2     |  96 |        0.068 |  -0.005 |   0.145 |  0.068 |       -0.005 |        0.145 |  0.187 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           3 | Q1Q2     |  96 |       -0.012 |  -0.087 |   0.062 | -0.012 |       -0.087 |        0.062 | -0.035 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           4 | Q1Q2     |  96 |       -0.032 |  -0.109 |   0.051 | -0.032 |       -0.109 |        0.051 | -0.080 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           5 | Q1Q2     |  96 |       -0.006 |  -0.096 |   0.080 | -0.006 |       -0.096 |        0.080 | -0.013 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           6 | Q1Q2     |  96 |       -0.006 |  -0.079 |   0.066 | -0.006 |       -0.079 |        0.066 | -0.017 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           7 | Q1Q2     |  96 |       -0.018 |  -0.104 |   0.058 | -0.018 |       -0.104 |        0.058 | -0.044 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           8 | Q1Q2     |  96 |       -0.021 |  -0.104 |   0.066 | -0.021 |       -0.104 |        0.066 | -0.049 |      1 |
+| gpt4m   | GRPO: K5 - K0 |           9 | Q1Q2     |  96 |       -0.032 |  -0.120 |   0.047 | -0.032 |       -0.120 |        0.047 | -0.076 |      1 |
+| gpt4m   | GRPO: K5 - K0 |          10 | Q1Q2     |  96 |       -0.069 |  -0.154 |   0.010 | -0.069 |       -0.154 |        0.010 | -0.168 |      1 |

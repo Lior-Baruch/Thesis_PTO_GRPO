@@ -1,1 +1,200 @@
-> **EMPTY TABLE.** The producing notebook saved `descriptives` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.
+| judge   | arm      |   iteration | metric   | instrument          |   n |   mean |    sd |   ci_lo |   ci_hi |   sign |
+|:--------|:---------|------------:|:---------|:--------------------|----:|-------:|------:|--------:|--------:|-------:|
+| gpt4m   | GRPO_LA0 |           0 | CSQ8     | CSQ8                |  96 |  2.568 | 1.089 |   2.341 |   2.773 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | CSQ8     | CSQ8                |  96 |  2.639 | 1.045 |   2.435 |   2.840 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | CSQ8     | CSQ8                |  96 |  2.634 | 1.007 |   2.434 |   2.823 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | CSQ8     | CSQ8                |  96 |  2.600 | 1.039 |   2.392 |   2.798 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | CSQ8     | CSQ8                |  96 |  2.672 | 0.997 |   2.467 |   2.861 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | CSQ8     | CSQ8                |  96 |  2.497 | 1.028 |   2.298 |   2.695 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | CSQ8     | CSQ8                |  96 |  2.592 | 1.001 |   2.391 |   2.784 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | CSQ8     | CSQ8                |  96 |  2.542 | 1.020 |   2.327 |   2.738 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | CSQ8     | CSQ8                |  96 |  2.526 | 1.062 |   2.311 |   2.728 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | CSQ8     | CSQ8                |  96 |  2.690 | 0.954 |   2.500 |   2.871 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | CSQ8     | CSQ8                |  96 |  2.560 | 1.050 |   2.352 |   2.757 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | CSQ8     | CSQ8                |  96 |  2.507 | 1.069 |   2.286 |   2.701 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | CSQ8     | CSQ8                |  96 |  2.616 | 1.012 |   2.408 |   2.806 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | CSQ8     | CSQ8                |  96 |  2.629 | 0.989 |   2.421 |   2.813 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | CSQ8     | CSQ8                |  96 |  2.645 | 1.005 |   2.437 |   2.837 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | CSQ8     | CSQ8                |  96 |  2.613 | 1.022 |   2.408 |   2.799 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | CSQ8     | CSQ8                |  96 |  2.552 | 1.056 |   2.333 |   2.747 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | CSQ8     | CSQ8                |  96 |  2.642 | 1.003 |   2.444 |   2.829 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | CSQ8     | CSQ8                |  96 |  2.542 | 1.023 |   2.329 |   2.732 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | CSQ8     | CSQ8                |  96 |  2.561 | 1.023 |   2.355 |   2.749 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | CSQ8     | CSQ8                |  96 |  2.632 | 0.990 |   2.434 |   2.814 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | CSQ8     | CSQ8                |  96 |  2.587 | 0.981 |   2.389 |   2.771 |      1 |
+| gpt4m   | GRPO_LA0 |           0 | MICI     | MICI [lower better] |  96 |  0.229 | 0.154 |   0.199 |   0.260 |     -1 |
+| gpt4m   | GRPO_LA0 |           1 | MICI     | MICI [lower better] |  96 |  0.223 | 0.146 |   0.196 |   0.253 |     -1 |
+| gpt4m   | GRPO_LA0 |           2 | MICI     | MICI [lower better] |  96 |  0.248 | 0.143 |   0.220 |   0.278 |     -1 |
+| gpt4m   | GRPO_LA0 |           3 | MICI     | MICI [lower better] |  96 |  0.227 | 0.148 |   0.199 |   0.259 |     -1 |
+| gpt4m   | GRPO_LA0 |           4 | MICI     | MICI [lower better] |  96 |  0.201 | 0.132 |   0.176 |   0.227 |     -1 |
+| gpt4m   | GRPO_LA0 |           5 | MICI     | MICI [lower better] |  96 |  0.200 | 0.126 |   0.175 |   0.226 |     -1 |
+| gpt4m   | GRPO_LA0 |           6 | MICI     | MICI [lower better] |  96 |  0.177 | 0.124 |   0.151 |   0.202 |     -1 |
+| gpt4m   | GRPO_LA0 |           7 | MICI     | MICI [lower better] |  96 |  0.155 | 0.120 |   0.133 |   0.180 |     -1 |
+| gpt4m   | GRPO_LA0 |           8 | MICI     | MICI [lower better] |  96 |  0.154 | 0.114 |   0.133 |   0.177 |     -1 |
+| gpt4m   | GRPO_LA0 |           9 | MICI     | MICI [lower better] |  96 |  0.133 | 0.085 |   0.116 |   0.150 |     -1 |
+| gpt4m   | GRPO_LA0 |          10 | MICI     | MICI [lower better] |  96 |  0.106 | 0.085 |   0.091 |   0.123 |     -1 |
+| gpt4m   | GRPO_LA5 |           0 | MICI     | MICI [lower better] |  96 |  0.228 | 0.146 |   0.200 |   0.258 |     -1 |
+| gpt4m   | GRPO_LA5 |           1 | MICI     | MICI [lower better] |  96 |  0.245 | 0.150 |   0.216 |   0.274 |     -1 |
+| gpt4m   | GRPO_LA5 |           2 | MICI     | MICI [lower better] |  96 |  0.236 | 0.141 |   0.209 |   0.264 |     -1 |
+| gpt4m   | GRPO_LA5 |           3 | MICI     | MICI [lower better] |  96 |  0.230 | 0.130 |   0.204 |   0.256 |     -1 |
+| gpt4m   | GRPO_LA5 |           4 | MICI     | MICI [lower better] |  96 |  0.223 | 0.131 |   0.198 |   0.249 |     -1 |
+| gpt4m   | GRPO_LA5 |           5 | MICI     | MICI [lower better] |  96 |  0.220 | 0.148 |   0.192 |   0.250 |     -1 |
+| gpt4m   | GRPO_LA5 |           6 | MICI     | MICI [lower better] |  96 |  0.197 | 0.124 |   0.173 |   0.222 |     -1 |
+| gpt4m   | GRPO_LA5 |           7 | MICI     | MICI [lower better] |  96 |  0.179 | 0.111 |   0.158 |   0.202 |     -1 |
+| gpt4m   | GRPO_LA5 |           8 | MICI     | MICI [lower better] |  96 |  0.169 | 0.114 |   0.148 |   0.192 |     -1 |
+| gpt4m   | GRPO_LA5 |           9 | MICI     | MICI [lower better] |  96 |  0.148 | 0.112 |   0.128 |   0.171 |     -1 |
+| gpt4m   | GRPO_LA5 |          10 | MICI     | MICI [lower better] |  96 |  0.162 | 0.111 |   0.140 |   0.185 |     -1 |
+| gpt4m   | GRPO_LA0 |           0 | MITI     | MITI                |  96 |  3.924 | 0.609 |   3.799 |   4.042 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | MITI     | MITI                |  96 |  4.000 | 0.519 |   3.896 |   4.096 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | MITI     | MITI                |  96 |  3.997 | 0.506 |   3.896 |   4.091 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | MITI     | MITI                |  96 |  4.047 | 0.496 |   3.951 |   4.146 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | MITI     | MITI                |  96 |  4.049 | 0.497 |   3.951 |   4.146 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | MITI     | MITI                |  96 |  4.026 | 0.499 |   3.930 |   4.122 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | MITI     | MITI                |  96 |  4.029 | 0.488 |   3.932 |   4.125 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | MITI     | MITI                |  96 |  4.013 | 0.459 |   3.922 |   4.102 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | MITI     | MITI                |  96 |  4.005 | 0.503 |   3.901 |   4.102 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | MITI     | MITI                |  96 |  4.068 | 0.443 |   3.979 |   4.154 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | MITI     | MITI                |  96 |  4.089 | 0.466 |   3.995 |   4.180 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | MITI     | MITI                |  96 |  3.945 | 0.592 |   3.826 |   4.060 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | MITI     | MITI                |  96 |  4.003 | 0.529 |   3.898 |   4.107 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | MITI     | MITI                |  96 |  4.036 | 0.459 |   3.945 |   4.120 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | MITI     | MITI                |  96 |  4.036 | 0.508 |   3.932 |   4.135 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | MITI     | MITI                |  96 |  4.005 | 0.460 |   3.914 |   4.096 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | MITI     | MITI                |  96 |  3.969 | 0.547 |   3.857 |   4.073 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | MITI     | MITI                |  96 |  4.044 | 0.457 |   3.956 |   4.130 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | MITI     | MITI                |  96 |  4.016 | 0.460 |   3.922 |   4.102 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | MITI     | MITI                |  96 |  4.008 | 0.532 |   3.901 |   4.109 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | MITI     | MITI                |  96 |  4.083 | 0.421 |   4.000 |   4.162 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | MITI     | MITI                |  96 |  4.023 | 0.489 |   3.924 |   4.117 |      1 |
+| gpt4m   | GRPO_LA0 |           0 | MI_SAT   | MI-SAT              |  96 |  3.108 | 1.286 |   2.839 |   3.359 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | MI_SAT   | MI-SAT              |  96 |  3.271 | 1.157 |   3.047 |   3.490 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | MI_SAT   | MI-SAT              |  96 |  3.207 | 1.094 |   2.979 |   3.411 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | MI_SAT   | MI-SAT              |  96 |  3.283 | 1.103 |   3.059 |   3.497 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | MI_SAT   | MI-SAT              |  96 |  3.316 | 1.062 |   3.102 |   3.523 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | MI_SAT   | MI-SAT              |  96 |  3.217 | 1.167 |   2.986 |   3.445 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | MI_SAT   | MI-SAT              |  96 |  3.326 | 1.031 |   3.109 |   3.521 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | MI_SAT   | MI-SAT              |  96 |  3.226 | 1.137 |   2.991 |   3.453 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | MI_SAT   | MI-SAT              |  96 |  3.240 | 1.117 |   3.009 |   3.458 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | MI_SAT   | MI-SAT              |  96 |  3.391 | 0.977 |   3.198 |   3.571 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | MI_SAT   | MI-SAT              |  96 |  3.276 | 1.060 |   3.064 |   3.471 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | MI_SAT   | MI-SAT              |  96 |  3.134 | 1.232 |   2.877 |   3.363 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | MI_SAT   | MI-SAT              |  96 |  3.278 | 1.168 |   3.047 |   3.500 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | MI_SAT   | MI-SAT              |  96 |  3.299 | 1.050 |   3.090 |   3.491 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | MI_SAT   | MI-SAT              |  96 |  3.292 | 1.091 |   3.075 |   3.502 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | MI_SAT   | MI-SAT              |  96 |  3.266 | 1.085 |   3.047 |   3.472 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | MI_SAT   | MI-SAT              |  96 |  3.247 | 1.142 |   3.016 |   3.469 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | MI_SAT   | MI-SAT              |  96 |  3.332 | 1.054 |   3.122 |   3.530 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | MI_SAT   | MI-SAT              |  96 |  3.257 | 1.069 |   3.035 |   3.450 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | MI_SAT   | MI-SAT              |  96 |  3.288 | 1.141 |   3.056 |   3.510 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | MI_SAT   | MI-SAT              |  96 |  3.326 | 1.052 |   3.111 |   3.523 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | MI_SAT   | MI-SAT              |  96 |  3.304 | 1.034 |   3.087 |   3.509 |      1 |
+| gpt4m   | GRPO_LA0 |           0 | PCT      | PCT                 |  96 |  0.489 | 0.243 |   0.439 |   0.538 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | PCT      | PCT                 |  96 |  0.515 | 0.221 |   0.472 |   0.557 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | PCT      | PCT                 |  96 |  0.517 | 0.191 |   0.479 |   0.553 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | PCT      | PCT                 |  96 |  0.521 | 0.199 |   0.482 |   0.559 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | PCT      | PCT                 |  96 |  0.534 | 0.191 |   0.497 |   0.571 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | PCT      | PCT                 |  96 |  0.516 | 0.221 |   0.470 |   0.560 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | PCT      | PCT                 |  96 |  0.541 | 0.186 |   0.504 |   0.577 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | PCT      | PCT                 |  96 |  0.528 | 0.207 |   0.487 |   0.568 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | PCT      | PCT                 |  96 |  0.547 | 0.196 |   0.506 |   0.585 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | PCT      | PCT                 |  96 |  0.561 | 0.170 |   0.527 |   0.593 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | PCT      | PCT                 |  96 |  0.575 | 0.185 |   0.538 |   0.609 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | PCT      | PCT                 |  96 |  0.506 | 0.227 |   0.459 |   0.549 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | PCT      | PCT                 |  96 |  0.521 | 0.221 |   0.477 |   0.563 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | PCT      | PCT                 |  96 |  0.529 | 0.194 |   0.491 |   0.566 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | PCT      | PCT                 |  96 |  0.535 | 0.195 |   0.494 |   0.573 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | PCT      | PCT                 |  96 |  0.532 | 0.186 |   0.494 |   0.567 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | PCT      | PCT                 |  96 |  0.525 | 0.192 |   0.487 |   0.561 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | PCT      | PCT                 |  96 |  0.548 | 0.183 |   0.512 |   0.583 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | PCT      | PCT                 |  96 |  0.531 | 0.179 |   0.495 |   0.566 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | PCT      | PCT                 |  96 |  0.521 | 0.203 |   0.480 |   0.559 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | PCT      | PCT                 |  96 |  0.548 | 0.182 |   0.511 |   0.582 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | PCT      | PCT                 |  96 |  0.565 | 0.177 |   0.529 |   0.599 |      1 |
+| gpt4m   | GRPO_LA0 |           0 | Q1       | Q1                  |  96 |  3.781 | 1.048 |   3.573 |   3.992 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | Q1       | Q1                  |  96 |  3.831 | 1.012 |   3.625 |   4.027 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | Q1       | Q1                  |  96 |  3.815 | 0.947 |   3.629 |   4.000 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | Q1       | Q1                  |  96 |  3.912 | 0.925 |   3.729 |   4.094 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | Q1       | Q1                  |  96 |  3.892 | 0.934 |   3.706 |   4.077 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | Q1       | Q1                  |  96 |  3.829 | 0.985 |   3.635 |   4.021 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | Q1       | Q1                  |  96 |  3.929 | 0.922 |   3.740 |   4.110 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | Q1       | Q1                  |  96 |  3.887 | 0.914 |   3.700 |   4.067 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | Q1       | Q1                  |  96 |  3.896 | 0.922 |   3.706 |   4.067 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | Q1       | Q1                  |  96 |  3.981 | 0.874 |   3.808 |   4.150 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | Q1       | Q1                  |  96 |  3.983 | 0.852 |   3.815 |   4.142 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | Q1       | Q1                  |  96 |  3.790 | 1.016 |   3.583 |   3.983 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | Q1       | Q1                  |  96 |  3.908 | 0.990 |   3.710 |   4.096 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | Q1       | Q1                  |  96 |  3.892 | 0.908 |   3.712 |   4.067 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | Q1       | Q1                  |  96 |  3.915 | 0.976 |   3.717 |   4.102 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | Q1       | Q1                  |  96 |  3.875 | 0.950 |   3.694 |   4.052 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | Q1       | Q1                  |  96 |  3.835 | 0.975 |   3.642 |   4.025 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | Q1       | Q1                  |  96 |  3.944 | 0.901 |   3.760 |   4.113 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | Q1       | Q1                  |  96 |  3.879 | 0.905 |   3.700 |   4.052 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | Q1       | Q1                  |  96 |  3.894 | 0.921 |   3.704 |   4.071 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | Q1       | Q1                  |  96 |  3.977 | 0.865 |   3.800 |   4.144 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | Q1       | Q1                  |  96 |  3.906 | 0.893 |   3.727 |   4.077 |      1 |
+| gpt4m   | GRPO_LA0 |           0 | Q1Q2     | Q1+Q2               |  96 |  3.936 | 0.834 |   3.768 |   4.102 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | Q1Q2     | Q1+Q2               |  96 |  3.967 | 0.812 |   3.803 |   4.122 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | Q1Q2     | Q1+Q2               |  96 |  3.979 | 0.759 |   3.824 |   4.125 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | Q1Q2     | Q1+Q2               |  96 |  4.065 | 0.731 |   3.919 |   4.205 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | Q1Q2     | Q1+Q2               |  96 |  4.040 | 0.749 |   3.888 |   4.191 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | Q1Q2     | Q1+Q2               |  96 |  3.983 | 0.803 |   3.823 |   4.138 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | Q1Q2     | Q1+Q2               |  96 |  4.069 | 0.724 |   3.919 |   4.211 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | Q1Q2     | Q1+Q2               |  96 |  4.028 | 0.725 |   3.880 |   4.170 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | Q1Q2     | Q1+Q2               |  96 |  4.038 | 0.756 |   3.883 |   4.178 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | Q1Q2     | Q1+Q2               |  96 |  4.123 | 0.682 |   3.988 |   4.258 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | Q1Q2     | Q1+Q2               |  96 |  4.106 | 0.672 |   3.974 |   4.233 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | Q1Q2     | Q1+Q2               |  96 |  3.938 | 0.817 |   3.772 |   4.095 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | Q1Q2     | Q1+Q2               |  96 |  4.045 | 0.797 |   3.888 |   4.194 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | Q1Q2     | Q1+Q2               |  96 |  4.047 | 0.719 |   3.906 |   4.183 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | Q1Q2     | Q1+Q2               |  96 |  4.052 | 0.766 |   3.898 |   4.203 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | Q1Q2     | Q1+Q2               |  96 |  4.008 | 0.747 |   3.860 |   4.147 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | Q1Q2     | Q1+Q2               |  96 |  3.977 | 0.818 |   3.811 |   4.134 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | Q1Q2     | Q1+Q2               |  96 |  4.063 | 0.706 |   3.924 |   4.193 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | Q1Q2     | Q1+Q2               |  96 |  4.010 | 0.736 |   3.860 |   4.149 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | Q1Q2     | Q1+Q2               |  96 |  4.017 | 0.771 |   3.857 |   4.161 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | Q1Q2     | Q1+Q2               |  96 |  4.091 | 0.706 |   3.947 |   4.226 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | Q1Q2     | Q1+Q2               |  96 |  4.037 | 0.728 |   3.889 |   4.175 |      1 |
+| gpt4m   | GRPO_LA0 |           0 | Q2       | Q2                  |  96 |  4.091 | 0.642 |   3.958 |   4.214 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | Q2       | Q2                  |  96 |  4.103 | 0.632 |   3.975 |   4.222 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | Q2       | Q2                  |  96 |  4.144 | 0.600 |   4.023 |   4.260 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | Q2       | Q2                  |  96 |  4.217 | 0.567 |   4.102 |   4.329 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | Q2       | Q2                  |  96 |  4.188 | 0.583 |   4.072 |   4.298 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | Q2       | Q2                  |  96 |  4.137 | 0.643 |   4.004 |   4.260 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | Q2       | Q2                  |  96 |  4.210 | 0.559 |   4.094 |   4.320 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | Q2       | Q2                  |  96 |  4.168 | 0.562 |   4.051 |   4.275 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | Q2       | Q2                  |  96 |  4.180 | 0.609 |   4.056 |   4.295 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | Q2       | Q2                  |  96 |  4.265 | 0.518 |   4.159 |   4.366 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | Q2       | Q2                  |  96 |  4.229 | 0.521 |   4.127 |   4.330 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | Q2       | Q2                  |  96 |  4.086 | 0.642 |   3.958 |   4.209 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | Q2       | Q2                  |  96 |  4.181 | 0.624 |   4.059 |   4.298 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | Q2       | Q2                  |  96 |  4.203 | 0.558 |   4.094 |   4.308 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | Q2       | Q2                  |  96 |  4.190 | 0.577 |   4.078 |   4.301 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | Q2       | Q2                  |  96 |  4.141 | 0.562 |   4.029 |   4.248 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | Q2       | Q2                  |  96 |  4.118 | 0.683 |   3.977 |   4.248 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | Q2       | Q2                  |  96 |  4.183 | 0.535 |   4.075 |   4.284 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | Q2       | Q2                  |  96 |  4.140 | 0.591 |   4.017 |   4.253 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | Q2       | Q2                  |  96 |  4.140 | 0.642 |   4.009 |   4.260 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | Q2       | Q2                  |  96 |  4.205 | 0.566 |   4.093 |   4.313 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | Q2       | Q2                  |  96 |  4.168 | 0.580 |   4.052 |   4.275 |      1 |
+| gpt4m   | GRPO_LA0 |           0 | WAI_SR   | WAI-SR              |  96 |  2.959 | 1.070 |   2.737 |   3.165 |      1 |
+| gpt4m   | GRPO_LA0 |           1 | WAI_SR   | WAI-SR              |  96 |  3.070 | 0.957 |   2.880 |   3.250 |      1 |
+| gpt4m   | GRPO_LA0 |           2 | WAI_SR   | WAI-SR              |  96 |  3.071 | 0.950 |   2.882 |   3.248 |      1 |
+| gpt4m   | GRPO_LA0 |           3 | WAI_SR   | WAI-SR              |  96 |  3.060 | 1.002 |   2.856 |   3.253 |      1 |
+| gpt4m   | GRPO_LA0 |           4 | WAI_SR   | WAI-SR              |  96 |  3.122 | 0.936 |   2.930 |   3.303 |      1 |
+| gpt4m   | GRPO_LA0 |           5 | WAI_SR   | WAI-SR              |  96 |  3.007 | 0.961 |   2.818 |   3.196 |      1 |
+| gpt4m   | GRPO_LA0 |           6 | WAI_SR   | WAI-SR              |  96 |  3.073 | 0.920 |   2.891 |   3.247 |      1 |
+| gpt4m   | GRPO_LA0 |           7 | WAI_SR   | WAI-SR              |  96 |  3.015 | 0.973 |   2.819 |   3.204 |      1 |
+| gpt4m   | GRPO_LA0 |           8 | WAI_SR   | WAI-SR              |  96 |  2.997 | 0.982 |   2.795 |   3.194 |      1 |
+| gpt4m   | GRPO_LA0 |           9 | WAI_SR   | WAI-SR              |  96 |  3.088 | 0.890 |   2.913 |   3.256 |      1 |
+| gpt4m   | GRPO_LA0 |          10 | WAI_SR   | WAI-SR              |  96 |  3.036 | 0.958 |   2.844 |   3.216 |      1 |
+| gpt4m   | GRPO_LA5 |           0 | WAI_SR   | WAI-SR              |  96 |  2.942 | 1.000 |   2.739 |   3.126 |      1 |
+| gpt4m   | GRPO_LA5 |           1 | WAI_SR   | WAI-SR              |  96 |  3.087 | 0.977 |   2.890 |   3.272 |      1 |
+| gpt4m   | GRPO_LA5 |           2 | WAI_SR   | WAI-SR              |  96 |  3.131 | 0.872 |   2.955 |   3.291 |      1 |
+| gpt4m   | GRPO_LA5 |           3 | WAI_SR   | WAI-SR              |  96 |  3.105 | 0.922 |   2.921 |   3.281 |      1 |
+| gpt4m   | GRPO_LA5 |           4 | WAI_SR   | WAI-SR              |  96 |  3.075 | 0.927 |   2.889 |   3.252 |      1 |
+| gpt4m   | GRPO_LA5 |           5 | WAI_SR   | WAI-SR              |  96 |  3.010 | 0.965 |   2.817 |   3.193 |      1 |
+| gpt4m   | GRPO_LA5 |           6 | WAI_SR   | WAI-SR              |  96 |  3.087 | 0.934 |   2.900 |   3.263 |      1 |
+| gpt4m   | GRPO_LA5 |           7 | WAI_SR   | WAI-SR              |  96 |  3.043 | 0.963 |   2.842 |   3.223 |      1 |
+| gpt4m   | GRPO_LA5 |           8 | WAI_SR   | WAI-SR              |  96 |  3.038 | 0.961 |   2.849 |   3.220 |      1 |
+| gpt4m   | GRPO_LA5 |           9 | WAI_SR   | WAI-SR              |  96 |  3.082 | 0.943 |   2.890 |   3.256 |      1 |
+| gpt4m   | GRPO_LA5 |          10 | WAI_SR   | WAI-SR              |  96 |  3.080 | 0.930 |   2.885 |   3.254 |      1 |

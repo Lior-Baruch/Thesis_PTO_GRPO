@@ -4,23 +4,36 @@
  "numbers": {
   "coverage.judges": {
    "value": [
-    "gemma4E4B"
+    "gpt4m"
    ],
    "source": "tables/coverage.md",
    "note": "graders present in the score lake"
   },
   "coverage.arms": {
-   "value": [],
+   "value": [
+    "GRPO_LA0",
+    "GRPO_LA5"
+   ],
    "source": "tables/coverage.md",
    "note": "arm display labels; key on experiment_name for data"
   },
   "coverage.metrics": {
-   "value": [],
+   "value": [
+    "Q1Q2",
+    "Q1",
+    "Q2",
+    "WAI_SR",
+    "CSQ8",
+    "MI_SAT",
+    "MITI",
+    "PCT",
+    "MICI"
+   ],
    "source": "tables/coverage.md",
    "note": ""
   },
   "coverage.scored_rows": {
-   "value": 0,
+   "value": 19008,
    "source": "tables/coverage.md",
    "note": "one row per (arm, state, persona, instrument, grader)"
   },
@@ -28,6 +41,24 @@
    "value": "Q1Q2",
    "source": "",
    "note": "the training-reward axis"
+  },
+  "focus.gpt4m.leader_final": {
+   "value": "GRPO_LA0",
+   "source": "tables/leaderboard_focus.md",
+   "note": "highest Q1Q2 at its FINAL state (state 10, gain 0.170 vs base)"
+  },
+  "focus.gpt4m.leader_best": {
+   "value": "GRPO_LA0",
+   "source": "tables/leaderboard_focus.md",
+   "note": "highest Q1Q2 at its BEST state (state 9, gain 0.187 vs base)"
+  },
+  "focus.gpt4m.past_peak_arms": {
+   "value": [
+    "GRPO_LA0",
+    "GRPO_LA5"
+   ],
+   "source": "tables/leaderboard_focus.md",
+   "note": "arms whose best state is not their last -- report both endpoints"
   }
  }
 }

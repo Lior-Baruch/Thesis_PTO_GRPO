@@ -18,14 +18,23 @@
    "note": "family = that grader's rows (instruments x optimizers)"
   },
   "rqi.pairs": {
-   "value": [],
+   "value": [
+    "GRPO: K5 - K0"
+   ],
    "source": "",
    "note": ""
   },
   "rqi.matched_states": {
-   "value": {},
+   "value": {
+    "gpt4m | GRPO: K5 - K0": 10
+   },
    "source": "tables/k_contrast_endpoint.md",
    "note": "highest trained state both arms scored on every instrument"
+  },
+  "rqi.gpt4m.GRPO:K5-K0.Q1Q2": {
+   "value": -0.06917892156862741,
+   "source": "tables/k_contrast_endpoint.md",
+   "note": "gain (positive = higher K better) at state 10, n=96 personas, 95% CI [-0.154, 0.010], dz=-0.168, p_holm=0.6559"
   }
  }
 }

@@ -8,8 +8,8 @@ _Each subfamily below is written by `notebooks/lookahead/<sub>.ipynb`. Exp4 arti
 ## lookahead/reward
 
 **Figures** -- `figures/`
-- `k_contrast_forest.png` -- No K contrast to plot yet. NO DATA YET -- no scored conversations for these arms. Generate the K=0 and K=5 arms of an optimizer, run notebooks/scoring/Run_Eval.ipynb, and re-render.
-- `k_effect_by_state_gemma4E4B.png` -- No K contrast for grader gemma4E4B.
+- `k_contrast_forest.png` -- Paired K contrasts at the matched endpoint, one row per grader x optimizer x instrument, pairing unit persona_id. The x axis is the RAW difference K_hi - K_lo; colour is oriented by instrument, so on MICI (lower better) a green dot lies at a negative x. Grey = the 95% bootstrap CI includes zero.
+- `k_effect_by_state_gpt4m.png` -- Mean PAIRED delta (Q1Q2, K_hi - K_lo) by model state, grader gpt4m, pairing unit persona_id. The band bootstraps the per-persona deltas (seed=BOOT_SEED) and is therefore a paired interval, unlike the unpaired bands in arms/outcomes. The dotted line is no effect; state 0 is the untrained-base placebo. Positive = the higher-K arm scored higher (Q1Q2 is higher-is-better).
 
 **Tables** -- `tables/`
 - `k_contrast_by_state.md` -- The paired K contrast on Q1Q2 at EVERY model state both arms have scored, per grader. mean_delta = K_hi - K_lo; gain is signed so positive is better. CIs bootstrap the per-persona DELTAS (seed=BOOT_SEED), so they are paired intervals. State 0 is the untrained-base placebo. No multiplicity correction is applied across states -- these are one trajectory, not a family of independent tests.

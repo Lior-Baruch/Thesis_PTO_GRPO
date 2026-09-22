@@ -1,1 +1,24 @@
-> **EMPTY TABLE.** The producing notebook saved `cumulative_cost` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.
+| arm      | method   |   k |   state |   gpu_hours |   iterations_billed |   resumed_so_far |
+|:---------|:---------|----:|--------:|------------:|--------------------:|-----------------:|
+| GRPO_LA0 | GRPO     |   0 |       0 |       0.000 |                   0 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       1 |       0.534 |                   1 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       2 |       1.298 |                   2 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       3 |       2.187 |                   3 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       4 |       3.087 |                   4 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       5 |       4.007 |                   5 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       6 |       4.833 |                   6 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       7 |       5.750 |                   7 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       8 |       6.548 |                   8 |                0 |
+| GRPO_LA0 | GRPO     |   0 |       9 |       7.360 |                   9 |                0 |
+| GRPO_LA0 | GRPO     |   0 |      10 |       8.128 |                  10 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       0 |       0.000 |                   0 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       1 |       1.175 |                   1 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       2 |       2.512 |                   2 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       3 |       4.147 |                   3 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       4 |       5.852 |                   4 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       5 |       7.488 |                   5 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       6 |       9.191 |                   6 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       7 |      10.773 |                   7 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       8 |      12.456 |                   8 |                0 |
+| GRPO_LA5 | GRPO     |   5 |       9 |      14.097 |                   9 |                0 |
+| GRPO_LA5 | GRPO     |   5 |      10 |      15.886 |                  10 |                0 |

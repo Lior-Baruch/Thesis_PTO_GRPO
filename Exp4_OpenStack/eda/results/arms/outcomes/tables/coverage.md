@@ -1,1 +1,24 @@
-> **EMPTY TABLE.** The producing notebook saved `coverage` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.
+| judge   | arm      |   iteration | model_state   |   metrics |   personas |   scored_cells |   ungraded_cells |   min_personas_per_metric | complete_grid   |
+|:--------|:---------|------------:|:--------------|----------:|-----------:|---------------:|-----------------:|--------------------------:|:----------------|
+| gpt4m   | GRPO_LA0 |           0 | model_iter_0  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           1 | model_iter_1  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           2 | model_iter_2  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           3 | model_iter_3  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           4 | model_iter_4  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           5 | model_iter_5  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           6 | model_iter_6  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           7 | model_iter_7  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           8 | model_iter_8  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |           9 | model_iter_9  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA0 |          10 | model_iter_10 |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           0 | model_iter_0  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           1 | model_iter_1  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           2 | model_iter_2  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           3 | model_iter_3  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           4 | model_iter_4  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           5 | model_iter_5  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           6 | model_iter_6  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           7 | model_iter_7  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           8 | model_iter_8  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |           9 | model_iter_9  |         9 |         96 |            864 |                0 |                        96 | True            |
+| gpt4m   | GRPO_LA5 |          10 | model_iter_10 |         9 |         96 |            864 |                0 |                        96 | True            |

@@ -1296,10 +1296,12 @@ GRPO data "pref data".
 
 ## Status
 
-**Both GRPO arms are TRAINED — K=0 and K=5, 10 iterations each, on the A100 80 GB, $0 API. Nothing
-is SCORED yet: `data/eval_scores/` is empty, so no eval number exists and no family renders with
-arms. PTO has not started.** The look-ahead lever (RQ-i) is now a question the data can answer; the
-method contrast (RQ-ii) still needs the two PTO arms.
+**Both GRPO arms are TRAINED and SCORED on the first judge.** K=0 and K=5, 10 iterations each,
+A100 80 GB, $0 API to train; graded end to end by the held-out `gpt-4o-mini`
+(`judge=gpt4m/rep=0`, 176/176 partitions, 16,896 rows, **zero ungraded**, $9.66, 18.3 min, local).
+All four families render. **RQ-i is answered on this judge: look-ahead does not pay.** Still
+missing: the `gemma4E4B` primary partition (needs a GPU), any Claude partition, and both PTO arms
+— so RQ-ii has nothing to contrast and `method/contrast` renders empty by construction.
 
 | Phase | Gate | State |
 |---|---|---|
@@ -1317,7 +1319,7 @@ method contrast (RQ-ii) still needs the two PTO arms.
 | 3 GRPO | `QUICK_TEST` rehearsal trains, is killed mid-training on purpose and resumes; `generations.jsonl` valid; prompts/step = 16; `peak_reserved_gib_*` read | 🟡 superseded on everything but resume: two real arms trained clean, `generations.jsonl` written per iteration, `prompts_per_step` = 16, `peak_reserved_gib_train` = **20.2–20.6 GiB** against the 25.7 GiB envelope. ⚠ **Resume was never exercised** — `n_timing_sessions == 1` in all 20 iterations, so no arm ever crashed and the restore path is still only pinned by `smoke.py resume` offline |
 | 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ unchanged — nothing PTO has run. Its build/resume path and DPO-step memory are still separate questions, and it is now the critical path |
 | 6 First real arms | the full GRPO arms on Colab, $0 API | ✅ **both done.** `GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi` (started 2026-09-14) and `..._LA5_...` (started 2026-09-16), 10 iterations each, `model_iter_0…10` × 96 conversations each (`2 × 11 × 96 = 2,112` conversations). QUICK_TEST was left False on the K=0 arm by accident and kept |
-| 7 Scoring | `Run_Eval` over both arms, once per judge → `data/eval_scores/judge=<tag>/rep=0/` | ⬜ **not started — the lake is empty.** Each pass is `2 arms × 11 states × 96 convs × 8 instruments = 16,896` calls (176 partitions), and the three judges are independent, disjoint partitions that resume separately. **Nothing in `results/` means anything until at least the first one runs.** The notebook is READY for all three (2026-09-22): `JUDGE_PRESET` in cell 4 |
+| 7 Scoring | `Run_Eval` over both arms, once per judge → `data/eval_scores/judge=<tag>/rep=0/` | 🟡 **`gpt4m` DONE** (2026-09-22): 176/176 partitions, 16,896 rows, 0 ungraded, 18.3 min, $9.66 — driven headless by `eda/tools/score_gpt_local.py`, the CLI twin of the notebook at `JUDGE_PRESET="gpt"`. Sanity gate passed (ρ 1.00/0.99 vs its own Exp3 draw — a test-retest check, not a validity one) and the prompt-length gate passed, though against the 16384 LITERAL and a 3.5 chars/token estimate (no local tokenizer for `gpt-4o-mini`) — **the real Phase-2 measurement is still the Gemma pass against the served `/tokenize`**. `gemma4E4B` and `haiku45` not started. Each pass is `2 arms × 11 states × 96 convs × 8 instruments = 16,896` calls (176 partitions); the judges are independent, disjoint partitions that resume separately |
 
 **What the two GRPO arms measured** (read off `iteration_metadata.json` + the per-iteration TB logs;
 these are TRAINING-side numbers — no eval score exists yet):

@@ -1,1 +1,22 @@
-> **EMPTY TABLE.** The producing notebook saved `compute_by_iteration` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.
+| arm      | method   |   k |   iteration |   state_index |   gpu_hours |   generation_h |   pref_pair_h |   training_h |   eval_gen_h |   n_sessions |   n_sessions_production | resumed   |
+|:---------|:---------|----:|------------:|--------------:|------------:|---------------:|--------------:|-------------:|-------------:|-------------:|------------------------:|:----------|
+| GRPO_LA0 | GRPO     |   0 |           1 |             0 |       0.534 |          0.058 |         0.000 |        0.476 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           2 |             1 |       0.764 |          0.107 |         0.000 |        0.658 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           3 |             2 |       0.888 |          0.122 |         0.000 |        0.767 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           4 |             3 |       0.900 |          0.130 |         0.000 |        0.770 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           5 |             4 |       0.920 |          0.132 |         0.000 |        0.788 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           6 |             5 |       0.827 |          0.113 |         0.000 |        0.713 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           7 |             6 |       0.917 |          0.116 |         0.000 |        0.801 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           8 |             7 |       0.798 |          0.094 |         0.000 |        0.704 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |           9 |             8 |       0.812 |          0.091 |         0.000 |        0.721 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA0 | GRPO     |   0 |          10 |             9 |       0.856 |          0.091 |         0.000 |        0.678 |        0.088 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           1 |             0 |       1.175 |          0.078 |         0.000 |        1.097 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           2 |             1 |       1.337 |          0.110 |         0.000 |        1.227 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           3 |             2 |       1.635 |          0.122 |         0.000 |        1.513 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           4 |             3 |       1.705 |          0.127 |         0.000 |        1.578 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           5 |             4 |       1.636 |          0.114 |         0.000 |        1.523 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           6 |             5 |       1.702 |          0.117 |         0.000 |        1.586 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           7 |             6 |       1.582 |          0.108 |         0.000 |        1.473 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           8 |             7 |       1.684 |          0.117 |         0.000 |        1.567 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |           9 |             8 |       1.640 |          0.109 |         0.000 |        1.531 |        0.000 |            1 |                       1 | False     |
+| GRPO_LA5 | GRPO     |   5 |          10 |             9 |       1.885 |          0.111 |         0.000 |        1.678 |        0.095 |            1 |                       1 | False     |

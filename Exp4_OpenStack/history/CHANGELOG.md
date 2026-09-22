@@ -8,6 +8,70 @@ CLAUDE.md § Status and were not moved — this file starts with the pre-run rev
 
 ---
 
+## 2026-09-22 (later still) — the first scored judge: look-ahead does not pay on the open stack
+
+`gpt-4o-mini` graded both GRPO arms end to end — 176/176 partitions, `2 × 11 × 96 × 8 = 16,896`
+rows, **zero ungraded**, 18.3 minutes, $9.66, entirely local (no GPU: a vendor judge is pure HTTP).
+Driven by `eda/tools/score_gpt_local.py`, the headless twin of `Run_Eval.ipynb` at
+`JUDGE_PRESET="gpt"` — same functions, same order, so it is a driver and not a second
+implementation. All four families render; `_selfcheck` is 20/20 with the coverage and
+render-freshness checks now live instead of skipped.
+
+⚠ **This is the HELD-OUT judge, not the primary.** Gemma trained the policy, so `gpt4m` never saw
+these arms — which makes it the stronger number, but it is the only one that exists. The
+`gemma4E4B` partition (the train-on-test primary, and the one the other Exp4 numbers will be
+quoted against) still needs a GPU session.
+
+### The result: K=5 buys nothing, costs 2×, and is worse on MI-inconsistency
+
+**Endpoint (iteration 10, paired on `persona_id`, n = 96, Holm-corrected across 9 instruments):**
+look-ahead is **not better on a single instrument**. Eight of nine are negligible and
+non-significant. The ninth is significant in the WRONG direction: **MICI** (MI-inconsistent
+behaviour, lower is better) is `+0.056` higher under K=5, `dz = −0.583` (medium),
+`p_holm < 0.001` — final levels 0.106 (K=0) vs 0.162 (K=5). Q1+Q2, the training reward's own
+instrument, is `−0.069` (95% CI [−0.154, +0.010], p = .104).
+
+**The placebo is clean.** At `model_iter_0` — the same base policy generating both arms' seed
+conversations — all nine instruments are negligible, no p below .27, Q1+Q2 `+0.002`. So the
+endpoint gap is not the two arms starting apart.
+
+**The gap ERODES rather than being flat.** Q1+Q2 (K5 − K0) by iteration: `+0.078, +0.068, −0.013,
+−0.032, −0.006, −0.006, −0.018, −0.021, −0.032, −0.069`. Spearman **ρ = −0.787, p = .007**.
+Look-ahead has a small early edge and then loses it — which is a different claim from "look-ahead
+never helps", and it is the one the data supports.
+
+**Only one arm actually learns.** Q1+Q2 by iteration is monotone for K=0 (**ρ = +0.782, p = .004**)
+and flat for K=5 (**ρ = +0.264, p = .433**). ⚠ Both arms' headline "gain from base" is anchored on
+each series' MINIMUM (iteration 0 is the minimum for both), so per the rule-2b discipline:
+re-anchored to iteration 1, K=0 still gains **+0.139** while K=5 gains **−0.008**. K=5 makes
+essentially all of its movement in its first update and then stops.
+
+### At matched budget it is worse, not merely equal
+
+The K multiplier reproduces from artifact mtimes: **2.00× per iteration** (median production hours
+1.638 vs 0.820), **2.13×** on the training phase alone (1.527 vs 0.717); generation is
+K-independent (1.02×). Whole-arm: 8.128 vs 15.886 GPU-h, `8.128 + 15.886 = 24.014` h total.
+
+`budget_sweep_gpt4m` puts K=0 ahead at **17 of 21 budget levels**, and at **every** level from
+4.833 GPU-h upward. K=5 leads only at 1.298 and 2.187 GPU-h — the window where its
+happened-to-be-good iteration 1 is the best thing either arm has bought yet — plus the trivial
+0.0 tie at base.
+
+### How this sits beside Exp3
+
+Exp3's look-ahead finding was that K relocates the reward hack rather than removing it, and that
+the cut is grader-dependent. Exp4 is a different stack top to bottom (open patient, open training
+oracle, Instruct therapist, $0 API) and the lever still does not pay — on a judge that trained
+nothing here. That is a replication of the *direction*, not of the mechanism: nothing here has
+looked at what the two policies actually say. The text/process side of the question is unbuilt in
+Exp4.
+
+⚠ Everything above is ONE judge. The Gemma partition may disagree, and if it does, the disagreement
+is the finding — Gemma was the training oracle, so a lever that looks good only to it is the
+signature of optimising the grader rather than the behaviour.
+
+---
+
 ## 2026-09-22 (later) — three judges, one notebook: Run_Eval is ready to run
 
 `Run_Eval.ipynb` can now score with the local Gemma, with `gpt-4o-mini`, or with

@@ -8,9 +8,9 @@ _Each subfamily below is written by `notebooks/arms/<sub>.ipynb`. Exp4 artifacts
 ## arms/outcomes
 
 **Figures** -- `figures/`
-- `endpoint_best_gemma4E4B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E4B, best state, Q1Q2)
-- `endpoint_final_gemma4E4B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E4B, final state, Q1Q2)
-- `trajectory_gemma4E4B.png` -- NO DATA YET -- no scored conversations for these arms. Generate an arm, then run notebooks/scoring/Run_Eval.ipynb; this family re-renders from the score lake. (grader gemma4E4B)
+- `endpoint_best_gpt4m.png` -- Per-persona Q1Q2 at each arm's OWN best model state, grader gpt4m. Box = median, diamond = mean with an unpaired 95% bootstrap CI (seed=BOOT_SEED), dotted line = the untrained base level. The same 96 personas are in every box, so overlap here does not bound a paired difference.
+- `endpoint_final_gpt4m.png` -- Per-persona Q1Q2 at each arm's OWN final model state, grader gpt4m. Box = median, diamond = mean with an unpaired 95% bootstrap CI (seed=BOOT_SEED), dotted line = the untrained base level. The same 96 personas are in every box, so overlap here does not bound a paired difference.
+- `trajectory_gpt4m.png` -- Mean score by MODEL STATE, one panel per instrument, grader gpt4m. State 0 is the untrained base; the dotted line is the base level pooled over arms. Bands are unpaired 95% bootstrap CIs across the 96 personas (seed=BOOT_SEED) -- overlap between two bands is NOT evidence of no difference. MICI is lower-is-better.
 
 **Tables** -- `tables/`
 - `coverage.md` -- Scored coverage per grader x arm x MODEL STATE (iteration 0 = untrained base). `personas` pools every instrument, so read `min_personas_per_metric` instead: it is the worst-covered instrument's count of distinct persona_ids with a non-null score, and it is what `complete_grid` is built from (together with the instrument count, so a wholly missing rubric also shows). Anything below 96 means the state is only partly scored on at least one instrument, and every paired contrast on it drops those personas from BOTH sides. `ungraded_cells` are rows the grader returned nothing for. `metrics` counts instruments, not items.

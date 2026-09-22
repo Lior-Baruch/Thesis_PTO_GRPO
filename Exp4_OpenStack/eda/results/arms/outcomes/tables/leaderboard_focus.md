@@ -1,1 +1,4 @@
-> **EMPTY TABLE.** The producing notebook saved `leaderboard_focus` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.
+| judge   | metric   | instrument   | arm      |   rank_final |   rank_best |   base_mean |   final_state |   final_mean |   gain_final |   best_state |   best_mean |   gain_best | past_peak   |   n_states |   sign |
+|:--------|:---------|:-------------|:---------|-------------:|------------:|------------:|--------------:|-------------:|-------------:|-------------:|------------:|------------:|:------------|-----------:|-------:|
+| gpt4m   | Q1Q2     | Q1+Q2        | GRPO_LA0 |            1 |           1 |       3.936 |            10 |        4.106 |        0.170 |            9 |       4.123 |       0.187 | True        |         10 |      1 |
+| gpt4m   | Q1Q2     | Q1+Q2        | GRPO_LA5 |            2 |           2 |       3.938 |            10 |        4.037 |        0.099 |            9 |       4.091 |       0.153 | True        |         10 |      1 |
