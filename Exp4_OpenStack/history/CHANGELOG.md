@@ -56,8 +56,14 @@ two-arm survival is stronger evidence for serving, but the thinking-token assert
 kill→restart check specifically were never made. And PTO has not executed a single line on Colab,
 which now puts its rehearsal on the critical path.
 
-**Housekeeping still owed.** The `_G4_` rehearsal folders remain on Drive under both `runs/` and
-`conversations/`; `discover_arms()` will treat them as a real arm at the first `Run_Eval` or render.
+**Housekeeping, done the same day.** The `_G4_` rehearsal was moved to
+`data/_rehearsal_G4/{runs,conversations}/` — off `discover_arms()`'s path (it scans
+`data/conversations/` only) but kept, since its `run_metadata.json` + `oracle_sanity.json` are the
+only record the rehearsal happened. Discovery now returns exactly the two real arms.
+
+**Scope call (Lior, same day): finish the GRPO half before touching PTO.** Exp4's near-term
+question is the look-ahead lever within GRPO — score both arms, render `lookahead/reward` and
+`arms/outcomes`, settle RQ-i. `method/contrast` renders GRPO-only until PTO arms exist.
 
 Status table, the measured-numbers table and "Next session — start here" in
 [CLAUDE.md](../CLAUDE.md) § Status rewritten to match.

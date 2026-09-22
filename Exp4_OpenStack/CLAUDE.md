@@ -1520,17 +1520,19 @@ FALSE on the pinned trl 1.4.0 and rewritten at all its sites.
 **The two GRPO arms exist and are worth nothing until they are scored.** Everything below is
 ordered by that: measurement first, then the arms that complete the 2×2.
 
-0. **Housekeeping, before anything reads `data/`.** Rename or delete the `_G4_` rehearsal folders
-   under BOTH `data/runs/` and `data/conversations/` — `eda_analysis.data.discover_arms()` accepts
-   `GRPO4_Q1Q2_LA0_MCL12_G4_...` as a real arm and would score its 16 conversations and plot them
-   beside the real ones. (Its `run_metadata.json` + `oracle_sanity.json` are the only record that
-   the rehearsal happened; move them, don't just delete.)
+0. ~~Housekeeping~~ **DONE (2026-09-22).** The `_G4_` rehearsal moved to
+   `data/_rehearsal_G4/{runs,conversations}/` — off the discovery path (it scans
+   `data/conversations/` only) but not deleted, since its `run_metadata.json` + `oracle_sanity.json`
+   are the only record the rehearsal happened. `discover_arms()` now returns exactly the two real
+   arms.
 1. **`Run_Eval.ipynb` over both arms — THE gating step.** On Colab, same serve cell, same E4B
    grader. `2 arms × 11 model states × 96 conversations × 8 instruments = 16,896` judge calls, $0
    API. The § 8 prompt-length gate runs inside it and is the Phase-2 measurement that has been
    pending since the plan was written; the 16384 `max_model_len` still stands on Exp3's
    gpt-4o-mini patient until that gate reports. Writes
-   `data/eval_scores/judge=gemma4E4B/rep=0/metric=<M>/oracle=gemma4E4B/<Arm>/pers<PID>.csv`.
+   `data/eval_scores/judge=gemma4E4B/rep=0/metric=<M>/<EXP_NAME>/model_iter_<N>.parquet` — 96 rows
+   each, one per persona (Exp4 has **no `oracle=<O>` path level**; the training oracle is already
+   inside `<EXP_NAME>`).
    ⚠ The default judge **shares a model with the training oracle** — that is train-on-test for the
    primary grader, exactly as in Exp3. A held-out second judge is a separate `judge=<tag>`
    partition and a separate decision; do not let the first number that lands get quoted as
@@ -1544,14 +1546,19 @@ ordered by that: measurement first, then the arms that complete the 2×2.
    check output diversity across iterations (distinct n-grams / self-similarity across the 96
    conversations of each `model_iter_N`) — a rising reward under a contracting output distribution
    is the saturation shape, not an MI-quality shape.
-4. **PTO's `QUICK_TEST=True` rehearsal, then the two PTO arms.** The PTO notebook is already at the
-   real config (`QUICK_TEST=False`, `NUM_ITERATIONS=10`, `LOOKAHEAD_K=0`, `PREF_TREE_MODE="greedy"`,
-   `M=8`), so the rehearsal needs the flag flipped. Run it anyway: **no PTO code has ever executed
-   on Colab**, its pref-build phase is the dominant cost in Exp3, and its resume path
-   (`pairs.csv` / `_progress.json`) is untested on a real arm. Land it in the disjoint `_M3_`
-   folder, kill the kernel during iteration 2's training after a `checkpoint-*` save, resume, then
-   **delete the `_M3_` folders** before any render. After `!nvidia-smi` and `!pgrep -af vllm`:
-   vLLM engine workers can outlive the parent and hold 40 GiB invisibly.
+4. **PTO is DEFERRED (Lior, 2026-09-22) — finish the GRPO half first.** Exp4's near-term scope is
+   the look-ahead lever within GRPO: score both arms, render `lookahead/reward` + `arms/outcomes`,
+   settle RQ-i. `method/contrast` (RQ-ii) has nothing to contrast until PTO runs and will render
+   GRPO-only until then; that is expected, not a failure.
+   When PTO does start, it starts with its `QUICK_TEST=True` rehearsal, not an arm. The notebook is
+   already at the real config (`QUICK_TEST=False`, `NUM_ITERATIONS=10`, `LOOKAHEAD_K=0`,
+   `PREF_TREE_MODE="greedy"`, `M=8`), so the rehearsal needs the flag flipped. It is worth the hour:
+   **no PTO code has ever executed on Colab**, its pref-build phase was the dominant cost in Exp3,
+   and its resume path (`pairs.csv` / `_progress.json`) is untested on a real arm. Land it in the
+   disjoint `_M3_` folder, kill the kernel during iteration 2's training after a `checkpoint-*`
+   save, resume, then **move the `_M3_` folders** to `data/_rehearsal_*/` before any render. After
+   any kill run `!nvidia-smi` and `!pgrep -af vllm`: vLLM engine workers can outlive the parent and
+   hold 40 GiB invisibly.
 5. **Budget.** The GRPO pair cost ≈ `(8.13 + 15.89) × 7.5 ≈ 180 CU` of production time. PTO's shape
    is different — an iteration is `generate + build + train`, and in Exp3 the build dominated — so
    do NOT extrapolate the GRPO numbers onto it. Read PTO iteration 1's phase wall-clocks from
