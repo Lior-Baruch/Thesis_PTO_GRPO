@@ -1,56 +1,32 @@
 \section{Introduction}
 \label{sec:intro}
 
-Reinforcement learning from an LLM judge has a default that is rarely stated: the judge is shown
-the candidate turn, in the context that preceded it, and scores that. For single-turn tasks this
-is the whole story; for multi-turn goal-oriented dialogue it assumes that a turn's value is visible
-at the moment it is produced.
+A major direction in current large language model (LLM) research is the development of systems that can improve through model-generated experience and feedback, using reinforcement learning (RL) rather than relying exclusively on new human demonstrations \citep{yuan2024selfrewarding,guo2025deepseekr1}.
+Many of the clearest recent successes have occurred in domains with verifiable outcomes, particularly mathematics and other formally verifiable reasoning tasks, where candidate solutions can ultimately be checked against a relatively unambiguous criterion \citep{shao2024deepseekmath,guo2025deepseekr1}.
+The harder frontier is improvement in domains where quality is consequential but not directly verifiable. There may be no correct answer, no terminal win or loss, and no external checker that cleanly distinguishes good behavior from bad.
+Instead, the reward must operationalize complex human constructs such as helpfulness, trust, persuasion, or therapeutic quality. In such settings, improving the policy and defining what counts as improvement become inseparable.
 
-Motivational interviewing (MI) is a setting where the assumption is plainly false. MI is a
-counselling style for helping people resolve ambivalence about change, and almost every technique
-it teaches is defined by its downstream effect: a reflection is good if the patient elaborates, an
-open question is good if it surfaces change talk, and premature reassurance is bad because of what
-it forecloses two turns later \citep{miller2013mi}. A judge shown only the turn sees none of this;
-we hypothesise that it rewards what is locally visible, above all whether the patient felt
-validated, which a policy can exploit with unearned praise.
+Multi-turn dialogue makes this problem substantially harder. The value of a conversational action is often not contained in the action itself, but in the interaction that follows it. A question may be useful because of what it elicits several turns later; conversely, a response that appears appropriate or empathic in isolation may have undesirable downstream effects. Optimizing dialogue from turn-level judgments therefore creates a temporal credit-assignment problem: the evaluator is asked to reward an action before its consequences are visible. Recent work on multi-turn RL has begun to address this problem using preferences over complete conversations, estimates of future return, and signals from subsequent user turns \citep{shani2024multiturn,gao2025relativefuture,zhao2026nextturn}. More generally, interactive language learning requires not only a choice of reward function, but also a choice of the temporal horizon over which its consequences are evaluated.
 
-This paper presents \textbf{\LAGRPO}. Before the judge scores a candidate therapist turn, the
-patient simulator and the current policy roll the conversation forward $K$ further turns, and the
-judge scores the extended transcript (a turn is one utterance, so $K{=}5$ appends patient,
-therapist, patient, therapist, patient). The lever itself is not new:
-\citet{baruch2025pto} introduced $K$-turn look-ahead for this task inside preference-tree
-optimisation (PTO), where the look-ahead scores select a chosen and a rejected turn for DPO. We
-move it to Group Relative Policy Optimization \citep[GRPO;][]{shao2024deepseekmath}, where a
-single rollout is a one-sample estimate of where a turn leads and every candidate, not a filtered
-pair, is trained on (\S\ref{sec:method}). We ask whether the look-ahead reward retains its
-benefit under group-relative optimisation and, in more depth, what it does to the therapist the
-policy becomes.
+Psychological counselling provides a particularly demanding test of this problem. LLM-based counselling, automated therapist evaluation, and simulated therapeutic interaction have become active areas of research \citep{chiu2024behavioral,yosef2024assessing,yang2026mithinker}, yet the quality of a therapeutic response cannot be determined solely by whether the response sounds appropriate in isolation. Motivational interviewing (MI) makes this especially explicit: central therapist behaviors are intended to shape what the patient says next, in particular to elicit and strengthen the patient's own language in favor of change \citep{miller2013motivational,moyers2015miti}.
 
-We answer with a controlled pair: two ten-iteration GRPO runs, identical in therapist,
-simulated patients, oracle, hyperparameters and personas, whose tracked configurations differ
-only in whether the oracle scores the candidate turn alone ($K{=}0$) or with its five-turn
-continuation ($K{=}5$). Every model state is scored on eight MI instruments by the training oracle
-and by a held-out judge from a different model family, and every utterance of every evaluation
-conversation is coded with an MI process coder, so that the analysis can follow what each
-therapist turn is and what the patient says next.
+We therefore ask whether an LLM therapist can improve when its reward reflects not only what it says, but where that utterance leads. We compare turn-level Group Relative Policy Optimization (GRPO) with look-ahead GRPO, in which each candidate therapist response is rolled forward through five additional dialogue turns before being scored. Changing the reward horizon produces qualitatively different learning: turn-level optimization converges toward non-specific praise regardless of the patient's preceding response, whereas look-ahead optimization produces more complex reflections and more subsequent patient change talk. Our results provide evidence that machine-generated interaction and feedback can support iterative improvement in a non-verifiable, multi-turn domain, when the reward is allowed to observe the downstream consequences of the behavior it reinforces.
 
-The reward result is large and consistent: look-ahead leads on the rewarded rubric from the
-fourth iteration on under both graders, leads on all eight instruments at the matched endpoint,
-beats the turn-level policy's \emph{best} checkpoint as well as its last, and survives an
-independent re-draw of the evaluation set (\S\ref{sec:reward}). The process analysis is the
-paper's centre. Under turn-level reward the policy converges on non-specific praise, the
-MI-inconsistent behaviour of affirming the patient regardless of what they said, delivered most
-often after the patient's \emph{sustain} talk; a judge-free lexical marker corroborates the coded
-rate (\S\ref{sec:therapist}). Under look-ahead it converges on complex reflections, delivered
-after the patient's \emph{change} talk; a look-ahead reflection is followed by change talk in
-$85$--$89\%$ of cases, and patient change talk keeps rising through the session where under
-turn-level reward it falls back late (\S\ref{sec:patient}). Both graders agree on that picture
-and disagree on how much the look-ahead policy still praises.
+%Reinforcement learning from an LLM judge, when trained for dialogue, has a default that is rarely stated: the judge is shown the candidate turn, in the context that preceded it, and scores that. For single-turn tasks this is the whole story; for multi-turn goal-oriented dialogue it assumes that a turn's value [not clear?] is visible at the moment it is produced.
 
-Our contributions are: (i) \LAGRPO, the look-ahead reward of \citet{baruch2025pto} moved from
-preference-tree DPO to a group-relative optimiser, evaluated in a controlled two-grader design
-with a replicated endpoint; and (ii) an utterance-level account of what each reward horizon
-teaches, in MI's own terms: which therapist behaviours each policy learns and unlearns, what each
-behaviour yields in the patient's next turn, and how change talk develops over a session.
-Appendix~\ref{app:saturation} documents the training oracle's saturation at the winning
-checkpoint, the reason the held-out judge carries the per-conversation claims.
+This makes MI particularly suitable for studying reward horizon: the value of a therapist response is often revealed by what follows it. A reflection may be effective because it elicits further elaboration, an open question because it surfaces change talk, and premature reassurance may be counterproductive because of how it shapes subsequent turns \citep{miller2013mi}. A judge that scores only the current therapist turn cannot observe these downstream consequences. We therefore hypothesise that turn-level reward will favor locally appealing behaviors, such as reassurance or praise, even when they do not improve the subsequent interaction.
+
+This paper presents \textbf{\LAGRPO}. Before the judge scores a candidate therapist turn, the patient simulator and the current policy roll the conversation forward $K$ further turns, and the judge scores the extended transcript. Thus, for $K{=}5$, the candidate is followed by five additional turns: patient, therapist, patient, therapist, patient. \citet{baruch2025pto} introduced $K$-turn look-ahead for this task within preference-tree optimisation (PTO), where the look-ahead scores are used to select a chosen and a rejected turn for DPO. We extend this approach to Group Relative Policy Optimization (GRPO) \citep{shao2024deepseekmath}, where each rollout provides a one-sample estimate of where a candidate turn leads, and every sampled candidate contributes to the policy update rather than only a selected preference pair (\S\ref{sec:method}). We ask whether the benefit of look-ahead carries over to group-relative optimisation and, more importantly, how the reward horizon changes the kind of therapist the policy learns to become.
+
+[i didnt think we need this "executive summary" below]
+
+%We answer with a controlled pair: two ten-iteration GRPO runs, identical in therapist, simulated patients, oracle, hyperparameters and personas, whose tracked configurations differ only in whether the oracle scores the candidate turn alone ($K{=}0$) or with its five-turn continuation ($K{=}5$). Every model state is scored on eight MI instruments by the training oracle and by a held-out judge from a different model family, and every utterance of every evaluation conversation is coded with an MI process coder, so that the analysis can follow what each therapist turn is and what the patient says next.
+
+%The reward result is large and consistent: look-ahead leads on the rewarded rubric from the fourth iteration on under both graders, leads on all eight instruments at the matched endpoint, beats the turn-level policy's \emph{best} checkpoint as well as its last, and survives an independent re-draw of the evaluation set (\S\ref{sec:reward}). The process analysis is the paper's centre. Under turn-level reward the policy converges on non-specific praise, the MI-inconsistent behaviour of affirming the patient regardless of what they said, delivered most often after the patient's \emph{sustain} talk; a judge-free lexical marker corroborates the coded rate (\S\ref{sec:therapist}). Under look-ahead it converges on complex reflections, delivered after the patient's \emph{change} talk; a look-ahead reflection is followed by change talk in $85$--$89\%$ of cases, and patient change talk keeps rising through the session where under turn-level reward it falls back late (\S\ref{sec:patient}). Both graders agree on that picture and disagree on how much the look-ahead policy still praises.
+
+[this is most important - we will get back to it at the end]
+
+Our contributions are twofold. First, we extend look-ahead reward from preference-tree optimization to GRPO, testing whether downstream conversational consequences can provide an effective learning signal in a non-verifiable,
+multi-turn domain; specifically MI. Second, and more importantly, we characterize what the different reward horizons actually teach the policy within the MI domain: which therapist behaviors are learned, how those behavior s respond to patient change and sustain talk, and what they elicit in the patient's subsequent turns.
+
+%Our contributions are: (i) \LAGRPO, the look-ahead reward of \citet{baruch2025pto} moved from preference-tree DPO to a group-relative optimiser, evaluated in a controlled two-grader design with a replicated endpoint; and (ii) an utterance-level account of what each reward horizon teaches, in MI's own terms: which therapist behaviours each policy learns and unlearns, what each behaviour yields in the patient's next turn, and how change talk develops over a session. Appendix~\ref{app:saturation}  documents the training oracle's saturation at the winning checkpoint, the reason the held-out judge carries the per-conversation claims.

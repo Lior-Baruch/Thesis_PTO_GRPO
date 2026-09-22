@@ -1,6 +1,8 @@
 \section{GRPO with look-ahead}
 \label{sec:method}
 
+[consider unifying 3 and 4 to one Method Section. maybe easier to understand if 4 comes before 3?]
+
 Throughout, a \emph{turn} is one utterance by either speaker, a \emph{prefix} $c$ is a transcript
 ending on a patient turn, $\oplus$ appends turns to a transcript, $\pi_n$ is the therapist policy
 at the start of training iteration~$n$ ($\pi_1$ is the base model), and $\pi$ is the policy being
@@ -53,7 +55,7 @@ start of iteration $n$ double as the evaluation set of $\pi_n$; a generate-only 
 last update evaluates the final policy, so ten iterations yield eleven evaluated model states per
 run.
 
-\textbf{The look-ahead reward.} The only thing we change is the transcript the oracle scores.
+\textbf{The look-ahead reward.} The only thing we change [from what??] is the transcript the oracle scores.
 Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then $\pi$, then $P$,
 and so on for $K$ turns, stopping early if the patient closes the session; $\tau_0(x)$ is empty.
 Then
@@ -63,9 +65,9 @@ r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \end{equation}
 At $K{=}5$ the oracle scores the candidate together with the five turns that followed it under the
 current policy, so a candidate is credited for where it leads under the therapist that will
-actually follow it, at the price of three patient-simulator calls and two policy generations per
+actually follow it, [at the price of three [why? is this important?] patient-simulator calls and two policy generations per
 candidate and roughly twice the per-step wall-clock (comparisons are at matched iteration count;
-the Limitations give the matched-cost reading).
+the Limitations give the matched-cost reading). this all seems too AI. rephrase to make it clear and focus on what is interesting..]
 
 \textbf{The update.} The step maximises the GRPO objective of \citet{shao2024deepseekmath}: the
 per-token surrogate
@@ -82,7 +84,7 @@ step is the advantage-weighted policy gradient over the group with the KL penalt
 advantage normalisation, the KL penalty and the prompt-construction rule are identical across
 $K$; the horizon enters only through $r_g$.
 
-\textbf{Why the transfer is not trivial.} A rollout is one sample from the distribution of
+\textbf{Why the transfer is not trivial.} [which transfer? ] A rollout is one sample from the distribution of
 continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value,
 with sampling noise from $P$ and $\pi$ added to the oracle's own. PTO filters that noise by
 keeping only the best- and worst-scoring candidates, so an unlucky rollout can at most cost a
@@ -94,4 +96,4 @@ of this task the oracle's ranking of very short prefixes agreed poorly with its 
 completed sessions and recovered from roughly ten utterances, so both arms discard prefixes
 shorter than MCL${=}12$; at that minimum the training reward orders candidates as the
 full-session score does in $86$--$89\%$ of pairs, and agreement does not fall with prefix length
-(Appendix~\ref{app:mechanism}).
+(Appendix~\ref{app:mechanism}). [ref specific subsection and related figure]

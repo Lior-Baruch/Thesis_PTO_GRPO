@@ -1,60 +1,78 @@
 \section{Related work}
 \label{sec:related}
 
-\textbf{Group-relative policy optimisation.} GRPO \citep{shao2024deepseekmath} replaces the learned
-value function of PPO \citep{schulman2017ppo, ouyang2022instructgpt} with a baseline computed
-across a group of sampled completions for the same prompt, and is now widely used for RL on
-language models \citep{guo2025deepseekr1}. For dialogue no value function over conversation
-states is needed, but the whole learning signal is then the \emph{relative} ranking of siblings;
-we change what the reward observes and nothing else.
+\textbf{Group-relative policy optimisation.}
+GRPO \citep{shao2024deepseekmath} replaces the learned value function used in PPO-style
+RL \citep{schulman2017ppo, ouyang2022instructgpt} with advantages computed relative to
+a group of completions sampled for the same prompt, and has become a common approach
+for reinforcement learning with language models \citep{guo2025deepseekr1}.
+This makes it possible to study temporal credit in dialogue without introducing a learned
+value function over conversation states. In our setting, the optimiser, loss, group
+normalisation, and KL regularisation are held fixed. The experimental variable is instead
+the \emph{reward horizon}: how much of the conversation the reward model is allowed to
+observe when ranking candidate therapist turns.
 
-\textbf{Multi-turn RL for dialogue.} That a dialogue turn should be credited for its downstream
-consequences is as old as RL-based dialogue management \citep{levin2000stochastic,
-singh2002optimizing}; it was brought to neural dialogue generation by \citet{li2016deeprl} and
-pursued since with utterance-level value functions \citep{zhou2024archer}, offline RL on
-LLM-imagined conversations \citep{hong2023imagined}, self-reinforcement on role-played
-interactions \citep{wang2024sotopiapi}, preference feedback over whole conversations
-\citep{shani2024multiturn}, regression of relative future rewards from on-policy continuations
-\citep{gao2024refuel}, and step-wise critics given training-time information
-\citep{zhou2025sweetrl}. GRPO itself has been carried into multi-turn settings by turn-level
-credit assignment in tool-use agents \citep{wei2025multiturn} and by rollouts against
-LLM-simulated users \citep{qian2025userrl}; the nearest work scores a turn by what follows it,
-using the next user turn of an interactive rollout as local credit evidence \citep{zhao2026faca}
-or aggregating rewards over a window of future turns in a tree-structured GRPO
-\citep{peng2026atgrpo}. Look-ahead is the plainest member of this family, no value function, no
-new loss, no tree, one $K$-turn rollout under the current policy, as VinePPO does for reasoning
-chains \citep{kazemnejad2024vineppo}; our question is what the horizon does to a counselling
-policy.
+\textbf{Delayed credit in multi-turn dialogue.}
+Assigning credit to a dialogue action for its downstream consequences is a long-standing
+problem in reinforcement-learning approaches to dialogue
+\citep{levin2000stochastic, singh2002optimizing}. Neural dialogue systems have approached
+it in several ways. Some methods learn utterance- or state-level estimates of future value
+\citep{li2016deeprl, zhou2024archer}, while others optimise preferences or rewards defined
+over longer interaction trajectories \citep{shani2024multiturn}. More recent work uses
+model-generated interaction directly, through imagined conversations
+\citep{hong2023imagined}, role-played social interaction \citep{wang2024sotopiapi},
+simulated users \citep{qian2025userrl}, regression onto future rewards
+\citep{gao2024refuel}, or training-time critics with access to subsequent interaction
+\citep{zhou2025sweetrl}. Related GRPO methods assign credit using later user turns
+\citep{zhao2026faca} or aggregate rewards over future branches of a dialogue
+\citep{peng2026atgrpo}.
 
-\textbf{Look-ahead and search in preference learning.} Simulated continuations drive
-inference-time dialogue planning \citep{yu2023promptmcts, chen2025broaden} and enter preference
-learning as MCTS-guided search \citep{xie2024mctsdpo}; related mechanisms score partial
-trajectories with process reward models \citep{lightman2024letsverify}, let process scores decide
-where a multi-turn rollout tree branches \citep{li2026patr}, or keep the best and worst of $N$
-samples by a reward model \citep{pace2024westofn}. The closest prior work is PTO
-\citep{baruch2025pto}, which introduced $K$-turn look-ahead for MI dialogue: candidate turns
-branched at each patient turn, each scored by an oracle shown its simulated continuation, the
-best and worst becoming a DPO pair \citep{rafailov2023dpo}. We keep the lever and drop the tree
-and the pair selection.
+A particularly direct way to address delayed credit is to simulate what happens after a
+candidate action and let those consequences affect its reward. Simulated continuations
+have been used for dialogue planning at inference time
+\citep{yu2023promptmcts, chen2025broaden}, and related ideas appear in reasoning and
+preference learning through Monte Carlo tree search and process-level evaluation
+\citep{xie2024mctsdpo, lightman2024letsverify, li2026patr}. VinePPO
+\citep{kazemnejad2024vineppo}, for example, uses sampled future reasoning steps to improve
+credit assignment within a reasoning trajectory. Dialogue differs in an important respect:
+the future trajectory is jointly produced by the policy and another agent, so the
+consequences of a candidate action include how the interlocutor responds. A preliminary
+workshop paper from our group introduced $K$-turn look-ahead for motivational
+interviewing \citep{baruch2025pto}. Here we isolate the same underlying variable in GRPO:
+whether a candidate therapist turn is rewarded for how it appears now or for the interaction
+that follows it.
 
-\textbf{Reward hacking and LLM judges.} That optimising a proxy degrades the true objective is a
-long-standing concern \citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling},
-and LLM judges \citep{zheng2023judging} and preference-trained reward models add distortions of
-their own: they can reward sycophantic answers \citep{sharma2024sycophancy, perez2023discovering},
-favour their own generations \citep{panickssery2024selfpreference}, and favour longer outputs
-\citep{singhal2024long, dubois2024lengthcontrolled}. The oracle saturation of Appendix~\ref{app:saturation}
-is the variance side of reward-model over-optimisation \citep{gao2023scaling} on a bounded judge
-scale; our second grader plays in evaluation the role reward-model ensembles play in training
-\citep{coste2024ensembles}.
+\textbf{Reward models and LLM judges.}
+Optimising a learned or otherwise imperfect proxy can produce behaviour that scores well
+under the proxy without improving the intended objective
+\citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling}.
+This concern is especially relevant when the reward itself is produced by a language model.
+LLM judges can exhibit systematic preferences, including sycophancy-related effects
+\citep{sharma2024sycophancy, perez2023discovering}, preference for their own generations
+\citep{panickssery2024selfpreference}, and sensitivity to response length
+\citep{singhal2024long, dubois2024lengthcontrolled}. In multi-turn learning, the temporal
+scope of the judge creates an additional opportunity for proxy exploitation: a behaviour may
+look desirable in the turn where it occurs while having undesirable effects later in the
+interaction. We therefore evaluate the trained policies not only with the model used to
+produce the training reward, but also with a held-out judge from another model family and
+with measures outside the rewarded rubric.
 
-\textbf{Motivational interviewing.} MI \citep{miller1991mi} has established coding schemes
-\citep{moyers2016miti}, validated session instruments \citep{hatcher2006waisr, larsen1979csq}, and
-an expert-annotated corpus of high- and low-quality sessions \citep{wu2022annomi}. Prior work assesses
-counselling quality automatically \citep{perezrosas2019goodcounselor, yosef2024assessing}, trains
-human counsellors \citep{steenstra2025scaffolding, wang2024patientpsi} and, with RL, LLM
-counsellors and clinicians \citep{yang2026mithinker, lievin2026residencyrl} against LLM-simulated
-patients, and codes the behaviour of LLM therapists, which resemble low-quality therapy in
-advising where a counsellor would reflect \citep{chiu2024bolt}; a smaller version of the same
-directive pattern appears in our look-ahead policy (\S\ref{sec:therapist}). Coding each therapist
-utterance and the patient's reply is MI's own process-research method \citep{moyers2016miti},
-and the form our utterance-level analysis takes.
+\textbf{Motivational interviewing.}
+Motivational interviewing (MI) \citep{miller1991mi} is particularly useful for studying
+temporal credit because therapist behaviour is evaluated partly through what it elicits from
+the patient. MI aims to cultivate \emph{change talk}, the patient's own language in favour
+of change, while reducing or productively responding to \emph{sustain talk}
+\citep{moyers2016miti}. Its process tradition therefore examines not only what a therapist
+says, but how therapist and patient utterances unfold sequentially. MI has established
+coding schemes such as MITI \citep{moyers2016miti}, and computational work has developed
+expert-annotated counselling corpora \citep{wu2022annomi}, automatic measures of
+counselling quality \citep{perezrosas2019goodcounselor, yosef2024assessing}, and simulated
+patients for training counsellors and clinicians
+\citep{steenstra2025scaffolding, wang2024patientpsi}. Recent work also trains LLM
+counsellors or clinicians through reinforcement learning against simulated patients
+\citep{yang2026mithinker, lievin2026residencyrl}. Studies of LLM therapists suggest that
+their behaviour can differ systematically from expert counselling practice, for example by
+advising in contexts where an MI counsellor would be more likely to reflect
+\citep{chiu2024bolt}. These properties make MI a useful test case for reward horizon:
+whether a therapist turn is effective cannot be judged solely from the turn itself, because
+part of its value lies in what the patient says next.
