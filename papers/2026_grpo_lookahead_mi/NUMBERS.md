@@ -4,6 +4,11 @@ Every quantitative claim in the draft → the exact tracked artifact it came fro
 are relative to `Exp3_PTO_GRPO/eda/`. **Nothing enters the `.tex` that is not a row here**, and no
 row is written from prose — each was read off the named table or recomputed from the score lake.
 
+*(2026-09-22: Method and Setup merged into one §3 on Doron's note — §3.1 task/simulator/oracle,
+§3.2 GRPO with look-ahead, §3.3 evaluation design; reward is now §4, therapist §5, patient §6,
+discussion §7. Rows below still say "§4" for the setup and "§5"–"§8" for what follows; read them
+one lower. Appendices unchanged.)*
+
 *(2026-09-02 rewrite: sections renumbered — §3 is now the method, §4 the setup, §5 reward, §6
 behaviour, §7 mechanism, §8 measurement, §9 discussion; appendices A tables · B mechanism · C repro.
 New rows are marked **NEW**. Numbers unchanged from the 2026-08-27 ledger keep their marks.)*
