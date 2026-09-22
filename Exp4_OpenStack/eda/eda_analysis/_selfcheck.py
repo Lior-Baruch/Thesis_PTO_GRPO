@@ -1348,6 +1348,133 @@ def _c_render_freshness() -> str:
 # ==============================================================================
 
 #: ``(display name, callable, needs_data)`` in run order.
+def _c_install_cell_parity() -> str:
+    """The Colab install cell is BYTE-IDENTICAL across all three notebooks that need it.
+
+    ``train_grpo.ipynb``, ``train_pto.ipynb`` and ``Run_Eval.ipynb`` each carry their own copy,
+    because Colab gives every notebook its own VM and there is no import that could run before
+    the stack exists. Three copies drifting apart is how one method -- or the SCORING pass -- ends
+    up on a different torch/vLLM build than the arms it is grading, which is unfalsifiable after
+    the fact: the numbers still look like numbers.
+
+    Identified by content (``PINNED_VLLM``), not by index, so inserting a cell anywhere cannot
+    make this check silently pass over a notebook it stopped finding.
+    """
+    import json as _json
+
+    code_dir = os.path.join(os.path.dirname(_HERE), "..", "code")
+    targets = {
+        "grpo/train_grpo.ipynb": os.path.join(code_dir, "grpo", "train_grpo.ipynb"),
+        "pto/train_pto.ipynb": os.path.join(code_dir, "pto", "train_pto.ipynb"),
+        "eda/Run_Eval.ipynb": os.path.join(
+            os.path.dirname(_HERE), "notebooks", "scoring", "Run_Eval.ipynb"),
+    }
+    found: Dict[str, str] = {}
+    for label, path in targets.items():
+        if not os.path.isfile(path):
+            raise AssertionError(f"{label} not found at {path}")
+        nb = _json.load(open(path, encoding="utf-8"))
+        cells = [c for c in nb.get("cells", [])
+                 if c.get("cell_type") == "code" and "PINNED_VLLM" in "".join(c["source"])]
+        assert len(cells) == 1, (
+            f"{label} carries {len(cells)} install cells (expected exactly 1 -- the one that "
+            f"mentions PINNED_VLLM)")
+        found[label] = "".join(cells[0]["source"])
+
+    reference_label, reference = next(iter(found.items()))
+    mismatched = [label for label, text in found.items() if text != reference]
+    assert not mismatched, (
+        f"the Colab install cell has DRIFTED: {mismatched} differ from {reference_label}. Copy "
+        f"one over the others -- a scoring pass on a different vLLM/torch build than the arms it "
+        f"grades is not comparable, and nothing in the output would say so.")
+    return f"{len(found)} notebooks carry the same {len(reference)}-char install cell"
+
+
+def _c_claude_judge_shim() -> str:
+    """The Claude judge's schema shim RESTATES what it strips, and stays off the reward path.
+
+    Three guarantees, all free (no API call, no key):
+
+    1. **Parity.** :func:`eda_analysis.scoring.check_rubric_parity` runs over all eight rubrics:
+       every ``minimum``/``maximum``/``minItems``/``maxItems`` Claude's Messages API rejects was
+       folded into that node's ``description``, the array-length sentence names the actual count,
+       and nothing else about the schema changed. This is the gate that matters, because for the
+       five flat rubrics ``minItems == maxItems == n_questions`` is the ONLY guarantee of one
+       score per item -- drop it silently and the hardest conversations come back wrong-length,
+       fail the ladder and land as NaN rows. That is arm-dependent biased missingness on the
+       headline metric, and nothing in the output says so.
+    2. **The gate can fail.** A deliberately naive stripper (constraints removed, nothing
+       restated) is run through the same check and MUST be rejected -- a gate that has never
+       failed is not evidence.
+    3. **Eval-only really is eval-only.** ``OracleConfig`` refuses an anthropic binding without
+       ``eval_only=True``, so no edit on the eval side can put a Claude grader on the training
+       reward; and a model whose thinking cannot be disabled is refused at config time rather
+       than on the first billed call of a 16,896-call sweep.
+    """
+    import copy as _copy
+
+    from core import oracle as _oracle
+    from eda_analysis import scoring as _scoring
+    from roles import make_binding as _make_binding
+
+    report = _scoring.check_rubric_parity()
+    assert report["ok"], f"rubric parity FAILED: {report['problems'][:5]}"
+    assert report["n_stripped"] > 0, (
+        "check_rubric_parity stripped nothing -- either the rubrics stopped carrying numeric "
+        "bounds, or the check stopped looking. Either way it is no longer a gate.")
+    assert report["n_restated"] == report["n_stripped"], report
+
+    def _naive(schema: dict) -> dict:
+        out = _copy.deepcopy(schema)
+
+        def walk(node):
+            if isinstance(node, dict):
+                for k in ("minimum", "maximum", "minItems", "maxItems", "multipleOf"):
+                    node.pop(k, None)
+                for v in node.values():
+                    walk(v)
+            elif isinstance(node, list):
+                for v in node:
+                    walk(v)
+
+        walk(out)
+        return out
+
+    real = _oracle.strip_unsupported_constraints
+    try:
+        _oracle.strip_unsupported_constraints = _naive
+        negative = _scoring.check_rubric_parity(["Q1", "Q2"])
+    finally:
+        _oracle.strip_unsupported_constraints = real
+    assert not negative["ok"], (
+        "check_rubric_parity PASSED a stripper that drops every constraint without restating it "
+        "-- the gate is not gating.")
+
+    claude = _make_binding("anthropic", "claude-haiku-4-5")
+    try:
+        _oracle.OracleConfig(binding=claude)
+        raise AssertionError(
+            "OracleConfig accepted an anthropic binding as a TRAINING oracle. The advisory "
+            "schema would become biased missingness inside a GRPO group's advantage.")
+    except ValueError:
+        pass
+    cfg = _oracle.OracleConfig(binding=claude, eval_only=True)
+    assert cfg.tag == "haiku45", f"judge tag drifted: {cfg.tag!r}"
+    assert _oracle.anthropic_thinking_for("claude-haiku-4-5") is None
+    assert _oracle.anthropic_thinking_for("claude-sonnet-5") == {"type": "disabled"}
+    for always_on in ("claude-fable-5-1", "claude-mythos-5-1"):
+        try:
+            _oracle.OracleConfig(binding=_make_binding("anthropic", always_on), eval_only=True)
+            raise AssertionError(
+                f"{always_on} was accepted as a judge, but it 400s on disabled thinking -- the "
+                f"reasoning tokens would clip the rubric JSON on every call.")
+        except ValueError:
+            pass
+
+    return (f"{len(report['checked'])} rubrics, {report['n_stripped']} constraints stripped and "
+            f"restated; naive stripper rejected; training path refuses anthropic")
+
+
 _CHECKS: Tuple[Tuple[str, Callable[[], str], bool], ...] = (
     ("imports + __all__ resolve", _c_imports, False),
     ("family map", _c_family_map, False),
@@ -1363,6 +1490,8 @@ _CHECKS: Tuple[Tuple[str, Callable[[], str], bool], ...] = (
     ("arm identity round-trip", _c_arm_identity, False),
     ("no torch in the EDA", _c_no_torch, False),
     ("MICI orientation", _c_mici_orientation, False),
+    ("Claude judge shim (rubric parity)", _c_claude_judge_shim, False),
+    ("install cell parity (3 notebooks)", _c_install_cell_parity, False),
     ("score coverage (disk vs lake)", _c_score_coverage, True),
     ("persona coverage (96 per parquet)", _c_persona_coverage, True),
     ("timing logs (completed iterations)", _c_timing_logs, True),

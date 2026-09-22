@@ -215,7 +215,14 @@ _MODEL_TAGS = {
     "gpt-4o-mini-2024-07-18": "gpt4m",
     "gpt-4o-mini": "gpt4m",
     "gpt-4o": "gpt4o",
+    # The Claude judges. Curated because the slugifier would spell them `claudesonnet5` /
+    # `claudeopus5` while `haiku45` (Exp3's held-out judge, and the tag its score lake already
+    # uses) drops the vendor prefix -- three graders from one family under two naming schemes is
+    # how a `judge=` partition stops being greppable. Eval-side only: `core.oracle` refuses an
+    # anthropic binding as a TRAINING oracle, so none of these can appear in an arm name.
     "claude-haiku-4-5": "haiku45",
+    "claude-sonnet-5": "sonnet5",
+    "claude-opus-5": "opus5",
     # The two therapist variants. Curated because they appear in EVERY Exp4 arm name (the
     # _Th<tag> field) and because the derived slugs would be unreadably long.
     "meta-llama/Llama-3.2-1B": "L1B",

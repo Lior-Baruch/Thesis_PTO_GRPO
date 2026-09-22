@@ -102,13 +102,16 @@ from .data import Arm, discover_arms
 from core.concurrency import AsyncPrimitives, run_async            # noqa: E402
 from core.conversations import (CONV_FILE_PREFIX, ConversationState,  # noqa: E402
                                 format_conversation_for_oracle, load_conversations_dir)
-from core.oracle import (OPENAI_SHAPED_PROVIDERS, OracleConfig,    # noqa: E402
-                         get_evaluation_json, make_oracle_client)
+from core.oracle import (EVAL_ONLY_PROVIDERS, GRADING_PROVIDERS,   # noqa: E402
+                         OPENAI_SHAPED_PROVIDERS, OracleConfig,
+                         get_evaluation_json, make_oracle_client,
+                         strip_unsupported_constraints)
 from naming import parse_experiment_name                           # noqa: E402
 from questionnaires import (MICI_BEHAVIOR_LABELS, MICI_GLOBAL_LABELS,  # noqa: E402
                             MITI_BEHAVIOR_LABELS, MITI_GLOBAL_LABELS,
                             PCT_BEHAVIOR_LABELS, PCT_GLOBAL_LABELS,
-                            WAI_SR_SUBSCALES, parse_json_response)
+                            WAI_SR_SUBSCALES, get_prompt_eval_questionnaire,
+                            parse_json_response)
 # Private on purpose: this is the SAME counter ``questionnaires`` interpolates into the MITI / PCT /
 # MICI prompts ("therapist_utterance_count = N"), and MICI_Rate's denominator has to be the number
 # the grader was shown. Counting turns off the ConversationState instead would drift from it the
@@ -272,7 +275,7 @@ def judge_binding_for(model: str,
             decides the ``judge=<tag>`` directory every score is written under, and an implicit
             grader is precisely the error the partition scheme exists to make impossible.
         provider: ``openai_compat`` (default -- any OpenAI-compatible server: vLLM, llama.cpp,
-            TGI) or ``openai``. See the raise below for why ``anthropic`` is refused.
+            TGI), ``openai``, or ``anthropic``. The last is EVAL-ONLY (see Notes).
         base_url: Endpoint for ``openai_compat``. Normally the value
             ``tools.vllm_serve.serve_roles`` filled in; pass it explicitly when driving the EDA
             against a server someone else started.
@@ -286,29 +289,35 @@ def judge_binding_for(model: str,
         schema-constrained response is a good way to lose the schema.
 
     Raises:
-        ValueError: for ``anthropic``. Its Messages API rejects ``minimum``/``maximum``/
-            ``minItems``/``maxItems``, so a Claude grader needs those constraints folded into
-            ``description`` text (Exp3 carried a whole shim for it,
-            ``scoring/judge.py::_strip_unsupported_constraints``). Exp4 has no such shim, and
-            silently DROPPING the constraints is the worst option available: a wrong-length
-            ``scores`` array then parses, averages to a plausible number, and the conversations the
-            grader found hardest are the ones that go missing. Refusing is the honest failure.
         ValueError: for any provider ``core.oracle`` cannot speak (see
-            :data:`~core.oracle.OPENAI_SHAPED_PROVIDERS`).
+            :data:`~core.oracle.GRADING_PROVIDERS`).
+        ValueError: for a Claude model whose thinking cannot be disabled (the Fable / Mythos
+            family), raised from :func:`~core.oracle.anthropic_thinking_for` when the config is
+            built -- before the first billed call, not after a few hundred clipped rubrics.
 
     Warning:
         An ``openai_compat`` binding with **no** ``base_url`` builds an OpenAI SDK client pointed
         at ``api.openai.com``. That does not fail -- it BILLS, on a run that exists to cost $0, and
         grades with a vendor model while the lake records the local tag. This function warns;
         :func:`score_model_state` refuses outright.
+
+    Notes:
+        **``anthropic`` grades only here, never as a training oracle.** Its Messages API rejects
+        ``minimum``/``maximum``/``minItems``/``maxItems``, so a Claude grader's schema goes through
+        :func:`~core.oracle.strip_unsupported_constraints`, which folds each constraint into
+        ``description`` text instead of dropping it. That makes the one-score-per-item guarantee
+        ADVISORY rather than decoder-enforced -- the validation ladder still re-checks it
+        client-side, so a violation becomes a retry and then a visible NaN row in one parquet.
+        Survivable for a held-out judge and a cheap re-score; not survivable for a reward, where
+        the same failure is biased missingness inside a GRPO group's advantage. ``OracleConfig``
+        enforces the split via ``eval_only`` (see :data:`~core.oracle.EVAL_ONLY_PROVIDERS`), and
+        :func:`check_rubric_parity` is the FREE pre-flight that asserts every stripped constraint
+        was restated before any Claude money is spent.
     """
-    if provider not in OPENAI_SHAPED_PROVIDERS:
+    if provider not in GRADING_PROVIDERS:
         raise ValueError(
             f"judge_binding_for: provider {provider!r} cannot grade in Exp4; expected one of "
-            f"{OPENAI_SHAPED_PROVIDERS}. Anthropic in particular needs the constraint-stripping "
-            f"shim Exp3 carried (its Messages API rejects minimum/maximum/minItems/maxItems), and "
-            f"dropping those constraints instead is how a wrong-length scores array turns into "
-            f"biased missingness that nothing reports."
+            f"{GRADING_PROVIDERS}."
         )
     kw.setdefault("request_timeout", JUDGE_REQUEST_TIMEOUT)
     kw.setdefault("max_retries", JUDGE_MAX_RETRIES)
@@ -334,10 +343,10 @@ def _assert_scoreable(binding: RoleBinding) -> None:
             f"binding must be a roles.RoleBinding, got {type(binding).__name__}. Build one with "
             f"scoring.judge_binding_for(...), or take it from tools.vllm_serve.serve_roles()."
         )
-    if binding.provider not in OPENAI_SHAPED_PROVIDERS:
+    if binding.provider not in GRADING_PROVIDERS:
         raise ValueError(
             f"judge provider {binding.provider!r} is not supported; expected one of "
-            f"{OPENAI_SHAPED_PROVIDERS}. See judge_binding_for for why anthropic is refused."
+            f"{GRADING_PROVIDERS}."
         )
     if binding.is_local and not binding.base_url:
         raise ValueError(
@@ -699,6 +708,9 @@ async def score_model_state(arm: Arm,
         request_timeout=float(request_timeout),
         max_concurrency=int(concurrency),
         min_success_ratio=float(min_success_ratio),
+        # THE eval side. Nothing else in Exp4 sets this, which is what keeps an
+        # EVAL_ONLY_PROVIDERS grader (Claude) off the training reward path.
+        eval_only=True,
     )
     client = make_oracle_client(cfg)
     # patient_concurrency is unused here -- judging makes no patient calls -- but must be >= 1.
@@ -1066,11 +1078,16 @@ JUDGE_PRICING: Dict[str, JudgePricing] = {
     "gpt4m": JudgePricing(0.15, 0.60, 0.50, 1024),
     "gpt4o": JudgePricing(2.50, 10.00, 0.50, 1024),
     "haiku45": JudgePricing(1.00, 5.00, 0.10, 4096),
+    # Added 2026-09-22 alongside the Claude judge path. Anthropic list prices as of that date;
+    # the same warning applies as to every row here -- CHECK THE BILLING DASHBOARD before
+    # quoting one of these numbers at anybody.
+    "sonnet5": JudgePricing(2.00, 10.00, 0.10, 4096),
+    "opus5": JudgePricing(5.00, 25.00, 0.10, 4096),
 }
 
 #: Tags known to be VENDOR-served. Used only when no binding is supplied, to decide whether "$0
 #: (local)" is the honest answer. ``binding.provider`` is the authority -- pass the binding.
-VENDOR_JUDGE_TAGS = frozenset(JUDGE_PRICING) | {"gpt4omini", "sonnet5", "opus5"}
+VENDOR_JUDGE_TAGS = frozenset(JUDGE_PRICING) | {"gpt4omini"}
 
 #: Central token figures for one grading call, from the prompt-length measurement recorded in
 #: ``Exp4_OpenStack/CLAUDE.md`` (192 real Exp3 PTO_LA0 transcripts, o200k tokenizer: full Q2
@@ -1088,6 +1105,121 @@ DEFAULT_TOKEN_PROFILE = TokenProfile(
     output_tokens=90.0,
     source="CLAUDE.md prompt-length measurement (central across the 8 rubrics); NOT this plan",
 )
+
+
+def check_rubric_parity(metrics: Optional[Sequence[str]] = None) -> Dict[str, Any]:
+    """FREE pre-flight: did the Claude shim RESTATE every constraint it had to strip?
+
+    Args:
+        metrics: Stored metric keys to check. ``None`` = all eight.
+
+    Returns:
+        ``{"ok": bool, "checked": [...], "problems": [...], "n_stripped": int,
+        "n_restated": int}``. ``problems`` names the metric and the JSON path of every node whose
+        constraint was removed without a replacement sentence, plus any node whose non-constraint
+        structure the shim changed.
+
+    Notes:
+        **Run this before spending a cent on a Claude judge.** It makes no API call and needs no
+        key: it builds each rubric's schema, runs
+        :func:`~core.oracle.strip_unsupported_constraints` over it, and asserts two things.
+
+        1. Every ``minimum``/``maximum``/``minItems``/``maxItems``/``multipleOf`` that disappeared
+           left a sentence behind in that node's ``description``. This is the one that matters:
+           for the five flat rubrics, ``minItems == maxItems == n_questions`` is the ONLY
+           guarantee of one score per item, and a silent drop turns the hardest conversations
+           into NaN rows -- biased missingness on the headline metric, invisible in the output.
+        2. Nothing ELSE changed -- same keys, same ``type``, same ``enum``, same ``required``,
+           same ``additionalProperties``. A shim that also reshaped the rubric would be grading a
+           different instrument than the OpenAI-side judges, and no cross-judge contrast would
+           mean anything.
+
+        The same idea as Exp3's ``scoring/judge_plan.py::check_rubric_parity``, which gated that
+        experiment's Haiku 4.5 sweep. ``_selfcheck`` runs it on every EDA change.
+    """
+    from core.oracle import strip_unsupported_constraints as _strip
+
+    keys = list(STORED_METRICS) if metrics is None else [str(m) for m in metrics]
+    problems: List[str] = []
+    n_stripped = 0
+    n_restated = 0
+    _STRIPPED_KEYS = ("minimum", "maximum", "minItems", "maxItems", "multipleOf")
+    _STRUCTURAL = ("type", "enum", "required", "additionalProperties", "properties", "items")
+
+    for key in keys:
+        m = metric_registry(key)
+        built = get_prompt_eval_questionnaire(
+            questionnaire=int(m.questionnaire_id),
+            conversation="[THERAPIST]: placeholder\n\n[PATIENT]: placeholder",
+        )
+        original = built["schema"]
+        stripped = _strip(original)
+
+        def walk(orig: Any, new: Any, path: str) -> None:
+            nonlocal n_stripped, n_restated
+            if isinstance(orig, dict):
+                if not isinstance(new, dict):
+                    problems.append(f"{key}: {path} became {type(new).__name__}, expected dict")
+                    return
+                removed = [k for k in _STRIPPED_KEYS if k in orig]
+                if removed:
+                    n_stripped += len(removed)
+                    desc = str(new.get("description", "")).strip()
+                    if not desc:
+                        problems.append(
+                            f"{key}: {path} dropped {removed} with NO description to carry it"
+                        )
+                    else:
+                        n_restated += len(removed)
+                        # The array-length guarantee has to name the count, not merely exist.
+                        n_items = orig.get("minItems")
+                        if (orig.get("type") == "array" and n_items is not None
+                                and n_items == orig.get("maxItems")
+                                and str(int(n_items)) not in desc):
+                            problems.append(
+                                f"{key}: {path} dropped minItems==maxItems=={int(n_items)} and "
+                                f"its description never names that count: {desc!r}"
+                            )
+                leftover = [k for k in _STRIPPED_KEYS if k in new]
+                if leftover:
+                    problems.append(f"{key}: {path} still carries {leftover} after stripping")
+                for field in _STRUCTURAL:
+                    if field in ("properties", "items"):
+                        continue
+                    if orig.get(field) != new.get(field):
+                        problems.append(
+                            f"{key}: {path}.{field} changed: "
+                            f"{orig.get(field)!r} -> {new.get(field)!r}"
+                        )
+                if set(orig) - set(_STRIPPED_KEYS) != set(new) - {"description"} | (
+                        set(orig) & {"description"}):
+                    missing = (set(orig) - set(_STRIPPED_KEYS)) - set(new)
+                    added = set(new) - set(orig)
+                    if missing or (added - {"description"}):
+                        problems.append(
+                            f"{key}: {path} key set changed (missing={sorted(missing)}, "
+                            f"added={sorted(added - {'description'})})"
+                        )
+                for k, v in orig.items():
+                    if k in _STRIPPED_KEYS:
+                        continue
+                    walk(v, new.get(k), f"{path}.{k}")
+            elif isinstance(orig, list):
+                if not isinstance(new, list) or len(orig) != len(new):
+                    problems.append(f"{key}: {path} list length changed")
+                    return
+                for i, (a, b) in enumerate(zip(orig, new)):
+                    walk(a, b, f"{path}[{i}]")
+
+        walk(original, stripped, "$")
+
+    return {
+        "ok": not problems,
+        "checked": keys,
+        "problems": problems,
+        "n_stripped": n_stripped,
+        "n_restated": n_restated,
+    }
 
 
 def estimate_calls(plan: pd.DataFrame,

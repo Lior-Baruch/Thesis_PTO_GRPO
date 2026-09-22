@@ -188,8 +188,8 @@ EXIT_SKIP = 3
 #: Subcommand order for ``all`` -- cheapest and most diagnostic first, so a broken grammar is
 #: reported before a GPU part spends two minutes loading weights to fail for the same reason.
 PARTS: Tuple[str, ...] = (
-    "naming", "config", "convs", "vram", "resume", "prompts", "serve", "roles",
-    "stopgen", "dpo", "grpo", "prefill",
+    "naming", "config", "convs", "vram", "resume", "prompts", "judge", "serve",
+    "roles", "stopgen", "dpo", "grpo", "prefill",
 )
 
 #: Parts that allocate VRAM. Each one guards itself; this tuple is for the ``all`` summary.
@@ -2615,6 +2615,167 @@ def cmd_grpo(sec: Section, args: argparse.Namespace) -> None:
               f"terminated_length={terminated} (cap {_MAX_RESPONSE_TOKENS})")
 
 
+def cmd_judge(sec: Section, args: argparse.Namespace) -> None:
+    """The ANTHROPIC eval-judge path, proven against a fake client -- no network, no cost.
+
+    A Claude judge is the one grader in Exp4 whose schema cannot be sent as written: the Messages
+    API rejects ``minimum``/``maximum``/``minItems``/``maxItems``, so every rubric goes through
+    ``core.oracle.strip_unsupported_constraints``, which folds each constraint into
+    ``description`` text. That makes the one-score-per-item guarantee ADVISORY, and the failure it
+    invites is the quiet kind: a wrong-length ``scores`` array fails the validation ladder, burns
+    the retry budget, and lands as a NaN row -- on the conversations the grader found hardest,
+    which is arm-dependent biased missingness on the headline metric.
+
+    So this gate proves, offline, the four things a billed sweep would otherwise discover the
+    expensive way:
+
+    1. the request really is the Messages shape (``output_config``, no ``response_format``), it
+       carries NO ``temperature`` (the current Claude models reject sampling parameters), and the
+       stripped schema still SAYS what it can no longer enforce;
+    2. a model that would otherwise think adaptively is told not to -- those tokens bill against
+       the same ``max_tokens`` as the JSON, so leaving it on shows up as clipped JSON, not as a
+       setting;
+    3. a safety refusal (HTTP 200, ``stop_reason="refusal"``) becomes a failed call rather than an
+       exception escaping into the sweep;
+    4. a wrong-length array is still caught client-side -- the backstop that makes (1) survivable.
+
+    Plus the structural half: ``OracleConfig`` refuses an anthropic binding as a TRAINING oracle,
+    so nothing on the eval side can put an advisory schema on the reward path.
+    """
+    import asyncio as _asyncio
+    import json as _json
+
+    from core.concurrency import AsyncPrimitives
+    from core.oracle import (EVAL_ONLY_PROVIDERS, OracleConfig, anthropic_thinking_for,
+                             get_evaluation_json, strip_unsupported_constraints)
+    from questionnaires import (MITI_BEHAVIOR_LABELS, MITI_GLOBAL_LABELS,
+                                get_prompt_eval_questionnaire)
+    from roles import make_binding
+
+    captured: List[dict] = []
+
+    class _Block:
+        def __init__(self, text: str) -> None:
+            self.type = "text"
+            self.text = text
+
+    class _Resp:
+        def __init__(self, text: str, stop_reason: str) -> None:
+            self.content = [_Block(text)]
+            self.stop_reason = stop_reason
+            self.stop_details = None
+
+    class _Messages:
+        def __init__(self, answer: str, stop_reason: str) -> None:
+            self._answer, self._stop = answer, stop_reason
+
+        async def create(self, **kw):
+            captured.append(kw)
+            return _Resp(self._answer, self._stop)
+
+    class _FakeAnthropic:
+        """Stands in for ``AsyncAnthropic``. Records the request; returns a canned answer."""
+
+        def __init__(self, answer: str, stop_reason: str = "end_turn") -> None:
+            self.messages = _Messages(answer, stop_reason)
+
+    transcript = "[THERAPIST]: What brings you in today?\n\n[PATIENT]: I drink more than I want to."
+    binding = make_binding("anthropic", "claude-haiku-4-5")
+    prims = AsyncPrimitives(oracle_concurrency=4, patient_concurrency=1)
+
+    # -- structural: eval-only really is eval-only --------------------------------------------
+    sec.check("anthropic" in EVAL_ONLY_PROVIDERS,
+              "anthropic is declared EVAL-ONLY", f"EVAL_ONLY_PROVIDERS={EVAL_ONLY_PROVIDERS}")
+    try:
+        OracleConfig(binding=binding)
+        sec.check(False, "a Claude binding is refused as a TRAINING oracle",
+                  "it was ACCEPTED -- an advisory schema could reach the reward")
+    except ValueError as exc:
+        sec.check("eval_only" in str(exc),
+                  "a Claude binding is refused as a TRAINING oracle",
+                  "raised, message points at eval_only")
+    cfg = OracleConfig(binding=binding, questionnaire_ids=(1,), eval_only=True,
+                       max_tokens=512, max_retries=2)
+    sec.check(cfg.tag == "haiku45", "the judge tag is the partition name",
+              f"judge={cfg.tag} -> data/eval_scores/judge={cfg.tag}/")
+    for always_on in ("claude-fable-5-1", "claude-mythos-5-1"):
+        try:
+            anthropic_thinking_for(always_on)
+            sec.check(False, f"{always_on} is refused as a judge", "it was ACCEPTED")
+        except ValueError:
+            sec.check(True, f"{always_on} is refused as a judge",
+                      "cannot disable thinking -- would clip the rubric JSON")
+
+    # -- the schema shim ----------------------------------------------------------------------
+    built = get_prompt_eval_questionnaire(questionnaire=1, conversation=transcript)
+    stripped = _json.dumps(strip_unsupported_constraints(built["schema"]))
+    original = _json.dumps(built["schema"])
+    sec.check(all(k not in stripped for k in ("minItems", "maxItems", "minimum", "maximum")),
+              "the stripped schema carries none of the rejected keys",
+              "minItems/maxItems/minimum/maximum all gone")
+    sec.check("Return EXACTLY 5 values" in stripped and "Integer from 1 to 5" in stripped,
+              "every stripped constraint is RESTATED in description text",
+              "array length and item bounds both named")
+    sec.check("minItems" in original,
+              "the caller's schema is not mutated", "the original still carries minItems")
+
+    # -- the request on the wire --------------------------------------------------------------
+    good = _json.dumps({"questionnaire_id": 1, "scores": [4, 3, 5, 4, 4]})
+    data, n_questions, attempts = _asyncio.run(
+        get_evaluation_json(_FakeAnthropic(good), cfg, prims, transcript, 1))
+    sec.check(data is not None and data.get("mean_score") == 4.0,
+              "a well-formed Claude answer scores",
+              f"mean_score={None if data is None else data.get('mean_score')} "
+              f"n_questions={n_questions} attempts={attempts}")
+    kw = captured[-1]
+    sec.check("output_config" in kw and "response_format" not in kw,
+              "the request uses the Messages structured-output shape",
+              f"keys={sorted(kw)}")
+    sec.check(kw["output_config"]["format"]["type"] == "json_schema",
+              "output_config.format is json_schema")
+    sec.check("temperature" not in kw,
+              "no temperature is sent to Claude",
+              "the current models reject sampling params; a rubric has nothing to sample")
+    sec.check("thinking" not in kw,
+              "Haiku 4.5 gets no thinking parameter",
+              "it does not think unless explicitly enabled")
+
+    captured.clear()
+    cfg_sonnet = OracleConfig(binding=make_binding("anthropic", "claude-sonnet-5"),
+                              questionnaire_ids=(1,), eval_only=True, max_retries=1)
+    _asyncio.run(get_evaluation_json(_FakeAnthropic(good), cfg_sonnet, prims, transcript, 1))
+    sec.check(captured[-1].get("thinking") == {"type": "disabled"},
+              "an adaptive-thinking model is told to stop",
+              f"thinking={captured[-1].get('thinking')} -- otherwise it eats max_tokens")
+
+    # -- the two failure shapes ---------------------------------------------------------------
+    data, _, attempts = _asyncio.run(
+        get_evaluation_json(_FakeAnthropic(good, stop_reason="refusal"), cfg, prims,
+                            transcript, 1))
+    sec.check(data is None, "a safety refusal is a failed call, not an exception",
+              f"score=None after {attempts} attempt(s)")
+
+    short = _json.dumps({"questionnaire_id": 1, "scores": [4, 3]})
+    data, _, attempts = _asyncio.run(
+        get_evaluation_json(_FakeAnthropic(short), cfg, prims, transcript, 1))
+    sec.check(data is None, "a wrong-length scores array is still caught client-side",
+              f"2 of 5 rejected after {attempts} attempt(s) -- the backstop for the "
+              f"constraint the decoder can no longer enforce")
+
+    # -- a nested rubric still round-trips ----------------------------------------------------
+    cfg_miti = OracleConfig(binding=binding, questionnaire_ids=(7,), eval_only=True,
+                            max_tokens=512, max_retries=1)
+    payload = _json.dumps({"questionnaire_id": 7,
+                           "globals": {k: 4 for k in MITI_GLOBAL_LABELS},
+                           "behaviors": {k: 1 for k in MITI_BEHAVIOR_LABELS}})
+    data, _, _ = _asyncio.run(
+        get_evaluation_json(_FakeAnthropic(payload), cfg_miti, prims, transcript, 7))
+    sec.check(data is not None and data.get("mean_score") == 4.0,
+              "a nested rubric (MITI) round-trips on the Claude path",
+              f"mean_score={None if data is None else data.get('mean_score')} "
+              f"(named-key objects need no stripping)")
+
+
 # ==============================================================================
 #                                     CLI
 # ==============================================================================
@@ -2627,6 +2788,7 @@ _COMMANDS: Dict[str, Callable[[Section, argparse.Namespace], None]] = {
     "vram": cmd_vram,
     "resume": cmd_resume,
     "prompts": cmd_prompts,
+    "judge": cmd_judge,
     "serve": cmd_serve,
     "roles": cmd_roles,
     "stopgen": cmd_stopgen,

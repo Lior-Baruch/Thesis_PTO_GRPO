@@ -634,10 +634,29 @@ class OracleConfig:
     request_timeout: float = 120.0
     max_concurrency: int = 64
     min_success_ratio: float = 0.5
+    eval_only: bool = False                 # THE eval/training split: the only way to bind an
+                                            # EVAL_ONLY_PROVIDERS grader (anthropic). The trainers
+                                            # never set it, so a Claude judge cannot reach a reward.
 
 def response_format_for(binding, schema, name) -> dict
         # THE provider-quirk shim. OpenAI: {"type":"json_schema", "json_schema":{..., "strict":True}}
         # openai_compat: same shape, `strict` stripped if the pinned vLLM rejects it.
+
+# --- the ANTHROPIC eval path (added 2026-09-22; eval-side only) ---------------------------
+EVAL_ONLY_PROVIDERS = ("anthropic",)        # GRADING_PROVIDERS = OPENAI_SHAPED + these
+def strip_unsupported_constraints(schema) -> dict
+        # Claude's Messages API rejects minimum/maximum/minItems/maxItems, so they are removed
+        # and RESTATED in that node's `description` ("Return EXACTLY 5 values, in item order.").
+        # Folding, not dropping: for the five flat rubrics minItems==maxItems==n_questions is the
+        # ONLY one-score-per-item guarantee, and a silent drop = biased missingness on the
+        # headline metric. The ladder still re-checks the length client-side.
+def anthropic_thinking_for(model) -> Optional[dict]
+        # None for Haiku 4.5 (omit the param), {"type":"disabled"} for the adaptive-thinking
+        # models, RAISES for Fable/Mythos (they 400 on disabled -> reasoning would clip the JSON).
+def output_config_for(binding, schema) -> dict
+        # {"format": {"type":"json_schema", "schema": <stripped>}} -- the sibling of
+        # response_format_for, and the second and LAST place a provider difference lives.
+        # No `temperature` is sent on this path: the current Claude models reject sampling params.
 async def get_evaluation_json(client, cfg, primitives, conversation_text, questionnaire_id)
         -> Tuple[Optional[dict], int, int]      # (data|None, n_questions, attempts)
 async def score_conversation(client, cfg, primitives, conversation_text) -> dict
@@ -1288,6 +1307,7 @@ method contrast (RQ-ii) still needs the two PTO arms.
 | — | `smoke.py config` · `convs` · `vram` | ✅ 29 · 29 · 26 checks (+ 2 vram WARNINGS: the 40 GB fallback card no longer fits the measured GRPO envelope at the documented shape; `vram` gained the 4 text-only-flag composition checks on 2026-09-14) |
 | — | `smoke.py stopgen` · `dpo` · `grpo` · `prefill` — real TRL steps on the local 12 GB card; `prefill` (2026-09-14) pins that chunked prefill lowers the peak and leaves logits + greedy tokens unchanged | ✅ 3 · 7 · 6 · 8 checks |
 | — | `smoke.py resume` · `prompts` — mid-training resume keeps the iteration-start reference and reloads the trained `default` through the trainers' real restore helpers; THE PROMPT RULE + drop-oldest truncation (system-led and system-less) on both therapist tokenizers | ✅ 13 · 30 checks |
+| — | `smoke.py judge` (2026-09-22) — the ANTHROPIC eval path against a fake client: Messages shape (`output_config`, no `response_format`, **no `temperature`**), the stripped schema still SAYS what it can no longer enforce, an adaptive-thinking model is told to stop, a `stop_reason="refusal"` is a failed call not an exception, a wrong-length array is still caught client-side, and `OracleConfig` refuses a Claude binding as a training oracle | ✅ 17 checks, zero billed calls |
 | 5 EDA | `_selfcheck` (full); every family renders on an empty lake (`render_results.py`: 4 rendered, 0 failed) | ✅ 14 passed, 0 failed, 4 skipped (no arms on disk) |
 | 2 Oracle path | request carries a real `json_schema`; validation ladder accepts a good answer, **rejects a short array and prose**; aggregation is the unweighted mean across rubrics | ✅ vs `tools/fake_oracle_server.py` |
 | 2 Sanity gate | passes a healthy grader, **fails a degenerate one** (exit 1) | ✅ both directions |
@@ -1297,7 +1317,7 @@ method contrast (RQ-ii) still needs the two PTO arms.
 | 3 GRPO | `QUICK_TEST` rehearsal trains, is killed mid-training on purpose and resumes; `generations.jsonl` valid; prompts/step = 16; `peak_reserved_gib_*` read | 🟡 superseded on everything but resume: two real arms trained clean, `generations.jsonl` written per iteration, `prompts_per_step` = 16, `peak_reserved_gib_train` = **20.2–20.6 GiB** against the 25.7 GiB envelope. ⚠ **Resume was never exercised** — `n_timing_sessions == 1` in all 20 iterations, so no arm ever crashed and the restore path is still only pinned by `smoke.py resume` offline |
 | 4 PTO | `QUICK_TEST` rehearsal trains; `pairs.csv` / `_progress.json` resume semantics verified; peak memory read | ⬜ unchanged — nothing PTO has run. Its build/resume path and DPO-step memory are still separate questions, and it is now the critical path |
 | 6 First real arms | the full GRPO arms on Colab, $0 API | ✅ **both done.** `GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi` (started 2026-09-14) and `..._LA5_...` (started 2026-09-16), 10 iterations each, `model_iter_0…10` × 96 conversations each (`2 × 11 × 96 = 2,112` conversations). QUICK_TEST was left False on the K=0 arm by accident and kept |
-| 7 Scoring | `Run_Eval` over both arms → `data/eval_scores/judge=gemma4E4B/rep=0/` | ⬜ **not started — the lake is empty.** `2 arms × 11 states × 96 convs × 8 instruments = 16,896` judge calls, $0 API but Colab GPU (E4B does not fit the local 12 GB card). **Nothing in `results/` means anything until this runs** |
+| 7 Scoring | `Run_Eval` over both arms, once per judge → `data/eval_scores/judge=<tag>/rep=0/` | ⬜ **not started — the lake is empty.** Each pass is `2 arms × 11 states × 96 convs × 8 instruments = 16,896` calls (176 partitions), and the three judges are independent, disjoint partitions that resume separately. **Nothing in `results/` means anything until at least the first one runs.** The notebook is READY for all three (2026-09-22): `JUDGE_PRESET` in cell 4 |
 
 **What the two GRPO arms measured** (read off `iteration_metadata.json` + the per-iteration TB logs;
 these are TRAINING-side numbers — no eval score exists yet):
@@ -1336,12 +1356,11 @@ these are TRAINING-side numbers — no eval score exists yet):
   narrowing hard, and it is the first thing the EDA should test for mode collapse — a reward that
   rises while the output distribution contracts is exactly the shape Exp3's saturation story had.
   Do not read the reward curve as "it learned MI" until the text diversity is looked at.
-- The old `_G4_` rehearsal folders (16 conversations, a headless `iteration_1/`) are **still on
-  Drive** under both `runs/` and `conversations/` — the EDA's arm discovery accepts them as a real
-  arm. **Rename or delete before any `Run_Eval` or render.**
+- The `_G4_` rehearsal folders were moved to `data/_rehearsal_G4/{runs,conversations}/` on
+  2026-09-22 — off `discover_arms()`'s path (it scans `data/conversations/` only) but not deleted.
 
-Everything runnable without Colab is green: **183 smoke checks** (`32 + 29 + 29 + 26 + 13 + 30 + 3 +
-7 + 6 + 8`, GPU parts included, plus the two deliberate `vram` WARNINGS for the 40 GB fallback card;
+Everything runnable without Colab is green: **200 smoke checks** (`32 + 29 + 29 + 26 + 13 + 30 + 17
++ 3 + 7 + 6 + 8`, GPU parts included, plus the two deliberate `vram` WARNINGS for the 40 GB fallback card;
 `serve` / `roles` skip without vLLM on PATH) plus the EDA self-check. `dpo` runs a real `DPOTrainer` and `grpo` a real `GRPOTrainer` step whose completion
 lengths come back well under the cap, which is the anti-degeneracy stack working rather than merely
 wired up.
@@ -1525,18 +1544,36 @@ ordered by that: measurement first, then the arms that complete the 2×2.
    `data/conversations/` only) but not deleted, since its `run_metadata.json` + `oracle_sanity.json`
    are the only record the rehearsal happened. `discover_arms()` now returns exactly the two real
    arms.
-1. **`Run_Eval.ipynb` over both arms — THE gating step.** On Colab, same serve cell, same E4B
-   grader. `2 arms × 11 model states × 96 conversations × 8 instruments = 16,896` judge calls, $0
-   API. The § 8 prompt-length gate runs inside it and is the Phase-2 measurement that has been
-   pending since the plan was written; the 16384 `max_model_len` still stands on Exp3's
-   gpt-4o-mini patient until that gate reports. Writes
-   `data/eval_scores/judge=gemma4E4B/rep=0/metric=<M>/<EXP_NAME>/model_iter_<N>.parquet` — 96 rows
-   each, one per persona (Exp4 has **no `oracle=<O>` path level**; the training oracle is already
-   inside `<EXP_NAME>`).
-   ⚠ The default judge **shares a model with the training oracle** — that is train-on-test for the
-   primary grader, exactly as in Exp3. A held-out second judge is a separate `judge=<tag>`
-   partition and a separate decision; do not let the first number that lands get quoted as
-   held-out.
+1. **`Run_Eval.ipynb` over both arms — THE gating step.** One notebook, one knob:
+   `JUDGE_PRESET` in cell 4 is `"gemma"` | `"gpt"` | `"claude"`. Each pass is
+   `2 arms × 11 model states × 96 conversations × 8 instruments = 16,896` calls over 176
+   partitions, writes
+   `data/eval_scores/judge=<tag>/rep=0/metric=<M>/<EXP_NAME>/model_iter_<N>.parquet` (96 rows
+   each, one per persona — Exp4 has **no `oracle=<O>` path level**; the training oracle is already
+   inside `<EXP_NAME>`), and resumes independently of the other two.
+
+   | preset | judge | tag | where | cost (planner, 2026-09-22) |
+   |---|---|---|---|---|
+   | `gemma` | `google/gemma-4-E4B-it` | `gemma4E4B` | **Colab/H100** — 14.6 GiB of weights, never the 12 GB local card | **$0** |
+   | `gpt` | `gpt-4o-mini` | `gpt4m` | **local `.venv`** — pure HTTP, no GPU | **$9.66** (worst case with retries $28.97) |
+   | `claude` | `claude-haiku-4-5` | `haiku45` | **local `.venv`** — pure HTTP, no GPU | **$75.19** (worst case $225.56) |
+
+   Order: **Gemma first on the GPU**, because its § 8 prompt-length gate takes the Phase-2
+   measurement against the SERVED cap (the 16384 `max_model_len` otherwise still stands on Exp3's
+   gpt-4o-mini transcripts). Then the vendor passes locally — there is no reason to hold a GPU
+   session open to make HTTP calls. Keys resolve from `Exp4_OpenStack/{openai,anthropic}_key.txt`
+   (gitignored) or the environment; on Colab, from Colab Secrets.
+
+   ⚠ **`gemma4E4B` is NOT held out** — it is the same model as the training oracle, so the primary
+   number is train-on-test exactly as in Exp3. `gpt4m` and `haiku45` both are held out, and
+   `haiku45` is Exp3's own second judge, so the two experiments share a yardstick.
+   ⚠ **Never average raw scores across judges.** The level offset is real and model-dependent (the
+   Gemma-vs-gpt-4o-mini sanity run measured −0.93 on Q1). Combine contrasts, not levels.
+   ⚠ The Claude path grades through a **stripped schema** (its Messages API rejects
+   `minimum`/`maximum`/`minItems`/`maxItems`), with every constraint restated as `description`
+   text and re-checked client-side. `scoring.check_rubric_parity()` asserts that, runs
+   automatically in the serve cell and in `_selfcheck`, and costs nothing. `smoke.py judge` proves
+   the whole request path against a fake client — 17 checks, zero billed calls.
 2. **Render + read `lookahead/reward` and `arms/outcomes` first.** RQ-i (K=0 vs K=5 within GRPO) is
    answerable the moment the lake has both arms — it is the one question Exp4 can already settle,
    and it is the replication test for Exp3's look-ahead result on a stack that costs $0. Read the

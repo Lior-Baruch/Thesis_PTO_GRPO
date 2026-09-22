@@ -69,6 +69,7 @@ conversation already scored.
 from __future__ import annotations
 
 import asyncio
+import copy
 import json
 from dataclasses import dataclass
 from statistics import fmean
@@ -92,10 +93,16 @@ __all__ = [
     "is_non_retryable_http_error",
     "NESTED_QUESTIONNAIRE_IDS",
     "OPENAI_SHAPED_PROVIDERS",
+    "EVAL_ONLY_PROVIDERS",
+    "GRADING_PROVIDERS",
+    "ANTHROPIC_THINKING_OFF",
     "OracleConfig",
     "openai_compat_strict",
     "set_openai_compat_strict",
     "response_format_for",
+    "strip_unsupported_constraints",
+    "anthropic_thinking_for",
+    "output_config_for",
     "make_oracle_client",
     "get_evaluation_json",
     "score_conversation",
@@ -145,16 +152,41 @@ NON_RETRYABLE = (KeyError, TypeError)
 RETRYABLE_4XX = frozenset({408, 429})
 
 
+def _anthropic_status_error_cls():
+    """``anthropic.APIStatusError``, or ``None`` when the SDK is not installed.
+
+    Lazy and cached on the function so the EDA and the trainers can import this module without
+    ``anthropic`` present -- it is only needed when a Claude judge actually grades.
+    """
+    cached = getattr(_anthropic_status_error_cls, "_cls", False)
+    if cached is not False:
+        return cached
+    try:
+        from anthropic import APIStatusError as _cls       # noqa: PLC0415 -- deliberately lazy
+    except Exception:                                      # noqa: BLE001 -- not installed
+        _cls = None
+    _anthropic_status_error_cls._cls = _cls                # type: ignore[attr-defined]
+    return _cls
+
+
 def is_non_retryable_http_error(exc: BaseException) -> bool:
     """Is *exc* an HTTP status error that a retry cannot fix (4xx other than 408/429)?
 
     Checked against ``openai.APIStatusError`` (the pinned ``openai==2.36.0`` raises one subclass
     per status -- ``BadRequestError``, ``NotFoundError``, ``UnprocessableEntityError``, ... -- all
-    carrying ``status_code``). ``RateLimitError`` (429) and a 408 are retryable and return False;
-    so does everything that is not an ``APIStatusError`` (timeouts, connection errors, 5xx,
-    validation ``ValueError``s).
+    carrying ``status_code``) and, when the SDK is installed, ``anthropic.APIStatusError``, whose
+    subclasses carry ``status_code`` the same way. Both are needed because a Claude judge is an
+    eval-side grader here (:data:`EVAL_ONLY_PROVIDERS`) and its 400s -- a rejected schema key, a
+    prompt over the context window -- are exactly the failures a retry cannot fix, so missing
+    them would burn the whole budget per conversation before writing the same NaN row.
+    ``RateLimitError`` (429) and a 408 are retryable and return False; so does everything that is
+    not a status error (timeouts, connection errors, 5xx, validation ``ValueError``s).
     """
-    if not isinstance(exc, APIStatusError):
+    families: List[type] = [APIStatusError]
+    anthropic_cls = _anthropic_status_error_cls()
+    if anthropic_cls is not None:
+        families.append(anthropic_cls)
+    if not isinstance(exc, tuple(families)):
         return False
     status = int(getattr(exc, "status_code", 0) or 0)
     return 400 <= status < 500 and status not in RETRYABLE_4XX
@@ -173,6 +205,46 @@ NESTED_QUESTIONNAIRE_IDS = frozenset({
 #: -- it needs the constraint-stripping shim, and a Claude grader belongs on the eval side, never
 #: as a training oracle.
 OPENAI_SHAPED_PROVIDERS = ("openai", "openai_compat")
+
+#: Providers this module can grade with, but ONLY on the eval side
+#: (``OracleConfig(eval_only=True)``). Anthropic qualifies because its Messages API rejects
+#: ``minimum``/``maximum``/``minItems``/``maxItems``, so its schema must go through
+#: :func:`strip_unsupported_constraints` and the length guarantee becomes ADVISORY -- restated in
+#: ``description`` text and re-checked client-side by the validation ladder rather than enforced
+#: by the decoder.
+#:
+#: That is tolerable for a held-out judge (a failed call is a visible NaN row in one parquet, and
+#: a re-score is cheap) and NOT tolerable for a training reward, where the same failure mode is
+#: biased missingness inside the advantage computation of a GRPO group. Hence the split: the
+#: provider is allowed here, and ``OracleConfig.__post_init__`` still refuses it unless the caller
+#: says, in the config, that this is an eval.
+EVAL_ONLY_PROVIDERS = ("anthropic",)
+
+#: Every provider that can produce a SCORE through this module, training or eval.
+GRADING_PROVIDERS = OPENAI_SHAPED_PROVIDERS + EVAL_ONLY_PROVIDERS
+
+#: The ``thinking`` body for a Claude model that must NOT think before filling a rubric.
+#:
+#: A judge answering a fixed rubric has nothing to reason about, and on the models that run
+#: ADAPTIVE thinking when ``thinking`` is omitted those tokens bill against the same
+#: ``max_tokens`` as the JSON -- which surfaces as truncated JSON, retries, and (if it persists)
+#: biased missingness. See :func:`anthropic_thinking_for` for which models need it.
+ANTHROPIC_THINKING_OFF = {"type": "disabled"}
+
+#: Claude models that run adaptive thinking when ``thinking`` is omitted, and accept
+#: ``{"type": "disabled"}``. Anything matching one of these prefixes gets the off-switch.
+#:
+#: Haiku 4.5 is deliberately absent: it only thinks when explicitly enabled
+#: (``{"type": "enabled", "budget_tokens": N}``), so omitting the parameter is already correct
+#: and sending ``disabled`` would be noise.
+_ANTHROPIC_THINKING_ON_BY_DEFAULT = (
+    "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-sonnet-5",
+)
+
+#: Claude models that REJECT ``thinking={"type": "disabled"}`` with a 400 -- thinking is always on
+#: and cannot be turned off, so they cannot honour the "no reasoning before the rubric" contract
+#: this module needs. Refused at config time rather than on the first call of a paid sweep.
+_ANTHROPIC_THINKING_ALWAYS_ON = ("claude-fable-", "claude-mythos-")
 
 
 # ==============================================================================
@@ -278,6 +350,133 @@ def response_format_for(binding: RoleBinding, schema: dict, name: str) -> dict:
 
 
 # ==============================================================================
+#                    PROVIDER QUIRK: Anthropic structured output
+# ==============================================================================
+
+
+def strip_unsupported_constraints(schema: dict) -> dict:
+    """Return *schema* with the constraints Claude's ``json_schema`` rejects FOLDED INTO text.
+
+    Args:
+        schema: A JSON Schema dict from ``questionnaires.make_eval_schema`` or a nested sibling.
+            Not mutated -- a deep copy is returned.
+
+    Returns:
+        A copy with ``minimum``/``maximum``/``minItems``/``maxItems``/``multipleOf`` removed at
+        every depth, and each removed constraint restated in that node's ``description``.
+
+    Notes:
+        **Folding, not dropping, is the whole point.** For the five flat rubrics (Q1, Q2, WAI-SR,
+        CSQ-8, MI-SAT) the ONLY thing guaranteeing one score per item is
+        ``minItems == maxItems == n_questions``. Delete it silently and a wrong-length ``scores``
+        array comes back, fails the validation ladder, burns the retry budget and finally writes a
+        NaN row -- on precisely the conversations the grader found hardest. That is
+        arm-dependent biased missingness on the headline metric, and it is invisible in the
+        output. Restating the constraint in ``description`` keeps the instruction in front of the
+        model; the ladder still re-checks the length client-side, so a violation is caught, not
+        assumed away.
+
+        The three nested rubrics (MITI, PCT, MICI) use named-key objects and are unaffected
+        either way -- their shape is carried by ``required`` + ``additionalProperties``, neither
+        of which Claude rejects.
+
+        Ported from Exp3's ``scoring/judge.py::_strip_unsupported_constraints``, which produced
+        that experiment's held-out Haiku 4.5 partition. ``eda_analysis.scoring.check_rubric_parity``
+        is the free pre-flight that asserts every stripped constraint was restated.
+    """
+    out = copy.deepcopy(schema)
+
+    def walk(node: Any) -> None:
+        if isinstance(node, dict):
+            notes = []
+            n_items = node.get("minItems")
+            if node.get("type") == "array" and n_items is not None and n_items == node.get("maxItems"):
+                notes.append(f"Return EXACTLY {int(n_items)} values, in item order.")
+            lo, hi = node.get("minimum"), node.get("maximum")
+            if lo is not None and hi is not None:
+                notes.append(f"Integer from {lo} to {hi} inclusive.")
+            elif lo is not None:
+                notes.append(f"Integer >= {lo}.")
+            elif hi is not None:
+                notes.append(f"Integer <= {hi}.")
+            if notes:
+                node["description"] = " ".join(
+                    [str(node.get("description", "")).strip(), *notes]
+                ).strip()
+            for key in ("minimum", "maximum", "minItems", "maxItems", "multipleOf"):
+                node.pop(key, None)
+            for value in node.values():
+                walk(value)
+        elif isinstance(node, list):
+            for value in node:
+                walk(value)
+
+    walk(out)
+    return out
+
+
+def anthropic_thinking_for(model: str) -> Optional[dict]:
+    """The ``thinking`` body to send a Claude grader, or ``None`` to omit the parameter.
+
+    Args:
+        model: A Claude model id as Anthropic spells it (``claude-haiku-4-5``, ``claude-sonnet-5``).
+
+    Returns:
+        :data:`ANTHROPIC_THINKING_OFF` for models that run ADAPTIVE thinking when ``thinking`` is
+        omitted, and ``None`` for models that do not think unless explicitly enabled (Haiku 4.5
+        and older) -- where omitting the parameter is already the correct, quieter request.
+
+    Raises:
+        ValueError: for a model whose thinking CANNOT be turned off (the Fable / Mythos family
+            400 on ``{"type": "disabled"}``). Raised at request-build time so a paid sweep fails
+            on call one rather than after a few hundred truncated rubrics.
+
+    Notes:
+        A judge filling a fixed rubric has nothing to reason about, and on the adaptive models
+        the reasoning tokens bill against the same ``max_tokens`` as the JSON -- so leaving
+        thinking on shows up as clipped JSON and retries, not as a visible "thinking" setting.
+    """
+    mid = str(model).strip().lower()
+    if any(mid.startswith(p) for p in _ANTHROPIC_THINKING_ALWAYS_ON):
+        raise ValueError(
+            f"Claude model {model!r} cannot disable thinking (it 400s on "
+            f"thinking={{'type': 'disabled'}}), so it cannot serve as a rubric judge here: its "
+            f"reasoning tokens bill against the same max_tokens as the JSON and clip it. Use a "
+            f"model that accepts disabled thinking -- claude-haiku-4-5 is Exp3's held-out judge "
+            f"and the cheapest of them."
+        )
+    if any(mid.startswith(p) for p in _ANTHROPIC_THINKING_ON_BY_DEFAULT):
+        return dict(ANTHROPIC_THINKING_OFF)
+    return None
+
+
+def output_config_for(binding: RoleBinding, schema: dict) -> dict:
+    """Build the Anthropic ``output_config`` body for *binding* (structured outputs).
+
+    Args:
+        binding: A judge binding whose provider is ``anthropic``.
+        schema: The rubric's JSON Schema, BEFORE stripping.
+
+    Returns:
+        ``{"format": {"type": "json_schema", "schema": <stripped>}}`` -- the current Messages API
+        shape. (The older top-level ``output_format`` parameter is deprecated.)
+
+    Raises:
+        ValueError: for any non-anthropic provider -- those go through :func:`response_format_for`.
+
+    Notes:
+        The sibling of :func:`response_format_for`, and the second (and last) place in this module
+        where a provider difference lives.
+    """
+    if binding.provider != "anthropic":
+        raise ValueError(
+            f"output_config_for is the ANTHROPIC request shape; {binding.provider!r} uses "
+            f"response_format_for."
+        )
+    return {"format": {"type": "json_schema", "schema": strip_unsupported_constraints(schema)}}
+
+
+# ==============================================================================
 #                                 CONFIG
 # ==============================================================================
 
@@ -317,6 +516,12 @@ class OracleConfig:
             ~zero advantage). What this floor still catches is the case that repair cannot fix --
             a grader failing often enough that the *surviving* scores are a biased subset of the
             candidates, which no substitution can undo.
+        eval_only: Declares that this config grades FINISHED conversations for the score lake, not
+            a training reward. It is the only way to bind an :data:`EVAL_ONLY_PROVIDERS` grader
+            (Anthropic), and it is deliberately a config field rather than a call-site argument:
+            the restriction has to travel with the object, because the object is what gets passed
+            to :func:`get_evaluation_json`. The trainers never set it, so no edit to the eval side
+            can put a Claude grader on the reward path by accident.
     """
 
     binding: RoleBinding
@@ -327,6 +532,7 @@ class OracleConfig:
     request_timeout: float = 120.0
     max_concurrency: int = 64
     min_success_ratio: float = 0.5
+    eval_only: bool = False
 
     def __post_init__(self) -> None:
         if not isinstance(self.binding, RoleBinding):
@@ -335,11 +541,25 @@ class OracleConfig:
                 f"(got {type(self.binding).__name__}). Exp3's None-fallback is gone: bind the "
                 "oracle explicitly so the arm name records who graded it."
             )
-        if self.binding.provider not in OPENAI_SHAPED_PROVIDERS:
+        allowed = GRADING_PROVIDERS if self.eval_only else OPENAI_SHAPED_PROVIDERS
+        if self.binding.provider not in allowed:
+            if not self.eval_only and self.binding.provider in EVAL_ONLY_PROVIDERS:
+                raise ValueError(
+                    f"Oracle binding provider {self.binding.provider!r} is EVAL-ONLY and cannot "
+                    f"serve as a training oracle. Its schema constraints have to be stripped "
+                    f"(see strip_unsupported_constraints), which makes the one-score-per-item "
+                    f"guarantee advisory -- survivable for a held-out judge, not for a reward "
+                    f"whose failures become biased missingness inside a GRPO group. If this IS "
+                    f"an eval, pass eval_only=True."
+                )
             raise ValueError(
                 f"Oracle binding provider {self.binding.provider!r} cannot serve as a training "
                 f"oracle; expected one of {OPENAI_SHAPED_PROVIDERS}."
             )
+        if self.eval_only and self.binding.provider == "anthropic":
+            # Raises for a model whose thinking cannot be turned off -- at CONFIG time, before
+            # the first billed call of a 16,896-call sweep.
+            anthropic_thinking_for(self.binding.model)
 
         ids = tuple(int(q) for q in self.questionnaire_ids)
         if not ids:
@@ -530,30 +750,53 @@ async def get_evaluation_json(client,
     scale_max = int(eval_dict["scale_max"])
     labels = eval_dict["labels"]
 
-    response_format = response_format_for(
-        cfg.binding, schema, f"questionnaire_{qid}_evaluation"
-    )
-    extra_body = cfg.binding.extra_body
+    is_anthropic = cfg.binding.provider == "anthropic"
+    if is_anthropic:
+        request_kwargs: Dict[str, Any] = {
+            "model": cfg.binding.model,
+            "messages": [{"role": "user", "content": eval_prompt}],
+            "max_tokens": cfg.max_tokens,
+            "output_config": output_config_for(cfg.binding, schema),
+        }
+        # No `temperature`: the current Claude models reject sampling parameters outright, and a
+        # judge filling a fixed rubric has nothing to sample. `cfg.eval_temperature` is therefore
+        # NOT honoured on this provider -- a re-score is not bit-reproducible, which is why the
+        # lake keeps each draw under its own `rep=`.
+        thinking = anthropic_thinking_for(cfg.binding.model)
+        if thinking is not None:
+            request_kwargs["thinking"] = thinking
+    else:
+        request_kwargs = {
+            "model": cfg.binding.model,
+            "messages": [{"role": "user", "content": eval_prompt}],
+            "temperature": cfg.eval_temperature,
+            "max_tokens": cfg.max_tokens,
+            "response_format": response_format_for(
+                cfg.binding, schema, f"questionnaire_{qid}_evaluation"
+            ),
+        }
+        if cfg.binding.extra_body:
+            request_kwargs["extra_body"] = cfg.binding.extra_body
 
     for attempt in range(cfg.max_retries):
         try:
-            request_kwargs: Dict[str, Any] = {
-                "model": cfg.binding.model,
-                "messages": [{"role": "user", "content": eval_prompt}],
-                "temperature": cfg.eval_temperature,
-                "max_tokens": cfg.max_tokens,
-                "response_format": response_format,
-            }
-            if extra_body:
-                request_kwargs["extra_body"] = extra_body
-
             async with primitives.oracle_sem():
-                resp = await asyncio.wait_for(
-                    client.chat.completions.create(**request_kwargs),
-                    timeout=cfg.request_timeout,
-                )
+                create = (client.messages.create(**request_kwargs) if is_anthropic
+                          else client.chat.completions.create(**request_kwargs))
+                resp = await asyncio.wait_for(create, timeout=cfg.request_timeout)
 
-            content = resp.choices[0].message.content
+            if is_anthropic:
+                # A safety decline is HTTP 200 with stop_reason="refusal" and no usable content;
+                # reading .content first would raise something that does not name the cause.
+                if getattr(resp, "stop_reason", None) == "refusal":
+                    raise ValueError(
+                        "Claude refused the grading request (stop_reason=refusal"
+                        + (f", category={getattr(resp.stop_details, 'category', None)!r}"
+                           if getattr(resp, "stop_details", None) else "") + ")"
+                    )
+                content = next((b.text for b in resp.content if b.type == "text"), "")
+            else:
+                content = resp.choices[0].message.content
             if not content or not content.strip():
                 raise ValueError("Empty oracle response")
 

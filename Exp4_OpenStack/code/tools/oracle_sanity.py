@@ -123,6 +123,7 @@ if _CODE_DIR not in sys.path:
 
 from core.concurrency import AsyncPrimitives, run_async            # noqa: E402
 from core.oracle import (                                          # noqa: E402
+    EVAL_ONLY_PROVIDERS,
     OracleConfig,
     get_evaluation_json,
     make_oracle_client,
@@ -956,6 +957,12 @@ async def run_sanity(binding: RoleBinding,
         max_retries=int(max_retries),
         request_timeout=float(request_timeout),
         max_concurrency=int(concurrency),
+        # This gate never trains -- it probes a grader against a frozen fixture. Declaring it lets
+        # an EVAL_ONLY_PROVIDERS grader (a Claude judge) be probed BEFORE it is trusted with a
+        # sweep, which is exactly the order the gate exists to enforce. The trainers' own oracle
+        # config is built elsewhere and still refuses those providers, so this cannot widen what
+        # may compute a reward.
+        eval_only=binding.provider in EVAL_ONLY_PROVIDERS,
     )
     _preflight(binding, preflight_timeout)
 
@@ -1041,7 +1048,13 @@ async def run_sanity(binding: RoleBinding,
         max_retries=int(max_retries),
         request_timeout=float(request_timeout),
         # OpenAI always gets strict:true; openai_compat only when the module-level flag is on.
-        strict_json_schema=bool(binding.provider == "openai" or openai_compat_strict()),
+        # Anthropic has no `strict` key at all -- its constraints are stripped and restated in
+        # description text, so recording True here would claim a decoder guarantee the request
+        # never asked for.
+        strict_json_schema=bool(
+            binding.provider not in EVAL_ONLY_PROVIDERS
+            and (binding.provider == "openai" or openai_compat_strict())
+        ),
         min_score_sd=MIN_SCORE_SD,
         metrics=tuple(metrics),
         items=selected,

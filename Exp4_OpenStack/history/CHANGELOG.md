@@ -8,6 +8,85 @@ CLAUDE.md § Status and were not moved — this file starts with the pre-run rev
 
 ---
 
+## 2026-09-22 (later) — three judges, one notebook: Run_Eval is ready to run
+
+`Run_Eval.ipynb` can now score with the local Gemma, with `gpt-4o-mini`, or with
+`claude-haiku-4-5`, selected by one knob (`JUDGE_PRESET`) in its config cell. The three write
+disjoint `judge=` partitions and resume independently, so they are three separate decisions rather
+than one sweep.
+
+**The Colab gap that would have stopped the Gemma pass.** `Run_Eval` shells out to `vllm serve`
+through the same `tools/vllm_serve.py` the trainers use, but it carried **no install cell** — and
+Colab gives every notebook its own VM, so running a trainer's install cell installs nothing for
+this one. On a fresh runtime the serve cell would have failed with vLLM simply absent. The
+trainers' cell 0 is now copied into `Run_Eval` as its own cell 0, byte-identical, and
+`_selfcheck`'s new **`install cell parity`** check asserts all three copies stay identical by
+content (it finds them by `PINNED_VLLM`, not by index). The cell already refuses to install
+outside Colab, so opening the notebook locally is still safe, and a vendor judge needs none of it.
+
+**The Claude path, and why it is eval-only.** Anthropic's Messages API rejects `minimum`,
+`maximum`, `minItems` and `maxItems`, so a Claude grader's schema has to be rewritten. Exp4 now
+carries the shim Exp3 had:
+
+- `core.oracle.strip_unsupported_constraints` removes those keys at every depth and **restates
+  each one in that node's `description`** ("Return EXACTLY 5 values, in item order.", "Integer
+  from 1 to 5 inclusive."). Folding rather than dropping is the whole point: for the five flat
+  rubrics `minItems == maxItems == n_questions` is the ONLY guarantee of one score per item, and a
+  silent drop turns the hardest conversations into NaN rows — biased missingness on the headline
+  metric that nothing in the output reports.
+- `core.oracle.output_config_for` builds `{"format": {"type": "json_schema", ...}}` — the sibling
+  of `response_format_for`, and the second and last place a provider difference lives.
+  `anthropic_thinking_for` omits `thinking` for Haiku 4.5 (it does not think unless told to),
+  sends `{"type": "disabled"}` to the adaptive-thinking models, and **raises** for Fable/Mythos,
+  which 400 on `disabled` — their reasoning tokens would bill against the same `max_tokens` as the
+  JSON and clip it. No `temperature` is sent on this path at all; the current Claude models reject
+  sampling parameters, so a re-score is not bit-reproducible and each draw keeps its own `rep=`.
+- `OracleConfig` gained **`eval_only`**. Anthropic is in the new `EVAL_ONLY_PROVIDERS`, and the
+  config refuses it unless the caller declares this is an eval. The trainers never set the flag,
+  so no edit on the eval side can put an advisory schema on the reward path — where the same
+  failure would be biased missingness *inside a GRPO group's advantage*, which no re-score fixes.
+
+**Two new gates, both free.** `scoring.check_rubric_parity()` asserts that every stripped
+constraint was restated, that the array-length sentence names the actual count, and that nothing
+else about the schema moved; it runs in `_selfcheck`, and the notebook's serve cell runs it before
+the key is ever used. `smoke.py judge` (17 checks) proves the whole request path against a fake
+client: the Messages shape with no `response_format` and no `temperature`, the restated
+constraints on the wire, thinking disabled where it must be, a `stop_reason="refusal"` becoming a
+failed call rather than an escaping exception, a wrong-length array still caught client-side, and
+`OracleConfig` refusing a Claude binding as a training oracle. Zero billed calls. Offline smoke is
+now **200 checks** (`32 + 29 + 29 + 26 + 13 + 30 + 17 + 3 + 7 + 6 + 8`), and `_selfcheck` is 16.
+
+**What each pass costs**, from the notebook's own planner against the two arms on disk — 176
+partitions, `2 × 11 × 96 × 8 = 16,896` calls each:
+
+| preset | judge | tag | where | estimate | worst case (retries) |
+|---|---|---|---|---|---|
+| `gemma` | `google/gemma-4-E4B-it` | `gemma4E4B` | Colab / H100 | **$0** | $0 |
+| `gpt` | `gpt-4o-mini` | `gpt4m` | local `.venv`, no GPU | **$9.66** | $28.97 |
+| `claude` | `claude-haiku-4-5` | `haiku45` | local `.venv`, no GPU | **$75.19** | $225.56 |
+
+The dollar figures come from `JUDGE_PRICING` (Anthropic and OpenAI list prices as of today) times
+a CENTRAL token profile across eight rubrics of very different lengths — an order of magnitude, not
+a quote. Check the billing dashboard. `sonnet5` and `opus5` pricing rows were added too, and the
+two model ids curated in `roles._MODEL_TAGS` so their tags read `sonnet5` / `opus5` rather than
+`claudesonnet5`; neither is the default.
+
+**Why the vendor judges are worth more here than in Exp3.** Exp3 trained against `gpt-4o-mini` and
+held out Claude. Exp4 inverts it: Gemma trained the policy, so **both** `gpt4m` and `haiku45` are
+genuinely held out — and `haiku45` is the same grader Exp3 used, so the two experiments share a
+yardstick. The standing rule is unchanged: never average raw scores across judges; the level offset
+is real and model-dependent (−0.93 on Q1 between Gemma and gpt-4o-mini in the sanity run). Combine
+contrasts.
+
+Also: `tools/oracle_sanity.py` now declares `eval_only` for an eval-only binding, so the degeneracy
+gate can probe a Claude judge BEFORE it is trusted with a sweep, and records
+`strict_json_schema=False` for it rather than claiming a decoder guarantee the request never asked
+for. `is_non_retryable_http_error` recognises `anthropic.APIStatusError` too (lazily imported, so
+the EDA still imports without the SDK) — otherwise a 400 would burn the whole retry budget per
+conversation before writing the same NaN row.
+
+---
+
 ## 2026-09-22 — both GRPO arms are trained; the lake is still empty
 
 The first Colab campaign is over. `GRPO4_Q1Q2_LA0_MCL12_G8_Ogemma4E4B_Patgemma4E4B_ThL1Bi` started
