@@ -74,9 +74,10 @@ def width_fracs() -> dict[str, float]:
 FRACS = width_fracs()
 
 
-def figsize(name: str, aspect: float) -> tuple[float, float]:
-    """On-page size of ``name`` at its included width, keeping height/width = ``aspect``."""
-    w = TEXTWIDTH_IN * FRACS.get(name, 1.0)
+def figsize(name: str, aspect: float, default_frac: float = 1.0) -> tuple[float, float]:
+    """On-page size of ``name`` at its included width, keeping height/width = ``aspect``.
+    ``default_frac`` applies while no section includes the figure yet."""
+    w = TEXTWIDTH_IN * FRACS.get(name, default_frac)
     return (w, w * aspect)
 
 
@@ -585,6 +586,71 @@ def headline() -> Path:
     return out
 
 
+SHARED_BASE_XLSX = RESULTS / "lookahead" / "shared_base" / "tables" / "shared_base.xlsx"
+GRID_METRICS = [("Q1Q2", "Q1+Q2 (reward)"), ("Q1", "Q1"), ("Q2", "Q2"), ("WAI-SR", "WAI-SR"),
+                ("CSQ-8", "CSQ-8"), ("MI-SAT", "MI-SAT"), ("MITI", "MITI"), ("PCT", "PCT"),
+                ("MICI", "MICI (lower = better)")]
+
+
+def _levels_grid(judge: str) -> Path:
+    """Every instrument by iteration for one grader, on ONE shared Base (2026-09-24: Lior's single
+    Base; the all-instrument grid replaces the Q1+Q2-only headline in section 4). Two rows of five
+    slots (nine instruments + the key), mean +/- SE bands; iteration 0 is the Base both runs start
+    from (the two base draws pooled, dotted grey line); a star over every iteration whose
+    persona-paired K contrast clears Holm across iterations 1..10. Reads
+    ``shared_base.xlsx::levels_long`` and ``::k_contrast``."""
+    lv = pd.read_excel(SHARED_BASE_XLSX, sheet_name="levels_long")
+    kc = pd.read_excel(SHARED_BASE_XLSX, sheet_name="k_contrast")
+    lv, kc = lv[lv.judge == judge], kc[kc.judge == judge]
+    name = f"levels_grid_grpo_{judge}.png"
+    fig, axes = plt.subplots(2, 5, figsize=figsize(name, 0.40, default_frac=0.94))
+    flat = axes.ravel()
+    for ax, (m, title) in zip(flat, GRID_METRICS):
+        d = lv[lv.metric == m]
+        for arm in ("GRPO_LA0", "GRPO_LA5"):
+            s = d[d.arm == arm].sort_values("iteration")
+            ax.fill_between(s.iteration, s["mean"] - s.se, s["mean"] + s.se, color=COL[arm], alpha=0.18, lw=0)
+            ax.plot(s.iteration, s["mean"], color=COL[arm], ms=2.4, lw=1.1, **STY[arm])
+        base = float(d[d.iteration == 0]["mean"].iloc[0])
+        ax.axhline(base, color="#555555", ls=":", lw=0.8)
+        lo = float((d["mean"] - d.se).min())
+        hi = float((d["mean"] + d.se).max())
+        pad = 0.08 * (hi - lo)
+        ax.set_ylim(lo - pad, hi + 0.24 * (hi - lo))
+        star_y = hi + 0.12 * (hi - lo)
+        for it in kc[(kc.metric == m) & (kc.p_holm < 0.05)].iteration:
+            ax.text(int(it), star_y, "*", ha="center", va="center", fontsize=7, color="#222222")
+        ax.set_xticks(range(0, 11, 2))
+        ax.set_xlim(-0.5, 10.5)
+        ax.set_title(title, fontsize=6.6, loc="left", fontweight="bold")
+        ax.tick_params(labelsize=5.8, pad=1.5)
+    for ax in axes[1]:
+        ax.set_xlabel("iteration (0 = Base)", fontsize=6.2, labelpad=1.5)
+    key = flat[-1]
+    key.axis("off")
+    from matplotlib.lines import Line2D
+    handles = [Line2D([], [], color=COL["GRPO_LA0"], ms=3, lw=1.2, label="$K{=}0$", **STY["GRPO_LA0"]),
+               Line2D([], [], color=COL["GRPO_LA5"], ms=3, lw=1.2, label="$K{=}5$", **STY["GRPO_LA5"]),
+               Line2D([], [], color="#555555", ls=":", lw=0.9, label="Base"),
+               Line2D([], [], color="none", marker="$*$", ms=5, markerfacecolor="#222222",
+                      markeredgecolor="#222222", label="significant")]
+    key.legend(handles=handles, loc="center", fontsize=6.2, frameon=False, handlelength=1.6,
+               labelspacing=0.5)
+    fig.tight_layout(w_pad=0.6, h_pad=0.8)
+    out = DEST / name
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+def levels_grid_primary() -> Path:
+    return _levels_grid(PRIMARY)
+
+
+def levels_grid_heldout() -> Path:
+    return _levels_grid(HELDOUT)
+
+
 def faithfulness() -> Path:
     """Appendix B.1 (added 2026-09-22 on Doron's "ref specific subsection and related figure"):
     the faithfulness of the training reward by prefix length, GRPO arms, iterations 1-10 pooled,
@@ -622,15 +688,22 @@ def faithfulness() -> Path:
     return out
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    """Draw every figure, or only the functions named on the command line."""
     DEST.mkdir(exist_ok=True)
     # saturation() is not in the list: its figure left the paper on 2026-09-16 (sec 7's text
     # carries every number it showed). Call it by hand to re-check those numbers.
-    for f in (headline, overpraise, process, process_heldout, responsiveness, textspace,
-              tail_audit, forest, faithfulness):
-        print("wrote", f())
+    every = (headline, overpraise, process, process_heldout, responsiveness, textspace,
+             tail_audit, forest, faithfulness, levels_grid_primary, levels_grid_heldout)
+    names = argv if argv else [f.__name__ for f in every]
+    by_name = {f.__name__: f for f in every}
+    unknown = [n for n in names if n not in by_name]
+    if unknown:
+        raise SystemExit(f"unknown figure function(s): {unknown}; choose from {sorted(by_name)}")
+    for n in names:
+        print("wrote", by_name[n]())
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    sys.exit(main(sys.argv[1:]))

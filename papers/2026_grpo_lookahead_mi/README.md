@@ -248,6 +248,38 @@ Lior: keep ALL his edits, answer his notes; nothing pushed until he said so):
   length pass waits for them.
 - A pre-existing `\S<CR>ef` corruption in `E_saturation.tex` (ours, not his) repaired.
 
+**Supervisor passes 2–3 and the plan, 2026-09-24** (Doron's Overleaf edits of 22 Sep 23:26 and
+23 Sep 18:25, pulled as `bca1d37`: 18 bracketed notes on §4–§5, 17 on §6, all open; 37 notes open
+with pass 1's two). Lior's decisions before any text changes, chosen from options:
+
+- **Vocabulary.** `K=0` / `K=5` only in the results (the words turn-level / look-ahead only in §3);
+  "the K=5 policy" (what it says) vs "the K=5 run" (training); iteration wording, **iteration 0 =
+  Base**; "utterance coder", and §3.3 says each judge does two jobs; "significant" defined once in
+  §3.3 (no "clears Holm"); MI terms defined once in §3.1, no metaphors in the results; where both
+  judges appear, name both and keep numbers few.
+- **Judges.** gpt-4o-mini (still "training oracle") is the main judge for everything in the body;
+  the held-out judge stays in Table 1 plus one sentence per results section; the rest moves to a
+  new appendix. Appendix E and the Limitations must be reframed to match.
+- **Structure.** The all-instrument grid (old Figure 8) replaces Figure 2 in §4, redrawn at page
+  width; **one shared Base** everywhere (the two base draws pooled; the paper no longer compares
+  them); a **complete score table** per judge (21 rows × 9 instruments, mean + a star on the better
+  run where the K contrast is significant) in the appendices; Table 4 retires.
+
+The plan, one step at a time, each section ending in a build, Lior's read, a commit and a push:
+0 pull (done) · 1 data and figures (done 2026-09-24, below) · 2 §3 · 3 §4 · 4 §5 · 5 §6 rewritten
+around responsiveness → change-talk persistence → the session (heads-up to Doron first) ·
+6 appendices (the Claude appendix, the complete tables, Appendix E and the Limitations reframed) ·
+7 carry through (abstract, §7, Limitations, captions) · 8 Doron's contributions paragraph, then the
+abstract · 9 layout fixes · 10 length pass, checklist, code zip, submit ≈ 9 Oct.
+
+**Step 1 (2026-09-24).** New EDA family `lookahead/shared_base` recomputes every Base-dependent
+number on the shared Base under both graders, plus the complete score tables and the change-talk
+persistence analysis (P(patient change talk | the patient's previous code), which replaces the
+unconditioned "yield" as the patient-side claim); `lookahead/mechanism` gained the GRPO praise
+premium (does the training reward pay for praise, net of prevalence). `render_paper_figures.py`
+draws the new grids (`levels_grid_grpo_<judge>.png`, not yet included) and now takes figure
+names on the command line. Every number that moves, old → new, is in `NUMBERS.md` § "2026-09-24".
+
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
 preference trees + DPO — and this paper's contribution is **moving the lever to GRPO**. The PTO

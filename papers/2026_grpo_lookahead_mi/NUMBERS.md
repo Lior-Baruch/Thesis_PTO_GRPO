@@ -636,3 +636,54 @@ the unit note in Appendix C.3. "Look-ahead prevents the over-praise drift under 
 oracle" → "removes the praise habit and roughly halves the MI-inconsistency the held-out judge
 sees" (the held-out coder reads 0.20 of K=5's endpoint turns as praise). The "1.3–2.6×" gain
 sentence is unchanged.
+
+## 2026-09-24 — ONE shared Base, the complete score table, change-talk persistence, the praise premium (step 1 of the supervisor-notes plan; numbers only, no paper text changed yet)
+
+**Decisions (Lior, 2026-09-24).** One Base: the two GRPO base draws pooled (192 conversations; per
+persona the mean of its two; both runs share the iteration-0 persona order); the paper no longer
+compares the two draws. gpt-4o-mini is the main judge in the body; the held-out judge stays in
+Table 1 plus one sentence per results section, the rest moves to an appendix. The all-instrument
+grid replaces Figure 2. A complete score table per judge goes to the appendices; Table 4 retires.
+
+**Where the numbers live.** New EDA family `lookahead/shared_base` (notebook
+`notebooks/lookahead/shared_base.ipynb`; module `eda_analysis/shared_base.py`, plus
+`process.persistence_by_state` / `persistence_metrics` / `conditioned_yield`); tables under
+`Exp3_PTO_GRPO/eda/results/lookahead/shared_base/tables/` (`shared_base.xlsx`, ledger
+`shared_base_numbers.json`). The praise premium is in `lookahead/mechanism`
+(`praise_premium_grpo`, `k_mechanism_overpraise_chain_grpo`; `pref.feature_premium`). ⚠ K contrasts
+now start at iteration 1, so the Holm family is iterations 1..10 (was 0..10) and a few
+"significant at N iterations" counts move. New figures: `render_paper_figures.py
+levels_grid_primary levels_grid_heldout` → `figures/levels_grid_grpo_{gpt-4o-mini,claude-haiku-4-5}.png`
+(not yet included by any section). Pairs below are training oracle / held-out judge.
+
+| claim (where) | old | new (shared Base) | source (`lookahead/shared_base/tables/` unless named) |
+|---|---|---|---|
+| Base-policy session length (§3.1) | 28.771 / 28.292 ("28–29") | **28.531** utterances | `marker_and_length`, iteration 0 |
+| Judge level offset on Q1+Q2 (§3.3) | 1.1–1.8 | **1.167–1.805** over 21 states ("1.2–1.8") | `judge_offset` |
+| Base Q1+Q2 (§4) | 3.067 & 2.963 / 1.861 & 1.834 | **3.015 / 1.848** | `levels_long`, iteration 0 |
+| Gains over the Base at iteration 10, Q1+Q2 (§4) | K=0 +0.686, K=5 +1.554 / +0.396, +1.038 | K=0 **+0.738** (dz 0.885), K=5 **+1.502** (dz 1.675) / **+0.409** (dz 0.802), **+1.025** (dz 1.705) | `gains`, anchor `last` |
+| Gain ratio K=5 / K=0 (§4) | 2.27× / 2.62× (last); 1.53× / 1.34× (K=0 best) | 1.502 / 0.738 = **2.04×**; 1.025 / 0.409 = **2.50×**; vs K=0's best (it 8 / it 3): 1.502 / 1.067 = **1.41×**, 1.025 / 0.789 = **1.30×** → "1.3–2.5×" | `gains`, `ratio_K5_over_K0` |
+| Q1+Q2 significant iterations (§4) | 4, 6–10 / 4–7, 9, 10 ("6 of 10 under each") | 4, 6–10 (**6 of 10**) / 4–10 (**7 of 10**) | `significant_iterations` |
+| Base code shares (§5) | PRA 0.031/0.036 (K=0 draw), CR 0.020/0.020 (K=5 draw), PERS 0.21 (K=5 draw), OQ 0.10/0.18 | PRA **0.041/0.038**, CR **0.018/0.031**, PERS **0.203/0.166**, OQ **0.087/0.175**; MI-adherent 0.306/0.283, MI-inconsistent 0.248/0.214 | `process_levels_<judge>`, iteration 0 |
+| CR share higher under K=5, significant iterations (§5) | 6 / 5 | 4–10 (**7**) / 6–10 (**5**) | `k_process_paired`, `th_CR_rate` |
+| Persuasion higher under K=5 (§5) | 6 / 7 | 2, 6–10 (**6**) / 2–6, 8–10 (**8**) | same, `th_PERS_rate` |
+| Praise drift, significant iterations (§5) | 8, 10 / 5, 6, 8–10 | unchanged | same, `th_PRA_rate` |
+| Judge-free marker (§5, Figure 4) | K=0 0.275 / 0.093 / 0.671 at it 8 / 9 / 10; K=5 ≤ 0.064 | K=0 0.275 / **0.094** / 0.671; K=5 ≤ 0.064; Base 0.002 (every conversation of a state; the old figure read the MICI-joined subset) | `marker_and_length` |
+| Cosine between the runs' displacements (§5) | 0.44 at 10; 0.33–0.71 at 3–8 (−0.053 at 9) | **0.446** at 10; **0.351–0.731** at 3–8; −0.028 at 9 (from the shared Base centroid, GRPO runs only) | `text_drift_cosines` |
+| Between-conversation variance share (§5) | 0.37 → 0.19 (K=0), 0.41 → 0.30 (K=5) | Base **0.393** → 0.192 (K=0), 0.302 (K=5) | `text_diversity` |
+| Template similarity (Figure 7c) | 0.265 / 0.262 → 0.585 / 0.494 | Base **0.264** → 0.585 / 0.494 | same |
+| Responsiveness at the Base (§6) | reflects CT 4–15%; praises ST ≤ 3% | reflects CT **13.7% / 3.0%**; praises ST **1.9% / 1.1%** ("3–14%", "at most 2%") | `process_levels_<judge>`, iteration 0 |
+| Praise yield at the Base (§6) | 97% (n 34) / 72% (n 36) | **85%** (n 100) / **67%** (n 82); K=5 it 10 76% / 97% | `yield_<judge>` |
+| Change-talk share, 10+ bin (§6) | Base 0.650 & 0.516 (per draw) | Base **0.584 / 0.580**; K=0 it 10 0.496 / 0.499 (below the Base); K=5 0.846 / 0.876 | `ct_trajectory_<judge>` |
+| **NEW** Change-talk persistence, pooled over turns | — | P(CT \| previous CT): Base **0.890 / 0.860**; it 10 K=0 **0.897 / 0.857**, K=5 **0.987 / 0.970**. P(CT \| previous ST): Base 0.134 / 0.099; it 10 K=0 0.168 / 0.160, K=5 0.171 / 0.165 | `persistence_<judge>` |
+| **NEW** Persistence per conversation, persona-paired | — | `ct_persist` at it 10: K=0 0.796 vs K=5 0.968 (dz −0.62) / 0.734 vs 0.935 (dz −0.65); K=5 significantly higher at 5–10 / 3–10. `ct_relapse`: significant only at 10 (both). `st_to_ct`: 5, 6, 7, 9 / 9 only | `k_persistence`, `persist_levels_<judge>` |
+| **NEW** Yield conditioned on the previous patient code, it 10 | — | oracle, after CT: K=5 all turns 0.987 (n 972), CR 0.994 (322), PERS 0.985 (200); K=0 all 0.897 (526), PRA 0.871 (241). After ST: K=5 all 0.171 (380), CR 0.159 (63); K=0 all 0.168 (487), CR 0.050 (20), PRA 0.201 (174). Held-out, after CT: K=5 all 0.970, CR 0.992; K=0 all 0.857, PRA 0.835 | `cond_yield_<judge>` |
+| **NEW** Praise premium in the training reward (answers Doron's "??" in §6) | — | within groups holding both kinds, praise-marker replies score above their siblings by (within-group SD) K=0 +0.33, +0.22, +0.30, +0.31, +0.07, +0.17 at policy iterations 4–9 (z 1.7–7.7); K=5 +0.16, +0.21, +0.20, +0.18, +0.01, +0.04 (z 0.3–3.5); neither positive before iteration 3 | `lookahead/mechanism/tables/praise_premium_grpo` |
+| Mean therapist turn length, Base → it 10 (Limitations) | 266.3 / 279.0 → 895.7 / 849.3 | Base **272.7** → 895.7 (3.28×) / 849.3 (3.11×) — "roughly tripled" holds | `marker_and_length` |
+| Parity, pooled ρ (App C.3), 21 states | CT 0.88/0.92, ST 0.90/0.94; oracle 0.02–0.43; held-out Q 0.73, GI 0.68, PERS 0.55, others 0.10–0.30 | CT 0.881/0.915, ST 0.898/0.942; oracle 0.019–0.426; held-out Q 0.731, GI 0.677, PERS 0.549, others 0.101–0.304 — unchanged at two decimals | `parity_pooled_<judge>` |
+| App E: Q1 ceiling shares, K=5, oracle | 14% → 58%; 40% at the maximum | Base **12.5%** → 58.3%; 39.6% at the maximum | `sd_by_iter` |
+| App E: Q1 per-conversation SD, K=5, oracle | 1.336 → 0.701; ρ −0.86, p .001; variance ratio 0.275 (0.285 vs it 1) | Base **1.314** → 0.701; ρ −0.864, p .001; variance ratio **0.284** (0.285 vs it 1) | `sd_trend` |
+| App E: held-out SD trend, K=5 | ρ +0.44, p .18 | ρ +0.436, p .180 | same |
+| App E: Q1 agreement — median / next-lowest / K=0 range | 0.842 over 22 states / 0.744 / 0.744–0.882 | 0.842 over **21** states (Base 0.858) / 0.744 / 0.744–0.882 | `agreement_by_state` |
+| App E Table 7 (median, Δ median, rank) | e.g. MITI 0.678 / −0.345 / 1 of 22; MICI 0.399 / −0.112 / 4 of 22 | Q1 0.842 / −0.298 / 2 of 21; Q2 0.752 / −0.162 / 1; WAI-SR 0.920 / −0.023 / 3; CSQ-8 0.888 / −0.037 / 4; MI-SAT 0.930 / −0.025 / 4; MITI 0.666 / −0.334 / 1; PCT 0.956 / −0.027 / 3; MICI 0.411 / −0.123 / 4 | `agreement_summary` |
+| App E: sign preservation | 1,640 of 8 × C(22,2) = 1,848 (88.7%); 98.9% at \|Δ\| ≥ 0.50 | 1,484 of 8 × C(21,2) = 8 × 210 = **1,680 (88.3%)**; 98.9% (373 of 377) at \|Δ\| ≥ 0.50 | `sign_preservation` |
