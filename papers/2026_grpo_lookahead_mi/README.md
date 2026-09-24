@@ -271,7 +271,9 @@ The plan, one step at a time, each section ending in a build, Lior's read, a com
 around responsiveness → change-talk persistence → the session (heads-up to Doron first) ·
 6 appendices (done 2026-09-24, below: the Claude appendix, the complete tables, Appendix E and
 the Limitations reframed) ·
-7 carry through (abstract, §7, Limitations, captions) · 8 Doron's contributions paragraph, then the
+7 carry through (done 2026-09-24: abstract claims, §7 mechanism paragraph rebuilt on measurements,
+the Limitations paragraph on patient replies inside the K=5 reward, Ethics wording) · 8 Doron's
+contributions paragraph, then the
 abstract · 9 layout fixes · 10 length pass, checklist, code zip, submit ≈ 9 Oct.
 
 **Step 1 (2026-09-24).** New EDA family `lookahead/shared_base` recomputes every Base-dependent

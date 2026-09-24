@@ -1,25 +1,27 @@
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-\textbf{The horizon of the reward selects which behaviour pays.} The $K{=}0$ arm finds unearned
-praise, whose payoff is immediate, in the patient-perspective rubric the judge fills in for the
-turn it is shown, and whose cost is deferred: a patient met with reassurance instead of a
-reflection produces sustain talk over the following turns, which the judge never sees. The
-$K{=}5$ arm cannot profit from it, because the cost now lands inside the window the judge scores,
-and the behaviour that pays there is the one MI prescribes: reflecting the patient's own arguments
-for change, which the patient then elaborates. Extending the horizon does not remove reward
-hacking (the look-ahead policy carries a persuasion residue, and the held-out judge sees more
-praise in it than the training oracle does); it changes which behaviour pays. How the horizon
-produces that difference inside the update we could not isolate: three candidate mechanisms were
-testable and none is confirmed (Appendix~\ref{app:mechanism}); what remains is a small, repeated
-difference in which sibling the group prefers, compounded over ten iterations of a self-training
-loop, and the process codes show what it amounts to.
+\textbf{The horizon of the reward selects which behaviour pays.} Both rewards paid for
+non-specific praise in the middle of training, but only the $\Kz$ reward, which stops at the reply,
+kept paying for it: at iteration 9 it still scored praising replies $0.16$ within-group standard
+deviations above their siblings, where the $\Kf$ reward, which reads five turns further, paid
+$0.04$ (Appendix~\ref{app:premium}). The $\Kz$ policy ends up praising in $0.41$ of its turns and
+in reply to a third of the patient's sustain talk, and late in the session its patients voice less
+change talk than the Base's. What the $\Kf$ run learned instead is to keep the patient's change
+talk going: its patients voice change talk again after $97\%$ of their change talk, against $80\%$
+under $\Kz$. Part of that is what MI prescribes, reflecting change talk; part is not, since the
+$\Kf$ policy meets sustain talk with persuasion, and the held-out judge sees more praise in it than
+the training oracle does. Extending the horizon does not remove reward hacking; it changes which
+behaviour pays. How the horizon produces that difference inside the update we could not isolate:
+three candidate mechanisms were testable and none is confirmed (Appendix~\ref{app:mechanism});
+what remains is a small, repeated difference in which sibling the group prefers, compounded over
+ten iterations of a self-training loop, and the process codes show what it amounts to.
 \label{sec:mechanism}
 
 \textbf{Conclusion.} For a group-relative optimiser in multi-turn dialogue, what the judge is
 shown is a first-order design choice. Scoring the continuation rather than the turn raised what
 the same optimiser extracted from the same oracle, and it decided what kind of therapist the
-policy became: one that praises whatever the patient said, or one that reflects the patient's own
-case for change and is answered with more of it. We recommend reporting the reward horizon as a
-hyperparameter, coding the process as well as the outcome, and keeping a second grader with
-headroom (Appendix~\ref{app:saturation}).
+policy became: one that praises whatever the patient said, or one that reflects the patient's
+change talk and hears more of it, though it still persuades when the patient resists. We recommend
+reporting the reward horizon as a hyperparameter, coding the process as well as the outcome, and
+keeping a second judge with headroom (Appendix~\ref{app:saturation}).

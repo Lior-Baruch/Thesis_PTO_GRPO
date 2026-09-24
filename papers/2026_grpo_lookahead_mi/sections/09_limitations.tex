@@ -8,13 +8,13 @@ and we cannot separate ``look-ahead helps'' from ``this look-ahead run went well
 run's decline over its last two iterations and its late praise spike are likewise events of one
 run, which is why \S\ref{sec:reward} reports the contrast against that run's best checkpoint as
 well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at which of the ten
-iterations each process contrast is significant rather than the endpoint alone. We regard this as the principal limitation; it is distinct from, and not bounded
+iterations each process contrast is significant rather than at iteration 10 alone. We regard this as the principal limitation; it is distinct from, and not bounded
 by, the evaluation noise discussed next.
 
 \paragraph{Evaluation draws.}
 Therapist decoding is unseeded and each trained model state was evaluated on one
-96-conversation sample (the Base on two, which we pool). At the trained $\Kf$ endpoint the re-draw
-of \S\ref{sec:reward} differs from the original by at most $|\dz|\,0.174$ across 9 instruments and
+96-conversation sample (the Base on two, which we pool). For the $\Kf$ policy at iteration 10, the
+re-draw of \S\ref{sec:reward} differs from the original by at most $|\dz|\,0.174$ across 9 instruments and
 2 judges, nothing significant. The remaining states are single draws, and a replicate bounds evaluation noise only,
 never the training variance above.
 
@@ -54,9 +54,17 @@ it, and such a candidate gives the oracle a shorter transcript. In the rollout a
 five turns; early-ending candidates scored at or below their group mean, by up to $0.09$ points
 depending on how the rollout ended, and were the group's best less often than chance. The lever was
 therefore applied as specified in the large majority of cases, but it carries a mild pressure to
-keep the session open that a turn-level reward does not, and the $\Kf$ policy's longer endpoint
-sessions ($31.9$ vs.\ $25.2$ utterances, $\dz\,0.43$) are consistent with it. Two runs cannot separate this from the
-horizon effect proper.
+keep the session open that a turn-level reward does not, and the $\Kf$ policy's longer sessions
+at iteration 10 ($31.9$ vs.\ $25.2$ utterances, $\dz\,0.43$) are consistent with it. Two runs
+cannot separate this from the horizon effect proper.
+
+\paragraph{The patient's replies are inside the look-ahead reward.}
+The $\Kf$ reward is given after the patient simulator has replied to the candidate (and twice more
+inside the rollout), while the $\Kz$ reward is given before any reply. The patient-side results of
+\S\ref{sec:patient} therefore partly measure what the $\Kf$ reward was optimising rather than an
+outcome outside it, and the replies come from the same model that gives the reward, so the $\Kf$
+run may have learned what moves this simulator in particular. Evaluating with a patient simulator
+from another model family would separate the two.
 
 \paragraph{Simulation only, in sample, without human validation.}
 Every conversation is between two language models, and every number is in-sample with respect to
@@ -73,7 +81,7 @@ rated any conversation in this experiment; the oracle is highly self-repeatable 
 the two $K{=}0$ states with a repeat draw), but repeatability is not validity, and the over-praise
 finding is the most robust behavioural claim here precisely because the keyword marker
 corroborates it without a model in the loop. Therapist responses are also capped at 200 tokens,
-and mean turn length roughly tripled over training in both runs, so many endpoint turns end
+and mean turn length roughly tripled over training in both runs, so many late turns end
 mid-sentence (Appendix~\ref{app:example}); the cap is identical across runs and the truncated turn
 is what the patient simulator and both judges saw, so it does not bias the contrast, but it is
 part of what every score in this paper measures.

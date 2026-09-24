@@ -795,3 +795,24 @@ lexical marker" → "the keyword marker"); Appendix D gains the Base-pooling sen
 states"; the config table's "Base model" row is now "Therapist model" (Base means iteration 0).
 Still open for step 7: the Discussion and Ethics wording ("arm", "graders") and the Limitations
 paragraph on patient replies inside the K=5 reward.
+
+**Carry-through (2026-09-24, step 7 of the plan).** No new number; the claims that §5–§6 changed
+are carried into the abstract, the Discussion, the Limitations and the Ethics statement.
+- **Abstract:** the retired "a look-ahead reflection is followed by change talk in 85–89% of
+  cases" (placement-confounded) → persistence, "97% of cases, against 80%" (per conversation,
+  `persist_levels_gpt-4o-mini`); new sentence that look-ahead meets sustain talk with persuasion;
+  arm → horizon, graders → judges. The full abstract rewrite is step 8.
+- **Discussion:** the mechanism paragraph is rebuilt on measurements instead of the old story
+  ("a patient met with reassurance … produces sustain talk", "reflecting … which the patient then
+  elaborates" — neither was measured): the praise premium (K=0 still 0.16 SD at it 9, K=5 0.04;
+  `praise_premium_grpo`), K=0's praise share 0.41 and praise after a third of sustain talk
+  (0.315), its late-session change talk below the Base (0.50 vs 0.58), persistence 97% vs 80%,
+  and K=5's persuasion after sustain talk. Conclusion: "reflects the patient's own case for change"
+  (a metaphor) → "reflects the patient's change talk and hears more of it, though it still
+  persuades when the patient resists".
+- **Limitations:** new paragraph "The patient's replies are inside the look-ahead reward" (the
+  K=5 reward is given after three patient replies, the K=0 reward before any, so §6's patient-side
+  results partly measure what the K=5 reward optimised, on the reward model's own simulator);
+  "endpoint" → iteration wording; session lengths 31.9 vs 25.2 (`marker_and_length`, it 10).
+- **Ethics:** graders → judges, arms → runs, "base model" → "therapist model"; the residual drift
+  sentence now names what look-ahead learned instead (persuasion when the patient resists).

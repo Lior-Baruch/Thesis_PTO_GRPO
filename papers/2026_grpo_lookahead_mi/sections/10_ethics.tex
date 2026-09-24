@@ -11,8 +11,8 @@ people in distress, and no number in this paper bridges that gap.
 patient more or less regardless of what they said, and its score went \emph{up} while it did so. In
 a counselling setting that is not a neutral artifact of optimisation: unearned affirmation of
 ambivalence or of a harmful plan is precisely the error MI trains counsellors out of. We report it
-prominently, including the residual drift that survives under look-ahead
-(\S\ref{sec:therapist}), so that a reader evaluating this line of work sees the failure mode
+prominently, including what the look-ahead policy learned instead, persuasion when the patient
+resists (\S\ref{sec:therapist}--\ref{sec:patient}), so that a reader evaluating this line of work sees the failure mode
 as clearly as the improvement.
 
 \textbf{Simulated patients encode a narrow population.} The 96 personas vary six attributes around
@@ -22,14 +22,14 @@ them should not be read as generalising across presenting problems, demographics
 the saturated design means generalisation cannot be measured even within this grid
 (Limitations).
 
-\textbf{Judges inherit their models' biases.} Both graders are commercial LLMs whose training data
+\textbf{Judges inherit their models' biases.} Both judges are commercial LLMs whose training data
 and alignment procedures are undisclosed. They disagree systematically about level and, as
 Appendix~\ref{app:saturation} shows, can disagree severely about individual conversations. Using such
 models as the sole arbiter of therapeutic quality is a methodological convenience, not a validated
 measurement, and any downstream use of this reward signal should treat it as such.
 
 \textbf{Compute and models.} Training used a single cloud A100-class GPU for approximately 79
-GPU-hours in total across the two arms (reconstructed from artifact timestamps;
-Appendix~\ref{app:repro}), plus API inference for the patient simulator and the graders. The base
-model is openly licensed; the patient simulator and graders are commercial APIs used within their
+GPU-hours in total across the two runs (reconstructed from artifact timestamps;
+Appendix~\ref{app:repro}), plus API inference for the patient simulator and the judges. The therapist
+model is openly licensed; the patient simulator and judges are commercial APIs used within their
 terms of service.
