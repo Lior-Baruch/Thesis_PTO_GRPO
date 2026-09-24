@@ -161,6 +161,10 @@ ARM_COLORS: Dict[str, str] = {
     "PTO_LA5": "#56B4E9",    # sky blue
     "GRPO_LA0": "#D55E00",   # vermillion
     "GRPO_LA5": "#E69F00",   # orange
+    "PTO_LA0_ThL1B": "#117733",    # green  -- base-model therapist
+    "PTO_LA5_ThL1B": "#44AA99",    # teal   -- base-model therapist
+    "GRPO_LA0_ThL1B": "#882255",   # wine   -- base-model therapist
+    "GRPO_LA5_ThL1B": "#CC6677",   # rose   -- base-model therapist
     "Base": "#555555",       # neutral grey
 }
 

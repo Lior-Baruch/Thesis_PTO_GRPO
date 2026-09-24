@@ -304,7 +304,10 @@ Markdown.
    describes neither. Pair through `data.matched_pairs(arms, "k" | "method")`, which only returns
    arms that differ in the varied lever alone, and take base levels, ranks and budget sweeps per
    `data.setting_tags`. Labels name a non-default setting (`GRPO: K5 - K0, ThL1B`); the default
-   one's read as they always have.
+   one's read as they always have. Per-arm figures and the by-iteration table are drawn once per
+   setting, so the Instruct and base-model arms never share a panel: the default setting keeps the
+   plain artifact name (`trajectory_gpt4m`, `by_iteration_gpt4m`), any other carries its tag
+   (`trajectory_gpt4m_ThL1B`), and titles name both explicitly (`data.setting_names`).
 
 ## Coming from Exp3?
 

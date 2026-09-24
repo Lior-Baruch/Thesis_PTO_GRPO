@@ -1060,6 +1060,12 @@ def _c_matched_pairs() -> str:
     assert set(labels) == expected, (
         f"pair labels drifted: got {sorted(labels)}, expected {sorted(expected)} -- the default "
         f"setting's labels are what every rendered table and ledger key already uses")
+    names = set(E.data.setting_names(grid).values())
+    assert names == {"ThL1Bi", "ThL1B"}, (
+        f"setting_names should spell out the therapist for BOTH settings (titles of the "
+        f"per-setting figures), got {sorted(names)}")
+    assert set(E.data.setting_names(grid[:2]).values()) == {""}, (
+        "setting_names must be empty when only one setting is present")
 
     # A setting that differs only in an ELIDED field (MCL here) still gets a tag of its own.
     wider = grid + [arm("GRPO", 0, g=8, mcl=20), arm("GRPO", 5, g=8, mcl=20)]

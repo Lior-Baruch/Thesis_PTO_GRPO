@@ -675,11 +675,19 @@ ARM_DISPLAY: Dict[str, str] = {
 #:     byte-equal, and the fix is for ``plotting`` to import this one rather than for the values to
 #:     be kept in step by hand: a figure and a legend that disagree about which hue is PTO is the
 #:     kind of error nobody reads off a plot.
+#:
+#: The base-model therapist's arms (``_ThL1B``) are pinned too, in Tol's wine/rose and green/teal:
+#: the derived shade ``plotting.arm_color`` gives an unpinned label lightens with K, which left
+#: ``GRPO_LA5_ThL1B`` near-white once it got a per-setting figure of its own.
 ARM_COLORS: Dict[str, str] = {
     "PTO_LA0": "#0072B2",     # blue
     "PTO_LA5": "#56B4E9",     # sky blue
     "GRPO_LA0": "#D55E00",    # vermillion
     "GRPO_LA5": "#E69F00",    # orange
+    "PTO_LA0_ThL1B": "#117733",    # green  -- base-model therapist
+    "PTO_LA5_ThL1B": "#44AA99",    # teal   -- base-model therapist
+    "GRPO_LA0_ThL1B": "#882255",   # wine   -- base-model therapist
+    "GRPO_LA5_ThL1B": "#CC6677",   # rose   -- base-model therapist
     BASE_ARM: "#555555",      # neutral grey
 }
 

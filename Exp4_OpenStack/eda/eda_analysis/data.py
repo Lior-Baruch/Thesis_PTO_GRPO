@@ -92,6 +92,7 @@ __all__ = [
     # Which arms a contrast may pair
     "setting_key",
     "setting_tags",
+    "setting_names",
     "matched_pairs",
     # Readers
     "load_scores_long",
@@ -778,6 +779,28 @@ def setting_tags(arms: Sequence[Arm]) -> Dict[str, str]:
         for key in keys:
             tags[key] = "_".join(([tag] if tag else []) + [fn(infos[key]) for fn in chosen])
     return {arm.experiment_name: tags[setting_key(arm)] for arm in arms}
+
+
+def setting_names(arms: Sequence[Arm]) -> Dict[str, str]:
+    """``experiment_name -> an EXPLICIT name for its setting``, for titles and captions.
+
+    :func:`setting_tags` elides whatever is on its default, so the default setting's file names
+    and contrast labels never change when a second setting lands. A reader of a per-setting figure
+    needs the opposite: every field that differs between the settings among *arms*, spelled out
+    for the default too -- ``"ThL1Bi"`` / ``"ThL1B"`` when the therapist is the only difference.
+    Every arm maps to ``""`` when all of them share one setting (there is nothing to tell apart).
+    """
+    infos: Dict[Tuple[Any, ...], ArmInfo] = {}
+    for arm in arms:
+        infos.setdefault(setting_key(arm), arm.info)
+    fields: Tuple[Callable[[ArmInfo], str], ...] = (
+        (lambda info: f"O{info.oracle_tag}"),
+        (lambda info: f"Pat{info.patient_tag}"),
+        (lambda info: f"Th{info.therapist_tag}"),
+    ) + tuple(fn for _field, fn in _SETTING_ELIDED)
+    chosen = [fn for fn in fields if len({fn(info) for info in infos.values()}) > 1]
+    names = {key: "_".join(fn(info) for fn in chosen) for key, info in infos.items()}
+    return {arm.experiment_name: names[setting_key(arm)] for arm in arms}
 
 
 def matched_pairs(arms: Sequence[Arm], vary: str) -> List[Dict[str, Any]]:
