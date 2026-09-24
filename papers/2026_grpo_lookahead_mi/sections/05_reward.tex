@@ -1,4 +1,4 @@
-\section{Results: reward and evaluation instruments}
+\section{Results: Reward and evaluation instruments}
 \label{sec:reward}
 
 \begin{figure*}[t]
@@ -42,10 +42,10 @@ Levels are in each grader's own units.}
 \end{table*}
 
 \textbf{Endpoint.} At the matched iteration-10 endpoint, look-ahead leads on every instrument
-under both graders (Table~\ref{tab:endpoint}). On the rewarded rubric the gap is $+0.765$
+under both graders (Table~\ref{tab:endpoint}). On the rewardrubric the gap is $+0.765$ (out of 1-5 Likert scale)
 ($\dz\,0.905$) under the training oracle and $+0.616$ ($\dz\,1.030$) under the held-out judge,
-which reports the \emph{larger} standardised effect, and MI-inconsistent behaviour shows the
-largest standardised effect of all. Against each arm's own base (indistinguishable: $2.963$ vs.\ $3.067$,
+which reports the larger standardised effect[, and MI-inconsistent behaviour shows the
+largest standardised effect of all - ??]. Against each arm's own base (indistinguishable: $2.963$ vs.\ $3.067$,
 $\dz\,0.115$, n.s.), the \Kf\ gain on \QQ\ is $2.27\times$ the \Kz\ gain under the training oracle
 ($+1.554$ vs.\ $+0.686$) and $2.62\times$ under the held-out judge ($+1.038$ vs.\ $+0.396$);
 anchored on the \Kz\ arm's \emph{best} checkpoint instead of its last, the ratios are
@@ -60,9 +60,9 @@ best state is iteration~3; against either best checkpoint the $\Kf$ endpoint sti
 under both graders ($\dz\,0.743$ / $0.384$ vs.\ iteration 8; $0.977$ / $0.386$ vs.\ iteration 3;
 all Holm-significant).
 
-\textbf{Replication of the endpoint.} Every state is scored on one 96-conversation sample, so we
+\textbf{Replication of the endpoint.} Every [state -?] is scored on one 96-conversation sample, so we
 re-drew the winning one (96 fresh conversations from the same $\Kf$ iteration-10 adapter, personas
 and decoding, both graders): the two draws differ by at most $|\dz|\,0.174$ across 9 instruments
 and both graders, nothing significant, and with the replicate substituted the endpoint gap on
-\QQ\ is $\dz\,0.919$ / $0.949$ against $0.905$ / $1.030$. The re-draw bounds evaluation noise,
-not training variance (Limitations).
+\QQ\ is $\dz\,0.919$ / $0.949$ against $0.905$ / $1.030$. The re-draw bounds [evaluation noise,
+not training variance -?] (see Limitations).

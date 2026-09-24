@@ -2,8 +2,8 @@
 \label{sec:therapist}
 
 A higher score is not by itself evidence of better therapy. Table~\ref{tab:excerpt} illustrates
-the behavioural difference between the two rewards; this section and the next quantify it with
-the process coder of \S\ref{sec:setup}, under both graders.
+the behavioural difference between the two methods; this section and the next quantify it with
+the [process coder ? of \S\ref{sec:setup}, under both graders.
 
 \begin{table}[tb]
 \centering
@@ -30,8 +30,8 @@ of cigarettes you smoke? [\ldots]\\
 \caption{The first therapist reply to the same patient utterance at each arm's iteration-10
 endpoint (a 27-year-old woman who has smoked for years, never tried to quit, and was sent to
 therapy). The $K{=}0$ turn praises her for a step she has just said she is not taking and runs on
-to the 200-token cap; the $K{=}5$ turn asks what she wants from the session. A clear case, not a
-typical one; both conversations, and a median-contrast persona, are in Appendix~\ref{app:example}.}
+to the 200-token cap; the $K{=}5$ turn asks what she wants from the session. [A clear case, not a
+typical one -?]; both conversations, and a [median-contrast -?] persona, are in Appendix~\ref{app:example}.}
 \label{tab:excerpt}
 \end{table}
 
@@ -47,22 +47,22 @@ by position in the session at iteration 10, against the pooled base. Opener excl
 \label{fig:process}
 \end{figure*}
 
-\textbf{The two policies learn different behaviours.} The base policy's turns are mostly
+\textbf{The two policies learn different behaviours.} Initially, the base policy's turns are mostly
 information giving and persuasion, with open questions, simple reflections and the occasional
-affirmation making up the rest (Figure~\ref{fig:process}a--b, iteration 0). Under turn-level
-reward the mix collapses onto \textbf{non-specific praise}: $0.03$ of the $\Kz$ policy's turns at
+affirmation making up the rest (Figure~\ref{fig:process}a--b, iteration 0). Under turn-level [k=0?]
+reward [the mix -?] collapses onto \textbf{non-specific praise}: $0.03$ of the $\Kz$ policy's turns at
 base, $0.41$ at iteration 10 under the training oracle and $0.76$ under the held-out judge
-(Table~\ref{tab:process}), a drift that clears Holm against the $\Kf$ arm at iterations 8 and 10
-under the training oracle and at 5, 6 and 8--10 under the held-out judge. Under look-ahead the mix
+(Table~\ref{tab:process}), a drift that [clears Holm ?] against the $\Kf$ arm at iterations 8 and 10
+under the training oracle and at 5, 6 and 8--10 under the held-out judge. Under look-ahead [the mix ~]
 moves instead toward \textbf{complex reflections}: from $0.02$ of the $\Kf$ policy's turns at base
 to $0.23$ / $0.24$ under the two graders, higher than the $\Kz$ arm's at six / five of the ten
 iterations; the share of MI-adherent turns at the endpoint is $0.44$ vs.\ $0.29$ and $0.36$ vs.\
 $0.04$. Both policies lose open-question turns (from $0.10$ / $0.18$ of base turns to
 $0.00$--$0.03$; the question marks that survive end long turns whose dominant function is
-something else) and grow their turns to the 200-token cap (Limitations). The $\Kf$ policy also
+something else) and grow their turns to the 200-token cap (see Limitations). The $\Kf$ policy also
 carries a residue in the wrong direction: persuasion, MI's \emph{righting reflex}
 \citep{miller2013mi}, rises from $0.21$ to $0.28$ of its turns and is higher than the $\Kz$ arm's
-at six / seven iterations, the failure mode \citet{chiu2024bolt} report for LLM therapists.
+at six / seven iterations, [the failure mode \citet{chiu2024bolt} report for LLM therapists -?].
 
 \textbf{Corroboration without a grader.} Every code above is produced by an LLM, so the
 over-praise finding could in principle be a grader artifact. A \textbf{deterministic lexical
@@ -72,8 +72,8 @@ one: under $\Kf$ it never exceeds $0.064$; under $\Kz$ it climbs late and steepl
 iteration 8, $0.093$ at 9 and $\mathbf{0.671}$ at iteration 10 (Appendix
 Figure~\ref{fig:overpraise}); and of the $9.9$ MI-inconsistent acts per session that the
 session-level instrument of Table~\ref{tab:endpoint} counts at the $\Kz$ endpoint, $8.3$ ($84\%$)
-are over-praise. The marker is deliberately brittle; the agreement among the three readings
-carries the argument.
+are over-praise. The [marker -?] is deliberately brittle; the agreement among the three [ readings -?
+carries the argument.?]
 
 \textbf{Where the graders disagree.} The two graders agree that the $\Kz$ policy learns praise
 and the $\Kf$ policy reflections; they disagree on how much the $\Kf$ policy \emph{still} praises:
@@ -84,10 +84,10 @@ held-out judge has it lower under $\Kz$ at iterations 3 and 5 and lower under $\
 What survives both graders: look-ahead removes the praise habit and roughly halves the
 MI-inconsistency the held-out judge sees, rather than preventing it.
 
-\textbf{In embedding space.} The same conclusion appears without any coder. Embedding every
-therapist turn with a sentence encoder and following each policy's centroid, the two arms move
+\textbf{In embedding space.} The [same conclusion -?] appears without any [coder ?]. Embedding every
+therapist turn with a sentence encoder [which one] and following each policy's centroid, the two arms move
 away from the base along \emph{different} directions (cosine between their displacements $0.44$
 at iteration 10, $0.33$--$0.71$ over iterations 3--8; Appendix Figure~\ref{fig:textspace}), and
-the $\Kz$ policy converges harder onto one script: the share of embedding variance that lies
+the $\Kz$ policy [converges harder onto one script -?]: the share of embedding variance that lies
 between personas, how much the therapist tailors its turns to the patient, falls from $0.37$ to
-$0.19$ under $\Kz$ and from $0.41$ to $0.30$ under $\Kf$.
+$0.19$ under $\Kz$ and from $0.41$ to $0.30$ under $\Kf$. [show diagram, explain]
