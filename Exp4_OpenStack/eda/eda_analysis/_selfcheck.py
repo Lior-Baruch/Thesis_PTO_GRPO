@@ -24,7 +24,7 @@ SKIP    there was nothing to check (no ``data/`` mount, no arms on disk, no note
 FAIL    an invariant broke. The run exits non-zero.
 ======  =========================================================================================
 
-Checks (18: 14 structural + 4 data)
+Checks (21: 17 structural + 4 data)
 -----------------------------------
 Structural (always; ``--fast`` runs only these, and they touch no experiment data):
 
@@ -46,8 +46,14 @@ Structural (always; ``--fast`` runs only these, and they touch no experiment dat
   ``judge=`` or ``<judge>/`` segment; PRESERVE guarded; workbook bytes stable.
 * ``arm identity``         -- a grid of built names round-trips through ``naming`` and no two
   distinct configurations collide on one name.
+* ``matched pairs``        -- ``data.matched_pairs`` never pairs across a setting (therapist, role
+  models, rubric, MCL, branch width) or a PTO mode, and every contrast label is unique.
 * ``no torch``             -- importing the package pulls in no torch/transformers/peft/trl.
 * ``MICI orientation``     -- MICI is registered lower-is-better and nothing ranks it ascending.
+* ``Claude judge shim``    -- the Claude judge's stripped schema restates what it strips, and an
+  anthropic binding stays off the training reward.
+* ``install cell parity``  -- the Colab install cell is byte-identical across the three notebooks
+  that carry one.
 
 Data (skipped cleanly when ``data/`` is absent or empty):
 
@@ -1003,6 +1009,73 @@ def _c_arm_identity() -> str:
     return f"{checked} arm names round-trip, all distinct; malformed names rejected"
 
 
+def _c_matched_pairs() -> str:
+    """No contrast pairs two arms from different SETTINGS, and every contrast label is unique.
+
+    A setting is everything an arm name encodes except the two levers (method, K): the three role
+    models, the rubric, MCL and the branch width. The family notebooks used to pair on method (or
+    K) alone -- invisible while every arm on disk shared one setting, until the base-model
+    therapist's arms landed and a K=0 arm of one therapist was paired with a K=5 arm of the other,
+    under the same label as the real pair, in one groupby. Nothing raised. This builds a synthetic
+    two-therapist grid (no data needed) and asserts :func:`data.matched_pairs` keeps every pair
+    inside one setting and one PTO mode, names each pair uniquely, and leaves the default
+    setting's labels exactly as they always read.
+    """
+    from naming import build_experiment_name, parse_experiment_name
+    from roles import DEFAULT_ORACLE_MODEL, DEFAULT_PATIENT_MODEL
+
+    def arm(method, k, *, mcl=12, therapist=None, **extra):
+        roles = {"oracle_model": DEFAULT_ORACLE_MODEL, "patient_model": DEFAULT_PATIENT_MODEL}
+        if therapist:
+            roles["therapist_model"] = therapist
+        name = build_experiment_name(method, [1, 2], k, mcl, **roles, **extra)
+        return E.data.Arm(experiment_name=name, info=parse_experiment_name(name), iters=(0, 1))
+
+    base = "meta-llama/Llama-3.2-1B"
+    grid = [arm("GRPO", 0, g=8), arm("GRPO", 5, g=8),
+            arm("GRPO", 0, g=8, therapist=base), arm("GRPO", 5, g=8, therapist=base),
+            arm("PTO", 0, m=8, mode="greedy"), arm("PTO", 5, m=8, mode="greedy"),
+            arm("PTO", 0, m=8, mode="independent")]
+    by_name = {a.experiment_name: a for a in grid}
+    key = E.data.setting_key
+
+    k_pairs = E.data.matched_pairs(grid, "k")
+    m_pairs = E.data.matched_pairs(grid, "method")
+    for p in k_pairs:
+        lo, hi = by_name[p["name_lo"]], by_name[p["name_hi"]]
+        assert key(lo) == key(hi) and (lo.method, lo.mode) == (hi.method, hi.mode), (
+            f"K pair {p['label']!r} crosses a setting or a PTO mode: {lo.experiment_name} vs "
+            f"{hi.experiment_name}")
+        assert lo.k < hi.k, f"K pair {p['label']!r} is not ordered K_lo < K_hi"
+    for p in m_pairs:
+        a, b = by_name[p["name_a"]], by_name[p["name_b"]]
+        assert key(a) == key(b) and a.k == b.k and (a.method, b.method) == ("PTO", "GRPO"), (
+            f"method pair {p['label']!r} is not PTO vs GRPO at one K in one setting: "
+            f"{a.experiment_name} vs {b.experiment_name}")
+
+    labels = [p["label"] for p in k_pairs + m_pairs]
+    assert len(set(labels)) == len(labels), f"two contrasts share a label: {sorted(labels)}"
+    expected = {"GRPO: K5 - K0", "PTO: K5 - K0", "GRPO: K5 - K0, ThL1B",
+                "PTO - GRPO @ K=0", "PTO - GRPO @ K=0, indep", "PTO - GRPO @ K=5"}
+    assert set(labels) == expected, (
+        f"pair labels drifted: got {sorted(labels)}, expected {sorted(expected)} -- the default "
+        f"setting's labels are what every rendered table and ledger key already uses")
+
+    # A setting that differs only in an ELIDED field (MCL here) still gets a tag of its own.
+    wider = grid + [arm("GRPO", 0, g=8, mcl=20), arm("GRPO", 5, g=8, mcl=20)]
+    tags = E.data.setting_tags(wider)
+    per_setting: Dict[tuple, Set[str]] = {}
+    for a in wider:
+        per_setting.setdefault(key(a), set()).add(tags[a.experiment_name])
+    assert all(len(t) == 1 for t in per_setting.values()), f"one setting, several tags: {tags}"
+    assert len({next(iter(t)) for t in per_setting.values()}) == len(per_setting), (
+        f"two settings share a tag: {tags}")
+    wide_labels = [p["label"] for p in E.data.matched_pairs(wider, "k")]
+    assert len(set(wide_labels)) == len(wide_labels), f"labels collide: {sorted(wide_labels)}"
+    return (f"{len(k_pairs)} K + {len(m_pairs)} method pairs on a two-therapist grid, none "
+            f"crossing a setting or mode; labels unique; an MCL-only setting tagged apart")
+
+
 def _c_no_torch() -> str:
     """Importing the EDA must not pull in torch, transformers, peft or trl.
 
@@ -1488,6 +1561,7 @@ _CHECKS: Tuple[Tuple[str, Callable[[], str], bool], ...] = (
     ("seeded bootstrap (repro figures)", _c_seeded_bootstrap, False),
     ("exports routing (no judge level)", _c_exports_routing, False),
     ("arm identity round-trip", _c_arm_identity, False),
+    ("matched pairs stay in one setting", _c_matched_pairs, False),
     ("no torch in the EDA", _c_no_torch, False),
     ("MICI orientation", _c_mici_orientation, False),
     ("Claude judge shim (rubric parity)", _c_claude_judge_shim, False),

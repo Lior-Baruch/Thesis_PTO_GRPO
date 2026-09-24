@@ -15,7 +15,7 @@
   "rqii.multiplicity": {
    "value": "Holm-Bonferroni within grader",
    "source": "tables/method_contrast_endpoint.md",
-   "note": "family = that grader's rows (instruments x look-ahead depths)"
+   "note": "family = that grader's rows (instruments x look-ahead depths x settings)"
   },
   "rqii.matched_on": {
    "value": "iteration",

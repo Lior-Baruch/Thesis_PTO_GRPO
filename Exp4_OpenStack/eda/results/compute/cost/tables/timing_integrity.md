@@ -1,1 +1,3 @@
-> **EMPTY TABLE.** The producing notebook saved `timing_integrity` with 0 rows -- either the analysis found nothing to report for these arms, or an upstream filter dropped every row. Check the producer's inputs before reading this as an absence of effect.
+| arm            | method   |   k |   iteration |   n_sessions |   n_sessions_production |   gpu_hours | issue                                          |
+|:---------------|:---------|----:|------------:|-------------:|------------------------:|------------:|:-----------------------------------------------|
+| GRPO_LA0_ThL1B | GRPO     |   0 |           1 |            2 |                       2 |       0.864 | RESUMED (cumulative log is the correct number) |

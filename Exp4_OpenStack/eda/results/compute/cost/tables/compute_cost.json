@@ -18,24 +18,39 @@
    "note": "cost of PRODUCING the policy; measurement is billed to N+1"
   },
   "cost.total_gpu_hours": {
-   "value": 24.1972433008088,
+   "value": 57.91675595422585,
    "source": "tables/compute_by_arm.md",
-   "note": "GRPO_LA0=8.22 + GRPO_LA5=15.98"
+   "note": "GRPO_LA0=8.22 + GRPO_LA0_ThL1B=12.13 + GRPO_LA5=15.98 + GRPO_LA5_ThL1B=21.59"
   },
   "cost.arm.GRPO_LA0.gpu_hours": {
    "value": 8.215994525088204,
    "source": "tables/compute_by_arm.md",
    "note": "10 logged of 10 iteration(s), 0.82 h per logged iteration, 0 resumed, 0 unlogged"
   },
+  "cost.arm.GRPO_LA0_ThL1B.gpu_hours": {
+   "value": 12.132466807431644,
+   "source": "tables/compute_by_arm.md",
+   "note": "10 logged of 10 iteration(s), 1.21 h per logged iteration, 1 resumed, 0 unlogged"
+  },
   "cost.arm.GRPO_LA5.gpu_hours": {
    "value": 15.981248775720596,
    "source": "tables/compute_by_arm.md",
    "note": "10 logged of 10 iteration(s), 1.60 h per logged iteration, 0 resumed, 0 unlogged"
   },
+  "cost.arm.GRPO_LA5_ThL1B.gpu_hours": {
+   "value": 21.58704584598541,
+   "source": "tables/compute_by_arm.md",
+   "note": "10 logged of 10 iteration(s), 2.16 h per logged iteration, 0 resumed, 0 unlogged"
+  },
   "cost.k_multiplier.method=GRPO": {
    "value": 1.9990817552127427,
    "source": "tables/k_step_multiplier.md",
    "note": "median h/iteration 1.638 (k=5, n=10) / 0.820 (k=0, n=10)"
+  },
+  "cost.k_multiplier.method=GRPO, ThL1B": {
+   "value": 1.7998231985595359,
+   "source": "tables/k_step_multiplier.md",
+   "note": "median h/iteration 2.209 (k=5, n=10) / 1.227 (k=0, n=10)"
   },
   "cost.gpt4m.leader_at_max_budget": {
    "value": "GRPO_LA0",

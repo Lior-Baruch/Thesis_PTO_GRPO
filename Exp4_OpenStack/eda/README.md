@@ -20,8 +20,8 @@ analysable the moment its conversations land, and there is no registry to edit a
 | Family | Notebook | Question |
 |---|---|---|
 | `arms/outcomes` | `notebooks/arms/outcomes.ipynb` | Per-arm descriptives: every arm on one axis, across model states. |
-| `lookahead/reward` | `notebooks/lookahead/reward.ipynb` | **RQ-i** — K=0 vs K=5 *within* each optimizer. |
-| `method/contrast` | `notebooks/method/contrast.ipynb` | **RQ-ii** — PTO vs GRPO at matched K. |
+| `lookahead/reward` | `notebooks/lookahead/reward.ipynb` | **RQ-i** — K=0 vs K=5 *within* each optimizer and setting. |
+| `method/contrast` | `notebooks/method/contrast.ipynb` | **RQ-ii** — PTO vs GRPO at matched K and setting. |
 | `compute/cost` | `notebooks/compute/cost.ipynb` | The spend axis: GPU-hours per (arm, iteration) and API calls. |
 
 Four is the whole of v1, and `arms` renders first — its descriptive tables are what a reader checks
@@ -234,7 +234,7 @@ commit.**
 |---|---|
 | [`eda_analysis/constants.py`](eda_analysis/constants.py) | The **leaf**: workspace paths, the metric registry, judge tags, `BOOT_SEED`, label/colour keys, persona vocabulary. Imports nothing from the package, and performs the `sys.path` insert that makes `naming` / `roles` / `questionnaires` resolve to the single canonical copies under `../code/`. |
 | [`eda_analysis/config.py`](eda_analysis/config.py) | The control surface: `FAMILIES`, `EdaConfig`, `Setup`, `notebook_setup`, and the sibling contract those depend on. |
-| [`eda_analysis/data.py`](eda_analysis/data.py) | Every number's origin: `discover_arms` / `filter_arms` / `Arm`, the five readers (`load_scores_long`, `load_conversations`, `load_generations`, `load_timing`, `load_pref_pairs`), `scores_by_judge`, `load_run_metadata`, and the frame cache. |
+| [`eda_analysis/data.py`](eda_analysis/data.py) | Every number's origin: `discover_arms` / `filter_arms` / `Arm`, which arms a contrast may pair (`matched_pairs`, `setting_tags`, `setting_key`), the five readers (`load_scores_long`, `load_conversations`, `load_generations`, `load_timing`, `load_pref_pairs`), `scores_by_judge`, `load_run_metadata`, and the frame cache. |
 | [`eda_analysis/exports.py`](eda_analysis/exports.py) | Path composition, captions, indices, byte determinism, and the only two functions that delete. |
 | [`eda_analysis/stats.py`](eda_analysis/stats.py) | `paired_arrays`, `paired_contrast`, `bootstrap_ci`, `holm`, `spearman`, `cohens_dz`, `orient_contrast`, `summarize_contrasts`. Repeated-measures by default; no scipy (the t tail and Spearman are ~40 lines of stdlib maths). |
 | [`eda_analysis/plotting.py`](eda_analysis/plotting.py) | One style, one deterministic arm palette, four reusable figure builders (`score_trajectory`, `arm_distribution`, `contrast_forest`, `cost_benefit`). Returns figures; never saves. |
@@ -284,7 +284,7 @@ family read another's *rendered* tables, which made render order load-bearing an
 the driver parallelised. The fix for "I need that number" is to compute it, not to read a sibling's
 Markdown.
 
-## Two things never to do to these numbers
+## Three things never to do to these numbers
 
 1. **Pair on `persona_id`, never on file order.** The same 96 personas face every arm and every
    iteration, so every contrast here is repeated-measures — subtract *within* persona and analyse
@@ -296,6 +296,15 @@ Markdown.
    of `-0.3` is a **gain**. Multiply by `constants.sign_of(metric)` before any `argmax`, sort,
    "best checkpoint" pick or diverging colour scale, and run raw contrasts through
    `stats.orient_contrast` wherever a table or figure says "better".
+3. **Never contrast across settings.** A *setting* is everything an arm name encodes except the
+   two levers, method and K: the therapist, oracle and patient models, the rubric, MCL and the
+   branch width. Each setting starts from its own untrained policy -- the base-model and Instruct
+   therapists sit at different levels before any training -- so a pair that crosses one measures
+   the swap as much as the lever, and pooling a reference level or a ranking across settings
+   describes neither. Pair through `data.matched_pairs(arms, "k" | "method")`, which only returns
+   arms that differ in the varied lever alone, and take base levels, ranks and budget sweeps per
+   `data.setting_tags`. Labels name a non-default setting (`GRPO: K5 - K0, ThL1B`); the default
+   one's read as they always have.
 
 ## Coming from Exp3?
 

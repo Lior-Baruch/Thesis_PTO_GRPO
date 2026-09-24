@@ -15,18 +15,20 @@
   "rqi.multiplicity": {
    "value": "Holm-Bonferroni within grader",
    "source": "tables/k_contrast_endpoint.md",
-   "note": "family = that grader's rows (instruments x optimizers)"
+   "note": "family = that grader's rows (instruments x optimizers x settings)"
   },
   "rqi.pairs": {
    "value": [
-    "GRPO: K5 - K0"
+    "GRPO: K5 - K0",
+    "GRPO: K5 - K0, ThL1B"
    ],
    "source": "",
    "note": ""
   },
   "rqi.matched_states": {
    "value": {
-    "gpt4m | GRPO: K5 - K0": 10
+    "gpt4m | GRPO: K5 - K0": 10,
+    "gpt4m | GRPO: K5 - K0, ThL1B": null
    },
    "source": "tables/k_contrast_endpoint.md",
    "note": "highest trained state both arms scored on every instrument"

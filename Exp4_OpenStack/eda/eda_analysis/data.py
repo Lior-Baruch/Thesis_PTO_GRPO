@@ -89,6 +89,10 @@ __all__ = [
     "discover_arms",
     "filter_arms",
     "judge_tags",
+    # Which arms a contrast may pair
+    "setting_key",
+    "setting_tags",
+    "matched_pairs",
     # Readers
     "load_scores_long",
     "scores_by_judge",
@@ -675,6 +679,192 @@ def judge_tags(*, data_root: Optional[str] = None) -> List[str]:
         tags.remove(DEFAULT_JUDGE_TAG)
         tags.insert(0, DEFAULT_JUDGE_TAG)
     return tags
+
+
+# ==============================================================================
+#  Settings and matched pairs -- which arms a contrast may put side by side
+# ==============================================================================
+#
+# An arm name encodes two kinds of field. Two are the DESIGN LEVERS the research questions vary on
+# purpose: the optimizer (``method``, with PTO's preference-tree mode as a variant of it) and the
+# look-ahead depth ``k``. Everything else -- the training rubric, MCL, the branch width (GRPO's G =
+# PTO's M) and the three role models -- is the SETTING the levers are pulled in.
+#
+# A contrast is only interpretable WITHIN one setting. The therapist variant alone moves every
+# instrument's starting level (the base and Instruct models are different untrained therapists),
+# so a base-therapist K=0 arm "versus" an Instruct K=5 arm measures the therapist swap as much as
+# the lever, and nothing in the resulting row says so. The family notebooks used to pair on method
+# (or on K) alone, which was invisible while every arm shared one setting; the second therapist
+# turned it into cross-setting pairs filed under one contrast label. Every pairing, reference
+# level and ranking now goes through the functions below.
+
+#: Fields a setting tag spells out ONLY when two settings would otherwise render the same tag, in
+#: this order (the role models are spelled out whenever they are off their default). ``B`` is the
+#: branch width, GRPO's ``G`` = PTO's ``M``.
+_SETTING_ELIDED: Tuple[Tuple[str, Callable[[ArmInfo], str]], ...] = (
+    ("branches", lambda info: f"B{info.branches}"),
+    ("mcl", lambda info: f"MCL{info.mcl}"),
+    ("qtag", lambda info: str(info.qtag)),
+)
+
+
+def setting_key(arm: Arm) -> Tuple[Any, ...]:
+    """Everything *arm* holds fixed apart from the two levers: its SETTING, as a hashable key.
+
+    ``(rubric, MCL, branch width, oracle tag, patient tag, therapist tag)``. The branch width is
+    :attr:`ArmInfo.branches` -- GRPO's ``G`` and PTO's ``M`` are one design quantity (both 8) --
+    so GRPO and PTO arms with matched hyperparameters share a setting, while a ``QUICK_TEST`` arm
+    (``_G4_`` / ``_M3_``) shares one with nothing.
+    """
+    info = arm.info
+    return (str(info.qtag), int(info.mcl), int(info.branches),
+            info.oracle_tag, info.patient_tag, info.therapist_tag)
+
+
+def _label_parts(info: ArmInfo) -> Tuple[str, List[str]]:
+    """``(PTO mode token or "", role tokens)``, read back off :attr:`ArmInfo.label`.
+
+    ``ArmInfo.label`` is ``<METHOD>_LA<K>`` followed by the non-default tokens in a fixed order:
+    PTO's preference-tree mode, then ``O<tag>`` / ``Pat<tag>`` / ``Th<tag>`` for each swapped role.
+    Reading them back -- instead of re-deciding here which values count as "default" -- keeps ONE
+    definition of what a display name elides, naming's. Every token is ``[A-Za-z0-9]+`` by the
+    grammar, so splitting on ``_`` is exact.
+
+    Raises:
+        ValueError: if the label no longer starts with ``<METHOD>_LA<K>``, i.e. naming's label
+            format changed under this parser.
+    """
+    tokens = info.label.split("_")
+    if tokens[:2] != [info.method, f"LA{info.k}"]:
+        raise ValueError(
+            f"ArmInfo.label {info.label!r} does not start with '{info.method}_LA{info.k}' -- "
+            f"naming's label format changed; update data._label_parts to match it.")
+    rest = tokens[2:]
+    mode = ""
+    if rest and info.mode is not None and rest[0] == info.mode:
+        mode, rest = rest[0], rest[1:]
+    return mode, rest
+
+
+def setting_tags(arms: Sequence[Arm]) -> Dict[str, str]:
+    """``experiment_name -> setting tag`` for every arm in *arms*.
+
+    The tag names what an arm's setting changes relative to the default stack, the way arm labels
+    already do: every role model off its default (``"ThL1B"``, ``"Ogpt4m_ThL1B"``). The default
+    setting's tag is therefore ``""``, and a label built from it reads exactly as it did before a
+    second setting existed. The elided fields (branch width, MCL, rubric) join the tag only when
+    two settings among *arms* would otherwise share it -- as :func:`_disambiguate_labels` does for
+    arm labels -- so the tag is unique per setting within one call.
+
+    Note:
+        A DISPLAY key, like :attr:`Arm.label`: it depends on which arms were passed. Group on
+        :func:`setting_key` when that matters.
+    """
+    infos: Dict[Tuple[Any, ...], ArmInfo] = {}
+    for arm in arms:
+        infos.setdefault(setting_key(arm), arm.info)
+    tags = {key: "_".join(_label_parts(info)[1]) for key, info in infos.items()}
+
+    by_tag: Dict[str, List[Tuple[Any, ...]]] = {}
+    for key, tag in tags.items():
+        by_tag.setdefault(tag, []).append(key)
+    for tag, keys in by_tag.items():
+        if len(keys) < 2:
+            continue
+        # Same role tokens means same role models, so these settings differ only in elided
+        # fields -- at least one of them always separates the group.
+        group = [infos[k] for k in keys]
+        chosen = [fn for _field, fn in _SETTING_ELIDED if len({fn(i) for i in group}) > 1]
+        for key in keys:
+            tags[key] = "_".join(([tag] if tag else []) + [fn(infos[key]) for fn in chosen])
+    return {arm.experiment_name: tags[setting_key(arm)] for arm in arms}
+
+
+def matched_pairs(arms: Sequence[Arm], vary: str) -> List[Dict[str, Any]]:
+    """Every pair of arms that differ ONLY in *vary* -- the contrasts a family may compute.
+
+    Args:
+        arms: The arms to pair (a notebook passes ``S.ARMS``).
+        vary: ``"k"`` for RQ-i: within one setting and one method variant (PTO's preference-tree
+            mode included), the arm at the LARGEST depth against the one at the SMALLEST, so a
+            future K=3 arm pairs against K=0 instead of being dropped.
+            ``"method"`` for RQ-ii: within one setting and one K, each PTO arm (every mode is its
+            own pair) against THE GRPO arm.
+
+    Returns:
+        One dict per pair, sorted by setting (default first). Every pair carries ``vary``,
+        ``setting`` (its :func:`setting_tags` tag), ``mode`` (the PTO side's non-default mode, or
+        ``""``), ``suffix``, ``label`` and ``slug``. ``vary="k"`` adds ``method``, ``k_lo``,
+        ``k_hi``, ``arm_lo`` / ``arm_hi`` (display labels) and ``name_lo`` / ``name_hi``
+        (experiment names). ``vary="method"`` adds ``k``, ``arm_a`` / ``name_a`` (the PTO arm) and
+        ``arm_b`` / ``name_b`` (the GRPO arm).
+
+    Notes:
+        ``label`` is ``"GRPO: K5 - K0"`` or ``"PTO - GRPO @ K=0"`` for the default setting -- what
+        these contrasts were always called -- plus ``suffix``, ``", <mode>, <setting>"`` naming
+        whatever differs from the default (``"GRPO: K5 - K0, ThL1B"``). ``slug`` is the same
+        identity as a file- and ledger-safe token (``"GRPO_ThL1B"``, ``"K0_indep"``). Labels are
+        unique among the pairs returned; both are DISPLAY keys -- the ``name_*`` fields are the
+        identity.
+    """
+    if vary not in ("k", "method"):
+        raise ValueError(f"matched_pairs: vary must be 'k' or 'method', got {vary!r}")
+    tags = setting_tags(arms)
+    pairs: List[Dict[str, Any]] = []
+
+    def qualify(mode: str, setting: str) -> Tuple[str, List[str]]:
+        extra = [t for t in (mode, setting) if t]
+        return ("".join(f", {t}" for t in extra)), extra
+
+    if vary == "k":
+        cells: Dict[Tuple[Any, ...], Dict[int, Arm]] = {}
+        for arm in arms:
+            cell = cells.setdefault((setting_key(arm), arm.method, _label_parts(arm.info)[0]), {})
+            if arm.k in cell:
+                raise ValueError(f"matched_pairs: {cell[arm.k].experiment_name} and "
+                                 f"{arm.experiment_name} differ in no field but K and share K")
+            cell[arm.k] = arm
+        for (_setting, method, mode), by_k in cells.items():
+            if len(by_k) < 2:
+                continue
+            lo, hi = by_k[min(by_k)], by_k[max(by_k)]
+            setting = tags[lo.experiment_name]
+            suffix, extra = qualify(mode, setting)
+            pairs.append({
+                "vary": "k", "setting": setting, "mode": mode, "suffix": suffix,
+                "method": method, "k_lo": int(lo.k), "k_hi": int(hi.k),
+                "arm_lo": lo.label, "arm_hi": hi.label,
+                "name_lo": lo.experiment_name, "name_hi": hi.experiment_name,
+                "label": f"{method}: K{hi.k} - K{lo.k}{suffix}",
+                "slug": "_".join([method] + extra),
+            })
+        pairs.sort(key=lambda p: (p["setting"], p["method"], p["mode"], p["k_lo"], p["k_hi"]))
+        return pairs
+
+    by_cell: Dict[Tuple[Any, ...], Dict[str, List[Arm]]] = {}
+    for arm in arms:
+        by_cell.setdefault((setting_key(arm), arm.k), {}).setdefault(arm.method, []).append(arm)
+    for (_setting, k), by_method in by_cell.items():
+        grpo, ptos = by_method.get("GRPO", []), by_method.get("PTO", [])
+        if not grpo or not ptos:
+            continue
+        if len(grpo) > 1:
+            raise ValueError(f"matched_pairs: several GRPO arms share one setting and K: "
+                             f"{sorted(a.experiment_name for a in grpo)}")
+        b = grpo[0]
+        setting = tags[b.experiment_name]
+        for a in sorted(ptos, key=lambda x: x.experiment_name):
+            mode = _label_parts(a.info)[0]
+            suffix, extra = qualify(mode, setting)
+            pairs.append({
+                "vary": "method", "setting": setting, "mode": mode, "suffix": suffix,
+                "k": int(k), "arm_a": a.label, "arm_b": b.label,
+                "name_a": a.experiment_name, "name_b": b.experiment_name,
+                "label": f"PTO - GRPO @ K={k}{suffix}",
+                "slug": "_".join([f"K{k}"] + extra),
+            })
+    pairs.sort(key=lambda p: (p["setting"], p["k"], p["mode"]))
+    return pairs
 
 
 # ==============================================================================
