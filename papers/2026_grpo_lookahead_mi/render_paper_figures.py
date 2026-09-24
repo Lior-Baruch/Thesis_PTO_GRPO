@@ -47,6 +47,8 @@ VALIDITY_XLSX = RESULTS / "measurement" / "validity" / "tables" / "validity.xlsx
 REPLICATION_XLSX = RESULTS / "lookahead" / "replication" / "tables" / "replication.xlsx"
 MECHANISM_XLSX = RESULTS / "lookahead" / "mechanism" / "tables" / "mechanism.xlsx"
 REWARD_XLSX = RESULTS / "lookahead" / "reward" / "tables" / "reward.xlsx"
+# Since 2026-09-24 every Base-dependent figure reads the paper's ONE shared Base from here.
+SHARED_BASE_XLSX = RESULTS / "lookahead" / "shared_base" / "tables" / "shared_base.xlsx"
 DEST = HERE / "figures"
 SECTIONS = HERE / "sections"
 
@@ -100,10 +102,12 @@ plt.rcParams.update({
 
 def overpraise() -> Path:
     """Figure 3 (single column since 2026-09-17): the judge-free lexical over-praise marker by
-    iteration, from ``behaviour.xlsx`` sheet ``overpraise_judgefree_data``. The two oracle-coded
+    iteration, from ``shared_base.xlsx`` sheet ``marker_and_length`` (every conversation of a
+    state, the shared Base at iteration 0; ``behaviour.xlsx::overpraise_judgefree_data`` until
+    2026-09-24). The two oracle-coded
     panels it used to carry are superseded by the per-utterance code mix of Figure 4, which shows
     the same drift on both graders with the coder's own praise code."""
-    op = pd.read_excel(BEHAVIOUR_XLSX, sheet_name="overpraise_judgefree_data")
+    op = pd.read_excel(SHARED_BASE_XLSX, sheet_name="marker_and_length")
     op = op[op.arm.isin(COL)].sort_values(["arm", "iteration"])
     fig, ax = plt.subplots(figsize=figsize("overpraise_judgefree_grpo.png", 0.62))
     for arm, a in op.groupby("arm"):
@@ -146,11 +150,11 @@ def _process_panels(judge: str, name: str) -> Path:
     at iteration 10 with Wilson intervals (``yield_<judge>``; codes with fewer than 20 turns in an
     arm are left blank), (d) change-talk share by patient turn bin at the endpoint against the
     pooled base (``ct_trajectory_<judge>``)."""
-    lv = pd.read_excel(PROCESS_XLSX, sheet_name=f"process_levels_{judge}")
+    lv = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"process_levels_{judge}")
     lv = lv[lv.arm.isin(COL)]
-    yd = pd.read_excel(PROCESS_XLSX, sheet_name=f"yield_{judge}")
+    yd = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"yield_{judge}")
     yd = yd[yd.arm.isin(COL) & (yd.iteration == 10)]
-    tr = pd.read_excel(PROCESS_XLSX, sheet_name=f"ct_trajectory_{judge}")
+    tr = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"ct_trajectory_{judge}")
     tr = tr[tr.arm.isin(COL)]
     fig, axes = plt.subplots(1, 4, figsize=figsize(name, 0.23),
                              gridspec_kw={"width_ratios": [1.15, 1.15, 1.05, 0.95]})
@@ -189,7 +193,7 @@ def _process_panels(judge: str, name: str) -> Path:
     ax = axes[3]
     xb = np.arange(len(BINS))
     base = tr[tr.iteration == 0].groupby("bin")["ct_prop"].mean().reindex(BINS)
-    ax.plot(xb, base.values, color="#555555", ls=":", lw=1.3, marker="d", ms=3.2, label="base")
+    ax.plot(xb, base.values, color="#555555", ls=":", lw=1.3, marker="d", ms=3.2, label="Base")
     for arm in ("GRPO_LA0", "GRPO_LA5"):
         g = tr[(tr.arm == arm) & (tr.iteration == 10)].set_index("bin")["ct_prop"].reindex(BINS)
         ax.plot(xb, g.values, color=COL[arm], ms=3.4, lw=1.5, label=LAB[arm], **STY[arm])
@@ -231,7 +235,7 @@ def responsiveness() -> Path:
               (HELDOUT, "pra_after_st", "(d) praises ST, held out")]
     fig, axes = plt.subplots(1, 4, figsize=figsize("responsiveness_grpo.png", 0.26))
     for ax, (judge, col, title) in zip(axes, panels):
-        lv = pd.read_excel(PROCESS_XLSX, sheet_name=f"process_levels_{judge}")
+        lv = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"process_levels_{judge}")
         for arm in ("GRPO_LA0", "GRPO_LA5"):
             g = lv[lv.arm == arm].sort_values("iteration")
             ax.fill_between(g.iteration, g[col] - g[f"{col}_se"], g[col] + g[f"{col}_se"],
@@ -256,8 +260,8 @@ def textspace() -> Path:
     between their displacements from the base centroid (``drift_cosines``), (b) the
     between-persona share of embedding variance with its bootstrap band and (c) the template
     similarity across personas at matched turn (``diversity_by_state``)."""
-    cos = pd.read_excel(TEXT_XLSX, sheet_name="drift_cosines").sort_values("iteration")
-    dv = pd.read_excel(TEXT_XLSX, sheet_name="diversity_by_state")
+    cos = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_drift_cosines").sort_values("iteration")
+    dv = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_diversity")
     dv = dv[dv.arm.isin(COL)]
     fig, (a, b, c) = plt.subplots(1, 3, figsize=figsize("text_grpo.png", 0.29))
     a.axhline(0, color="#444444", lw=0.8)
@@ -265,7 +269,7 @@ def textspace() -> Path:
     a.set_ylim(-0.2, 1.0)
     a.set_xticks(range(1, 11))
     a.set_xlabel("iteration")
-    a.set_ylabel("cosine of the arms' displacements")
+    a.set_ylabel("cosine of the runs' displacements")
     a.set_title("(a) same direction?", loc="left", fontweight="bold")
     for ax, col, ylab, title in ((b, "persona_var_share", "between-persona variance share",
                                   "(b) tailoring to the patient"),
@@ -285,6 +289,44 @@ def textspace() -> Path:
     b.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.2, borderaxespad=0.2)
     fig.tight_layout(w_pad=1.4)
     out = DEST / "text_grpo.png"
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+def textspace_body() -> Path:
+    """Section 5 (2026-09-24, on Doron's "show diagram, explain"): panels (a) and (b) of the
+    appendix embedding figure, side by side at column width -- (a) the cosine between the two runs'
+    displacements from the shared Base centroid, (b) the between-conversation share of embedding
+    variance with its bootstrap band. Reads ``shared_base.xlsx::text_drift_cosines`` and
+    ``::text_diversity``."""
+    cos = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_drift_cosines").sort_values("iteration")
+    dv = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_diversity")
+    dv = dv[dv.arm.isin(COL)]
+    name = "text_grpo_body.png"
+    fig, (a, b) = plt.subplots(1, 2, figsize=figsize(name, 0.52, default_frac=0.48))
+    a.axhline(0, color="#444444", lw=0.8)
+    a.plot(cos.iteration, cos.cos_K0_K5_GRPO, color="#333333", marker="o", ms=2.8, lw=1.2)
+    a.set_ylim(-0.2, 1.0)
+    a.set_xticks(range(2, 11, 2))
+    a.set_xlabel("iteration")
+    a.set_ylabel("cosine of the two moves")
+    a.set_title("(a) same direction?", loc="left", fontweight="bold", fontsize=6.4)
+    for arm in ("GRPO_LA0", "GRPO_LA5"):
+        g = dv[dv.arm == arm].sort_values("iteration")
+        b.fill_between(g.iteration, g["persona_var_share_lo"], g["persona_var_share_hi"],
+                       color=COL[arm], alpha=0.18, lw=0)
+        b.plot(g.iteration, g["persona_var_share"], color=COL[arm], label=LAB[arm].split(" (")[0],
+               ms=2.6, lw=1.2, **STY[arm])
+    b.set_ylim(0.1, 0.5)
+    b.set_xticks(range(0, 11, 2))
+    b.set_xlabel("iteration")
+    b.set_ylabel("between-conversation share")
+    b.set_title("(b) tailoring", loc="left", fontweight="bold", fontsize=6.4)
+    b.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.3, borderaxespad=0.1,
+             labelspacing=0.2)
+    fig.tight_layout(w_pad=0.8)
+    out = DEST / name
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     return out
@@ -587,7 +629,6 @@ def headline() -> Path:
     return out
 
 
-SHARED_BASE_XLSX = RESULTS / "lookahead" / "shared_base" / "tables" / "shared_base.xlsx"
 GRID_METRICS = [("Q1Q2", "Q1+Q2 (reward)"), ("Q1", "Q1"), ("Q2", "Q2"), ("WAI-SR", "WAI-SR"),
                 ("CSQ-8", "CSQ-8"), ("MI-SAT", "MI-SAT"), ("MITI", "MITI"), ("PCT", "PCT"),
                 ("MICI", "MICI (lower = better)")]
@@ -697,7 +738,7 @@ def main(argv: list[str] | None = None) -> int:
     # headline() drew the Q1+Q2-only Figure 2 until 2026-09-24; the all-instrument grid on the
     # shared Base (levels_grid_primary) replaced it. Kept, not called, like saturation().
     every = (levels_grid_primary, levels_grid_heldout, overpraise, process, process_heldout,
-             responsiveness, textspace, tail_audit, forest, faithfulness)
+             responsiveness, textspace, textspace_body, tail_audit, forest, faithfulness)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}
     unknown = [n for n in names if n not in by_name]

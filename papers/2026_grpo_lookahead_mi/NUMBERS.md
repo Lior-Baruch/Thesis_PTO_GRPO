@@ -699,3 +699,36 @@ Retired from §4: the base-vs-base sentence (2.963 vs 3.067, dz 0.115) and Doron
 inconsistent behaviour shows the largest standardised effect of all". Figure 2 is now
 `levels_grid_grpo_gpt-4o-mini.png` (its held-out twin replaces the copied grid in Appendix A);
 the Q1+Q2-only headline and the two copied EDA grids left `figures/`.
+
+**§5 rewritten on the shared Base (2026-09-24, step 4 of the plan).** The body now reports the
+training oracle only, plus one held-out sentence. Numbers the new §5 adds to the rows above, all
+from `lookahead/shared_base/tables/` unless named:
+
+| Claim (§5) | Value | Source |
+|---|---|---|
+| K=0 praise share, "late and unevenly" | 0.041 (Base) → 0.222 / 0.080 / **0.407** at it 8 / 9 / 10 | `process_levels_gpt-4o-mini`, `th_PRA_rate` |
+| K=5 complex-reflection share | 0.018 (Base) → **0.230** at it 10; higher than K=0 at 4–10 ("every iteration from 4 on") | same + `k_process_paired`, `th_CR_rate` |
+| MI-adherent share at it 10 | K=5 **0.438** vs K=0 0.290 (Base 0.306); K=5 higher at 6, 8, 9, 10 | same, `mi_adherent_rate` |
+| Open questions lost | 0.087 (Base) → 0.000 (K=0) / 0.010 (K=5) at it 10 | same, `th_OQ_rate` |
+| Turn length "roughly triple" | 272.7 chars (Base) → 895.7 (K=0, 3.28×) / 849.3 (K=5, 3.11×) → "273 … 850–900" | `marker_and_length`, `mean_turn_len` |
+| Persuasion residue | 0.203 (Base) → **0.279** (K=5) at it 10; higher than K=0 at 2, 6–10 (6 of 10) | `process_levels_gpt-4o-mini` + `k_process_paired`, `th_PERS_rate` |
+| **NEW** MI-inconsistent timing ("the gap is K=0's late praise, not an MI gain of K=5") | it 10: K=5 **0.332** vs K=0 0.463 (Base 0.248); significant in K=0's favour at **2, 6, 9**, in K=5's only at **10**. K=5's own share: 0.28–0.38 over it 1–10. Held-out: K=0 lower at 3, 5; K=5 lower at 8, 10 | `k_process_paired`, `mi_incons_rate` |
+| Held-out sentence | K=5 praise share at it 10: **0.203** held-out vs 0.053 training oracle | `process_levels_<judge>` |
+| Keyword marker vs the coder's praise share ("same rise, dip and rise") | marker 0.275 / 0.094 / 0.671 vs coder 0.222 / 0.080 / 0.407 at it 8 / 9 / 10 | `marker_and_length`, `process_levels_gpt-4o-mini` |
+| MICI composition, K=0 at it 10 (not Base-dependent) | total **9.865** ("9.9"), over-praise **8.250** ("8.3"), share **0.836** ("84%") | `lookahead/behaviour/tables/k_mici_composition.md` |
+| Cosine between the runs' moves | max **0.731** (it 3); **0.446** at it 10; **−0.028** at it 9, where K=0's turns shorten (mean 338 chars vs 822 at it 8 and 896 at it 10) and its praise share dips (0.080) | `text_drift_cosines`; `marker_and_length`; `process_levels_gpt-4o-mini` |
+| Between-conversation share | Base **0.393** → K=5 0.302, K=0 0.192 at it 10 | `text_diversity` |
+
+Retired from §5: the "Where the graders disagree" paragraph (its dz −0.37 / −1.08 and "roughly
+halves the MI-inconsistency the held-out judge sees"), replaced by the timing sentence and the one
+held-out sentence. New body figure `text_grpo_body.png` (Figure 4) = panels (a) and (b) of
+Appendix Figure `text_grpo.png`, drawn by `render_paper_figures.py::textspace_body`. The judge-free
+marker, the process figures, the responsiveness figure and the embedding figure now read the
+shared-Base workbook; their data at iterations 1–10 is unchanged. The lexical marker is renamed
+"the keyword marker" in §5, Appendix A and Appendix C.5; the Limitations still say "a deterministic
+lexical marker" until step 7.
+
+**Reference added 2026-09-24** (verified against the ACL Anthology page that day):
+`reimers2019sbert` — Reimers & Gurevych, *Sentence-BERT: Sentence Embeddings using Siamese
+BERT-Networks*, EMNLP-IJCNLP 2019, pp. 3982–3992, doi 10.18653/v1/D19-1410 — cited in §5 for the
+`all-MiniLM-L6-v2` sentence encoder (Doron's "[which one]").

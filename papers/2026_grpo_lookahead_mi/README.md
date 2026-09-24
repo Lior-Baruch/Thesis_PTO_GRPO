@@ -266,7 +266,8 @@ with pass 1's two). Lior's decisions before any text changes, chosen from option
   run where the K contrast is significant) in the appendices; Table 4 retires.
 
 The plan, one step at a time, each section ending in a build, Lior's read, a commit and a push:
-0 pull (done) · 1 data and figures (done 2026-09-24, below) · 2 §3 · 3 §4 · 4 §5 · 5 §6 rewritten
+0 pull (done) · 1 data and figures (done 2026-09-24, below) · 2 §3 (done) · 3 §4 (done) ·
+4 §5 (done 2026-09-24, below) · 5 §6 rewritten
 around responsiveness → change-talk persistence → the session (heads-up to Doron first) ·
 6 appendices (the Claude appendix, the complete tables, Appendix E and the Limitations reframed) ·
 7 carry through (abstract, §7, Limitations, captions) · 8 Doron's contributions paragraph, then the
@@ -279,6 +280,14 @@ unconditioned "yield" as the patient-side claim); `lookahead/mechanism` gained t
 premium (does the training reward pay for praise, net of prevalence). `render_paper_figures.py`
 draws the new grids (`levels_grid_grpo_<judge>.png`, not yet included) and now takes figure
 names on the command line. Every number that moves, old → new, is in `NUMBERS.md` § "2026-09-24".
+
+**Step 4 (2026-09-24), §5.** Training oracle only in the body, plus one held-out sentence; Doron's
+15 notes answered in the text, his two edits kept. New: an honest timing sentence (K=5's lower
+MI-inconsistency is K=0's late praise, not an MI gain of K=5: K=0 is significantly lower at 2, 6,
+9 and K=5 only at 10), the "keyword marker" named and its three-way agreement spelled out, and a
+column-width Figure 4 (`text_grpo_body.png`, panels a–b of Appendix Figure `text_grpo.png`) with
+the encoder cited (`reimers2019sbert`). The figures that read Base data now read
+`lookahead/shared_base`.
 
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with

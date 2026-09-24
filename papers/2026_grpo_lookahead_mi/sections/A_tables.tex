@@ -3,11 +3,11 @@
 
 Table~\ref{tab:byiter}: the \QQ\ contrast at every iteration.
 Figure~\ref{fig:grid-heldout}: every instrument by iteration under the held-out judge (the training
-oracle's is Figure~\ref{fig:headline}). Figure~\ref{fig:overpraise}: the judge-free over-praise marker of
+oracle's is Figure~\ref{fig:headline}). Figure~\ref{fig:overpraise}: the keyword marker of
 \S\ref{sec:therapist}. Figure~\ref{fig:process-heldout}: the process picture of Figure~\ref{fig:process} under
 the held-out judge. Figure~\ref{fig:responsiveness}: the two responsiveness rates of
 Table~\ref{tab:process} by iteration under both graders. Figure~\ref{fig:textspace}: the two
-policies in sentence-embedding space. Figure~\ref{fig:forest}: the session-level behaviour-channel
+runs in sentence-embedding space (Figure~\ref{fig:textspace-body} and a third measure). Figure~\ref{fig:forest}: the session-level behaviour-channel
 profile. Figure~\ref{fig:tails}: the $K{=}5$ rollout audit, summarised in the Limitations. Over the $121{,}088$ logged $\Kf$
 candidates ($88\%$ of those scored), $82\%$ of rollouts ran the full five turns; the early-ending
 share ranged from $12\%$ at iteration 10 to $30\%$ at iteration 6, and in $16\%$ of candidates
@@ -51,20 +51,21 @@ $^{***}p<.001$.}
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.47\textwidth]{figures/overpraise_judgefree_grpo.png}
-\caption{The judge-free over-praise marker by iteration: the share of therapist turns containing
-at least one of ten praise keywords (Appendix~\ref{app:marker}), no model in the loop.}
+\caption{The keyword marker of \S\ref{sec:therapist} by iteration: the share of therapist turns
+containing at least one of ten praise phrases (Appendix~\ref{app:marker}), no model in the loop.
+Iteration 0 is the Base.}
 \label{fig:overpraise}
 \end{figure}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/process_grpo_heldout.png}
-\caption{Figure~\ref{fig:process} under the held-out judge: \textbf{(a, b)} each arm's code mix
+\caption{Figure~\ref{fig:process} under the held-out judge: \textbf{(a, b)} each run's code mix
 by iteration, \textbf{(c)} the change-talk yield of each therapist code at iteration 10 (Wilson
 $95\%$ intervals; bars omitted below 20 turns), \textbf{(d)} the change-talk share of patient
-utterances by position in the session at iteration 10 against the pooled base. The held-out judge
+utterances by position in the session at iteration 10 against the Base. The held-out judge
 reads more of the $K{=}5$ policy's turns as non-specific praise than the training oracle does
-($0.20$ vs.\ $0.05$ at the endpoint) and agrees on everything else in the picture.}
+($0.20$ vs.\ $0.05$ at iteration 10) and agrees on everything else in the picture.}
 \label{fig:process-heldout}
 \end{figure*}
 
@@ -82,10 +83,10 @@ block of Table~\ref{tab:process}.}
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/text_grpo.png}
-\caption{The two policies in sentence-embedding space (every therapist turn embedded with
-\texttt{all-MiniLM-L6-v2}; the scripted opener excluded). \textbf{(a)} The cosine between the two
-arms' displacements from the base centroid at each iteration: $1$ would mean they learned the
-same thing. \textbf{(b)} The share of embedding variance that lies between conversations, a
+\caption{The two runs in sentence-embedding space (every therapist turn embedded with
+\texttt{all-MiniLM-L6-v2}; the scripted opener excluded); panels (a) and (b) are
+Figure~\ref{fig:textspace-body}. \textbf{(a)} The cosine between the two runs' moves away from
+the Base's mean embedding at each iteration: $1$ would mean they learned the same thing. \textbf{(b)} The share of embedding variance that lies between conversations, a
 measure of how much the therapist's turns depend on which patient it is talking to, with a
 $95\%$ bootstrap band over conversations. \textbf{(c)} The mean pairwise cosine between turns at
 the same position in different conversations: convergence on a template.}
