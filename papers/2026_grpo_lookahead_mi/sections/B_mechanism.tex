@@ -72,6 +72,32 @@ whose eight samples the oracle scores increasingly alike. This does not break th
 at that same iteration the ratio of ratios is $0.964$, so margin and standard deviation still move
 together. We offer the over-praise account as consistent with the timing, not as demonstrated.
 
+\subsection{What the training reward pays for praise}
+\label{app:premium}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/praise_premium_grpo.png}
+\caption{\textbf{(a)} The training reward's premium for praise: in each group of eight candidates
+that holds both a reply containing a keyword-marker phrase and one without, the mean
+within-group reward z-score of the praising replies minus that of the others, averaged over such
+groups ($\pm 1.96$ SE), by the iteration of the model the candidates were sampled from.
+\textbf{(b)} The share of groups that hold both kinds.}
+\label{fig:premium}
+\end{figure}
+
+The keyword marker (Appendix~\ref{app:marker}) lets us ask whether the training reward itself pays
+for praise, separately from how often the policy praises (Figure~\ref{fig:premium}). Within each
+group of eight candidates we z-score the rewards, and in the groups that hold both a praising reply
+and a non-praising one we take the praising replies' mean z minus the others'. Early in training
+such groups are rare (about $2\%$ of groups, panel b) and the premium is noisy, negative under
+$\Kz$ at iterations 0--1 and under $\Kf$ at iteration 2. From iteration 4 both rewards pay for praise: $0.22$--$0.33$
+within-group SD under $\Kz$ over iterations 4--7 ($z \geq 2.8$ at each) and $0.16$--$0.21$ under
+$\Kf$ ($z$ above 2 only at iterations 6--7). Both dip at iteration 8; at iteration 9 the $\Kz$
+reward still pays $0.16$ ($z = 5.7$) and the $\Kf$ reward $0.04$ ($z = 1.1$). The share of groups
+holding both kinds rises under both runs, and faster under $\Kz$: from iteration 7 on it is about
+half of $\Kz$'s groups, against $0.28$--$0.44$ of $\Kf$'s.
+
 \subsection{The update-direction proxy}
 
 Writing each iteration's update direction as the advantage-weighted sum of its candidates' sentence

@@ -732,3 +732,35 @@ lexical marker" until step 7.
 `reimers2019sbert` — Reimers & Gurevych, *Sentence-BERT: Sentence Embeddings using Siamese
 BERT-Networks*, EMNLP-IJCNLP 2019, pp. 3982–3992, doi 10.18653/v1/D19-1410 — cited in §5 for the
 `all-MiniLM-L6-v2` sentence encoder (Doron's "[which one]").
+
+**§6 rewritten on the shared Base (2026-09-24, step 5 of the plan).** Responsiveness → persistence
+→ the session; training oracle in the body, one held-out sentence. Two per-conversation measures
+were added to `eda_analysis/process.py` for it — `pers_after_st` and `refl_after_st`, the other two
+answers to sustain talk — and `lookahead/process` + `lookahead/shared_base` were re-rendered; every
+pre-existing value in both workbooks was checked identical after the render (only the new columns
+and metric rows were added). Table 3's rows are printed from the workbook by a script, not typed.
+
+| Claim (§6 / Table 3) | Value (training oracle; Base / K=0 / K=5 at it 10) | Source |
+|---|---|---|
+| Table 3, therapist block | PRA 0.041 / 0.407 / 0.053 (dz −1.19); CR 0.018 / 0.020 / 0.230 (+0.90); PERS 0.203 / 0.055 / 0.279 (+0.79); MI-adherent 0.306 / 0.290 / 0.438 (+0.40); MI-inconsistent 0.248 / 0.463 / 0.332 (**−0.36**, was printed −0.37: dz 0.3650 rounds down) | `process_levels_gpt-4o-mini`, `k_process_paired` (dz negated to K5 − K0) |
+| Reflects change talk | 0.137 / 0.003 / 0.264 (+0.99, n 76); significant at **1 and 6–10** | same, `refl_after_ct` |
+| Praises sustain talk | 0.019 / 0.315 / 0.015 (−1.10, n 65) | same, `pra_after_st` |
+| **NEW** Persuades after sustain talk | 0.242 / **0.073** / **0.393** (+0.90, n 65); K=5 higher at 8–10. Held-out 0.253 / 0.056 / **0.580** (+1.61; 3–6, 8–10) | same, `pers_after_st` |
+| **NEW** Reflects sustain talk | 0.217 / 0.256 / 0.368 (+0.27, p_holm .30; significant only at 9). Held-out 0.081 / 0.050 / 0.171 (+0.49, **; 8–10) | same, `refl_after_st` |
+| Change talk after change talk (per conversation) | **0.750 / 0.796 / 0.968** (+0.62, n 76); K=5 higher at **5–10**. Held-out 0.715 / 0.734 / 0.935 (+0.65; 3–10) | `persist_levels_<judge>`, `k_persistence`, `ct_persist` |
+| Change talk after sustain talk (per conversation) | 0.281 / 0.276 / 0.326 (+0.18, n.s. at 10); K=5 higher at **5–7, 9**. Held-out +0.04 (only 9) | same, `st_to_ct` |
+| "four most common replies to change talk … at least 97%" (pooled over turns, it 10, K=5) | CR 0.994 (n 322), AF 0.995 (205), PERS 0.985 (200), GI 0.972 (176); all replies 0.987 (972) | `cond_yield_gpt-4o-mini` |
+| "83% of K=5's complex reflections come right after change talk" | responsiveness shares × n: after CT 975 × 0.331 = 322.7; after ST 381 × 0.165 = 62.9; after NEU 81 × 0.049 = 4.0 → 322.7 / 389.6 = **0.828** | `responsiveness_gpt-4o-mini` |
+| "reflections do about as well as the other replies" | after CT: CR 0.994 vs all 0.987 ("0.99 against 0.99"); after ST: CR 0.159 (n 63) vs all 0.171 (380) | `cond_yield_gpt-4o-mini` |
+| Change-talk share of patient utterances | 0.448 / 0.528 / 0.683 (+0.56); K=5 higher at **6–10**; reached any CT 0.724 / 0.865 / 0.917, n.s. at 10 | `process_levels_gpt-4o-mini`, `ct_prop`, `reached_ct` |
+| Late session (10+ patient turns) | Base 0.584 (133 of 192 sessions), K=0 0.496 (62 of 96), K=5 0.846 (74 of 96); turns 6–9: 0.510 / 0.680 / 0.796 | `ct_trajectory_gpt-4o-mini` |
+| Patient utterance length, disengagement cue (not Base-dependent) | 439.7 → 600.3 chars (dz 1.24); disengage 0.213 → 0.276 (dz 0.31, p_holm .026) | `lookahead/text` `k_text_paired`, it 10 |
+| Praise premium (answers Doron's "??") | K=0 policy it 4–7: 0.331 / 0.220 / 0.302 / 0.309 ("0.22–0.33"; z 4.7, 2.8, 5.5, 7.7); K=5: 0.165 / 0.208 / 0.197 / 0.178 ("0.16–0.21"; z 1.6, 1.9, 2.6, 3.5); it 8: 0.070 / 0.013; it 9: **0.165 (z 5.7) / 0.039 (z 1.1)**; early: K=0 −0.375, −0.625 at it 0–1, K=5 −0.501 at it 2; mixed-group share ≈ 2% at it 0–2, K=0 0.52 / 0.51 / 0.57 at it 7–9 vs K=5 0.28 / 0.33 / 0.44 | `lookahead/mechanism/tables/praise_premium_grpo` (iteration = train_iter − 1) |
+| Held-out Table 5 (appendix twin of Table 3) | persuasion dz **+0.83** (was printed +0.84: 0.8345 rounds down); every other printed value unchanged | `process_levels_claude-haiku-4-5`, `k_process_paired` |
+
+Retired from §6: the per-code yield paragraph and Figure 3c's yield bars (placement-confounded — see
+the two rows above), the base-praise-yield sentence (97% / 72%, then 85% / 67% on the shared Base),
+and "the praise spiral … at scale". New: Figure 3c = change-talk persistence by iteration
+(`persist_levels_<judge>`), Appendix B.4 + `praise_premium_grpo.png`, Appendix Table 5 (held-out
+Table 3), the responsiveness figure redrawn 2 judges × 4 replies. Figure legends name the runs "K=0"
+/ "K=5" only (the "(turn-level)" / "(look-ahead)" suffixes dropped, per the vocabulary decision).

@@ -132,8 +132,12 @@ the batch path were re-scored on the live path.
 
 All process quantities are recomputed from the stored code sequences. Alternation is strict and
 the therapist speaks first, so therapist turn $i$ is answered by patient turn $i$ and answers
-patient turn $i-1$; the yield of a code is the share of its turns whose patient reply is change
-talk, and the responsiveness rates condition on the patient's preceding code. As a check of the
+patient turn $i-1$. The therapist's replies (Table~\ref{tab:process}) condition on the patient's
+preceding code: of the therapist turns that follow a patient's sustain talk, for example, the share
+that are persuasion. Change-talk persistence is, within a conversation, the share of the patient's
+change-talk utterances whose next patient utterance is change talk again (and, after sustain talk,
+the share followed by change talk); every such rate is computed per conversation and averaged over
+the conversations in which its condition occurs. As a check of the
 coder against the session-level instruments of the same grader, the per-utterance codes summed
 per conversation are compared with the MITI behaviour counts and the PCT change-talk counts:
 across the 22 model states, the patient-side counts agree closely (Spearman $\rho$ pooled within

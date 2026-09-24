@@ -86,7 +86,8 @@ def figsize(name: str, aspect: float, default_frac: float = 1.0) -> tuple[float,
 
 # Same two arm colours as the EDA's headline figure (Okabe-Ito vermilion / orange).
 COL = {"GRPO_LA0": "#d55e00", "GRPO_LA5": "#e69f00"}
-LAB = {"GRPO_LA0": "$K{=}0$ (turn-level)", "GRPO_LA5": "$K{=}5$ (look-ahead)"}
+# Since 2026-09-24 the results name the runs by K only (the words turn-level / look-ahead are §3's).
+LAB = {"GRPO_LA0": "$K{=}0$", "GRPO_LA5": "$K{=}5$"}
 STY = {"GRPO_LA0": dict(marker="o", ls="-"), "GRPO_LA5": dict(marker="s", ls="--")}
 PRIMARY = "gpt-4o-mini"
 HELDOUT = "claude-haiku-4-5"
@@ -145,15 +146,16 @@ JUDGE_TITLE = {PRIMARY: "training oracle", HELDOUT: "held-out judge"}
 
 
 def _process_panels(judge: str, name: str) -> Path:
-    """Four panels from ``process.xlsx``: (a, b) each arm's code mix by iteration
-    (``process_levels_<judge>``, stacked ``th_<CODE>_rate``), (c) P(change talk | therapist code)
-    at iteration 10 with Wilson intervals (``yield_<judge>``; codes with fewer than 20 turns in an
-    arm are left blank), (d) change-talk share by patient turn bin at the endpoint against the
-    pooled base (``ct_trajectory_<judge>``)."""
+    """Four panels from ``shared_base.xlsx``: (a, b) each run's code mix by iteration
+    (``process_levels_<judge>``, stacked ``th_<CODE>_rate``), (c) change-talk persistence by
+    iteration -- P(the patient's next utterance is change talk | the previous one was), mean +- SE
+    over conversations (``persist_levels_<judge>``; since 2026-09-24, replacing the per-code yield,
+    which was confounded by where each code is placed), (d) change-talk share by patient turn bin
+    at iteration 10 against the Base (``ct_trajectory_<judge>``)."""
     lv = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"process_levels_{judge}")
     lv = lv[lv.arm.isin(COL)]
-    yd = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"yield_{judge}")
-    yd = yd[yd.arm.isin(COL) & (yd.iteration == 10)]
+    pl = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"persist_levels_{judge}")
+    pl = pl[pl.arm.isin(COL)]
     tr = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"ct_trajectory_{judge}")
     tr = tr[tr.arm.isin(COL)]
     fig, axes = plt.subplots(1, 4, figsize=figsize(name, 0.23),
@@ -171,24 +173,22 @@ def _process_panels(judge: str, name: str) -> Path:
         ax.set_title(title, loc="left", fontweight="bold")
         ax.grid(False)
     axes[0].set_ylabel("share of therapist turns")
-    # (c) yield of each therapist behaviour at the endpoint
+    # (c) change-talk persistence by iteration (both runs start at the shared Base)
     ax = axes[2]
-    x = np.arange(len(YIELD_CODES))
-    w = 0.38
-    for i, arm in enumerate(("GRPO_LA0", "GRPO_LA5")):
-        d = yd[yd.arm == arm].set_index("th_code").reindex(YIELD_CODES)
-        ok = d["n"].fillna(0) >= 20
-        v = d["p_ct"].where(ok)
-        err = np.vstack([np.clip(v - d["p_ct_lo"], 0, None).fillna(0),
-                         np.clip(d["p_ct_hi"] - v, 0, None).fillna(0)])
-        ax.bar(x + (i - 0.5) * w, v, w, color=COL[arm], label=LAB[arm], yerr=err,
-               error_kw={"elinewidth": 0.6, "capsize": 1.5, "ecolor": "#333333"})
-    ax.set_xticks(x)
-    ax.set_xticklabels(YIELD_CODES, fontsize=5.8)
-    ax.set_ylim(0, 1.05)
-    ax.set_ylabel("P(change talk next)")
-    ax.set_xlabel("therapist code, iteration 10")
-    ax.set_title("(c) yield of each code", loc="left", fontweight="bold")
+    base_p = float(pl[pl.iteration == 0]["ct_persist_mean"].iloc[0])
+    ax.axhline(base_p, color="#555555", ls=":", lw=1.1)
+    for arm in ("GRPO_LA0", "GRPO_LA5"):
+        g = pl[pl.arm == arm].sort_values("iteration")
+        ax.fill_between(g.iteration, g["ct_persist_mean"] - g["ct_persist_sem"],
+                        g["ct_persist_mean"] + g["ct_persist_sem"], color=COL[arm], alpha=0.18, lw=0)
+        ax.plot(g.iteration, g["ct_persist_mean"], color=COL[arm], label=LAB[arm], ms=3.0, lw=1.4,
+                **STY[arm])
+    ax.set_xlim(-0.3, 10.3)
+    ax.set_xticks(range(0, 11, 2))
+    ax.set_ylim(0.55, 1.0)
+    ax.set_xlabel("iteration")
+    ax.set_ylabel("P(change talk next |\nchange talk now)")
+    ax.set_title("(c) persistence", loc="left", fontweight="bold")
     # (d) within-session change talk
     ax = axes[3]
     xb = np.arange(len(BINS))
@@ -203,11 +203,14 @@ def _process_panels(judge: str, name: str) -> Path:
     ax.set_xlabel("patient turn in the session")
     ax.set_ylabel("change-talk share")
     ax.set_title("(d) change talk, iter. 10", loc="left", fontweight="bold")
-    ax.legend(frameon=False, loc="lower right", fontsize=5.6, handlelength=1.2, borderaxespad=0.2)
-    # One shared legend for the code colours, above panels (a)-(c): three rows, 11 entries.
+    # One shared legend for the code colours above panels (a)-(b), and one for the runs above
+    # (c)-(d) -- inside panel (d) it sat on the lines.
     hh, ll = axes[0].get_legend_handles_labels()
     fig.legend(hh, ll, loc="lower center", bbox_to_anchor=(0.40, 0.985), ncol=6, frameon=False,
                fontsize=5.6, handlelength=1.0, columnspacing=0.8, handletextpad=0.4)
+    hh, ll = axes[3].get_legend_handles_labels()
+    fig.legend(hh, ll, loc="lower center", bbox_to_anchor=(0.89, 0.985), ncol=1, frameon=False,
+               fontsize=5.6, handlelength=1.6, labelspacing=0.15, handletextpad=0.4)
     fig.tight_layout(w_pad=1.3)
     out = DEST / name
     fig.savefig(out, bbox_inches="tight")
@@ -227,28 +230,34 @@ def process_heldout() -> Path:
 
 def responsiveness() -> Path:
     """Appendix: what the policy does after the patient's change talk and after sustain talk, by
-    iteration, under each grader (``process_levels_<judge>``: ``refl_after_ct``, ``pra_after_st``,
-    the per-conversation means)."""
-    panels = [(PRIMARY, "refl_after_ct", "(a) reflects CT, oracle"),
-              (HELDOUT, "refl_after_ct", "(b) reflects CT, held out"),
-              (PRIMARY, "pra_after_st", "(c) praises ST, oracle"),
-              (HELDOUT, "pra_after_st", "(d) praises ST, held out")]
-    fig, axes = plt.subplots(1, 4, figsize=figsize("responsiveness_grpo.png", 0.26))
-    for ax, (judge, col, title) in zip(axes, panels):
+    iteration; rows are the two judges (``process_levels_<judge>``: ``refl_after_ct``,
+    ``pra_after_st``, and since 2026-09-24 ``pers_after_st`` and ``refl_after_st``, the
+    per-conversation means with their SE)."""
+    cols = [("refl_after_ct", "reflects CT"), ("pra_after_st", "praises ST"),
+            ("pers_after_st", "persuades after ST"), ("refl_after_st", "reflects ST")]
+    fig, axes = plt.subplots(2, 4, figsize=figsize("responsiveness_grpo.png", 0.44), sharex=True,
+                             sharey=True)
+    letters = "abcdefgh"
+    for r, judge in enumerate((PRIMARY, HELDOUT)):
         lv = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"process_levels_{judge}")
-        for arm in ("GRPO_LA0", "GRPO_LA5"):
-            g = lv[lv.arm == arm].sort_values("iteration")
-            ax.fill_between(g.iteration, g[col] - g[f"{col}_se"], g[col] + g[f"{col}_se"],
-                            color=COL[arm], alpha=0.18, lw=0)
-            ax.plot(g.iteration, g[col], color=COL[arm], label=LAB[arm], ms=3.2, lw=1.4, **STY[arm])
-        ax.set_xticks(range(0, 11, 2))
-        ax.set_ylim(0, 0.8)
-        ax.set_xlabel("iteration")
-        ax.set_title(title, loc="left", fontweight="bold", fontsize=6.6)
-    axes[0].set_ylabel("P(reflect | patient CT)")
-    axes[2].set_ylabel("P(praise | patient ST)")
-    axes[0].legend(frameon=False, loc="upper left", fontsize=5.8, handlelength=1.2, borderaxespad=0.2)
-    fig.tight_layout(w_pad=1.3)
+        for c, (col, title) in enumerate(cols):
+            ax = axes[r, c]
+            for arm in ("GRPO_LA0", "GRPO_LA5"):
+                g = lv[lv.arm == arm].sort_values("iteration")
+                ax.fill_between(g.iteration, g[col] - g[f"{col}_se"], g[col] + g[f"{col}_se"],
+                                color=COL[arm], alpha=0.18, lw=0)
+                ax.plot(g.iteration, g[col], color=COL[arm], label=LAB[arm], ms=2.8, lw=1.3,
+                        **STY[arm])
+            ax.set_xticks(range(0, 11, 2))
+            ax.set_ylim(0, 0.8)
+            ax.set_title(f"({letters[4 * r + c]}) {title}", loc="left", fontweight="bold",
+                         fontsize=6.4)
+            if r == 1:
+                ax.set_xlabel("iteration")
+        axes[r, 0].set_ylabel(f"{JUDGE_TITLE[judge]}\nshare of replies")
+    axes[0, 0].legend(frameon=False, loc="upper left", fontsize=5.8, handlelength=1.2,
+                      borderaxespad=0.2)
+    fig.tight_layout(w_pad=0.9, h_pad=0.8)
     out = DEST / "responsiveness_grpo.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
@@ -325,6 +334,43 @@ def textspace_body() -> Path:
     b.set_title("(b) tailoring", loc="left", fontweight="bold", fontsize=6.4)
     b.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.3, borderaxespad=0.1,
              labelspacing=0.2)
+    fig.tight_layout(w_pad=0.8)
+    out = DEST / name
+    fig.savefig(out, bbox_inches="tight")
+    plt.close(fig)
+    return out
+
+
+def praise_premium() -> Path:
+    """Appendix B (2026-09-24, answering Doron's "??" in §6): does the TRAINING reward pay for
+    praise, net of how often the policy praises? (a) Over the groups of eight candidates that hold
+    both a reply with a keyword-marker phrase and one without, the mean within-group reward z-score
+    of the praising replies minus the others (+- 1.96 SE over groups), by the iteration of the
+    model the candidates were sampled from (train_iter - 1); (b) the share of groups that hold both
+    kinds. Reads ``mechanism.xlsx::praise_premium_grpo``."""
+    pp = pd.read_excel(MECHANISM_XLSX, sheet_name="praise_premium_grpo")
+    pp = pp[pp.arm.isin(COL)]
+    name = "praise_premium_grpo.png"
+    fig, (a, b) = plt.subplots(1, 2, figsize=figsize(name, 0.52, default_frac=0.48))
+    a.axhline(0, color="#444444", lw=0.8)
+    for arm in ("GRPO_LA0", "GRPO_LA5"):
+        g = pp[pp.arm == arm].sort_values("iteration")
+        a.fill_between(g.iteration, g.premium - 1.96 * g.premium_se, g.premium + 1.96 * g.premium_se,
+                       color=COL[arm], alpha=0.18, lw=0)
+        a.plot(g.iteration, g.premium, color=COL[arm], label=LAB[arm], ms=2.6, lw=1.2, **STY[arm])
+        b.plot(g.iteration, g.mixed_share, color=COL[arm], label=LAB[arm], ms=2.6, lw=1.2, **STY[arm])
+    a.set_ylim(-1.1, 0.7)
+    a.set_xticks(range(0, 10, 2))
+    a.set_xlabel("iteration sampled from")
+    a.set_ylabel("premium (within-group SD)")
+    a.set_title("(a) reward premium", loc="left", fontweight="bold", fontsize=6.4)
+    a.legend(frameon=False, loc="lower right", fontsize=5.8, handlelength=1.3, borderaxespad=0.1,
+             labelspacing=0.2)
+    b.set_ylim(0, 0.65)
+    b.set_xticks(range(0, 10, 2))
+    b.set_xlabel("iteration sampled from")
+    b.set_ylabel("share of groups with both")
+    b.set_title("(b) mixed groups", loc="left", fontweight="bold", fontsize=6.4)
     fig.tight_layout(w_pad=0.8)
     out = DEST / name
     fig.savefig(out, bbox_inches="tight")
@@ -738,7 +784,8 @@ def main(argv: list[str] | None = None) -> int:
     # headline() drew the Q1+Q2-only Figure 2 until 2026-09-24; the all-instrument grid on the
     # shared Base (levels_grid_primary) replaced it. Kept, not called, like saturation().
     every = (levels_grid_primary, levels_grid_heldout, overpraise, process, process_heldout,
-             responsiveness, textspace, textspace_body, tail_audit, forest, faithfulness)
+             responsiveness, textspace, textspace_body, praise_premium, tail_audit, forest,
+             faithfulness)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}
     unknown = [n for n in names if n not in by_name]

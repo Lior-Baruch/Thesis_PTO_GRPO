@@ -1,81 +1,94 @@
 \section{What the therapist's turns do to the patient}
 \label{sec:patient}
 
-MI's own test of a therapist behaviour is what the patient says next, and the [positional codes ?]
-make that test available.
+MI's own test of a therapist behaviour is what the patient says next. The utterance coder labels
+every utterance in transcript order, so each patient utterance can be followed through the
+therapist's reply to the patient's next utterance. Table~\ref{tab:process} collects the measures at
+iteration 10.
 
-\begin{table*}[t]
+\begin{table}[t]
 \centering
 \footnotesize
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{0.92}
-\begin{tabular}{lrrrrrr}
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.95}
+\begin{tabular}{@{}lrrrl@{}}
 \toprule
-& \multicolumn{3}{c}{\primaryjudge\ (training oracle)} & \multicolumn{3}{c}{\heldoutjudge\ (held out)}\\
-\cmidrule(lr){2-4}\cmidrule(lr){5-7}
-Per-conversation measure & $\Kz$ & $\Kf$ & \dz & $\Kz$ & $\Kf$ & \dz\\
+Per-conversation measure & Base & $\Kz$ & $\Kf$ & \dz\\
 \midrule
-\multicolumn{7}{l}{\emph{The therapist's turns (share of turns whose dominant function is the code)}}\\
-non-specific praise ($\downarrow$) & $0.407$ & $\mathbf{0.053}$ & $-1.19$\rlap{$^{***}$} & $0.762$ & $\mathbf{0.203}$ & $-2.19$\rlap{$^{***}$}\\
-complex reflection       & $0.020$ & $\mathbf{0.230}$ & $+0.90$\rlap{$^{***}$} & $0.016$ & $\mathbf{0.242}$ & $+0.94$\rlap{$^{***}$}\\
-persuasion ($\downarrow$) & $\mathbf{0.055}$ & $0.279$ & $+0.79$\rlap{$^{***}$} & $\mathbf{0.033}$ & $0.268$ & $+0.84$\rlap{$^{***}$}\\
-MI-adherent share        & $0.290$ & $\mathbf{0.438}$ & $+0.40$\rlap{$^{**}$} & $0.037$ & $\mathbf{0.360}$ & $+1.35$\rlap{$^{***}$}\\
-MI-inconsistent share ($\downarrow$) & $0.463$ & $\mathbf{0.332}$ & $-0.37$\rlap{$^{*}$} & $0.795$ & $\mathbf{0.471}$ & $-1.08$\rlap{$^{***}$}\\
+\multicolumn{5}{@{}l}{\emph{Therapist turns (share by dominant function)}}\\
+non-specific praise ($\downarrow$) & $0.041$ & $0.407$ & $\mathbf{0.053}$ & $-1.19^{***}$\\
+complex reflection & $0.018$ & $0.020$ & $\mathbf{0.230}$ & $+0.90^{***}$\\
+persuasion ($\downarrow$) & $0.203$ & $\mathbf{0.055}$ & $0.279$ & $+0.79^{***}$\\
+MI-adherent share & $0.306$ & $0.290$ & $\mathbf{0.438}$ & $+0.40^{**}$\\
+MI-inconsistent share ($\downarrow$) & $0.248$ & $0.463$ & $\mathbf{0.332}$ & $-0.36^{*}$\\
 \midrule
-\multicolumn{7}{l}{\emph{What the therapist does after the patient's \ldots}}\\
-\ldots change talk: reflects it     & $0.003$ & $\mathbf{0.264}$ & $+0.99$\rlap{$^{***}$} & $0.006$ & $\mathbf{0.258}$ & $+0.99$\rlap{$^{***}$}\\
-\ldots sustain talk: praises ($\downarrow$) & $0.315$ & $\mathbf{0.015}$ & $-1.10$\rlap{$^{***}$} & $0.723$ & $\mathbf{0.011}$ & $-3.10$\rlap{$^{***}$}\\
+\multicolumn{5}{@{}l}{\emph{The therapist's reply to the patient's \ldots}}\\
+change talk: reflects it & $0.137$ & $0.003$ & $\mathbf{0.264}$ & $+0.99^{***}$\\
+sustain talk: praises ($\downarrow$) & $0.019$ & $0.315$ & $\mathbf{0.015}$ & $-1.10^{***}$\\
+sustain talk: persuades ($\downarrow$) & $0.242$ & $\mathbf{0.073}$ & $0.393$ & $+0.90^{***}$\\
+sustain talk: reflects it & $0.217$ & $0.256$ & $0.368$ & $+0.27$\\
 \midrule
-\multicolumn{7}{l}{\emph{The patient}}\\
-change-talk share of patient turns & $0.528$ & $\mathbf{0.683}$ & $+0.57$\rlap{$^{***}$} & $0.545$ & $\mathbf{0.721}$ & $+0.70$\rlap{$^{***}$}\\
+\multicolumn{5}{@{}l}{\emph{Next patient utterance is change talk, after \ldots}}\\
+change talk & $0.750$ & $0.796$ & $\mathbf{0.968}$ & $+0.62^{***}$\\
+sustain talk & $0.281$ & $0.276$ & $0.326$ & $+0.18$\\
+\midrule
+\multicolumn{5}{@{}l}{\emph{The session}}\\
+change-talk share & $0.448$ & $0.528$ & $\mathbf{0.683}$ & $+0.56^{***}$\\
 \bottomrule
 \end{tabular}
-\caption{\textbf{The process coder at the matched iteration-10 endpoint}: each arm's mean over the
-96 conversations under each grader (bold: the better arm; $\downarrow$: lower is better) and the
-persona-paired \dz\ of $\Kf - \Kz$ (positive: more under look-ahead). The ``after the patient's''
-rows pair only the conversations in which the condition occurred ($n = 64$--$80$). Stars:
-Holm across the ten matched iterations within grader and measure, $^{*}p<.05$, $^{**}p<.01$,
-$^{***}p<.001$. The full code mix is Figure~\ref{fig:process}a--b.}
+\caption{\textbf{The process at iteration 10} under the training oracle (the held-out judge's
+version is Table~\ref{tab:process-heldout}): each run's mean over its 96 conversations, the Base's
+over its 192, and the persona-paired \dz\ of $\Kf - \Kz$ (positive: more under $\Kf$;
+$\downarrow$: lower is better; bold: the better run where the contrast is significant). Rows that
+start from a patient utterance average only the conversations that contain one, and their paired
+contrasts use the $65$--$76$ personas for which it occurs under both runs. Stars: Holm across the
+ten iterations within measure, $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$.}
 \label{tab:process}
-\end{table*}
+\end{table}
 
-\textbf{What each behaviour yields.} Figure~\ref{fig:process}c reads the coded pairs [the other
-way round: ?] for each therapist code, how often the patient's next utterance is change talk. A
-complex reflection by the $\Kf$ endpoint policy is followed by change talk in $85\%$ of cases
-under the training oracle ($389$ turns) and $89\%$ under the held-out judge ($431$ turns) [not clear, i thought the judges were for something else and here you have a MITI classifier - /]; the
-$\Kz$ policy's rare complex reflections are followed by change talk in $10\%$ / $9\%$ ($21$ /
-$23$ turns). 
+\textbf{How the therapist replies.} When the patient voices change talk, the $\Kf$ policy
+reflects it in $0.26$ of cases, against $0.003$ for the $\Kz$ policy and $0.14$ at the Base, a
+difference significant at iterations 1 and 6--10 (Appendix Figure~\ref{fig:responsiveness}). When
+the patient voices sustain talk, MI's answer is again a reflection, and the two policies do not
+differ significantly in how often they give it ($0.37$ under $\Kf$, $0.26$ under $\Kz$, $0.22$ at
+the Base). Instead, each has its own MI-inconsistent answer. The $\Kz$ policy praises: $0.32$ of
+its replies to sustain talk, against $0.02$ at the Base, which is the reply of
+Table~\ref{tab:excerpt} measured across conversations. The $\Kf$ policy persuades: $0.39$ of
+its replies, against $0.24$ at the Base, which is MI's righting reflex. Both runs' rewards paid for
+praise in the middle of training: among the eight candidate replies the reward compares, those
+containing a keyword-marker phrase scored above their siblings by $0.22$--$0.33$ within-group
+standard deviations under $\Kz$ and $0.16$--$0.21$ under $\Kf$ (candidates sampled from the models
+of iterations 4--7), but by iteration 9 only $\Kz$'s reward still did ($0.16$ against $0.04$;
+Appendix~\ref{app:premium}).
 
-Praise is not unproductive in itself: at base it is followed by change talk $97\%$ /
-$72\%$ of the time, because the base policy praises a patient who has just said something
-hopeful. What the $\Kz$ policy learns is to praise regardless [of what?] , and its praise yields change
-talk in $58\%$ / $49\%$ of cases ($467$ / $813$ turns), no better than its plain
-information-giving turns, while the $\Kf$ policy's rarer praise keeps the base's yield ($76\%$ /
-$97\%$), [for the reason the next paragraph gives. ~]
+\textbf{Whether change talk continues.} Under the $\Kf$ policy, a patient who has just voiced
+change talk voices it again in the next utterance in $0.97$ of cases, against $0.80$ under $\Kz$
+and $0.75$ at the Base (Figure~\ref{fig:process}c), a difference significant at every iteration
+from 5 on. No single kind of reply accounts for it: the $\Kf$ policy's four most common replies to
+change talk (complex reflections, affirmations, persuasion and information giving) are each
+followed by change talk in at least $97\%$ of cases, pooled over turns. For the same reason we do
+not read the change talk that follows each therapist code as that code's effect: $83\%$ of the
+$\Kf$ policy's complex reflections come right after change talk, so the change talk after them is
+mostly the patient continuing, and once the patient's previous utterance is held fixed,
+reflections do about as well as the policy's other replies ($0.99$ against $0.99$ after change
+talk, $0.16$ against $0.17$ after sustain talk). Turning sustain talk around is harder and differs less:
+after sustain talk the next utterance is change talk in $0.33$ of cases under $\Kf$ and $0.28$
+under $\Kz$ (Base $0.28$), a difference significant at iterations 5--7 and 9 but not at 10.
 
-\textbf{Responsiveness: what the therapist does next.} The clearest MI-process contrast in the
-experiment is the middle block of Table~\ref{tab:process}. When the patient produces change talk,
-the $\Kf$ [endpoint ?] policy [reflects it?] in $26\%$ of cases under both graders and the $\Kz$ policy
-in $0.3\%$ / $0.6\%$, against $4$--$15\%$ at base (Holm-significant at six / five of the ten
-iterations). When the patient produces sustain talk, the $\Kz$ policy answers with praise in
-$32\%$ / $72\%$ of cases and the $\Kf$ policy in $1.5\%$ / $1.1\%$, against at most $3\%$ at
-base (Holm-significant at iterations 8--10 / 5--10; trajectories in Appendix
-Figure~\ref{fig:responsiveness}) [very confusing. not clear when you are talking above 0 vs look ahead and base vs both..]. [This is Table~\ref{tab:excerpt} as a rate -?]: the [turn-level
-policy - 0? use consistent names] meets resistance with reassurance, [which the rubric rewards in the turn where it happens ??];
-the look-ahead policy meets the patient's [own case for change -?] with a reflection, which [ pays in
-the turns the rubric is not shown at $K{=}0$. ?]
+\textbf{The session as a whole.} At iteration 10, $0.68$ of the patient's utterances are change
+talk under $\Kf$ against $0.53$ under $\Kz$ (Base $0.45$), and the difference is significant at
+every iteration from 6 on, while the share of sessions that reach any change talk at all does not
+differ ($0.92$ vs.\ $0.86$). The difference between the runs is in how a session develops
+(Figure~\ref{fig:process}d). Over the first nine patient turns both final policies raise change
+talk above the Base; in the sessions that reach a tenth patient turn (74 of $\Kf$'s 96, 62 of
+$\Kz$'s), change talk keeps rising under $\Kf$, to $0.85$ of the patient's utterances from the
+tenth on, and falls back under $\Kz$, to $0.50$, below the Base's $0.58$. Two further differences
+on the patient's side have no single reading: the $\Kf$ policy's patients write longer utterances
+($600$ vs.\ $440$ characters, $\dz\,1.24$), and a crude keyword cue for disengagement (``I don't
+know'', ``waste of time'') is slightly more frequent in them ($\dz\,0.31$). With a simulated
+patient we cannot tell engagement from verbosity, so we note both without interpreting either.
 
-\textbf{The session as a whole.} The patient's change-talk share is higher under look-ahead at
-[the endpoint ($0.68$ vs.\ $0.53$ under the training oracle, $0.72$ vs.\ $0.55$ held out;
-$\dz\,0.57$ / $0.70$) - not clear] and at every iteration from the sixth / fourth on, while the share of
-sessions that reach any change talk at all does not differ ($0.92$ vs.\ $0.87$, n.s.). The
-difference [between waht] is in how a session develops (Figure~\ref{fig:process}d): both endpoint policies raise
-the patient's change talk faster than the base over the first nine patient turns, but from the
-tenth on the $\Kf$ sessions keep rising, to a change-talk share of $0.85$ / $0.88$, where the
-$\Kz$ sessions fall back to $0.50$ / $0.50$ from $0.68$ / $0.62$, below the base: the praise
-spiral of Table~\ref{tab:excerpt} [at scale ?]. 
-
-The $\Kf$ policy's patients also write longer turns
-($600$ vs.\ $440$ characters, $\dz\,1.24$); a crude disengagement cue (``I don't know'', ``waste
-of time'') is slightly more frequent in their turns ($\dz\,0.31$), which we report [rather
-than resolve. ?]
+The held-out judge agrees on the direction of each contrast at iteration 10 and finds two of them
+larger: the $\Kf$ policy persuades after $0.58$ of the patient's sustain talk (Base $0.25$), and
+it reflects sustain talk significantly more often than $\Kz$ ($0.17$ vs.\ $0.05$; Appendix
+Table~\ref{tab:process-heldout}).

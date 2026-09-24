@@ -4,9 +4,10 @@
 Table~\ref{tab:byiter}: the \QQ\ contrast at every iteration.
 Figure~\ref{fig:grid-heldout}: every instrument by iteration under the held-out judge (the training
 oracle's is Figure~\ref{fig:headline}). Figure~\ref{fig:overpraise}: the keyword marker of
-\S\ref{sec:therapist}. Figure~\ref{fig:process-heldout}: the process picture of Figure~\ref{fig:process} under
-the held-out judge. Figure~\ref{fig:responsiveness}: the two responsiveness rates of
-Table~\ref{tab:process} by iteration under both graders. Figure~\ref{fig:textspace}: the two
+\S\ref{sec:therapist}. Figure~\ref{fig:process-heldout} and Table~\ref{tab:process-heldout}: the
+process picture of Figure~\ref{fig:process} and Table~\ref{tab:process} under the held-out judge.
+Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
+iteration under both judges. Figure~\ref{fig:textspace}: the two
 runs in sentence-embedding space (Figure~\ref{fig:textspace-body} and a third measure). Figure~\ref{fig:forest}: the session-level behaviour-channel
 profile. Figure~\ref{fig:tails}: the $K{=}5$ rollout audit, summarised in the Limitations. Over the $121{,}088$ logged $\Kf$
 candidates ($88\%$ of those scored), $82\%$ of rollouts ran the full five turns; the early-ending
@@ -61,22 +62,59 @@ Iteration 0 is the Base.}
 \centering
 \includegraphics[width=0.94\textwidth]{figures/process_grpo_heldout.png}
 \caption{Figure~\ref{fig:process} under the held-out judge: \textbf{(a, b)} each run's code mix
-by iteration, \textbf{(c)} the change-talk yield of each therapist code at iteration 10 (Wilson
-$95\%$ intervals; bars omitted below 20 turns), \textbf{(d)} the change-talk share of patient
-utterances by position in the session at iteration 10 against the Base. The held-out judge
-reads more of the $K{=}5$ policy's turns as non-specific praise than the training oracle does
-($0.20$ vs.\ $0.05$ at iteration 10) and agrees on everything else in the picture.}
+by iteration, \textbf{(c)} change-talk persistence by iteration (mean $\pm$ SE over conversations;
+dotted: the Base), \textbf{(d)} the change-talk share of patient utterances by position in the
+session at iteration 10 against the Base. The held-out judge reads more of the $\Kf$ policy's
+turns as non-specific praise than the training oracle does ($0.20$ vs.\ $0.05$ at iteration 10)
+and agrees on the direction of everything else in the picture.}
 \label{fig:process-heldout}
 \end{figure*}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2pt}
+\renewcommand{\arraystretch}{0.95}
+\begin{tabular}{@{}lrrrl@{}}
+\toprule
+Per-conversation measure & Base & $\Kz$ & $\Kf$ & \dz\\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Therapist turns (share by dominant function)}}\\
+non-specific praise ($\downarrow$) & $0.038$ & $0.762$ & $\mathbf{0.203}$ & $-2.19^{***}$\\
+complex reflection & $0.031$ & $0.016$ & $\mathbf{0.242}$ & $+0.94^{***}$\\
+persuasion ($\downarrow$) & $0.166$ & $\mathbf{0.033}$ & $0.268$ & $+0.83^{***}$\\
+MI-adherent share & $0.283$ & $0.037$ & $\mathbf{0.360}$ & $+1.35^{***}$\\
+MI-inconsistent share ($\downarrow$) & $0.214$ & $0.795$ & $\mathbf{0.471}$ & $-1.08^{***}$\\
+\midrule
+\multicolumn{5}{@{}l}{\emph{The therapist's reply to the patient's \ldots}}\\
+change talk: reflects it & $0.030$ & $0.006$ & $\mathbf{0.258}$ & $+0.99^{***}$\\
+sustain talk: praises ($\downarrow$) & $0.011$ & $0.723$ & $\mathbf{0.011}$ & $-3.10^{***}$\\
+sustain talk: persuades ($\downarrow$) & $0.253$ & $\mathbf{0.056}$ & $0.580$ & $+1.61^{***}$\\
+sustain talk: reflects it & $0.081$ & $0.050$ & $\mathbf{0.171}$ & $+0.49^{**}$\\
+\midrule
+\multicolumn{5}{@{}l}{\emph{Next patient utterance is change talk, after \ldots}}\\
+change talk & $0.715$ & $0.734$ & $\mathbf{0.935}$ & $+0.65^{***}$\\
+sustain talk & $0.182$ & $0.193$ & $0.238$ & $+0.04$\\
+\midrule
+\multicolumn{5}{@{}l}{\emph{The session}}\\
+change-talk share & $0.463$ & $0.545$ & $\mathbf{0.721}$ & $+0.70^{***}$\\
+\bottomrule
+\end{tabular}
+\caption{Table~\ref{tab:process} under the held-out judge (iteration 10; same columns, conventions
+and tests). Its paired contrasts that start from a patient utterance use $64$--$80$ personas.}
+\label{tab:process-heldout}
+\end{table}
 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/responsiveness_grpo.png}
-\caption{Responsiveness by iteration, under each grader (mean $\pm$ SE over the conversations in
-which the condition occurred). \textbf{(a, b)} The share of the patient's change-talk utterances
-the therapist answers with a reflection. \textbf{(c, d)} The share of the patient's sustain-talk
-utterances the therapist answers with non-specific praise. The endpoint values are the middle
-block of Table~\ref{tab:process}.}
+\caption{The therapist's replies by iteration, under the training oracle (top) and the held-out
+judge (bottom): mean $\pm$ SE over the conversations in which the patient's utterance occurred.
+\textbf{(a, e)} The share of the patient's change-talk (CT) utterances the therapist answers with a
+reflection. \textbf{(b, f)} The share of the patient's sustain-talk (ST) utterances it answers
+with non-specific praise, \textbf{(c, g)} with persuasion, and \textbf{(d, h)} with a reflection.
+The iteration-10 values are the middle blocks of Tables~\ref{tab:process}
+and~\ref{tab:process-heldout}.}
 \label{fig:responsiveness}
 \end{figure*}
 
