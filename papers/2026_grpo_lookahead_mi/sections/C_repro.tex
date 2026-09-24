@@ -1,14 +1,15 @@
+\clearpage
 \section{Reproducibility details}
 \label{app:repro}
 
 \subsection{Configuration}
 
-Both arms are launched from the same notebook with the same configuration block; the arm identity
-is encoded in the experiment name, which also determines the output directory, so two arms can
-never share a folder. The tracked \texttt{run\_metadata.json} of each arm records the full resolved
+Both runs are launched from the same notebook with the same configuration block; the run identity
+is encoded in the experiment name, which also determines the output directory, so two runs can
+never share a folder. The tracked \texttt{run\_metadata.json} of each run records the full resolved
 configuration. Diffing the two files yields exactly two substantive differences
 (\texttt{lookahead\_k}: absent vs.\ 5; \texttt{lookahead\_sub\_batch\_size}: absent vs.\ 128) plus
-the arm's own name, adapter repository, two output paths, and start timestamp.
+the run's own name, adapter repository, two output paths, and start timestamp.
 
 \begin{table}[h]
 \centering
@@ -19,7 +20,7 @@ the arm's own name, adapter repository, two output paths, and start timestamp.
 \toprule
 Setting & Value \\
 \midrule
-Base model & \texttt{Llama-3.2-1B}, bf16 \\
+Therapist model & \texttt{Llama-3.2-1B}, bf16 \\
 LoRA & $r{=}16$, $\alpha{=}16$ \\
 Learning rate & $1\mathrm{e}{-}5$ \\
 Seed & 42 \\
@@ -41,12 +42,12 @@ Therapist / patient temperature & 0.9 / 0.7 \\
 Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
 Software & TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 \\
 Hardware & one NVIDIA A100 (Google Colab) \\
-Look-ahead $K$ & 0 ($\Kz$ arm) / 5 ($\Kf$ arm) \\
+Look-ahead $K$ & 0 ($\Kz$ run) / 5 ($\Kf$ run) \\
 Optimizer steps, 10 iterations & $1{,}128$ ($\Kz$) / $1{,}070$ ($\Kf$) \\
 \bottomrule
 \end{tabular}}
-\caption{Resolved configuration, identical across the two arms except the final two rows.
-Source: each arm's \texttt{run\_metadata.json}; the step counts are read from the per-step
+\caption{Resolved configuration, identical across the two runs except the final two rows.
+Source: each run's \texttt{run\_metadata.json}; the step counts are read from the per-step
 training artifacts (\S\ref{app:repro-cost}).}
 \label{tab:config}
 \end{table}
@@ -71,19 +72,19 @@ MITI & \citet{moyers2016miti} & 4 globals, 1--5; 7 behaviour counts & mean of th
 PCT & this work & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
 MICI & this work & 1 global, 1--5; 6 behaviour counts & acts per therapist turn \\
 \midrule
-process coder & this work & one code per therapist and per patient utterance & \S\ref{sec:therapist}--\ref{sec:patient} \\
+utterance coder & this work & one code per therapist and per patient utterance & \S\ref{sec:therapist}--\ref{sec:patient} \\
 \bottomrule
 \end{tabular}
-\caption{The eight instruments and the process coder. \QQ\ is the mean of the Q1 and Q2 means. CT
+\caption{The eight instruments and the utterance coder. \QQ\ is the mean of the Q1 and Q2 means. CT
 and ST are the patient's change-talk and sustain-talk utterance counts. MICI is lower-is-better;
-its per-channel counts and rates are the material of \S\ref{sec:therapist}. The process coder is
+its per-channel counts and rates are the material of \S\ref{sec:therapist}. The utterance coder is
 described in \S\ref{app:coder}.}
 \label{tab:instruments}
 \end{table*}
 
 Table~\ref{tab:instruments} lists the eight instruments. Each is administered as one API call per
 conversation with a JSON-schema-constrained response, the fixed instructions and item texts first
-and the transcript last. For Q1 and Q2 the grader is addressed as ``a professional motivational
+and the transcript last. For Q1 and Q2 the judge is addressed as ``a professional motivational
 interview therapist'' and told to rate each item from the patient's point of view on a 1--5 scale,
 every item carrying a one-paragraph explanation with an example of a good and of a bad therapist
 response (Q1: overall satisfaction with the chat and with its content, motivation facilitated,
@@ -98,17 +99,17 @@ reflection, affirm, seeking collaboration). The PCT coder rates the patient's ex
 confidence and readiness to change and classifies every patient utterance as change talk, sustain
 talk or neutral. The MICI coder rates overall severity and counts six MI-inconsistent behaviours
 across the therapist's turns, any number per utterance: confront, advise without permission, warn,
-direct, judge/label, and over-praise, the last defined to the grader as ``effusive, generic, or
+direct, judge/label, and over-praise, the last defined to the judge as ``effusive, generic, or
 excessive praise NOT tied to a specific client strength/effort (`you're amazing', `I'm so proud of
 you'). A genuine, specific MI affirmation does NOT count here.'' The per-turn rates in
 \S\ref{sec:therapist} divide these counts by the number of therapist utterances, which the prompt
 states.
 
-\subsection{The utterance-level process coder}
+\subsection{The utterance coder}
 \label{app:coder}
 
-The process coder is administered as one further call per conversation under each grader, with the
-same rubric-first layout. The grader is addressed as an MI process coder trained on the MITI
+The utterance coder is administered as one further call per conversation under each judge, with
+the same rubric-first layout. The judge is addressed as an MI process coder trained on the MITI
 4.2.1 and MISC manuals and told to assign exactly one code to every therapist utterance, its
 dominant function (the function that occupies most of the utterance; a turn that praises at
 length and ends in one question is coded as praise), and exactly one code to every patient
@@ -127,7 +128,7 @@ numbered by role (``[THERAPIST \#k]'', ``[PATIENT \#k]'') so that the arrays ali
 lengths are pinned to the utterance counts in the response schema, a response of the wrong length
 is rejected and re-requested, and the scripted opener is pinned to open question and excluded
 from every rate and transition. Every one of the $2 \times 11 \times 96 = 2{,}112$ evaluation
-conversations is coded under both graders; three held-out rows that came back one code short on
+conversations is coded under both judges; three held-out rows that came back one code short on
 the batch path were re-scored on the live path.
 
 All process quantities are recomputed from the stored code sequences. Alternation is strict and
@@ -138,18 +139,17 @@ that are persuasion. Change-talk persistence is, within a conversation, the shar
 change-talk utterances whose next patient utterance is change talk again (and, after sustain talk,
 the share followed by change talk); every such rate is computed per conversation and averaged over
 the conversations in which its condition occurs. As a check of the
-coder against the session-level instruments of the same grader, the per-utterance codes summed
+coder against the session-level instruments of the same judge, the per-utterance codes summed
 per conversation are compared with the MITI behaviour counts and the PCT change-talk counts:
-across the 22 model states, the patient-side counts agree closely (Spearman $\rho$ pooled within
+across the 21 model states, the patient-side counts agree closely (Spearman $\rho$ pooled within
 state: change talk $0.88$ / $0.92$, sustain talk $0.90$ / $0.94$ under the training oracle / the
 held-out judge), while the therapist-side counts agree only partly (training oracle
 $0.02$--$0.43$ over the seven MITI codes; held-out judge $0.73$ for questions, $0.68$ for giving
 information, $0.55$ for persuasion, $0.10$--$0.30$ for reflections, affirmations and seeking
 collaboration). The two instruments count different things: the MITI coder counts every function a
-long turn performs, the process coder its dominant one, which is why the MITI coder reports
-$5.5$ questions per conversation where the process coder reports $1.7$ question-turns under the
-training oracle. \S\ref{sec:therapist} therefore quotes ``open-question turns'' and
-\S\ref{sec:reward} ``questions per turn'' with their units.
+long turn performs, the utterance coder its dominant one, which is why the MITI coder reports
+$5.5$ questions per conversation where the utterance coder reports $1.7$ question-turns under the
+training oracle, and why \S\ref{sec:therapist} counts open-question \emph{turns}.
 
 \subsection{The simulated patient and the therapist prompt}
 \label{app:prompts}
@@ -175,7 +175,7 @@ concerned about the impact of smoking on your health'') or obesity (``You have b
 with obesity for [a few months / many years]. Your weight is negatively impacting your health. You
 have high blood pressure and experience joint pain''), and the history clause states either that
 the patient has never tried to change or that they have tried many times and relapsed. The
-therapist's system prompt, applied through the chat template in both arms and inside the
+therapist's system prompt, applied through the chat template in both runs and inside the
 look-ahead rollout, is ``You are a motivational interviewing counselor named David. You partner
 with the patient to understand his problems. You are empathetic towards him and help the patient
 explore their ambivalence regarding behavioral change. You are non-judgmental while encouraging
@@ -200,14 +200,17 @@ the coded praise share (Figure~\ref{fig:process}a) is what \S\ref{sec:therapist}
 The base 1B model will occasionally continue past its own turn and write the patient's reply. All
 decode sites stop at the chat-template markers and truncate any completion at the first such
 marker; a completion that is empty after cleaning ends the conversation, and a degenerate
-completion is floored to the minimum reward. This applies identically in both arms, including
+completion is floored to the minimum reward. This applies identically in both runs, including
 inside the $K{=}5$ rollout.
 
 \subsection{Evaluation and statistics}
 
-Model states are scored offline into a score archive keyed by grader, replicate, instrument and
+Model states are scored offline into a score archive keyed by judge, replicate, instrument and
 model, one record per conversation; an interrupted scoring run resumes by skipping completed work.
-The reported draw is replicate 0 for each grader.
+The reported draw is replicate 0 for each judge. The Base was drawn twice, once at the start of
+each run, with identical settings; the paper pools the two draws into one Base of 192
+conversations, and a persona-paired contrast against the Base uses the mean of that persona's two
+conversations.
 
 All contrasts are persona-paired. The 96 personas are reshuffled every iteration, so pairing
 recovers the persona identity by replaying the shuffle; pairing on file order would join unrelated
@@ -222,13 +225,13 @@ is not pooled across families.
 
 The API-call counts quoted in the Limitations section are exact counts read from the per-iteration
 generation logs (one record per oracle call and per patient call, summed over the ten training
-iterations of each arm), and the optimizer-step counts are the number of per-step training
-artifacts each arm wrote. The GPU-hour totals in the Limitations and the Ethics Statement and the
+iterations of each run), and the optimizer-step counts are the number of per-step training
+artifacts each run wrote. The GPU-hour totals in the Limitations and the Ethics Statement and the
 per-step wall-clock multiplier are reconstructed from the modification times of those artifacts, because
 the run metadata's elapsed-time fields are per-process and undercount any iteration that crashed
 and resumed, in the worst case here by nearly $2\times$. An inter-step gap outside
 $(0, 3600\,\mathrm{s})$ is treated as a resume gap and imputed at the phase median; imputation
-counts are recorded per arm. The first two iterations of the $\Kf$ arm ran at a smaller look-ahead
+counts are recorded per run. The first two iterations of the $\Kf$ run ran at a smaller look-ahead
 sub-batch, so the per-step multiplier is quoted over the settled iterations 3--10.
 
 \subsection{Artifacts}

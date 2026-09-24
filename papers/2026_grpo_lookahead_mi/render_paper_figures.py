@@ -613,7 +613,7 @@ def forest() -> Path:
     ax.set_yticklabels(labels, fontsize=6.2)
     ax.set_xlim(*xlim)
     ax.set_ylim(y + 0.2, 0.9)
-    ax.set_xlabel("persona-paired $d_z$, $K{=}5 - K{=}0$   (positive: the look-ahead policy does more of it)")
+    ax.set_xlabel("persona-paired $d_z$, $K{=}5 - K{=}0$   (positive: the $K{=}5$ policy does more of it)")
     ax.grid(axis="y", visible=False)
     ax.text(0.99, 0.01, "hollow bar: did not clear Holm ($p \\geq .05$)", transform=ax.transAxes,
             ha="right", va="bottom", fontsize=5.8, color="#555555")

@@ -1,3 +1,4 @@
+\clearpage
 \section{The mechanism analysis in full}
 \label{app:mechanism}
 
@@ -11,7 +12,7 @@ This appendix expands the mechanism paragraph of \S\ref{sec:discussion}.
 \includegraphics[width=0.94\textwidth]{figures/faithfulness_grpo.png}
 \caption{Faithfulness of the training reward by prefix length, iterations 1--10 pooled, under
 \textbf{(a)} the training oracle and \textbf{(b)} the held-out judge: the share of candidate pairs,
-compared within one (arm, iteration, conversation-length) cell, that the training reward orders the
+compared within one (run, iteration, conversation-length) cell, that the training reward orders the
 way the full-session score does. Chance is $0.5$; bands are conversation-level cluster-bootstrap
 intervals. The value at the shortest admitted prefix, 12 utterances, is the $86$--$89\%$ figure of
 \S\ref{sec:lagrpo}.}
@@ -20,14 +21,14 @@ intervals. The value at the shortest admitted prefix, 12 utterances, is the $86$
 
 The training reward scores a \emph{partial} conversation; the evaluation scores the whole session.
 The gap between them is measurable as pairwise rank agreement: among candidate turns compared
-within one (arm, iteration, conversation-length) cell, how often does the training reward order
+within one (run, iteration, conversation-length) cell, how often does the training reward order
 them the way the full-session score eventually does? Chance is $0.5$; intervals are
 conversation-level cluster bootstraps.
 
 Pooled over the ten iterations, agreement is $0.909$ $[0.900, 0.917]$ under $\Kf$ against $0.873$
 $[0.861, 0.884]$ under $\Kz$ on the training oracle, and $0.800$ against $0.747$ on the held-out
-judge; both differences have intervals excluding zero, and $\Kf$ is the more faithful arm at 7 of
-10 iterations under both graders. By prefix length, agreement at the shortest admitted prefix (12
+judge; both differences have intervals excluding zero, and $\Kf$ is the more faithful run at 7 of
+10 iterations under both judges. By prefix length, agreement at the shortest admitted prefix (12
 utterances) is $0.860$ under $\Kz$ and $0.886$ under $\Kf$ on the training oracle, and it does
 not fall with length ($0.897$ and $0.936$ at 50 utterances); this is the $86$--$89\%$ figure
 quoted in \S\ref{sec:lagrpo} (Figure~\ref{fig:faithfulness}). Because MCL${=}12$ admits no shorter prefix, this experiment cannot
@@ -36,21 +37,21 @@ iteration-level Wilcoxon test, with the ten iterations rather than the branch pa
 observation, does \emph{not} clear $.05$ ($p = .084$ training oracle, $p = .193$ held out). The
 pooled interval treats branch pairs as independent and is the more permissive of the two, so we
 describe the difference as small and consistent rather than significant. Second, at iteration $n$
-the two arms are \emph{different policies} generating \emph{different conversations}, so this
+the two runs are \emph{different policies} generating \emph{different conversations}, so this
 comparison measures a joint property of the scoring rule and of the trajectory the scoring rule put
 the policy on; it cannot separate them.
 
 \subsection{At a matched policy, the effect disappears}
 
 There is exactly one cut in this design where the scoring rule is close to the only difference: the
-first iteration, where both arms start from the same base policy and differ only in whether five
+first iteration, where both runs start from the same Base policy and differ only in whether five
 simulated turns were appended before the oracle saw each candidate. At that cut nothing is
 detectable. Both deltas straddle zero ($\Kf - \Kz$ agreement, training oracle: $-0.015$
 $[-0.059, 0.026]$; held-out judge: $+0.014$ $[-0.048, 0.075]$), and the per-length-bin breakdown
-points in opposite directions on the two graders: 17 of 20 bins favour $\Kz$ under the training
-oracle, 17 of 20 favour $\Kf$ under the held-out judge. An effect whose sign depends on the grader
+points in opposite directions on the two judges: 17 of 20 bins favour $\Kz$ under the training
+oracle, 17 of 20 favour $\Kf$ under the held-out judge. An effect whose sign depends on the judge
 is not distinguishable from zero. The matched-policy cut is also the weakest-powered one (a single
-model state per arm, and only approximately matched, since the policy drifts within the iteration
+model state per run, and only approximately matched, since the policy drifts within the iteration
 under $K$-specific rewards), so this is an absence of evidence rather than evidence of absence; we
 report it alongside the pooled estimate.
 
@@ -64,9 +65,9 @@ absorbs.
 One iteration inverts the \emph{level} of this. At training iteration 10 the margin ratio drops to
 $0.679$: $\Kf$'s within-group margins are smaller than $\Kz$'s there. Both sides move. $\Kz$'s mean
 margin jumps from $0.248$ to $0.339$ while $\Kf$'s falls from $0.268$ to $0.230$. The $\Kz$ jump
-coincides with the iteration in which its over-praise rate jumps (the judge-free marker goes
-from $0.093$ to $0.671$ between iterations 9 and 10), which is what a group containing both
-over-praising and non-over-praising candidates would do under a grader that rewards praise: the
+coincides with the iteration in which its over-praise rate jumps (the keyword marker goes
+from $0.094$ to $0.671$ between iterations 9 and 10), which is what a group containing both
+over-praising and non-over-praising candidates would do under a judge that rewards praise: the
 pool splits and the best--worst gap widens. The $\Kf$ decline is the mirror image, a converging policy
 whose eight samples the oracle scores increasingly alike. This does not break the rescaling result:
 at that same iteration the ratio of ratios is $0.964$, so margin and standard deviation still move
@@ -102,7 +103,7 @@ half of $\Kz$'s groups, against $0.28$--$0.44$ of $\Kf$'s.
 
 Writing each iteration's update direction as the advantage-weighted sum of its candidates' sentence
 embeddings, $\operatorname{normalise}(\sum_g w_g \cdot \mathrm{emb}(t_g))$ with $w_g$ the
-standardised group-relative advantage that scales each completion's gradient, the two arms' pooled
+standardised group-relative advantage that scales each completion's gradient, the two runs' pooled
 directions have a cosine of $0.804$, or $0.851$ once divided by the attenuation ceiling ($0.945$)
 that two split-half-noisy estimates can reach at all. This is an embedding-space proxy, not the
 gradient: it measures the semantic direction of what the update prefers, and it says the $\Kz$ and

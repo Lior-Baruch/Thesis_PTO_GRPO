@@ -269,7 +269,8 @@ The plan, one step at a time, each section ending in a build, Lior's read, a com
 0 pull (done) · 1 data and figures (done 2026-09-24, below) · 2 §3 (done) · 3 §4 (done) ·
 4 §5 (done 2026-09-24, below) · 5 §6 (done 2026-09-24, below) rewritten
 around responsiveness → change-talk persistence → the session (heads-up to Doron first) ·
-6 appendices (the Claude appendix, the complete tables, Appendix E and the Limitations reframed) ·
+6 appendices (done 2026-09-24, below: the Claude appendix, the complete tables, Appendix E and
+the Limitations reframed) ·
 7 carry through (abstract, §7, Limitations, captions) · 8 Doron's contributions paragraph, then the
 abstract · 9 layout fixes · 10 length pass, checklist, code zip, submit ≈ 9 Oct.
 
@@ -294,8 +295,17 @@ Doron's 17 notes answered by the rewrite. Table 3 is training-oracle only, singl
 Base column and two new reply rows (`pers_after_st`, `refl_after_st`, added to the EDA for this):
 the honest addition is that K=5 answers sustain talk with persuasion (0.39, Base 0.24) as K=0
 answers it with praise. The per-code yield is retired (placement-confounded); Figure 3c is now
-persistence. His "??" is answered by the measured praise premium (new Appendix B.4 + figure). The
-held-out Table 3 is Appendix Table 5; the responsiveness figure shows both judges × four replies.
+persistence. His "??" is answered by the measured praise premium (new appendix subsection + figure,
+C.4 since step 6). The held-out Table 3 is Appendix Table 5; the responsiveness figure shows both
+judges × four replies.
+
+**Step 6 (2026-09-24), appendices.** A = training-oracle extras, now led by the complete score table
+(Table 4; the old `tab:byiter` retires); **B = the held-out judge** (`sections/A2_heldout.tex`: its
+grid, complete score table, process figure and table, and one paragraph of where it agrees and
+differs); C mechanism (the praise premium is C.4); D reproducibility (+ the Base-pooling sentence);
+E examples; F saturation, reframed as a limit of the main judge on 21 states. Each appendix starts
+on a new page. The Limitations drop the base-vs-base sentence and call the held-out judge and the
+six outside instruments "the checks", not "the load-bearing evidence".
 
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with

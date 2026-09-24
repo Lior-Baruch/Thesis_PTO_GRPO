@@ -764,3 +764,34 @@ and "the praise spiral … at scale". New: Figure 3c = change-talk persistence b
 (`persist_levels_<judge>`), Appendix B.4 + `praise_premium_grpo.png`, Appendix Table 5 (held-out
 Table 3), the responsiveness figure redrawn 2 judges × 4 replies. Figure legends name the runs "K=0"
 / "K=5" only (the "(turn-level)" / "(look-ahead)" suffixes dropped, per the vocabulary decision).
+*(Letters moved in step 6: the praise premium is now Appendix C.4, the held-out Table 3 is Table 5
+in the new Appendix B.)*
+
+**Appendices restructured (2026-09-24, step 6 of the plan; Lior chose "new Appendix B, saturation
+stays").** A = training-oracle extras; **B = the held-out judge** (new, `sections/A2_heldout.tex`:
+its grid, complete score table, process figure and process table, plus one paragraph of where it
+agrees and differs); C = mechanism (+ the praise premium, C.4); D = reproducibility; E = the two
+examples; F = saturation, reframed as a limit of the main judge. Each appendix starts on a new page
+so its floats stay with it. Table 4 (`tab:byiter`, Q1+Q2 at every iteration with the two Base
+draws) is **retired**; its iteration-0 row and "noise floor" wording go with it.
+
+| Claim (appendices, Limitations) | Value | Source |
+|---|---|---|
+| Complete score tables (Tables 4 and 6) | printed from the workbook by a script: 21 rows × 9 instruments, mean over 96 personas (Base over 192), a star on the better run where p_holm < .05 (Holm across iterations 1–10 within instrument); K=0 cells starred: MICI at it 3 (oracle); MITI and MICI at it 3 (held-out) | `shared_base` `score_table_<judge>` |
+| App B: judge offset on Q1+Q2 | 1.167–1.805 → "1.2–1.8" | `judge_offset` |
+| App B: held-out summary | Q1+Q2 significant at 4–10 (7 of 10) vs oracle 6; K=0's best held-out checkpoint it 3 (2.637 vs 2.617 at it 8), dz 0.386 vs the final K=5; gain ratios 2.50 / 1.30; praise share K=5 0.203 vs oracle 0.053; MI-inconsistent 0.471 / 0.795 / Base 0.214, K=0 lower at 3, 5 and K=5 lower at 8, 10; persuades after ST 0.580 (Base 0.253); reflects ST 0.171 vs 0.050; persistence significant from it 3 | the §4–§6 rows above |
+| App F: sign preservation | 1,484 of 8 × C(21,2) = 8 × 210 = 1,680 (88.3%); 373 of 377 (98.9%) at \|Δ\| ≥ 0.50 | `sign_preservation` |
+| App F: Q1 agreement | median 0.842 over 21 states (Base 0.858); next-lowest 0.744 (K=0 it 6); K=0 range 0.744–0.882; K=5 it 5→10 0.941, 0.877, 0.842, 0.769, 0.487, 0.544 | `agreement_by_state` |
+| App F Table 9 | printed by script: MITI 0.333 / 0.666 / −0.334 / 1 of 21; Q1 0.544 / 0.842 / −0.298 / 2; Q2 0.590 / 0.752 / −0.162 / 1; MICI 0.287 / 0.411 / −0.123 / 4; CSQ-8 0.851 / 0.888 / −0.037 / 4; PCT 0.928 / 0.956 / −0.027 / 3; MI-SAT 0.905 / 0.930 / −0.025 / 4; WAI-SR 0.898 / 0.920 / −0.023 / 3 | `agreement_summary` |
+| App F: the ceiling | Q1 ≥ 4.5: Base 12.5% → 58.3% at it 10, 39.6% at the maximum score; SD 1.314 → 0.701, ρ −0.864, **p = .0006 → "p < .001"** (was "p = .001"); variance ratio 0.2845 vs Base, 0.2854 vs it 1 → "0.28 either way" (the anchors agree, and the trend is monotone — rule 2b holds) | `sd_by_iter`, `sd_trend` |
+| App F: K=0 spread tracks level | SD 0.922–1.011 over it 3–8 (means 3.81–3.95); 0.982 / 1.142 at it 9 / 10 (means 3.53 / 3.61) | `sd_by_iter` |
+| App F: held-out K=5 | share ≥ 4.5 is 0 at every state ("gives no conversation 4.5 or more"; replaces "the upper half of its scale unused", which was loose — up to 9.4% of its K=5 conversations score ≥ 4); ρ +0.436, p .180 | `sd_by_iter`, `sd_trend` |
+| Limitations + App D: parity | pooled ρ CT 0.881 / 0.915, ST 0.898 / 0.942 over 21 states → "0.88–0.94" (was "0.88–0.95 across the 22 states"; the 0.95 was a slip) | `parity_pooled_<judge>` |
+
+Also in step 6: Limitations reframed (the base-vs-base sentence and its Table 4 citation gone; "the
+held-out judge and the instruments outside the reward are the load-bearing evidence" → they are
+"the checks on it"; arm → run, grader → judge, process coder → utterance coder, "deterministic
+lexical marker" → "the keyword marker"); Appendix D gains the Base-pooling sentence and "21 model
+states"; the config table's "Base model" row is now "Therapist model" (Base means iteration 0).
+Still open for step 7: the Discussion and Ethics wording ("arm", "graders") and the Limitations
+paragraph on patient replies inside the K=5 reward.

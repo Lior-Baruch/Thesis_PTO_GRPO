@@ -1,39 +1,37 @@
 \section*{Limitations}
 \label{sec:limitations}
 
-\paragraph{One training run per arm.}
+\paragraph{One training run per $K$.}
 Every effect size reported here is computed across the 96 patient personas \emph{within} a single
 training run. There are no training-seed replicates, so run-to-run training variance is unmeasured,
-and we cannot separate ``look-ahead helps'' from ``this look-ahead run went well.'' The $K{=}0$
-arm's decline over its last two iterations and its late over-praise spike are likewise events of
-one run, which is why \S\ref{sec:reward} reports the contrast against that arm's best checkpoint as
-well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at how many of the ten
-matched iterations each process contrast clears Holm rather than the endpoint alone. We regard this as the principal limitation; it is distinct from, and not bounded
+and we cannot separate ``look-ahead helps'' from ``this look-ahead run went well.'' The $\Kz$
+run's decline over its last two iterations and its late praise spike are likewise events of one
+run, which is why \S\ref{sec:reward} reports the contrast against that run's best checkpoint as
+well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at which of the ten
+iterations each process contrast is significant rather than the endpoint alone. We regard this as the principal limitation; it is distinct from, and not bounded
 by, the evaluation noise discussed next.
 
 \paragraph{Evaluation draws.}
-Therapist decoding is unseeded and each model state was evaluated on one 96-conversation sample.
-At the untrained base, the two arms' independent draws of the identical policy differ on \QQ\ by
-$\dz\,0.115$ under the training oracle and $0.043$ under the held-out judge, neither significant
-(Table~\ref{tab:byiter}); at the trained $\Kf$ endpoint the re-draw of \S\ref{sec:reward} differs
-from the original by at most $|\dz|\,0.174$ across 9 instruments and 2 graders, nothing
-significant. The remaining states are single draws, and a replicate bounds evaluation noise only,
+Therapist decoding is unseeded and each trained model state was evaluated on one
+96-conversation sample (the Base on two, which we pool). At the trained $\Kf$ endpoint the re-draw
+of \S\ref{sec:reward} differs from the original by at most $|\dz|\,0.174$ across 9 instruments and
+2 judges, nothing significant. The remaining states are single draws, and a replicate bounds evaluation noise only,
 never the training variance above.
 
 \paragraph{Matched iterations are not matched cost.}
-An iteration is 96 conversations and $G{=}8$ scored candidates per prompt in both arms, so oracle
+An iteration is 96 conversations and $G{=}8$ scored candidates per prompt in both runs, so oracle
 scoring calls ($302{,}541$ for $\Kz$ vs.\ $289{,}983$ for $\Kf$ over ten iterations) and
 optimizer steps ($1{,}128$ vs.\ $1{,}070$) are approximately matched by construction. But each
 $\Kf$ reward requires a five-turn simulated continuation, about $393$k patient-simulator calls
-over the run that the $\Kz$ arm never makes, and roughly doubles per-step wall-clock (median
+over ten iterations that the $\Kz$ run never makes, and roughly doubles per-step wall-clock (median
 $1.92\times$ over the settled iterations 3--10; $27.9$ vs.\ $51.2$ GPU-hours for the two runs).
 More compute per iteration is built into the lever, and we disclose the asymmetry rather than
-equalise it. Read at matched GPU-hours instead, with each arm at its best checkpoint within the
-budget under the selecting grader, the comparison is budget-dependent: at about 13 GPU-hours the
-turn-level arm is ahead on \QQ\ ($\dz\,-0.74$ under the training oracle, $-0.78$ held out), at
-about 23 GPU-hours the two are level under the training oracle ($\dz\,0.07$, n.s.) and look-ahead
-leads under the held-out judge ($\dz\,0.33$, $p_{\text{holm}} = .012$), and beyond the turn-level
-arm's total budget the comparison is the best-checkpoint one of \S\ref{sec:reward}. GPU-hours are
+equalise it. Read at matched GPU-hours instead, with each run at its best checkpoint within the
+budget under the selecting judge, the comparison is budget-dependent: at about 13 GPU-hours the
+$\Kz$ run is ahead on \QQ\ ($\dz\,-0.74$ under the training oracle, $-0.78$ held out), at about 23
+GPU-hours the two are level under the training oracle ($\dz\,0.07$, n.s.) and $\Kf$ leads under
+the held-out judge ($\dz\,0.33$, $p_{\text{holm}} = .012$), and beyond the $\Kz$ run's total
+budget the comparison is the best-checkpoint one of \S\ref{sec:reward}. GPU-hours are
 reconstructed from artifact timestamps (Appendix~\ref{app:repro}), so this reading is coarser
 than the iteration-matched one.
 
@@ -57,7 +55,7 @@ five turns; early-ending candidates scored at or below their group mean, by up t
 depending on how the rollout ended, and were the group's best less often than chance. The lever was
 therefore applied as specified in the large majority of cases, but it carries a mild pressure to
 keep the session open that a turn-level reward does not, and the $\Kf$ policy's longer endpoint
-sessions ($31.9$ vs.\ $25.2$ utterances, $\dz\,0.43$) are consistent with it. Two arms cannot separate this from the
+sessions ($31.9$ vs.\ $25.2$ utterances, $\dz\,0.43$) are consistent with it. Two runs cannot separate this from the
 horizon effect proper.
 
 \paragraph{Simulation only, in sample, without human validation.}
@@ -73,25 +71,25 @@ express themselves more uniformly positively than human patients do
 \citep{hoang2026standardised}, which bears directly on a finding about praise. No human MI coder has
 rated any conversation in this experiment; the oracle is highly self-repeatable (ICC 0.92--0.99 on
 the two $K{=}0$ states with a repeat draw), but repeatability is not validity, and the over-praise
-finding is the most robust behavioural claim here precisely because a deterministic lexical marker
+finding is the most robust behavioural claim here precisely because the keyword marker
 corroborates it without a model in the loop. Therapist responses are also capped at 200 tokens,
-and mean turn length roughly tripled over training in both arms, so many endpoint turns end
-mid-sentence (Appendix~\ref{app:example}); the cap is identical across arms and the truncated turn
-is what the patient simulator and both graders saw, so it does not bias the contrast, but it is
+and mean turn length roughly tripled over training in both runs, so many endpoint turns end
+mid-sentence (Appendix~\ref{app:example}); the cap is identical across runs and the truncated turn
+is what the patient simulator and both judges saw, so it does not bias the contrast, but it is
 part of what every score in this paper measures.
 
-\paragraph{Instruments and the process coder.}
+\paragraph{Instruments and the utterance coder.}
 \QQ\ is both the optimisation target and a headline metric, so ``\QQ\ improved'' is partly
-circular; we treat the held-out judge and the instruments outside the reward as the load-bearing
-evidence, and Appendix~\ref{app:saturation} quantifies what happens to the trained-against
-grader's discriminative range over a long run. The MITI-style coder is the least dependable
-instrument at the arm level, and we do not lean on its differences alone. The process coder of
+circular: the six instruments outside the reward and the held-out judge are the checks on it
+(\S\ref{sec:setup}), and Appendix~\ref{app:saturation} shows how the main judge's range narrows at
+the $\Kf$ run's late checkpoints. The MITI-style coder is the least dependable instrument for
+comparing the runs, and we do not lean on its differences alone. The utterance coder of
 \S\ref{sec:therapist}--\ref{sec:patient} assigns one dominant code per utterance, so a
 900-character turn that reflects, informs and ends in a question is coded once; its patient-side
-codes reproduce the session-level change-talk counts of the same grader (pooled $\rho$
-$0.88$--$0.95$ across the 22 states), but its therapist-side codes reproduce the MITI behaviour
+codes reproduce the session-level change-talk counts of the same judge (pooled $\rho$
+$0.88$--$0.94$ across the 21 states), but its therapist-side codes reproduce the MITI behaviour
 counts only partly (Appendix~\ref{app:coder}), because the two instruments count different
 things. Its most consequential therapist-side judgement, praise against affirmation, is also the
-one the two graders apply differently to the look-ahead policy (\S\ref{sec:therapist}), and no
+one the two judges apply differently to the $\Kf$ policy (\S\ref{sec:therapist}), and no
 human coder has checked either; the sequential claims of \S\ref{sec:patient} are the claims a
 human-coded sample should test first.
