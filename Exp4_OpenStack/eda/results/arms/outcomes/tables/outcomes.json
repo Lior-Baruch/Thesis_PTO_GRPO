@@ -12,7 +12,9 @@
   "coverage.arms": {
    "value": [
     "GRPO_LA0",
-    "GRPO_LA5"
+    "GRPO_LA0_ThL1B",
+    "GRPO_LA5",
+    "GRPO_LA5_ThL1B"
    ],
    "source": "tables/coverage.md",
    "note": "arm display labels; key on experiment_name for data"
@@ -33,7 +35,7 @@
    "note": ""
   },
   "coverage.scored_rows": {
-   "value": 19008,
+   "value": 38016,
    "source": "tables/coverage.md",
    "note": "one row per (arm, state, persona, instrument, grader)"
   },
@@ -57,6 +59,21 @@
     "GRPO_LA0",
     "GRPO_LA5"
    ],
+   "source": "tables/leaderboard_focus.md",
+   "note": "arms whose best state is not their last -- report both endpoints"
+  },
+  "focus.gpt4m.ThL1B.leader_final": {
+   "value": "GRPO_LA0_ThL1B",
+   "source": "tables/leaderboard_focus.md",
+   "note": "highest Q1Q2 at its FINAL state (state 10, gain 1.114 vs base)"
+  },
+  "focus.gpt4m.ThL1B.leader_best": {
+   "value": "GRPO_LA0_ThL1B",
+   "source": "tables/leaderboard_focus.md",
+   "note": "highest Q1Q2 at its BEST state (state 10, gain 1.114 vs base)"
+  },
+  "focus.gpt4m.ThL1B.past_peak_arms": {
+   "value": [],
    "source": "tables/leaderboard_focus.md",
    "note": "arms whose best state is not their last -- report both endpoints"
   }

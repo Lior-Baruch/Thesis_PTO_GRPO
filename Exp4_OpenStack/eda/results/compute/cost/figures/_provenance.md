@@ -3,8 +3,8 @@
 _Written by `exports.save_provenance`. Every artifact in this family was produced by the configuration below._
 
 ## Data
-- **rows:** 19,008
-- **arms** (`arm`): ['GRPO_LA0', 'GRPO_LA5']
+- **rows:** 38,016
+- **arms** (`arm`): ['GRPO_LA0', 'GRPO_LA0_ThL1B', 'GRPO_LA5', 'GRPO_LA5_ThL1B']
 - **metrics** (`metric`): ['CSQ8', 'MICI', 'MITI', 'MI_SAT', 'PCT', 'Q1', 'Q1Q2', 'Q2', 'WAI_SR']
 - **model states** (`model_state`): ['model_iter_0', 'model_iter_1', 'model_iter_10', 'model_iter_2', 'model_iter_3', 'model_iter_4', 'model_iter_5', 'model_iter_6', 'model_iter_7', 'model_iter_8', 'model_iter_9']
 - **graders** (`judge`): ['gpt4m']

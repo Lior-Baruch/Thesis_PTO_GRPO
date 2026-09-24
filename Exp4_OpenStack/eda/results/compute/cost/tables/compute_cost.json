@@ -56,6 +56,11 @@
    "value": "GRPO_LA0",
    "source": "tables/budget_verdicts_gpt4m.md",
    "note": "at 15.89 GPU-h, best-within-budget rule (state 9, Q1Q2=4.123); fixed-endpoint rule says GRPO_LA0, rules_agree=True"
+  },
+  "cost.gpt4m.ThL1B.leader_at_max_budget": {
+   "value": "GRPO_LA0_ThL1B",
+   "source": "tables/budget_verdicts_gpt4m_ThL1B.md",
+   "note": "at 21.47 GPU-h, best-within-budget rule (state 10, Q1Q2=3.987); fixed-endpoint rule says GRPO_LA0_ThL1B, rules_agree=True"
   }
  }
 }
