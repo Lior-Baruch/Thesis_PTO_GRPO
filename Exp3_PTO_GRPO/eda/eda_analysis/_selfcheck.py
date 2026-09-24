@@ -99,7 +99,7 @@ _KNOWN_TOL = 0.02
 _SUBMODULES = ("plotting", "plots", "figures", "data",
                "stats", "behavior", "training", "pref", "exports", "compute", "reliability",
                "lookahead", "transfer", "tails", "dispersion", "faithfulness", "crossgen",
-               "replication", "instruments", "text", "process")
+               "replication", "instruments", "text", "process", "shared_base")
 
 
 # ── check harness ─────────────────────────────────────────────────────────────

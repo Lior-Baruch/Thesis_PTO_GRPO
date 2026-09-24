@@ -1,0 +1,66 @@
+> **Excerpt — first 60 of 1,680 rows.** The full table is too large to read as markdown, so it lives on sheet `state_pairs` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="state_pairs")`.
+
+| metric   | model_a           | model_b          |   primary_n |   primary_delta |   primary_dz |   judge_n |   judge_delta |   judge_dz |   judge_ci_lo |   judge_ci_hi | same_sign   |
+|:---------|:------------------|:-----------------|------------:|----------------:|-------------:|----------:|--------------:|-----------:|--------------:|--------------:|:------------|
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I1  |          96 |          -0.211 |       -0.247 |        96 |        -0.273 |     -0.409 |        -0.410 |        -0.142 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I10 |          96 |          -0.641 |       -0.710 |        96 |        -0.179 |     -0.278 |        -0.307 |        -0.049 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I2  |          96 |          -0.337 |       -0.432 |        96 |        -0.283 |     -0.430 |        -0.413 |        -0.152 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I3  |          96 |          -0.970 |       -1.369 |        96 |        -0.890 |     -1.402 |        -1.023 |        -0.767 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I4  |          96 |          -0.932 |       -1.273 |        96 |        -0.758 |     -0.928 |        -0.919 |        -0.597 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I5  |          96 |          -0.903 |       -1.324 |        96 |        -0.673 |     -0.818 |        -0.840 |        -0.505 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I6  |          96 |          -0.845 |       -0.985 |        96 |        -0.492 |     -0.475 |        -0.697 |        -0.290 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I7  |          96 |          -0.980 |       -1.244 |        96 |        -0.702 |     -0.819 |        -0.869 |        -0.525 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I8  |          96 |          -0.970 |       -1.282 |        96 |        -0.637 |     -1.056 |        -0.759 |        -0.519 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA0_I9  |          96 |          -0.564 |       -0.700 |        96 |        -0.006 |     -0.006 |        -0.193 |         0.183 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I1  |          96 |          -0.207 |       -0.220 |        96 |        -0.188 |     -0.252 |        -0.338 |        -0.041 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I10 |          96 |          -1.499 |       -1.597 |        96 |        -1.044 |     -1.259 |        -1.207 |        -0.875 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I2  |          96 |          -0.395 |       -0.462 |        96 |        -0.283 |     -0.369 |        -0.429 |        -0.130 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I3  |          96 |          -0.841 |       -1.143 |        96 |        -0.835 |     -1.166 |        -0.988 |        -0.698 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I4  |          96 |          -1.134 |       -1.506 |        96 |        -1.127 |     -1.714 |        -1.260 |        -0.996 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I5  |          96 |          -1.022 |       -1.277 |        96 |        -1.123 |     -1.502 |        -1.272 |        -0.972 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I6  |          96 |          -1.234 |       -1.549 |        96 |        -1.210 |     -1.822 |        -1.342 |        -1.081 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I7  |          96 |          -1.241 |       -1.589 |        96 |        -1.181 |     -1.569 |        -1.328 |        -1.033 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I8  |          96 |          -1.234 |       -1.432 |        96 |        -1.000 |     -1.279 |        -1.158 |        -0.852 | True        |
+| Q1       | GRPOExp3_LA0_Base | GRPOExp3_LA5_I9  |          96 |          -1.443 |       -1.598 |        96 |        -1.033 |     -1.163 |        -1.200 |        -0.857 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I10 |          96 |          -0.429 |       -0.397 |        96 |         0.094 |      0.112 |        -0.069 |         0.265 | False       |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I2  |          96 |          -0.125 |       -0.122 |        96 |        -0.010 |     -0.012 |        -0.185 |         0.156 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I3  |          96 |          -0.758 |       -0.822 |        96 |        -0.617 |     -0.750 |        -0.775 |        -0.454 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I4  |          96 |          -0.721 |       -0.788 |        96 |        -0.485 |     -0.510 |        -0.671 |        -0.292 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I5  |          96 |          -0.692 |       -0.782 |        96 |        -0.400 |     -0.447 |        -0.575 |        -0.217 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I6  |          96 |          -0.633 |       -0.614 |        96 |        -0.219 |     -0.197 |        -0.433 |         0.004 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I7  |          96 |          -0.769 |       -0.838 |        96 |        -0.429 |     -0.441 |        -0.629 |        -0.242 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I8  |          96 |          -0.758 |       -0.876 |        96 |        -0.365 |     -0.515 |        -0.506 |        -0.227 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA0_I9  |          96 |          -0.352 |       -0.351 |        96 |         0.267 |      0.267 |         0.073 |         0.477 | False       |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I1  |          96 |           0.004 |        0.004 |        96 |         0.085 |      0.108 |        -0.067 |         0.242 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I10 |          96 |          -1.288 |       -1.249 |        96 |        -0.771 |     -0.782 |        -0.956 |        -0.573 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I2  |          96 |          -0.183 |       -0.177 |        96 |        -0.010 |     -0.012 |        -0.179 |         0.167 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I3  |          96 |          -0.629 |       -0.684 |        96 |        -0.562 |     -0.653 |        -0.731 |        -0.396 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I4  |          96 |          -0.923 |       -1.012 |        96 |        -0.854 |     -0.991 |        -1.012 |        -0.673 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I5  |          96 |          -0.810 |       -0.827 |        96 |        -0.850 |     -0.997 |        -1.027 |        -0.675 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I6  |          96 |          -1.023 |       -0.995 |        96 |        -0.938 |     -1.136 |        -1.102 |        -0.775 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I7  |          96 |          -1.029 |       -1.041 |        96 |        -0.908 |     -0.955 |        -1.100 |        -0.721 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I8  |          96 |          -1.023 |       -1.061 |        96 |        -0.727 |     -0.849 |        -0.894 |        -0.554 | True        |
+| Q1       | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I9  |          96 |          -1.231 |       -1.199 |        96 |        -0.760 |     -0.748 |        -0.960 |        -0.554 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I2  |          96 |           0.304 |        0.328 |        96 |        -0.104 |     -0.133 |        -0.254 |         0.056 | False       |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I3  |          96 |          -0.329 |       -0.431 |        96 |        -0.710 |     -0.972 |        -0.858 |        -0.565 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I4  |          96 |          -0.292 |       -0.387 |        96 |        -0.579 |     -0.651 |        -0.752 |        -0.408 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I5  |          96 |          -0.263 |       -0.327 |        96 |        -0.494 |     -0.542 |        -0.671 |        -0.312 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I6  |          96 |          -0.204 |       -0.221 |        96 |        -0.312 |     -0.294 |        -0.521 |        -0.098 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I7  |          96 |          -0.340 |       -0.432 |        96 |        -0.523 |     -0.644 |        -0.685 |        -0.360 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I8  |          96 |          -0.329 |       -0.371 |        96 |        -0.458 |     -0.610 |        -0.610 |        -0.317 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA0_I9  |          96 |           0.077 |        0.090 |        96 |         0.173 |      0.184 |        -0.017 |         0.360 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I1  |          96 |           0.433 |        0.402 |        96 |        -0.008 |     -0.010 |        -0.177 |         0.152 | False       |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I10 |          96 |          -0.858 |       -0.902 |        96 |        -0.865 |     -1.152 |        -1.017 |        -0.721 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I2  |          96 |           0.246 |        0.266 |        96 |        -0.104 |     -0.133 |        -0.273 |         0.052 | False       |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I3  |          96 |          -0.200 |       -0.240 |        96 |        -0.656 |     -0.885 |        -0.800 |        -0.510 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I4  |          96 |          -0.494 |       -0.629 |        96 |        -0.948 |     -1.288 |        -1.094 |        -0.798 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I5  |          96 |          -0.381 |       -0.422 |        96 |        -0.944 |     -1.100 |        -1.117 |        -0.775 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I6  |          96 |          -0.594 |       -0.717 |        96 |        -1.031 |     -1.400 |        -1.179 |        -0.892 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I7  |          96 |          -0.600 |       -0.669 |        96 |        -1.002 |     -1.189 |        -1.171 |        -0.831 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I8  |          96 |          -0.594 |       -0.633 |        96 |        -0.821 |     -1.003 |        -0.985 |        -0.652 | True        |
+| Q1       | GRPOExp3_LA0_I10  | GRPOExp3_LA5_I9  |          96 |          -0.802 |       -0.883 |        96 |        -0.854 |     -1.048 |        -1.013 |        -0.690 | True        |
+| Q1       | GRPOExp3_LA0_I2   | GRPOExp3_LA0_I3  |          96 |          -0.633 |       -0.767 |        96 |        -0.606 |     -0.769 |        -0.760 |        -0.456 | True        |
+| Q1       | GRPOExp3_LA0_I2   | GRPOExp3_LA0_I4  |          96 |          -0.596 |       -0.702 |        96 |        -0.475 |     -0.528 |        -0.656 |        -0.294 | True        |
+| Q1       | GRPOExp3_LA0_I2   | GRPOExp3_LA0_I5  |          96 |          -0.567 |       -0.671 |        96 |        -0.390 |     -0.390 |        -0.586 |        -0.192 | True        |
+
+_... 1,620 further rows in the workbook._

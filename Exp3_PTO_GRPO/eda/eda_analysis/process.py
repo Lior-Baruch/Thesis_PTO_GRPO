@@ -278,6 +278,105 @@ def ct_trajectory(conv: pd.DataFrame) -> pd.DataFrame:
             .drop(columns="_o").reset_index(drop=True))
 
 
+# ── Persistence: does change talk, once voiced, stay? ───────────────────────────────────────────
+# The yield table conditions on the THERAPIST's code only. The patient's code is strongly
+# autocorrelated (a change-talk turn is usually followed by another), so a code the policy places
+# right after change talk inherits a high yield whatever it does. Conditioning on the patient's
+# PREVIOUS code separates the two: P(reply = CT | previous patient code) is the persistence of
+# change talk (and the conversion rate out of sustain talk), and the same split per therapist code
+# says whether a code adds anything over the patient's own momentum.
+
+def _wilson(k: int, n: int, z: float = 1.96):
+    if n <= 0:
+        return np.nan, np.nan
+    p = k / n
+    den = 1 + z * z / n
+    centre = (p + z * z / (2 * n)) / den
+    half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n)) / den
+    return centre - half, centre + half
+
+
+def persistence_by_state(conv: pd.DataFrame) -> pd.DataFrame:
+    """Per (state, previous patient code): the distribution of the patient's NEXT code, pooled over
+    turns. ``prev_code == "CT"`` rows give the persistence of change talk (``p_ct``) and its relapse
+    to sustain talk (``p_st``); ``prev_code == "ST"`` rows give the conversion out of sustain talk.
+    Each pair is (patient #(i−1), patient #i) with therapist #i between them, i ≥ 1 — the opener's
+    reply is a ``prev``, never a ``reply``. Wilson 95% interval on ``p_ct``."""
+    counts: Dict[tuple, Counter] = {}
+    for key, _, reply, prev in _pairs(conv):
+        if reply is None or prev is None:
+            continue
+        counts.setdefault((key, prev), Counter())[reply] += 1
+    rows = []
+    for (key, prev), c in counts.items():
+        n = sum(c.values())
+        lo, hi = _wilson(c.get("CT", 0), n)
+        row = dict(zip(_STATE, key))
+        row.update({"prev_code": prev, "n": n, "p_ct": c.get("CT", 0) / n, "p_ct_lo": lo, "p_ct_hi": hi,
+                    "p_st": c.get("ST", 0) / n, "p_neu": c.get("NEU", 0) / n})
+        rows.append(row)
+    if not rows:
+        return pd.DataFrame()
+    return pd.DataFrame(rows).sort_values(["arm", "iteration", "prev_code"]).reset_index(drop=True)
+
+
+#: Per-conversation persistence metrics (NaN where the conversation has no such previous code).
+PERSISTENCE_METRICS = ["ct_persist", "ct_relapse", "st_to_ct"]
+PERSISTENCE_LABELS = {
+    "ct_persist": "P(patient change talk | previous patient turn was change talk)",
+    "ct_relapse": "P(patient sustain talk | previous patient turn was change talk)",
+    "st_to_ct": "P(patient change talk | previous patient turn was sustain talk)",
+}
+
+
+def persistence_metrics(conv: pd.DataFrame) -> pd.DataFrame:
+    """One row per conversation: :data:`PERSISTENCE_METRICS`, computed within the conversation
+    over the same (patient #(i−1), patient #i) pairs as :func:`persistence_by_state` — the unit the
+    persona-paired K contrast needs. Carries the conversation keys and ``persona_id`` (when present)."""
+    keep = [c for c in _CONV + ["persona_id"] + list(PERSONA_COLS) if c in conv.columns]
+    rows = []
+    for _, r in conv.iterrows():
+        th = r["th_codes"].split("|") if r["th_codes"] else []
+        pt = r["pt_codes"].split("|") if r["pt_codes"] else []
+        pairs = [(pt[i - 1], pt[i]) for i in range(1, min(len(th), len(pt)))]
+        after_ct = [b for a, b in pairs if a == "CT"]
+        after_st = [b for a, b in pairs if a == "ST"]
+        row = {c: r[c] for c in keep}
+        row["ct_persist"] = sum(b == "CT" for b in after_ct) / len(after_ct) if after_ct else np.nan
+        row["ct_relapse"] = sum(b == "ST" for b in after_ct) / len(after_ct) if after_ct else np.nan
+        row["st_to_ct"] = sum(b == "CT" for b in after_st) / len(after_st) if after_st else np.nan
+        rows.append(row)
+    return pd.DataFrame(rows)
+
+
+def conditioned_yield(conv: pd.DataFrame) -> pd.DataFrame:
+    """Per (state, previous patient code, therapist code): n and P(next patient = CT), Wilson 95%.
+
+    The yield of :func:`transition_yield` split by what the patient said BEFORE the therapist's
+    turn. A code whose yield after change talk matches every other code's is riding the patient's
+    momentum; one that lifts the yield after sustain talk is doing something."""
+    counts: Dict[tuple, Counter] = {}
+    for key, t, reply, prev in _pairs(conv):
+        if reply is None or prev is None:
+            continue
+        counts.setdefault((key, prev, t), Counter())[reply] += 1
+        counts.setdefault((key, prev, "ALL"), Counter())[reply] += 1
+    rows = []
+    for (key, prev, t), c in counts.items():
+        n = sum(c.values())
+        lo, hi = _wilson(c.get("CT", 0), n)
+        row = dict(zip(_STATE, key))
+        row.update({"prev_code": prev, "th_code": t, "n": n, "p_ct": c.get("CT", 0) / n,
+                    "p_ct_lo": lo, "p_ct_hi": hi})
+        rows.append(row)
+    if not rows:
+        return pd.DataFrame()
+    order = {c: i for i, c in enumerate(TH_CODES + ["ALL"])}
+    out = pd.DataFrame(rows)
+    return (out.assign(_o=out["th_code"].map(order)).sort_values(["arm", "iteration", "prev_code", "_o"])
+            .drop(columns="_o").reset_index(drop=True))
+
+
 def state_table(conv: pd.DataFrame, metrics: Sequence[str] = PROCESS_K_METRICS) -> pd.DataFrame:
     g = conv.groupby(_STATE, sort=False)
     out = g[list(metrics)].mean(); se = g[list(metrics)].sem().add_suffix("_se")

@@ -1,0 +1,66 @@
+> **Excerpt — first 60 of 661 rows.** The full table is too large to read as markdown, so it lives on sheet `cond_yield_claude-haiku-4-5` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="cond_yield_claude-haiku-4-5")`.
+
+| arm      | method   |   K | model             |   iteration | is_base   | prev_code   | th_code   |    n |   p_ct |   p_ct_lo |   p_ct_hi |
+|:---------|:---------|----:|:------------------|------------:|:----------|:------------|:----------|-----:|-------:|----------:|----------:|
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | OQ        |  278 |  0.871 |     0.826 |     0.905 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | CQ        |  348 |  0.822 |     0.778 |     0.859 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | SR        |   16 |  1.000 |     0.806 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | CR        |   20 |  0.900 |     0.699 |     0.972 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | AF        |   50 |  0.840 |     0.715 |     0.917 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | PRA       |   57 |  0.947 |     0.856 |     0.982 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | GI        |  254 |  0.890 |     0.845 |     0.923 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | PERS      |   80 |  0.838 |     0.742 |     0.902 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | SEEK      |   24 |  1.000 |     0.862 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | OTH       |   42 |  0.714 |     0.564 |     0.828 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | CT          | ALL       | 1169 |  0.860 |     0.839 |     0.878 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | OQ        |   49 |  0.490 |     0.356 |     0.625 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | CQ        |   80 |  0.350 |     0.255 |     0.459 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | SR        |    3 |  0.667 |     0.208 |     0.939 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | CR        |    2 |  1.000 |     0.342 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | AF        |    3 |  0.667 |     0.208 |     0.939 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | PRA       |   11 |  0.000 |     0.000 |     0.259 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | GI        |   50 |  0.320 |     0.208 |     0.458 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | PERS      |   30 |  0.367 |     0.219 |     0.545 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | SEEK      |    4 |  0.750 |     0.301 |     0.954 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | CONF      |    1 |  1.000 |     0.206 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | OTH       |    1 |  0.000 |     0.000 |     0.793 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | NEU         | ALL       |  234 |  0.380 |     0.321 |     0.444 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | OQ        |  203 |  0.158 |     0.114 |     0.214 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | CQ        |  293 |  0.075 |     0.050 |     0.111 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | SR        |   46 |  0.130 |     0.061 |     0.257 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | CR        |   48 |  0.083 |     0.033 |     0.196 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | AF        |    2 |  0.500 |     0.095 |     0.905 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | PRA       |   14 |  0.071 |     0.013 |     0.315 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | GI        |  161 |  0.068 |     0.039 |     0.118 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | PERS      |  252 |  0.107 |     0.075 |     0.151 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | SEEK      |   38 |  0.079 |     0.027 |     0.208 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | CONF      |   32 |  0.094 |     0.032 |     0.242 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | OTH       |   38 |  0.053 |     0.015 |     0.173 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_Base |           0 | True      | ST          | ALL       | 1127 |  0.099 |     0.083 |     0.118 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | OQ        |   70 |  0.786 |     0.676 |     0.866 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | CQ        |  105 |  0.771 |     0.682 |     0.841 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | SR        |    2 |  1.000 |     0.342 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | CR        |    8 |  0.750 |     0.409 |     0.928 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | AF        |   13 |  1.000 |     0.772 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | PRA       |   29 |  0.897 |     0.736 |     0.964 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | GI        |  206 |  0.874 |     0.822 |     0.912 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | PERS      |   36 |  0.750 |     0.589 |     0.863 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | SEEK      |   12 |  0.917 |     0.646 |     0.985 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | CONF      |    7 |  0.857 |     0.487 |     0.974 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | OTH       |   26 |  0.923 |     0.759 |     0.979 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | CT          | ALL       |  514 |  0.839 |     0.804 |     0.868 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | OQ        |   16 |  0.438 |     0.231 |     0.668 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | CQ        |   24 |  0.292 |     0.149 |     0.492 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | SR        |    2 |  0.000 |     0.000 |     0.658 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | CR        |    4 |  0.000 |     0.000 |     0.490 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | PRA       |    2 |  1.000 |     0.342 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | GI        |   53 |  0.340 |     0.227 |     0.474 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | PERS      |   10 |  0.400 |     0.168 |     0.687 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | SEEK      |    3 |  0.333 |     0.061 |     0.792 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | CONF      |    1 |  1.000 |     0.206 |     1.000 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | OTH       |    4 |  0.000 |     0.000 |     0.490 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | NEU         | ALL       |  119 |  0.336 |     0.258 |     0.425 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | ST          | OQ        |   80 |  0.113 |     0.060 |     0.200 |
+| GRPO_LA0 | GRPO     |   0 | GRPOExp3_LA0_I1   |           1 | False     | ST          | CQ        |  147 |  0.088 |     0.052 |     0.145 |
+
+_... 601 further rows in the workbook._

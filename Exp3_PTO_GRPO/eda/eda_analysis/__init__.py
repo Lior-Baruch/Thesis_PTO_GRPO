@@ -173,7 +173,7 @@ from .process import (  # noqa: E402
 
 from . import (plotting, data, stats, behavior, training, pref, exports, reliability,
                compute, lookahead, transfer, tails, dispersion, faithfulness, crossgen,
-               replication, instruments, text, process)  # noqa: E402,F401
+               replication, instruments, text, process, shared_base)  # noqa: E402,F401
 figures = plots = plotting              # notebooks: figures.set_style / plots.trajectory_grid
 # Register the plotting aliases as importable submodules too, so ``from eda_analysis.figures import X``
 # resolves — not only attribute access.

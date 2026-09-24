@@ -1,0 +1,22 @@
+| arm      | method   |   K |   train_iter | feature           |   n_groups |   n_mixed |   mixed_share |   premium |   premium_se |      z |   iteration |
+|:---------|:---------|----:|-------------:|:------------------|-----------:|----------:|--------------:|----------:|-------------:|-------:|------------:|
+| GRPO_LA0 | GRPO     |   0 |            1 | overpraise_marker |       1660 |        41 |         0.025 |    -0.375 |        0.179 | -2.091 |           0 |
+| GRPO_LA0 | GRPO     |   0 |            2 | overpraise_marker |        729 |        16 |         0.022 |    -0.625 |        0.235 | -2.662 |           1 |
+| GRPO_LA0 | GRPO     |   0 |            3 | overpraise_marker |       1858 |        42 |         0.023 |    -0.015 |        0.204 | -0.072 |           2 |
+| GRPO_LA0 | GRPO     |   0 |            4 | overpraise_marker |       1539 |       127 |         0.083 |     0.115 |        0.102 |  1.124 |           3 |
+| GRPO_LA0 | GRPO     |   0 |            5 | overpraise_marker |       1789 |       225 |         0.126 |     0.331 |        0.070 |  4.738 |           4 |
+| GRPO_LA0 | GRPO     |   0 |            6 | overpraise_marker |       1299 |       201 |         0.155 |     0.220 |        0.078 |  2.822 |           5 |
+| GRPO_LA0 | GRPO     |   0 |            7 | overpraise_marker |       1965 |       400 |         0.204 |     0.302 |        0.055 |  5.506 |           6 |
+| GRPO_LA0 | GRPO     |   0 |            8 | overpraise_marker |       1203 |       629 |         0.523 |     0.309 |        0.040 |  7.712 |           7 |
+| GRPO_LA0 | GRPO     |   0 |            9 | overpraise_marker |       1200 |       606 |         0.505 |     0.070 |        0.042 |  1.655 |           8 |
+| GRPO_LA0 | GRPO     |   0 |           10 | overpraise_marker |       2484 |      1427 |         0.575 |     0.165 |        0.029 |  5.694 |           9 |
+| GRPO_LA5 | GRPO     |   5 |            1 | overpraise_marker |        846 |        21 |         0.025 |     0.251 |        0.311 |  0.807 |           0 |
+| GRPO_LA5 | GRPO     |   5 |            2 | overpraise_marker |       1154 |        24 |         0.021 |     0.085 |        0.218 |  0.387 |           1 |
+| GRPO_LA5 | GRPO     |   5 |            3 | overpraise_marker |       1771 |        44 |         0.025 |    -0.501 |        0.169 | -2.970 |           2 |
+| GRPO_LA5 | GRPO     |   5 |            4 | overpraise_marker |       1684 |        81 |         0.048 |     0.097 |        0.134 |  0.721 |           3 |
+| GRPO_LA5 | GRPO     |   5 |            5 | overpraise_marker |       1396 |       114 |         0.082 |     0.165 |        0.101 |  1.636 |           4 |
+| GRPO_LA5 | GRPO     |   5 |            6 | overpraise_marker |       1107 |       111 |         0.100 |     0.208 |        0.107 |  1.937 |           5 |
+| GRPO_LA5 | GRPO     |   5 |            7 | overpraise_marker |       1004 |       194 |         0.193 |     0.197 |        0.075 |  2.627 |           6 |
+| GRPO_LA5 | GRPO     |   5 |            8 | overpraise_marker |       1650 |       458 |         0.278 |     0.178 |        0.051 |  3.473 |           7 |
+| GRPO_LA5 | GRPO     |   5 |            9 | overpraise_marker |       1690 |       565 |         0.334 |     0.013 |        0.045 |  0.302 |           8 |
+| GRPO_LA5 | GRPO     |   5 |           10 | overpraise_marker |       1833 |       799 |         0.436 |     0.039 |        0.037 |  1.062 |           9 |

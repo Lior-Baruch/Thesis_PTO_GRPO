@@ -884,6 +884,48 @@ def weighted_lexical_contrast(cands: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(out).sort_values(["arm", "train_iter"]).reset_index(drop=True)
 
 
+def feature_premium(cands_all: pd.DataFrame, feature: str = "overpraise_marker") -> pd.DataFrame:
+    """Per (arm, iter): does the reward pay for a binary feature, net of how common it is?
+
+    :func:`weighted_lexical_contrast` measures the PUSH, which scales with how many candidates
+    carry the feature at all — a reward that pays for praise pushes little when the policy rarely
+    praises. This is the prevalence-free twin: over the groups that hold BOTH a candidate with the
+    feature and one without, the mean within-group reward z-score of the feature carriers minus the
+    rest (``premium``, in within-group SD units), with its SE over groups, the number of such
+    ``mixed`` groups and their share of all groups. Positive = the reward ranks carriers higher
+    than their siblings. The z-score uses the group's raw score (population SD); groups with no
+    spread carry no gradient and are absent from ``cands_all`` already.
+
+    Needs the UNFILTERED frame (``load_weighted_candidates(..., drop_zero_weight=False)``); for PTO
+    the reward still ranks all M branches, so the premium reads the oracle, not DPO's pair choice.
+    """
+    if cands_all.empty or feature not in cands_all.columns:
+        return pd.DataFrame()
+    rows = []
+    for (arm, it), g in cands_all.groupby(["arm", "train_iter"]):
+        gaps, n_groups = [], 0
+        for _, gg in g.groupby(_GROUP_KEYS):
+            n_groups += 1
+            has = gg[feature].to_numpy(float) > 0
+            if not has.any() or has.all():
+                continue
+            s = gg["score"].to_numpy(float)
+            sd = s.std()
+            if sd <= 0:
+                continue
+            z = (s - s.mean()) / sd
+            gaps.append(z[has].mean() - z[~has].mean())
+        gaps = np.asarray(gaps, float)
+        rows.append({"arm": arm, "method": g["method"].iloc[0], "K": g["K"].iloc[0], "train_iter": int(it),
+                     "feature": feature, "n_groups": n_groups, "n_mixed": int(gaps.size),
+                     "mixed_share": gaps.size / n_groups if n_groups else np.nan,
+                     "premium": float(gaps.mean()) if gaps.size else np.nan,
+                     "premium_se": float(gaps.std(ddof=1) / np.sqrt(gaps.size)) if gaps.size > 1 else np.nan})
+    out = pd.DataFrame(rows)
+    out["z"] = out["premium"] / out["premium_se"]
+    return out.sort_values(["arm", "train_iter"]).reset_index(drop=True)
+
+
 def pool_mean_by_iter(cands_all: pd.DataFrame) -> pd.DataFrame:
     """Per (arm, iter): the mean feature over ALL candidates — what the policy *generates*.
 
