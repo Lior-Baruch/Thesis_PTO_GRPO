@@ -687,3 +687,15 @@ levels_grid_primary levels_grid_heldout` → `figures/levels_grid_grpo_{gpt-4o-m
 | App E: Q1 agreement — median / next-lowest / K=0 range | 0.842 over 22 states / 0.744 / 0.744–0.882 | 0.842 over **21** states (Base 0.858) / 0.744 / 0.744–0.882 | `agreement_by_state` |
 | App E Table 7 (median, Δ median, rank) | e.g. MITI 0.678 / −0.345 / 1 of 22; MICI 0.399 / −0.112 / 4 of 22 | Q1 0.842 / −0.298 / 2 of 21; Q2 0.752 / −0.162 / 1; WAI-SR 0.920 / −0.023 / 3; CSQ-8 0.888 / −0.037 / 4; MI-SAT 0.930 / −0.025 / 4; MITI 0.666 / −0.334 / 1; PCT 0.956 / −0.027 / 3; MICI 0.411 / −0.123 / 4 | `agreement_summary` |
 | App E: sign preservation | 1,640 of 8 × C(22,2) = 1,848 (88.7%); 98.9% at \|Δ\| ≥ 0.50 | 1,484 of 8 × C(21,2) = 8 × 210 = **1,680 (88.3%)**; 98.9% (373 of 377) at \|Δ\| ≥ 0.50 | `sign_preservation` |
+
+**§4 rewritten on the shared Base (2026-09-24, step 3 of the plan).** Every number in the new §4
+is in the table above, plus: the first iteration at which each instrument's K contrast is
+significant in K=5's favour (training oracle) — Q1 4, CSQ-8 4, MI-SAT 4, PCT 4, WAI-SR 5, MITI 6,
+MICI 8, Q2 9 ("six of the eight separate by iteration 6, Q2 and MICI at iterations 9 and 8"); the
+one significant difference in K=0's favour is MICI at iteration 3 (held-out: MICI and MITI at 3)
+— all `significant_iterations`; and the best-checkpoint contrasts, unchanged by the Base (K=5 at
+10 vs K=0 at 8: dz 0.743 training oracle; vs K=0 at 3: dz 0.386 held-out; the §5 rows above).
+Retired from §4: the base-vs-base sentence (2.963 vs 3.067, dz 0.115) and Doron-marked "MI-
+inconsistent behaviour shows the largest standardised effect of all". Figure 2 is now
+`levels_grid_grpo_gpt-4o-mini.png` (its held-out twin replaces the copied grid in Appendix A);
+the Q1+Q2-only headline and the two copied EDA grids left `figures/`.

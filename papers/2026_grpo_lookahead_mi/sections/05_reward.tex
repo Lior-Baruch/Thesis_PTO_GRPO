@@ -3,11 +3,11 @@
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{figures/k_headline_q1q2_grpo.png}
-\caption{\QQ\ by iteration under each grader: mean $\pm$ SE over the 96 personas, each arm's own
-base dotted, endpoint means printed at iteration 10. A star marks an iteration at which the
-persona-paired $\Kf$ vs.\ $\Kz$ contrast clears Holm (Table~\ref{tab:byiter}). The panels'
-$y$-axes are independent, since grader levels are not comparable.}
+\includegraphics[width=0.94\textwidth]{figures/levels_grid_grpo_gpt-4o-mini.png}
+\caption{Every instrument by iteration under the training oracle: mean $\pm$ SE over the 96
+personas. Iteration 0 is the Base both runs start from (dotted line). A star marks an iteration at
+which the persona-paired $\Kf$ vs.\ $\Kz$ contrast is significant; on MICI at iteration 3 it
+favours $\Kz$. The held-out judge's version is Figure~\ref{fig:grid-heldout}.}
 \label{fig:headline}
 \end{figure*}
 
@@ -33,36 +33,36 @@ PCT             & $0.574$ & $\mathbf{0.685}$ & $+0.111$ & $0.516$ & $0.612$ & $\
 MICI ($\downarrow$) & $0.838$ & $\mathbf{0.210}$ & $-0.627$ & $-1.862$ & $1.050$ & $\mathbf{0.628}$ & $-0.422$ & $-1.567$\\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Every instrument at the matched iteration-10 endpoint}: each arm's mean over the
-96 personas under each grader (bold: the better arm) and the persona-paired contrast $\Kf - \Kz$
-($n{=}96$; positive favours look-ahead, as does MICI's negative $\Delta$, since it is
-lower-is-better). \textbf{Every row is Holm-significant at $p < .001$} (nine rows per grader).
-Levels are in each grader's own units.}
+\caption{\textbf{Every instrument at iteration 10}: each run's mean over the 96 personas under each
+judge (bold: the better run) and the persona-paired contrast $\Kf - \Kz$ ($n{=}96$; positive
+favours $\Kf$, as does MICI's negative $\Delta$, since it is lower-is-better). \textbf{Every row is
+significant at $p < .001$} (Holm across the nine rows, per judge). Levels are in each judge's own
+units.}
 \label{tab:endpoint}
 \end{table*}
 
-\textbf{Endpoint.} At the matched iteration-10 endpoint, look-ahead leads on every instrument
-under both graders (Table~\ref{tab:endpoint}). On the rewardrubric the gap is $+0.765$ (out of 1-5 Likert scale)
-($\dz\,0.905$) under the training oracle and $+0.616$ ($\dz\,1.030$) under the held-out judge,
-which reports the larger standardised effect[, and MI-inconsistent behaviour shows the
-largest standardised effect of all - ??]. Against each arm's own base (indistinguishable: $2.963$ vs.\ $3.067$,
-$\dz\,0.115$, n.s.), the \Kf\ gain on \QQ\ is $2.27\times$ the \Kz\ gain under the training oracle
-($+1.554$ vs.\ $+0.686$) and $2.62\times$ under the held-out judge ($+1.038$ vs.\ $+0.396$);
-anchored on the \Kz\ arm's \emph{best} checkpoint instead of its last, the ratios are
-$1.53\times$ and $1.34\times$, so the gain is $1.3$ to $2.6$ times the turn-level gain.
+\textbf{The final policies.} At iteration 10, $\Kf$ leads on every instrument
+(Table~\ref{tab:endpoint}). On the reward rubric the gap is $+0.765$ (out of 1-5 Likert scale)
+($\dz\,0.905$). Measured from the Base, the $\Kf$ run gained $+1.502$ on \QQ\ and the $\Kz$ run
+$+0.738$, $2.04$ times as much; measured against $\Kz$'s best checkpoint instead of its last
+(iteration 8), the ratio is $1.41$. The held-out judge agrees on every row and reports the larger
+standardised effect on the reward ($+0.616$, $\dz\,1.030$), with gain ratios of $2.50$ and $1.30$,
+so across the two judges and both anchors the $\Kf$ gain is $1.3$ to $2.5$ times the $\Kz$ gain.
 
-\textbf{Onset, and the $\Kz$ decline.} For the first three iterations the two arms are
-indistinguishable on \QQ\ under both graders (Figure~\ref{fig:headline}). The advantage opens at
-iteration 4 and is Holm-significant at 6 of 10 iterations under each grader (training oracle: 4,
-6--10; held-out: 4--7, 9, 10). It is not only $\Kf$ climbing: the $\Kz$ arm peaks at iteration 8
-($4.082$) and falls to $3.753$ over its last two iterations, and under the held-out judge its
-best state is iteration~3; against either best checkpoint the $\Kf$ endpoint still leads on \QQ\
-under both graders ($\dz\,0.743$ / $0.384$ vs.\ iteration 8; $0.977$ / $0.386$ vs.\ iteration 3;
-all Holm-significant).
+\textbf{Onset, and the $\Kz$ decline.} For the first three iterations the two runs do not differ
+on \QQ\ (Figure~\ref{fig:headline}). $\Kf$ leads from iteration 4, significantly at 6 of the 10
+iterations (4 and 6--10), and the other instruments follow the same course: six of the eight
+separate by iteration 6, Q2 and MICI at iterations 9 and 8, and the one significant difference in
+$\Kz$'s favour is MICI at iteration 3. It is not only $\Kf$ climbing: $\Kz$ peaks at iteration 8
+($4.082$) and falls to $3.753$ over its last two iterations, and even against that best checkpoint
+the final $\Kf$ policy leads on \QQ\ ($\dz\,0.743$, significant). The held-out judge agrees: $\Kf$
+leads significantly at 7 of the 10 iterations (4--10), and against $\Kz$'s best checkpoint under
+that judge (iteration 3) it still leads at $\dz\,0.386$.
 
-\textbf{Replication of the endpoint.} Every [state -?] is scored on one 96-conversation sample, so we
-re-drew the winning one (96 fresh conversations from the same $\Kf$ iteration-10 adapter, personas
-and decoding, both graders): the two draws differ by at most $|\dz|\,0.174$ across 9 instruments
-and both graders, nothing significant, and with the replicate substituted the endpoint gap on
-\QQ\ is $\dz\,0.919$ / $0.949$ against $0.905$ / $1.030$. The re-draw bounds [evaluation noise,
-not training variance -?] (see Limitations).
+\textbf{A second draw of the final policy.} Each policy is scored on one sample of 96
+conversations, so we drew the final $\Kf$ policy again (96 fresh conversations from the same
+adapter, personas and decoding, scored by both judges): the two draws differ by at most
+$|\dz|\,0.174$ across the nine rows and both judges, none significantly, and with the second draw
+the \QQ\ gap is $\dz\,0.919$ against $0.905$ (held out: $0.949$ against $1.030$). This measures how
+much the scores move when the same trained model holds a new set of conversations; it says nothing
+about how different a second training run would be (see Limitations).

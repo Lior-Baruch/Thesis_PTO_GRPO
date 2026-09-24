@@ -10,7 +10,8 @@ tables for every value the captions quote.
 
     & ..\\..\\.venv\\Scripts\\python.exe render_paper_figures.py
 
-Writes, under ``figures/``: ``k_headline_q1q2_grpo`` (Fig. 2), ``overpraise_judgefree_grpo``
+Writes, under ``figures/``: ``levels_grid_grpo_<judge>`` (Fig. 2 and its held-out twin, on the
+shared Base since 2026-09-24; ``k_headline_q1q2_grpo`` before that), ``overpraise_judgefree_grpo``
 (Fig. 3), ``k_channel_forest_grpo_gpt-4o-mini`` (Fig. 6) and ``tail_audit_grpo`` (Fig. 7) -- the
 same destination names ``sync_figures.py`` used to copy, so the .tex is unchanged;
 ``sync_figures.py`` no longer lists them. ``saturation()`` (the former Fig. 4, dropped 2026-09-16)
@@ -693,8 +694,10 @@ def main(argv: list[str] | None = None) -> int:
     DEST.mkdir(exist_ok=True)
     # saturation() is not in the list: its figure left the paper on 2026-09-16 (sec 7's text
     # carries every number it showed). Call it by hand to re-check those numbers.
-    every = (headline, overpraise, process, process_heldout, responsiveness, textspace,
-             tail_audit, forest, faithfulness, levels_grid_primary, levels_grid_heldout)
+    # headline() drew the Q1+Q2-only Figure 2 until 2026-09-24; the all-instrument grid on the
+    # shared Base (levels_grid_primary) replaced it. Kept, not called, like saturation().
+    every = (levels_grid_primary, levels_grid_heldout, overpraise, process, process_heldout,
+             responsiveness, textspace, tail_audit, forest, faithfulness)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}
     unknown = [n for n in names if n not in by_name]

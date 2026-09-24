@@ -15,12 +15,11 @@ four-arm artifacts belonged to the 2x2 draft, retired 2026-09-04 to papers/archi
 Figures read SCORES (levels incl. each arm's base), not K5-K0 deltas. The comparison axis is
 ITERATIONS ONLY (decided 2026-08-27): no compute/budget or API-call figures.
 
-**Four data figures are NOT copied by this script.** Body Figures 2 and 3
-(``k_headline_q1q2_grpo.png``, ``overpraise_judgefree_grpo.png``) and appendix Figures 6 and 7
-(``k_channel_forest_grpo_gpt-4o-mini.png``, ``tail_audit_grpo.png``) are drawn by
+**Since 2026-09-24 this script copies nothing.** Every data figure is drawn by
 ``render_paper_figures.py`` from the tracked TABLES behind the EDA renders (the renders themselves
-are notebook-proportioned and illegible at ACL width); the saturation figure it also drew left the
-paper on 2026-09-16. Re-run that script after a render pass, then this one.
+are notebook-proportioned and illegible at ACL width), the last two copied ones — the
+all-instrument grids — included, now redrawn on the paper's single shared Base. Figure 1 is drawn
+by ``render_schematic.py``. Kept so a future copied figure has a home.
 
 **Crops (added 2026-09-02).** The EDA renders carry a suptitle naming the family and grader
 ("[EVAL] Judge saturation, GRPO arms only — …", "GRPO only — every instrument in LEVELS …") and
@@ -58,20 +57,17 @@ FIGURES: list[tuple[Path, str]] = [
     # (overpraise_judgefree_grpo) are drawn by render_paper_figures.py from the tracked tables --
     # see the module docstring. sec:measurement has had no figure since 2026-09-16.
     # --- appendix --------------------------------------------------------------------------------
-    (REWARD / "k_levels_grid_grpo_gpt-4o-mini.png", "k_levels_grid_grpo_gpt-4o-mini.png"),
-    (REWARD / "k_levels_grid_grpo_claude-haiku-4-5.png", "k_levels_grid_grpo_claude-haiku-4-5.png"),
-    # The channel forest (k_channel_forest_grpo_gpt-4o-mini.png) and the rollout audit
-    # (tail_audit_grpo.png) are drawn by render_paper_figures.py from behaviour.xlsx and
-    # mechanism.xlsx since 2026-09-14 (paper sign convention, plain labels).
+    # The two all-instrument grids were copied from lookahead/reward until 2026-09-24; since the
+    # paper moved to ONE shared Base they are drawn by render_paper_figures.py
+    # (levels_grid_grpo_<judge>.png) from lookahead/shared_base. The channel forest and the
+    # rollout audit have been drawn there since 2026-09-14. Nothing is copied any more; the script
+    # stays for the day a copied figure returns.
 ]
 
 # destination name -> crop box as FRACTIONS of (width, height): (left, top, right, bottom).
 # Each band removed is a title/footer line, checked by eye against the source render; the values
 # sit in the whitespace between that line and the first plot element it would otherwise touch.
-CROP: dict[str, tuple[float, float, float, float]] = {
-    "k_levels_grid_grpo_gpt-4o-mini.png": (0.0, 0.035, 1.0, 1.0),
-    "k_levels_grid_grpo_claude-haiku-4-5.png": (0.0, 0.035, 1.0, 1.0),
-}
+CROP: dict[str, tuple[float, float, float, float]] = {}
 
 
 def _render(src: Path, name: str) -> bytes:

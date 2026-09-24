@@ -2,8 +2,8 @@
 \label{app:tables}
 
 Table~\ref{tab:byiter}: the \QQ\ contrast at every iteration.
-Figures~\ref{fig:grid-primary}--\ref{fig:grid-heldout}: every instrument in levels under each
-grader. Figure~\ref{fig:overpraise}: the judge-free over-praise marker of
+Figure~\ref{fig:grid-heldout}: every instrument by iteration under the held-out judge (the training
+oracle's is Figure~\ref{fig:headline}). Figure~\ref{fig:overpraise}: the judge-free over-praise marker of
 \S\ref{sec:therapist}. Figure~\ref{fig:process-heldout}: the process picture of Figure~\ref{fig:process} under
 the held-out judge. Figure~\ref{fig:responsiveness}: the two responsiveness rates of
 Table~\ref{tab:process} by iteration under both graders. Figure~\ref{fig:textspace}: the two
@@ -92,20 +92,13 @@ the same position in different conversations: convergence on a template.}
 \label{fig:textspace}
 \end{figure*}
 
-\begin{figure*}[p]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=0.94\textwidth]{figures/k_levels_grid_grpo_gpt-4o-mini.png}
-\caption{Every instrument under the training oracle: arm mean $\pm$ SE by iteration, each arm's
-own base dotted, MICI lower-is-better. A star over an iteration marks that instrument's
-persona-paired $K$ contrast clearing Holm (family: iterations within instrument).}
-\label{fig:grid-primary}
-\end{figure*}
-
-\begin{figure*}[p]
-\centering
-\includegraphics[width=0.94\textwidth]{figures/k_levels_grid_grpo_claude-haiku-4-5.png}
-\caption{The same grid under the held-out judge. Levels are in this grader's own units and are
-not comparable to the previous figure's.}
+\includegraphics[width=0.94\textwidth]{figures/levels_grid_grpo_claude-haiku-4-5.png}
+\caption{Figure~\ref{fig:headline} under the held-out judge: every instrument by iteration, mean
+$\pm$ SE over the 96 personas, from the shared Base (dotted line); a star marks a significant
+$\Kf$ vs.\ $\Kz$ contrast, which at iteration 3 favours $\Kz$ on MITI and MICI. Levels are in this
+judge's own units and are not comparable to Figure~\ref{fig:headline}'s.}
 \label{fig:grid-heldout}
 \end{figure*}
 
