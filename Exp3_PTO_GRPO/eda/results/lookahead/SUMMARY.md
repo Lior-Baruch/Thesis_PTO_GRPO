@@ -648,6 +648,20 @@ K=0 endpoint answers with praise 32 % (primary) / **72 %** (held-out) of the tim
 [`ct_trajectory_claude-haiku-4-5.md`](process/tables/ct_trajectory_claude-haiku-4-5.md),
 [`figures/ct_trajectory.png`](process/figures/ct_trajectory.png)).
 
+**⚠ Added 2026-09-24 — read the praise row with the other two answers to sustain talk.**
+`pra_after_st` alone makes K=5 look MI-consistent after sustain talk; it is not. K=5 answers sustain
+talk with persuasion — `pers_after_st` 0.39 primary / 0.58 held-out at iteration 10 vs K=0 0.07 /
+0.06 (shared Base 0.24 / 0.25; K=5 higher at iterations 8–10 / 3–6 and 8–10) — and reflects it
+about as often as K=0 on the primary (`refl_after_st` 0.37 vs 0.26, n.s. at 10; held-out 0.17 vs
+0.05, K=5 higher at 8–10). Each policy has its own MI-inconsistent answer to resistance: K=0 praises,
+K=5 persuades. Both metrics were added to `process.py` that day
+([`shared_base/tables/k_process_paired.md`](shared_base/tables/k_process_paired.md)). The per-code
+*yield* paragraph above is also confounded by placement: 83 % of K=5's complex reflections follow
+change talk, and once the patient's previous code is held fixed the codes barely differ
+(`shared_base` `cond_yield_<judge>`). The robust patient-side claim is change-talk persistence
+([`shared_base/tables/k_persistence.md`](shared_base/tables/k_persistence.md)); the GRPO paper's §6
+is built on it.
+
 **Parity** ([`parity_pooled_gpt-4o-mini.md`](process/tables/parity_pooled_gpt-4o-mini.md),
 [`parity_pooled_claude-haiku-4-5.md`](process/tables/parity_pooled_claude-haiku-4-5.md)). The
 per-utterance patient codes reproduce each grader's own conversation-level PCT counts (pooled ρ 0.88 /

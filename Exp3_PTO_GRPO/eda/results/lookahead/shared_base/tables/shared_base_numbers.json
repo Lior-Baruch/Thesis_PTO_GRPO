@@ -958,6 +958,16 @@
    "source": "process_levels_gpt-4o-mini",
    "note": "shared Base"
   },
+  "process.gpt-4o-mini.pers_after_st.base": {
+   "value": 0.242,
+   "source": "process_levels_gpt-4o-mini",
+   "note": "shared Base"
+  },
+  "process.gpt-4o-mini.refl_after_st.base": {
+   "value": 0.217,
+   "source": "process_levels_gpt-4o-mini",
+   "note": "shared Base"
+  },
   "process.gpt-4o-mini.ct_prop.base": {
    "value": 0.448,
    "source": "process_levels_gpt-4o-mini",
@@ -1265,6 +1275,16 @@
   },
   "process.claude-haiku-4-5.pra_after_st.base": {
    "value": 0.011,
+   "source": "process_levels_claude-haiku-4-5",
+   "note": "shared Base"
+  },
+  "process.claude-haiku-4-5.pers_after_st.base": {
+   "value": 0.253,
+   "source": "process_levels_claude-haiku-4-5",
+   "note": "shared Base"
+  },
+  "process.claude-haiku-4-5.refl_after_st.base": {
+   "value": 0.081,
    "source": "process_levels_claude-haiku-4-5",
    "note": "shared Base"
   },

@@ -468,7 +468,8 @@ def shared_base_numbers(*, lv: pd.DataFrame, gains_t: pd.DataFrame, sig: pd.Data
         lvp = t["levels"]
         base = lvp[lvp["iteration"] == 0].iloc[0]
         for mcol in ("th_PRA_rate", "th_CR_rate", "th_PERS_rate", "th_OQ_rate", "mi_adherent_rate",
-                     "mi_incons_rate", "refl_after_ct", "pra_after_st", "ct_prop"):
+                     "mi_incons_rate", "refl_after_ct", "pra_after_st", "pers_after_st",
+                     "refl_after_st", "ct_prop"):
             if mcol in lvp.columns:
                 put(f"process.{j}.{mcol}.base", round3(base[mcol]), f"process_levels_{j}", "shared Base")
         y = t["yield"]

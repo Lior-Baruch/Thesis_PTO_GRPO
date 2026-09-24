@@ -49,6 +49,7 @@ PROCESS_K_METRICS = ([f"th_{c}_rate" for c in TH_CODES] +
                      ["pct_oq", "pct_cr", "rtoq", "mi_incons_rate", "mi_adherent_rate",
                       "ct_prop", "st_prop", "reached_ct", "first_ct_pos",
                       "ct_after_q", "ct_after_refl", "ct_after_pra", "refl_after_ct", "pra_after_st",
+                      "pers_after_st", "refl_after_st",
                       "q_chain_rate", "ct_late_minus_early"])
 PROCESS_METRIC_LABELS = {
     **{f"th_{c}_rate": f"therapist {c} share of turns" for c in TH_CODES},
@@ -64,16 +65,21 @@ PROCESS_METRIC_LABELS = {
     "ct_after_pra": "P(change talk | preceding non-specific praise)",
     "refl_after_ct": "P(therapist reflects | preceding patient change talk)",
     "pra_after_st": "P(therapist praises | preceding patient sustain talk)",
+    # 2026-09-24: the other two answers to sustain talk -- MI's (reflect it) and the righting
+    # reflex (argue for change) -- so the praise row cannot be read on its own.
+    "pers_after_st": "P(therapist persuades | preceding patient sustain talk)",
+    "refl_after_st": "P(therapist reflects | preceding patient sustain talk)",
     "q_chain_rate": "share of questions that follow another question",
     "ct_late_minus_early": "change-talk share, second half − first half of the session",
 }
 LOWER_BETTER = {"th_PRA_rate", "th_PERS_rate", "th_CONF_rate", "th_CQ_rate", "mi_incons_rate", "st_prop",
-                "first_ct_pos", "pra_after_st", "q_chain_rate"}
+                "first_ct_pos", "pra_after_st", "pers_after_st", "q_chain_rate"}
 PROCESS_FAMILIES = {
     "therapist_codes": [f"th_{c}_rate" for c in TH_CODES],
     "technique": ["pct_oq", "pct_cr", "rtoq", "mi_incons_rate", "mi_adherent_rate", "q_chain_rate"],
     "patient": ["ct_prop", "st_prop", "reached_ct", "first_ct_pos", "ct_late_minus_early"],
-    "contingency": ["ct_after_q", "ct_after_refl", "ct_after_pra", "refl_after_ct", "pra_after_st"],
+    "contingency": ["ct_after_q", "ct_after_refl", "ct_after_pra", "refl_after_ct", "pra_after_st",
+                    "pers_after_st", "refl_after_st"],
 }
 #: Patient-turn bins for the within-session change-talk trajectory (patient turn index, 0-based).
 CT_BINS = [(0, 1, "1-2"), (2, 4, "3-5"), (5, 8, "6-9"), (9, 10 ** 6, "10+")]
@@ -158,6 +164,8 @@ def conversation_metrics(th_codes: Sequence[str], pt_codes: Sequence[str]) -> di
     after_ct = [t for p, t in resp if p == "CT"]; after_st = [t for p, t in resp if p == "ST"]
     out["refl_after_ct"] = sum(t in REFLECT for t in after_ct) / len(after_ct) if after_ct else np.nan
     out["pra_after_st"] = sum(t == "PRA" for t in after_st) / len(after_st) if after_st else np.nan
+    out["pers_after_st"] = sum(t == "PERS" for t in after_st) / len(after_st) if after_st else np.nan
+    out["refl_after_st"] = sum(t in REFLECT for t in after_st) / len(after_st) if after_st else np.nan
     qs = [i for i, t in enumerate(body) if t in QUESTION]
     out["q_chain_rate"] = (sum(1 for i in qs if i > 0 and body[i - 1] in QUESTION) / len(qs)) if qs else np.nan
     if m >= 4:

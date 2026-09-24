@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 536 rows.** The full table is too large to read as markdown, so it lives on sheet `k_process_paired` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="k_process_paired")`.
+> **Excerpt — first 60 of 576 rows.** The full table is too large to read as markdown, so it lives on sheet `k_process_paired` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="k_process_paired")`.
 
 | judge       | method   | metric      |   iteration |   n |   mean_K0 |   mean_K5 |   se_K0 |   se_K5 |   mean_delta |     dz |   ci_lo |   ci_hi |     p |   p_holm | sig   | lower_better   | better   |
 |:------------|:---------|:------------|------------:|----:|----------:|----------:|--------:|--------:|-------------:|-------:|--------:|--------:|------:|---------:|:------|:---------------|:---------|
@@ -63,4 +63,4 @@
 | gpt-4o-mini | GRPO     | th_PRA_rate |           9 |  96 |     0.080 |     0.040 |   0.014 |   0.009 |        0.039 |  0.265 |   0.011 |   0.070 | 0.008 |    0.063 |       | True           | K5       |
 | gpt-4o-mini | GRPO     | th_PRA_rate |          10 |  96 |     0.407 |     0.053 |   0.028 |   0.010 |        0.354 |  1.187 |   0.293 |   0.410 | 0.000 |    0.000 | ***   | True           | K5       |
 
-_... 476 further rows in the workbook._
+_... 516 further rows in the workbook._
