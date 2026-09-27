@@ -6,7 +6,7 @@ simple: the data, organised, with a short README — he analyses it however he w
 
     <out>/README.md                              <- copied from meetings/2026-09-27_doron_share/README.md
     <out>/patients.csv                           the 96 simulated patients (id + traits)
-    <out>/conversations/<ARM>/iter_NN/patient_PP.csv   turn, speaker, text
+    <out>/conversations/<ARM>/iter_NN/patient_PP.csv   turn, speaker, text, + each grader's MIPROC code
     <out>/scores_gpt-4o-mini.csv                 one row per conversation, one column per instrument
     <out>/scores_claude-haiku-4-5.csv            same, held-out grader
     <out>/adapters/<ARM>/iter_NN/{adapter_model.safetensors, adapter_config.json}   (--adapters)
@@ -20,8 +20,8 @@ Usage (from the repo root, with the repo .venv):
     .venv/Scripts/python.exe meetings/build/build_doron_share_2026-09-27.py --out <dir> [--adapters]
 
 Reads only; the score lake and the run folders are never written to. (The first, much larger
-version of this package — transcripts, per-utterance MIPROC codes, item-level scores — is commit
-f848ffa; Lior judged it overkill.)
+version of this package — transcripts, item-level scores, run configs — is commit f848ffa; Lior
+judged it overkill. The per-utterance MIPROC codes came back as two columns on request.)
 """
 
 import argparse
@@ -115,9 +115,44 @@ def contradicts(patient: pd.Series, intro: str) -> list:
     return bad
 
 
+# ── MIPROC utterance codes ────────────────────────────────────────────────────────────────────
+# Output column per grader. The coder saw the transcript numbered per role ([THERAPIST #k] /
+# [PATIENT #k]), so its k-th therapist code belongs to the k-th therapist utterance.
+CODE_COLS = {"openai_gpt-4o-mini-2024-07-18": "code_gpt-4o-mini",
+             "anthropic_claude-haiku-4-5": "code_claude-haiku-4-5"}
+
+
+def load_codes(grader: str) -> dict:
+    """{(arm, iteration, patient_id): (therapist_codes, patient_codes)}; a missing coding is absent."""
+    codes = {}
+    for arm, (_, _, prefix) in ARMS.items():
+        seed = seed_of(arm)
+        for k in ITERS:
+            model = f"{prefix}_Base" if k == 0 else f"{prefix}_I{k}"
+            order = persona_order(seed, k, N)
+            ddir = os.path.join(DATA, "eval_scores", f"judge={grader}", "rep=0", "metric=MIPROC",
+                                f"oracle={'none' if k == 0 else 'Q1Q2'}", model)
+            for fi, row in iter_conv_rows(ddir):
+                split = lambda v: str(v).split("|") if pd.notna(v) and str(v) else []
+                codes[(arm, k, order[fi])] = (split(row["MIPROC_ThCodes"]), split(row["MIPROC_PtCodes"]))
+    return codes
+
+
+def code_column(roles: list, coded) -> list:
+    """One code per utterance, or all blank if the conversation was not coded or the counts disagree."""
+    if coded is None:
+        return [""] * len(roles)
+    th, pt = coded
+    if len(th) != roles.count("therapist") or len(pt) != roles.count("patient"):
+        return None
+    it, ip = iter(th), iter(pt)
+    return [next(it) if r == "therapist" else next(ip) for r in roles]
+
+
 # ── conversations ─────────────────────────────────────────────────────────────────────────────
-def write_conversations(out: str, patients: pd.DataFrame) -> int:
+def write_conversations(out: str, patients: pd.DataFrame, codes: dict) -> int:
     problems, n_convs = [], 0
+    uncoded, misaligned = [], []
     for arm, (mdir, exp, _) in ARMS.items():
         seed = seed_of(arm)
         for k in ITERS:
@@ -134,11 +169,22 @@ def write_conversations(out: str, patients: pd.DataFrame) -> int:
                     bad = contradicts(patients.loc[pid], df["conversation"].iloc[1])
                     if bad:
                         problems.append((arm, k, fi, pid, bad))
-                pd.DataFrame({"turn": range(1, len(df) + 1), "speaker": df["role"], "text": df["conversation"]}) \
-                    .to_csv(os.path.join(ddir, f"patient_{pid:02d}.csv"), index=False, encoding="utf-8-sig")
+                roles = df["role"].tolist()
+                conv = pd.DataFrame({"turn": range(1, len(df) + 1), "speaker": roles, "text": df["conversation"]})
+                for grader, col in CODE_COLS.items():
+                    coded = codes[grader].get((arm, k, pid))
+                    if coded is None:
+                        uncoded.append((grader, arm, k, pid))
+                    column = code_column(roles, coded)
+                    if column is None:
+                        misaligned.append((grader, arm, k, pid))
+                        column = [""] * len(roles)
+                    conv[col] = column
+                conv.to_csv(os.path.join(ddir, f"patient_{pid:02d}.csv"), index=False, encoding="utf-8-sig")
                 n_convs += 1
         print(f"  conversations {arm} ok", flush=True)
     assert not problems, f"persona recovery contradicted by {len(problems)} intros, e.g. {problems[:5]}"
+    print(f"  MIPROC codes: not coded (blank) {uncoded}; code/utterance count mismatch (blank) {misaligned}")
     return n_convs
 
 
@@ -188,8 +234,9 @@ def main():
 
     patients = build_patients()
     patients.reset_index().to_csv(os.path.join(out, "patients.csv"), index=False, encoding="utf-8-sig")
+    codes = {g: load_codes(g) for g in CODE_COLS}
     print("conversations ...", flush=True)
-    print(f"  {write_conversations(out, patients)} conversations written, 0 intro contradictions")
+    print(f"  {write_conversations(out, patients, codes)} conversations written, 0 intro contradictions")
     for grader, fn in GRADERS.items():
         s = build_scores(grader)
         s.to_csv(os.path.join(out, fn), index=False, encoding="utf-8-sig")

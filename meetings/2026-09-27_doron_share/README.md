@@ -5,7 +5,7 @@ simulated patient (gpt-4o-mini). It was trained under 4 conditions, for 10 itera
 
 ```
 patients.csv                                  the 96 simulated patients
-conversations/<arm>/iter_XX/patient_YY.csv    one conversation: turn, speaker, text
+conversations/<arm>/iter_XX/patient_YY.csv    one conversation: turn, speaker, text, + one code per utterance from each grader
 scores_gpt-4o-mini.csv                        one row per conversation
 scores_claude-haiku-4-5.csv                   the same conversations, second grader
 adapters/<arm>/iter_XX/                       the trained LoRA weights
@@ -54,6 +54,30 @@ Compare within a grader, not across them.
 | `MITI` | MI treatment integrity, mean of the 4 MITI global ratings | 1–5 |
 | `PCT` | share of patient change talk: change / (change + sustain) | 0–1 |
 | `MICI` | MI-inconsistent therapist behaviours per therapist turn (**lower is better**) | ≥ 0 |
+
+**Utterance codes.** Each conversation file has two extra columns, `code_gpt-4o-mini` and
+`code_claude-haiku-4-5`. Each grader assigned one MITI/MISC-style code per utterance.
+
+Therapist codes:
+
+| code | meaning |
+|---|---|
+| `OQ` | open question |
+| `CQ` | closed question |
+| `SR` | simple reflection |
+| `CR` | complex reflection |
+| `AF` | affirmation of a specific strength or effort |
+| `PRA` | non-specific praise or cheerleading |
+| `GI` | giving information |
+| `PERS` | persuading or advising |
+| `SEEK` | seeking collaboration, emphasizing autonomy |
+| `CONF` | confronting or judging |
+| `OTH` | other |
+
+Patient codes: `CT` change talk, `ST` sustain talk, `NEU` neither.
+
+One conversation has no claude-haiku codes, so that column is blank there:
+`PTO_K5/iter_03/patient_15`.
 
 **Adapters.**
 - **Format.** LoRA with r = 16 and α = 16 on the q, k, v, o, gate, up and down projections of all 16
