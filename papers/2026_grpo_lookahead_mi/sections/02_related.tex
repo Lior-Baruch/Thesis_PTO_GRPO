@@ -1,5 +1,14 @@
 \section{Related work}
 \label{sec:related}
+[i added a whole subsection need to merge]
+
+Yuan et al.\ \citep{yuan2024selfrewarding} [already cited?] train a language model to generate responses and judge its own candidates, then use the resulting preferences for iterative DPO. They report gains in instruction following and, on MT-Bench, in role-play and writing. The role-play evaluation consists of short, two-turn scenarios, so it does not establish improvement across a sustained interaction. Wu et al.\ \citep{wu2025metarewarding} extend this approach by training the model to evaluate its own judgments as well as its responses. Their gains are primarily on broad instruction-following benchmarks; training uses single-turn examples, and they do not evaluate psychological dialogue.
+
+Recent methods allow the evaluation criteria to change as the policy improves. SERPO \citep{wang2026serpo} evolves question-specific rubrics alongside the policy and reports gains on open-ended medical and research questions. Its HealthBench evaluation includes multi-turn conversation histories, but scores a response to the given history rather than an interaction conducted by the policy across turns. DynamicRubric \citep{wang2026dynamicrubric} learns to generate weighted criteria that distinguish the current candidate responses, then uses their combined scores to update the policy. Its reported evaluations concern generated answers, with no sustained-dialogue result.
+
+J-Zero \citep{chu2026jzero} updates a task-generating Challenger, a responding Solver, and a Judge in the same loop. It reports continued gains across ten iterations, including on general open-ended instruction following and creative-writing benchmarks. These results suggest that an adaptive judge can remain useful as the generator improves. They do not, however, test psychological role-play or whether rewards assigned to individual responses improve the course of a full conversation. Our study addresses the latter question by changing how far into the simulated interaction the reward can observe while holding the judge fixed.
+
+[end addition]
 
 \textbf{Group-relative policy optimisation.}
 GRPO \citep{shao2024deepseekmath} replaces the learned value function used in PPO-style
