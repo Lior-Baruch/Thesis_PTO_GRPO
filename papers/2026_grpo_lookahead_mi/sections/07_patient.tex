@@ -1,7 +1,10 @@
 \section{What the therapist's turns do to the patient}
 \label{sec:patient}
 
-MI's own test of a therapist behaviour is what the patient says next. The utterance coder labels
+MI's own test of a therapist behaviour is what the patient says next. 
+% \dnotedone{renamed: utterance coder, defined in §3.3}{[positional codes ?]}
+% \dnotedone{answered in §3.3: each judge also runs the utterance coder}{not clear, i thought the judges were for something else and here you have a MITI classifier - /}
+The utterance coder labels
 every utterance in transcript order, so each patient utterance can be followed through the
 therapist's reply to the patient's next utterance. Table~\ref{tab:process} collects the measures at
 iteration 10.
@@ -46,27 +49,42 @@ ten iterations within measure, $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$.}
 \label{tab:process}
 \end{table}
 
-\textbf{How the therapist replies.} When the patient voices change talk, the $\Kf$ policy
+% \dnotedone{paragraph rewritten: one judge; K=0, K=5 and Base named}{very confusing. not clear when you are talking above 0 vs look ahead and base vs both..}
+\textbf{How the therapist replies.} 
+% \dnotedone{endpoint dropped; the opening says iteration 10}{[endpoint ?]}
+% \dnotedone{answered: reflection defined in §3.1, reply rates in Appendix D.3}{[reflects it?]}
+% \dnotedone{metaphor dropped: now change talk, defined in §3.1}{[own case for change -?]}
+When the patient voices change talk, the $\Kf$ policy
 reflects it in $0.26$ of cases, against $0.003$ for the $\Kz$ policy and $0.14$ at the Base, a
 difference significant at iterations 1 and 6--10 (Appendix Figure~\ref{fig:responsiveness}). When
 the patient voices sustain talk, MI's answer is again a reflection, and the two policies do not
 differ significantly in how often they give it ($0.37$ under $\Kf$, $0.26$ under $\Kz$, $0.22$ at
-the Base). Instead, each has its own MI-inconsistent answer. The $\Kz$ policy praises: $0.32$ of
+the Base). Instead, each has its own MI-inconsistent answer. 
+% \dnotedone{rephrased: praise regardless became praise in reply to sustain talk}{of what?}
+% \dnotedone{rephrased: the reply of Table 2, measured across conversations}{[This is Table \ref{tab:excerpt} as a rate -?]}
+% \dnotedone{renamed: K=0 / K=5 only in the results}{[turn-level policy - 0? use consistent names]}
+The $\Kz$ policy praises: $0.32$ of
 its replies to sustain talk, against $0.02$ at the Base, which is the reply of
 Table~\ref{tab:excerpt} measured across conversations. The $\Kf$ policy persuades: $0.39$ of
-its replies, against $0.24$ at the Base, which is MI's righting reflex. Both runs' rewards paid for
+its replies, against $0.24$ at the Base, which is MI's righting reflex. 
+% \dnotedone{answered: praise premium measured, Appendix C.4}{[which the rubric rewards in the turn where it happens ??]}
+Both runs' rewards paid for
 praise in the middle of training: among the eight candidate replies the reward compares, those
 containing a keyword-marker phrase scored above their siblings by $0.22$--$0.33$ within-group
 standard deviations under $\Kz$ and $0.16$--$0.21$ under $\Kf$ (candidates sampled from the models
 of iterations 4--7), but by iteration 9 only $\Kz$'s reward still did ($0.16$ against $0.04$;
 Appendix~\ref{app:premium}).
 
+% \dnotedone{cut; measured change-talk persistence replaces it}{[ pays in the turns the rubric is not shown at $K{=}0$. ?]}
 \textbf{Whether change talk continues.} Under the $\Kf$ policy, a patient who has just voiced
 change talk voices it again in the next utterance in $0.97$ of cases, against $0.80$ under $\Kz$
 and $0.75$ at the Base (Figure~\ref{fig:process}c), a difference significant at every iteration
 from 5 on. No single kind of reply accounts for it: the $\Kf$ policy's four most common replies to
 change talk (complex reflections, affirmations, persuasion and information giving) are each
-followed by change talk in at least $97\%$ of cases, pooled over turns. For the same reason we do
+followed by change talk in at least $97\%$ of cases, pooled over turns. 
+% \dnotedone{cut: reading by therapist code retired; reason given here}{[the other way round: ?]}
+% \dnotedone{cut with the praise-yield paragraph}{[for the reason the next paragraph gives. \textasciitilde{}]}
+For the same reason we do
 not read the change talk that follows each therapist code as that code's effect: $83\%$ of the
 $\Kf$ policy's complex reflections come right after change talk, so the change talk after them is
 mostly the patient continuing, and once the patient's previous utterance is held fixed,
@@ -75,17 +93,25 @@ talk, $0.16$ against $0.17$ after sustain talk). Turning sustain talk around is 
 after sustain talk the next utterance is change talk in $0.33$ of cases under $\Kf$ and $0.28$
 under $\Kz$ (Base $0.28$), a difference significant at iterations 5--7 and 9 but not at 10.
 
-\textbf{The session as a whole.} At iteration 10, $0.68$ of the patient's utterances are change
+\textbf{The session as a whole.} 
+% \dnotedone{rephrased: iteration 10, one judge, each run named}{[the endpoint ($0.68$ vs.\ $0.53$ under the training oracle, $0.72$ vs.\ $0.55$ held out; $\dz\,0.57$ / $0.70$) - not clear]}
+At iteration 10, $0.68$ of the patient's utterances are change
 talk under $\Kf$ against $0.53$ under $\Kz$ (Base $0.45$), and the difference is significant at
 every iteration from 6 on, while the share of sessions that reach any change talk at all does not
-differ ($0.92$ vs.\ $0.86$). The difference between the runs is in how a session develops
-(Figure~\ref{fig:process}d). Over the first nine patient turns both final policies raise change
+differ ($0.92$ vs.\ $0.86$). 
+% \dnotedone{rephrased: the difference between the runs}{between waht}
+The difference between the runs is in how a session develops
+(Figure~\ref{fig:process}d). 
+% \dnotedone{cut: the praise-spiral clause dropped}{[at scale ?]}
+Over the first nine patient turns both final policies raise change
 talk above the Base; in the sessions that reach a tenth patient turn (74 of $\Kf$'s 96, 62 of
 $\Kz$'s), change talk keeps rising under $\Kf$, to $0.85$ of the patient's utterances from the
 tenth on, and falls back under $\Kz$, to $0.50$, below the Base's $0.58$. Two further differences
 on the patient's side have no single reading: the $\Kf$ policy's patients write longer utterances
 ($600$ vs.\ $440$ characters, $\dz\,1.24$), and a crude keyword cue for disengagement (``I don't
-know'', ``waste of time'') is slightly more frequent in them ($\dz\,0.31$). With a simulated
+know'', ``waste of time'') is slightly more frequent in them ($\dz\,0.31$). 
+% \dnotedone{rephrased: why neither is interpreted is now stated}{[rather than resolve. ?]}
+With a simulated
 patient we cannot tell engagement from verbosity, so we note both without interpreting either.
 
 The held-out judge agrees on the direction of each contrast at iteration 10 and finds two of them
