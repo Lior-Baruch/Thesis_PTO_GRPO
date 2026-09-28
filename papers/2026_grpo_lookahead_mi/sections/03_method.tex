@@ -4,8 +4,11 @@
 \subsection{Task, simulator and oracle}
 \label{sec:task}
 
+% \dnotedone{done: merged into one Method section, task setup first}{consider unifying 3 and 4 to one Method Section. maybe easier to understand if 4 comes before 3?}
 A session is a text conversation between a therapist policy and
-a simulated patient who is ambivalent about a health behaviour. The patient is simulated by
+a simulated patient who is ambivalent about a health behaviour. 
+% \dnotedone{answered: cites Yosef et al. 2024 and the PTO paper}{ref some kfir paper?}
+The patient is simulated by
 \texttt{gpt-4o-mini} conditioned on one of the \textbf{96} persona system prompts introduced by
 \citet{yosef2024assessing} and used in \citet{baruch2025pto}, the exhaustive
 enumeration of $2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{problem} \times
@@ -16,7 +19,9 @@ average 28.5 utterances. The therapist is based on \texttt{Llama-3.2-1B} under a
 trained with LoRA adapters, responses capped at 200 tokens (all setting parameters in
 Table~\ref{tab:config}). The oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
 output; the \emph{training} reward is the mean of two of the evaluation instruments, Q1 and Q2
-(\S\ref{sec:setup}). We train on these two because they were built and validated for this use:
+(\S\ref{sec:setup}). 
+\dnoteopen{done here; not yet in the intro or Discussion}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
+We train on these two because they were built and validated for this use:
 \citet{yosef2024assessing} introduced them as LLM-evaluator questionnaires for simulated MI sessions
 and showed that the model's ratings are reliable and separate levels of therapist expertise. The
 same reward trained the predecessor PTO policy \citep{baruch2025pto}, and the six other instruments
@@ -90,7 +95,9 @@ with fresh conversations. The conversations that start an iteration double as th
 of $\pi_n$, and a generate-only pass after the last update evaluates the final policy, so every
 policy from the Base $\pi_0$ to $\pi_{10}$ is evaluated; in the figures, iteration $n$ is $\pi_n$.
 
-\textbf{The look-ahead reward.} The two runs differ in one thing: whether a candidate turn is
+\textbf{The look-ahead reward.} 
+% \dnotedone{rephrased: now names what the two runs differ in}{from what??}
+The two runs differ in one thing: whether a candidate turn is
 rolled forward by a simulated $K$-turn look-ahead before it is scored, and hence which transcript
 the oracle rewards. Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then
 $\pi$, then $P$, and so on for $K$ turns, stopping early if the patient closes the session;
@@ -99,9 +106,13 @@ $\tau_0(x)$ is empty. Then
 \label{eq:reward}
 r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \end{equation}
-At $K{=}0$ the oracle scores the candidate alone. At $K{=}5$ it scores the candidate together with
+At $K{=}0$ the oracle scores the candidate alone. 
+% \dnotedone{rephrased; cost clause cut, costs stay in Limitations}{[at the price of three [why? is this important?] patient-simulator calls and two policy generations per candidate and roughly twice the per-step wall-clock \ldots{} this all seems too AI. rephrase to make it clear and focus on what is interesting..]}
+At $K{=}5$ it scores the candidate together with
 the five turns that followed it under the current policy, so a candidate is credited for where it
-leads under the therapist that will actually follow it. A rollout is one sample from the
+leads under the therapist that will actually follow it. 
+% \dnotedone{cut: heading and PTO comparison gone, one point kept here}{which transfer? }
+A rollout is one sample from the
 distribution of continuations, so $r_g$ is a one-sample Monte Carlo estimate of the candidate's
 downstream value, with sampling noise from $P$ and $\pi$ added to the oracle's own; GRPO trains on
 all $G$ candidates, so that variance enters every advantage.
@@ -122,7 +133,9 @@ advantage normalisation, the KL penalty and the prompt-construction rule are ide
 $K$; the horizon enters only through $r_g$.
 
 \textbf{Minimum context length.} Training prompts are prefixes, so the oracle scores a partial
-conversation while the evaluation scores a whole session. In a pilot on an earlier configuration
+conversation while the evaluation scores a whole session. 
+% \dnotedone{done: cites Appendix C.1 and its new figure}{ref specific subsection and related figure}
+In a pilot on an earlier configuration
 of this task the oracle's ranking of very short prefixes agreed poorly with its ranking of the
 completed sessions and recovered from roughly ten utterances, so both runs discard prefixes
 shorter than MCL${=}12$; at that minimum the training reward ranks the conversations the prefixes
@@ -156,7 +169,9 @@ every patient utterance (change talk, sustain talk, neutral), in transcript orde
 strength or effort, and non-specific praise is coded separately, the distinction the MITI manual
 draws when it lists ``I am really proud of you'' as not an affirmation. We count open questions,
 reflections, affirmations and seeking collaboration as MI-adherent, and non-specific praise,
-persuasion and confrontation as MI-inconsistent. Because the codes are in transcript order, we can
+persuasion and confrontation as MI-inconsistent. 
+% \dnotedone{rephrased: now says we read the patient's reply}{[say what the patient said next ?\textasciitilde{}]}
+Because the codes are in transcript order, we can
 read, for every therapist utterance, what the patient said in reply, and follow how a session
 develops.
 
