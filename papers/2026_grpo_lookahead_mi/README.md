@@ -339,12 +339,12 @@ step's handled notes are commented out.
 
 | Step | What | Status |
 |---|---|---|
-| 1 | §7 Discussion: a plain summary first; the slogan cut; praise and change talk in plain words; the reward-hacking story one idea at a time; the conclusion's first sentence and the recommendations cut | done (`70218dd`), awaiting Lior's read, not on Overleaf |
+| 1 | §7 Discussion: a plain summary first; the slogan cut; praise and change talk in plain words; the reward-hacking story one idea at a time; the conclusion's first sentence and the recommendations cut | done (`70218dd`), on Overleaf since 2026-09-28 with the note marks; awaiting Lior's read |
 | 2 | Limitations. **Cut:** evaluation draws, one optimiser/one regime, reward for continuing, patient replies inside the reward, the circularity sentence. **Rephrase:** matched cost (plain words; keep the GPU-hours and the equal-compute result in one sentence), K ∈ {0,5} ("more runs are needed", his reminder open), simulation only (credit the extra measurements, then name the one gap: the patient), "without a model in the loop". Fix the stray `''`. Knock-ons: Appendix A's text and the rollout-audit caption point at the cut "continuing" paragraph; §3.3's "(Limitations)" points at the cut circularity sentence | next |
 | 3 | Ethics: tone down the judges paragraph; cut the compute paragraph, move its licence sentence to Appendix D and fix Appendix D's "GPU-hour totals in the Limitations and the Ethics Statement"; keep the section order (ARR's rule); re-point the ARR checklist answers C1 and B2 | |
 | 4 | Count the therapist turns that hit the 200-token cap, per model state, in the EDA (local; no GPU, no API) → `NUMBERS.md` → the number replaces "many" in the Limitations | |
 | 5 | MITI option A (above); cut the Limitations' "least dependable" sentence; shorten the utterance-coder paragraph | |
-| 6 | Consistency, offered and not yet agreed: §6 and Appendix C.4's title still say "paid for" / "siblings", the words Doron flagged in §7; Appendix E's subsection titles still say "Turn-level reward" / "Look-ahead reward" | Lior to decide |
+| 6 | Consistency: §6 and Appendix C.4's title still say "paid for" / "siblings", the words Doron flagged in §7; Appendix E's subsection titles still say "Turn-level reward" / "Look-ahead reward" | agreed (Lior, 2026-09-28) |
 | 7 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | once he stops editing |
 | 8 | The contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open) | |
 | 9 | Layout: "behavior s" in §1, `rafailov2023dpo` uncited, float crowding | |
