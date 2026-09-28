@@ -45,7 +45,9 @@ units.}
 (Table~\ref{tab:endpoint}). On the reward rubric the gap is $+0.765$ (out of 1-5 Likert scale)
 ($\dz\,0.905$). Measured from the Base, the $\Kf$ run gained $+1.502$ on \QQ\ and the $\Kz$ run
 $+0.738$, $2.04$ times as much; measured against $\Kz$'s best checkpoint instead of its last
-(iteration 8), the ratio is $1.41$. The held-out judge agrees on every row and reports the larger
+(iteration 8), the ratio is $1.41$. 
+% \dnotedone{cut}{[, and MI-inconsistent behaviour shows the largest standardised effect of all - ??]}
+The held-out judge agrees on every row and reports the larger
 standardised effect on the reward ($+0.616$, $\dz\,1.030$), with gain ratios of $2.50$ and $1.30$,
 so across the two judges and both anchors the $\Kf$ gain is $1.3$ to $2.5$ times the $\Kz$ gain.
 
@@ -59,10 +61,14 @@ the final $\Kf$ policy leads on \QQ\ ($\dz\,0.743$, significant). The held-out j
 leads significantly at 7 of the 10 iterations (4--10), and against $\Kz$'s best checkpoint under
 that judge (iteration 3) it still leads at $\dz\,0.386$.
 
-\textbf{A second draw of the final policy.} Each policy is scored on one sample of 96
+\textbf{A second draw of the final policy.} 
+% \dnotedone{renamed: `each policy'}{[state -?]}
+Each policy is scored on one sample of 96
 conversations, so we drew the final $\Kf$ policy again (96 fresh conversations from the same
 adapter, personas and decoding, scored by both judges): the two draws differ by at most
 $|\dz|\,0.174$ across the nine rows and both judges, none significantly, and with the second draw
-the \QQ\ gap is $\dz\,0.919$ against $0.905$ (held out: $0.949$ against $1.030$). This measures how
+the \QQ\ gap is $\dz\,0.919$ against $0.905$ (held out: $0.949$ against $1.030$). 
+% \dnotedone{rephrased in plain words: same model, new conversations}{[evaluation noise, not training variance -?]}
+This measures how
 much the scores move when the same trained model holds a new set of conversations; it says nothing
 about how different a second training run would be (see Limitations).
