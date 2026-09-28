@@ -309,6 +309,48 @@ E examples; F saturation, reframed as a limit of the main judge on 21 states. Ea
 on a new page. The Limitations drop the base-vs-base sentence and call the held-out judge and the
 six outside instruments "the checks", not "the load-bearing evidence".
 
+**Supervisor passes 4–5 and the plan, 2026-09-28** (Doron's Overleaf edits of 26 Sep 10:20 UTC,
+notes on §7, the Limitations and the Ethics, and of 27 Sep 11:30 UTC, a new related-work block at
+the top of §2; pulled as `0f2868e` and `a3c299a`). Lior went through every note on a note-cards
+page (private claude.ai artifact https://claude.ai/artifact/NSVdJcCvmmpGVFmbptBfeY; his pick per
+note is stored there, db collection `picks`, doc id = card id) and chose keep / rephrase / cut /
+later for each. This plan follows those picks and supersedes steps 8–10 of the 2026-09-24 plan.
+
+- **Doron's notes stay in the text.** `main.tex` defines `\dnotedone{how}{note}` (green,
+  "[handled: … | Doron: …]") and `\dnoteopen{why}{note}` (red); `\dnotesfalse` hides all of them
+  (flip it before submission). Once a section is checked, its handled notes are commented out
+  (`% \dnotedone{…}`: still in the source, gone from the PDF), so the PDF shows the section under
+  review plus every open note. The 44 handled notes of passes 1–3 are back in §1 and §3–§6 as such
+  comments, beside the text that answered them. `build.py` counts the literal `??` in his notes as
+  unresolved references until the notes are hidden; check `main.log` for "undefined" instead.
+- **MITI, option A.** The paper drops only MITI's seven behaviour counts: the behaviour-channel
+  figure (`fig:forest`, Appendix A), the MITI half of Appendix D's coder check (the PCT half stays)
+  and the MITI clauses of the Limitations. MITI stays one of the eight instruments through its four
+  global ratings. ⚠ Found while checking: Appendix D's "the MITI coder counts every function a long
+  turn performs" is false. MITI's behaviour total equals the number of therapist turns in 79% of
+  conversations under gpt-4o-mini and 96% under Claude; the gap to the utterance coder comes from
+  MITI's seven-code list having no praise and no "other" code. Option A removes the sentence.
+- **The intermediate-K reminder.** Doron's "indeed this is a major limitation - in case you have
+  time for more runs" stays in the Limitations as an open note; whether to run an intermediate K
+  on the lab server time he mentions is Lior's call.
+
+The plan. Each step: pull, edit, build, Lior's read, commit, push to Overleaf on his go; then the
+step's handled notes are commented out.
+
+| Step | What | Status |
+|---|---|---|
+| 1 | §7 Discussion: a plain summary first; the slogan cut; praise and change talk in plain words; the reward-hacking story one idea at a time; the conclusion's first sentence and the recommendations cut | done (`70218dd`), awaiting Lior's read, not on Overleaf |
+| 2 | Limitations. **Cut:** evaluation draws, one optimiser/one regime, reward for continuing, patient replies inside the reward, the circularity sentence. **Rephrase:** matched cost (plain words; keep the GPU-hours and the equal-compute result in one sentence), K ∈ {0,5} ("more runs are needed", his reminder open), simulation only (credit the extra measurements, then name the one gap: the patient), "without a model in the loop". Fix the stray `''`. Knock-ons: Appendix A's text and the rollout-audit caption point at the cut "continuing" paragraph; §3.3's "(Limitations)" points at the cut circularity sentence | next |
+| 3 | Ethics: tone down the judges paragraph; cut the compute paragraph, move its licence sentence to Appendix D and fix Appendix D's "GPU-hour totals in the Limitations and the Ethics Statement"; keep the section order (ARR's rule); re-point the ARR checklist answers C1 and B2 | |
+| 4 | Count the therapist turns that hit the 200-token cap, per model state, in the EDA (local; no GPU, no API) → `NUMBERS.md` → the number replaces "many" in the Limitations | |
+| 5 | MITI option A (above); cut the Limitations' "least dependable" sentence; shorten the utterance-coder paragraph | |
+| 6 | Consistency, offered and not yet agreed: §6 and Appendix C.4's title still say "paid for" / "siblings", the words Doron flagged in §7; Appendix E's subsection titles still say "Turn-level reward" / "Look-ahead reward" | Lior to decide |
+| 7 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | once he stops editing |
+| 8 | The contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open) | |
+| 9 | Layout: "behavior s" in §1, `rafailov2023dpo` uncited, float crowding | |
+| 10 | Hide the notes; length pass (the body must end on page 8); ARR checklist; code zip; submit ≈ 9 Oct (deadline 12 Oct) | |
+| — | A short message for Lior to send Doron: what changed, and answers to his questions (the section order is ARR's rule; Yuan et al. is already cited; the patient-replies paragraph was correct but cut; MITI option A) | after steps 2–5 |
+
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
 preference trees + DPO — and this paper's contribution is **moving the lever to GRPO**. The PTO
