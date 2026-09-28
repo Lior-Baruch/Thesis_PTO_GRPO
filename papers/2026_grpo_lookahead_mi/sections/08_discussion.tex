@@ -1,32 +1,48 @@
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-[ starts too specific and too AI.. start with a sentence or 2-3 sentences more high level summary] 
+\dnotedone{new opening paragraph, no numbers}{starts too specific and too AI.. start with a sentence or 2-3 sentences more high level summary}
+\dnotedone{cut}{\textbf{The horizon of the reward selects which behaviour pays.} i dont link this jargon as well}
+We asked whether a small therapist model learns motivational interviewing better when the judge
+that rewards each of its turns also sees how the conversation continues. It does: with the same
+training method and the same judge, the model trained with a five-turn look-ahead finished
+training ahead on every instrument, under both judges. It also became a different kind of
+therapist.
 
-[\textbf{The horizon of the reward selects which behaviour pays.} i dont link this jargon as well]
+\dnotedone{rephrased}{[paid for non-specific praise \textasciitilde] [stops at the reply \textasciitilde] [paying] [paid]}
+\dnotedone{rephrased}{[their ?]}
+The difference is clearest in praise. In the middle of training, both rewards gave higher scores to
+replies that praised the patient. Late in training, only the $\Kz$ reward, which scores a turn
+before the patient has answered it, still did: at iteration 9, candidate replies containing a
+praise phrase scored $0.16$ within-group standard deviations above the candidates for the same
+prompt that did not praise, against $0.04$ under the $\Kf$ reward, which also sees the next five
+turns (Appendix~\ref{app:premium}). The $\Kz$ policy ends up praising in $0.41$ of its turns and in
+reply to a third of the patient's sustain talk, and late in the session its patients express even
+less change talk than the Base's. What the $\Kf$ run learned instead is to keep the patient's
+change talk going.
+\dnotedone{rephrased}{[again after $97\%$ of their change talk ??]}
+When a patient expressed change talk, their next utterance was change talk again in $97\%$ of
+cases under $\Kf$, against $80\%$ under $\Kz$ ($75\%$ at the Base).
 
-Both rewards [paid for non-specific praise ~] in the middle of training, but only the $\Kz$ reward, which [stops at the reply ~],
-kept [paying] for it: at iteration 9 it still scored praising replies $0.16$ within-group standard
-deviations above [their ?] siblings, where the $\Kf$ reward, which reads five turns further, [paid]
-$0.04$ (Appendix~\ref{app:premium}). The $\Kz$ policy ends up praising in $0.41$ of its turns and
-in reply to a third of the patient's sustain talk, and late in the session its patients express even less
-change talk than the Base's. What the $\Kf$ run learned instead is to keep the patient's change
-talk going: its patients expressed change talk [again after $97\%$ of their change talk ??], against $80\%$
-under $\Kz$. 
+\dnotedone{rephrased, one idea per sentence}{- try to rephrase this - there is an interesting story here but need to tell it better}
+Look-ahead did not remove reward hacking; it changed which shortcut the reward favoured. Part of
+what the $\Kf$ policy learned is what MI prescribes: reflecting the patient's change talk. Part is
+not: it meets sustain talk with persuasion, and the held-out judge sees more praise in it than the
+training oracle does. We could not isolate how the horizon produces these differences inside the
+update. We tested three explanations and none was confirmed (Appendix~\ref{app:mechanism}); for
+example, the $\Kf$ reward agrees only slightly better with the score of the finished session, and
+no better at the first iteration, where both runs start from the Base. What remains is a small
+difference in which candidate each group prefers, repeated at every training step and compounded
+over ten iterations in which the model trains on its own conversations. The utterance codes of
+\S\ref{sec:therapist}--\ref{sec:patient} show what that difference adds up to.
+\label{sec:mechanism}
 
-[- try to rephrase this - there is an interesting story here but need to tell it better] Part of that is what MI prescribes, reflecting change talk; part is not , since the
-$\Kf$ policy meets sustain talk with persuasion, and the held-out judge sees more praise in it than
-the training oracle does. Extending the horizon does not remove reward hacking; it changes which
-behaviour pays. How the horizon produces that difference inside the update we could not isolate:
-three candidate mechanisms were testable and none is confirmed (Appendix~\ref{app:mechanism});
-what remains is a small, repeated difference in which sibling the group prefers, compounded over
-ten iterations of a self-training loop, and the process codes show what it amounts to.
-\label{sec:mechanism} ]
-
-\textbf{Conclusion.} [For a group-relative optimiser in multi-turn dialogue, what the judge is
-shown is a first-order design choice ~]. Scoring the continuation rather than single turns raised what
-the same optimiser extracted from the same oracle, and it decided what kind of therapist the
-policy became: one that praises whatever the patient said, or one that reflects the patient's
-change talk and hears more of it, though it still persuades when the patient resists. We recommend
-[ reporting the reward horizon as a hyperparameter ??], [coding the process as well as the outcome  ??], and
-keeping a second judge with [headroom ??](Appendix~\ref{app:saturation}).
+\textbf{Conclusion.}
+\dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
+Scoring the continuation rather than single turns raised what the same optimiser extracted from the
+same oracle, and it decided what kind of therapist the policy became: one that praises whatever the
+patient said, or one that reflects the patient's change talk and hears more of it, though it still
+persuades when the patient resists.
+\dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
+\dnotedone{cut}{coding the process as well as the outcome ??}
+\dnotedone{cut}{headroom ??}
