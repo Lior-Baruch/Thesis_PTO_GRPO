@@ -862,3 +862,9 @@ Not in the paper (scratch check, 2026-09-29): capped turns that also carry a mal
 marker (`<\|?im_`) are ≤ 3.6% of turns in every late state checked (K=0 it 7–10, K=5 it 8–10), so
 the marker leak does not drive the cap hits. The old clause "so it does not bias the contrast" was
 replaced (Lior's pick) — the cap binds the two runs differently at iteration 10.
+
+**Same day, after Lior's read ("too negative"): the cap sentences are CUT from the Limitations
+(his pick among four options), and §5's "near the 200-token cap (see Limitations)" lost its pointer.
+None of the step-4 numbers above appears in the paper any more.** The cap is still stated in §3
+("responses capped at 200 tokens", Table 7) and Appendix E's note still explains the mid-sentence
+endings. The count stays in the EDA (`cap_hits.md`, EDA `LIMITATIONS.md` §5h).

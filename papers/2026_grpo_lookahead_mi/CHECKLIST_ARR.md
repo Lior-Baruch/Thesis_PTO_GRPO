@@ -12,7 +12,7 @@ pushes it.
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after the Discussion (five paragraphs since 2026-09-29): one training run per K; matched iterations vs matched cost (plain words; the iso-compute numbers in Appendix D); K ∈ {0, 5} only; simulation only / in-sample / same-model patient / no human validation / the 200-token cap; instruments and the utterance coder. |
+| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after the Discussion (five paragraphs since 2026-09-29): one training run per K; matched iterations vs matched cost (plain words; the iso-compute numbers in Appendix D); K ∈ {0, 5} only; simulation only / in-sample / same-model patient / no human validation; instruments and the utterance coder. (The 200-token cap was cut from the Limitations 2026-09-29; §3 and Table 7 state it, Appendix E explains the mid-sentence endings.) |
 | A2 | Potential risks? | **Yes.** | "Ethics Statement": no clinical claim; the over-praise failure mode is safety-relevant; the simulated population is narrow; judges inherit their models' biases; compute. |
 
 ## B. Scientific artifacts used or created
