@@ -95,7 +95,10 @@ def build_arm(arm: str, exp: str, out: str) -> dict:
             rows.append({
                 "arm": arm,
                 "iteration": it,
-                "round": int(r["branch_id"]),
+                # The line number, not the trainer's branch_id: a resume that reloads the EDA snapshot
+                # restarts branch_id at 0, so it repeats within GRPO_K5 iterations 9 and 10. Line
+                # order is training order (snapshot rows first); elsewhere the two are identical.
+                "round": len(rows),
                 "epoch": int(r["epoch"]) + 1 if r["phase"] == "train" else int(round(r["epoch"])),
                 "split": r["phase"],
                 "patient_id": order[cid],

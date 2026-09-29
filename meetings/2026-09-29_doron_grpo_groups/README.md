@@ -50,6 +50,8 @@ conversation in `conversations/<arm>/iter_{XX-1}`.
 - **Missing epoch-1 rounds.** Some iterations crashed and resumed, and the rounds before the crash were
   not recorded. `GRPO_K0` iteration 2 and `GRPO_K5` iteration 1 have no epoch-1 rounds; `GRPO_K0`
   iterations 6, 8 and `GRPO_K5` iterations 2, 7 have part of epoch 1. Epoch 2 is complete everywhere.
+- **`GRPO_K5` iteration 9, epoch 2.** The run was resumed during this epoch. 72 conversation-so-far
+  points appear twice in it (with different candidates), and 72 others do not appear.
 - **Empty replies** get a reward of 0 (a handful per iteration at most). In `GRPO_K0` iteration 1 they
   were not sent to the grader, so their `Q1` and `Q2` are empty.
 - **`reward` is empty** for 32 candidates, all in `GRPO_K0` iteration 9: the grader call failed.
