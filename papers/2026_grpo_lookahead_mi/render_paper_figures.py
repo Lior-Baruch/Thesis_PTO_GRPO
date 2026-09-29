@@ -363,8 +363,8 @@ def praise_premium() -> Path:
     a.set_ylim(-1.1, 0.7)
     a.set_xticks(range(0, 10, 2))
     a.set_xlabel("iteration sampled from")
-    a.set_ylabel("premium (within-group SD)")
-    a.set_title("(a) reward premium", loc="left", fontweight="bold", fontsize=6.4)
+    a.set_ylabel("difference (within-group SD)")
+    a.set_title("(a) praising − other", loc="left", fontweight="bold", fontsize=6.4)
     a.legend(frameon=False, loc="lower right", fontsize=5.8, handlelength=1.3, borderaxespad=0.1,
              labelspacing=0.2)
     b.set_ylim(0, 0.65)
