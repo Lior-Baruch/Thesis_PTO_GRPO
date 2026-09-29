@@ -371,9 +371,9 @@ def fig_analysis(res, gapq, out, main, base, score, ylab, gap_lab, title, fname)
         ax.fill_between(g.iteration, g[f"{score}_{main}_lo"], g[f"{score}_{main}_hi"], color=COL[arm], alpha=0.2, lw=0)
         ax.plot(g.iteration, g[f"{score}_{main}"], color=COL[arm], marker=MARK[arm], ms=4.5, lw=2, label=title[0])
         ax.plot(g.iteration, g[f"{score}_{main}_clean"], color=COL[arm], marker=MARK[arm], mfc="white", ms=4, lw=1.1,
-                ls="--", label="same, scored on rounds without degenerate text")
+                ls="--", label="same arrow, rounds with no broken text")
         ax.plot(g.iteration, g[f"{score}_{base}"], color=GREY, ls="--", lw=1.3, marker=".", label=title[1])
-        ax.plot(g.iteration, g[f"{score}_length"], color=LIGHT, ls=":", lw=1.5, marker=".", label="reply length alone")
+        ax.plot(g.iteration, g[f"{score}_length"], color=LIGHT, ls=":", lw=1.5, marker=".", label="length only (longer reply wins)")
         _chance(ax, 0.5 if score != "rho" else 0.0)
         ax.set_xticks(ITERS)
         ax.set_xlabel("training iteration")
@@ -388,28 +388,29 @@ def fig_analysis(res, gapq, out, main, base, score, ylab, gap_lab, title, fname)
     _chance(ax, 0.5 if score != "rho" else 0.0)
     ax.set_xticks(range(1, 6))
     ax.set_xlabel(gap_lab)
-    ax.set_title("by how different the round's rewards are")
+    ax.set_title("by how far apart the round's scores are")
     ax.set_ylabel(ylab.split("\n")[0])
     ax.legend(frameon=False, loc="upper left", fontsize=8)
     fig.tight_layout(rect=(0, 0.1, 1, 1))
-    fig.legend(handles, [l.replace("same, scored", "the same direction, scored") for l in labels], loc="lower left",
+    fig.legend(handles, labels, loc="lower left",
                bbox_to_anchor=(0.05, 0.0), ncol=4, frameon=False, fontsize=8.5,
-               title="line style (colour = arm):", title_fontsize=8.5)
+               title="lines (colour = arm):", title_fontsize=8.5)
     fig.savefig(os.path.join(out, fname))
     plt.close(fig)
 
 
 def fig_compare(cmp_df, out):
     fig, axes = plt.subplots(2, 2, figsize=(11.5, 7.2))
-    panels = [("bw", "held-out: best projects above worst", 0.5, "(a) picking the winner over the loser"),
-              ("rho", "held-out: within-round Spearman", 0.0, "(b) ranking all 8 candidates"),
-              ("reliability", "split-half reliability (cosine)", None, "(c) how stable the direction is")]
+    panels = [("bw", "picks the winner\n(share of rounds, new patients)", 0.5, "(a) picking the winner over the loser"),
+              ("rho", "ordering score (0 = none, 1 = perfect)", 0.0, "(b) ordering all 8 replies"),
+              ("reliability", "stability (1 = the same arrow)", None,
+               "(c) stability: do two halves of the patients give the same arrow?")]
     for ax, (col, ylab, ref, title) in zip(axes.flat[:3], panels):
         for arm in ARMS:
             g = cmp_df[cmp_df.arm == arm]
             ax.plot(g.iteration, g[f"{col}_bt"], color=COL[arm], marker=MARK[arm], mfc="white", ms=4.5, lw=1.4, ls="--",
-                    label=f"{LAB[arm]}, best vs worst")
-            ax.plot(g.iteration, g[f"{col}_ridge"], color=COL[arm], marker=MARK[arm], ms=4.5, lw=2, label=f"{LAB[arm]}, all 8")
+                    label=f"{LAB[arm]}, winner-vs-loser arrow")
+            ax.plot(g.iteration, g[f"{col}_ridge"], color=COL[arm], marker=MARK[arm], ms=4.5, lw=2, label=f"{LAB[arm]}, whole-round arrow")
         if ref is not None:
             _chance(ax, ref)
         ax.set_xticks(ITERS)
@@ -423,13 +424,13 @@ def fig_compare(cmp_df, out):
     _chance(ax, 0.0)
     ax.set_ylim(-0.1, 1.0)
     ax.set_xticks(ITERS)
-    ax.set_ylabel("cosine")
-    ax.set_title("(d) best-vs-worst direction vs all-8 direction")
+    ax.set_ylabel("similarity (1 = the same arrow)")
+    ax.set_title("(d) do the two arrows point the same way?")
     ax.legend(frameon=False, fontsize=8, loc="lower left")
     for ax in axes[1]:
         ax.set_xlabel("training iteration")
-    fig.tight_layout(rect=(0, 0, 1, 0.95))
-    fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 1.0), ncol=4, frameon=False, fontsize=8.5)
+    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    fig.legend(handles, labels, loc="upper center", bbox_to_anchor=(0.5, 1.0), ncol=2, frameon=False, fontsize=8.5)
     fig.savefig(os.path.join(out, "compare.png"))
     plt.close(fig)
 
@@ -437,14 +438,14 @@ def fig_compare(cmp_df, out):
 def fig_transfer(T_bt, T_ridge, out):
     fig, axes = plt.subplots(1, 2, figsize=(13, 5.8))
     labels = [f"{LAB[a]} it{i}" for a, i in CELLS]
-    for ax, T, title in ((axes[0], T_bt, "(a) best-vs-worst direction"), (axes[1], T_ridge, "(b) all-8 direction")):
+    for ax, T, title in ((axes[0], T_bt, "(a) winner-vs-loser arrow"), (axes[1], T_ridge, "(b) whole-round arrow")):
         sns.heatmap(T, ax=ax, cmap="RdBu_r", vmin=0.25, vmax=0.75, center=0.5, square=True, xticklabels=labels,
-                    yticklabels=labels, cbar_kws={"label": "held-out: best projects above worst", "shrink": 0.75})
+                    yticklabels=labels, cbar_kws={"label": "picks the winner (share of rounds, new patients)", "shrink": 0.75})
         ax.axhline(10, color="white", lw=2)
         ax.axvline(10, color="white", lw=2)
         ax.tick_params(labelsize=6.5)
         ax.set_xlabel("tested on")
-        ax.set_ylabel("fitted on")
+        ax.set_ylabel("arrow learned on")
         ax.set_title(title)
     fig.tight_layout()
     fig.savefig(os.path.join(out, "transfer.png"))
@@ -453,19 +454,20 @@ def fig_transfer(T_bt, T_ridge, out):
 
 def fig_features(feat_df, out):
     names = list(FEATURES)
+    shown = {"degenerate text": "broken text"}
     fig, axes = plt.subplots(1, 2, figsize=(12, 5.2), sharey=True)
     y = np.arange(len(names))[::-1]
     for ax, arm in zip(axes, ARMS):
         g = feat_df[feat_df.arm == arm].set_index("feature").loc[names]
         ax.axvline(0, color="#444444", lw=0.8)
-        ax.scatter(g["reward"], y, marker="D", s=34, color="#222222", label="the reward itself", zorder=3)
+        ax.scatter(g["reward"], y, marker="D", s=34, color="#222222", label="the score itself", zorder=3)
         ax.scatter(g["bt"], y, marker="o", s=40, facecolors="white", edgecolors=COL[arm], linewidths=1.6,
-                   label="best-vs-worst direction", zorder=3)
-        ax.scatter(g["ridge"], y, marker="o", s=40, color=COL[arm], label="all-8 direction", zorder=3)
+                   label="winner-vs-loser arrow", zorder=3)
+        ax.scatter(g["ridge"], y, marker="o", s=40, color=COL[arm], label="whole-round arrow", zorder=3)
         ax.set_yticks(y)
-        ax.set_yticklabels(names)
-        ax.set_xlabel("within-round correlation with the feature")
-        ax.set_title(f"{LAB[arm]}: what the directions and the reward favour")
+        ax.set_yticklabels([shown.get(n, n) for n in names])
+        ax.set_xlabel("how strongly it goes with the feature, within a round (-1 to 1)")
+        ax.set_title(f"{LAB[arm]}: what goes with the arrows and with the score")
     fig.tight_layout(rect=(0, 0, 1, 0.93))
     fig.legend(*axes[0].get_legend_handles_labels(), loc="upper center", bbox_to_anchor=(0.5, 1.0), ncol=3,
                frameon=False, fontsize=9)
@@ -502,12 +504,13 @@ def within_corr(x, y, cand_round, R):
 def render(res, gq, T, feat, fig_dir):
     style()
     fig_analysis(res, gq[gq.method == "bt"], fig_dir, "bt", "meandiff", "bw",
-                 "held-out: best projects above worst", "quintile of the round's reward gap (best − worst)",
-                 ("Bradley-Terry direction", "mean of best − worst"), "analysis1_best_worst.png")
+                 "picks the winner\n(share of rounds, new patients)",
+                 "fifths of rounds, by best − worst gap\n(1 = closest, 5 = furthest apart)",
+                 ("winner-vs-loser arrow", "simple average, no model"), "analysis1_best_worst.png")
     fig_analysis(res, gq[gq.method == "ridge"], fig_dir, "ridge", "advmean", "rho",
-                 "held-out: within-round Spearman\n(projection vs reward, all 8)",
-                 "quintile of the round's reward spread (std)",
-                 ("ridge direction", "advantage-weighted mean"), "analysis2_all8.png")
+                 "ordering score for the 8 replies\n(0 = none, 1 = perfect; new patients)",
+                 "fifths of rounds, by spread of the 8 scores\n(1 = closest, 5 = most spread out)",
+                 ("whole-round arrow", "simple weighted average, no model"), "analysis2_all8.png")
     fig_compare(res, fig_dir)
     fig_transfer(T["bt"], T["ridge"], fig_dir)
     fig_features(feat, fig_dir)
