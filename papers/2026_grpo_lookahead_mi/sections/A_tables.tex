@@ -6,8 +6,7 @@ judge's version is Table~\ref{tab:scores-heldout} in Appendix~\ref{app:heldout},
 that judge's results). Figure~\ref{fig:overpraise}: the keyword marker of \S\ref{sec:therapist}.
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
 iteration under both judges. Figure~\ref{fig:textspace}: the two runs in sentence-embedding space
-(Figure~\ref{fig:textspace-body} and a third measure). Figure~\ref{fig:forest}: the session-level
-behaviour-channel profile. Figure~\ref{fig:tails}: the $\Kf$ rollout audit, a check that the
+(Figure~\ref{fig:textspace-body} and a third measure). Figure~\ref{fig:tails}: the $\Kf$ rollout audit, a check that the
 five-turn look-ahead ran as specified. Over the $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ of
 rollouts ran the full five turns; the early-ending share ranged from $12\%$ at iteration 10 to
 $30\%$ at iteration 6, and in $16\%$ of candidates the patient closed the session. Early-ending
@@ -93,20 +92,6 @@ much the therapist's turns depend on which patient it is talking to, with a $95\
 over conversations. \textbf{(c)} The mean pairwise cosine between turns at the same position in
 different conversations: convergence on a template.}
 \label{fig:textspace}
-\end{figure*}
-
-\begin{figure*}[p]
-\centering
-\includegraphics[width=0.92\textwidth]{figures/k_channel_forest_grpo_gpt-4o-mini.png}
-\caption{Every behaviour channel at iteration 10 under the training oracle's session-level coders:
-the persona-paired contrast $\Kf - \Kz$ as \dz\ ($n{=}96$; positive means the $\Kf$ policy does
-more of it; hollow bars are not significant). Over-praise is the dominant channel by a wide
-margin, followed by affirmations; the channels the $\Kf$ policy does more of are questions and,
-among the MI-inconsistent codes, direct/order and persuasion. The share of MI-consistent codes is
-\emph{lower} under $\Kf$ because the MITI coder counts every affirmation as MI-adherent, earned or
-not. Every channel is shown so that substitution, MI-inconsistency moving to another channel
-rather than falling, would be visible rather than hidden by the total.}
-\label{fig:forest}
 \end{figure*}
 
 \begin{figure*}[t]
