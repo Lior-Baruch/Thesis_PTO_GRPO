@@ -1,0 +1,23 @@
+arm,feature,share_or_mean,reward,bt,ridge
+GRPO_K0,length (log chars),5.8458,-0.0132,-0.0401,-0.0471
+GRPO_K0,praise phrase,0.1581,0.0388,0.1159,0.1176
+GRPO_K0,'you are ...' affirmation,0.1517,0.0366,0.0789,0.0875
+GRPO_K0,asks a question,0.2096,-0.0033,-0.0006,0.0077
+GRPO_K0,reflection opener,0.0356,0.0038,0.019,0.0247
+GRPO_K0,advice / tips,0.6495,0.0437,0.1359,0.1351
+GRPO_K0,numbered or bulleted list,0.0426,-0.0126,0.0145,0.0055
+GRPO_K0,'we' / 'together',0.3434,0.0133,0.0242,0.0298
+GRPO_K0,cut off mid-sentence,0.5986,-0.059,-0.2093,-0.2435
+GRPO_K0,degenerate text,0.0331,-0.1302,-0.4583,-0.5121
+GRPO_K0,leaked chat marker,0.1992,0.0482,-0.0073,-0.009
+GRPO_K5,length (log chars),6.3204,0.0181,0.0746,0.0404
+GRPO_K5,praise phrase,0.0293,0.0126,0.0053,0.0048
+GRPO_K5,'you are ...' affirmation,0.0813,0.0039,0.0187,0.0143
+GRPO_K5,asks a question,0.3931,0.0011,-0.0036,0.0026
+GRPO_K5,reflection opener,0.0853,0.0086,0.0255,0.0292
+GRPO_K5,advice / tips,0.4076,0.0224,0.0982,0.096
+GRPO_K5,numbered or bulleted list,0.0081,0.003,-0.0031,-0.005
+GRPO_K5,'we' / 'together',0.2654,0.0009,-0.0207,-0.014
+GRPO_K5,cut off mid-sentence,0.4995,-0.0704,-0.2519,-0.291
+GRPO_K5,degenerate text,0.0349,-0.0924,-0.4491,-0.5032
+GRPO_K5,leaked chat marker,0.0167,-0.0086,-0.0849,-0.0952
