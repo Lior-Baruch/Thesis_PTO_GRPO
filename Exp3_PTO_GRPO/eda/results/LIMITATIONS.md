@@ -567,6 +567,18 @@ treat a small effect between two arms as weaker evidence than its p-value sugges
 (dz > 0.7 at matched iteration, consistent across two graders and across a budget ladder) are the
 ones least exposed to this, which is a reason to lead with them.
 
+## 5h · The trained GRPO policies write up to the 200-token response cap
+Every therapist turn is generated with `max_tokens_per_response = 200`. Counted token-exactly
+(2026-09-29; [`lookahead/shared_base/tables/cap_hits.md`](lookahead/shared_base/tables/cap_hits.md)),
+the share of therapist turns that run into the cap is 3% at the shared Base and, at iteration 10,
+**97% for GRPO_LA0 and 81% for GRPO_LA5**. GRPO_LA5 climbs from iteration 5 on; GRPO_LA0 swings
+(72% at 8, 9% at 9, 97% at 10). So the "turn length roughly tripled" of the length tables is
+largely the cap being reached: the late turns are cut off, often mid-sentence, and that cut-off
+text is what the patient simulator, both graders and the utterance coder saw. The cap is identical
+across arms, but it does not bind them equally at the endpoint, so any turn-length or
+per-turn-count claim about the late GRPO checkpoints is a claim about capped turns. The PTO arms
+were not counted (the table is GRPO-only, on the shared Base).
+
 ## 6 · Multiplicity is corrected within families, not across
 Holm/BH corrections apply **within** each family (rubrics within one matched contrast, or
 iterations within one arm-vs-base sweep) and are **not** pooled across the dozens of families
