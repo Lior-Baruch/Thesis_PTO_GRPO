@@ -123,7 +123,7 @@ Source for every row: results/measurement/replicate_draw.md (written by `eda/too
 | Patient-simulator calls inside K=5 look-ahead rollouts, sum over train iters 1–10 | `GRPO_LA5` **392,766** (≈393k); `GRPO_LA0` **0** by construction | same table, `patient_calls_tail` summed over the 10 GRPO_LA5 rows |
 | ✅ Per-step wall-clock multiplier, settled iterations 3–10 | median **1.92×**, range 1.828–2.182 | results/compute/cost/tables/step_multiplier.md, `GRPO_step_ratio_K5_over_K0` |
 | ⚠ iterations 1–2 excluded from the multiplier | 2.406 and 2.119 — smaller look-ahead sub-batch, not comparable (stated in Appendix C) | same; CLAUDE.md § Gotchas |
-| Ethics total (one line, no per-arm breakdown) | 27.906 + 51.205 = 79.111 ≈ **79 GPU-hours** | results/compute/cost/tables/compute_by_arm.md — show the arithmetic |
+| ~~Ethics total (one line, no per-arm breakdown)~~ — **retired 2026-09-29** with the Ethics compute paragraph; the per-run totals stay (Limitations, Appendix D.8) | 27.906 + 51.205 = 79.111 ≈ **79 GPU-hours** | results/compute/cost/tables/compute_by_arm.md — show the arithmetic |
 
 ⚠ GPU-hours are **reconstructed from artifact mtimes**, gaps outside (0, 3600 s) imputed at the
 phase median; never from `iteration_metadata.json` (per-process, undercounts resumed iterations).

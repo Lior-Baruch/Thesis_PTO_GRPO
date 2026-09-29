@@ -20,7 +20,7 @@ pushes it.
 | # | Question | Answer | Where |
 |---|---|---|---|
 | B1 | Cited the creators of artifacts used? | **Yes.** | Llama-3.2-1B, gpt-4o-mini, Claude Haiku 4.5 named in §4 and Table 5; GRPO (Shao et al., 2024) §2–3; DPO/PTO origin §1–2; instruments Q1/Q2 (Yosef et al., 2024), WAI-SR (Hatcher & Gillaspy, 2006), CSQ-8 (Larsen et al., 1979), MITI 4.2.1 (Moyers et al., 2015) in §4 and Table 6; TRL / transformers / PEFT versions in Table 5. |
-| B2 | License / terms discussed? | **Partly** — Ethics Statement says the base model is openly licensed and the APIs were used within their terms of service. Add the exact license name (Llama 3.2 Community License) to the Ethics paragraph if a reviewer asks; the created artifacts (personas, coder prompts, code) will be released under a permissive license — state which one when the archive is prepared. |
+| B2 | License / terms discussed? | **Partly** — Appendix D "Artifacts" says the base model is openly licensed and the APIs were used within their terms of service (moved out of the Ethics Statement 2026-09-29). Add the exact license name (Llama 3.2 Community License) there if a reviewer asks; the created artifacts (personas, coder prompts, code) will be released under a permissive license — state which one when the archive is prepared. |
 | B3 | Use consistent with intended use? | **Yes.** | Ethics Statement: research artifact only, no clinical use; the base model is used within its license; the created artifacts are for research. |
 | B4 | Checks for PII / offensive content? | **N/A for data** (no human data: every conversation is between two language models, Ethics Statement ¶1). The persona prompts are synthetic (Appendix C.3). |
 | B5 | Documentation of artifacts? | **Yes.** | Appendix C.2 (instruments and prompts), C.3 (persona and therapist prompts, verbatim), C.4 (the lexical marker), Table 6. Language: English only — say so explicitly in the checklist. |
@@ -30,7 +30,7 @@ pushes it.
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| C1 | Parameters, compute budget, infrastructure? | **Yes.** | 1B-parameter policy with LoRA r=16 (Table 5); ≈79 GPU-hours total, 27.9 (K=0) + 51.2 (K=5), one A100 (Ethics; Limitations; Table 5; Appendix C.7); API call counts (Appendix D "Cost accounting"; moved out of the Limitations 2026-09-29). |
+| C1 | Parameters, compute budget, infrastructure? | **Yes.** | 1B-parameter policy with LoRA r=16 (Table 5); 27.9 (K=0) + 51.2 (K=5) = 79.1 GPU-hours, one A100 (Limitations; Table 5; Appendix D.8 — the Ethics compute paragraph was cut 2026-09-29); API call counts (Appendix D "Cost accounting"; moved out of the Limitations 2026-09-29). |
 | C2 | Experimental setup and hyperparameter search? | **Yes, with a caveat.** | Every hyperparameter in Table 5; both arms share one configuration and differ in two tracked fields (§4, C.1). **No hyperparameter search was run** — the GRPO settings were fixed a priori and matched across arms; say so in the checklist ("single configuration, no search"). |
 | C3 | Descriptive statistics (error bars, single run vs mean)? | **Yes.** | Mean ± SE over 96 personas (Figures 2, 4, 5); persona-paired Wilcoxon, Cohen's d_z, 2,000-resample bootstrap CIs, Holm correction (§4, C.6); **single training run per arm**, stated in the Limitations and the abstract; the evaluation re-draw (§5). |
 | C4 | Packages, versions, settings? | **Yes.** | TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 (Table 5); TRL `loss_type="grpo"`, `scale_rewards="group"`, one inner update per batch (Table 5, §3). |
