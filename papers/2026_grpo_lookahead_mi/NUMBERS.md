@@ -276,14 +276,14 @@ them. Re-render the EDA → re-run that script → the pictures move with the ta
 |---|---|
 | K ∈ {0, 5} only, by design — no dose–response | results/LIMITATIONS.md |
 | One training run per arm; no training-seed replicate | results/LIMITATIONS.md |
-| Every endpoint is a single 96-conversation draw; therapist decoding is unseeded (endpoint replicate excepted) | results/LIMITATIONS.md § 5c |
-| **NEW** The look-ahead reward is also a reward for continuing (the rollout audit above) | this ledger, §3 rows |
+| ~~Every endpoint is a single 96-conversation draw~~ — **cut from the Limitations 2026-09-29** (Doron pass 4); §4's last paragraph carries the re-draw | results/LIMITATIONS.md § 5c |
+| ~~The look-ahead reward is also a reward for continuing~~ — **cut from the Limitations 2026-09-29**; the rollout audit stays in Appendix A (text + Figure `fig:tails` caption, which now states the pressure in plain words) | this ledger, §3 rows |
 | All 96 personas are used for both training rollouts and eval — every number is in-sample | results/LIMITATIONS.md § 5e |
 | Patient simulator and training oracle are the same model; the held-out judge decouples the grader, not the generator | results/LIMITATIONS.md § 2 |
 | No human MI-coder validation of any instrument | results/LIMITATIONS.md § 1 |
-| Q1+Q2 is both the training reward and a reported outcome | results/LIMITATIONS.md § 3 |
+| Q1+Q2 is both the training reward and a reported outcome — **§3.3 only since 2026-09-29** (the Limitations sentence was cut as a repeat) | results/LIMITATIONS.md § 3 |
 | MITI is the least dependable instrument | results/LIMITATIONS.md § 2 |
-| Matched iterations ≠ matched cost — the call/wall-clock disclosure block above | this ledger |
+| Matched iterations ≠ matched cost — **since 2026-09-29 plain words in the Limitations (GPU-hours 51.2 / 27.9, ≈2× per step, the equal-GPU-hour verdict without numbers); the call counts, the 1.92× median and the iso-compute d_z values live in Appendix D (`app:repro-cost`)** | this ledger |
 
 ## 2026-09-14 review pass — new and retired numbers (NEW-0914)
 
@@ -816,3 +816,26 @@ are carried into the abstract, the Discussion, the Limitations and the Ethics st
   "endpoint" → iteration wording; session lengths 31.9 vs 25.2 (`marker_and_length`, it 10).
 - **Ethics:** graders → judges, arms → runs, "base model" → "therapist model"; the residual drift
   sentence now names what look-ahead learned instead (persuasion when the patient resists).
+
+## 2026-09-29 — step 2 of the pass-4 plan: the Limitations (Doron's pass-4 notes, Lior's picks)
+
+No number changed; numbers moved. Re-checked against the tables that day:
+`compute/cost/tables/budget_sweep_GRPO_K_{gpt-4o-mini,claude-haiku-4-5}.md` (13.270 h: d_z −0.742 /
+−0.780; 23.210 h: 0.074 p .789 / 0.331 p_holm .012) and `compute_by_arm.md` (27.906 / 51.205).
+
+| What | Where it was | Where it is now |
+|---|---|---|
+| Oracle calls 302,541 / 289,983; 392,766 K=5-only patient calls; median 1.92× per step | Limitations "Matched iterations" | Appendix D `app:repro-cost` ¶1 (exact 392,766 instead of "≈393k") |
+| GPU-hours 27.9 / 51.2 | Limitations + Ethics | Limitations (plain sentence) + Appendix D ¶1; Ethics until step 3 |
+| Iso-compute d_z −0.74 / −0.78 (≈13 GPU-h), 0.07 n.s. / 0.33 (≈23 GPU-h) | Limitations | Appendix D `app:repro-cost` ¶2 ("significant" instead of `p_holm = .012`); the Limitations keep the verdict only |
+| Re-draw \|d_z\| ≤ 0.174 | Limitations "Evaluation draws" + §4 | §4 only |
+| Rollout audit 82%, "up to 0.09", "less often than chance" | Limitations + Appendix A | Appendix A only |
+| Session length 31.9 vs 25.2 utterances (it 10) | Limitations | **gone from the paper** (the paragraph was cut) |
+
+Cut paragraphs (Lior's picks l2, l5, l6, l7, l13): Evaluation draws; One optimiser, one regime;
+the reward for continuing; the patient's replies inside the reward; the Q1+Q2 circularity sentence
+(its Appendix F pointer kept as a plain sentence). Knock-ons: §3.3 lost "(Limitations)"; Appendix
+A's text and the `fig:tails` caption no longer point at the Limitations ("lever" → "the
+look-ahead"); Appendix D no longer says the GPU-hour totals are "in the Limitations and the Ethics
+Statement".
+

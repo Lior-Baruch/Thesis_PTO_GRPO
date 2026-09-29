@@ -12,7 +12,7 @@ pushes it.
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after §8: one training run per arm; evaluation draws; matched iterations vs matched cost (incl. the iso-compute reading); K ∈ {0, 5} only; the continuation pressure; simulation only / in-sample / same-model patient / no human validation / the 200-token cap; instruments. |
+| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after the Discussion (five paragraphs since 2026-09-29): one training run per K; matched iterations vs matched cost (plain words; the iso-compute numbers in Appendix D); K ∈ {0, 5} only; simulation only / in-sample / same-model patient / no human validation / the 200-token cap; instruments and the utterance coder. |
 | A2 | Potential risks? | **Yes.** | "Ethics Statement": no clinical claim; the over-praise failure mode is safety-relevant; the simulated population is narrow; judges inherit their models' biases; compute. |
 
 ## B. Scientific artifacts used or created
@@ -30,7 +30,7 @@ pushes it.
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| C1 | Parameters, compute budget, infrastructure? | **Yes.** | 1B-parameter policy with LoRA r=16 (Table 5); ≈79 GPU-hours total, 27.9 (K=0) + 51.2 (K=5), one A100 (Ethics; Limitations; Table 5; Appendix C.7); API call counts (Limitations; C.7). |
+| C1 | Parameters, compute budget, infrastructure? | **Yes.** | 1B-parameter policy with LoRA r=16 (Table 5); ≈79 GPU-hours total, 27.9 (K=0) + 51.2 (K=5), one A100 (Ethics; Limitations; Table 5; Appendix C.7); API call counts (Appendix D "Cost accounting"; moved out of the Limitations 2026-09-29). |
 | C2 | Experimental setup and hyperparameter search? | **Yes, with a caveat.** | Every hyperparameter in Table 5; both arms share one configuration and differ in two tracked fields (§4, C.1). **No hyperparameter search was run** — the GRPO settings were fixed a priori and matched across arms; say so in the checklist ("single configuration, no search"). |
 | C3 | Descriptive statistics (error bars, single run vs mean)? | **Yes.** | Mean ± SE over 96 personas (Figures 2, 4, 5); persona-paired Wilcoxon, Cohen's d_z, 2,000-resample bootstrap CIs, Holm correction (§4, C.6); **single training run per arm**, stated in the Limitations and the abstract; the evaluation re-draw (§5). |
 | C4 | Packages, versions, settings? | **Yes.** | TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 (Table 5); TRL `loss_type="grpo"`, `scale_rewards="group"`, one inner update per batch (Table 5, §3). |
