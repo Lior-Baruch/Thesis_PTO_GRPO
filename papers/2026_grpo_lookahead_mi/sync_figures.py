@@ -59,8 +59,9 @@ FIGURES: list[tuple[Path, str]] = [
     # --- appendix --------------------------------------------------------------------------------
     # The two all-instrument grids were copied from lookahead/reward until 2026-09-24; since the
     # paper moved to ONE shared Base they are drawn by render_paper_figures.py
-    # (levels_grid_grpo_<judge>.png) from lookahead/shared_base. The channel forest and the
-    # rollout audit have been drawn there since 2026-09-14. Nothing is copied any more; the script
+    # (levels_grid_grpo_<judge>.png) from lookahead/shared_base. The rollout audit has been drawn
+    # there since 2026-09-14 (and the channel forest was, until it left the paper on 2026-09-29).
+    # Nothing is copied any more; the script
     # stays for the day a copied figure returns.
 ]
 

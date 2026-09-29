@@ -12,11 +12,12 @@ tables for every value the captions quote.
 
 Writes, under ``figures/``: ``levels_grid_grpo_<judge>`` (Fig. 2 and its held-out twin, on the
 shared Base since 2026-09-24; ``k_headline_q1q2_grpo`` before that), ``overpraise_judgefree_grpo``
-(Fig. 3), ``k_channel_forest_grpo_gpt-4o-mini`` (Fig. 6) and ``tail_audit_grpo`` (Fig. 7) -- the
+(Fig. 3) and ``tail_audit_grpo`` (Fig. 7) -- the
 same destination names ``sync_figures.py`` used to copy, so the .tex is unchanged;
 ``sync_figures.py`` no longer lists them. ``saturation()`` (the former Fig. 4, dropped 2026-09-16)
-is kept for the Spearman / variance-ratio printout that checks section 7's numbers; ``main()`` does
-not call it.
+is kept for the Spearman / variance-ratio printout that checks section 7's numbers, and
+``forest()`` (the channel forest, dropped 2026-09-29 with MITI's behaviour counts) is kept too;
+``main()`` calls neither.
 
 SIZING (2026-09-16): each figure is drawn at the exact width ``sections/*.tex`` includes it at,
 so the point sizes in this file are true page point sizes -- see ``width_fracs`` / ``figsize``.
@@ -783,8 +784,10 @@ def main(argv: list[str] | None = None) -> int:
     # carries every number it showed). Call it by hand to re-check those numbers.
     # headline() drew the Q1+Q2-only Figure 2 until 2026-09-24; the all-instrument grid on the
     # shared Base (levels_grid_primary) replaced it. Kept, not called, like saturation().
+    # forest() drew the Appendix A channel forest until 2026-09-29, when the paper dropped MITI's
+    # behaviour counts (Lior's option A); kept, not called.
     every = (levels_grid_primary, levels_grid_heldout, overpraise, process, process_heldout,
-             responsiveness, textspace, textspace_body, praise_premium, tail_audit, forest,
+             responsiveness, textspace, textspace_body, praise_premium, tail_audit,
              faithfulness)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}
