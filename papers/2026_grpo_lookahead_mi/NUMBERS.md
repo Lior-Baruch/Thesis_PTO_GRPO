@@ -868,3 +868,18 @@ replaced (Lior's pick) — the cap binds the two runs differently at iteration 1
 None of the step-4 numbers above appears in the paper any more.** The cap is still stated in §3
 ("responses capped at 200 tokens", Table 7) and Appendix E's note still explains the mid-sentence
 endings. The count stays in the EDA (`cap_hits.md`, EDA `LIMITATIONS.md` §5h).
+
+## 2026-09-29 — step 5: MITI option A (the paper drops MITI's seven behaviour counts)
+
+Lior's picks: drop the channel forest (Appendix A, `fig:forest`), drop "7 behaviour counts" from
+the MITI row of the instruments table, and the short utterance-coder paragraph in the Limitations
+(human-check sentence kept). MITI stays one of the eight instruments through its four global
+ratings. **Retired from the paper** (the tables still hold them): the forest's channel effect sizes
+(row "Endpoint channel effect sizes on the forest" above); the therapist-side parity numbers of
+Appendix D.3 — training oracle 0.02–0.43 over the seven MITI codes, held-out 0.73 / 0.68 / 0.55 /
+0.10–0.30 — and "5.5 questions per conversation vs 1.7 question-turns"; the Limitations' "pooled
+ρ 0.88–0.94" (Appendix D.3 keeps the four patient-side values 0.88 / 0.92 / 0.90 / 0.94); the
+Limitations' "MITI-style coder is the least dependable instrument". Also removed as FALSE (found
+2026-09-28): Appendix D.3's "the MITI coder counts every function a long turn performs".
+`render_paper_figures.py::forest()` is kept but no longer called; `figures/k_channel_forest_grpo_gpt-4o-mini.png`
+is deleted (the Overleaf push deletes it there too).
