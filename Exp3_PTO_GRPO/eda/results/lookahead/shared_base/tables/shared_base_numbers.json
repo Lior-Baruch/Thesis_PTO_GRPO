@@ -1933,6 +1933,21 @@
    "source": "marker_and_length",
    "note": ""
   },
+  "cap.base.share_of_turns": {
+   "value": 0.031,
+   "source": "cap_hits",
+   "note": "79 of 2564 therapist turns (opener excluded)"
+  },
+  "cap.GRPO_LA0.it10.share_of_turns": {
+   "value": 0.967,
+   "source": "cap_hits",
+   "note": "1091 of 1128 therapist turns (opener excluded)"
+  },
+  "cap.GRPO_LA5.it10.share_of_turns": {
+   "value": 0.809,
+   "source": "cap_hits",
+   "note": "1162 of 1437 therapist turns (opener excluded)"
+  },
   "sat.claude-haiku-4-5.Q1.base.share_ge45": {
    "value": 0.0,
    "source": "sd_by_iter",

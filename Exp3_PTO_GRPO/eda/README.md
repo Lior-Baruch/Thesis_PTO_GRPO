@@ -524,7 +524,7 @@ against.
   model states; the second draw's ``file_index`` is offset by ``DRAW_OFFSET`` and ``persona_id`` is
   kept, so persona-paired code averages the Base's two conversations per persona), then `levels`,
   `k_contrast` (iterations 1..N), `significant_iterations`, `score_table`, `gains`,
-  `process_tables`, `text_tables`, `marker_and_length`, `sd_tables` / `sd_trend`,
+  `process_tables`, `text_tables`, `marker_and_length`, `cap_hits_by_state`, `sd_tables` / `sd_trend`,
   `agreement_by_state` / `agreement_summary`, `state_pair_contrasts`, `judge_offset`,
   `shared_base_numbers` — each calling the owning module's own function on shared-Base frames.
   ⚠ Every other family keeps the two base draws apart (iteration 0 = a noise floor); only this
@@ -573,7 +573,9 @@ against.
   metrics + `miti_detail_by_iter` (the MITI drill-down frame behind `miti_detail_grid`) +
   `session_shape_by_iter` (exported text metrics) + `miti_proficiency_by_iter` (the
   official-threshold summary scores) + `channel_scores_long` / `text_metrics` (the channel frames
-  the look-ahead families contrast).
+  the look-ahead families contrast) + `cap_hits` (per conversation, the therapist turns that ran
+  into the 200-token response cap; token-exact with the therapist's own tokenizer, opener
+  excluded, parquet-cached).
 - **`training`** — `generations.jsonl` proxy reward + degeneracy scan + pref pairs +
   `advantage_signal_by_iter`/`reward_distribution_frame` + `load_branch_reliability` +
   `tb_curves`/`parse_run_tb` (self-contained TensorBoard parse, no torch/trl); `load_generations`

@@ -20,7 +20,8 @@ that view and nothing else:
   owning module's own function: levels, the K contrast, gains over the Base, the complete score
   table, the process tables (+ the change-talk persistence split of
   :func:`~eda_analysis.process.persistence_by_state`), the embedding-space tables, the judge-free
-  over-praise marker, session length, and the saturation statistics of the paper's Appendix E.
+  over-praise marker, session length, the therapist turns that hit the response cap, and the
+  saturation statistics of the paper's Appendix E.
 
 **K contrasts start at iteration 1.** Iteration 0 is one policy with one Base, so there is nothing
 to contrast there; the Holm family is ITERATIONS 1..N within (judge, method, metric) — one test
@@ -47,7 +48,7 @@ from . import process as _process
 __all__ = [
     "DRAW_OFFSET", "INSTRUMENTS", "share_base", "share_base_frames", "levels", "k_contrast",
     "significant_iterations", "score_table", "gains", "process_tables", "text_tables",
-    "marker_and_length", "sd_tables", "sd_trend", "agreement_by_state", "agreement_summary",
+    "marker_and_length", "cap_hits_by_state", "sd_tables", "sd_trend", "agreement_by_state", "agreement_summary",
     "state_pair_contrasts", "judge_offset", "shared_base_numbers",
 ]
 
@@ -331,6 +332,21 @@ def marker_and_length(tm: pd.DataFrame, *, marker_col: str = "lex_overpraise_mar
     return out.reset_index()
 
 
+def cap_hits_by_state(ch: pd.DataFrame) -> pd.DataFrame:
+    """Per (arm, iteration) on a shared Base: therapist turns that ran into the 200-token response
+    cap (:func:`~eda_analysis.behavior.cap_hits`; opener excluded). ``share_of_turns`` pools the
+    state's turns (capped turns / all turns — what "X% of therapist turns" means);
+    ``cap_hit_rate_mean`` / ``_se`` weight each conversation equally."""
+    sb = share_base(ch, mode="per_arm")
+    g = sb.groupby(["arm", "iteration"])
+    out = pd.DataFrame({"n_conv": g.size(), "n_gen_turns": g["n_gen_turns"].sum(),
+                        "n_cap_hits": g["n_cap_hits"].sum()})
+    out["share_of_turns"] = out["n_cap_hits"] / out["n_gen_turns"]
+    out["cap_hit_rate_mean"] = g["cap_hit_rate"].mean()
+    out["cap_hit_rate_se"] = g["cap_hit_rate"].sem()
+    return out.reset_index()
+
+
 # ── Appendix E: saturation, agreement, sign preservation ───────────────────────
 
 def sd_tables(sc_sb: Mapping[str, pd.DataFrame]) -> pd.DataFrame:
@@ -440,7 +456,7 @@ def shared_base_numbers(*, lv: pd.DataFrame, gains_t: pd.DataFrame, sig: pd.Data
                         proc: Mapping[str, Dict[str, pd.DataFrame]], text_t: Dict[str, pd.DataFrame],
                         marker: pd.DataFrame, sd: pd.DataFrame, trend: pd.DataFrame,
                         agr: pd.DataFrame, agr_sum: pd.DataFrame, sign: pd.DataFrame,
-                        offset: pd.DataFrame) -> Dict[str, dict]:
+                        offset: pd.DataFrame, cap: Optional[pd.DataFrame] = None) -> Dict[str, dict]:
     """The quotable scalars of the family, each citing the table it is read from."""
     out: Dict[str, dict] = {}
 
@@ -500,6 +516,14 @@ def shared_base_numbers(*, lv: pd.DataFrame, gains_t: pd.DataFrame, sig: pd.Data
         if lab == "base":
             put("length.base.conv_len", round3(rr.conv_len), "marker_and_length", "utterances, shared Base")
             put("length.base.mean_turn_len", round3(rr.mean_turn_len), "marker_and_length", "chars per therapist turn")
+    if cap is not None and len(cap):
+        last = cap.groupby("arm")["iteration"].transform("max")
+        for rr in cap[(cap["iteration"] == 0) | (cap["iteration"] == last)].itertuples():
+            if rr.iteration == 0 and rr.arm != cap["arm"].min():
+                continue
+            lab = "base" if rr.iteration == 0 else f"{rr.arm}.it{rr.iteration}"
+            put(f"cap.{lab}.share_of_turns", round3(rr.share_of_turns), "cap_hits",
+                f"{int(rr.n_cap_hits)} of {int(rr.n_gen_turns)} therapist turns (opener excluded)")
     q1 = sd[(sd["metric"] == "Q1")]
     for rr in q1[(q1["iteration"].isin([0, q1["iteration"].max()]))].itertuples():
         if rr.iteration == 0 and rr.arm != q1["arm"].min():

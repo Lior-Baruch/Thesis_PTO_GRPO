@@ -6,7 +6,8 @@ Two complementary, cross-validating sources:
    simple/complex reflections (B4_SR/B5_CR), affirmations (B6_AF), persuasion (B2_Persuade),
    plus the global empathy/change-talk/partnership ratings, and the R:Q ratio.
 2. **Deterministic text metrics** (from the conversations): therapist-turn length, verbatim
-   repetition loops (degeneration), the ``?``-mark question family, conversation length.
+   repetition loops (degeneration), the ``?``-mark question family, conversation length, and
+   (:func:`cap_hits`, token-exact) the therapist turns that ran into the response cap.
 
 ⚠ The question family is FOUR columns, not one, and they answer different questions:
 ``q_per_turn`` (marks / therapist turn — the historical metric, frozen because
@@ -356,6 +357,68 @@ def _turn_metrics(th: List[str]) -> dict:
         "lex_affirm_marker_rate": sum(bool(_RE_AFFIRM.search(t)) for t in th) / n,
         "lex_overpraise_marker_rate": sum(bool(_RE_EFFUSIVE.search(t)) for t in th) / n,
     }
+
+
+# ── Response-cap hits (token-exact) ─────────────────────────────────────────
+# Every therapist turn is generated with max_new_tokens = the run's `max_tokens_per_response`
+# (200), so a turn that runs to the cap stops wherever the 200th token falls, usually mid-sentence.
+# The stored text was decoded with skip_special_tokens and stripped, so re-encoding it with the
+# therapist's own tokenizer returns the generated length to within a token: measured 2026-09-29 on
+# both GRPO runs' Base and iteration 10, the counts spike at 199-201 (2,332 of the 2,338 turns at
+# >= 195 tokens). A turn counts as capped at >= cap - CAP_SLACK tokens.
+CAP_SLACK = 1
+
+
+def cap_hits(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration, conversation): therapist turns that ran into the response cap.
+
+    Each stored therapist turn is re-tokenized with the run's therapist tokenizer
+    (``config.base_model_id``, read from the local HF cache when it is there) and counted as a cap
+    hit at ``>= cap - CAP_SLACK`` tokens, ``cap`` being the run's ``max_tokens_per_response``. The
+    scripted opening line is excluded: it is not generated. Columns: ``n_gen_turns``,
+    ``n_cap_hits``, ``cap_hit_rate`` (NaN for a conversation with no generated turn), ``cap``.
+    Judge-free. Parquet-cached like :func:`text_metrics` (the first build walks every conversation).
+    """
+    arms = _arms(arms)
+    return load_cached("cap_hits", arms, lambda: _cap_hits_impl(arms),
+                       input_roots=conv_input_roots(arms), params={"slack": CAP_SLACK})
+
+
+def _therapist_tokenizer(model_id: str):
+    from transformers import AutoTokenizer
+    try:
+        return AutoTokenizer.from_pretrained(model_id, local_files_only=True)
+    except OSError:                                    # not cached yet: fetch (gated; needs HF auth)
+        return AutoTokenizer.from_pretrained(model_id)
+
+
+def _cap_hits_impl(arms) -> pd.DataFrame:
+    toks, rows = {}, []
+    for arm in arms:
+        model_id = arm.config.get("base_model_id", "meta-llama/Llama-3.2-1B")
+        cap = int(arm.config.get("max_tokens_per_response", 200))
+        tok = toks.get(model_id) or toks.setdefault(model_id, _therapist_tokenizer(model_id))
+        for k in arm.iters:
+            cdir = arm.conv_dir(k)
+            if not cdir or not os.path.isdir(cdir):
+                continue
+            for fn in os.listdir(cdir):
+                m = re.match(r"conversation_(\d+)\.csv$", fn)
+                if not m:
+                    continue
+                try:
+                    cdf = pd.read_csv(os.path.join(cdir, fn))
+                except Exception:
+                    continue
+                th = cdf[cdf["role"] == "therapist"]["conversation"].astype(str).tolist()[1:]
+                n_tok = [len(ids) for ids in tok(th, add_special_tokens=False)["input_ids"]] if th else []
+                hits = sum(n >= cap - CAP_SLACK for n in n_tok)
+                rows.append({"arm": arm.label, "method": arm.method, "K": arm.K,
+                             "model": arm.model_name(k), "iteration": k, "is_base": (k == 0),
+                             "file_index": int(m.group(1)), "n_gen_turns": len(th),
+                             "n_cap_hits": hits, "cap_hit_rate": hits / len(th) if th else np.nan,
+                             "cap": cap})
+    return pd.DataFrame(rows)
 
 
 # ── Combined per-iteration trajectory ────────────────────────────────────────
