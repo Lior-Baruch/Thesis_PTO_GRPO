@@ -839,3 +839,26 @@ A's text and the `fig:tails` caption no longer point at the Limitations ("lever"
 look-ahead"); Appendix D no longer says the GPU-hour totals are "in the Limitations and the Ethics
 Statement".
 
+
+## 2026-09-29 — step 4: the 200-token cap, counted (replaces "many" in the Limitations)
+
+New EDA artifact: `results/lookahead/shared_base/tables/cap_hits.md` (`behavior.cap_hits` →
+`shared_base.cap_hits_by_state`; ledger keys `cap.*` in `shared_base_numbers.json`). A turn is
+capped when its stored text re-tokenizes (the therapist's own Llama-3.2-1B tokenizer) to ≥ 199
+tokens; the counts spike at 199–201, so the threshold is not a judgement call. Opener excluded.
+Unit = share of therapist turns, pooled over the state's conversations (Lior's picks: token count,
+iteration 10 + Base, share of turns).
+
+| Claim (Limitations) | Value | Source |
+|---|---|---|
+| Base | 79 / 2,564 = 0.031 → "3%" | `cap_hits.md`, iteration 0 (shared Base, 192 conversations) |
+| K=0 at iteration 10 | 1,091 / 1,128 = 0.967 → "97%" | same, GRPO_LA0 row 10 |
+| K=5 at iteration 10 | 1,162 / 1,437 = 0.809 → "81%" | same, GRPO_LA5 row 10 |
+| "the K=5 share climbs from iteration 5 on" | 0.331, 0.423, 0.610, 0.766, 0.805, 0.809 (it 5–10; non-decreasing, it 9→10 flat) | same, GRPO_LA5 rows 5–10 |
+| "the K=0 share swings, 9% at iteration 9" | 0.156, 0.101, 0.333, 0.719, **0.091**, 0.967 (it 5–10) | same, GRPO_LA0 rows 5–10 |
+| "binds the K=0 policy somewhat more often" at iteration 10 | 0.967 vs 0.809 | same |
+
+Not in the paper (scratch check, 2026-09-29): capped turns that also carry a malformed ChatML
+marker (`<\|?im_`) are ≤ 3.6% of turns in every late state checked (K=0 it 7–10, K=5 it 8–10), so
+the marker leak does not drive the cap hits. The old clause "so it does not bias the contrast" was
+replaced (Lior's pick) — the cap binds the two runs differently at iteration 10.
