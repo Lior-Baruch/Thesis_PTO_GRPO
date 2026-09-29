@@ -9,10 +9,10 @@ run, which is why \S\ref{sec:reward} reports the contrast against that run's bes
 well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at which of the ten
 iterations each process contrast is significant rather than at iteration 10 alone. We regard this as the principal limitation.
 
-\dnotedone{cut the paragraph (Evaluation draws); \S\ref{sec:reward}'s last paragraph already says it}{[a replicate bounds evaluation noise only, never the training variance above. ??] [what does para say? important? ]}
+% \dnotedone{cut the paragraph (Evaluation draws); \S\ref{sec:reward}'s last paragraph already says it}{[a replicate bounds evaluation noise only, never the training variance above. ??] [what does para say? important? ]}
 
 \paragraph{Matched iterations are not matched cost.}
-\dnotedone{rephrased in plain words; the call counts and the equal-GPU-hour numbers moved to Appendix~\ref{app:repro-cost}}{[is built into the lever \textasciitilde?] [disclose the asymmetry rather than equalise it ?] [Read at\textasciitilde] [i think you can remove all the details, just say in english it is slower..]}
+% \dnotedone{rephrased in plain words; the call counts and the equal-GPU-hour numbers moved to Appendix~\ref{app:repro-cost}}{[is built into the lever \textasciitilde?] [disclose the asymmetry rather than equalise it ?] [Read at\textasciitilde] [i think you can remove all the details, just say in english it is slower..]}
 Both runs make about the same number of calls to the training oracle and of training steps, but the $\Kf$ run also simulates five more turns for every candidate, so it is
 slower: about twice the time per training step, and $51.2$ against $27.9$ GPU-hours in total.
 Compared at equal GPU-hours rather than equal iterations, the result depends on the budget: the
@@ -20,25 +20,28 @@ $\Kz$ run is ahead at about 13 GPU-hours, and at about 23 the two are level unde
 oracle while $\Kf$ leads under the held-out judge (Appendix~\ref{app:repro-cost}).
 
 \paragraph{$K \in \{0, 5\}$ only.}
-\dnotedone{rephrased}{rephrase - need more runs to explore further.}
+% \dnotedone{rephrased}{rephrase - need more runs to explore further.}
 \dnoteopen{kept as a reminder; whether to run an intermediate $K$ is Lior's call}{indeed this is a major limitation - in case you have time for more runs [kfir gave almog some server time.. ]}
 We trained with \Kz\ and \Kf\ only, so we do not know whether a shorter look-ahead would give
 most of the benefit, whether 5 is the best choice, or whether a longer one would do better. More
 runs at other values of $K$ are needed to find out.
 
-\dnotedone{cut the paragraph (One optimiser, one regime)}{[??One optimiser, one regime.] [regime ?]}
+% \dnotedone{cut the paragraph (One optimiser, one regime)}{[??One optimiser, one regime.] [regime ?]}
 %Evidence that would overturn the paper's reading: a second \emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a human MI coder disagreeing with \S\ref{sec:therapist}--\ref{sec:patient}.
 
-\dnotedone{cut the paragraph (a reward for continuing); the rollout audit stays in Appendix~\ref{app:tables}}{[lever \textasciitilde] [carries a mild pressure \textasciitilde] [rephrase or remove.. ]}
+% \dnotedone{cut the paragraph (a reward for continuing); the rollout audit stays in Appendix~\ref{app:tables}}{[lever \textasciitilde] [carries a mild pressure \textasciitilde] [rephrase or remove.. ]}
 
-\dnotedone{cut the paragraph (the patient's replies are inside the reward); it was correct, the reply to Doron explains it}{[is this correct? explain in simple terms]}
+% \dnotedone{cut the paragraph (the patient's replies are inside the reward); it was correct}{[is this correct? explain in simple terms]}
 
 \paragraph{Simulation only, in sample, without human validation.}
 Every conversation is between two language models, and every number is in-sample with respect to
 the patient distribution: the 96 personas are the exhaustive enumeration of the persona grid, and
 the self-training loop uses the same 96 for training rollouts and for evaluation at every
 iteration, so generalisation to unseen patients is unmeasurable without authoring new personas.
-\dnotedone{rephrased: the extra measurements first, then the one gap they cannot close}{[but this is why we used additional measurements..]}
+% Lior, 2026-09-29: evaluating the trained models on newly authored personas seems easy and cheap
+% (new persona prompts + generate-only passes + scoring); a candidate follow-up that would turn
+% this sentence into a measurement.
+% \dnotedone{rephrased: the extra measurements first, then the one gap they cannot close}{[but this is why we used additional measurements..]}
 The held-out judge, the keyword marker and the sentence embeddings test the findings without
 relying on the training oracle, but none of them changes the patient: every conversation was
 generated against a \texttt{gpt-4o-mini} patient, the same model as the training oracle, and only
@@ -52,7 +55,7 @@ The oracle is highly self-repeatable (ICC 0.92--0.99 on
 the two $K{=}0$ states with a repeat draw), and the over-praise
 finding is the most robust behavioural claim here precisely because the keyword marker, a plain
 search for ten praise phrases with no language model involved, finds the same rise.
-\dnotedone{rephrased}{[the keyword marker corroborates it without a model in the loop -?]}
+% \dnotedone{rephrased}{[the keyword marker corroborates it without a model in the loop -?]}
 Therapist responses are also capped at 200 tokens,
 and mean turn length roughly tripled over training in both runs, so many
 \dnoteopen{step 4: a count replaces ``many''}{[many ? oops..!]}
@@ -62,8 +65,8 @@ is what the patient simulator and both judges saw, so it does not bias the contr
 part of what every score in this paper measures.
 
 \paragraph{Instruments and the utterance coder.}
-\dnotedone{cut the circularity sentence, \S\ref{sec:setup} already says it; its pointer to Appendix~\ref{app:saturation} kept}{[headline metric ?]}
-\dnotedone{cut}{[i think you already said this and we know this, so we used additional measurements so not sure this is required]}
+% \dnotedone{cut the circularity sentence, \S\ref{sec:setup} already says it; its pointer to Appendix~\ref{app:saturation} kept}{[headline metric ?]}
+% \dnotedone{cut}{[i think you already said this and we know this, so we used additional measurements so not sure this is required]}
 At the $\Kf$ run's late checkpoints the training oracle's scores crowd the top of its scale, so it
 tells those conversations apart less well; the held-out judge is the check there
 (Appendix~\ref{app:saturation}). The MITI-style coder is the least dependable instrument for
