@@ -63,17 +63,12 @@ search for ten praise phrases with no language model involved, finds the same ri
 % \dnotedone{cut}{[i think you already said this and we know this, so we used additional measurements so not sure this is required]}
 At the $\Kf$ run's late checkpoints the training oracle's scores crowd the top of its scale, so it
 tells those conversations apart less well; the held-out judge is the check there
-(Appendix~\ref{app:saturation}). The MITI-style coder is the least dependable instrument for
-comparing the runs, and we do not lean on its differences alone.
-\dnoteopen{step 5 (MITI option A): this sentence goes}{[in what context are you saying this?]}
-The utterance coder of
-\S\ref{sec:therapist}--\ref{sec:patient} assigns one dominant code per utterance, so a
-900-character turn that reflects, informs and ends in a question is coded once; its patient-side
-codes reproduce the session-level change-talk counts of the same judge (pooled $\rho$
-$0.88$--$0.94$ across the 21 states), but its therapist-side codes reproduce the MITI behaviour
-counts only partly (Appendix~\ref{app:coder}), because the two instruments count different
-things. Its most consequential therapist-side judgement, praise against affirmation, is also the
-one the two judges apply differently to the $\Kf$ policy (\S\ref{sec:therapist}), and no
-human coder has checked either; the sequential claims of \S\ref{sec:patient} are the claims a
-human-coded sample should test first.
-\dnoteopen{step 5: shorter}{[reprhase if important]}
+(Appendix~\ref{app:saturation}).
+\dnotedone{cut the MITI sentence (MITI's behaviour counts left the paper; MITI stays through its four global ratings)}{[in what context are you saying this?]}
+\dnotedone{shortened}{[reprhase if important]}
+The utterance coder of \S\ref{sec:therapist}--\ref{sec:patient} gives each utterance one code,
+its dominant function, so a long turn that reflects, informs and asks is coded once. Its
+patient-side codes agree closely with the same judge's session-level change-talk counts
+(Appendix~\ref{app:coder}). Its hardest therapist-side call, praise against affirmation, is where
+the two judges differ on the $\Kf$ policy (\S\ref{sec:therapist}), and no human coder has checked
+the codes.
