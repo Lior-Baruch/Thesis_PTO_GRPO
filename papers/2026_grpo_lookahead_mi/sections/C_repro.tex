@@ -68,7 +68,7 @@ Q2 & \citet{yosef2024assessing} & 17 items, 1--5 & mean \\
 WAI-SR & \citet{hatcher2006waisr} & 12 items, 1--5 & mean \\
 CSQ-8 & \citet{larsen1979csq} & 8 items, 1--4 & mean \\
 MI-SAT & adapted, this work & 6 items, 1--5 & mean \\
-MITI & \citet{moyers2016miti} & 4 globals, 1--5; 7 behaviour counts & mean of the globals \\
+MITI & \citet{moyers2016miti} & 4 globals, 1--5 & mean of the globals \\
 PCT & this work & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
 MICI & this work & 1 global, 1--5; 6 behaviour counts & acts per therapist turn \\
 \midrule
@@ -139,17 +139,10 @@ that are persuasion. Change-talk persistence is, within a conversation, the shar
 change-talk utterances whose next patient utterance is change talk again (and, after sustain talk,
 the share followed by change talk); every such rate is computed per conversation and averaged over
 the conversations in which its condition occurs. As a check of the
-coder against the session-level instruments of the same judge, the per-utterance codes summed
-per conversation are compared with the MITI behaviour counts and the PCT change-talk counts:
-across the 21 model states, the patient-side counts agree closely (Spearman $\rho$ pooled within
-state: change talk $0.88$ / $0.92$, sustain talk $0.90$ / $0.94$ under the training oracle / the
-held-out judge), while the therapist-side counts agree only partly (training oracle
-$0.02$--$0.43$ over the seven MITI codes; held-out judge $0.73$ for questions, $0.68$ for giving
-information, $0.55$ for persuasion, $0.10$--$0.30$ for reflections, affirmations and seeking
-collaboration). The two instruments count different things: the MITI coder counts every function a
-long turn performs, the utterance coder its dominant one, which is why the MITI coder reports
-$5.5$ questions per conversation where the utterance coder reports $1.7$ question-turns under the
-training oracle, and why \S\ref{sec:therapist} counts open-question \emph{turns}.
+coder against a session-level instrument of the same judge, the patient-side codes summed per
+conversation are compared with the PCT change-talk counts: across the 21 model states they agree
+closely (Spearman $\rho$ pooled within state: change talk $0.88$ / $0.92$, sustain talk $0.90$ /
+$0.94$ under the training oracle / the held-out judge).
 
 \subsection{The simulated patient and the therapist prompt}
 \label{app:prompts}
