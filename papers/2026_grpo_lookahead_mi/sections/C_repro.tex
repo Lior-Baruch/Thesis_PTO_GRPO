@@ -223,16 +223,28 @@ is not pooled across families.
 \subsection{Cost accounting behind the disclosures}
 \label{app:repro-cost}
 
-The API-call counts quoted in the Limitations section are exact counts read from the per-iteration
-generation logs (one record per oracle call and per patient call, summed over the ten training
-iterations of each run), and the optimizer-step counts are the number of per-step training
-artifacts each run wrote. The GPU-hour totals in the Limitations and the Ethics Statement and the
+Over their ten training iterations the two runs make about the same number of oracle scoring calls
+($302{,}541$ for $\Kz$, $289{,}983$ for $\Kf$) and optimizer steps (Table~\ref{tab:config}); the
+$\Kf$ run also makes $392{,}766$ patient-simulator calls inside its look-ahead rollouts, which the
+$\Kz$ run never makes. It takes a median $1.92\times$ as long per step and $51.2$ GPU-hours in
+total, against $27.9$ for $\Kz$. The call counts are exact counts read from the per-iteration
+generation logs (one record per oracle call and per patient call), and the optimizer-step counts
+are the number of per-step training artifacts each run wrote. The GPU-hour totals and the
 per-step wall-clock multiplier are reconstructed from the modification times of those artifacts, because
 the run metadata's elapsed-time fields are per-process and undercount any iteration that crashed
 and resumed, in the worst case here by nearly $2\times$. An inter-step gap outside
 $(0, 3600\,\mathrm{s})$ is treated as a resume gap and imputed at the phase median; imputation
 counts are recorded per run. The first two iterations of the $\Kf$ run ran at a smaller look-ahead
 sub-batch, so the per-step multiplier is quoted over the settled iterations 3--10.
+
+Compared at equal GPU-hours rather than equal iterations, with each run at its best checkpoint
+within the budget (chosen and scored on \QQ\ by the same judge), the result depends on the budget.
+At about 13 GPU-hours the $\Kz$ run is ahead ($\dz\,-0.74$ under the training oracle, $-0.78$
+under the held-out judge, $\Kf$ minus $\Kz$); at about 23 GPU-hours the two are level under the
+training oracle ($\dz\,0.07$, not significant) and $\Kf$ leads under the held-out judge
+($\dz\,0.33$, significant); beyond the $\Kz$ run's total of $27.9$ GPU-hours the comparison is the
+best-checkpoint comparison of \S\ref{sec:reward}. Because the GPU-hours are reconstructed from
+timestamps, this reading is coarser than the iteration-matched one.
 
 \subsection{Artifacts}
 
