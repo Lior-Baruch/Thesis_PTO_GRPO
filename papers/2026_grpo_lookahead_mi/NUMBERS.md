@@ -883,3 +883,13 @@ Limitations' "MITI-style coder is the least dependable instrument". Also removed
 2026-09-28): Appendix D.3's "the MITI coder counts every function a long turn performs".
 `render_paper_figures.py::forest()` is kept but no longer called; `figures/k_channel_forest_grpo_gpt-4o-mini.png`
 is deleted (the Overleaf push deletes it there too).
+
+**Steps 5–6, after Lior's joint read (2026-09-29).** No number changed. "Premium" is gone from the
+visible paper (Lior dislikes the word): App C.4's text and Figure 12's caption, y-label and panel
+title now say "how much higher the reward scores praising replies" / "difference" / "praising −
+other" (the labels `app:premium`, `fig:premium` and the file `praise_premium_grpo.png` keep their
+internal names). A missed MITI remnant was fixed: Appendix D.2 said the MITI coder "assigns exactly
+one of seven behaviour codes to each therapist utterance" — the behaviour codes are no longer part of
+the paper, and "exactly one" was also contradicted by the 79% / 96% measurement; the sentence now
+lists only the four global ratings. A sweep found no other MITI behaviour-count remnant (the MICI
+row's "6 behaviour counts" is MICI's and stays).
