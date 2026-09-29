@@ -1,16 +1,16 @@
 \section{Discussion and conclusion}
 \label{sec:discussion}
 
-\dnotedone{new opening paragraph, no numbers}{starts too specific and too AI.. start with a sentence or 2-3 sentences more high level summary}
-\dnotedone{cut}{\textbf{The horizon of the reward selects which behaviour pays.} i dont link this jargon as well}
+% \dnotedone{new opening paragraph, no numbers}{starts too specific and too AI.. start with a sentence or 2-3 sentences more high level summary}
+% \dnotedone{cut}{\textbf{The horizon of the reward selects which behaviour pays.} i dont link this jargon as well}
 We asked whether a small therapist model learns motivational interviewing better when the judge
 that rewards each of its turns also sees how the conversation continues. It does: with the same
 training method and the same judge, the model trained with a five-turn look-ahead finished
 training ahead on every instrument, under both judges. It also became a different kind of
 therapist.
 
-\dnotedone{rephrased}{[paid for non-specific praise \textasciitilde] [stops at the reply \textasciitilde] [paying] [paid]}
-\dnotedone{rephrased}{[their ?]}
+% \dnotedone{rephrased}{[paid for non-specific praise \textasciitilde] [stops at the reply \textasciitilde] [paying] [paid]}
+% \dnotedone{rephrased}{[their ?]}
 The difference is clearest in praise. In the middle of training, both rewards gave higher scores to
 replies that praised the patient. Late in training, only the $\Kz$ reward, which scores a turn
 before the patient has answered it, still did: at iteration 9, candidate replies containing a
@@ -20,11 +20,11 @@ turns (Appendix~\ref{app:premium}). The $\Kz$ policy ends up praising in $0.41$ 
 reply to a third of the patient's sustain talk, and late in the session its patients express even
 less change talk than the Base's. What the $\Kf$ run learned instead is to keep the patient's
 change talk going.
-\dnotedone{rephrased}{[again after $97\%$ of their change talk ??]}
+% \dnotedone{rephrased}{[again after $97\%$ of their change talk ??]}
 When a patient expressed change talk, their next utterance was change talk again in $97\%$ of
 cases under $\Kf$, against $80\%$ under $\Kz$ ($75\%$ at the Base).
 
-\dnotedone{rephrased, one idea per sentence}{- try to rephrase this - there is an interesting story here but need to tell it better}
+% \dnotedone{rephrased, one idea per sentence}{- try to rephrase this - there is an interesting story here but need to tell it better}
 Look-ahead did not remove reward hacking; it changed which shortcut the reward favoured. Part of
 what the $\Kf$ policy learned is what MI prescribes: reflecting the patient's change talk. Part is
 not: it meets sustain talk with persuasion, and the held-out judge sees more praise in it than the
@@ -38,11 +38,11 @@ over ten iterations in which the model trains on its own conversations. The utte
 \label{sec:mechanism}
 
 \textbf{Conclusion.}
-\dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
+% \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
 Scoring the continuation rather than single turns raised what the same optimiser extracted from the
 same oracle, and it decided what kind of therapist the policy became: one that praises whatever the
 patient said, or one that reflects the patient's change talk and hears more of it, though it still
 persuades when the patient resists.
-\dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
-\dnotedone{cut}{coding the process as well as the outcome ??}
-\dnotedone{cut}{headroom ??}
+% \dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
+% \dnotedone{cut}{coding the process as well as the outcome ??}
+% \dnotedone{cut}{headroom ??}
