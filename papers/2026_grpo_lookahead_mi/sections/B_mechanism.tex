@@ -79,7 +79,7 @@ together. We offer the over-praise account as consistent with the timing, not as
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.48\textwidth]{figures/praise_premium_grpo.png}
-\caption{\textbf{(a)} The training reward's premium for praise: in each group of eight candidates
+\caption{\textbf{(a)} How much higher the training reward scores praising replies: in each group of eight candidates
 that holds both a reply containing a keyword-marker phrase and one without, the mean
 within-group reward z-score of the praising replies minus that of the others, averaged over such
 groups ($\pm 1.96$ SE), by the iteration of the model the candidates were sampled from.
@@ -91,11 +91,11 @@ The keyword marker (Appendix~\ref{app:marker}) lets us ask whether the training 
 praise, separately from how often the policy praises (Figure~\ref{fig:premium}). Within each
 group of eight candidates we z-score the rewards, and in the groups that hold both a praising reply
 and a non-praising one we take the praising replies' mean z minus the others'. Early in training
-such groups are rare (about $2\%$ of groups, panel b) and the premium is noisy, negative under
+such groups are rare (about $2\%$ of groups, panel b) and the difference is noisy, negative under
 $\Kz$ at iterations 0--1 and under $\Kf$ at iteration 2. From iteration 4 both rewards favour praise: $0.22$--$0.33$
 within-group SD under $\Kz$ over iterations 4--7 ($z \geq 2.8$ at each) and $0.16$--$0.21$ under
 $\Kf$ ($z$ above 2 only at iterations 6--7). Both dip at iteration 8; at iteration 9 the $\Kz$
-reward's premium is still $0.16$ ($z = 5.7$) and the $\Kf$ reward's $0.04$ ($z = 1.1$). The share of groups
+reward still scores praising replies $0.16$ higher ($z = 5.7$) and the $\Kf$ reward $0.04$ ($z = 1.1$). The share of groups
 holding both kinds rises under both runs, and faster under $\Kz$: from iteration 7 on it is about
 half of $\Kz$'s groups, against $0.28$--$0.44$ of $\Kf$'s.
 
