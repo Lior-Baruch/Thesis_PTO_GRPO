@@ -38,12 +38,13 @@
 
 % Doron's review notes stay in the text with a status, so every change can be checked against the
 % note it answers: green = handled (and how), red = still open. \dnotesfalse hides them all at once
-% (do that, or delete the notes, before submission).
+% (do that, or delete the notes, before submission). \leavevmode keeps a run-in \paragraph heading
+% just before a note in the body font instead of the note's.
 \newif\ifdnotes \dnotestrue
 \definecolor{dnotedone}{RGB}{0,110,60}
 \definecolor{dnoteopen}{RGB}{185,28,48}
-\newcommand{\dnotedone}[2]{\ifdnotes{\sffamily\footnotesize\color{dnotedone}[\textbf{handled: #1} \textbar{} Doron: #2]}\fi}
-\newcommand{\dnoteopen}[2]{\ifdnotes{\sffamily\footnotesize\color{dnoteopen}[\textbf{open: #1} \textbar{} Doron: #2]}\fi}
+\newcommand{\dnotedone}[2]{\ifdnotes\leavevmode{\sffamily\footnotesize\color{dnotedone}[\textbf{handled: #1} \textbar{} Doron: #2]}\fi}
+\newcommand{\dnoteopen}[2]{\ifdnotes\leavevmode{\sffamily\footnotesize\color{dnoteopen}[\textbf{open: #1} \textbar{} Doron: #2]}\fi}
 
 \title{GRPO with Look-Ahead in Motivational Interviewing:\\
 Rewarding a Therapist Turn by Where It Leads}
