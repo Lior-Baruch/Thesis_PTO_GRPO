@@ -3,94 +3,73 @@
 
 \paragraph{One training run per $K$.}
 Every effect size reported here is computed across the 96 patient personas within a single
-training run. There are no training-seed replicates due to long training times and limited research budget. '' The $\Kz$
+training run. There are no training-seed replicates due to long training times and limited research budget. The $\Kz$
 run's decline over its last two iterations and its late praise spike are likewise events of one
 run, which is why \S\ref{sec:reward} reports the contrast against that run's best checkpoint as
 well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at which of the ten
-iterations each process contrast is significant rather than at iteration 10 alone. We regard this as the principal limitation; it is distinct from, and not bounded
-by, the evaluation noise discussed next.
+iterations each process contrast is significant rather than at iteration 10 alone. We regard this as the principal limitation.
 
-\paragraph{Evaluation draws.}
-Therapist decoding is unseeded and each trained model state was evaluated on one
-96-conversation sample (the Base on two, which we averaged). For the $\Kf$ policy at iteration 10, the
-re-draw of \S\ref{sec:reward} differs from the original by at most $|\dz|\,0.174$ across 9 instruments and
-2 judges; none of the comparisons is statistically significant. The remaining states are single draws, and [a replicate bounds evaluation noise only, 
-never the training variance above. ??]
-[what does para say? important? ]
+\dnotedone{cut the paragraph (Evaluation draws); \S\ref{sec:reward}'s last paragraph already says it}{[a replicate bounds evaluation noise only, never the training variance above. ??] [what does para say? important? ]}
 
 \paragraph{Matched iterations are not matched cost.}
-An iteration is 96 conversations and $G{=}8$ scored candidates per prompt in both runs, so oracle
-scoring calls ($302{,}541$ for $\Kz$ vs.\ $289{,}983$ for $\Kf$ over ten iterations) and
-optimizer steps ($1{,}128$ vs.\ $1{,}070$) are approximately matched by construction. But each
-$\Kf$ reward requires a five-turn simulated continuation, about $393$k patient-simulator calls
-over ten iterations that the $\Kz$ run never makes, and roughly doubles per-step run duration (median
-$1.92\times$ over the settled iterations 3--10; $27.9$ vs.\ $51.2$ GPU-hours for the two runs).
-More compute per iteration [is built into the lever ~?], and we [disclose the asymmetry rather than
-equalise it ?]. [Read at~] matched GPU-hours instead, with each run at its best checkpoint within the
-budget under the selecting judge, the comparison is budget-dependent: at about 13 GPU-hours the
-$\Kz$ run is ahead on \QQ\ ($\dz\,-0.74$ under the training oracle, $-0.78$ held out), at about 23
-GPU-hours the two are level under the training oracle ($\dz\,0.07$, n.s.) and $\Kf$ leads under
-the held-out judge ($\dz\,0.33$, $p_{\text{holm}} = .012$), and beyond the $\Kz$ run's total
-budget the comparison is the best-checkpoint one of \S\ref{sec:reward}. GPU-hours are
-reconstructed from artifact timestamps (Appendix~\ref{app:repro}), so this reading is coarser
-than the iteration-matched one. [i think you can remove all the details, just say in english it is slower..]
+\dnotedone{rephrased in plain words; the call counts and the equal-GPU-hour numbers moved to Appendix~\ref{app:repro-cost}}{[is built into the lever \textasciitilde?] [disclose the asymmetry rather than equalise it ?] [Read at\textasciitilde] [i think you can remove all the details, just say in english it is slower..]}
+Both runs make about the same number of calls to the training oracle and of training steps, but the $\Kf$ run also simulates five more turns for every candidate, so it is
+slower: about twice the time per training step, and $51.2$ against $27.9$ GPU-hours in total.
+Compared at equal GPU-hours rather than equal iterations, the result depends on the budget: the
+$\Kz$ run is ahead at about 13 GPU-hours, and at about 23 the two are level under the training
+oracle while $\Kf$ leads under the held-out judge (Appendix~\ref{app:repro-cost}).
 
 \paragraph{$K \in \{0, 5\}$ only.}
-There is no dose--response evidence between the two levels and nothing above 5, so nothing here
-says the effect is monotone in $K$, that 5 is optimal, or that a shorter horizon would not capture
-most of the benefit. An intermediate $K$ is the most valuable single follow-up.  [rephrase - need more runs to explore further. indeed this is a major limitation - in case you have time for more runs [kfir gave almog some server time.. ]]
+\dnotedone{rephrased}{rephrase - need more runs to explore further.}
+\dnoteopen{kept as a reminder; whether to run an intermediate $K$ is Lior's call}{indeed this is a major limitation - in case you have time for more runs [kfir gave almog some server time.. ]}
+We trained with \Kz\ and \Kf\ only, so we do not know whether a shorter look-ahead would give
+most of the benefit, whether 5 is the best choice, or whether a longer one would do better. More
+runs at other values of $K$ are needed to find out.
 
-\paragraph{[??One optimiser, one regime.]}
-\citet{baruch2025pto} introduced the look-ahead with preference trees and DPO in an easier [regime ?] of
-this task (a 7B policy, more cooperative patients, a weaker judge); other optimisers and regimes
-are outside this paper's scope. %Evidence that would overturn the paper's reading: a second \emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a human MI coder disagreeing with \S\ref{sec:therapist}--\ref{sec:patient}.
+\dnotedone{cut the paragraph (One optimiser, one regime)}{[??One optimiser, one regime.] [regime ?]}
+%Evidence that would overturn the paper's reading: a second \emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a human MI coder disagreeing with \S\ref{sec:therapist}--\ref{sec:patient}.
 
-\paragraph{The look-ahead reward is also a reward for continuing.}
-A simulated session can end inside the look-ahead window, most often because the patient closes
-it, and such a candidate gives the oracle a shorter transcript. In the rollout audit
-(Appendix~\ref{app:tables}, Figure~\ref{fig:tails}) $82\%$ of logged $\Kf$ rollouts ran the full
-five turns; early-ending candidates scored at or below their group mean, by up to $0.09$ points
-depending on how the rollout ended, and were the group's best less often than chance. The [lever ~] was
-therefore applied as specified in the large majority of cases, but it [carries a mild pressure ~] to
-keep the session open that a turn-level reward does not, and the $\Kf$ policy's longer sessions
-at iteration 10 ($31.9$ vs.\ $25.2$ utterances, $\dz\,0.43$) are consistent with it. Two runs
-cannot separate this from the horizon effect proper. [rephrase or remove.. ]
+\dnotedone{cut the paragraph (a reward for continuing); the rollout audit stays in Appendix~\ref{app:tables}}{[lever \textasciitilde] [carries a mild pressure \textasciitilde] [rephrase or remove.. ]}
 
-\paragraph{The patient's replies are inside the look-ahead reward.}
-The $\Kf$ reward is given after the patient simulator has replied to the candidate (and twice more
-inside the rollout), while the $\Kz$ reward is given before any reply. The patient-side results of
-\S\ref{sec:patient} therefore partly measure what the $\Kf$ reward was optimising rather than an
-outcome outside it, and the replies come from the same model that gives the reward, so the $\Kf$
-run may have learned what moves this simulator in particular. Evaluating with a patient simulator
-from another model family would separate the two. [is this correct? explain in simple terms]
+\dnotedone{cut the paragraph (the patient's replies are inside the reward); it was correct, the reply to Doron explains it}{[is this correct? explain in simple terms]}
 
 \paragraph{Simulation only, in sample, without human validation.}
 Every conversation is between two language models, and every number is in-sample with respect to
 the patient distribution: the 96 personas are the exhaustive enumeration of the persona grid, and
 the self-training loop uses the same 96 for training rollouts and for evaluation at every
 iteration, so generalisation to unseen patients is unmeasurable without authoring new personas.
-The held-out judge decouples the grading half, but every conversation was generated against a
-\texttt{gpt-4o-mini} patient, the same model as the training oracle; a fully decoupled replication
-would regenerate all conversations with a patient from another model family [but this is why we used additional measurements..]. The simulated
+\dnotedone{rephrased: the extra measurements first, then the one gap they cannot close}{[but this is why we used additional measurements..]}
+The held-out judge, the keyword marker and the sentence embeddings test the findings without
+relying on the training oracle, but none of them changes the patient: every conversation was
+generated against a \texttt{gpt-4o-mini} patient, the same model as the training oracle, and only
+regenerating the conversations with a patient from another model family would remove that link.
+The simulated
 patient is a known weak point in itself: given identical profiles, LLM-simulated MI patients
 express themselves more uniformly positively than human patients do
 \citep{hoang2026standardised}, which bears directly on a finding about praise. %No human MI coder has
-%rated any conversation in this experiment; 
+%rated any conversation in this experiment;
 The oracle is highly self-repeatable (ICC 0.92--0.99 on
 the two $K{=}0$ states with a repeat draw), and the over-praise
-finding is the most robust behavioural claim here precisely because [the keyword marker
-corroborates it without a model in the loop -?]. Therapist responses are also capped at 200 tokens,
-and mean turn length roughly tripled over training in both runs, so [many ? oops..!] late turns end
+finding is the most robust behavioural claim here precisely because the keyword marker, a plain
+search for ten praise phrases with no language model involved, finds the same rise.
+\dnotedone{rephrased}{[the keyword marker corroborates it without a model in the loop -?]}
+Therapist responses are also capped at 200 tokens,
+and mean turn length roughly tripled over training in both runs, so many
+\dnoteopen{step 4: a count replaces ``many''}{[many ? oops..!]}
+late turns end
 mid-sentence (Appendix~\ref{app:example}); the cap is identical across runs and the truncated turn
 is what the patient simulator and both judges saw, so it does not bias the contrast, but it is
 part of what every score in this paper measures.
 
 \paragraph{Instruments and the utterance coder.}
-\QQ\ is both the optimisation target and a [headline metric ?], so ``\QQ\ improved'' is partly
-circular [i think you already said this and we know this, so we used additional measurements so not sure this is required]: the six instruments outside the reward and the held-out judge are the checks on it
-(\S\ref{sec:setup}), and Appendix~\ref{app:saturation} shows how the main judge's range narrows at
-the $\Kf$ run's late checkpoints. The MITI-style coder is the least dependable instrument for
-comparing the runs, and we do not lean on its differences alone [in what context are you saying this?]. The utterance coder of
+\dnotedone{cut the circularity sentence, \S\ref{sec:setup} already says it; its pointer to Appendix~\ref{app:saturation} kept}{[headline metric ?]}
+\dnotedone{cut}{[i think you already said this and we know this, so we used additional measurements so not sure this is required]}
+At the $\Kf$ run's late checkpoints the training oracle's scores crowd the top of its scale, so it
+tells those conversations apart less well; the held-out judge is the check there
+(Appendix~\ref{app:saturation}). The MITI-style coder is the least dependable instrument for
+comparing the runs, and we do not lean on its differences alone.
+\dnoteopen{step 5 (MITI option A): this sentence goes}{[in what context are you saying this?]}
+The utterance coder of
 \S\ref{sec:therapist}--\ref{sec:patient} assigns one dominant code per utterance, so a
 900-character turn that reflects, informs and ends in a question is coded once; its patient-side
 codes reproduce the session-level change-talk counts of the same judge (pooled $\rho$
@@ -99,4 +78,5 @@ counts only partly (Appendix~\ref{app:coder}), because the two instruments count
 things. Its most consequential therapist-side judgement, praise against affirmation, is also the
 one the two judges apply differently to the $\Kf$ policy (\S\ref{sec:therapist}), and no
 human coder has checked either; the sequential claims of \S\ref{sec:patient} are the claims a
-human-coded sample should test first. [reprhase if important]
+human-coded sample should test first.
+\dnoteopen{step 5: shorter}{[reprhase if important]}
