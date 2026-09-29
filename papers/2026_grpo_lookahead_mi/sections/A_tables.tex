@@ -7,8 +7,8 @@ that judge's results). Figure~\ref{fig:overpraise}: the keyword marker of \S\ref
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
 iteration under both judges. Figure~\ref{fig:textspace}: the two runs in sentence-embedding space
 (Figure~\ref{fig:textspace-body} and a third measure). Figure~\ref{fig:forest}: the session-level
-behaviour-channel profile. Figure~\ref{fig:tails}: the $\Kf$ rollout audit, summarised in the
-Limitations. Over the $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ of
+behaviour-channel profile. Figure~\ref{fig:tails}: the $\Kf$ rollout audit, a check that the
+five-turn look-ahead ran as specified. Over the $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ of
 rollouts ran the full five turns; the early-ending share ranged from $12\%$ at iteration 10 to
 $30\%$ at iteration 6, and in $16\%$ of candidates the patient closed the session. Early-ending
 candidates scored at or below their group mean (by up to $0.09$ points, depending on how the
@@ -123,8 +123,8 @@ were actually simulated and who ended them (\emph{pat.}: the patient closed the 
 Candidates whose rollout ran all five turns sit at the group mean, those the patient closed sit
 close to it, and those the policy's own turn ended sit about $0.09$ below. \textbf{(c)} How often
 a candidate was its group's best, separately for rollouts that ran to length and rollouts that
-were cut short; the dotted line is chance, $1/8$. Read together: the lever was applied as
-specified in most cases, and a rollout that ended early cost the candidate a little, which is the
-keep-the-session-open pressure discussed in the Limitations.}
+were cut short; the dotted line is chance, $1/8$. Read together: the look-ahead ran as specified
+in most cases, and a rollout that ended early cost the candidate a little, so the look-ahead
+reward slightly favours turns after which the session goes on.}
 \label{fig:tails}
 \end{figure*}
