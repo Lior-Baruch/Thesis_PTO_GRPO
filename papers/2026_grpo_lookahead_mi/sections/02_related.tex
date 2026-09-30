@@ -58,10 +58,10 @@ produce the training reward, but also with a held-out judge from another model f
 with measures outside the rewarded rubric.
 
 \textbf{Judges that change during training.}
-\dnotedone{merged here as one paragraph at about half the length, after the judges paragraph; his closing sentence kept; his original is commented out below}{i added a whole subsection need to merge}
+% \dnotedone{merged here as one paragraph at about half the length, after the judges paragraph; his closing sentence kept; his original is commented out below}{i added a whole subsection need to merge}
 A different line of work improves the judge itself.
-\citet{yuan2024selfrewarding} \dnotedone{yes, it is cited in §1; the name now appears once}{already cited?}
-train a language model to judge its own candidate responses and use the resulting preferences for
+% \dnotedone{yes, it is cited in §1; the name now appears once}{already cited?}
+\citet{yuan2024selfrewarding} train a language model to judge its own candidate responses and use the resulting preferences for
 iterative DPO, and \citet{wu2025metarewarding} also train it to judge its own judgements. Recent
 methods also allow the evaluation criteria to change as the policy improves: SERPO
 \citep{wang2026serpo} evolves question-specific rubrics alongside the policy, DynamicRubric
@@ -72,9 +72,9 @@ conversation history, on instruction following, open-ended questions, writing an
 tests psychological role-play or whether rewards assigned to individual responses improve the
 course of a full conversation. Our study addresses the latter question by changing how far into the
 simulated interaction the reward can observe while holding the judge fixed.
-\dnotedone{end of the merged block}{end addition}
+% \dnotedone{end of the merged block}{end addition}
 
-% Doron's original block (Overleaf, 27 Sep), kept for comparison until the merge is approved:
+% Doron's original block (Overleaf, 27 Sep), kept here at Lior's request (merge approved 30 Sep):
 % Yuan et al.\ \citep{yuan2024selfrewarding} train a language model to generate responses and judge its own candidates, then use the resulting preferences for iterative DPO. They report gains in instruction following and, on MT-Bench, in role-play and writing. The role-play evaluation consists of short, two-turn scenarios, so it does not establish improvement across a sustained interaction. Wu et al.\ \citep{wu2025metarewarding} extend this approach by training the model to evaluate its own judgments as well as its responses. Their gains are primarily on broad instruction-following benchmarks; training uses single-turn examples, and they do not evaluate psychological dialogue.
 %
 % Recent methods allow the evaluation criteria to change as the policy improves. SERPO \citep{wang2026serpo} evolves question-specific rubrics alongside the policy and reports gains on open-ended medical and research questions. Its HealthBench evaluation includes multi-turn conversation histories, but scores a response to the given history rather than an interaction conducted by the policy across turns. DynamicRubric \citep{wang2026dynamicrubric} learns to generate weighted criteria that distinguish the current candidate responses, then uses their combined scores to update the policy. Its reported evaluations concern generated answers, with no sustained-dialogue result.
