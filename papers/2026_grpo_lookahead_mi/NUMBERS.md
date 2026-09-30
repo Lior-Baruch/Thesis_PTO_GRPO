@@ -934,3 +934,30 @@ No number changed; three displays changed.
 - **The rollout paragraph** is two sentences: 82% full, 16% patient-closed, at most 0.09 below the
   group mean. Dropped: the 12–30% range, the 0.10 vs 0.125 best-of-group rate and the "favours
   turns after which the session goes on" clause (the point Lior cut from the Limitations).
+
+## 2026-09-30 — step 8: the complete process tables (Appendix A and B)
+
+Lior: "Table 3: do we have a full table of all iterations in the appendix?" (there was none, only
+figures); his picks: Table 3's twelve measures only, one table per judge. New Tables
+`tab:process-all` (Appendix A, training oracle) and `tab:process-all-heldout` (Appendix B):
+Base + K=0 iterations 1–10 + K=5 iterations 1–10, printed by the new tracked script
+`render_process_tables.py` from `shared_base.xlsx` — levels from `process_levels_<judge>` and
+`persist_levels_<judge>` (`ct_persist_mean`, `st_to_ct_mean`), stars from `k_process_paired` and
+`k_persistence` (star on the `better` run where `p_holm` < .05; Holm across iterations 1–10 within
+measure). The script asserts, before printing: the two arms' Base rows are identical (shared Base);
+each measure's `lower_better` flag matches the table's arrow; every iteration-10 cell equals the
+printed Table 3 / held-out process-table cell (`tab:process`, `tab:process-heldout`) to three decimals; and the starred iteration-10 cells are exactly the
+cells those two tables bold. Star counts: training oracle **51** (K=0 12, K=5 39), held-out
+**67** (K=0 19, K=5 48); K=0's stars are persuasion, MI-inconsistent share, persuades-after-sustain
+talk and (held-out) MI-adherent share at iterations 2–3, the measures §5–§6 already say favour K=0.
+No number is new to the paper's claims: the tables only lay out values the figures already drew.
+
+**Bold, mid-step (Lior: "in the tables bold each column with best score").** In both new tables
+AND in the complete score tables (`tab:scores`, `tab:scores-heldout`: Tables 4 and 7 after this step, same layout) the best printed value of each
+column over the 21 model states is bold (lowest where lower is better: MICI and the ↓ process
+columns; ties at the printed precision all bold). No value changed. Tables 1, 3 and 5 keep their own
+rules (Table 1 no bold; the iteration-10 process tables bold the better run where significant). Best per column —
+Table 4: Q1+Q2 4.517, Q1 4.465, Q2 4.570, WAI-SR 3.729 (all K=5 it 10), CSQ-8 3.078, MI-SAT 3.847,
+PCT 0.699 (K=5 it 9), MITI 4.536 (K=5 it 10), MICI **0.169 (K=0 it 2)**. Table 7 (held-out):
+Q1+Q2 2.912 (K=5 it 7), Q1 2.898 (it 6), Q2 3.015, CSQ-8 2.935 (it 10), WAI-SR 3.014, MI-SAT 3.394,
+MITI 2.398, PCT 0.754 (it 9), MICI **0.309 (K=0 it 2)**.
