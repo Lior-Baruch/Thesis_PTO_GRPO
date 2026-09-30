@@ -105,34 +105,16 @@ The keyword marker is deliberately crude, matching only fixed phrases, so
 the finding rests on the three measures agreeing: the coder's praise share, the keyword marker and
 MICI's over-praise count.
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.48\textwidth]{figures/text_grpo_body.png}
-\caption{The two runs in sentence-embedding space (every therapist turn embedded with
-\texttt{all-MiniLM-L6-v2}, the scripted opener excluded). \textbf{(a)} The cosine between the two
-runs' moves away from the Base's mean embedding; $1$ would mean they learned the same thing.
-\textbf{(b)} The share of embedding variance that lies between conversations rather than within
-them, with a $95\%$ bootstrap band: lower means the therapist says the same things whoever the
-patient is. Iteration 0 is the Base; a third measure is in Appendix Figure~\ref{fig:textspace}.}
-\label{fig:textspace-body}
-\end{figure}
-
-\textbf{In embedding space.} 
+\textbf{In embedding space.}
 % \dnotedone{rephrased: the shared conclusion is now stated}{[same conclusion -?]}
 % \dnotedone{reworded: `no LLM judge'}{[coder ?]}
-Sentence embeddings, which involve no LLM judge, point the same way:
-the two runs learn different things, and the $\Kz$ policy's replies come to depend less on the
-patient. 
+Sentence embeddings, which involve no LLM judge, show the $\Kz$ policy's
+replies coming to depend less on the patient.
 % \dnotedone{answered: encoder named and cited}{which one}
-We embed every therapist turn with a sentence encoder (\texttt{all-MiniLM-L6-v2};
-\citealp{reimers2019sbert}) and follow each run's mean embedding as it moves away from the Base's
-(Figure~\ref{fig:textspace-body}). If the two runs had learned the same thing, their two moves
-would point the same way and the cosine between them would be $1$; it is at most $0.73$ (iteration
-3) and $0.45$ at iteration 10, and near zero at iteration 9, where the $\Kz$ policy's praise dips
-and its turns shorten (panel a). 
 % \dnotedone{rephrased: replies grow more alike from patient to patient}{[converges harder onto one script -?]}
-% \dnotedone{answered: Figure 4 added to the body, both panels explained}{show diagram, explain}
-Panel (b) measures how much the therapist's turns depend on who
-the patient is, as the share of embedding variance that lies between conversations rather than
-within them: it falls from $0.39$ at the Base to $0.30$ under $\Kf$ and to $0.19$ under $\Kz$,
-whose replies become more alike from patient to patient.
+\dnotedone{the figure moved to Appendix A on Lior's read (30 Sep), the tailoring panel only; its result stays here in two sentences}{show diagram, explain}
+We embed every therapist turn with a sentence encoder
+(\texttt{all-MiniLM-L6-v2}; \citealp{reimers2019sbert}) and measure the share of embedding
+variance that lies between conversations rather than within them: at iteration 10 it has fallen
+from $0.39$ at the Base to $0.30$ under $\Kf$ and to $0.19$ under $\Kz$, whose replies become more
+alike from patient to patient (Appendix Figure~\ref{fig:textspace}).
