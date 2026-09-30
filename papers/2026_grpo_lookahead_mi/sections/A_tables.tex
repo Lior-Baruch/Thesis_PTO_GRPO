@@ -4,14 +4,18 @@
 Table~\ref{tab:scores}: every instrument at every iteration under the training oracle (the held-out
 judge's version is Table~\ref{tab:scores-heldout} in Appendix~\ref{app:heldout}, which collects
 that judge's results). Figure~\ref{fig:overpraise}: the keyword marker of \S\ref{sec:therapist}.
-Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
-iteration under both judges. Figure~\ref{fig:textspace}: the two runs in sentence-embedding space
-(Figure~\ref{fig:textspace-body} and a third measure). Figure~\ref{fig:tails}: the $\Kf$ rollout audit, a check that the
-five-turn look-ahead ran as specified. Over the $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ of
+Figure~\ref{fig:textspace}: how much the therapist's turns depend on the patient, in
+sentence-embedding space (\S\ref{sec:therapist}). Figure~\ref{fig:responsiveness}: the
+therapist's four replies of Table~\ref{tab:process} by iteration under both judges.
+
+\textbf{The look-ahead rollouts.} A check that the five-turn look-ahead ran as specified. A
+rollout ends early when the patient closes the session or when the policy's own turn inside the
+rollout ends it. Over the $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ of
 rollouts ran the full five turns; the early-ending share ranged from $12\%$ at iteration 10 to
 $30\%$ at iteration 6, and in $16\%$ of candidates the patient closed the session. Early-ending
 candidates scored at or below their group mean (by up to $0.09$ points, depending on how the
-rollout ended) and were the group's best less often than chance ($0.10$ vs.\ $0.125$).
+rollout ended) and were the group's best less often than chance ($0.10$ vs.\ $0.125$), so the
+look-ahead reward slightly favours turns after which the session goes on.
 
 \begin{table*}[t]
 \centering
@@ -67,6 +71,17 @@ Iteration 0 is the Base.}
 \label{fig:overpraise}
 \end{figure}
 
+\begin{figure}[!htb]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/text_grpo.png}
+\caption{How much the therapist's turns depend on the patient. Every therapist turn is embedded
+with \texttt{all-MiniLM-L6-v2} (the scripted opener excluded); the plot shows the share of the
+embedding variance that lies between conversations rather than within them, with a $95\%$
+bootstrap band over conversations. Lower means the therapist says similar things whoever the
+patient is. Iteration 0 is the Base.}
+\label{fig:textspace}
+\end{figure}
+
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/responsiveness_grpo.png}
@@ -78,38 +93,4 @@ with non-specific praise, \textbf{(c, g)} with persuasion, and \textbf{(d, h)} w
 The iteration-10 values are the middle blocks of Tables~\ref{tab:process}
 and~\ref{tab:process-heldout}.}
 \label{fig:responsiveness}
-\end{figure*}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.94\textwidth]{figures/text_grpo.png}
-\caption{The two runs in sentence-embedding space (every therapist turn embedded with
-\texttt{all-MiniLM-L6-v2}; the scripted opener excluded); panels (a) and (b) are
-Figure~\ref{fig:textspace-body}. \textbf{(a)} The cosine between the two runs' moves away from
-the Base's mean embedding at each iteration: $1$ would mean they learned the same thing.
-\textbf{(b)} The share of embedding variance that lies between conversations, a measure of how
-much the therapist's turns depend on which patient it is talking to, with a $95\%$ bootstrap band
-over conversations. \textbf{(c)} The mean pairwise cosine between turns at the same position in
-different conversations: convergence on a template.}
-\label{fig:textspace}
-\end{figure*}
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.96\textwidth]{figures/tail_audit_grpo.png}
-\caption{The $\Kf$ rollout audit, over the $121{,}088$ logged candidates ($88\%$ of those
-scored). A rollout is meant to add five turns after the candidate; it is cut short when the
-patient closes the session or when the policy's own turn inside the rollout ends it.
-\textbf{(a)} How often that happened, by training iteration ($95\%$ bootstrap intervals; pooled
-$18\%$), and how much of it was the patient closing the session ($16\%$). \textbf{(b)} What a
-cut-short rollout cost the candidate: its reward minus the mean of its group, by how many turns
-were actually simulated and who ended them (\emph{pat.}: the patient closed the session;
-\emph{pol.}: the policy's own turn ended it; \emph{none}: the candidate itself ended the session).
-Candidates whose rollout ran all five turns sit at the group mean, those the patient closed sit
-close to it, and those the policy's own turn ended sit about $0.09$ below. \textbf{(c)} How often
-a candidate was its group's best, separately for rollouts that ran to length and rollouts that
-were cut short; the dotted line is chance, $1/8$. Read together: the look-ahead ran as specified
-in most cases, and a rollout that ended early cost the candidate a little, so the look-ahead
-reward slightly favours turns after which the session goes on.}
-\label{fig:tails}
 \end{figure*}
