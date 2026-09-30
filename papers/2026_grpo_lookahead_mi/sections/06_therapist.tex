@@ -105,16 +105,33 @@ The keyword marker is deliberately crude, matching only fixed phrases, so
 the finding rests on the three measures agreeing: the coder's praise share, the keyword marker and
 MICI's over-praise count.
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/text_grpo_body.png}
+\caption{How much the therapist's turns depend on the patient, on sentence embeddings (every
+therapist turn embedded with \texttt{all-MiniLM-L6-v2}, the scripted opener excluded; iteration 0
+is the Base). \textbf{(a)} The share of the embedding variance that lies between conversations
+rather than within them, with a $95\%$ bootstrap band: lower means the therapist says similar
+things whoever the patient is. \textbf{(b)} The mean cosine between the therapist's turns at the
+same turn of different conversations: higher means those turns are more alike.}
+\label{fig:textspace-body}
+\end{figure}
+
 \textbf{In embedding space.}
 % \dnotedone{rephrased: the shared conclusion is now stated}{[same conclusion -?]}
 % \dnotedone{reworded: `no LLM judge'}{[coder ?]}
 Sentence embeddings, which involve no LLM judge, show the $\Kz$ policy's
-replies coming to depend less on the patient.
+replies coming to depend less on the patient, which fits praise given whatever the patient says.
 % \dnotedone{answered: encoder named and cited}{which one}
 % \dnotedone{rephrased: replies grow more alike from patient to patient}{[converges harder onto one script -?]}
-\dnotedone{the figure moved to Appendix A on Lior's read (30 Sep), the tailoring panel only; its result stays here in two sentences}{show diagram, explain}
+\dnotedone{Figure 4 kept in the body; on Lior's read (30 Sep) its hard-to-read cosine panel is replaced by the turn-similarity panel, and both panels are explained here}{show diagram, explain}
 We embed every therapist turn with a sentence encoder
-(\texttt{all-MiniLM-L6-v2}; \citealp{reimers2019sbert}) and measure the share of embedding
-variance that lies between conversations rather than within them: at iteration 10 it has fallen
-from $0.39$ at the Base to $0.30$ under $\Kf$ and to $0.19$ under $\Kz$, whose replies become more
-alike from patient to patient (Appendix Figure~\ref{fig:textspace}).
+(\texttt{all-MiniLM-L6-v2}; \citealp{reimers2019sbert}) and measure two things
+(Figure~\ref{fig:textspace-body}). Panel (a) is the share of embedding variance that lies between
+conversations rather than within them: at iteration 10 it has fallen from $0.39$ at the Base to
+$0.30$ under $\Kf$ and to $0.19$ under $\Kz$, whose replies become more alike from patient to
+patient. Panel (b) is how alike the therapist's turns are across conversations at the same
+turn (its first turns, its second turns, and so on), and here the two runs do not separate: it rises under both, from $0.26$ at the
+Base to $0.49$ under $\Kf$ and $0.58$ under $\Kz$ at iteration 10, with $\Kf$ the higher of the two
+at seven of the ten iterations. Both policies' turns grow more alike overall; what separates them
+is how much of the remaining variation follows the patient.
