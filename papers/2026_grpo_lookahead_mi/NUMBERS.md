@@ -893,3 +893,24 @@ one of seven behaviour codes to each therapist utterance" — the behaviour code
 the paper, and "exactly one" was also contradicted by the 79% / 96% measurement; the sentence now
 lists only the four global ratings. A sweep found no other MITI behaviour-count remnant (the MICI
 row's "6 behaviour counts" is MICI's and stays).
+
+## 2026-09-30 — step 7: Lior's read (Table 1, the embedding figures, the rollout audit)
+
+No number changed; three displays changed.
+- **Table 1** (`tab:endpoint`) lost its bold: every one of the 18 bold cells was a K=5 value, so it
+  marked nothing. The caption now says K=5 is better on every instrument under both judges (MICI:
+  lower), every row p < .001 (Holm, nine rows per judge) — the same values as before.
+- **The body's embedding figure** (`fig:textspace-body`, `text_grpo_body.png`) is gone; §5 keeps two
+  sentences with the between-conversation share at iteration 10: Base **0.393**, K=5 **0.302**,
+  K=0 **0.192** (`shared_base.xlsx::text_diversity`, `persona_var_share`, re-read 2026-09-30).
+  Appendix Figure `fig:textspace` (`text_grpo.png`) is now that panel alone, column width, drawn by
+  `render_paper_figures.py::textspace()`. **Retired from the paper**: the same-direction cosine
+  (at most 0.73 at iteration 3, 0.45 at iteration 10, near zero at 9;
+  `shared_base.xlsx::text_drift_cosines`) and the template-similarity panel. The three-panel and
+  two-panel drawings are kept in the script, not called.
+- **The rollout audit figure** (`fig:tails`, `tail_audit_grpo.png`) is gone; Appendix A keeps its
+  paragraph under a run-in heading, with the caption's reading folded in ("the look-ahead reward
+  slightly favours turns after which the session goes on"). Its numbers are the rows "Rollout
+  audit" above (82% full, 12–30% early, 16% patient-closed, up to 0.09 below the group mean,
+  0.10 vs 0.125 best-of-group).
+- Figure 4's y-label (the keyword marker) was clipped at column width; now on two lines.
