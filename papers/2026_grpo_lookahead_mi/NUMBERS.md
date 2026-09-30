@@ -961,3 +961,21 @@ Table 4: Q1+Q2 4.517, Q1 4.465, Q2 4.570, WAI-SR 3.729 (all K=5 it 10), CSQ-8 3.
 PCT 0.699 (K=5 it 9), MITI 4.536 (K=5 it 10), MICI **0.169 (K=0 it 2)**. Table 7 (held-out):
 Q1+Q2 2.912 (K=5 it 7), Q1 2.898 (it 6), Q2 3.015, CSQ-8 2.935 (it 10), WAI-SR 3.014, MI-SAT 3.394,
 MITI 2.398, PCT 0.754 (it 9), MICI **0.309 (K=0 it 2)**.
+
+## 2026-09-30 — step 9: Doron's related-work block merged (§2)
+
+No numbers. Lior's picks: the block becomes one bold-headed paragraph, "Judges that change during
+training", placed after "Reward models and LLM judges", with one shared closing contrast (Doron's
+own closing sentence, kept); his original three paragraphs stay in the .tex as a comment until the
+merge is approved. The four missing references were found and checked that day against their
+pages: `wu2025metarewarding` (EMNLP 2025, pp. 11537–11554, doi 10.18653/v1/2025.emnlp-main.583),
+`wang2026serpo` (arXiv 2607.26873), `wang2026dynamicrubric` (arXiv 2607.20083), `chu2026jzero`
+(arXiv 2608.26582, v2 title "... Self-Evolution from Zero Data", four authors). Claims checked
+against each paper: SERPO evolves query-specific rubrics with the policy at test time, on
+HealthBench, ResearchQA and four OOD benchmarks, one response per prompt; DynamicRubric generates
+weighted binary rubric items per candidate set (AlpacaEval2, ArenaHard v2.0, WildBench,
+WritingBench, MATH-500, MMLU-Pro, CodeScope); J-Zero co-trains Challenger, Solver and Judge
+(AlpacaEval 2.0, Arena-Hard v2.0, EQ-Bench Creative Writing v3 on the unverifiable side); none of
+the three evaluates an interaction the policy conducts over several turns, nor counselling
+role-play. Dropped with the halving: Doron's per-paper remarks and "continued gains across ten
+iterations" (J-Zero reports "at least ten iterations", which is true but not needed).
