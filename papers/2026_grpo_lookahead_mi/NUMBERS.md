@@ -914,3 +914,23 @@ No number changed; three displays changed.
   audit" above (82% full, 12–30% early, 16% patient-closed, up to 0.09 below the group mean,
   0.10 vs 0.125 best-of-group).
 - Figure 4's y-label (the keyword marker) was clipped at column width; now on two lines.
+
+**Step 7 revised the same day (Lior: "do the fixes and also honour Doron's request").** Final state:
+- **Table 1 at two decimals**, rounded from the full-precision sheets (`reward.xlsx::k_endpoints`,
+  pair `GRPO_LA5_I10 − GRPO_LA0_I10 (K=5 endpoint vs K=0 endpoint)`, and `::k_levels_long`,
+  iteration 10), every cell checked to agree with the old 3-dp cell. ⚠ Two cells differ from
+  naive rounding of the 3-dp string: Q1+Q2 Δ is 0.7646 → **+0.76** (not 0.77), held-out CSQ-8 K=5
+  is 2.9349 → **2.93**. The caption adds "Δ is computed before rounding" (4.52 − 3.75 = 0.77).
+  §4's prose that restates Table 1 follows it: +0.76 (dz 0.91), held-out +0.62 (dz 1.03), the
+  replicate |dz| 0.17 and dz 0.92 vs 0.91 (held out 0.95 vs 1.03); the other §4 numbers keep three
+  decimals (they come from Table 4).
+- **Figure 4 stays in the BODY** (Doron's pass-3 request), redrawn: panel (a) the
+  between-conversation share (unchanged), panel (b) the same-turn similarity
+  (`shared_base.xlsx::text_diversity`, `template_sim`): Base **0.264** → K=5 **0.494**, K=0
+  **0.585** at iteration 10; K=5 the higher at **7 of 10** iterations (1, 2, 4, 5, 6, 7, 9). No CI
+  exists for this measure, so the text makes no significance claim. The same-direction cosine
+  stays retired. The Appendix A embedding figure is gone (it would duplicate Figure 4;
+  `text_grpo.png` deleted, `textspace()` kept, not called).
+- **The rollout paragraph** is two sentences: 82% full, 16% patient-closed, at most 0.09 below the
+  group mean. Dropped: the 12–30% range, the 0.10 vs 0.125 best-of-group rate and the "favours
+  turns after which the session goes on" clause (the point Lior cut from the Limitations).

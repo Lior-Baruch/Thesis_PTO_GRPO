@@ -16,8 +16,8 @@ shared Base since 2026-09-24; ``k_headline_q1q2_grpo`` before that) and ``overpr
 ``sync_figures.py`` no longer lists them. ``saturation()`` (the former Fig. 4, dropped 2026-09-16)
 is kept for the Spearman / variance-ratio printout that checks section 7's numbers, and
 ``forest()`` (the channel forest, dropped 2026-09-29 with MITI's behaviour counts),
-``textspace_body()`` and ``tail_audit()`` (both dropped 2026-09-30) are kept too; ``main()``
-calls none of them.
+``textspace()`` and ``tail_audit()`` (both dropped 2026-09-30) are kept too; ``main()`` calls
+none of them.
 
 SIZING (2026-09-16): each figure is drawn at the exact width ``sections/*.tex`` includes it at,
 so the point sizes in this file are true page point sizes -- see ``width_fracs`` / ``figsize``.
@@ -266,42 +266,14 @@ def responsiveness() -> Path:
 
 
 def textspace() -> Path:
-    """Appendix A, single column since 2026-09-30 (Lior's read: the body's two-panel embedding
-    figure left the paper's body, and only the tailoring panel stayed): the between-conversation
-    share of embedding variance with its 95% bootstrap band, from
-    ``shared_base.xlsx::text_diversity`` (the shared Base at iteration 0). The same-direction
-    cosine and the template panel are in :func:`textspace_three_panel`, kept, not called."""
-    dv = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_diversity")
-    dv = dv[dv.arm.isin(COL)]
-    fig, ax = plt.subplots(figsize=figsize("text_grpo.png", 0.62, default_frac=0.48))
-    for arm in ("GRPO_LA0", "GRPO_LA5"):
-        g = dv[dv.arm == arm].sort_values("iteration")
-        ax.fill_between(g.iteration, g["persona_var_share_lo"], g["persona_var_share_hi"],
-                        color=COL[arm], alpha=0.18, lw=0)
-        ax.plot(g.iteration, g["persona_var_share"], color=COL[arm], label=LAB[arm],
-                ms=3.5, lw=1.4, **STY[arm])
-    ax.set_ylim(0.1, 0.5)
-    ax.set_xticks(range(0, 11, 2))
-    ax.set_xlabel("iteration")
-    ax.set_ylabel("share of variance\nbetween conversations")
-    ax.legend(frameon=False, loc="upper right", fontsize=6.0, handlelength=1.5,
-              borderaxespad=0.2, labelspacing=0.2, handletextpad=0.4)
-    fig.tight_layout()
-    out = DEST / "text_grpo.png"
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    return out
-
-
-def textspace_three_panel() -> Path:
-    """Appendix A until 2026-09-30, kept, not called: (a) the cosine between the two runs'
-    displacements from the Base centroid (``drift_cosines``), (b) the between-persona share of
-    embedding variance with its bootstrap band and (c) the template similarity across personas at
-    matched turn (``diversity_by_state``). Writes ``text_grpo_three_panel.png`` if run by hand."""
+    """Appendix: the two policies in sentence-embedding space (``text.xlsx``): (a) the cosine
+    between their displacements from the base centroid (``drift_cosines``), (b) the
+    between-persona share of embedding variance with its bootstrap band and (c) the template
+    similarity across personas at matched turn (``diversity_by_state``)."""
     cos = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_drift_cosines").sort_values("iteration")
     dv = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_diversity")
     dv = dv[dv.arm.isin(COL)]
-    fig, (a, b, c) = plt.subplots(1, 3, figsize=(TEXTWIDTH_IN * 0.94, TEXTWIDTH_IN * 0.94 * 0.29))
+    fig, (a, b, c) = plt.subplots(1, 3, figsize=figsize("text_grpo.png", 0.29))
     a.axhline(0, color="#444444", lw=0.8)
     a.plot(cos.iteration, cos.cos_K0_K5_GRPO, color="#333333", marker="o", ms=3.4, lw=1.5)
     a.set_ylim(-0.2, 1.0)
@@ -326,44 +298,43 @@ def textspace_three_panel() -> Path:
     c.set_ylim(0.2, 0.65)
     b.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.2, borderaxespad=0.2)
     fig.tight_layout(w_pad=1.4)
-    out = DEST / "text_grpo_three_panel.png"
+    out = DEST / "text_grpo.png"
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
     return out
 
 
 def textspace_body() -> Path:
-    """Section 5 (2026-09-24, on Doron's "show diagram, explain"): panels (a) and (b) of the
-    appendix embedding figure, side by side at column width -- (a) the cosine between the two runs'
-    displacements from the shared Base centroid, (b) the between-conversation share of embedding
-    variance with its bootstrap band. Reads ``shared_base.xlsx::text_drift_cosines`` and
-    ``::text_diversity``."""
-    cos = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_drift_cosines").sort_values("iteration")
+    """Section 5, on Doron's "show diagram, explain" (2026-09-24; panels changed 2026-09-30 after
+    Lior's read): two measures of tailoring, side by side at column width -- (a) the
+    between-conversation share of embedding variance with its bootstrap band, (b) the mean cosine
+    between turns at the same position in different conversations. The same-direction cosine that
+    was panel (a) until 2026-09-30 left the paper (Lior found it unreadable; no reference value).
+    Reads ``shared_base.xlsx::text_diversity``."""
     dv = pd.read_excel(SHARED_BASE_XLSX, sheet_name="text_diversity")
     dv = dv[dv.arm.isin(COL)]
     name = "text_grpo_body.png"
-    fig, (a, b) = plt.subplots(1, 2, figsize=figsize(name, 0.52, default_frac=0.48))
-    a.axhline(0, color="#444444", lw=0.8)
-    a.plot(cos.iteration, cos.cos_K0_K5_GRPO, color="#333333", marker="o", ms=2.8, lw=1.2)
-    a.set_ylim(-0.2, 1.0)
-    a.set_xticks(range(2, 11, 2))
-    a.set_xlabel("iteration")
-    a.set_ylabel("cosine of the two moves")
-    a.set_title("(a) same direction?", loc="left", fontweight="bold", fontsize=6.4)
+    fig, (a, b) = plt.subplots(1, 2, figsize=figsize(name, 0.56, default_frac=0.48))
     for arm in ("GRPO_LA0", "GRPO_LA5"):
         g = dv[dv.arm == arm].sort_values("iteration")
-        b.fill_between(g.iteration, g["persona_var_share_lo"], g["persona_var_share_hi"],
+        a.fill_between(g.iteration, g["persona_var_share_lo"], g["persona_var_share_hi"],
                        color=COL[arm], alpha=0.18, lw=0)
-        b.plot(g.iteration, g["persona_var_share"], color=COL[arm], label=LAB[arm].split(" (")[0],
+        a.plot(g.iteration, g["persona_var_share"], color=COL[arm], label=LAB[arm],
                ms=2.6, lw=1.2, **STY[arm])
-    b.set_ylim(0.1, 0.5)
-    b.set_xticks(range(0, 11, 2))
-    b.set_xlabel("iteration")
-    b.set_ylabel("between-conversation share")
-    b.set_title("(b) tailoring", loc="left", fontweight="bold", fontsize=6.4)
-    b.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.3, borderaxespad=0.1,
+        b.plot(g.iteration, g["template_sim"], color=COL[arm], label=LAB[arm],
+               ms=2.6, lw=1.2, **STY[arm])
+    a.set_ylim(0.1, 0.5)
+    b.set_ylim(0.2, 0.65)
+    for ax in (a, b):
+        ax.set_xticks(range(0, 11, 2))
+        ax.set_xlabel("iteration")
+    a.set_ylabel("share of variance\nbetween conversations")
+    b.set_ylabel("mean cosine at\nthe same turn")
+    a.set_title("(a) varies by patient", loc="left", fontweight="bold", fontsize=6.4)
+    b.set_title("(b) alike at the same turn", loc="left", fontweight="bold", fontsize=6.4)
+    a.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.3, borderaxespad=0.1,
              labelspacing=0.2)
-    fig.tight_layout(w_pad=0.8)
+    fig.tight_layout(w_pad=1.6)
     out = DEST / name
     fig.savefig(out, bbox_inches="tight")
     plt.close(fig)
@@ -814,11 +785,11 @@ def main(argv: list[str] | None = None) -> int:
     # shared Base (levels_grid_primary) replaced it. Kept, not called, like saturation().
     # forest() drew the Appendix A channel forest until 2026-09-29, when the paper dropped MITI's
     # behaviour counts (Lior's option A); kept, not called.
-    # textspace_body() drew the body's embedding figure and tail_audit() the Appendix A rollout
-    # audit until 2026-09-30 (Lior's read: the body figure moved to the appendix as the tailoring
-    # panel alone, drawn by textspace(); the audit stays as text); both kept, not called.
+    # textspace() drew the three-panel Appendix A embedding figure and tail_audit() the Appendix A
+    # rollout audit until 2026-09-30 (Lior's read: the body figure, textspace_body, now carries
+    # the two panels that stay; the audit stays as text); both kept, not called.
     every = (levels_grid_primary, levels_grid_heldout, overpraise, process, process_heldout,
-             responsiveness, textspace, praise_premium, faithfulness)
+             responsiveness, textspace_body, praise_premium, faithfulness)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}
     unknown = [n for n in names if n not in by_name]
