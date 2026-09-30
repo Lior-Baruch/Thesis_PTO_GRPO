@@ -335,7 +335,8 @@ later for each. This plan follows those picks and supersedes steps 8–10 of the
   on the lab server time he mentions is Lior's call.
 
 The plan. Each step: pull, edit, build, Lior's read, commit, push to Overleaf on his go; then the
-step's handled notes are commented out.
+step's handled notes are commented out. Rewritten 2026-09-30 after Lior's own read: his notes are
+steps 7–8, and the former steps 7–10 are now 9–12.
 
 | Step | What | Status |
 |---|---|---|
@@ -345,10 +346,13 @@ step's handled notes are commented out.
 | 4 | Count the therapist turns that hit the 200-token cap, per model state, in the EDA (local; no GPU, no API) → `NUMBERS.md` → the number replaces "many" in the Limitations | counted 2026-09-29 (EDA table `lookahead/shared_base/tables/cap_hits.md`: 97% of K=0 / 81% of K=5 therapist turns at iteration 10, 3% at the Base). After reading the sentence Lior found it too negative and CUT the cap from the Limitations (and §5's pointer to it); §3 and Appendix E still mention the cap. Approved 2026-09-29, handled marker commented out. Ledger block "step 4" |
 | 5 | MITI option A (above); cut the Limitations' "least dependable" sentence; shorten the utterance-coder paragraph | done and approved 2026-09-29 (after his read also: D.2's "exactly one of seven behaviour codes" sentence removed; markers commented out): channel forest dropped, MITI row = "4 globals", Appendix D.3's coder check is PCT-only, Limitations coder paragraph short with the human-check sentence (Lior's picks). 30 pages |
 | 6 | Consistency: §6 and Appendix C.4's title still say "paid for" / "siblings", the words Doron flagged in §7; Appendix E's subsection titles still say "Turn-level reward" / "Look-ahead reward" | done and approved 2026-09-29 (after his read also: "premium" removed from the visible paper, Figure 12 relabelled): §6 "paid for … above their siblings" → "gave higher scores to … above the candidates that did not praise", "voices" → "expresses" (Doron's word); App C.4 retitled "How much the training reward favours praise", "pays" → "favours" / "premium"; App E titles "The K=0 / K=5 policy at iteration 10". No number changed; no flagged word left outside the abstract and Doron's intro |
-| 7 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | once he stops editing |
-| 8 | The contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open) | |
-| 9 | Layout: "behavior s" in §1, `rafailov2023dpo` uncited, float crowding | |
-| 10 | Hide the notes; length pass (the body must end on page 8); ARR checklist; code zip; submit ≈ 9 Oct (deadline 12 Oct) | |
+| 7 | **Lior's read, 2026-09-30.** Table 1 without bold (every bold cell was the $K{=}5$ column, so it said nothing; the caption carries "higher on every instrument, each p < .001"). Figure 4 (embeddings) leaves the body: §5 keeps one sentence (the between-conversation share, 0.39 → 0.19 vs 0.30), Appendix Figure 7 keeps only that panel with a plain caption (Lior: no preference on the panels; the same-direction cosine and the template panel go). Figure 8 (rollout audit) dropped; Appendix A's paragraph stays | |
+| 8 | Complete process tables (Lior: "do we have a full table of all iterations?" — no, only figures). EDA first: Table 3's measures at every iteration, the shared Base, stars from the per-iteration tests → `NUMBERS.md` → one table in Appendix A (training oracle), one in Appendix B (held-out) | |
+| 9 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | |
+| 10 | The contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open) | |
+| 11 | Layout: "behavior s" in §1, `rafailov2023dpo` uncited, float crowding | |
+| 12 | Hide the notes; length pass (the body ends ~15 lines into page 11 on 2026-09-30 and must end on page 8); ARR checklist; code zip; submit ≈ 9 Oct (deadline 12 Oct). Steps 7–11 should be done by ≈ 4 Oct to leave the length pass 3–4 days | |
+| later | Appendix E.2's typical case has two $K{=}5$ turns cut at the cap (utterances 6 and 8). A re-pick by the same median rule among the 39 of 96 personas whose first three $K{=}5$ turns end below the cap is possible (E.1's $K{=}5$ turns already do: 73, 66, 137 tokens). Lior: "maybe later" | parked |
 
 **Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
 intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
