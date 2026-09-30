@@ -3,7 +3,9 @@
 
 Table~\ref{tab:scores}: every instrument at every iteration under the training oracle (the held-out
 judge's version is Table~\ref{tab:scores-heldout} in Appendix~\ref{app:heldout}, which collects
-that judge's results). Figure~\ref{fig:overpraise}: the keyword marker of \S\ref{sec:therapist}.
+that judge's results). Table~\ref{tab:process-all}: the process measures of
+Table~\ref{tab:process} at every iteration (held-out: Table~\ref{tab:process-all-heldout}).
+Figure~\ref{fig:overpraise}: the keyword marker of \S\ref{sec:therapist}.
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
 iteration under both judges.
 
@@ -26,7 +28,7 @@ Base & $3.015$ & $2.966$ & $3.064$ & $2.873$ & $2.359$ & $2.837$ & $3.172$ & $0.
 \midrule
 \multicolumn{10}{@{}l}{\emph{$K{=}0$}}\\
 1 & $3.269$ & $3.177$ & $3.361$ & $2.976$ & $2.477$ & $2.986$ & $3.284$ & $0.481$ & $0.228$\\
-2 & $3.359$ & $3.302$ & $3.417$ & $3.004$ & $2.514$ & $3.054$ & $3.495$ & $0.503$ & $0.169$\\
+2 & $3.359$ & $3.302$ & $3.417$ & $3.004$ & $2.514$ & $3.054$ & $3.495$ & $0.503$ & $\mathbf{0.169}$\\
 3 & $3.993$ & $3.935$ & $4.051$ & $3.301$ & $2.811$ & $3.425$ & $3.938$ & $0.544$ & $0.230$\rlap{$^{*}$}\\
 4 & $4.004$ & $3.898$ & $4.111$ & $3.292$ & $2.751$ & $3.410$ & $4.039$ & $0.552$ & $0.251$\\
 5 & $3.972$ & $3.869$ & $4.075$ & $3.208$ & $2.715$ & $3.321$ & $3.940$ & $0.522$ & $0.277$\\
@@ -45,17 +47,72 @@ Base & $3.015$ & $2.966$ & $3.064$ & $2.873$ & $2.359$ & $2.837$ & $3.172$ & $0.
 6 & $4.229$\rlap{$^{*}$} & $4.200$\rlap{$^{*}$} & $4.258$ & $3.543$\rlap{$^{*}$} & $2.935$\rlap{$^{*}$} & $3.682$\rlap{$^{*}$} & $4.250$\rlap{$^{*}$} & $0.625$\rlap{$^{*}$} & $0.281$\\
 7 & $4.270$\rlap{$^{*}$} & $4.206$\rlap{$^{*}$} & $4.334$ & $3.529$\rlap{$^{*}$} & $2.977$\rlap{$^{*}$} & $3.663$\rlap{$^{*}$} & $4.284$\rlap{$^{*}$} & $0.621$\rlap{$^{*}$} & $0.248$\\
 8 & $4.254$\rlap{$^{*}$} & $4.200$\rlap{$^{*}$} & $4.309$ & $3.579$\rlap{$^{*}$} & $2.924$\rlap{$^{*}$} & $3.639$\rlap{$^{*}$} & $4.312$ & $0.627$\rlap{$^{*}$} & $0.197$\rlap{$^{*}$}\\
-9 & $4.454$\rlap{$^{*}$} & $4.408$\rlap{$^{*}$} & $4.501$\rlap{$^{*}$} & $3.661$\rlap{$^{*}$} & $3.078$\rlap{$^{*}$} & $3.847$\rlap{$^{*}$} & $4.521$\rlap{$^{*}$} & $0.699$\rlap{$^{*}$} & $0.212$\rlap{$^{*}$}\\
-10 & $4.517$\rlap{$^{*}$} & $4.465$\rlap{$^{*}$} & $4.570$\rlap{$^{*}$} & $3.729$\rlap{$^{*}$} & $3.062$\rlap{$^{*}$} & $3.832$\rlap{$^{*}$} & $4.536$\rlap{$^{*}$} & $0.685$\rlap{$^{*}$} & $0.210$\rlap{$^{*}$}\\
+9 & $4.454$\rlap{$^{*}$} & $4.408$\rlap{$^{*}$} & $4.501$\rlap{$^{*}$} & $3.661$\rlap{$^{*}$} & $\mathbf{3.078}$\rlap{$^{*}$} & $\mathbf{3.847}$\rlap{$^{*}$} & $4.521$\rlap{$^{*}$} & $\mathbf{0.699}$\rlap{$^{*}$} & $0.212$\rlap{$^{*}$}\\
+10 & $\mathbf{4.517}$\rlap{$^{*}$} & $\mathbf{4.465}$\rlap{$^{*}$} & $\mathbf{4.570}$\rlap{$^{*}$} & $\mathbf{3.729}$\rlap{$^{*}$} & $3.062$\rlap{$^{*}$} & $3.832$\rlap{$^{*}$} & $\mathbf{4.536}$\rlap{$^{*}$} & $0.685$\rlap{$^{*}$} & $0.210$\rlap{$^{*}$}\\
 \bottomrule
 \end{tabular}
 \caption{\textbf{Every instrument at every iteration} under the training oracle: the mean over the
-96 personas (the Base: over its 192 conversations, two per persona). A star marks the better run at
+96 personas (the Base: over its 192 conversations, two per persona). Bold: the best value in each
+column (the lowest for MICI). A star marks the better run at
 an iteration where the persona-paired $\Kf$ vs.\ $\Kz$ contrast on that instrument is significant
 (Holm across iterations 1--10 within instrument); the only star on a $\Kz$ cell is MICI at
 iteration 3. MICI is lower-is-better. The iteration-10 rows are Table~\ref{tab:endpoint};
 Figure~\ref{fig:headline} draws the columns.}
 \label{tab:scores}
+\end{table*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{2.8pt}
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}lrrrrrrrrrrrr@{}}
+\toprule
+& \multicolumn{5}{c}{Therapist turns (share)} & \multicolumn{4}{c}{Reply to the patient's \ldots}
+& \multicolumn{2}{c}{CT next, after} & Session\\
+\cmidrule(lr){2-6}\cmidrule(lr){7-10}\cmidrule(lr){11-12}\cmidrule(l){13-13}
+Iteration & \shortstack[r]{praise\\($\downarrow$)} & \shortstack[r]{complex\\refl.}
+& \shortstack[r]{persua-\\sion\\($\downarrow$)} & \shortstack[r]{MI-\\adherent}
+& \shortstack[r]{MI-incon-\\sistent\\($\downarrow$)} & \shortstack[r]{CT:\\reflects}
+& \shortstack[r]{ST:\\praises\\($\downarrow$)} & \shortstack[r]{ST:\\persuades\\($\downarrow$)}
+& \shortstack[r]{ST:\\reflects} & CT & ST & \shortstack[r]{CT\\share}\\
+\midrule
+Base & $0.041$ & $0.018$ & $0.203$ & $0.306$ & $0.248$ & $0.137$ & $0.019$ & $0.242$ & $0.217$ & $0.750$ & $0.281$ & $0.448$\\
+\midrule
+\multicolumn{13}{@{}l}{\emph{$K{=}0$}}\\
+1 & $0.038$ & $0.021$ & $0.162$ & $0.284$ & $0.206$ & $0.070$ & $0.027$ & $0.227$ & $0.204$ & $0.736$ & $0.276$ & $0.447$\\
+2 & $0.052$ & $0.018$ & $0.123$\rlap{$^{*}$} & $0.397$ & $\mathbf{0.187}$\rlap{$^{*}$} & $0.167$ & $0.018$ & $0.187$ & $0.236$ & $0.823$ & $0.280$ & $0.516$\\
+3 & $0.046$ & $0.027$ & $0.216$ & $0.269$ & $0.262$ & $0.051$ & $0.004$ & $0.313$ & $0.133$ & $0.886$ & $0.264$ & $0.540$\\
+4 & $0.056$ & $0.017$ & $0.198$ & $0.233$ & $0.254$ & $0.050$ & $0.013$ & $0.316$ & $0.189$ & $0.865$ & $0.229$ & $0.541$\\
+5 & $0.063$ & $0.015$ & $0.232$ & $0.154$ & $0.295$ & $0.049$ & $0.010$ & $0.352$ & $0.151$ & $0.868$ & $0.174$ & $0.500$\\
+6 & $0.063$ & $0.023$ & $0.201$\rlap{$^{*}$} & $0.160$ & $0.266$\rlap{$^{*}$} & $0.045$ & $0.007$ & $0.348$ & $0.125$ & $0.862$ & $0.185$ & $0.467$\\
+7 & $0.090$ & $0.026$ & $0.210$\rlap{$^{*}$} & $0.206$ & $0.300$ & $0.019$ & $0.023$ & $0.358$ & $0.172$ & $0.849$ & $0.185$ & $0.508$\\
+8 & $0.222$ & $0.025$ & $0.191$\rlap{$^{*}$} & $0.250$ & $0.412$ & $0.009$ & $0.130$ & $0.295$\rlap{$^{*}$} & $0.230$ & $0.880$ & $0.224$ & $0.518$\\
+9 & $0.080$ & $0.019$ & $0.119$\rlap{$^{*}$} & $0.185$ & $0.198$\rlap{$^{*}$} & $0.032$ & $0.041$ & $0.225$\rlap{$^{*}$} & $0.164$ & $0.712$ & $0.108$ & $0.330$\\
+10 & $0.407$ & $0.020$ & $\mathbf{0.055}$\rlap{$^{*}$} & $0.290$ & $0.463$ & $0.003$ & $0.315$ & $\mathbf{0.073}$\rlap{$^{*}$} & $0.256$ & $0.796$ & $0.276$ & $0.528$\\
+\midrule
+\multicolumn{13}{@{}l}{\emph{$K{=}5$}}\\
+1 & $0.044$ & $0.019$ & $0.232$ & $0.272$ & $0.281$ & $0.137$\rlap{$^{*}$} & $0.013$ & $0.278$ & $0.169$ & $0.782$ & $0.299$ & $0.460$\\
+2 & $\mathbf{0.036}$ & $0.014$ & $0.237$ & $0.297$ & $0.278$ & $0.117$ & $0.009$ & $0.317$ & $0.156$ & $0.842$ & $0.314$ & $0.510$\\
+3 & $0.061$ & $0.031$ & $0.258$ & $0.269$ & $0.319$ & $0.079$ & $0.006$ & $0.375$ & $0.151$ & $0.892$ & $0.279$ & $0.555$\\
+4 & $0.043$ & $0.039$\rlap{$^{*}$} & $0.260$ & $0.263$ & $0.303$ & $0.070$ & $0.002$ & $0.394$ & $0.172$ & $0.921$ & $0.287$ & $0.575$\\
+5 & $0.037$ & $0.051$\rlap{$^{*}$} & $0.308$ & $0.222$ & $0.346$ & $0.096$ & $0.002$ & $0.492$ & $0.205$ & $0.915$\rlap{$^{*}$} & $0.248$\rlap{$^{*}$} & $0.556$\\
+6 & $0.070$ & $0.054$\rlap{$^{*}$} & $0.306$ & $0.244$\rlap{$^{*}$} & $0.376$ & $0.094$\rlap{$^{*}$} & $0.012$ & $0.426$ & $0.159$ & $0.963$\rlap{$^{*}$} & $0.300$\rlap{$^{*}$} & $0.620$\rlap{$^{*}$}\\
+7 & $0.058$ & $0.098$\rlap{$^{*}$} & $0.323$ & $0.295$ & $0.381$ & $0.147$\rlap{$^{*}$} & $0.002$ & $0.477$ & $0.242$ & $0.952$\rlap{$^{*}$} & $0.286$\rlap{$^{*}$} & $0.617$\rlap{$^{*}$}\\
+8 & $0.059$\rlap{$^{*}$} & $0.130$\rlap{$^{*}$} & $0.275$ & $0.358$\rlap{$^{*}$} & $0.334$ & $0.166$\rlap{$^{*}$} & $0.008$\rlap{$^{*}$} & $0.443$ & $0.342$ & $0.954$\rlap{$^{*}$} & $0.254$ & $0.635$\rlap{$^{*}$}\\
+9 & $0.040$ & $0.229$\rlap{$^{*}$} & $0.270$ & $0.435$\rlap{$^{*}$} & $0.310$ & $0.249$\rlap{$^{*}$} & $\mathbf{0.000}$\rlap{$^{*}$} & $0.405$ & $\mathbf{0.436}$\rlap{$^{*}$} & $0.962$\rlap{$^{*}$} & $\mathbf{0.352}$\rlap{$^{*}$} & $\mathbf{0.697}$\rlap{$^{*}$}\\
+10 & $0.053$\rlap{$^{*}$} & $\mathbf{0.230}$\rlap{$^{*}$} & $0.279$ & $\mathbf{0.438}$\rlap{$^{*}$} & $0.332$\rlap{$^{*}$} & $\mathbf{0.264}$\rlap{$^{*}$} & $0.015$\rlap{$^{*}$} & $0.393$ & $0.368$ & $\mathbf{0.968}$\rlap{$^{*}$} & $0.326$ & $0.683$\rlap{$^{*}$}\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{The process at every iteration} under the training oracle: the twelve measures of
+Table~\ref{tab:process} for the Base and for each run at iterations 1--10 (praise: non-specific
+praise; CT: change talk; ST: sustain talk; $\downarrow$: lower is better). Each value is the mean
+over the run's 96 conversations (the Base: over its 192); the reply and next-utterance columns
+average only the conversations in which that patient utterance occurs. Bold: the best value in
+each column. A star marks the better run at an iteration where the persona-paired $\Kf$ vs.\ $\Kz$
+contrast is significant (Holm across iterations 1--10 within measure). The iteration-10 rows are
+Table~\ref{tab:process}.}
+\label{tab:process-all}
 \end{table*}
 
 \begin{figure}[!htb]
