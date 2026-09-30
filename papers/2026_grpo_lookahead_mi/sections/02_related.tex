@@ -1,14 +1,5 @@
 \section{Related work}
 \label{sec:related}
-\dnoteopen{merge after his last edits (plan step 6)}{i added a whole subsection need to merge}
-
-Yuan et al.\ \citep{yuan2024selfrewarding} \dnoteopen{yes, cited in §1; fix the doubled name at the merge}{already cited?} train a language model to generate responses and judge its own candidates, then use the resulting preferences for iterative DPO. They report gains in instruction following and, on MT-Bench, in role-play and writing. The role-play evaluation consists of short, two-turn scenarios, so it does not establish improvement across a sustained interaction. Wu et al.\ \citep{wu2025metarewarding} extend this approach by training the model to evaluate its own judgments as well as its responses. Their gains are primarily on broad instruction-following benchmarks; training uses single-turn examples, and they do not evaluate psychological dialogue.
-
-Recent methods allow the evaluation criteria to change as the policy improves. SERPO \citep{wang2026serpo} evolves question-specific rubrics alongside the policy and reports gains on open-ended medical and research questions. Its HealthBench evaluation includes multi-turn conversation histories, but scores a response to the given history rather than an interaction conducted by the policy across turns. DynamicRubric \citep{wang2026dynamicrubric} learns to generate weighted criteria that distinguish the current candidate responses, then uses their combined scores to update the policy. Its reported evaluations concern generated answers, with no sustained-dialogue result.
-
-J-Zero \citep{chu2026jzero} updates a task-generating Challenger, a responding Solver, and a Judge in the same loop. It reports continued gains across ten iterations, including on general open-ended instruction following and creative-writing benchmarks. These results suggest that an adaptive judge can remain useful as the generator improves. They do not, however, test psychological role-play or whether rewards assigned to individual responses improve the course of a full conversation. Our study addresses the latter question by changing how far into the simulated interaction the reward can observe while holding the judge fixed.
-
-\dnoteopen{end of his new block}{end addition}
 
 \textbf{Group-relative policy optimisation.}
 GRPO \citep{shao2024deepseekmath} replaces the learned value function used in PPO-style
@@ -65,6 +56,30 @@ look desirable in the turn where it occurs while having undesirable effects late
 interaction. We therefore evaluate the trained policies not only with the model used to
 produce the training reward, but also with a held-out judge from another model family and
 with measures outside the rewarded rubric.
+
+\textbf{Judges that change during training.}
+\dnotedone{merged here as one paragraph at about half the length, after the judges paragraph; his closing sentence kept; his original is commented out below}{i added a whole subsection need to merge}
+A different line of work improves the judge itself.
+\citet{yuan2024selfrewarding} \dnotedone{yes, it is cited in §1; the name now appears once}{already cited?}
+train a language model to judge its own candidate responses and use the resulting preferences for
+iterative DPO, and \citet{wu2025metarewarding} also train it to judge its own judgements. Recent
+methods also allow the evaluation criteria to change as the policy improves: SERPO
+\citep{wang2026serpo} evolves question-specific rubrics alongside the policy, DynamicRubric
+\citep{wang2026dynamicrubric} generates weighted criteria that separate the current candidate
+responses, and J-Zero \citep{chu2026jzero} trains a task-generating Challenger, a responding Solver
+and a Judge in the same loop. Their evaluations score a response to a prompt or to a given
+conversation history, on instruction following, open-ended questions, writing and reasoning; none
+tests psychological role-play or whether rewards assigned to individual responses improve the
+course of a full conversation. Our study addresses the latter question by changing how far into the
+simulated interaction the reward can observe while holding the judge fixed.
+\dnotedone{end of the merged block}{end addition}
+
+% Doron's original block (Overleaf, 27 Sep), kept for comparison until the merge is approved:
+% Yuan et al.\ \citep{yuan2024selfrewarding} train a language model to generate responses and judge its own candidates, then use the resulting preferences for iterative DPO. They report gains in instruction following and, on MT-Bench, in role-play and writing. The role-play evaluation consists of short, two-turn scenarios, so it does not establish improvement across a sustained interaction. Wu et al.\ \citep{wu2025metarewarding} extend this approach by training the model to evaluate its own judgments as well as its responses. Their gains are primarily on broad instruction-following benchmarks; training uses single-turn examples, and they do not evaluate psychological dialogue.
+%
+% Recent methods allow the evaluation criteria to change as the policy improves. SERPO \citep{wang2026serpo} evolves question-specific rubrics alongside the policy and reports gains on open-ended medical and research questions. Its HealthBench evaluation includes multi-turn conversation histories, but scores a response to the given history rather than an interaction conducted by the policy across turns. DynamicRubric \citep{wang2026dynamicrubric} learns to generate weighted criteria that distinguish the current candidate responses, then uses their combined scores to update the policy. Its reported evaluations concern generated answers, with no sustained-dialogue result.
+%
+% J-Zero \citep{chu2026jzero} updates a task-generating Challenger, a responding Solver, and a Judge in the same loop. It reports continued gains across ten iterations, including on general open-ended instruction following and creative-writing benchmarks. These results suggest that an adaptive judge can remain useful as the generator improves. They do not, however, test psychological role-play or whether rewards assigned to individual responses improve the course of a full conversation. Our study addresses the latter question by changing how far into the simulated interaction the reward can observe while holding the judge fixed.
 
 \textbf{Motivational interviewing.}
 Motivational interviewing (MI) \citep{miller1991mi} is particularly useful for studying
