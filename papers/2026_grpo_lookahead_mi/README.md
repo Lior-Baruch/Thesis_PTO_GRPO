@@ -7,10 +7,13 @@
 cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in December once reviews
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
-mode (line numbers, anonymized); switch to `[final]` for camera-ready. ⚠ **The body currently
-runs ~30 lines into page 9** (Table 3 + the end of the Discussion; 27 pages in all) since Doron's
-2026-09-21 rewrite of §1–2 — accepted as is: the length pass is deliberately **last**, after the
-supervisors' notes are all in (Lior, 2026-09-22). Do not trim ahead of that.
+mode (line numbers, anonymized); switch to `[final]` for camera-ready. ⚠ **The body runs about
+two pages over:** the Conclusion ends 3 lines into page 11 (build of 2026-10-01, 30 pages in
+all; the limit puts its end on page 8). It grew with Doron's §1–2 rewrite, his passes 2–3,
+Figure 4's return to the body, the §2 judges paragraph and, last, the 2026-10-01 contributions
+rewrite (which moved the end from the foot of page 10 onto page 11). Accepted as is: the length pass is
+deliberately **last** (Lior, 2026-09-22; re-confirmed 2026-10-01: after his own read-through and
+the contributions revisit with Doron). Do not trim ahead of that.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten
@@ -336,140 +339,209 @@ later for each. This plan follows those picks and supersedes steps 8–10 of the
 
 The plan. Each step: pull, edit, build, Lior's read, commit, push to Overleaf on his go; then the
 step's handled notes are commented out. Rewritten 2026-09-30 after Lior's own read: his notes are
-steps 7–8, and the former steps 7–10 are now 9–12.
+steps 7–8, and the former steps 7–10 are now 9–12. **Re-ordered 2026-10-01 (Lior):** a simple
+contributions rewrite now (step 10), then his read-through of the whole paper as a note loop
+(step 11: he sends notes, Claude proposes changes, he approves, repeat), then the contributions,
+abstract and Q1+Q2 with Doron (step 12), and the length pass last (step 13). The former step 11
+(layout) folds into the read-through.
 
 | Step | What | Status |
 |---|---|---|
 | 1 | §7 Discussion: a plain summary first; the slogan cut; praise and change talk in plain words; the reward-hacking story one idea at a time; the conclusion's first sentence and the recommendations cut | done (`70218dd`), on Overleaf since 2026-09-28 with the note marks; approved 2026-09-29, handled markers commented out |
 | 2 | Limitations. **Cut:** evaluation draws, one optimiser/one regime, reward for continuing, patient replies inside the reward, the circularity sentence. **Rephrase:** matched cost (plain words; keep the GPU-hours and the equal-compute result in one sentence), K ∈ {0,5} ("more runs are needed", his reminder open), simulation only (credit the extra measurements, then name the one gap: the patient), "without a model in the loop". Fix the stray `''`. Knock-ons: Appendix A's text and the rollout-audit caption point at the cut "continuing" paragraph; §3.3's "(Limitations)" points at the cut circularity sentence | done and approved 2026-09-29 (handled markers commented out; Lior asked for a source comment on evaluating with newly authored personas, "easy and cheap", beside the in-sample sentence). The call counts, the 1.92× median and the equal-GPU-hour d_z values moved to Appendix D.8 (`app:repro-cost`), which now states them itself; the saturation pointer survives as a plain sentence; the 31.9 vs 25.2 session lengths left the paper with their paragraph. Ledger block "2026-09-29" |
 | 3 | Ethics: tone down the judges paragraph; cut the compute paragraph, move its licence sentence to Appendix D (Appendix D.8 no longer names the Limitations or the Ethics as the home of the GPU-hour totals, done in step 2); keep the section order (ARR's rule); re-point the ARR checklist answers C1 (its Ethics part) and B2 | done and approved 2026-09-29 (judges paragraph: Lior picked the neutral rewrite; the licence sentence closes Appendix D "Artifacts"); handled markers commented out |
-| 4 | Count the therapist turns that hit the 200-token cap, per model state, in the EDA (local; no GPU, no API) → `NUMBERS.md` → the number replaces "many" in the Limitations | counted 2026-09-29 (EDA table `lookahead/shared_base/tables/cap_hits.md`: 97% of K=0 / 81% of K=5 therapist turns at iteration 10, 3% at the Base). After reading the sentence Lior found it too negative and CUT the cap from the Limitations (and §5's pointer to it); §3 and Appendix E still mention the cap. Approved 2026-09-29, handled marker commented out. Ledger block "step 4" |
+| 4 | Count the therapist turns that hit the 200-token cap, per model state, in the EDA (local; no GPU, no API) → `NUMBERS.md` → the number replaces "many" in the Limitations | counted 2026-09-29 (EDA table `lookahead/shared_base/tables/cap_hits.md`: 97% of K=0 / 81% of K=5 therapist turns at iteration 10, 3% at the Base). After reading the sentence Lior found it too negative and CUT the cap from the Limitations (and §5's pointer to it); §3.1, §5 (Table 2's caption and the turn-length sentence), Table 9 and Appendix E still mention the cap. Approved 2026-09-29, handled marker commented out. Ledger block "step 4" |
 | 5 | MITI option A (above); cut the Limitations' "least dependable" sentence; shorten the utterance-coder paragraph | done and approved 2026-09-29 (after his read also: D.2's "exactly one of seven behaviour codes" sentence removed; markers commented out): channel forest dropped, MITI row = "4 globals", Appendix D.3's coder check is PCT-only, Limitations coder paragraph short with the human-check sentence (Lior's picks). 30 pages |
 | 6 | Consistency: §6 and Appendix C.4's title still say "paid for" / "siblings", the words Doron flagged in §7; Appendix E's subsection titles still say "Turn-level reward" / "Look-ahead reward" | done and approved 2026-09-29 (after his read also: "premium" removed from the visible paper, Figure 12 relabelled): §6 "paid for … above their siblings" → "gave higher scores to … above the candidates that did not praise", "voices" → "expresses" (Doron's word); App C.4 retitled "How much the training reward favours praise", "pays" → "favours" / "premium"; App E titles "The K=0 / K=5 policy at iteration 10". No number changed; no flagged word left outside the abstract and Doron's intro |
 | 7 | **Lior's read, 2026-09-30.** Table 1: no bold, two decimals. The embedding figure: first moved to the appendix, then (his review) kept in the body with clearer panels. Figure 8 (rollout audit) dropped, its paragraph shortened | done 2026-09-30 and REVISED the same day after Lior's review of the first pass ("do the fixes and also honour Doron's request"; `40f810a`..): Table 1 no bold AND two decimals (§4's restating prose follows); **Figure 4 stays in the body** with panels (a) variation by patient and (b) same-turn similarity — (b) shows both runs' turns growing alike, K=5 the higher at 7 of 10 iterations — and no appendix twin; Figure 8 dropped, the rollout check in two sentences without the "favours continuing" clause. Doron's "show diagram, explain" note visible, re-marked. Keyword-figure y-label unclipped. Body ends on page 11 again (the figure is back), 29 pages. Approved 2026-09-30 ("continue"), handled marker commented out, pushed to GitHub and Overleaf. ⚠ Found on the way: `overleaf.py pull` run while local commits are unpushed copies Overleaf's OLDER files over them (it compares files, not history); they were restored from git. Pull only when local == Overleaf, i.e. before editing. Ledger block "step 7" + its revision |
 | 8 | Complete process tables (Lior: "do we have a full table of all iterations?" — no, only figures). EDA first: Table 3's measures at every iteration, the shared Base, stars from the per-iteration tests → `NUMBERS.md` → one table in Appendix A (training oracle), one in Appendix B (held-out) | done and approved 2026-09-30 ("Continue"), pushed to GitHub and Overleaf: no EDA change was needed (every value was already in `shared_base.xlsx`); `render_process_tables.py` prints both tables and checks iteration 10 against the two iteration-10 process tables. Lior's mid-step ask "bold each column with best score" applied to both new tables and to the complete score tables (Tables 4 and 7). Appendix tables renumbered (the new ones are Tables 5 and 8). 30 pages. Ledger block "step 8" |
-| 9 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | done and approved 2026-09-30, pushed to GitHub and Overleaf (handled markers commented out; Doron's original block stays in the .tex as a comment, Lior: "dont delete his original"): one paragraph "Judges that change during training" after the judges paragraph (Lior's placement pick), one shared contrast, Doron's closing sentence kept, his original commented out beside it; the four references found and checked against their pages. Body now ends ~5 lines into page 11. Ledger block "step 9" |
-| 10 | The contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open) | |
-| 11 | Layout: "behavior s" in §1, `rafailov2023dpo` uncited, float crowding | |
-| 12 | Hide the notes; length pass (the body ends ~15 lines into page 11 on 2026-09-30 and must end on page 8); ARR checklist; code zip; submit ≈ 9 Oct (deadline 12 Oct). Steps 7–11 should be done by ≈ 4 Oct to leave the length pass 3–4 days | |
+| 9 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | done and approved 2026-09-30, pushed to GitHub and Overleaf (handled markers commented out; Doron's original block stays in the .tex as a comment, Lior: "dont delete his original"): one paragraph "Judges that change during training" after the judges paragraph (Lior's placement pick), one shared contrast, Doron's closing sentence kept, his original commented out beside it; the four references found and checked against their pages. Body now ends ~5 lines above the foot of page 10 (this row said "~5 lines into page 11" until 2026-10-01; the step-9 PDF shows page 10). Ledger block "step 9" |
+| 10 | A simple contributions rewrite before Lior's read-through (Lior, 2026-10-01): Doron's "most important" note stays OPEN and his original paragraph stays in the .tex as a `%` comment, so the paragraph is revisited with him in step 12 | done 2026-10-01, awaiting Lior's read: still "twofold" and still "Second, and more importantly" (Doron's structure); (1) look-ahead moved to GRPO, the controlled pair, ahead on all eight instruments under both judges (§4); (2) utterance coding: turn-level reward teaches non-specific praise incl. in reply to sustain talk, look-ahead teaches reflecting change talk and the patient keeps expressing it (§5–6); the persuasion caveat. No new number. The "behavior s" typo now lives only in Doron's commented original. The body grew ~5 lines (now 3 lines into page 11) |
+| 11 | **Lior's read-through of the whole paper**, as a loop: he sends notes, Claude proposes the changes, he approves, repeat until he is through. Known items waiting for it (found by the 2026-10-01 README audit, not yet raised with him): the abstract's "97% of cases, against 80%" names no judge (training-oracle values; held out 0.935 / 0.734); §3.3 says "only contrasts are compared across [judges]" while §5, Appendix B and the abstract compare K=5's praise share across them (0.05 vs 0.20); Appendix E.1 says "every (persona, therapist-turn) pair" but `select_example_illustrative.py` ranks only the first five replies after the opener (utterances 2–10); `rafailov2023dpo` is uncited although §1 and §2 name DPO; float crowding (the former step 11) | |
+| 12 | With Doron: the contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open; §3.1 has it) | |
+| 13 | Hide the notes (`\dnotesfalse`, `main.tex`); length pass (the body ends 3 lines into page 11 on 2026-10-01 and must end on page 8: about two pages); ARR checklist (its section, appendix and table pointers are stale since the 2026-09-24 restructure, e.g. "Table 5" for the configuration table that is now Table 9, "C.x" for what is now Appendix D, 22 model states for 21; re-point them AFTER the length pass, which will move them again); code zip; submit ≈ 9 Oct (deadline 12 Oct) | |
 | later | Appendix E.2's typical case has two $K{=}5$ turns cut at the cap (utterances 6 and 8). A re-pick by the same median rule among the 39 of 96 personas whose first three $K{=}5$ turns end below the cap is possible (E.1's $K{=}5$ turns already do: 73, 66, 137 tokens). Lior: "maybe later" | parked |
 
-**Framing.** PTO is discussed openly as the lever's origin — `baruch2025pto` is cited in the
-intro, related work, and discussion as the predecessor that introduced $K$-turn look-ahead with
-preference trees + DPO — and this paper's contribution is **moving the lever to GRPO**. The PTO
-*arms* of Exp3 appear **nowhere as data**; every full-grid statistic is the 22-GRPO-state
-recomputation (`*_grpo` artifacts). The discussion's optimiser×horizon pointer now says "outside
-this paper's scope" (it used to point at the companion draft).
+**Framing.** PTO is discussed openly as the origin of $K$-turn look-ahead: `baruch2025pto` is
+cited in §1, in §2 and twice in §3.1 (the personas; Q1+Q2 trained the predecessor PTO policy);
+the abstract names preference-tree optimisation without a citation, and the Discussion does not
+mention PTO. The contributions paragraph (§1) is **twofold**: (1) look-ahead reward moved from PTO
+to GRPO, and, "more importantly", (2) what each reward horizon teaches the policy, read from the
+utterance coding. The PTO *arms* of Exp3 appear **nowhere as data**.
 
-**Axis: iterations only** (the 2026-08-27 decision, unchanged). No GPU-hour or budget analysis;
-the honest-cost content is one Limitations paragraph (oracle calls ≈matched 302,541 vs 289,983;
-≈393k $K{=}5$-only patient calls; median 1.92× per-step wall-clock) and a one-line ≈79 GPU-h
-Ethics total.
+**Axis: iterations** (the 2026-08-27 decision): every headline contrast is at matched iteration.
+Cost is a disclosure only: Limitations ¶2 "Matched iterations are not matched cost" in plain words
+(about the same oracle calls and training steps, about twice the time per step, 51.2 vs 27.9
+GPU-hours) plus the equal-GPU-hour reading in one sentence; the exact figures are in Appendix D.8
+(302,541 vs 289,983 oracle calls; 392,766 patient calls that only the K=5 run makes; a median
+1.92× per step over iterations 3–10; at about 13 GPU-hours K=0 is ahead, d_z −0.74 training
+oracle / −0.78 held out; at about 23 the runs are level under the training oracle, 0.07 n.s., and
+K=5 leads under the held-out judge, 0.33, significant) and the optimizer-step counts in Table 9. The Ethics
+Statement has no compute paragraph since 2026-09-29; the 51.2 + 27.9 = 79.1 GPU-hour sum appears
+only in `CHECKLIST_ARR.md` (C1).
 
-**Domain:** Exp3, the **two GRPO arms** — `GRPO_LA0` and `GRPO_LA5`, matched MCL=12, G=8, 96
-personas, 8 instruments, 10 iterations each, scored by two graders (gpt-4o-mini = the training
-oracle; Claude Haiku 4.5 = held out). 2 arms × 11 states = 22 model states.
+**Domain:** Exp3, the **two GRPO runs**, `GRPO_LA0` (K=0) and `GRPO_LA5` (K=5): matched MCL=12,
+G=8, 96 personas, 10 iterations each. **21 model states** = one shared Base + 2 × 10 iterations:
+the two runs' Base draws are pooled into one Base of 192 conversations (since 2026-09-24), so
+2 × 11 × 96 = 2,112 conversations per judge, plus a second 96-conversation draw of the final K=5
+policy. **Two judges, each doing two jobs** (the 8 instruments + one utterance-coder label per
+utterance): gpt-4o-mini, the training oracle, is the main judge and the body's default; Claude
+Haiku 4.5, the held-out judge, is named wherever it appears: in the body, Table 1 and short
+agreement sentences in §4–§6; its full results in Appendix B; and beside the training oracle in
+Figure 6, Appendix C, D.3, D.8, Appendix F and the Limitations. Two checks involve no LLM judge:
+the keyword marker (Appendix D.5, Figure 5) and sentence embeddings (Figure 4). Most numbers come
+from `lookahead/shared_base` (Appendix F included); Table 1 and the best-checkpoint d_z values
+from `reward.xlsx::k_endpoints`; Appendices A and C from `mechanism.xlsx`; D.8 and the
+Limitations' cost sentence from the compute/cost tables. `NUMBERS.md` names the source of each.
 
 ## The argument in one line
 
 Scoring a candidate therapist turn by the $K$-turn continuation it leads to, rather than by the
-turn itself, raises what group-relative RL extracts from the same oracle to 1.3–2.6× the
-turn-level gain (depending on grader and on whether the turn-level arm is read at its last or its
-best checkpoint), and it decides what kind of therapist the policy becomes: coded utterance by
-utterance, the turn-level policy learns non-specific praise delivered after the patient's sustain
-talk, and the look-ahead policy learns complex reflections delivered after the patient's change
-talk, which are followed by change talk 85–89% of the time.
+turn alone, raises what the same GRPO optimiser extracts from the same oracle, and it decides
+what kind of therapist the policy becomes. In a controlled pair of ten-iteration runs that differ
+only in the horizon, K=5 ends ahead of K=0 on all eight MI instruments under both judges; its
+Q1+Q2 gain over the Base is 1.3 to 2.5 times K=0's (training oracle 2.04 / 1.41, held out
+2.50 / 1.30, against K=0's last / best checkpoint). Coded utterance by utterance (training
+oracle), K=0 learns non-specific praise, late and unevenly (0.22, 0.08, 0.41 of its turns at
+iterations 8, 9, 10), including in reply to a third of the patient's sustain talk; K=5 learns
+complex reflections (0.02 of the Base's turns, 0.23 of its own) and reflects 0.26 of the
+patient's change talk (K=0: 0.003), and under it a patient's change talk is followed by change
+talk again in 97% of cases (K=0 80%, Base 75%). The caveats the paper carries with it: K=5 meets
+sustain talk with persuasion (0.39 of its replies, Base 0.24), the two judges disagree on how
+much K=5 still praises (0.05 of its turns under the training oracle, 0.20 held out), and each
+horizon is a single training run.
 
 ## Section map (files under `sections/`)
 
+Numbers are from `main.aux` (build of 2026-10-01, 30 pages). ACL numbers figures and tables
+globally, so an appendix float is "Figure 9", never "Figure C.1". Body = §1–§7 (pp. 1–11; about
+two pages over the limit). Limitations and Ethics are unnumbered and page-exempt (pp. 11–12).
+Appendices A–F follow the references, each on a new page.
+
 | file | section | content |
 |---|---|---|
-| 00_abstract | Abstract | |
-| 01_intro | §1 | the turn-only default; MI as the setting; GRPO with look-ahead and its PTO lineage; the controlled pair; results + the two caveats; three contributions |
-| 02_related | §2 | GRPO; multi-turn RL for dialogue (incl. multi-turn GRPO); look-ahead/search in preference learning + PTO; reward hacking & LLM judges (+ over-optimisation, ensembles); MI (+ AnnoMI, BOLT) |
-| 03_method | §3 | **Method**, one section in three subsections (Doron's 2026-09-21 note: unify 3 and 4, setup before algorithm). **§3.1 Task, simulator and oracle** — task/simulator/oracle; **why MI**. **§3.2 GRPO with look-ahead** — notation; Figure 1 = the group schematic; **Algorithm 1** = the iterative loop; the look-ahead reward (the $\tau_K$ equation); why the transfer is not trivial; minimum context length; cost. **§3.3 Evaluation design** (`sec:setup`) — instruments; the process coder; terminology; the two arms; evaluation & statistics. The former `04_setup.tex` is retired; results sections are now §4–§6 |
-| 05_reward | §5 | *Results: reward and evaluation instruments* — Figure 2 + **Table 1 (endpoint, every instrument, both graders)**; endpoint + gain ratios (both anchors); onset + the K=0 decline + the best-checkpoint steelman; the replicate draw |
-| 06_therapist | §6 | *What look-ahead teaches the therapist* — **Table 2 (the clear-case excerpt)**; **Figure 3 (code mix × 2, yields, within-session change talk)**; the two policies learn different behaviours (praise vs complex reflections, the MI-adherent share, open-question turns vanish in both, the persuasion residue); the judge-free marker (Appendix Figure 4) + the MICI composition; where the graders disagree; embedding space (Appendix Figure 7) |
-| 07_patient | §7 | *What the therapist's turns do to the patient* — **Table 3 (the process endpoint, both graders)**; yields per code; responsiveness (reflects change talk / praises sustain talk; Appendix Figure 6); the session as a whole (change-talk trajectory, patient turn length, the disengagement cue) |
-| 08_discussion | §8 | the horizon selects which behaviour pays (+ the compressed mechanism paragraph → Appendix B); conclusion with the process-coding recommendation |
-| 09_limitations | Limitations (page-exempt) | one run per arm; evaluation draws; matched iterations ≠ matched cost; K∈{0,5}; one optimiser, one regime (moved from §8); the continuation pressure (summary; numbers in Appendix A); simulation only / in-sample / same-model patient / no human validation / the response cap; instruments and the process coder (reward is an outcome, MITI reliability, the coder's one-code-per-turn construct and its partial parity with MITI) |
-| 10_ethics | Ethics (page-exempt) | |
-| A_tables | Appendix A | by-iteration table, the judge-free marker figure, the held-out process figure, the responsiveness trajectories, the embedding-space figure, level grids ×2, tail audit figure (+ the rollout-audit numbers in the intro text) |
-| B_mechanism | Appendix B | the mechanism analysis in full; **Figure B.1 = faithfulness by prefix length, both graders** (`faithfulness_grpo.png`, added 2026-09-22 on Doron's note) in B.1 (`app:faithfulness`) |
-| C_repro | Appendix C | configuration, instruments, **C.3 the utterance-level process coder** (codebook, numbering, parity), prompts, the marker, anti-degeneracy, statistics, cost accounting, artifacts |
-| D_example | Appendix D | utterances 1–9 of both iteration-10 conversations with persona 93, verbatim; selection rule and scores |
-| E_saturation | Appendix E | *Saturation of the training oracle at the winning checkpoint* (the former §7, moved whole 2026-09-17; Table 7 = the per-instrument agreement table) |
+| 00_abstract | Abstract | turn-only judges; LA-GRPO and its PTO origin; the controlled pair; K=5 leads from iteration 4, on all 8 instruments under both judges, and replicates on a fresh draw; praise vs complex reflections; change-talk persistence 97% vs 80%; the persuasion residue; the two caveats (one run per horizon; the judges disagree on how much K=5 still praises) |
+| 01_intro | §1 Introduction | RL from model-generated feedback in non-verifiable domains; multi-turn dialogue as temporal credit assignment; counselling and MI; the question + a short result preview; why MI suits the reward horizon (the hypothesis); LA-GRPO and its PTO lineage; Doron's open note ("this is most important"); **contributions, twofold**: a simple rewrite (2026-10-01), Doron's original kept as a `%` comment beside it, to revisit with him (plan step 12) |
+| 02_related | §2 Related work | bold-headed paragraphs: Group-relative policy optimisation · Delayed credit in multi-turn dialogue (+ an unheaded paragraph on simulated continuations: MCTS, VinePPO, PTO as a preliminary workshop paper) · Reward models and LLM judges (over-optimisation, sycophancy, self-preference, length) · **Judges that change during training** (Self-Rewarding, Meta-Rewarding, SERPO, DynamicRubric, J-Zero; Doron's original block kept as a `%` comment) · Motivational interviewing (+ AnnoMI, BOLT, RL-trained counsellors) |
+| 03_method | §3 Method | **§3.1 Task, simulator and oracle** (`sec:task`): personas, session cap, the Q1+Q2 justification (Doron's note open for the intro and Discussion), *Why MI*. **§3.2 GRPO with look-ahead** (`sec:lagrpo`): notation; **Figure 1** = the group schematic (`fig:schematic`); **Algorithm 1** (`alg:loop`); the iterative loop; the look-ahead reward (Eq. 1, $\tau_K$; a one-sample Monte Carlo estimate); the update (Eq. 2); minimum context length (MCL=12; 86–89% prefix agreement → Appendix C.1, Figure 9). **§3.3 Evaluation design** (`sec:setup`): instruments (MITI = mean of its 4 global ratings); the utterance coder; judges (training oracle = main judge, held out → Appendix B); the two runs (K=0 / K=5; "policy" vs "run"); evaluation and statistics |
+| 05_reward | §4 Results: Reward and evaluation instruments | **Figure 2** = every instrument by iteration, training oracle (`fig:headline`); **Table 1** = iteration 10, every instrument, both judges (`tab:endpoint`; two decimals, no bold); *The final policies* (gain ratios 2.04 / 1.41, held out 2.50 / 1.30); *Onset, and the K=0 decline* (the best-checkpoint comparison); *A second draw of the final policy* |
+| 06_therapist | §5 What look-ahead teaches the therapist | **Table 2** = the clear-case excerpt (`tab:excerpt`); **Figure 3** = code mix ×2, change-talk persistence, change-talk share by session position (`fig:process`); *The two policies learn different behaviours* (praise under K=0 vs complex reflections under K=5, the MI-adherent share, open questions vanish in both, turns triple in length, the persuasion residue, one held-out praise sentence); *Corroboration without a judge* (keyword marker → Figure 5; MICI composition, 84% over-praise); *In embedding space* (**Figure 4**, `fig:textspace-body`: (a) variation by patient, (b) same-turn similarity) |
+| 07_patient | §6 What the therapist's turns do to the patient | **Table 3** = the process at iteration 10, training oracle (`tab:process`; every iteration: Table 5; held out: Table 6); *How the therapist replies* (reflects change talk; praises / persuades / reflects sustain talk; Figure 6; how much both rewards favour praise → Appendix C.4); *Whether change talk continues* (persistence 0.97 vs 0.80, Base 0.75; why the change talk after a code is not read as that code's effect); *The session as a whole* (change-talk share and trajectory, patient utterance length, the disengagement cue); one held-out paragraph |
+| 08_discussion | §7 Discussion and conclusion | a no-numbers opening; the praise paragraph (both rewards favour praise mid-training, only K=0's late: 0.16 vs 0.04 at iteration 9 → Appendix C.4; persistence 97% vs 80%); look-ahead changes which shortcut the reward favours + the compressed mechanism paragraph → Appendix C (the `sec:mechanism` label sits here); *Conclusion* |
+| 09_limitations | Limitations (unnumbered, page-exempt) | five paragraphs: one training run per K (the principal limitation); matched iterations are not matched cost (51.2 vs 27.9 GPU-hours; equal-GPU-hour reading → Appendix D.8); K ∈ {0, 5} only (Doron's intermediate-K note kept open); simulation only, in sample, without human validation; instruments and the utterance coder (saturation → Appendix F; one code per utterance; the PCT check; praise vs affirmation is where the judges differ; no human coder) |
+| 10_ethics | Ethics Statement (unnumbered, page-exempt) | four paragraphs: no human subjects and no clinical claim; the failure mode we document is safety-relevant; simulated patients encode a narrow population; judges inherit their models' biases (no compute paragraph since 2026-09-29) |
+| A_tables | Appendix A Supplementary results | intro; *The look-ahead rollouts* (the rollout check in two sentences: 121,088 logged K=5 candidates, 82% ran all five turns); **Table 4** = every instrument at every iteration (`tab:scores`); **Table 5** = the process at every iteration (`tab:process-all`); **Figure 5** = the keyword marker (`fig:overpraise`); **Figure 6** = the therapist's replies by iteration, both judges (`fig:responsiveness`). Complete tables bold each column's best value |
+| A2_heldout | Appendix B The held-out judge | *Where it agrees and where it differs* (21-state sign agreement, 7 of 10 iterations, ratios 2.50 / 1.30); **Table 6** = held-out Table 3 (`tab:process-heldout`); **Figure 7** = held-out levels grid (`fig:grid-heldout`); **Table 7** = held-out Table 4 (`tab:scores-heldout`); **Table 8** = held-out Table 5 (`tab:process-all-heldout`); **Figure 8** = held-out Figure 3 (`fig:process-heldout`) |
+| B_mechanism | Appendix C The mechanism analysis in full | C.1 the faithfulness statistic (`app:faithfulness`; **Figure 9**, both judges); C.2 at a matched policy, the effect disappears; C.3 dispersion, and the iteration-10 inversion; C.4 how much the training reward favours praise (`app:premium`; **Figure 10**); C.5 the update-direction proxy |
+| C_repro | Appendix D Reproducibility details | D.1 configuration (**Table 9**, `tab:config`); D.2 instruments (**Table 10**, `tab:instruments`); D.3 the utterance coder (`app:coder`: codebook, role numbering, process quantities, the check against the PCT counts); D.4 the simulated patient and the therapist prompt; D.5 the lexical over-praise marker; D.6 anti-degeneracy; D.7 evaluation and statistics; D.8 cost accounting (`app:repro-cost`); D.9 artifacts (closes with the licence sentence) |
+| D_example | Appendix E Two matched-persona examples in full | E.1 the clear case (Table 2's persona 84, chosen by lexical ranking; utterances 1–7); E.2 the typical case (both-judges median rule, persona 93; utterances 1–9); verbatim, with scores |
+| E_saturation | Appendix F Saturation of the training oracle at the winning checkpoint | 21-state sign agreement, 1,484 of 8 × C(21,2) = 1,680 pairs (88.3%); **Table 11** = per-instrument agreement (`tab:agreement`); per-conversation agreement collapses at the winning checkpoint; the mechanism is a ceiling; what this does and does not undermine |
 
 ## Scripts
 
-- [`sync_figures.py`](sync_figures.py) — copies (and crops) every EDA-rendered figure the .tex
-  references; `--check` reports drift. Does **not** cover Figures 1, 2, 3, 6 and 7, which the
-  two render scripts below draw.
-- [`render_schematic.py`](render_schematic.py) — draws Figure 1 (the GRPO-group schematic) at
-  page width; reads no data.
-- [`render_paper_figures.py`](render_paper_figures.py) — draws Figures 2, 3, 6, 7 and the Appendix B faithfulness figure from the
-  tracked tables (`reward.xlsx::k_headline_grpo_data`, `behaviour.xlsx::overpraise_judgefree_data`,
-  `behaviour.xlsx::k_channels_grpo_gpt-4o-mini` + `k_channels_text_grpo`, `mechanism.xlsx::tail_*`),
-  each at the exact width the `.tex` includes it at. Figure 6 is drawn in the paper's sign
-  (K=5 − K=0). Its `saturation()` (the saturation figure dropped 2026-09-16) is not called by
-  `main()`; run it by hand for the Spearman / variance-ratio printout that checks §7's numbers
-  (`validity.xlsx::judge_saturation_grpo_data`, `replication.xlsx::sd_by_iter`). Re-run after any
-  EDA render pass, then `sync_figures.py` (which now copies only the two level grids, Figures 4–5).
-- [`select_example_illustrative.py`](select_example_illustrative.py) — ranks every (persona,
-  therapist-turn) pair at iteration 10 by lexical features of the contrast and dumps a persona's
-  transcripts; the source of Table 2 / Appendix D.1 (the clear case, persona 84).
-- [`select_example_persona.py`](select_example_persona.py) — the median-contrast rule behind
-  Appendix D.2 (the typical case, persona 93), plus the transcript dump (`--dump out.json`). Both
-  scripts need the Drive-backed conversation data on disk.
+- [`build.py`](build.py) — the only way to build the PDF; see § Build.
+- [`render_schematic.py`](render_schematic.py) — draws Figure 1 (the GRPO-group schematic,
+  `method_grpo_group.png`); reads no data. It draws at 6.3 in (`\textwidth`); §3.2 includes it at
+  `0.82\textwidth`.
+- [`render_paper_figures.py`](render_paper_figures.py) — `main()` draws Figures 2–10, each at the
+  width the `.tex` includes it at: the two level grids (Figures 2 and 7), `process` and
+  `process_heldout` (Figures 3 and 8), `textspace_body` (Figure 4), `overpraise` (Figure 5),
+  `responsiveness` (Figure 6), `faithfulness` (Figure 9) and `praise_premium` (Figure 10). They read
+  `lookahead/shared_base/tables/shared_base.xlsx` (sheets `levels_long`, `k_contrast`,
+  `marker_and_length`, `process_levels_<judge>`, `persist_levels_<judge>`, `ct_trajectory_<judge>`,
+  `text_diversity`) and `mechanism.xlsx` (`praise_premium_grpo`, `faithfulness_curve_long`). Kept
+  but not called: `headline()`, `forest()` (the channel forest, out since 2026-09-29),
+  `textspace()`, `tail_audit()` (the rollout-audit figure, out since 2026-09-30) and `saturation()`.
+  Run `saturation()` by hand for the Spearman ρ, p and end/start variance-ratio printout behind
+  Appendix F (ρ = −0.864 and +0.436; ratio 0.275 → the paper's 0.28); its iteration 0 is each
+  run's own Base draw (`replication.xlsx::sd_by_iter`), so it does not reproduce Appendix F's
+  shared-Base starting SD of 1.314. ⚠ It also writes `figures/judge_saturation_grpo.png`, a
+  figure the paper no longer includes: delete it afterwards, or `overleaf.py pull` refuses (an
+  untracked file makes the folder dirty) and `push` uploads it (`figures/*.png` is managed).
+  Re-run `main()` after any EDA render pass. (Its docstring still
+  describes an older figure set.)
 - [`render_process_tables.py`](render_process_tables.py) — prints the two complete process tables
-  (Appendix A and B) from `shared_base.xlsx`, after checking their iteration-10 rows against the
-  iteration-10 process tables (`tab:process`, `tab:process-heldout`) and bolding each column's
-  best value; paste its output between the tables' header and
+  (Table 5, Appendix A; Table 8, Appendix B) from `shared_base.xlsx`, after checking their
+  iteration-10 rows against the iteration-10 process tables (`tab:process`, `tab:process-heldout`)
+  and bolding each column's best value; paste its output between the tables' header and
   `\bottomrule`.
-- [`make_overleaf_zip.py`](make_overleaf_zip.py) — the Overleaf bundle, for the FIRST upload (see below).
-- [`overleaf.py`](overleaf.py) — two-way sync with the Overleaf project after that (see below).
+- [`select_example_illustrative.py`](select_example_illustrative.py) — at iteration 10, ranks every
+  (persona, therapist turn) pair among the first five replies after the scripted opener
+  (utterances 2–10) by lexical features of the contrast, and dumps a persona's transcripts; the
+  source of Table 2 / Appendix E.1 (the clear case, persona 84).
+- [`select_example_persona.py`](select_example_persona.py) — the median-contrast rule behind
+  Appendix E.2 (the typical case, persona 93), plus the transcript dump (`--dump out.json`). Both
+  selection scripts need the Drive-backed conversation CSVs AND the score lake on disk.
+- [`sync_figures.py`](sync_figures.py) — copies nothing since 2026-09-24 (its `FIGURES` list holds
+  only comments, `CROP` is empty): every figure is drawn by the two render scripts. Kept as the
+  home for a future copied figure; `--check` reports "0 drifted, 0 missing".
+- [`make_overleaf_zip.py`](make_overleaf_zip.py) — defines the file list Overleaf gets; built the
+  first-upload bundle (see § Overleaf).
+- [`overleaf.py`](overleaf.py) — two-way sync with the Overleaf project (see § Overleaf).
 
 ## Conventions
 
 Same as the repo standard (see [`../README.md`](../README.md)): every number in
-[`NUMBERS.md`](NUMBERS.md) with its exact `Exp3_PTO_GRPO/eda/results/...` source; figures copied
-(never symlinked) by `sync_figures.py`, or drawn from tracked tables by `render_paper_figures.py`;
-sign conventions stated at every table (the EDA's K tables report K=0−K=5 — this paper flips
-them); grader named on every number, levels never compared across graders; behaviour claims name
-their denominator. Cite the ICLR 2025 paper as the SSI-FM *workshop* poster (canonical BibTeX in
-[`../2025_iclr_pto_lookahead/README.md`](../2025_iclr_pto_lookahead/README.md)).
+[`NUMBERS.md`](NUMBERS.md) with its exact `Exp3_PTO_GRPO/eda/results/...` source; every figure
+drawn from tracked tables by `render_paper_figures.py` (Figure 1 by `render_schematic.py`), none
+copied or symlinked. **Signs:** the paper reports K=5 − K=0 everywhere. Some EDA sources store
+K=0 − K=5 and are flipped (`k_table1*`, `k_paired*`, `shared_base` `k_process_paired` behind
+Tables 3 and 6); others are already K=5 − K=0 and are copied as is (`reward.xlsx::k_endpoints`
+behind Table 1; the `delta_K5_minus_K0` / `dz_K5_minus_K0` columns of `shared_base` `k_contrast`).
+**Judges:** body numbers are the training oracle's by default (§3.3 says so); every held-out
+number names its judge. Instrument score levels are not compared across judges as evidence about
+the policies (each judge has its own units): the paper states the offset (the held-out judge
+scores 1.2–1.8 points lower on Q1+Q2, §3.3) and, in Appendix F's ceiling argument, sets the two
+judges' Q1 levels side by side, but every contrast is read within a judge. Utterance-coder rates
+are compared across judges once, as a finding: K=5's praise share, 0.05 vs 0.20. Behaviour claims
+name their denominator. Cite the ICLR 2025 paper as the SSI-FM *workshop* poster (canonical BibTeX
+in [`../2025_iclr_pto_lookahead/README.md`](../2025_iclr_pto_lookahead/README.md)).
 
 ## Overleaf
 
-**First upload.** `overleaf.zip` (gitignored; regenerate with `make_overleaf_zip.py`) holds
-exactly what Overleaf needs and nothing else: `main.tex`, `sections/*.tex`, `figures/*.png`,
-`refs.bib`, `acl.sty`, `acl_natbib.bst`. Upload it as a new project (New Project → Upload
-Project), set the compiler to **pdfLaTeX** and the main document to `main.tex`; Overleaf runs
-BibTeX itself. The draft is in `[review]` mode (line numbers, anonymous byline), which is the
-right mode for supervisor comments; `\usepackage[final]{acl}` in `main.tex` restores the author
-block and drops the line numbers.
+**The project exists; never upload a zip again.** It was created on 2026-09-16 from
+`overleaf.zip` (pdfLaTeX, main document `main.tex`; Overleaf runs BibTeX itself) and has carried
+supervisor edits since 2026-09-21. A second zip upload would make a NEW project with a new URL and
+strand the comments on the old one. ⚠ The `overleaf.zip` on disk (gitignored) is the stale
+2026-09-16 bundle (26 entries, including retired sections and figures): do not upload it.
+`make_overleaf_zip.py` would rebuild a current one (30 files), but only a brand-new project would
+need it.
 
-**Afterwards, sync — do not re-upload.** A second zip upload makes a NEW project with a new URL
-and strands the comments on the old one. Use [`overleaf.py`](overleaf.py) (needs Overleaf's Git
-access, a premium/site-licence feature) against the project's git URL, from Menu → Sync → Git:
+**Sync with [`overleaf.py`](overleaf.py)** (Overleaf Git access, a premium/site-licence feature;
+the mirror is already initialised):
 
 ```powershell
-& ..\..\.venv\Scripts\python.exe overleaf.py init https://git.overleaf.com/<project-id>   # once
-& ..\..\.venv\Scripts\python.exe overleaf.py status   # what differs, both directions
+& ..\..\.venv\Scripts\python.exe overleaf.py status   # what differs, both directions; lists incoming Overleaf commits with author
 & ..\..\.venv\Scripts\python.exe overleaf.py pull     # Overleaf edits -> this folder
 & ..\..\.venv\Scripts\python.exe overleaf.py push     # this folder -> Overleaf, one commit per changed file (--single: one commit)
 ```
 
-It keeps a throwaway clone of the Overleaf repo outside this tree
-(`%LOCALAPPDATA%\overleaf-mirrors\`) and copies across the same file list
-`make_overleaf_zip.py` defines, so the Overleaf project stays exactly the compilable paper and
-this repo's history stays linear and Overleaf-free — `NUMBERS.md`, the READMEs, the review notes
-and these scripts are never pushed. `push` refuses when the project has changed since the last
-sync (pull first), and `pull` refuses when this folder has uncommitted changes. Overleaf
-authentication is a Git token from Account Settings → Git integration, given as the *password*
-at the git prompt. Overleaf compiles with `latexmk`, which iterates to convergence on its own, so
-the line-number problem `build.py` exists to prevent is local-only.
-Figures are already cropped/drawn, so nothing in the zip depends on the repo.
+**The rule: `pull` before editing any paper file, `push` after the change is built, committed
+and approved by Lior.** It keeps a throwaway clone of the Overleaf repo outside this tree
+(`%LOCALAPPDATA%\overleaf-mirrors\`) and copies across the file list `make_overleaf_zip.py`
+defines, so the Overleaf project stays exactly the compilable paper and this repo's history stays
+linear and Overleaf-free: `NUMBERS.md`, the READMEs, the review-notes file, `CHECKLIST_ARR.md`
+and the scripts are never pushed. Both directions **overwrite whole files and never merge**.
+
+- `push` refuses when the Overleaf project has moved since the last sync (pull first); `push
+  --force` deliberately discards the Overleaf side. `push` also deletes managed Overleaf files
+  that no longer exist locally.
+- `pull` refuses only when this folder has **uncommitted** changes. ⚠ It does not see committed
+  but **unpushed** local commits: it compares files, not history, so it copies Overleaf's older
+  version over them (and brings back files deleted locally). This happened on 2026-09-30; the
+  files were restored with `git checkout`. Pull only when local == Overleaf (`status` says "in
+  sync" or lists only incoming Overleaf commits), i.e. at the start of a session.
+- Overleaf review-panel **comments do not sync**; only edits do.
+
+Authentication is a Git token from Overleaf → Account Settings → Git integration, given as the
+*password* at the git prompt. Overleaf compiles with `latexmk`, which iterates to convergence on
+its own, so the line-number problem `build.py` exists to prevent is local-only.
+
+**`[review]` vs `[final]`.** The draft is in `[review]` mode (line numbers, anonymous byline),
+the right mode for supervisor comments. `\usepackage[final]{acl}` in `main.tex` shows the author
+block (already filled in, `main.tex`) and drops the line and page numbers. It does NOT hide
+Doron's notes: that is `\dnotesfalse` (`main.tex`, the `\newif\ifdnotes` line), a separate step
+before submission.
 
 ## Build (MiKTeX on Windows — see ../README.md)
 
@@ -479,27 +551,41 @@ Figures are already cropped/drawn, so nothing in the zip depends on the repo.
 ```
 
 [`build.py`](build.py) runs `pdflatex`, `bibtex`, then `pdflatex` **until `main.aux`/`main.out`
-stop changing**, and then scans the PDF for line numbers printed inside a text column and for
-unresolved references (exit status non-zero on any of these, on LaTeX errors, or on
-non-convergence). ⚠ **Do not hand-run the usual `pdflatex · bibtex · pdflatex · pdflatex`.**
-`acl.sty`'s `[review]` mode loads `lineno` with `switch`, which is *pagewise* mode: each line's
-column is read back from the previous pass's `.aux`, so the line numbers are placed correctly only
-once two consecutive passes have the same layout, and after `bibtex` moves the back matter the
-four-step chain is one pass short. On 2026-09-16 that put 98 line numbers on top of the text
-across seven pages with a clean log (cold build: 477 → 6 → 114 → 98 → 0 misplaced by pass).
-Nothing in the log reports it; only the scan does.
+stop changing**, and then scans every page of the PDF for line numbers printed inside a text
+column and for unresolved references (exit status non-zero on any of these, on LaTeX errors, on
+non-convergence, or when PyMuPDF is missing). ⚠ Until 2026-10-01 the scan matched only
+three-digit line numbers, so every page from line 1000 on (the late references and all the
+appendices) went unchecked; a re-scan of the 2026-09-30 PDF found none misplaced. ⚠ **Do not
+hand-run the usual `pdflatex · bibtex · pdflatex · pdflatex`.** `acl.sty`'s `[review]` mode loads
+`lineno` with `switch`, which is *pagewise* mode: each line's column is read back from the
+previous pass's `.aux`, so the line numbers are placed correctly only once two consecutive passes
+have the same layout, and after `bibtex` moves the back matter the four-step chain is one pass
+short. On 2026-09-16 that put 98 line numbers on top of the text across seven pages with a clean
+log (cold build: 477 → 6 → 114 → 98 → 0 misplaced by pass). Nothing in the log reports it; only
+the scan does. Every note of Doron's that contains a literal `??` is commented out now, so a
+`??` the scan reports is a real unresolved reference. (A visible note with `??` would be counted
+too; then check `main.log` for "undefined".)
 
 To eyeball the layout, the repo `.venv` has PyMuPDF: `fitz.open("main.pdf")[p].get_pixmap(dpi=100).save(...)`.
 
 ## Before submission (open items)
 
-- Supervisors' read of the revised draft (they signed off on the 2×2 on 2026-08-27; this draft
-  supersedes it as the submission and has not been through them since the 2026-09-02 rewrite).
-- **Responsible NLP checklist:** answer the generative-AI question truthfully — this draft was
+The ordered work is plan steps 11–13 above (Lior's read-through, the contributions and abstract
+with Doron, then notes hidden + length pass + checklist + code zip). Beyond those:
+
+- **Supervisors.** Doron has read the draft in five Overleaf passes (21–27 Sep), all answered
+  through plan step 9; three of his notes are open on purpose (§1 contributions, §3.1 Q1+Q2 in the
+  intro and Discussion, the intermediate-K reminder in the Limitations). No read by the other
+  co-authors is recorded here.
+- **Responsible NLP checklist:** answer the generative-AI question truthfully: this draft was
   written and its code built with substantial AI assistance (ACL policy allows it with disclosure;
   a misleading checklist is desk-reject grounds). Camera-ready: the same disclosure in the
-  Acknowledgements (see the TODO comment in `main.tex`).
-- Camera-ready only: complete the author block in `main.tex` and switch `acl` to `[final]`.
+  Acknowledgements (the comment near the end of `main.tex` marks the spot).
+- **`CHECKLIST_ARR.md` pointers are stale** (section, appendix and table numbers from before the
+  2026-09-24 restructure; the Ethics compute paragraph it cites is gone; 22 model states for 21).
+  Re-point them after the length pass.
+- Camera-ready only: switch `acl` to `[final]` (the author block is already filled in) and add the
+  Acknowledgements disclosure.
 - Optional, if a co-author wants it: a human MI coder on a sample of the endpoint conversations
-  would close the paper's most-cited limitation.
+  would close the Limitations' "no human coder has checked the codes".
 - The full pre-submission list, with the checklist answers, is in [`CHECKLIST_ARR.md`](CHECKLIST_ARR.md).
