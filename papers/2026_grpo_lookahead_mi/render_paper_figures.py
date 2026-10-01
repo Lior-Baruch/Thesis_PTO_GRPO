@@ -21,6 +21,9 @@ none of them.
 
 SIZING (2026-09-16): each figure is drawn at the exact width ``sections/*.tex`` includes it at,
 so the point sizes in this file are true page point sizes -- see ``width_fracs`` / ``figsize``.
+Since 2026-10-01 every figure is laid out and saved by ``save_at_width``, which makes the PNG
+itself that wide (a title or legend past the figure edge used to widen the PNG, and LaTeX then
+shrank the type to 0.87-0.90 of these sizes).
 A ``figure*`` pays a fixed text height (title, tick row, x-label) whatever its width, so the
 page-space lever is the ASPECT passed to ``figsize``, not the ``\\textwidth`` fraction: narrowing a
 figure only shrinks its type. Re-run after any width change; then rebuild and confirm the body
@@ -78,11 +81,88 @@ def width_fracs() -> dict[str, float]:
 FRACS = width_fracs()
 
 
+def target_width(name: str, default_frac: float = 1.0) -> float:
+    """Width in inches that sections/*.tex includes ``name`` at. ``default_frac`` applies while no
+    section includes the figure yet."""
+    return TEXTWIDTH_IN * FRACS.get(name, default_frac)
+
+
 def figsize(name: str, aspect: float, default_frac: float = 1.0) -> tuple[float, float]:
     """On-page size of ``name`` at its included width, keeping height/width = ``aspect``.
     ``default_frac`` applies while no section includes the figure yet."""
-    w = TEXTWIDTH_IN * FRACS.get(name, default_frac)
+    w = target_width(name, default_frac)
     return (w, w * aspect)
+
+
+def save_at_width(fig, name: str, default_frac: float = 1.0, after_layout=None,
+                  tol: float = 0.001, max_iter: int = 30, **tight_kw) -> Path:
+    """Lay out and save ``fig`` as ``figures/<name>`` with the PNG exactly as wide as the .tex
+    includes it, so every point size in this file is the size it prints at.
+
+    ``figsize`` alone did not guarantee that (until 2026-10-01): ``bbox_inches="tight"`` crops to
+    the drawn content plus ``savefig.pad_inches``, and ``tight_layout`` ignores the WIDTH of axes
+    titles and figure-level legends, so a ``loc="left"`` title longer than its panel or a legend
+    row wider than the figure made the PNG wider than its include width and LaTeX shrank every
+    font (process_grpo.png and text_grpo_body.png printed at 0.90 and 0.87 of their sizes). Here
+    ``fig.tight_layout(rect=..., **tight_kw)`` is re-run with its rect pulled in by whatever
+    reaches closer than the save pad to the figure edge (a side the rect cannot move -- a legend
+    anchored to the figure -- is left alone), then the figure is resized by the small remainder
+    (height by the same factor) until the saved width matches the include width to ``tol``. The
+    figure keeps its drawn height. ``after_layout(fig)``, if given, runs after every
+    ``tight_layout`` (for placements that read the laid-out axes)."""
+    target = target_width(name, default_frac)
+    pad = float(plt.rcParams["savefig.pad_inches"])
+    fig.set_dpi(plt.rcParams["savefig.dpi"])       # measure text at the dpi the PNG is written at
+    # Matplotlib's tight bbox counts an axis label only within its axes' extent (a long x-label or
+    # a y-label taller than its axes can then spill into the pad or off the PNG), so the labels go
+    # in as extra artists, both for the measurement and for the save.
+    extra = fig.get_default_bbox_extra_artists() + [
+        lab for ax in fig.axes if ax.axison
+        for lab in (ax.xaxis.label, ax.yaxis.label) if lab.get_text()]
+    left, right = 0.0, 1.0
+    pinned = {"l": False, "r": False}
+    last = None
+    eps = 0.002
+    for _ in range(max_iter):
+        fig.tight_layout(rect=(left, 0.0, right, 1.0), **tight_kw)
+        if after_layout is not None:
+            after_layout(fig)
+        bb = fig.get_tightbbox(fig.canvas.get_renderer(), bbox_extra_artists=extra)
+        w, h = fig.get_size_inches()
+        got = bb.width + 2 * pad
+        if abs(got - target) <= tol * target:
+            break
+        if last is not None:                     # did the last rect move reach that side?
+            pinned["l"] |= last["l"] and abs(bb.x0 - last["x0"]) < 1e-4
+            pinned["r"] |= last["r"] and abs(bb.x1 - last["x1"]) < 1e-4
+        move_l = not pinned["l"] and bb.x0 < pad - eps
+        move_r = not pinned["r"] and bb.x1 > w - pad + eps
+        if move_l or move_r:                     # pull the layout in so the pad is the margin
+            if move_l:
+                left += (pad - bb.x0) / w
+            if move_r:
+                right -= (bb.x1 - (w - pad)) / w
+        else:                                    # resize by the remainder
+            new_w = w + (target - got)
+            fig.set_size_inches(new_w, h * new_w / w)
+        last = {"l": move_l, "r": move_r, "x0": bb.x0, "x1": bb.x1}
+    else:
+        raise RuntimeError(f"{name}: saved width {got:.3f} in did not converge to {target:.3f} in")
+    out = DEST / name
+    fig.savefig(out, bbox_inches="tight", pad_inches=pad, bbox_extra_artists=extra)
+    plt.close(fig)
+    return out
+
+
+def titles_over_ylabels(fig) -> None:
+    """``after_layout`` hook: start each axes' left title above its y-label rather than above
+    the axes, so a two-panel column figure's titles fit the column at their true point size."""
+    renderer = fig.canvas.get_renderer()
+    for ax in fig.axes:
+        ax.get_tightbbox(renderer)                 # places the y-label for the current layout
+        label = ax.yaxis.label.get_window_extent(renderer)
+        box = ax.get_window_extent(renderer)
+        ax._left_title.set_x((label.x0 - box.x0) / box.width)
 
 
 # Same two arm colours as the EDA's headline figure (Okabe-Ito vermilion / orange).
@@ -121,11 +201,7 @@ def overpraise() -> Path:
     ax.set_ylim(0, 0.75)
     ax.legend(frameon=False, loc="upper left", fontsize=6.0, handlelength=1.5,
               borderaxespad=0.2, labelspacing=0.2, handletextpad=0.4)
-    fig.tight_layout()
-    out = DEST / "overpraise_judgefree_grpo.png"
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    return save_at_width(fig, "overpraise_judgefree_grpo.png")
 
 
 # --- the utterance-level process figures (2026-09-17) -------------------------------------------
@@ -135,7 +211,7 @@ CODES = ["OQ", "CQ", "SR", "CR", "AF", "PRA", "GI", "PERS", "SEEK", "CONF", "OTH
 CODE_LABEL = {"OQ": "open question", "CQ": "closed question", "SR": "simple reflection",
               "CR": "complex reflection", "AF": "affirmation", "PRA": "non-specific praise",
               "GI": "giving information", "PERS": "persuasion", "SEEK": "seeking collaboration",
-              "CONF": "confront / direct", "OTH": "other"}
+              "CONF": "confront", "OTH": "other"}
 # Reflections blue, questions teal, affirmation green, praise vermilion (the turn-level hack),
 # information grey, persuasion purple, the rest light.
 CODE_COL = {"OQ": "#1b9e77", "CQ": "#a6dbc9", "SR": "#9ecae1", "CR": "#08519c", "AF": "#33a02c",
@@ -160,7 +236,7 @@ def _process_panels(judge: str, name: str) -> Path:
     tr = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"ct_trajectory_{judge}")
     tr = tr[tr.arm.isin(COL)]
     fig, axes = plt.subplots(1, 4, figsize=figsize(name, 0.23),
-                             gridspec_kw={"width_ratios": [1.15, 1.15, 1.05, 0.95]})
+                             gridspec_kw={"width_ratios": [1.15, 1.15, 1.05, 1.4]})
     for ax, arm, title in zip(axes[:2], ("GRPO_LA0", "GRPO_LA5"),
                               ("(a) $K{=}0$: code mix", "(b) $K{=}5$: code mix")):
         g = lv[lv.arm == arm].sort_values("iteration")
@@ -188,7 +264,9 @@ def _process_panels(judge: str, name: str) -> Path:
     ax.set_xticks(range(0, 11, 2))
     ax.set_ylim(0.55, 1.0)
     ax.set_xlabel("iteration")
-    ax.set_ylabel("P(change talk next |\nchange talk now)")
+    # Top-aligned (2026-10-01): the label is longer than the axes are tall, and centred it rose
+    # into the title row beside (b)'s title; from the top it runs down beside the tick labels.
+    ax.set_ylabel("P(change talk next |\nchange talk now)", loc="top")
     ax.set_title("(c) persistence", loc="left", fontweight="bold")
     # (d) within-session change talk
     ax = axes[3]
@@ -205,18 +283,19 @@ def _process_panels(judge: str, name: str) -> Path:
     ax.set_ylabel("change-talk share")
     ax.set_title("(d) change talk, iter. 10", loc="left", fontweight="bold")
     # One shared legend for the code colours above panels (a)-(b), and one for the runs above
-    # (c)-(d) -- inside panel (d) it sat on the lines.
+    # (c)-(d) -- inside panel (d) it sat on the lines. Since 2026-10-01 the code legend has four
+    # columns, starts at (a)'s y-label (x in inches from the figure's left edge, y in figure
+    # fraction) and prints at 5.8 pt: at six columns, centred, it was wider than the figure.
+    from matplotlib.transforms import blended_transform_factory
     hh, ll = axes[0].get_legend_handles_labels()
-    fig.legend(hh, ll, loc="lower center", bbox_to_anchor=(0.40, 0.985), ncol=6, frameon=False,
-               fontsize=5.6, handlelength=1.0, columnspacing=0.8, handletextpad=0.4)
+    fig.legend(hh, ll, loc="lower left", bbox_to_anchor=(0.07, 0.985), ncol=4, frameon=False,
+               bbox_transform=blended_transform_factory(fig.dpi_scale_trans, fig.transFigure),
+               fontsize=5.8, handlelength=1.0, columnspacing=0.8, handletextpad=0.4,
+               labelspacing=0.15)
     hh, ll = axes[3].get_legend_handles_labels()
     fig.legend(hh, ll, loc="lower center", bbox_to_anchor=(0.89, 0.985), ncol=1, frameon=False,
-               fontsize=5.6, handlelength=1.6, labelspacing=0.15, handletextpad=0.4)
-    fig.tight_layout(w_pad=1.3)
-    out = DEST / name
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    return out
+               fontsize=5.8, handlelength=1.6, labelspacing=0.15, handletextpad=0.4)
+    return save_at_width(fig, name, w_pad=1.3)
 
 
 def process() -> Path:
@@ -258,11 +337,7 @@ def responsiveness() -> Path:
         axes[r, 0].set_ylabel(f"{JUDGE_TITLE[judge]}\nshare of replies")
     axes[0, 0].legend(frameon=False, loc="upper left", fontsize=5.8, handlelength=1.2,
                       borderaxespad=0.2)
-    fig.tight_layout(w_pad=0.9, h_pad=0.8)
-    out = DEST / "responsiveness_grpo.png"
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    return save_at_width(fig, "responsiveness_grpo.png", w_pad=0.9, h_pad=0.8)
 
 
 def textspace() -> Path:
@@ -334,11 +409,8 @@ def textspace_body() -> Path:
     b.set_title("(b) alike at the same turn", loc="left", fontweight="bold", fontsize=6.4)
     a.legend(frameon=False, loc="upper right", fontsize=5.8, handlelength=1.3, borderaxespad=0.1,
              labelspacing=0.2)
-    fig.tight_layout(w_pad=1.6)
-    out = DEST / name
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    # Titles start above the y-labels (2026-10-01): above the axes, (b)'s ran past the column.
+    return save_at_width(fig, name, default_frac=0.48, after_layout=titles_over_ylabels, w_pad=1.6)
 
 
 def praise_premium() -> Path:
@@ -359,7 +431,8 @@ def praise_premium() -> Path:
                        color=COL[arm], alpha=0.18, lw=0)
         a.plot(g.iteration, g.premium, color=COL[arm], label=LAB[arm], ms=2.6, lw=1.2, **STY[arm])
         b.plot(g.iteration, g.mixed_share, color=COL[arm], label=LAB[arm], ms=2.6, lw=1.2, **STY[arm])
-    a.set_ylim(-1.1, 0.7)
+    # Top at 0.95, not 0.7: K=5's band at iteration 0 reaches 0.86 (2026-10-01).
+    a.set_ylim(-1.1, 0.95)
     a.set_xticks(range(0, 10, 2))
     a.set_xlabel("iteration sampled from")
     a.set_ylabel("difference (within-group SD)")
@@ -369,13 +442,10 @@ def praise_premium() -> Path:
     b.set_ylim(0, 0.65)
     b.set_xticks(range(0, 10, 2))
     b.set_xlabel("iteration sampled from")
-    b.set_ylabel("share of groups with both")
+    # Two lines (2026-10-01): on one it was taller than the axes and met (a)'s title.
+    b.set_ylabel("share of groups\nwith both")
     b.set_title("(b) mixed groups", loc="left", fontweight="bold", fontsize=6.4)
-    fig.tight_layout(w_pad=0.8)
-    out = DEST / name
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    return out
+    return save_at_width(fig, name, default_frac=0.48, w_pad=0.8)
 
 
 def saturation() -> Path:
@@ -675,6 +745,24 @@ def headline() -> Path:
     return out
 
 
+# The significance star: ONE glyph for the panels and the key (until 2026-10-01 the key drew a
+# mathtext "$*$", a centred asterisk-operator glyph unlike the panels' raised text "*").
+STAR_TEXT = dict(s="*", ha="center", va="center", fontsize=7, color="#222222")
+
+
+class _StarHandler:
+    """Legend handler that draws the key's star as the very Text the panels draw."""
+
+    def legend_artist(self, legend, orig_handle, fontsize, handlebox):
+        from matplotlib.text import Text
+        star = Text(handlebox.width / 2 - handlebox.xdescent,
+                    handlebox.height / 2 - handlebox.ydescent, text=STAR_TEXT["s"],
+                    **{k: v for k, v in STAR_TEXT.items() if k != "s"})
+        star.set_transform(handlebox.get_transform())
+        handlebox.add_artist(star)
+        return star
+
+
 GRID_METRICS = [("Q1Q2", "Q1+Q2 (reward)"), ("Q1", "Q1"), ("Q2", "Q2"), ("WAI-SR", "WAI-SR"),
                 ("CSQ-8", "CSQ-8"), ("MI-SAT", "MI-SAT"), ("MITI", "MITI"), ("PCT", "PCT"),
                 ("MICI", "MICI (lower = better)")]
@@ -707,7 +795,7 @@ def _levels_grid(judge: str) -> Path:
         ax.set_ylim(lo - pad, hi + 0.24 * (hi - lo))
         star_y = hi + 0.12 * (hi - lo)
         for it in kc[(kc.metric == m) & (kc.p_holm < 0.05)].iteration:
-            ax.text(int(it), star_y, "*", ha="center", va="center", fontsize=7, color="#222222")
+            ax.text(int(it), star_y, **STAR_TEXT)
         ax.set_xticks(range(0, 11, 2))
         ax.set_xlim(-0.5, 10.5)
         ax.set_title(title, fontsize=6.6, loc="left", fontweight="bold")
@@ -720,15 +808,10 @@ def _levels_grid(judge: str) -> Path:
     handles = [Line2D([], [], color=COL["GRPO_LA0"], ms=3, lw=1.2, label="$K{=}0$", **STY["GRPO_LA0"]),
                Line2D([], [], color=COL["GRPO_LA5"], ms=3, lw=1.2, label="$K{=}5$", **STY["GRPO_LA5"]),
                Line2D([], [], color="#555555", ls=":", lw=0.9, label="Base"),
-               Line2D([], [], color="none", marker="$*$", ms=5, markerfacecolor="#222222",
-                      markeredgecolor="#222222", label="significant")]
+               Line2D([], [], color="none", label="significant")]
     key.legend(handles=handles, loc="center", fontsize=6.2, frameon=False, handlelength=1.6,
-               labelspacing=0.5)
-    fig.tight_layout(w_pad=0.6, h_pad=0.8)
-    out = DEST / name
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
-    return out
+               labelspacing=0.5, handler_map={handles[-1]: _StarHandler()})
+    return save_at_width(fig, name, default_frac=0.94, w_pad=0.6, h_pad=0.8)
 
 
 def levels_grid_primary() -> Path:
@@ -762,13 +845,11 @@ def faithfulness() -> Path:
         ax.set_xticks(range(10, 51, 10))
         ax.set_xlabel("prefix length (utterances)")
         ax.set_title(title, loc="left", fontweight="bold")
-    axes[0].set_ylim(0.70, 0.96)
+    # 0.65, not 0.70: the held-out judge's K=0 band reaches 0.664 at its lowest (2026-10-01).
+    axes[0].set_ylim(0.65, 0.96)
     axes[0].set_ylabel("agreement with the\nfull-session ranking")
     axes[0].legend(frameon=False, loc="lower right", fontsize=6.0)
-    fig.tight_layout(w_pad=1.6)
-    out = DEST / "faithfulness_grpo.png"
-    fig.savefig(out, bbox_inches="tight")
-    plt.close(fig)
+    out = save_at_width(fig, "faithfulness_grpo.png", w_pad=1.6)
     at = d[d.n_turns.isin([12, 50])].pivot_table(index=["judge", "arm"], columns="n_turns",
                                                   values="agreement")
     print("faithfulness at 12 / 50 utterances (must match Appendix B.1):")
