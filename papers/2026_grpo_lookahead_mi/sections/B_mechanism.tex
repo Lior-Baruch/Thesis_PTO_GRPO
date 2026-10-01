@@ -10,19 +10,21 @@ This appendix expands the mechanism paragraph of \S\ref{sec:discussion}.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/faithfulness_grpo.png}
-\caption{Faithfulness of the training reward by prefix length, iterations 1--10 pooled, under
-\textbf{(a)} the training oracle and \textbf{(b)} the held-out judge: the share of candidate pairs,
-compared within one (run, iteration, conversation-length) cell, that the training reward orders the
-way the full-session score does. Chance is $0.5$; bands are conversation-level cluster-bootstrap
-intervals. The value at the shortest admitted prefix, 12 utterances, is the $86$--$89\%$ figure of
+\caption{Faithfulness of the training reward by prefix length, training iterations 1--10 pooled
+(prefixes from the conversations of $\pi_0$ to $\pi_9$): the share of conversation pairs, compared
+within one (run, iteration, prefix-length) cell, that the training reward at that prefix orders
+the way the full-session score does. The training reward is the training oracle's in both panels;
+the full-session score is \textbf{(a)} the training oracle's and \textbf{(b)} the held-out judge's.
+Chance is $0.5$, below the axis; bands are conversation-level cluster-bootstrap intervals. In (a),
+the value at the shortest admitted prefix, 12 utterances, is the $86$--$89\%$ figure of
 \S\ref{sec:lagrpo}.}
 \label{fig:faithfulness}
 \end{figure*}
 
 The training reward scores a \emph{partial} conversation; the evaluation scores the whole session.
-The gap between them is measurable as pairwise rank agreement: among candidate turns compared
-within one (run, iteration, conversation-length) cell, how often does the training reward order
-them the way the full-session score eventually does? Chance is $0.5$; intervals are
+The gap between them is measurable as pairwise rank agreement: among pairs of conversations
+compared within one (run, iteration, prefix-length) cell, how often does the training reward at
+that prefix order them the way their full-session scores do? Chance is $0.5$; intervals are
 conversation-level cluster bootstraps.
 
 Pooled over the ten iterations, agreement is $0.909$ $[0.900, 0.917]$ under $\Kf$ against $0.873$
@@ -33,9 +35,10 @@ utterances) is $0.860$ under $\Kz$ and $0.886$ under $\Kf$ on the training oracl
 not fall with length ($0.897$ and $0.936$ at 50 utterances); this is the $86$--$89\%$ figure
 quoted in \S\ref{sec:lagrpo} (Figure~\ref{fig:faithfulness}). Because MCL${=}12$ admits no shorter prefix, this experiment cannot
 itself reproduce the pilot's short-prefix finding; it shows that the knob operates above it. Two qualifications travel with that number. First, the
-iteration-level Wilcoxon test, with the ten iterations rather than the branch pairs as the unit of
+iteration-level Wilcoxon test, with the ten iterations rather than the conversations as the unit of
 observation, does \emph{not} clear $.05$ ($p = .084$ training oracle, $p = .193$ held out). The
-pooled interval treats branch pairs as independent and is the more permissive of the two, so we
+pooled interval resamples conversations within each iteration and so ignores the variation between
+iterations; it is the more permissive of the two, so we
 describe the difference as small and consistent rather than significant. Second, at iteration $n$
 the two runs are \emph{different policies} generating \emph{different conversations}, so this
 comparison measures a joint property of the scoring rule and of the trajectory the scoring rule put
