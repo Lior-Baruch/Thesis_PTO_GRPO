@@ -9,7 +9,10 @@ is encoded in the experiment name, which also determines the output directory, s
 never share a folder. The tracked \texttt{run\_metadata.json} of each run records the full resolved
 configuration. Diffing the two files yields exactly two substantive differences
 (\texttt{lookahead\_k}: absent vs.\ 5; \texttt{lookahead\_sub\_batch\_size}: absent vs.\ 128) plus
-the run's own name, adapter repository, two output paths, and start timestamp.
+the run's own name, adapter repository, two output paths, and start timestamp. The sub-batch only
+sets how many look-ahead rollouts advance together; the $\Kf$ run's iteration 1 and the first 30
+steps of its iteration 2 ran at 64 before a resume, and the file, rewritten on resume, records the
+final value.
 
 \begin{table}[h]
 \centering
@@ -27,13 +30,14 @@ Seed & 42 \\
 Iterations & 10 \\
 Epochs / iteration & 2 \\
 Conversations / iteration & 96 \\
+Patient personas & the same 96 (\S\ref{app:prompts}) \\
 Group size $G$ & 8 \\
 KL $\beta$ & 0.01 \\
 GRPO temperature & 1.2 \\
 GRPO loss variant & standard (\texttt{grpo}) \\
 Policy updates per sampled batch & 1 \\
 Train batch $\times$ accumulation & $64 \times 2$ \\
-Trainer eval split & 0.05 of prompts \\
+Trainer validation split & 0.05 of conversations \\
 Min.\ context length (MCL) & 12 utterances \\
 Session cap & 49 utterances after the opening \\
 Max tokens / response & 200 \\
@@ -43,12 +47,15 @@ Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
 Software & TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 \\
 Hardware & one NVIDIA A100 (Google Colab) \\
 Look-ahead $K$ & 0 ($\Kz$ run) / 5 ($\Kf$ run) \\
+Look-ahead sub-batch & --- ($\Kz$ run) / 128$^{\dagger}$ ($\Kf$ run) \\
 Optimizer steps, 10 iterations & $1{,}128$ ($\Kz$) / $1{,}070$ ($\Kf$) \\
 \bottomrule
 \end{tabular}}
-\caption{Resolved configuration, identical across the two runs except the final two rows.
-Source: each run's \texttt{run\_metadata.json}; the step counts are read from the per-step
-training artifacts (\S\ref{app:repro-cost}).}
+\caption{Resolved configuration, identical across the two runs except the final three rows: the
+two look-ahead settings (the only substantive configuration fields that differ) and the
+optimizer-step counts. Source: each run's \texttt{run\_metadata.json}; the step counts are read
+from the per-step training artifacts (\S\ref{app:repro-cost}). $^{\dagger}$64 in iteration 1 and
+the first 30 steps of iteration 2.}
 \label{tab:config}
 \end{table}
 
@@ -77,7 +84,7 @@ utterance coder & this work & one code per therapist and per patient utterance &
 \end{tabular}
 \caption{The eight instruments and the utterance coder. \QQ\ is the mean of the Q1 and Q2 means. CT
 and ST are the patient's change-talk and sustain-talk utterance counts. MICI is lower-is-better;
-its per-channel counts and rates are the material of \S\ref{sec:therapist}. The utterance coder is
+\S\ref{sec:therapist} uses its over-praise count. The utterance coder is
 described in \S\ref{app:coder}.}
 \label{tab:instruments}
 \end{table*}
@@ -99,9 +106,9 @@ talk or neutral. The MICI coder rates overall severity and counts six MI-inconsi
 across the therapist's turns, any number per utterance: confront, advise without permission, warn,
 direct, judge/label, and over-praise, the last defined to the judge as ``effusive, generic, or
 excessive praise NOT tied to a specific client strength/effort (`you're amazing', `I'm so proud of
-you'). A genuine, specific MI affirmation does NOT count here.'' The per-turn rates in
-\S\ref{sec:therapist} divide these counts by the number of therapist utterances, which the prompt
-states.
+you'). A genuine, specific MI affirmation does NOT count here.'' The MICI score reported in
+Table~\ref{tab:endpoint} divides these counts by the number of therapist utterances, which the
+prompt states; \S\ref{sec:therapist} uses the over-praise count.
 
 \subsection{The utterance coder}
 \label{app:coder}
@@ -174,7 +181,7 @@ the patient to change,'' followed by the same anti-repetition instruction and it
 session-ending rule. Every conversation opens with the same scripted therapist line, omitted from
 Appendix~\ref{app:example}.
 
-\subsection{The lexical over-praise marker}
+\subsection{The keyword marker}
 \label{app:marker}
 
 The keyword marker of \S\ref{sec:therapist} is one case-insensitive regular expression matched against
@@ -225,8 +232,9 @@ per-step wall-clock multiplier are reconstructed from the modification times of 
 the run metadata's elapsed-time fields are per-process and undercount any iteration that crashed
 and resumed, in the worst case here by nearly $2\times$. An inter-step gap outside
 $(0, 3600\,\mathrm{s})$ is treated as a resume gap and imputed at the phase median; imputation
-counts are recorded per run. The first two iterations of the $\Kf$ run ran at a smaller look-ahead
-sub-batch, so the per-step multiplier is quoted over the settled iterations 3--10.
+counts are recorded per run. Iteration 1 and the start of iteration 2 of the $\Kf$ run ran at a
+smaller look-ahead sub-batch (64; Table~\ref{tab:config}), so the per-step multiplier is quoted
+over the settled iterations 3--10.
 
 Compared at equal GPU-hours rather than equal iterations, with each run at its best checkpoint
 within the budget (chosen and scored on \QQ\ by the same judge), the result depends on the budget.
