@@ -70,7 +70,8 @@ alone, and standard GRPO is recovered.}
   iterations $N$
 \FOR{$n = 0, \dots, N-1$}
   \STATE $\mathcal{C} \gets$ 96 conversations of $\pi_n$ with $P$ \COMMENT{eval set of $\pi_n$}
-  \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$ with $\geq$ MCL turns
+  \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$ with $\geq$ MCL turns, less a
+    5\% validation split
   \STATE $\pi \gets \pi_n$
   \FOR{each batch of 16 prompts $c \in \mathcal{D}$ (two epochs)}
     \STATE $t_1, \dots, t_G \sim \pi(\cdot \mid c)$ for each $c$
@@ -88,7 +89,8 @@ alone, and standard GRPO is recovered.}
 \textbf{The iterative loop.} Each training iteration starts from the current policy $\pi_n$,
 which holds 96 conversations with $P$, one per patient persona; each conversation is sliced after
 every patient turn whose prefix has at least MCL utterances (the \emph{minimum context length}, 12
-here; see below) to form the training prompts. For each prompt GRPO samples $G{=}8$ completions and
+here; see below) to form the training prompts; the prompts of $5\%$ of the conversations are held
+out as the trainer's validation split. For each prompt GRPO samples $G{=}8$ completions and
 scores them; the policy takes one optimiser step per batch of 16 prompts (128 completions) on the
 group-standardised scores, and after two epochs it is saved as $\pi_{n+1}$ and the loop repeats
 with fresh conversations. The conversations that start an iteration double as the evaluation set
@@ -138,23 +140,24 @@ conversation while the evaluation scores a whole session.
 In a pilot on an earlier configuration
 of this task the oracle's ranking of very short prefixes agreed poorly with its ranking of the
 completed sessions and recovered from roughly ten utterances, so both runs discard prefixes
-shorter than MCL${=}12$; at that minimum the training reward ranks the conversations the prefixes
-come from as their full-session scores do in $86$--$89\%$ of pairs, and the agreement rises
-slightly with prefix length (Appendix~\ref{app:faithfulness}, Figure~\ref{fig:faithfulness}).
+shorter than MCL${=}12$; at that minimum, under the training oracle, the training reward ranks the
+conversations the prefixes come from as their full-session scores do in $86$--$89\%$ of pairs, and
+the agreement rises slightly with prefix length (Appendix~\ref{app:faithfulness}, Figure~\ref{fig:faithfulness}).
 
 \subsection{Evaluation design}
 \label{sec:setup}
 
 \textbf{Instruments.} Evaluation uses eight instruments, each administered by an LLM judge shown
-the full transcript (items and prompts in Appendix~\ref{app:instruments}). Q1 and Q2 are the
+the full transcript (Table~\ref{tab:instruments}; items and prompts in
+Appendix~\ref{app:instruments}). Q1 and Q2 are the
 LLM-evaluator questionnaires of \citet{yosef2024assessing}, 5 and 17 patient-perspective Likert
 items on session satisfaction and on alliance and relational communication, shown there to
 separate levels of therapist expertise. WAI-SR \citep{hatcher2006waisr} and
 CSQ-8 \citep{larsen1979csq} are published patient-report instruments, and MI-SAT is a six-item
-intervention-satisfaction survey adapted for this task. Three coders count behaviour: a
+intervention-satisfaction survey adapted for this task. The other three are coders: a
 MITI~4.2.1-style coder \citep{moyers2016miti} whose four global ratings are averaged; a patient
 change-talk coder (PCT; the share of change talk among change and sustain talk, the patient-side
-outcome MI aims at); and an MI-inconsistent-behaviour coder (MICI; coded acts per therapist turn,
+outcome MI aims at); and an MI-inconsistent-behaviour coder that counts acts (MICI; acts per therapist turn,
 lower is better). \QQ\ is thus both the optimisation target and a reported outcome; the six
 instruments outside the reward and a held-out judge (below) are the checks on it.
 
