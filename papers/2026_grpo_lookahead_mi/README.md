@@ -8,9 +8,10 @@ cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in Decem
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
 mode (line numbers, anonymized); switch to `[final]` for camera-ready. ⚠ **The body runs about
-two pages over:** the Conclusion ends on the last line of page 10 (build of 2026-10-01, 30 pages in
-all; the limit puts its end on page 8). It grew with Doron's §1–2 rewrite, his passes 2–3,
-Figure 4's return to the body and the §2 judges paragraph. Accepted as is: the length pass is
+two pages over:** the Conclusion ends 15 lines into page 11 (build of 2026-10-01 after the
+worth-a-look fixes, 31 pages in all; the limit puts its end on page 8). It grew with Doron's §1–2
+rewrite, his passes 2–3, Figure 4's return to the body, the §2 judges paragraph and, on
+2026-10-01, the figures redrawn at print width (+36 pt) and the worth-a-look citations. Accepted as is: the length pass is
 deliberately **last** (Lior, 2026-09-22; re-confirmed 2026-10-01: after his own read-through and
 the contributions revisit with Doron). Do not trim ahead of that.
 
@@ -65,7 +66,7 @@ companion draft (`../archive/2026_pto_grpo_mi/`) was retired and this became the
 - **Figure 1 redrawn** as a landscape `figure*` by [`render_schematic.py`](render_schematic.py)
   (the EDA's portrait schematic printed at ~4 pt in one column).
 - **Appendix C gained** an instruments table (sources, item counts, scales, what is reported), the
-  patient and therapist prompt templates, and the ten patterns of the lexical over-praise marker.
+  patient and therapist prompt templates, and the ten patterns of the keyword marker (then called the lexical over-praise marker).
   §4 now cites Yosef et al. (2024) for Q1/Q2, names MI-SAT as adapted and PCT/MICI as ours, says
   CSQ-8 is 1–4, and states that sessions end when the patient closes them (base mean 28
   utterances) and why MCL=12.
@@ -356,9 +357,10 @@ abstract and Q1+Q2 with Doron (step 12), and the length pass last (step 13). The
 | 8 | Complete process tables (Lior: "do we have a full table of all iterations?" — no, only figures). EDA first: Table 3's measures at every iteration, the shared Base, stars from the per-iteration tests → `NUMBERS.md` → one table in Appendix A (training oracle), one in Appendix B (held-out) | done and approved 2026-09-30 ("Continue"), pushed to GitHub and Overleaf: no EDA change was needed (every value was already in `shared_base.xlsx`); `render_process_tables.py` prints both tables and checks iteration 10 against the two iteration-10 process tables. Lior's mid-step ask "bold each column with best score" applied to both new tables and to the complete score tables (Tables 4 and 7). Appendix tables renumbered (the new ones are Tables 5 and 8). 30 pages. Ledger block "step 8" |
 | 9 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | done and approved 2026-09-30, pushed to GitHub and Overleaf (handled markers commented out; Doron's original block stays in the .tex as a comment, Lior: "dont delete his original"): one paragraph "Judges that change during training" after the judges paragraph (Lior's placement pick), one shared contrast, Doron's closing sentence kept, his original commented out beside it; the four references found and checked against their pages. Body now ends ~5 lines above the foot of page 10 (this row said "~5 lines into page 11" until 2026-10-01; the step-9 PDF shows page 10). Ledger block "step 9" |
 | 10 | A simple contributions rewrite before Lior's read-through (Lior, 2026-10-01): Doron's "most important" note stays OPEN and his original paragraph stays in the .tex as a `%` comment, so the paragraph is revisited with him in step 12 | done and approved 2026-10-01 (his one change: the closing persuasion sentence cut), pushed to GitHub and Overleaf; the note stays open for step 12: still "twofold" and still "Second, and more importantly" (Doron's structure); (1) look-ahead moved to GRPO, the controlled pair, ahead on all eight instruments under both judges (§4); (2) utterance coding: turn-level reward teaches non-specific praise incl. in reply to sustain talk, look-ahead teaches reflecting change talk and the patient keeps expressing it (§5–6). No new number. The "behavior s" typo now lives only in Doron's commented original. The body still ends on page 10 (its last line) |
+| 10b | The float atlas (private artifact https://claude.ai/artifact/CQGDKtm5zJFPxZRNj3M6zt: every figure, table and the algorithm, where it prints, every citing sentence) and its 62 checked "worth a look" items, fixed before the read-through (Lior: "fix the worth a look before my notes"). His picks: figures redrawn at print width; Figure 4(b)'s "seven of the ten iterations" dropped; the held-out K=0 MI-adherent lead at iterations 2–3 not added; the bold rule kept | done 2026-10-01, awaiting Lior's read: 45 items fixed in the text, captions and the two figure scripts, 12 left by decision (informational, float placement, his picks), the 5 that a verification pass found only partly fixed then finished (Figure 8 caption, C.1's pooled-interval sentence, the 5% validation split is by conversation, 86–89% is the training oracle's, Table 9's sub-batch footnote). Every figure now prints at its include width; Figures 1, 3, 4 grew +7/+14/+15 pt, and the body now ends 15 lines into page 11. The atlas itself predates these fixes (its page numbers and some explanations are now stale). Ledger block "2026-10-01 — the float atlas's worth-a-look items" |
 | 11 | **Lior's read-through of the whole paper**, as a loop: he sends notes, Claude proposes the changes, he approves, repeat until he is through. Known items waiting for it (found by the 2026-10-01 README audit, not yet raised with him): the abstract's "97% of cases, against 80%" names no judge (training-oracle values; held out 0.935 / 0.734); §3.3 says "only contrasts are compared across [judges]" while §5, Appendix B and the abstract compare K=5's praise share across them (0.05 vs 0.20); Appendix E.1 says "every (persona, therapist-turn) pair" but `select_example_illustrative.py` ranks only the first five replies after the opener (utterances 2–10); `rafailov2023dpo` is uncited although §1 and §2 name DPO; float crowding (the former step 11) | |
 | 12 | With Doron: the contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open; §3.1 has it) | |
-| 13 | Hide the notes (`\dnotesfalse`, `main.tex`); length pass (the body ends on the last line of page 10 on 2026-10-01 and must end on page 8: two pages); ARR checklist (its section, appendix and table pointers are stale since the 2026-09-24 restructure, e.g. "Table 5" for the configuration table that is now Table 9, "C.x" for what is now Appendix D, 22 model states for 21; re-point them AFTER the length pass, which will move them again); code zip; submit ≈ 9 Oct (deadline 12 Oct) | |
+| 13 | Hide the notes (`\dnotesfalse`, `main.tex`); length pass (the body ends 15 lines into page 11 on 2026-10-01 and must end on page 8: a little over two pages); ARR checklist (its section, appendix and table pointers are stale since the 2026-09-24 restructure, e.g. "Table 5" for the configuration table that is now Table 9, "C.x" for what is now Appendix D, 22 model states for 21; re-point them AFTER the length pass, which will move them again); code zip; submit ≈ 9 Oct (deadline 12 Oct) | |
 | later | Appendix E.2's typical case has two $K{=}5$ turns cut at the cap (utterances 6 and 8). A re-pick by the same median rule among the 39 of 96 personas whose first three $K{=}5$ turns end below the cap is possible (E.1's $K{=}5$ turns already do: 73, 66, 137 tokens). Lior: "maybe later" | parked |
 
 **Framing.** PTO is discussed openly as the origin of $K$-turn look-ahead: `baruch2025pto` is
@@ -412,10 +414,10 @@ horizon is a single training run.
 
 ## Section map (files under `sections/`)
 
-Numbers are from `main.aux` (build of 2026-10-01, 30 pages). ACL numbers figures and tables
-globally, so an appendix float is "Figure 9", never "Figure C.1". Body = §1–§7 (pp. 1–10; two
-pages over the limit). Limitations and Ethics are unnumbered and page-exempt (pp. 11–12).
-Appendices A–F follow the references, each on a new page.
+Numbers are from `main.aux` (build of 2026-10-01, 31 pages). ACL numbers figures and tables
+globally, so an appendix float is "Figure 9", never "Figure C.1". Body = §1–§7 (pp. 1–11; about
+two pages over the limit). Limitations and Ethics are unnumbered and page-exempt (pp. 11–12),
+references from p. 12, Appendices A–F pp. 16–31, each on a new page.
 
 | file | section | content |
 |---|---|---|
@@ -432,7 +434,7 @@ Appendices A–F follow the references, each on a new page.
 | A_tables | Appendix A Supplementary results | intro; *The look-ahead rollouts* (the rollout check in two sentences: 121,088 logged K=5 candidates, 82% ran all five turns); **Table 4** = every instrument at every iteration (`tab:scores`); **Table 5** = the process at every iteration (`tab:process-all`); **Figure 5** = the keyword marker (`fig:overpraise`); **Figure 6** = the therapist's replies by iteration, both judges (`fig:responsiveness`). Complete tables bold each column's best value |
 | A2_heldout | Appendix B The held-out judge | *Where it agrees and where it differs* (21-state sign agreement, 7 of 10 iterations, ratios 2.50 / 1.30); **Table 6** = held-out Table 3 (`tab:process-heldout`); **Figure 7** = held-out levels grid (`fig:grid-heldout`); **Table 7** = held-out Table 4 (`tab:scores-heldout`); **Table 8** = held-out Table 5 (`tab:process-all-heldout`); **Figure 8** = held-out Figure 3 (`fig:process-heldout`) |
 | B_mechanism | Appendix C The mechanism analysis in full | C.1 the faithfulness statistic (`app:faithfulness`; **Figure 9**, both judges); C.2 at a matched policy, the effect disappears; C.3 dispersion, and the iteration-10 inversion; C.4 how much the training reward favours praise (`app:premium`; **Figure 10**); C.5 the update-direction proxy |
-| C_repro | Appendix D Reproducibility details | D.1 configuration (**Table 9**, `tab:config`); D.2 instruments (**Table 10**, `tab:instruments`); D.3 the utterance coder (`app:coder`: codebook, role numbering, process quantities, the check against the PCT counts); D.4 the simulated patient and the therapist prompt; D.5 the lexical over-praise marker; D.6 anti-degeneracy; D.7 evaluation and statistics; D.8 cost accounting (`app:repro-cost`); D.9 artifacts (closes with the licence sentence) |
+| C_repro | Appendix D Reproducibility details | D.1 configuration (**Table 9**, `tab:config`); D.2 instruments (**Table 10**, `tab:instruments`); D.3 the utterance coder (`app:coder`: codebook, role numbering, process quantities, the check against the PCT counts); D.4 the simulated patient and the therapist prompt; D.5 the keyword marker; D.6 anti-degeneracy; D.7 evaluation and statistics; D.8 cost accounting (`app:repro-cost`); D.9 artifacts (closes with the licence sentence) |
 | D_example | Appendix E Two matched-persona examples in full | E.1 the clear case (Table 2's persona 84, chosen by lexical ranking; utterances 1–7); E.2 the typical case (both-judges median rule, persona 93; utterances 1–9); verbatim, with scores |
 | E_saturation | Appendix F Saturation of the training oracle at the winning checkpoint | 21-state sign agreement, 1,484 of 8 × C(21,2) = 1,680 pairs (88.3%); **Table 11** = per-instrument agreement (`tab:agreement`); per-conversation agreement collapses at the winning checkpoint; the mechanism is a ceiling; what this does and does not undermine |
 
@@ -440,10 +442,13 @@ Appendices A–F follow the references, each on a new page.
 
 - [`build.py`](build.py) — the only way to build the PDF; see § Build.
 - [`render_schematic.py`](render_schematic.py) — draws Figure 1 (the GRPO-group schematic,
-  `method_grpo_group.png`); reads no data. It draws at 6.3 in (`\textwidth`); §3.2 includes it at
-  `0.82\textwidth`.
-- [`render_paper_figures.py`](render_paper_figures.py) — `main()` draws Figures 2–10, each at the
-  width the `.tex` includes it at: the two level grids (Figures 2 and 7), `process` and
+  `method_grpo_group.png`); reads no data. It draws at the include width it reads from
+  `03_method.tex` (`0.82\textwidth`), every text at ≥ 6 pt, and refuses to save if any text
+  overflows its box, overlaps another or misses the width (since 2026-10-01).
+- [`render_paper_figures.py`](render_paper_figures.py) — `main()` draws Figures 2–10, each saved by
+  `save_at_width` at exactly the width the `.tex` includes it at (since 2026-10-01; before, the
+  `bbox_inches="tight"` crop made the PNGs wider and LaTeX shrank their type to ~0.9), no text
+  below 5.8 pt: the two level grids (Figures 2 and 7), `process` and
   `process_heldout` (Figures 3 and 8), `textspace_body` (Figure 4), `overpraise` (Figure 5),
   `responsiveness` (Figure 6), `faithfulness` (Figure 9) and `praise_premium` (Figure 10). They read
   `lookahead/shared_base/tables/shared_base.xlsx` (sheets `levels_long`, `k_contrast`,

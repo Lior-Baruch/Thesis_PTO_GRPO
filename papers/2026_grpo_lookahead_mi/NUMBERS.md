@@ -949,7 +949,9 @@ each measure's `lower_better` flag matches the table's arrow; every iteration-10
 printed Table 3 / held-out process-table cell (`tab:process`, `tab:process-heldout`) to three decimals; and the starred iteration-10 cells are exactly the
 cells those two tables bold. Star counts: training oracle **51** (K=0 12, K=5 39), held-out
 **67** (K=0 19, K=5 48); K=0's stars are persuasion, MI-inconsistent share, persuades-after-sustain
-talk and (held-out) MI-adherent share at iterations 2–3, the measures §5–§6 already say favour K=0.
+talk and (held-out) MI-adherent share at iterations 2–3. The first three are the measures §5–§6 say
+favour K=0; the held-out MI-adherent lead at iterations 2–3 is NOT stated anywhere in the text
+(corrected 2026-10-01; Lior chose to leave it to Table 8).
 No number is new to the paper's claims: the tables only lay out values the figures already drew.
 
 **Bold, mid-step (Lior: "in the tables bold each column with best score").** In both new tables
@@ -979,3 +981,46 @@ WritingBench, MATH-500, MMLU-Pro, CodeScope); J-Zero co-trains Challenger, Solve
 the three evaluates an interaction the policy conducts over several turns, nor counselling
 role-play. Dropped with the halving: Doron's per-paper remarks and "continued gains across ten
 iterations" (J-Zero reports "at least ten iterations", which is true but not needed).
+
+## 2026-10-01 — the float atlas's "worth a look" items fixed (before Lior's read-through)
+
+An atlas of every float (private artifact https://claude.ai/artifact/CQGDKtm5zJFPxZRNj3M6zt) listed
+62 checked items; Lior: fix them first. His picks: figures redrawn at print width; Figure 4(b)'s
+"K=5 the higher at seven of the ten iterations" dropped (a count of point values with no interval;
+`text_diversity.template_sim` K=5 > K=0 at 1, 2, 4–7, 9, e.g. 0.466 vs 0.461 at 7, K=0 higher at
+3, 8, 10); the held-out K=0 MI-adherent lead at iterations 2–3 NOT added to the text; the bold rule
+kept. New or changed numbers in the paper, each checked against its source:
+
+| Where | Number | Source |
+|---|---|---|
+| §5, the Base's code mix | information giving 0.378 + persuasion 0.203; then simple reflections 0.137, open questions 0.087; "no other code above 0.05" (praise 0.041, closed questions 0.039, seeking collaboration 0.035, other 0.029, affirmation 0.028, complex reflections 0.018, confront 0.004) | `shared_base.xlsx::process_levels_gpt-4o-mini`, iteration 0 |
+| Figure 4 caption | conversations with ≥1 non-empty therapist turn after the opener: 184 of the Base's 192; 88–96 per run state | `shared_base.xlsx::text_diversity.n_convs` (`text.py::diversity_by_state`, `content_mask`) |
+| §6, held-out paragraph | the held-out paired effect is the larger on 10 of the 12 measures (\|d_z\| Table 6 vs Table 3: larger on all but "change talk: reflects it", 0.99 = 0.99, and "after sustain talk", 0.04 < 0.18) | Tables 3 and 6 |
+| Figure 8 caption | affirmation at iteration 10: held-out K=5 0.067 vs K=0 0.009 (d_z −0.56, p_holm < .001); training oracle K=0 0.196 vs K=5 0.147 (p_holm .98); at the Base held-out open questions 0.1752, closed questions 0.2452, simple reflections 0.0198, information giving 0.2048 (printed 0.18, 0.25, 0.02, 0.20) vs training oracle 0.0873, 0.0394, 0.1373, 0.3779 (0.09, 0.04, 0.14, 0.38) | `shared_base.xlsx::k_process_paired`, `process_levels_<judge>` |
+| Appendix D.1, D.8, Table 9 | the K=5 run's look-ahead sub-batch was 64 in iteration 1 and the first 30 of iteration 2's 104 steps, then 128 (the run metadata, rewritten on resume, records 128) | `Exp3_PTO_GRPO/history/CHANGELOG_TRAINER.md` (resume of `iteration_2` from `checkpoint-30`/104) |
+
+Text-only fixes (no number): §3.2 and Algorithm 1 say the prompts of 5% of the conversations are
+the trainer's validation split (`grpo_trainer.py::build_iteration_datasets` splits by conversation;
+Table 9 now "0.05 of conversations"); §3.2's 86–89% and "rises slightly with prefix length" are
+the training oracle's (held out at 12 utterances: 0.760 / 0.799), and Figure 9's caption ties the
+86–89% to panel (a); C.1's "branch pairs" became conversations, and its pooled interval is described
+as what it is (conversations resampled within iteration, ignoring between-iteration variation); §3.3 cites Table 10
+and calls the three coders "coders" (MITI's counts left the paper on 2026-09-29); §4 cites Tables 4
+and 7 and Figure 7 for its per-iteration and held-out claims; Figure 2/7 captions: the Base's SE
+is over its 192 conversations; §5 cites Figure 3a and Table 5 (not Table 3) for iterations 8–9 and
+"the two runs' final policies" replaces "the two methods"; MICI is no longer "the session-level
+count of Table 1" (Table 1 gives it per therapist turn; Table 10's caption and D.2 now say §5 uses
+its over-praise count); §6 points to Table 5 for its per-iteration tests and to Figure 10; the
+Discussion's "iteration 9" is the model the candidates were sampled from; Figure 3(c) caption
+"next patient utterance"; Figure 6 caption "second row block" and "Iteration 0 is the Base"; Table
+8 caption defines praise/CT/ST; Appendix B cites Table 8; Figure 9 caption and C.1: conversation
+pairs, prefix length, training iterations 1–10 = conversations of π_0–π_9, training reward always
+the training oracle's, chance below the axis; D.5 renamed "The keyword marker"; Table 9 gains the
+persona and sub-batch rows; Appendix F names CSQ-8, MI-SAT, WAI-SR and PCT and reads Table 11
+along its rows. Figures: every PNG now prints at its include width (no text below 5.8 pt;
+`save_at_width` in `render_paper_figures.py`; `render_schematic.py` sized to 0.82 textwidth);
+Figure 1 says "within the group" and its update box matches Eq. 2; the levels-grid key star
+matches the panels; Figure 3/8 legend "confront", panel (c) label clear of the titles; Figure 9
+y from 0.65; Figure 10 (a) y to 0.95. The redraw made Figures 1, 3 and 4 taller (+7, +14, +15 pt);
+with the text fixes the body now ends about 16 lines into page 11 (it ended on the last line of
+page 10).
