@@ -11,10 +11,13 @@ layout. ``pdflatex, bibtex, pdflatex, pdflatex`` stops one pass short whenever b
 back matter: on 2026-09-16 that left 98 line numbers printed ON the text across seven pages
 (cold 477 -> 6 -> 114 after bibtex -> 98 -> 0 on the fifth pass). This script runs pdflatex until
 main.aux and main.out stop changing (at most MAX_PASSES), then scans the PDF for any line number
-that sits inside a text column rather than in a margin, and for unresolved references.
+that sits inside a text column rather than in a margin, and for unresolved references. acl.sty
+zero-fills line numbers to three digits, so from 1000 on they have four: the scan matches any
+run of three or more digits (it matched exactly three until 2026-10-01, which left every page
+from the late references on unchecked).
 
-Requires MiKTeX's pdflatex/bibtex on PATH; the scan needs PyMuPDF (``fitz``) from the repo venv
-and is skipped with a warning if it is missing. Exit status is non-zero on LaTeX errors, on
+Requires MiKTeX's pdflatex/bibtex on PATH; the scan needs PyMuPDF (``fitz``) from the repo venv,
+and without it the check FAILS (placement cannot be verified). Exit status is non-zero on LaTeX errors, on
 non-convergence, on misplaced line numbers, or on unresolved references.
 """
 
@@ -85,7 +88,7 @@ def check_pdf() -> list[str]:
             for line in block.get("lines", []):
                 for span in line["spans"]:
                     if (LN_FONT in span["font"] and abs(span["size"] - LN_SIZE) < 0.2
-                            and span["color"] == LN_COLOR and re.fullmatch(r"\d{3}", span["text"].strip())):
+                            and span["color"] == LN_COLOR and re.fullmatch(r"\d{3,}", span["text"].strip())):
                         x = span["bbox"][0] / width
                         if MARGIN_LEFT < x < MARGIN_RIGHT:
                             bad.append(int(span["text"]))
