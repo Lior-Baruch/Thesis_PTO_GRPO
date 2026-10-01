@@ -6,7 +6,7 @@ A higher score is not by itself evidence of better therapy.
 % \dnotedone{rephrased: typical pair, chosen by a stated rule (Appendix E.2)}{[median-contrast -?]}
 % \dnotedone{renamed `utterance coder' (defined in §3.3); `both graders' dropped}{[process coder ?}
 Table~\ref{tab:excerpt} illustrates
-the behavioural difference between the two methods; this section and the next quantify it, mostly
+the behavioural difference between the two runs' final policies; this section and the next quantify it, mostly
 with the utterance coder (\S\ref{sec:setup}).
 
 \begin{table}[tb]
@@ -49,22 +49,23 @@ Appendix~\ref{app:example-typical}.}
 Figure~\ref{fig:process-heldout}). \textbf{(a, b)} Each run's code mix by iteration: the share of
 therapist turns whose dominant function is each code; iteration 0 is the Base. \textbf{(c)}
 Change-talk persistence by iteration: within a conversation, the share of the patient's change-talk
-utterances whose next utterance is change talk again, mean $\pm$ SE over conversations; dotted:
+utterances whose next patient utterance is change talk again, mean $\pm$ SE over conversations; dotted:
 the Base. \textbf{(d)} The change-talk share of patient utterances by position in the session at
 iteration 10, against the Base. Opener excluded throughout.}
 \label{fig:process}
 \end{figure*}
 
 \textbf{The two policies learn different behaviours.} Initially, the Base's turns are mostly
-information giving and persuasion, with open questions, simple reflections and the occasional
-affirmation making up the rest (Figure~\ref{fig:process}a--b, iteration 0). 
+information giving and persuasion, then simple reflections and open questions, with no other code
+above $0.05$ of turns (Figure~\ref{fig:process}a--b, iteration 0).
 % \dnotedone{renamed: `turn-level reward' is now K=0}{k=0?}
 % \dnotedone{reworded: `the distribution of therapist behaviours shifts'}{[the mix -?]}
 % \dnotedone{renamed: `significantly', defined once in §3.3}{[clears Holm ?]}
 Under $\Kz$ the
 distribution of therapist behaviours shifts, late and unevenly, toward \textbf{non-specific
 praise}: from $0.04$ of the Base's turns to $0.22$ of the $\Kz$ policy's at iteration 8, $0.08$ at
-iteration 9 and $0.41$ at iteration 10 (Table~\ref{tab:process}), significantly more than under
+iteration 9 and $0.41$ at iteration 10 (Figure~\ref{fig:process}a; the values and tests at every
+iteration are in Table~\ref{tab:process-all}), significantly more than under
 $\Kf$ at iterations 8 and 10. 
 % \dnotedone{reworded: now `Under K=5 it' (the behaviour distribution)}{[the mix \textasciitilde{}]}
 Under $\Kf$ it moves instead toward \textbf{complex reflections}:
@@ -96,7 +97,7 @@ against each therapist turn, so it reads the same under both judges. It matches 
 Base's turns and at most $0.064$ of the $\Kf$ policy's at any iteration; in the $\Kz$ policy's it
 climbs late and steeply, to $0.275$ at iteration 8, $0.094$ at 9 and $\mathbf{0.671}$ at iteration
 10 (Appendix Figure~\ref{fig:overpraise}), the same rise, dip and rise as the coder's praise share
-($0.22$, $0.08$, $0.41$). MICI, the session-level count of Table~\ref{tab:endpoint}, agrees: of the
+($0.22$, $0.08$, $0.41$). MICI (Table~\ref{tab:endpoint} reports it per therapist turn) agrees: of the
 $9.9$ MI-inconsistent acts per session it counts for the $\Kz$ policy at iteration 10, $8.3$
 ($84\%$) are over-praise. 
 % \dnotedone{renamed `keyword marker'; its ten praise phrases described}{[marker -?]}
@@ -110,7 +111,8 @@ MICI's over-praise count.
 \includegraphics[width=0.48\textwidth]{figures/text_grpo_body.png}
 \caption{How much the therapist's turns depend on the patient, on sentence embeddings (every
 therapist turn embedded with \texttt{all-MiniLM-L6-v2}, the scripted opener excluded; iteration 0
-is the Base). \textbf{(a)} The share of the embedding variance that lies between conversations
+is the Base). Conversations with at least one therapist turn after the opener: 184 of the Base's
+192 and 88--96 of each run's 96. \textbf{(a)} The share of the embedding variance that lies between conversations
 rather than within them, with a $95\%$ bootstrap band: lower means the therapist says similar
 things whoever the patient is. \textbf{(b)} The mean cosine between the therapist's turns at the
 same turn of different conversations: higher means those turns are more alike.}
@@ -132,6 +134,6 @@ conversations rather than within them: at iteration 10 it has fallen from $0.39$
 $0.30$ under $\Kf$ and to $0.19$ under $\Kz$, whose replies become more alike from patient to
 patient. Panel (b) is how alike the therapist's turns are across conversations at the same
 turn (its first turns, its second turns, and so on), and here the two runs do not separate: it rises under both, from $0.26$ at the
-Base to $0.49$ under $\Kf$ and $0.58$ under $\Kz$ at iteration 10, with $\Kf$ the higher of the two
-at seven of the ten iterations. Both policies' turns grow more alike overall; what separates them
+Base to $0.49$ under $\Kf$ and $0.58$ under $\Kz$ at iteration 10, with neither run consistently
+higher. Both policies' turns grow more alike overall; what separates them
 is how much of the remaining variation follows the patient.
