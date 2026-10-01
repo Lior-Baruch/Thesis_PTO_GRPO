@@ -22,7 +22,8 @@ against its best. The one place it favours $\Kz$ is MITI and MICI at iteration 3
 it reads more of the $\Kf$ policy's turns as non-specific praise ($0.20$ at iteration 10, against
 the training oracle's $0.05$), so on its reading the $\Kf$ policy's MI-inconsistent share at
 iteration 10 is $0.47$, lower than $\Kz$'s $0.80$ but more than double the Base's $0.21$; along the
-run it has $\Kz$ lower at iterations 3 and 5 and $\Kf$ lower at 8 and 10. It also sees the $\Kf$
+run (Table~\ref{tab:process-all-heldout}) it has $\Kz$ lower at iterations 3 and 5 and $\Kf$ lower
+at 8 and 10. It also sees the $\Kf$
 policy persuade after $0.58$ of the patient's sustain talk (Base $0.25$) and reflect sustain talk
 more often than $\Kz$ ($0.17$ vs.\ $0.05$), and change-talk persistence separates the runs from
 iteration 3 rather than 5.
@@ -66,7 +67,7 @@ and tests). Its paired contrasts that start from a patient utterance use $64$--$
 \centering
 \includegraphics[width=0.94\textwidth]{figures/levels_grid_grpo_claude-haiku-4-5.png}
 \caption{Figure~\ref{fig:headline} under the held-out judge: every instrument by iteration, mean
-$\pm$ SE over the 96 personas, from the Base (dotted line); a star marks a significant $\Kf$ vs.\
+$\pm$ SE over the 96 personas (the Base: over its 192 conversations), from the Base (dotted line); a star marks a significant $\Kf$ vs.\
 $\Kz$ contrast, which at iteration 3 favours $\Kz$ on MITI and MICI. Levels are in this judge's own
 units and are not comparable to Figure~\ref{fig:headline}'s.}
 \label{fig:grid-heldout}
@@ -159,8 +160,8 @@ Base & $\mathbf{0.038}$ & $0.031$ & $0.166$ & $0.283$ & $0.214$ & $0.030$ & $0.0
 10 & $0.203$\rlap{$^{*}$} & $0.242$\rlap{$^{*}$} & $0.268$ & $0.360$\rlap{$^{*}$} & $0.471$\rlap{$^{*}$} & $0.258$\rlap{$^{*}$} & $0.011$\rlap{$^{*}$} & $0.580$ & $0.171$\rlap{$^{*}$} & $0.935$\rlap{$^{*}$} & $\mathbf{0.238}$ & $0.721$\rlap{$^{*}$}\\
 \bottomrule
 \end{tabular}
-\caption{Table~\ref{tab:process-all} under the held-out judge: the same columns, conventions and
-tests. The iteration-10 rows are Table~\ref{tab:process-heldout}. Levels are in this judge's own
+\caption{Table~\ref{tab:process-all} under the held-out judge: the same columns (praise:
+non-specific praise; CT: change talk; ST: sustain talk), conventions and tests. The iteration-10 rows are Table~\ref{tab:process-heldout}. Levels are in this judge's own
 units.}
 \label{tab:process-all-heldout}
 \end{table*}
@@ -173,7 +174,11 @@ by iteration, \textbf{(c)} change-talk persistence by iteration (mean $\pm$ SE o
 dotted: the Base), \textbf{(d)} the change-talk share of patient utterances by position in the
 session at iteration 10 against the Base. The held-out judge reads more of the $\Kf$ policy's
 turns as non-specific praise than the training oracle does ($0.20$ vs.\ $0.05$ at iteration 10)
-and agrees on the direction of everything else in the picture.}
+and agrees on the direction of the other changes the body reports. It differs in two places: it
+reads affirmation the other way at iteration 10 ($\Kf$ $0.07$, $\Kz$ $0.01$, significant, where
+the training oracle has $\Kz$ $0.20$ and $\Kf$ $0.15$, not significant), and at the Base it codes
+more open and closed questions and fewer simple reflections and information-giving turns ($0.18$,
+$0.25$, $0.02$ and $0.20$, against $0.09$, $0.04$, $0.14$ and $0.38$).}
 \label{fig:process-heldout}
 \end{figure*}
 
