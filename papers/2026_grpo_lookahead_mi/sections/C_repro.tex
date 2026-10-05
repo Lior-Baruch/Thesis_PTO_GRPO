@@ -23,7 +23,7 @@ final value.
 \toprule
 Setting & Value \\
 \midrule
-Therapist model & \texttt{Llama-3.2-1B}, bf16 \\
+Therapist model & \texttt{Llama-3.2-1B} (base), bf16 \\
 LoRA & $r{=}16$, $\alpha{=}16$ \\
 Learning rate & $1\mathrm{e}{-}5$ \\
 Seed & 42 \\
@@ -77,7 +77,7 @@ CSQ-8 & \citet{larsen1979csq} & 8 items, 1--4 & mean \\
 MI-SAT & adapted, this work & 6 items, 1--5 & mean \\
 MITI & \citet{moyers2016miti} & 4 globals, 1--5 & mean of the globals \\
 PCT & this work & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
-MICI & this work & 1 global, 1--5; 6 behaviour counts & acts per therapist turn \\
+MICI & this work & 1 global, 1--5; 6 behavior counts & acts per therapist turn \\
 \midrule
 utterance coder & this work & one code per therapist and per patient utterance & \S\ref{sec:therapist}--\ref{sec:patient} \\
 \bottomrule
@@ -102,7 +102,7 @@ patient's perspective with their item wording and response anchors. The three co
 as a certified MITI coder. The MITI coder returns four global ratings (cultivating change talk,
 softening sustain talk, partnership, empathy), whose mean is the MITI score. The PCT coder rates the patient's expressed importance,
 confidence and readiness to change and classifies every patient utterance as change talk, sustain
-talk or neutral. The MICI coder rates overall severity and counts six MI-inconsistent behaviours
+talk or neutral. The MICI coder rates overall severity and counts six MI-inconsistent behaviors
 across the therapist's turns, any number per utterance: confront, advise without permission, warn,
 direct, judge/label, and over-praise, the last defined to the judge as ``effusive, generic, or
 excessive praise NOT tied to a specific client strength/effort (`you're amazing', `I'm so proud of
@@ -124,10 +124,10 @@ reflection (adds substantial meaning or emphasis: an inferred feeling, a metapho
 reflection); affirmation, in the MITI~4.2.1 sense of a comment on a specific client strength,
 ability, intention or effort; non-specific praise (cheerleading or effusive reassurance not tied to
 a specific strength or effort, including praise for a step the patient has not taken); giving
-information; persuasion (arguing, lecturing, advising toward change, warning, moralising, with or
-without permission); seeking collaboration or emphasising autonomy; confront / direct / judge; and
+information; persuasion (arguing, lecturing, advising toward change, warning, moralizing, with or
+without permission); seeking collaboration or emphasizing autonomy; confront / direct / judge; and
 other (greeting, filler, logistics, degenerate text). The patient codes are change talk (any
-statement favouring change), sustain talk (any statement favouring the status quo) and neutral,
+statement favoring change), sustain talk (any statement favoring the status quo) and neutral,
 with an utterance containing both coded by the direction that dominates. The transcript is
 numbered by role (``[THERAPIST \#k]'', ``[PATIENT \#k]'') so that the arrays align, their
 lengths are pinned to the utterance counts in the response schema, a response of the wrong length
@@ -199,7 +199,12 @@ The base 1B model will occasionally continue past its own turn and write the pat
 decode sites stop at the chat-template markers and truncate any completion at the first such
 marker; a completion that is empty after cleaning ends the conversation, and a degenerate
 completion is floored to the minimum reward. This applies identically in both runs, including
-inside the $K{=}5$ rollout.
+inside the $K{=}5$ rollout. The stop strings match only the exact markers, and late in training
+the $\Kz$ policy also wrote malformed variants such as \texttt{<|im\_end>}, which pass them:
+they appear in up to $58\%$ of its training candidates and in $56\%$ of its therapist turns at
+iteration 7, falling to $4\%$ at iteration 10, while under $\Kf$ they stay below $2.5\%$ of
+candidates and $1.5\%$ of turns. The training reward neither favored nor penalized them (within
+each group, their correlation with the reward is $+0.05$).
 
 \subsection{Evaluation and statistics}
 
