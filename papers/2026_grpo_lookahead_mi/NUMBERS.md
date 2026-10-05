@@ -58,7 +58,7 @@ with the cited table. Rows marked 📄 were read off the cited table only.
 | ✅ **The two arms differ in exactly two substantive config fields** | `lookahead_k` (absent vs 5) and `lookahead_sub_batch_size` (absent vs 128); everything else identical except the arm's own name, adapter repo and two output paths | diff of the two `run_metadata.json` files, verified 2026-08-25 |
 | Instruments | 8 — Q1, Q2, WAI-SR, CSQ-8, MI-SAT, MITI, PCT, MICI | results/arms/stats/tables/gpt-4o-mini/main_results.md |
 | Training reward | Q1+Q2 only (mean of the two) | CLAUDE.md § Exp3 (CONFIG FACT) |
-| Bootstrap | 2,000 resamples, percentile, `BOOT_SEED` = 12345 | eda_analysis/constants.py |
+| Bootstrap | percentile, `BOOT_SEED` = 12345; 2,000 resamples for the dispersion ratios (the `stats.py` default), 1,000 for the faithfulness intervals and Figure 9's bands (App D.7 says so since 2026-10-05; it used to claim 2,000 for every interval) | eda_analysis/constants.py (seed only); eda_analysis/stats.py (2,000); results/lookahead/mechanism/tables/CAPTIONS.md (dispersion_ratios: 2,000; faithfulness_*: B=1000) |
 | **NEW** 📄 K=5 reward's extra calls per candidate | 3 patient-simulator calls + 2 policy generations (5 further turns: P, π, P, π, P) beyond the shared single oracle call | CLAUDE.md § "K-turn look-ahead" (CONFIG FACT: K counts utterances, alternating, patient first) |
 | **NEW** 📄 Rollout audit — full-tail share, pooled | `full_share` **0.818** (82%); `realized_turns_mean` **4.401** (4.4); `ended_early_rate` **0.182**, range **0.122** (iter 10) to **0.304** (iter 6); `patient_closed_share` **0.156** (16%); `n_candidates` **121,088** | results/lookahead/mechanism/tables/tail_audit_by_iter.md, `GRPO_LA5` rows (pooled + iters 6, 10) |
 | **NEW** 📄 Rollout audit — early-ending candidates score at or below the group mean | `dev_mean` by realised turns, GRPO_LA5 pooled: 0 turns −0.050, 1 (patient closed) −0.012, 2 (therapist end) −0.083, 3 (patient closed) +0.001, 4 (therapist end) −0.086, 5 (full) +0.003 → "at or below, by up to 0.09 depending on how the rollout ended" | results/lookahead/mechanism/tables/tail_score_by_realized_turns.md, `GRPO_LA5 / pooled` rows |
@@ -1132,3 +1132,36 @@ still carries the iteration-3 pair; the paper no longer cites it. (3) Table numb
 moved by one (held-out process 6 → 7, held-out scores 7 → 8, held-out process at every iteration
 8 → 9, configuration 9 → 10, instruments 10 → 11, agreement 11 → 12); earlier ledger blocks keep
 the numbers of their day. (4) Build: 33 pages; the body ends ~57 lines into page 11 (was ~42).
+
+## 2026-10-05 — step 11, notes round 2: every float made readable (the clarity audit)
+Lior: "go over the tables and figs and make sure they are understandable (for example in table 3
+you bold the best of k=0 and k=5 and ignore base, and the dz in not understood if it is k=5 vs k=0
+or with the base also)". A multi-agent audit (per float group: a source-aware auditor and a cold
+reader who saw only the PDF; every proposed fix checked by a reader lens and a fact-and-style lens;
+one synthesis for consistent conventions) produced 61 edits, applied with the over-long appendix
+captions trimmed by hand. The conventions they implement: every K=5 − K=0 column sits under a
+"K=5 − K=0" header (Tables 1, 3, 6, 7) with the judge's name over Base / K=0 / K=5 only, so the
+Base is visibly outside the contrast; signed d_z everywhere; every caption says what bold means
+(best of a column over all 21 states, Base included, in Tables 4, 5, 8, 9; the better run where
+d_z is starred in Tables 3 and 7, "even if the Base is better"), that a star never involves the
+Base, and that the appendix figures mark no test (pointing to the tables that do). Numbers new to
+the paper:
+
+| Claim (where) | Value in the paper | Source |
+|---|---|---|
+| Base conversations with a therapist turn after the scripted opener (Tables 5, 6, 7 captions) | 184 of 192 | results/lookahead/shared_base/tables/text_diversity.md, iteration 0, `n_convs` (already Figure 4's 184; the coder's per-turn shares are NaN on the same 8 conversations) |
+| Table 3 caption: paired personas for the reply / next-utterance rows | 76 (change talk), 65 (sustain talk) — the old range "65–76" | shared_base.xlsx `k_process_paired` / `k_persistence`, gpt-4o-mini, GRPO, iteration 10, column `n` |
+| Table 7 caption: the same, held out | 80, 64 — the old range "64–80" | same sheets, claude-haiku-4-5 |
+| Figure 5 caption: iterations at which the praise contrast is significant | training oracle 8 and 10; held out 5, 6, 8–10; K=5 lower at each | `k_process_paired`, metric `th_PRA_rate`, `p_holm` < .05, `better` = K5 (the starred praise cells of Tables 5 and 9) |
+| App D.7: resample counts | dispersion ratios 2,000; faithfulness intervals and Figure 9's bands 1,000 | results/lookahead/mechanism/tables/CAPTIONS.md (`dispersion_ratios`; `faithfulness_*`, B=1000) |
+| Table 10: look-ahead temperatures 0.9 / 0.7 (therapist / patient) | 0.9 / 0.7, the same as the conversations' | `LOOKAHEAD_TEMP_THERAPIST` / `LOOKAHEAD_TEMP_PATIENT` in cell 1 of code/GRPO_Exp3/train_GRPO_Iterative.ipynb; not in `run_metadata.json` (checked: it records `temperature_therapist_gen`, `temperature_patient`, `max_tokens_per_response`, `grpo_temperature`, `lookahead_k`, `lookahead_sub_batch_size`) |
+| Table 10: "64 × 2 = 128 completions (16 prompts)" | 128 / G = 8 → 16 | Table 10's own row and §3.2 |
+
+Also: Table 6's caption no longer claims a turn-level mapping (that the held-out judge labels "as
+praise much of what the training oracle labels affirmation"); it says what the table shows, more of
+K=0's turns as praise and fewer as affirmation (decision D-table6-turn-claim (a); a raw cross-tab
+found giving information is the larger source, untracked so not quoted). Figure 3/8's simple
+reflection colour #9ecae1 → #6baed6 (it printed as the same grey as closed question). The bootstrap
+row of the conventions table above was corrected (it claimed 2,000 resamples everywhere). Build: 33
+pages; the body ends ~61 lines into page 11 (Table 3's new header row and Figure 3's panel-(d)
+note).
