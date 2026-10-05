@@ -6,9 +6,10 @@ were involved at any stage. Additionally, we do not suggest that the resulting m
 for use with people. %A 1B-parameter model trained against a simulated patient and graded by another language model is a research artifact; motivational interviewing is a clinical skill practised with people in distress, and no number in this paper bridges that gap.
 
 \textbf{The failure mode we document is safety-relevant.} The $K{=}0$ policy learned to praise its
-patient more or less regardless of what they said, and its score went \emph{up} while it did so. In
-a counselling setting that is not a neutral artifact of optimisation: unearned affirmation of
-ambivalence or of a harmful plan is precisely the error MI trains counsellors out of. We report it
+patient, including when the patient argued for the status quo, and its training reward scored
+praising replies above the others while it did so (Appendix~\ref{app:premium}). In
+a counseling setting that is not a neutral artifact of optimization: unearned affirmation of
+ambivalence or of a harmful plan is precisely the error MI trains counselors out of. We report it
 prominently, including what the look-ahead policy learned instead, persuasion when the patient
 resists (\S\ref{sec:therapist}--\ref{sec:patient}), so that a reader evaluating this line of work sees the failure mode
 as clearly as the improvement.
@@ -16,15 +17,15 @@ as clearly as the improvement.
 \textbf{Simulated patients encode a narrow population.} The 96 personas vary six attributes around
 two presenting problems (smoking and obesity). They are a coarse and culturally narrow caricature
 of help-seeking, authored by the researchers rather than derived from clinical data, and results on
-them should not be read as generalising across presenting problems, demographics, or cultures;
-the saturated design means generalisation cannot be measured even within this grid
-(see Limitations).
+them should not be read as generalizing across presenting problems, demographics, or cultures;
+because all 96 personas serve for both training and evaluation, generalization cannot be measured
+even within this grid (see Limitations).
 
 \textbf{Judges inherit their models' biases.}
 % \dnotedone{rephrased: the facts kept, the verdict replaced by what we did about it}{[this seems too negative, tone down]}
 Both judges are commercial LLMs whose training data and alignment procedures are undisclosed, and
 they differ in level and, at the $\Kf$ run's late checkpoints, on individual conversations
-(Appendix~\ref{app:saturation}). Their scores are LLM judgements of MI quality rather than clinical
+(Appendix~\ref{app:saturation}). Their scores are LLM judgments of MI quality rather than clinical
 measurements, which is why we report two judges and a check that involves no model.
 
 % \dnotedone{cut the paragraph (Compute and models); the GPU-hour totals are in the Limitations and Appendix~\ref{app:repro-cost}, the licence sentence moved to Appendix~\ref{app:repro}}{[not sure we need this]}
