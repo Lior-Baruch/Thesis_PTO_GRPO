@@ -15,28 +15,37 @@ with the utterance coder (\S\ref{sec:setup}).
 \setlength{\tabcolsep}{0pt}
 \begin{tabular}{@{}p{\columnwidth}@{}}
 \toprule
-\textbf{Patient, utterance 1 (identical in both conversations)}\\[1pt]
-Hi, I'm Emma. Honestly, I'm here because someone made me. I don't really believe in this therapy
-stuff. I've been smoking for years, and yeah, I guess it's not great for my health, but I feel
-fine most of the time. I don't see why I need to talk about it.\\
-\midrule
+\textbf{Patient, utterance 1, in the $\Kz$ conversation}\\[1pt]
+Well, my name is Emma. I'm 61, and I've been smoking for years. Honestly, I'm here because
+someone thought it would be a good idea for me to talk to someone like you. I don't really believe
+in therapy or any of that stuff, but here I am. [\ldots] I've tried to stop before, but it never
+sticks. [\ldots]\\[2pt]
 \textbf{Therapist, the $\Kz$ policy, iteration 10}\\[1pt]
-That's totally understandable! That's a brave step and I'm so glad you're ready to start changing
-your habits. [\ldots] I'm so proud of you for taking this important step towards your health and
-well-being. Your courage is incredibly inspiring [\ldots]\\
+Great to hear that you're ready to try again. That's very courageous, and I'm here to support you
+every step of the way. [\ldots] That's incredible courage and compassion for you! I'm so proud of
+you for taking this step [\ldots]\\
 \midrule
+\textbf{Patient, utterance 1, in the $\Kf$ conversation}\\[1pt]
+Well, my name is Emma. I'm 61, and I really don't see the point of being here. Someone insisted
+that I come to therapy, and honestly, I think it's a waste of time. I've been smoking for years;
+it's just a habit, right? I've tried to quit before, and it never sticks. [\ldots]\\[2pt]
 \textbf{Therapist, the $\Kf$ policy, iteration 10}\\[1pt]
-Okay, let me ask you a question. If you don't have any more goals for why you're here, what are
-you hoping to achieve from this session? Are you hoping to quit, or maybe just reduce the amount
-of cigarettes you smoke? [\ldots]\\
+You're right, it's just a habit. It's been a lifelong struggle for you. You've tried quitting
+several times, and each time you give up. It's not really because you don't want to stop, it's
+more because it's just too hard. And that's understandable. [\ldots] I think that what you really
+need is support. [\ldots] What do you think you can do to make this a different experience for
+you?\\
 \bottomrule
 \end{tabular}
-\caption{The first reply of each run's final policy to the same patient utterance, her answer
-to the scripted therapist opening (utterance~0); the patient is a 27-year-old woman who has smoked for years, has never tried to
-quit, and was sent to therapy. The $\Kz$ reply praises her for a step she has just said she is not
-taking and runs on to the 200-token cap; the $\Kf$ reply asks what she wants from the session. We
-chose this pair because the contrast is stark, so it is not a typical exchange. Utterances 1--7 of
-both, in full, are in Appendix~\ref{app:example-clear}; a typical pair, chosen by a fixed rule (the persona whose
+\caption{The first reply of each run's final policy to the patient's answer to the scripted
+therapist opening (utterance~0); the patient is a 61-year-old woman who has smoked for many years,
+has tried to quit many times and was sent to therapy, and her answer, sampled anew in each
+conversation, is reluctant in both. The $\Kz$ reply praises her for a step she has not said she is
+taking and runs on to the 200-token cap; the $\Kf$ reply reflects her reluctance, then turns to
+advice and a question. Both judges' utterance coders label the $\Kz$ reply non-specific praise and
+the $\Kf$ reply a complex reflection; we chose the pair from the top of a ranking of the pairs coded
+that way, so it is not a typical exchange. Utterances 1--7 of both, in full, are in
+Appendix~\ref{app:example-clear}; a typical pair, chosen by a fixed rule (the persona whose
 $\Kf - \Kz$ difference on \QQ\ is closest to the median under both judges), is in
 Appendix~\ref{app:example-typical}.}
 \label{tab:excerpt}
@@ -89,9 +98,9 @@ be more likely to reflect. The share of MI-inconsistent turns therefore ends low
 ($0.33$ against $0.46$ at iteration 10; Base $0.25$), but that gap is the $\Kz$ policy's late
 praise rather than an MI gain of the $\Kf$ policy, whose own share rises with its persuasion: the
 difference is significant in $\Kz$'s favor at iterations 2, 6 and 9 and in $\Kf$'s only at
-iteration 10. The held-out judge agrees on the direction of each change at iteration 10 but reads more
-of the $\Kf$ policy's turns as praise ($0.20$ at iteration 10, against the training oracle's
-$0.05$; Appendix Figure~\ref{fig:process-heldout}).
+iteration 10. The held-out judge agrees on the direction of each change at iteration 10, but under
+it the $\Kf$ policy's praise also rises, from the Base's $0.04$ to $0.20$ at iteration 10
+(Appendix Figure~\ref{fig:process-heldout}).
 
 \textbf{Corroboration without a judge.} Every code above is produced by an LLM, so the praise
 finding could in principle be a judge artifact. A \textbf{keyword marker} involves no model: ten
@@ -127,7 +136,7 @@ more alike.}
 % \dnotedone{rephrased: the shared conclusion is now stated}{[same conclusion -?]}
 % \dnotedone{reworded: `no LLM judge'}{[coder ?]}
 Sentence embeddings, which involve no LLM judge, show the $\Kz$ policy's
-replies coming to depend less on the patient, which fits praise given whatever the patient says.
+replies coming to depend less on the patient from iteration 3 on, long before its praise peaks.
 % \dnotedone{answered: encoder named and cited}{which one}
 % \dnotedone{rephrased: replies grow more alike from patient to patient}{[converges harder onto one script -?]}
 % \dnotedone{Figure 4 kept in the body; on Lior's read (30 Sep) its hard-to-read cosine panel is replaced by the turn-similarity panel, and both panels are explained here}{show diagram, explain}
