@@ -12,8 +12,8 @@ two pages over:** the Conclusion ends 15 lines into page 11 (build of 2026-10-01
 worth-a-look fixes, 31 pages in all; the limit puts its end on page 8). It grew with Doron's §1–2
 rewrite, his passes 2–3, Figure 4's return to the body, the §2 judges paragraph and, on
 2026-10-01, the figures redrawn at print width (+36 pt) and the worth-a-look citations. Accepted as is: the length pass is
-deliberately **last** (Lior, 2026-09-22; re-confirmed 2026-10-01: after his own read-through and
-the contributions revisit with Doron). Do not trim ahead of that.
+deliberately **last** (Lior, 2026-09-22; re-confirmed 2026-10-01 and 2026-10-05: after the
+contributions/abstract pass that goes to Doron and Lior's own read-through). Do not trim ahead of that.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten
@@ -343,7 +343,10 @@ steps 7–8, and the former steps 7–10 are now 9–12. **Re-ordered 2026-10-01
 contributions rewrite now (step 10), then his read-through of the whole paper as a note loop
 (step 11: he sends notes, Claude proposes changes, he approves, repeat), then the contributions,
 abstract and Q1+Q2 with Doron (step 12), and the length pass last (step 13). The former step 11
-(layout) folds into the read-through.
+(layout) folds into the read-through. **Re-ordered again 2026-10-05 (Lior):** step 12 runs
+FIRST, drafted with Lior and pushed to Overleaf so Doron can read it and send notes while Lior
+does his read-through (step 11); his notes on it fold into the loop. Step numbers are kept (the
+ledger cites them), so the table below lists 12 before 11.
 
 | Step | What | Status |
 |---|---|---|
@@ -358,8 +361,8 @@ abstract and Q1+Q2 with Doron (step 12), and the length pass last (step 13). The
 | 9 | Doron's related-work block: merge into §2 as one bold-headed paragraph at about half its length; `\citet` for Yuan et al. and Wu et al.; the four missing references (`wu2025metarewarding`, `wang2026serpo`, `wang2026dynamicrubric`, `chu2026jzero`) from Doron or found and verified | done and approved 2026-09-30, pushed to GitHub and Overleaf (handled markers commented out; Doron's original block stays in the .tex as a comment, Lior: "dont delete his original"): one paragraph "Judges that change during training" after the judges paragraph (Lior's placement pick), one shared contrast, Doron's closing sentence kept, his original commented out beside it; the four references found and checked against their pages. Body now ends ~5 lines above the foot of page 10 (this row said "~5 lines into page 11" until 2026-10-01; the step-9 PDF shows page 10). Ledger block "step 9" |
 | 10 | A simple contributions rewrite before Lior's read-through (Lior, 2026-10-01): Doron's "most important" note stays OPEN and his original paragraph stays in the .tex as a `%` comment, so the paragraph is revisited with him in step 12 | done and approved 2026-10-01 (his one change: the closing persuasion sentence cut), pushed to GitHub and Overleaf; the note stays open for step 12: still "twofold" and still "Second, and more importantly" (Doron's structure); (1) look-ahead moved to GRPO, the controlled pair, ahead on all eight instruments under both judges (§4); (2) utterance coding: turn-level reward teaches non-specific praise incl. in reply to sustain talk, look-ahead teaches reflecting change talk and the patient keeps expressing it (§5–6). No new number. The "behavior s" typo now lives only in Doron's commented original. The body still ends on page 10 (its last line) |
 | 10b | The float atlas (private artifact https://claude.ai/artifact/CQGDKtm5zJFPxZRNj3M6zt: every figure, table and the algorithm, where it prints, every citing sentence) and its 62 checked "worth a look" items, fixed before the read-through (Lior: "fix the worth a look before my notes"). His picks: figures redrawn at print width; Figure 4(b)'s "seven of the ten iterations" dropped; the held-out K=0 MI-adherent lead at iterations 2–3 not added; the bold rule kept | done 2026-10-01 and pushed to GitHub and Overleaf at Lior's request before his notes (his read of it folds into step 11): 45 items fixed in the text, captions and the two figure scripts, 12 left by decision (informational, float placement, his picks), the 5 that a verification pass found only partly fixed then finished (Figure 8 caption, C.1's pooled-interval sentence, the 5% validation split is by conversation, 86–89% is the training oracle's, Table 9's sub-batch footnote). Every figure now prints at its include width; Figures 1, 3, 4 grew +7/+14/+15 pt, and the body now ends 15 lines into page 11. The atlas itself predates these fixes (its page numbers and some explanations are now stale). Ledger block "2026-10-01 — the float atlas's worth-a-look items" |
-| 11 | **Lior's read-through of the whole paper**, as a loop: he sends notes, Claude proposes the changes, he approves, repeat until he is through. The five items the 2026-10-01 README audit had parked for it were settled with him on 2026-10-05, before his notes: four fixed (the abstract names the training oracle for its 97% / 80%; §3.3's cross-judge rule scoped to questionnaire scores, so the 0.05 / 0.20 praise comparison no longer contradicts it; §1 expands and cites DPO, `rafailov2023dpo`; Appendix E.1 matches the script, which now ranks every therapist reply: Lior asked why only the first five, and widening the window changed nothing at the top), float crowding moved to step 13 | the four fixes done 2026-10-05 (local commits, awaiting his approval; ledger block "2026-10-05"); his notes not yet started |
-| 12 | With Doron: the contributions paragraph (his "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open; §3.1 has it) | |
+| 12 | **Runs before 11 (Lior, 2026-10-05).** The contributions paragraph (Doron's "most important" note), then the abstract; the Q1+Q2 justification in the intro and Discussion (his pass-1 note, open; §3.1 has it). Drafted with Lior, then pushed to Overleaf for Doron's read and notes | planning 2026-10-05 |
+| 11 | **Lior's read-through of the whole paper**, after step 12, as a loop: he sends notes, Claude proposes the changes, he approves, repeat until he is through; Doron's notes on step 12 fold in. The five items the 2026-10-01 README audit had parked for it were settled with him on 2026-10-05, before his notes: four fixed (the abstract names the training oracle for its 97% / 80%; §3.3's cross-judge rule scoped to questionnaire scores, so the 0.05 / 0.20 praise comparison no longer contradicts it; §1 expands and cites DPO, `rafailov2023dpo`; Appendix E.1 matches the script, which now ranks every therapist reply: Lior asked why only the first five, and widening the window changed nothing at the top), float crowding moved to step 13 | the four fixes done, approved and pushed to GitHub and Overleaf 2026-10-05 (`ff7660d`..`7631493`; ledger block "2026-10-05"); his notes not yet started |
 | 13 | Hide the notes (`\dnotesfalse`, `main.tex`); length pass (the body ends 15 lines into page 11 on 2026-10-01 and must end on page 8: a little over two pages); float crowding, after the cut (moved from step 11 on 2026-10-05); ARR checklist (its section, appendix and table pointers are stale since the 2026-09-24 restructure, e.g. "Table 5" for the configuration table that is now Table 9, "C.x" for what is now Appendix D, 22 model states for 21; re-point them AFTER the length pass, which will move them again); code zip; submit ≈ 9 Oct (deadline 12 Oct) | |
 | later | Appendix E.2's typical case has two $K{=}5$ turns cut at the cap (utterances 6 and 8). A re-pick by the same median rule among the 39 of 96 personas whose first three $K{=}5$ turns end below the cap is possible (E.1's $K{=}5$ turns already do: 73, 66, 137 tokens). Lior: "maybe later" | parked |
 
@@ -575,8 +578,9 @@ To eyeball the layout, the repo `.venv` has PyMuPDF: `fitz.open("main.pdf")[p].g
 
 ## Before submission (open items)
 
-The ordered work is plan steps 11–13 above (Lior's read-through, the contributions and abstract
-with Doron, then notes hidden + length pass + checklist + code zip). Beyond those:
+The ordered work is plan steps 12, 11, 13 above (the contributions and abstract, pushed for
+Doron's notes; Lior's read-through; then notes hidden + length pass + checklist + code zip).
+Beyond those:
 
 - **Supervisors.** Doron has read the draft in five Overleaf passes (21–27 Sep), all answered
   through plan step 9; three of his notes are open on purpose (§1 contributions, §3.1 Q1+Q2 in the
