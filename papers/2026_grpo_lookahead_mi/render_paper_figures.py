@@ -11,9 +11,9 @@ tables for every value the captions quote.
     & ..\\..\\.venv\\Scripts\\python.exe render_paper_figures.py
 
 Writes, under ``figures/``: ``levels_grid_grpo_<judge>`` (Fig. 2 and its held-out twin, on the
-shared Base since 2026-09-24; ``k_headline_q1q2_grpo`` before that) and ``overpraise_judgefree_grpo``
--- the same destination names ``sync_figures.py`` used to copy, so the .tex is unchanged;
-``sync_figures.py`` no longer lists them. ``saturation()`` (the former Fig. 4, dropped 2026-09-16)
+shared Base since 2026-09-24; ``k_headline_q1q2_grpo`` before that) and, since 2026-10-05,
+``praise_grpo`` (the three praise measures; ``overpraise_judgefree_grpo``, the keyword marker
+alone, before that); ``main()`` lists the rest. ``saturation()`` (the former Fig. 4, dropped 2026-09-16)
 is kept for the Spearman / variance-ratio printout that checks section 7's numbers, and
 ``forest()`` (the channel forest, dropped 2026-09-29 with MITI's behaviour counts),
 ``textspace()`` and ``tail_audit()`` (both dropped 2026-09-30) are kept too; ``main()`` calls
@@ -202,6 +202,40 @@ def overpraise() -> Path:
     ax.legend(frameon=False, loc="upper left", fontsize=6.0, handlelength=1.5,
               borderaxespad=0.2, labelspacing=0.2, handletextpad=0.4)
     return save_at_width(fig, "overpraise_judgefree_grpo.png")
+
+
+def praise() -> Path:
+    """Appendix A (since 2026-10-05, replacing ``overpraise``): praise by iteration, three ways,
+    one panel each on a shared y-axis -- the utterance coder's non-specific-praise share under the
+    training oracle and under the held-out judge (``process_levels_<judge>``: ``th_PRA_rate`` and
+    its SE over conversations), and the judge-free keyword marker (``marker_and_length``:
+    ``lex_overpraise_marker_rate`` and its SE). Lior's read: the body argues that the three agree,
+    and until now no figure showed them side by side (the coder's share was one band of the
+    stacked code mix)."""
+    mk = pd.read_excel(SHARED_BASE_XLSX, sheet_name="marker_and_length")
+    panels = []
+    for judge in (PRIMARY, HELDOUT):
+        lv = pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"process_levels_{judge}")
+        panels.append((lv, "th_PRA_rate", f"coder, {JUDGE_TITLE[judge]}"))
+    panels.append((mk, "lex_overpraise_marker_rate", "keyword marker, no model"))
+    name = "praise_grpo.png"
+    fig, axes = plt.subplots(1, 3, figsize=figsize(name, 0.27, 0.94), sharey=True)
+    for ax, (df, col, title), letter in zip(axes, panels, "abc"):
+        for arm in ("GRPO_LA0", "GRPO_LA5"):
+            g = df[df.arm == arm].sort_values("iteration")
+            ax.fill_between(g.iteration, g[col] - g[f"{col}_se"], g[col] + g[f"{col}_se"],
+                            color=COL[arm], alpha=0.18, lw=0)
+            ax.plot(g.iteration, g[col], color=COL[arm], label=LAB[arm], ms=3.0, lw=1.4,
+                    **STY[arm])
+        ax.set_xlim(-0.3, 10.3)
+        ax.set_xticks(range(0, 11, 2))
+        ax.set_ylim(0, 0.8)
+        ax.set_xlabel("iteration")
+        ax.set_title(f"({letter}) {title}", loc="left", fontweight="bold")
+    axes[0].set_ylabel("share of therapist turns")
+    axes[0].legend(frameon=False, loc="upper left", fontsize=6.0, handlelength=1.5,
+                   borderaxespad=0.2, labelspacing=0.2, handletextpad=0.4)
+    return save_at_width(fig, name, 0.94, w_pad=1.2)
 
 
 # --- the utterance-level process figures (2026-09-17) -------------------------------------------
@@ -869,7 +903,9 @@ def main(argv: list[str] | None = None) -> int:
     # textspace() drew the three-panel Appendix A embedding figure and tail_audit() the Appendix A
     # rollout audit until 2026-09-30 (Lior's read: the body figure, textspace_body, now carries
     # the two panels that stay; the audit stays as text); both kept, not called.
-    every = (levels_grid_primary, levels_grid_heldout, overpraise, process, process_heldout,
+    # overpraise() drew the single-panel keyword-marker figure until 2026-10-05, when praise()
+    # put it beside the coder's praise share under both judges; kept, not called.
+    every = (levels_grid_primary, levels_grid_heldout, praise, process, process_heldout,
              responsiveness, textspace_body, praise_premium, faithfulness)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}

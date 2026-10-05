@@ -5,7 +5,9 @@ Table~\ref{tab:scores}: every instrument at every iteration under the training o
 judge's version is Table~\ref{tab:scores-heldout} in Appendix~\ref{app:heldout}, which collects
 that judge's results). Table~\ref{tab:process-all}: the process measures of
 Table~\ref{tab:process} at every iteration (held-out: Table~\ref{tab:process-all-heldout}).
-Figure~\ref{fig:overpraise}: the keyword marker of \S\ref{sec:therapist}.
+Table~\ref{tab:codes}: every code of the utterance coder at the Base and at iteration 10, under
+both judges. Figure~\ref{fig:overpraise}: the three praise measures of \S\ref{sec:therapist}
+side by side.
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
 iteration under both judges.
 
@@ -115,14 +117,59 @@ Table~\ref{tab:process}.}
 \label{tab:process-all}
 \end{table*}
 
-\begin{figure}[!htb]
+\begin{table*}[t]
 \centering
-\includegraphics[width=0.47\textwidth]{figures/overpraise_judgefree_grpo.png}
-\caption{The keyword marker of \S\ref{sec:therapist} by iteration: the share of therapist turns
-containing at least one of ten praise phrases (Appendix~\ref{app:marker}), no model in the loop.
-Iteration 0 is the Base.}
+\footnotesize
+\setlength{\tabcolsep}{4.5pt}
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}lrrrlrrrl@{}}
+\toprule
+& \multicolumn{4}{c}{\primaryjudge\ (training oracle)} & \multicolumn{4}{c}{\heldoutjudge\ (held out)}\\
+\cmidrule(lr){2-5}\cmidrule(l){6-9}
+Therapist code & Base & $\Kz$ & $\Kf$ & \dz & Base & $\Kz$ & $\Kf$ & \dz\\
+\midrule
+\multicolumn{9}{@{}l}{\emph{MI-adherent}}\\
+open question & $0.087$ & $0.000$ & $0.011$ & $+0.32^{*}$ & $0.175$ & $0.000$ & $0.032$ & $+0.57^{***}$\\
+simple reflection & $0.137$ & $0.070$ & $0.046$ & $-0.26$ & $0.020$ & $0.000$ & $0.000$ & ---\\
+complex reflection & $0.018$ & $0.020$ & $0.230$ & $+0.90^{***}$ & $0.031$ & $0.016$ & $0.242$ & $+0.94^{***}$\\
+affirmation & $0.029$ & $0.196$ & $0.147$ & $-0.18$ & $0.026$ & $0.009$ & $0.067$ & $+0.56^{***}$\\
+seeking collaboration & $0.035$ & $0.004$ & $0.004$ & $-0.01$ & $0.030$ & $0.012$ & $0.019$ & $+0.11$\\
+\midrule
+\multicolumn{9}{@{}l}{\emph{MI-inconsistent}}\\
+non-specific praise & $0.041$ & $0.407$ & $0.053$ & $-1.19^{***}$ & $0.038$ & $0.762$ & $0.203$ & $-2.19^{***}$\\
+persuasion & $0.203$ & $0.055$ & $0.279$ & $+0.79^{***}$ & $0.166$ & $0.033$ & $0.268$ & $+0.83^{***}$\\
+confront & $0.004$ & $0.001$ & $0.000$ & $-0.10$ & $0.010$ & $0.000$ & $0.001$ & $+0.10$\\
+\midrule
+\multicolumn{9}{@{}l}{\emph{Neither}}\\
+closed question & $0.039$ & $0.000$ & $0.003$ & $+0.13$ & $0.245$ & $0.000$ & $0.013$ & $+0.38^{**}$\\
+giving information & $0.378$ & $0.245$ & $0.227$ & $-0.07$ & $0.205$ & $0.168$ & $0.154$ & $-0.07$\\
+other & $0.029$ & $0.001$ & $0.001$ & $-0.02$ & $0.053$ & $0.000$ & $0.002$ & $+0.14$\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Every code of the utterance coder} at the Base and at iteration 10, under both
+judges: the share of therapist turns whose dominant function is each code (mean over
+conversations, the Base's 192 and each run's 96; opener excluded; each column sums to one up to
+rounding), grouped as the MI-adherent and MI-inconsistent shares of Table~\ref{tab:process} sum
+them, and the persona-paired \dz\ of $\Kf - \Kz$ with Table~\ref{tab:process}'s test and stars
+(---: both runs at zero). The two judges code the same turns differently: the held-out judge
+labels fewer turns as simple reflections, more of the Base's as closed questions, and as praise
+much of what the training oracle labels affirmation in the $\Kz$ policy. Read each judge's columns
+on their own. Figure~\ref{fig:process}a--b draws the training oracle's mix at every iteration.}
+\label{tab:codes}
+\end{table*}
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/praise_grpo.png}
+\caption{Praise by iteration, measured three ways (iteration 0 is the Base; mean $\pm$ SE over
+conversations): the share of therapist turns the utterance coder labels non-specific praise under
+\textbf{(a)} the training oracle and \textbf{(b)} the held-out judge, and \textbf{(c)} the share
+containing at least one of the keyword marker's ten praise phrases (Appendix~\ref{app:marker}),
+with no model in the loop. Under $\Kz$ all three jump at iteration 8, fall back at 9 and peak at
+10. Under $\Kf$ the training oracle's share and the keyword marker stay at or below $0.07$, while
+the held-out judge's share rises to $0.20$ at iteration 10 (\S\ref{sec:therapist}).}
 \label{fig:overpraise}
-\end{figure}
+\end{figure*}
 
 \begin{figure*}[t]
 \centering
