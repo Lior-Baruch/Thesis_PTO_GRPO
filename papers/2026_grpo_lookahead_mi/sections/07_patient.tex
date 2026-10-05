@@ -17,6 +17,8 @@ per-iteration tests quoted below.
 \renewcommand{\arraystretch}{0.95}
 \begin{tabular}{@{}lrrrl@{}}
 \toprule
+& \multicolumn{3}{c}{training oracle} & \multicolumn{1}{@{}l@{}}{\scriptsize $\Kf{-}\Kz$}\\
+\cmidrule(lr){2-4}\cmidrule(l){5-5}
 Per-conversation measure & Base & $\Kz$ & $\Kf$ & \dz\\
 \midrule
 \multicolumn{5}{@{}l}{\emph{Therapist turns (share by dominant function)}}\\
@@ -36,18 +38,18 @@ sustain talk: reflects it & $0.217$ & $0.256$ & $0.368$ & $+0.27$\\
 change talk & $0.750$ & $0.796$ & $\mathbf{0.968}$ & $+0.62^{***}$\\
 sustain talk & $0.281$ & $0.276$ & $0.326$ & $+0.18$\\
 \midrule
-\multicolumn{5}{@{}l}{\emph{The session}}\\
+\multicolumn{5}{@{}l}{\emph{The session (share of all patient utterances)}}\\
 change-talk share & $0.448$ & $0.528$ & $\mathbf{0.683}$ & $+0.56^{***}$\\
 \bottomrule
 \end{tabular}
 \caption{\textbf{The process at iteration 10} under the training oracle (every iteration:
-Appendix Table~\ref{tab:process-all}; the held-out judge's version is
-Table~\ref{tab:process-heldout}): each run's mean over its 96 conversations, the Base's
-over its 192, and the persona-paired \dz\ of $\Kf - \Kz$ (positive: more under $\Kf$;
-$\downarrow$: lower is better; bold: the better run where the contrast is significant). Rows that
-start from a patient utterance average only the conversations that contain one, and their paired
-contrasts use the $65$--$76$ personas for which it occurs under both runs. Stars: Holm across the
-ten iterations within measure, $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$.}
+Table~\ref{tab:process-all}; held-out judge: Table~\ref{tab:process-heldout}): each run's mean
+over its 96 conversations, the Base's over its 192, and the persona-paired \dz\ of $\Kf - \Kz$
+(positive: more under $\Kf$; $\downarrow$: lower is better, otherwise higher). No test involves the
+Base; bold: the better run where \dz\ is starred, even if the Base is better. The reply and
+next-utterance rows average only the conversations with that patient utterance; their \dz\ pairs
+the personas with it under both runs ($76$ for change talk, $65$ for sustain talk). Stars: Holm
+across the ten iterations within measure, $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$.}
 \label{tab:process}
 \end{table}
 
@@ -57,8 +59,8 @@ ten iterations within measure, $^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$.}
 % \dnotedone{answered: reflection defined in §3.1, reply rates in Appendix D.3}{[reflects it?]}
 % \dnotedone{metaphor dropped: now change talk, defined in §3.1}{[own case for change -?]}
 When the patient expresses change talk, the $\Kf$ policy
-reflects it in $0.26$ of cases, against $0.003$ for the $\Kz$ policy and $0.14$ at the Base
-(Appendix Figure~\ref{fig:responsiveness}), a difference significant at iterations 1 and 6--10. When
+reflects it in $0.26$ of cases, against $0.003$ for the $\Kz$ policy (Base $0.14$;
+Appendix Figure~\ref{fig:responsiveness}), a difference significant at iterations 1 and 6--10. When
 the patient expresses sustain talk, MI's answer is again a reflection, and the two policies do not
 differ significantly in how often they give it ($0.37$ under $\Kf$, $0.26$ under $\Kz$, $0.22$ at
 the Base). Instead, each has its own MI-inconsistent answer. 
@@ -68,7 +70,7 @@ the Base). Instead, each has its own MI-inconsistent answer.
 The $\Kz$ policy praises: $0.32$ of
 its replies to sustain talk, against $0.02$ at the Base, which is the reply of
 Table~\ref{tab:excerpt} measured across conversations. The $\Kf$ policy persuades: $0.39$ of
-its replies, against $0.24$ at the Base, which is MI's righting reflex. 
+its replies to sustain talk, against $0.24$ at the Base, which is MI's righting reflex. 
 % \dnotedone{answered: praise premium measured, Appendix C.4}{[which the rubric rewards in the turn where it happens ??]}
 Both runs' rewards gave
 higher scores to praise in the middle of training: among the eight candidate replies the reward
@@ -81,7 +83,7 @@ Figure~\ref{fig:premium}).
 % \dnotedone{cut; measured change-talk persistence replaces it}{[ pays in the turns the rubric is not shown at $K{=}0$. ?]}
 \textbf{Whether change talk continues.} Under the $\Kf$ policy, a patient who has just expressed
 change talk expresses it again in the next utterance in $0.97$ of cases, against $0.80$ under $\Kz$
-and $0.75$ at the Base (Figure~\ref{fig:process}c), a difference significant at every iteration
+(Base $0.75$; Figure~\ref{fig:process}c), a difference significant at every iteration
 from 5 on. No single kind of reply accounts for it: the $\Kf$ policy's four most common replies to
 change talk (complex reflections, affirmations, persuasion and information giving) are each
 followed by change talk in at least $97\%$ of cases, pooled over turns. 
