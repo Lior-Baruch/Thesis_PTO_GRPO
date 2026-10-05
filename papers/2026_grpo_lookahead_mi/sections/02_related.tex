@@ -1,14 +1,14 @@
 \section{Related work}
 \label{sec:related}
 
-\textbf{Group-relative policy optimisation.}
+\textbf{Group-relative policy optimization.}
 GRPO \citep{shao2024deepseekmath} replaces the learned value function used in PPO-style
 RL \citep{schulman2017ppo, ouyang2022instructgpt} with advantages computed relative to
 a group of completions sampled for the same prompt, and has become a common approach
 for reinforcement learning with language models \citep{guo2025deepseekr1}.
 This makes it possible to study temporal credit in dialogue without introducing a learned
-value function over conversation states. In our setting, the optimiser, loss, group
-normalisation, and KL regularisation are held fixed. The experimental variable is instead
+value function over conversation states. In our setting, the optimizer, loss, group
+normalization, and KL regularization are held fixed. The experimental variable is instead
 the \emph{reward horizon}: how much of the conversation the reward model is allowed to
 observe when ranking candidate therapist turns.
 
@@ -17,7 +17,7 @@ Assigning credit to a dialogue action for its downstream consequences is a long-
 problem in reinforcement-learning approaches to dialogue
 \citep{levin2000stochastic, singh2002optimizing}. Neural dialogue systems have approached
 it in several ways. Some methods learn utterance- or state-level estimates of future value
-\citep{li2016deeprl, zhou2024archer}, while others optimise preferences or rewards defined
+\citep{li2016deeprl, zhou2024archer}, while others optimize preferences or rewards defined
 over longer interaction trajectories \citep{shani2024multiturn}. More recent work uses
 model-generated interaction directly, through imagined conversations
 \citep{hong2023imagined}, role-played social interaction \citep{wang2024sotopiapi},
@@ -25,7 +25,8 @@ simulated users \citep{qian2025userrl}, regression onto future rewards
 \citep{gao2024refuel}, or training-time critics with access to subsequent interaction
 \citep{zhou2025sweetrl}. Related GRPO methods assign credit using later user turns
 \citep{zhao2026faca} or aggregate rewards over future branches of a dialogue
-\citep{peng2026atgrpo}.
+\citep{peng2026atgrpo}, and Sotopia-RL \citep{yu2025sotopiarl} refines episode-level
+feedback on social interactions into utterance-level rewards.
 
 A particularly direct way to address delayed credit is to simulate what happens after a
 candidate action and let those consequences affect its reward. Simulated continuations
@@ -43,7 +44,7 @@ whether a candidate therapist turn is rewarded for how it appears now or for the
 that follows it.
 
 \textbf{Reward models and LLM judges.}
-Optimising a learned or otherwise imperfect proxy can produce behaviour that scores well
+Optimizing a learned or otherwise imperfect proxy can produce behavior that scores well
 under the proxy without improving the intended objective
 \citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling}.
 This concern is especially relevant when the reward itself is produced by a language model.
@@ -51,7 +52,7 @@ LLM judges can exhibit systematic preferences, including sycophancy-related effe
 \citep{sharma2024sycophancy, perez2023discovering}, preference for their own generations
 \citep{panickssery2024selfpreference}, and sensitivity to response length
 \citep{singhal2024long, dubois2024lengthcontrolled}. In multi-turn learning, the temporal
-scope of the judge creates an additional opportunity for proxy exploitation: a behaviour may
+scope of the judge creates an additional opportunity for proxy exploitation: a behavior may
 look desirable in the turn where it occurs while having undesirable effects later in the
 interaction. We therefore evaluate the trained policies not only with the model used to
 produce the training reward, but also with a held-out judge from another model family and
@@ -62,7 +63,7 @@ with measures outside the rewarded rubric.
 A different line of work improves the judge itself.
 % \dnotedone{yes, it is cited in §1; the name now appears once}{already cited?}
 \citet{yuan2024selfrewarding} train a language model to judge its own candidate responses and use the resulting preferences for
-iterative DPO, and \citet{wu2025metarewarding} also train it to judge its own judgements. Recent
+iterative DPO, and \citet{wu2025metarewarding} also train it to judge its own judgments. Recent
 methods also allow the evaluation criteria to change as the policy improves: SERPO
 \citep{wang2026serpo} evolves question-specific rubrics alongside the policy, DynamicRubric
 \citep{wang2026dynamicrubric} generates weighted criteria that separate the current candidate
@@ -83,20 +84,20 @@ simulated interaction the reward can observe while holding the judge fixed.
 
 \textbf{Motivational interviewing.}
 Motivational interviewing (MI) \citep{miller1991mi} is particularly useful for studying
-temporal credit because therapist behaviour is evaluated partly through what it elicits from
-the patient. MI aims to cultivate \emph{change talk}, the patient's own language in favour
+temporal credit because therapist behavior is evaluated partly through what it elicits from
+the patient. MI aims to cultivate \emph{change talk}, the patient's own language in favor
 of change, while reducing or productively responding to \emph{sustain talk}
 \citep{moyers2016miti}. Its process tradition therefore examines not only what a therapist
 says, but how therapist and patient utterances unfold sequentially. MI has established
 coding schemes such as MITI \citep{moyers2016miti}, and computational work has developed
-expert-annotated counselling corpora \citep{wu2022annomi}, automatic measures of
-counselling quality \citep{perezrosas2019goodcounselor, yosef2024assessing}, and simulated
-patients for training counsellors and clinicians
+expert-annotated counseling corpora \citep{wu2022annomi}, automatic measures of
+counseling quality \citep{perezrosas2019goodcounselor, yosef2024assessing}, and simulated
+patients for training counselors and clinicians
 \citep{steenstra2025scaffolding, wang2024patientpsi}. Recent work also trains LLM
-counsellors or clinicians through reinforcement learning against simulated patients
+counselors or clinicians through reinforcement learning against simulated patients
 \citep{yang2026mithinker, lievin2026residencyrl}. Studies of LLM therapists suggest that
-their behaviour can differ systematically from expert counselling practice, for example by
-advising in contexts where an MI counsellor would be more likely to reflect
+their behavior can differ systematically from expert counseling practice, for example by
+advising in contexts where an MI counselor would be more likely to reflect
 \citep{chiu2024bolt}. These properties make MI a useful test case for reward horizon:
 whether a therapist turn is effective cannot be judged solely from the turn itself, because
 part of its value lies in what the patient says next.
