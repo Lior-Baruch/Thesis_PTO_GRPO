@@ -73,35 +73,11 @@ by default in Gemma 4 AND explicitly disabled per request (`enable_thinking: fal
 
 ## Layout
 
-```
-Exp4_OpenStack/
-├── CLAUDE.md          this file — the spec AND the implementation contract
-├── README.md          folder map + data-symlink recreation
-├── code/
-│   ├── questionnaires.py          VERBATIM from Exp3 — do not edit
-│   ├── system_prompts_builder.py  VERBATIM from Exp3 — do not edit
-│   ├── roles.py                   role→provider bindings + vLLM serve planning
-│   ├── naming.py                  THE arm-name grammar (one regex, shared by trainers + EDA)
-│   ├── core/                      the shared trainer layer
-│   │   ├── concurrency.py         async primitives (loop-keyed semaphores, gpu_lock, _run_async)
-│   │   ├── config.py              frozen config dataclasses
-│   │   ├── runtime.py             host detect, auth, workspace root, import-order guard
-│   │   ├── policy.py              tokenizer/ChatML, LoRA, patch_generate, checkpoints, resume
-│   │   ├── conversations.py       ConversationState, patient calls, conv loop, transcripts, MCL
-│   │   ├── lookahead.py           K-turn lock-step simulation
-│   │   ├── oracle.py              schema-constrained scoring + aggregation
-│   │   ├── reward.py              make_reward_fn (oracle ∘ lookahead) + GRPO group recording
-│   │   ├── recorder.py            generations.jsonl capture
-│   │   ├── timing.py              append-only per-phase session log
-│   │   └── tb.py                  TensorBoard writers + post-hoc dashboard
-│   ├── grpo/{grpo_trainer.py, train_grpo.ipynb}
-│   ├── pto/{pto_trainer.py, train_pto.ipynb}
-│   └── tools/{vllm_serve.py, oracle_sanity.py, smoke.py, generate_convs.py, fixtures/sanity/}
-├── data/              GITIGNORED — three Google Drive symlinks (see README)
-├── eda/               lean analysis package + notebooks + render driver; notebooks/scoring/Run_Eval.ipynb
-│                      runs on the GPU host (Colab / server) — eda/ is pushed to Drive beside code/
-└── history/           CHANGELOG.md — the only DATED narrative (decision rounds, the pre-run review)
-```
+This file is the spec AND the implementation contract. Folder map: [README.md](README.md) § Map;
+each module's one-line purpose is the first line of its docstring. `code/questionnaires.py` +
+`code/system_prompts_builder.py` are **VERBATIM from Exp3 — do not edit**. `eda/` is pushed to
+Drive beside `code/` (`notebooks/scoring/Run_Eval.ipynb` runs on the GPU host); `history/CHANGELOG.md`
+is the only DATED narrative.
 
 ## Naming — the arm identity grammar
 
@@ -1172,6 +1148,24 @@ hard-fails on any prompt over the cap, notes headroom under 1.25×, and REFUSES 
 report function is absent — an undecidable gate must not read as a green one). Contract in
 § Module contract, `code/tools/oracle_sanity.py`.
 
+**What [tools/fake_oracle_server.py](code/tools/fake_oracle_server.py) buys.** It is a test double
+for the *endpoint*, so the plumbing between Exp4 and the wire is verifiable with no vLLM, no Colab
+and no GPU for the oracle half. Proven against it: the request really does carry a `json_schema`
+with the right item count and bounds; the thinking-off `extra_body` reaches the wire; the
+validation ladder rejects a short `scores` array and rejects prose instead of coercing either into
+a number; and the reward is the unweighted mean across rubrics. Then, with the same double standing
+in as the patient and the real Llama on the local card, a generate-only pass produced
+`pers<PID>.csv` files that round-trip through the reader into the oracle transcript format and
+score — the whole loop, end to end.
+
+⚠ **This proves the plumbing, not the grader.** A healthy-shaped double says nothing about whether
+Gemma-4-E4B can actually measure MI quality. That is what the real `oracle_sanity` run on Colab is
+for, and it remains the gate that must pass before any arm.
+
+The reason the double is worth keeping: a *real* grader that happens to be healthy cannot tell you
+whether the degeneracy gate would have caught a bad one. Pointing `--policy degenerate` at it is
+the only way to test the gate itself, and that check now runs in about a second.
+
 ## Hyperparameters (matched across methods, as in Exp3)
 
 `MCL=12`, K ∈ {0, 5}, `NUM_CONVERSATIONS_PER_ITER=96`, PTO's `M` = GRPO's `G` = 8, matched
@@ -1367,174 +1361,10 @@ Everything runnable without Colab is green: **200 smoke checks** (`32 + 29 + 29 
 lengths come back well under the cap, which is the anti-degeneracy stack working rather than merely
 wired up.
 
-### The 2026-09-14 pre-Colab review (the last pass before the first Colab session)
-
-Four read-only reviewers over the notebooks + Colab path, the serving layer (against the live
-vLLM / Gemma 4 sources), the trainer loops, and the oracle-sanity + scoring path; every local
-suite re-run green. Still pre-data. One line each; the narrative is in
-[history/CHANGELOG.md](history/CHANGELOG.md).
-
-- **BLOCKER, fixed — vLLM is now pinned (`PINNED_VLLM = "0.26.0"`, both install cells).** An
-  unpinned install resolved to 0.29.0, whose `transformers>=5.10.4` / `torch==2.13.0` the pinned
-  stack cannot meet, so the cell's own pip-check gate raised on a fresh runtime. 0.26.0 pins
-  torch 2.11.0 (the locally validated torch) and every one of its requirements is inside the pins.
-- **BLOCKER #2, found on the first Colab session and fixed — the CUDA BUILD is pinned too.**
-  The PyPI `vllm==0.26.0` wheel is a CUDA 13 build (`import vllm` died on a missing
-  `libcudart.so.13`), while Colab's pre-installed torch is a CUDA 12 build whose version already
-  satisfied `torch==2.11.0`, so pip never replaced it. The cell now installs the **`+cu129`
-  wheel from the GitHub release** and first forces the torch trio to `2.11.0+cu129` /
-  `0.26.0+cu129` / `2.11.0+cu129` from the PyTorch cu129 index (`--force-reinstall --no-deps`,
-  then a deps-only pass — a plain `-U` keeps a `+cu130`). The warm-runtime check now compares
-  the build tag (`0.26.0+cu129`, `torch 2.11.0+cu129`), and the import probe prints torch's CUDA.
-- **Rehearsal finding #1, fixed — TRL's first prefill OOM'd beside the server.** With the stack
-  up, the sanity gate green and 16 conversations generated (107 s, 5.43 GiB peak), the
-  128-completion whole-prompt prefill asked for 7.98 GiB on top of 34.4 GiB: the fp32 LoRA MLP
-  intermediate, `128 × 2,048 × 8,192 × 4 B = 8 GiB`, a term the VRAM arithmetic had missed. Fix:
-  **chunked prefill** — `PREFILL_CHUNK_SIZE = 512` in both cell 1s → `GenConfig.prefill_chunk_size`
-  (recorded) → `core.policy.set_prefill_chunk_size` at every iteration entry → `patch_generate`
-  injects it into EVERY `generate` (TRL's config object and the loose-kwarg shape alike). Memory-only:
-  `smoke.py prefill` pins identical fp32 logits (`3e-5`) and greedy tokens, and a lower peak at the
-  production dtypes. Plus `PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True` in both import cells
-  (8 GiB was reserved-but-unallocated at the OOM). Envelope `19.7 → 25.7 GiB`; the 40 GB fallback
-  no longer fits at the documented shape (`smoke.py vram` WARNS with the hatch arithmetic). § VRAM budget.
-- **The pip-check gate fails only on conflicts whose REQUIRING package the stack owns** (the
-  pins + vllm + torch); stock Colab's own conflicts are printed and tolerated. A warm runtime is
-  re-checked too.
-- **Text-only serving flag** (`roles.DEFAULT_SERVE_EXTRA_ARGS`, composed by `plan_servers`):
-  the Gemma checkpoints are multimodal and vLLM profiled the vision + audio towers inside the KV
-  pre-allocation. § VRAM budget.
-- **GRPO `QUICK_TEST` runs 16 conversations, not 8** — a G=4 step needs 32 eligible slices and
-  8 conversations could raise "ZERO optimizer steps" after the generate pass; two batches of 8
-  also rehearse the inter-batch allocator. PTO stays at 8.
-- **`DISABLE_DROPOUT` is now a cell-1 global in BOTH notebooks** (GRPO relied on the
-  `TrainingConfigBase` default; matched either way, but the spec's mechanism claim was false).
-- `metadata_fields` emits `cumulative_production_time_s` + `n_timing_sessions_production` (the
-  resume flag the docs point readers at); `smoke.py roles` defaults to the 1800 s readiness
-  timeout; the `enable_thinking` key is verified against the E4B chat template and the "strict is
-  what enforces the grammar" comment corrected (inert on vLLM).
-- **Ladder mechanics written down** (§ Next session): the High-RAM toggle IS the 80 GB card;
-  `smoke.py roles` before the serve cell; the notebooks run the full sanity gate inline; kill
-  during iteration 2; check for orphaned engine workers after a kill; rename the `_G4_` / `_M3_`
-  rehearsal folders before scoring — the EDA treats them as arms.
-
-### The 2026-09-02 pre-run review (blockers + should-fixes, applied while no data exists)
-
-Four read-only reviewers + owner spot-checks over the whole tree, then one agent per layer
-applying the fixes concurrently. One line each; the narrative, the 80 GB decision and the
-science-change rationale are in [history/CHANGELOG.md](history/CHANGELOG.md). Everything is
-pre-data, so nothing had to be re-run — which is exactly why it was done now.
-
-- **Target card is the Colab A100 80 GB** (40 GB fallback). § VRAM budget rewritten with the
-  arithmetic; `describe_environment` records `gpu_total_gib` + `vllm_version` + package versions.
-- **GRPO `64 × 2` (ckpt off) → `16 × 8` + gradient checkpointing; `EVAL_BATCH_SIZE=16`.** The old
-  shape measured ~67 GB in Exp3 with no vLLM beside it.
-- **Dropout off in both methods** (`LORA_DROPOUT=0.0`, `disable_dropout=True`) — method-symmetric.
-- **THE PROMPT RULE** (`core.policy`): rendered text never carries BOS, every tokenization adds
-  exactly one — fixed a double BOS on Instruct / no BOS on base.
-- **Drop-oldest generation truncation** (`core.policy.build_prompt`) replaces token-level left
-  truncation at serve time: the system prompt survives past utterance ~24, and training prompts
-  are byte-identical to what the policy generated from. Science change, both methods, both K.
-- **Look-ahead simulator failures are NOT graded** (`NOT_GRADED_STOP_REASONS`; `score=None`,
-  `not_graded_reason`), gate-counted; `SESSION ENDED` candidates graded on the seed only.
-- **Patient + oracle paths:** an empty patient reply is retried; HTTP 4xx (except 408/429) raise
-  immediately on both paths instead of burning the whole retry budget.
-- **Timing:** `log_training_progress` at every checkpoint save + `finalize_training` — a preempted
-  training phase now leaves its partial wall-clock on the cost record.
-- **Resume:** both trainers reload the adapter via `load_adapter("default")` (the previous path
-  re-anchored the reference); `smoke.py resume` pins it.
-- **`QUICK_TEST` is a real rehearsal** (shapes kept, counts shrunk: G=4 / M=3, 8 conversations,
-  2 iterations); per-phase peak memory → `iteration_metadata.json`; steps/epoch floor.
-- **PTO:** samples branches from the exact DPO training prompt (asserted); BOS rule on the DPO
-  tokenization path; incremental EDA flush + slimmer `_progress.json`; chunk halve-and-retry;
-  metadata written before the adapter.
-- **Tools:** `roles.DEFAULT_SERVE_UTIL` + `default_serve_util()` (one table for the trainer
-  notebooks — asserted in their serve cells — and smoke; `Run_Eval` keeps its own idle-GPU 0.85);
-  `smoke.py vram` for 80 + 40 GB; the thinking gate; vLLM double-launch registry, 1800 s
-  startup timeout, KV-cache-tokens report; `fake_oracle_server` serves E4B;
-  `oracle_sanity.prompt_length_report`; smoke `resume` + BOS checks.
-- **Install cell** pip-checks, probes vLLM and RAISES to stop after installing (a run-all cannot
-  continue on a half-installed kernel).
-- **Scoring can run:** `Run_Eval.ipynb` gained the Colab mount preamble, E4B comments, an
-  80 GB-accurate `SERVE_GPU_MEMORY_UTILIZATION` note and the prompt-length gate (§ 8);
-  `scoring.py` gained `gather_transcripts` / `prompt_length_gate` / `check_prompt_length_gate`;
-  `eda/` is pushed to Drive with `code/`.
-- **Docs:** this spec's module contract carries the new helpers; `history/CHANGELOG.md` created;
-  the root `CLAUDE.md` Exp4 paragraph names the 80 GB target.
-
-Every claim above was reconciled against the modules by the gate pass that closed the review
-(2026-09-02, [history/CHANGELOG.md](history/CHANGELOG.md) § the gate pass): the cross-file
-requests the fix agents could not apply themselves were applied there (`prompt_overflow` landed;
-`EDARecorder.append_to_disk` / `rewrite`; the `prompt_length_report` signature the scoring gate
-calls; a PTO config with unequal prompt budgets is refused; the install cells are byte-identical
-again; the serve cells assert the fraction against `roles.DEFAULT_SERVE_UTIL`), and the module
-contract now describes what the modules do.
-
-### The 2026-09-03 review-repair round
-
-Four adversarial reviewers over the 2026-09-02 batch, then one repair agent per layer. Still
-pre-data. The full list is in [history/CHANGELOG.md](history/CHANGELOG.md) § the review-repair
-round; what changed in this spec: `core.timing.begin_training_phase` (the training ledger is per
-ATTEMPT), `core.conversations.has_session_end` (one keyword matcher), look-ahead runtime errors
-halve-and-retry locally, PTO's `pairs.csv` marker is written only after every EDA row is on disk,
-PTO's peak-memory keys took GRPO's flat shape and its `run_metadata.json` gained the `runtime`
-block, `disable_dropout` moved to `TrainingConfigBase` (`DISABLE_DROPOUT` in both notebooks),
-`QUICK_TEST` sets `SAVE_STEPS=2` in both notebooks, the trainer envelope is ONE arithmetic
-(`2.5 + 8.8 + 4.4 + 4.0 = 19.7 GiB`, 40 GB headroom ≈ 0 and `smoke.py vram` warns), `ensure_alive`'s
-real call sites, `smoke.py roles` 24 / 28, the scoring gate's served-cap precedence, and the
-base-arm terminator asymmetry recorded above as deliberately unchanged.
-
-### The 2026-08-27 decision round (pre-Colab review with Lior)
-
-Decisions: grader = **E4B only** for now (a future grader swap is a NEW arm by construction — role
-tags are always encoded — so nothing needs re-running); **therapist became selectable** (base +
-Instruct, `_Th{tag}` appended to the grammar while zero folders existed); Instruct arms use the
-**native Llama-3 template + `<|eot_id|>` token-id stopping** (base arms keep ChatML + string
-stops); `NUM_ITERATIONS=10` matched; patient timeout matched at 90 s × 8; the GRPO notebook gained
-the QUICK_TEST block (G→4 → disjoint `_G4_` folder); `LOOKAHEAD_SUB_BATCH_SIZE=64` and
-TensorBoard-only logging stand. Fallout landed with the change: `roles._slugify` no longer strips
-`-Instruct` (base/Instruct would have shared a tag), every chat-template render pins
-`date_string=CHAT_TEMPLATE_DATE` (the Llama-3.2 template otherwise interpolates TODAY's date —
-prompts would drift across resume days), and `core.conversations`' token-budget estimators now
-MEASURE per-role wrapper overheads on the live template instead of hardcoding the ChatML wrapper
-(which would have over-billed every Instruct turn ~2×). The Instruct decode path is verified on the
-local GPU end-to-end (native template kept, eos list `[eot, eom, start_header]`, clean batched
-generations with empty stop strings, truncation budget respected).
-
-**What [tools/fake_oracle_server.py](code/tools/fake_oracle_server.py) buys.** It is a test double
-for the *endpoint*, so the plumbing between Exp4 and the wire is verifiable with no vLLM, no Colab
-and no GPU for the oracle half. Proven against it: the request really does carry a `json_schema`
-with the right item count and bounds; the thinking-off `extra_body` reaches the wire; the
-validation ladder rejects a short `scores` array and rejects prose instead of coercing either into
-a number; and the reward is the unweighted mean across rubrics. Then, with the same double standing
-in as the patient and the real Llama on the local card, a generate-only pass produced
-`pers<PID>.csv` files that round-trip through the reader into the oracle transcript format and
-score — the whole loop, end to end.
-
-⚠ **This proves the plumbing, not the grader.** A healthy-shaped double says nothing about whether
-Gemma-4-E4B can actually measure MI quality. That is what the real `oracle_sanity` run on Colab is
-for, and it remains the gate that must pass before any arm.
-
-The reason the double is worth keeping: a *real* grader that happens to be healthy cannot tell you
-whether the degeneracy gate would have caught a bad one. Pointing `--policy degenerate` at it is
-the only way to test the gate itself, and that check now runs in about a second.
-
-### The 2026-08-26 audit round (the re-run the previous session asked for)
-
-Six read-only auditors + one independent skeptic per finding, run to completion this time:
-**9 confirmed findings (0 refuted), all applied**, plus 15 desk-reviewed findings applied or
-documented. The headline classes: per-phase timing logging (a preempted process now leaves its
-finished phases on the cost record); the mid-training-resume reference bug (both TRL trainers
-snapshot the handed-in policy as their frozen KL/DPO reference *in* `__init__`, so
-`resolve_start_state` case B now returns iteration-start weights); reload-only generation on
-mid-training resume (HF fast-forwards batches positionally, so the dataset must match the crashed
-process's exactly); sticky OOM halving + a completeness raise in the conversation loop (no more
-silent biased subsets); the loop-keyed client cache (pooled keep-alive connections cannot cross
-event loops — measured: every parked connection poisons exactly one call on the next loop); EDA
-display-label disambiguation (a quicktest arm can no longer merge into the real arm's figures);
-the adapter↔iteration guard in the repair tool; file-validated "iteration done"; atomic
-conversation CSVs; the `pairs.csv` fingerprint sidecar; and the corrected VRAM budget above (the
-"~3 GB Gemma weights" premise was wrong by 3–5×). The "1/gas²" gradient-scale claim was verified
-FALSE on the pinned trl 1.4.0 and rewritten at all its sites.
+The dated review rounds that used to sit here — **2026-09-14** (pre-Colab), **2026-09-03**
+(review-repair), **2026-09-02** (pre-run review + its gate pass), **2026-08-27** (decision
+round) and **2026-08-26** (audit) — all live in [history/CHANGELOG.md](history/CHANGELOG.md),
+which carries each one in full. Nothing dated belongs in this file.
 
 ### Next session — start here
 

@@ -1,10 +1,10 @@
 # Exp4_OpenStack — dated history
 
 The only place in Exp4 where a date belongs. [CLAUDE.md](../CLAUDE.md) describes how things *are*
-(plus its Status / decision-round sections, which point here); [README.md](../README.md) maps the
+(its § Status points here for every round); [README.md](../README.md) maps the
 folder; [eda/README.md](../eda/README.md) explains the analysis mechanics. Entries are append-only,
-newest first. Earlier rounds (2026-08-26 audit, 2026-08-27 decision round) are summarised in
-CLAUDE.md § Status and were not moved — this file starts with the pre-run review.
+newest first. The 2026-08-26 audit and 2026-08-27 decision rounds were moved here out of
+CLAUDE.md § Status on 2026-09-22, so every dated Exp4 narrative now lives in this file.
 
 ---
 
@@ -662,3 +662,44 @@ dropped with a warning, undecidable report → fail, per-prompt token-list fallb
 `TypeError`, empty-frame column contract); `eda_analysis._selfcheck --fast`; a grep of the owned
 docs for `40 GB` / `E2B` / `40 GiB` leftovers (each remaining mention is the fallback card or the
 fallback grader, on purpose).
+
+---
+
+## 2026-08-27 — the decision round (pre-Colab review with Lior)
+
+Decisions: grader = **E4B only** for now (a future grader swap is a NEW arm by construction — role
+tags are always encoded — so nothing needs re-running); **therapist became selectable** (base +
+Instruct, `_Th{tag}` appended to the grammar while zero folders existed); Instruct arms use the
+**native Llama-3 template + `<|eot_id|>` token-id stopping** (base arms keep ChatML + string
+stops); `NUM_ITERATIONS=10` matched; patient timeout matched at 90 s × 8; the GRPO notebook gained
+the QUICK_TEST block (G→4 → disjoint `_G4_` folder); `LOOKAHEAD_SUB_BATCH_SIZE=64` and
+TensorBoard-only logging stand. Fallout landed with the change: `roles._slugify` no longer strips
+`-Instruct` (base/Instruct would have shared a tag), every chat-template render pins
+`date_string=CHAT_TEMPLATE_DATE` (the Llama-3.2 template otherwise interpolates TODAY's date —
+prompts would drift across resume days), and `core.conversations`' token-budget estimators now
+MEASURE per-role wrapper overheads on the live template instead of hardcoding the ChatML wrapper
+(which would have over-billed every Instruct turn ~2×). The Instruct decode path is verified on the
+local GPU end-to-end (native template kept, eos list `[eot, eom, start_header]`, clean batched
+generations with empty stop strings, truncation budget respected).
+Why `tools/fake_oracle_server.py` exists and what it does *not* prove is a standing rule,
+not history: it lives in [CLAUDE.md](../CLAUDE.md) § The oracle-sanity gate.
+
+---
+
+## 2026-08-26 — the audit round (the re-run the previous session asked for)
+
+Six read-only auditors + one independent skeptic per finding, run to completion this time:
+**9 confirmed findings (0 refuted), all applied**, plus 15 desk-reviewed findings applied or
+documented. The headline classes: per-phase timing logging (a preempted process now leaves its
+finished phases on the cost record); the mid-training-resume reference bug (both TRL trainers
+snapshot the handed-in policy as their frozen KL/DPO reference *in* `__init__`, so
+`resolve_start_state` case B now returns iteration-start weights); reload-only generation on
+mid-training resume (HF fast-forwards batches positionally, so the dataset must match the crashed
+process's exactly); sticky OOM halving + a completeness raise in the conversation loop (no more
+silent biased subsets); the loop-keyed client cache (pooled keep-alive connections cannot cross
+event loops — measured: every parked connection poisons exactly one call on the next loop); EDA
+display-label disambiguation (a quicktest arm can no longer merge into the real arm's figures);
+the adapter↔iteration guard in the repair tool; file-validated "iteration done"; atomic
+conversation CSVs; the `pairs.csv` fingerprint sidecar; and the corrected VRAM budget in [CLAUDE.md](../CLAUDE.md) § VRAM budget (the
+"~3 GB Gemma weights" premise was wrong by 3–5×). The "1/gas²" gradient-scale claim was verified
+FALSE on the pinned trl 1.4.0 and rewritten at all its sites.
