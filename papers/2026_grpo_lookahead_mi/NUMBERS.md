@@ -1099,3 +1099,36 @@ table.) (3) American spelling throughout the visible text (67 lines; comments, D
 verbatim prompts and transcripts untouched). (4) Abstract: "of a 1B-parameter therapist" added;
 200 words by the step-12 count (the limit). (5) Build: 32 pages; the body ends ~42 lines into
 page 11 (was ~32).
+
+## 2026-10-05 — step 11, notes round 1: the Base, the best checkpoint, praise, every code
+Lior's four questions after a recap ("do we show vs Base? tables for the utterance coding? only
+iteration 10? the praise graphs with and without a model?") and his "implement 1-4", then "use
+best iteration only on the training oracle (8 and 10)". EDA first (commit `232ef51`:
+`shared_base.gains` now picks K=0's best checkpoint on the training oracle and scores that same
+iteration under both judges, and gains a `p_holm` column, Holm across the nine rubrics within
+judge × anchor × run). Every new paper number is read off a tracked table.
+
+| Claim (where) | Value in the paper | Source |
+|---|---|---|
+| Table 1 Base columns, training oracle | 3.01 / 2.97 / 3.06 / 2.87 / 2.36 / 2.84 / 3.17 / 0.48 / 0.21 (Q1+Q2 3.01498, so 3.01; the 3.015 of `levels_long` is itself rounded) | results/lookahead/shared_base/tables/levels_long.md, `GRPO_LA0` iteration 0 (the shared Base, n = 192), unrounded value recomputed with `shared_base.levels` |
+| Table 1 Base columns, held out | 1.85 / 1.69 / 2.01 / 2.19 / 2.09 / 2.48 / 1.86 / 0.52 / 0.36 (MICI 0.3551) | same table, `claude-haiku-4-5` |
+| "Against the Base, each run's change is significant on every row … except the K=5 policy's on MICI under the training oracle" (Table 1 caption, §4) | every `last` row p_holm < .005 except gpt-4o-mini MICI GRPO_LA5: gain +0.0003, dz 0.002, p_holm 0.908 | results/lookahead/shared_base/tables/gains.md, anchor `last`, column `p_holm` |
+| MICI vs the Base (§4) | K=5 0.21 against 0.21; K=0 0.84; held out K=5 0.63 (gain +0.273, dz 0.89), K=0 1.05 (+0.695), Base 0.36 — all "above it" rows significant | gains.md, metric MICI, anchor `last` |
+| Held-out gain ratio vs K=0's best (§4, App B, README) | **1.33** (1.025 / 0.769 = 1.333; K=0 at iteration 8 held out 2.617 − 1.848); was 1.30 at the held-out judge's own pick (iteration 3). Range "1.3 to 2.5" unchanged | gains.md, `claude-haiku-4-5`, Q1Q2, anchor `best_K0`, `ratio_K5_over_K0` |
+| Best checkpoint: K=5 at 10 vs K=0 at 8, training oracle, all nine rows (§4) | all significant (every primary_p_holm < .001); Q1+Q2 dz 0.74 (0.743); \|dz\| 0.52–1.13 (MITI 0.517 … MICI −1.129, favours K=5) | results/lookahead/reward/tables/k_endpoints.md, pair `GRPO_LA5_I10 − GRPO_LA0_I8 (K=0 best by primary Q1Q2)`, `primary_*` |
+| Same pair, held out (§4, App B) | seven of nine significant; Q1+Q2 dz 0.38 (0.384, p_holm < .001); not Q2 (dz 0.182, p_holm .172) or WAI-SR (dz 0.097, p_holm .578); MITI is the weakest that clears (dz 0.289, p_holm .048) | same pair, `judge_*` |
+| App B: "on its own Q1+Q2 the K=0 run peaks at iteration 3 (2.64, against 2.62 at iteration 8)" | 2.6366 / 2.6172 | levels_long.md, `claude-haiku-4-5`, Q1Q2, GRPO_LA0 |
+| Table 6 (new, App A): every code at the Base and iteration 10, both judges, dz K5 − K0 | the printed cells, by `render_process_tables.py --codes` (which asserts the praise, complex-reflection and persuasion rows equal Tables 3 and 7, levels and dz); held-out simple reflection dz undefined (both runs 0.000 in every conversation) | results/lookahead/shared_base/tables/shared_base.xlsx, sheets `process_levels_<judge>` (`th_<CODE>_rate`) and `k_process_paired` (iteration 10, `dz` negated, stars from `p_holm`) |
+| Table 6 caption: the judges code differently | Base simple reflection 0.137 vs 0.020, closed question 0.039 vs 0.245; K=0 at iteration 10 affirmation 0.196 / praise 0.407 (training oracle) vs 0.009 / 0.762 (held out) | the table's own cells |
+| Figure 5 (redrawn, App A): praise three ways | coder praise share K=0 0.222 / 0.080 / 0.407 (training oracle) and 0.500 / 0.238 / 0.762 (held out) at iterations 8 / 9 / 10; keyword marker 0.275 / 0.094 / 0.671; K=5 at or below 0.07 on the training oracle (max 0.070, iteration 6) and the marker (max 0.064), held out rising to 0.203 | `process_levels_<judge>` `th_PRA_rate`(+`_se`); `marker_and_length` `lex_overpraise_marker_rate`(+`_se`) |
+
+Notes. (1) The best-checkpoint rule (Lior): K=0's best is chosen once, on the training oracle's
+Q1+Q2 (iteration 8), and scored under both judges; picking it on the held-out judge would select
+on the evaluation itself. This replaced the held-out judge's own pick (iteration 3) in §4
+("dz 0.39" → "dz 0.38", the same size by coincidence) and in Appendix B (ratio 1.30 → 1.33).
+Appendix D.8's equal-GPU-hour comparison still chooses within budget "by the same judge"; not
+changed (a different selection, within a budget), raised with Lior. (2) The `k_endpoints` table
+still carries the iteration-3 pair; the paper no longer cites it. (3) Table numbers from Table 6 on
+moved by one (held-out process 6 → 7, held-out scores 7 → 8, held-out process at every iteration
+8 → 9, configuration 9 → 10, instruments 10 → 11, agreement 11 → 12); earlier ledger blocks keep
+the numbers of their day. (4) Build: 33 pages; the body ends ~57 lines into page 11 (was ~42).
