@@ -1064,3 +1064,38 @@ Same day, Lior's read: "Our contributions are twofold" removed (his pick of thre
 make two contributions:" + two bullets (Doron's sentences unchanged otherwise; "First" dropped,
 "Second, and more importantly" → "More importantly"); `enumitem` added to `main.tex` for a compact
 list. Body ends ~32 lines into page 11.
+
+## 2026-10-05 — step 11a: pre-read fixes (the recap + the direction check)
+Planned with Lior by question round before his read-through; EDA first (commit `cde8a0a`). Every
+new paper number below is read off a tracked EDA table.
+
+| Claim (where) | Value in the paper | Source |
+|---|---|---|
+| K0 vs K5 update direction per training iteration, noise-corrected (App C.5) | 0.92–0.96 at 1–3 (0.9188 / 0.9256 / 0.9562); 0.80 at 4–5 (0.7979 / 0.8000); 0.57–0.74 at 6–8 (0.5672 / 0.7439 / 0.6982) | results/lookahead/mechanism/tables/direction_k_by_iter_grpo.md, `corrected` |
+| K=5 direction's own split-half agreement (App C.5) | 0.32, 0.15, 0.20 at 8–10 (0.3211 / 0.1495 / 0.2016); 0.55–0.89 at 1–7 (0.5518 … 0.8946) | same table, `rel_b` |
+| K=0 direction reverses (App C.5) | −0.66 at training iteration 9 vs 8 (−0.6569); −0.35 at 10 vs 9 (−0.3547); both cells' own agreement 0.77–0.93 | results/lookahead/mechanism/tables/direction_stability_grpo.md, GRPO_LA0 rows 8→9, 9→10, `corrected`, `rel_a`/`rel_b` |
+| Pooled cosine kept (App C.5) | 0.804 / ceiling 0.945 / 0.851 | unchanged: results/arms/preference/tables/gpt-4o-mini/update_direction_cosines.md |
+| "the one late round of training in which the K=0 reward barely favored praise" (§5 clause) | premium 0.070 (z 1.66) for candidates from the iteration-8 model, against 0.22–0.33 from the four models before and 0.165 after | results/lookahead/mechanism/tables/praise_premium_grpo.md (unchanged; App C.4 already quotes it) + the reversal row above |
+| Malformed markers, training candidates (App D.6) | up to 58% of K=0's (0.5813, training iteration 7); K=5 below 2.5% (max 0.0238) | results/lookahead/mechanism/tables/marker_leak_training_grpo.md, `share` |
+| Malformed markers, evaluation turns (App D.6) | K=0 56% at iteration 7 (721 / 1,292 = 0.558), 4% at 10 (43 / 1,128 = 0.038); K=5 below 1.5% (max 15 / 1,289 = 0.012, iteration 6) | results/lookahead/shared_base/tables/marker_leaks.md, `share_of_turns` |
+| "neither favored nor penalized" (App D.6) | within-group correlation +0.05 (K=0 pooled 0.0521; K=5 −0.0062) | marker_leak_training_grpo.md, `all` rows, `r_within` |
+| Held-out best-checkpoint lead "significantly" (§4) | dz 0.39 (0.386, p_holm .001) | row 93 above (k_endpoints, `GRPO_LA5_I10 − GRPO_LA0_I3`) |
+| §4 prose to two decimals | +1.50 / +0.74 (1.502 / 0.738; the ratio 2.04 is computed before rounding); 4.08 / 3.75; dz 0.74 | the rows above, unchanged values |
+| Limitations ICC "iterations 8 and 10" | ICC 0.92–0.99 | row 353 above (`GRPO_LA0_I8`, `GRPO_LA0_I10`) |
+
+Notes. (1) The direction check (`meetings/2026-10-05_doron_direction_check/`) used gte-base and
+Doron's best-minus-worst estimator; the EDA port uses the paper's own estimator (all-MiniLM-L6-v2,
+advantage-weighted, every gradient group — all 237,221 weighted candidates were already in the
+embedding cache) and 50 conversation split-halves. The two agree: gte noise-corrected 0.95 / 0.96 /
+0.90 / 0.76 / 0.79 / 0.48 / 0.68 / 0.75 at 1–8 against MiniLM 0.92 / 0.93 / 0.96 / 0.80 / 0.80 /
+0.57 / 0.74 / 0.70; K=0's 8→9 reversal −0.32 (gte) vs −0.66 (MiniLM). (2) The planned clause said
+the iteration-9 reward "favored agreement". That did not survive a lexical check: over the groups
+holding both kinds, replies with an agreement phrase ("you're absolutely right", "I couldn't agree
+more", …) scored 0.12 within-group SD above the rest at training iteration 9 (z 1.87, not
+significant) and an "I understand where you're coming from" family −0.05; the agreement reading
+came from projecting sentences onto the direction, not from the reward. The clause therefore says
+what is measured: the praise premium dipped and the direction reversed. (Scratch check, not an EDA
+table.) (3) American spelling throughout the visible text (67 lines; comments, Doron's note texts,
+verbatim prompts and transcripts untouched). (4) Abstract: "of a 1B-parameter therapist" added;
+200 words by the step-12 count (the limit). (5) Build: 32 pages; the body ends ~42 lines into
+page 11 (was ~32).
