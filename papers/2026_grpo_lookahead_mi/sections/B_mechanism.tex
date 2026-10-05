@@ -51,8 +51,8 @@ first iteration, where both runs start from the same Base policy and differ only
 simulated turns were appended before the oracle saw each candidate. At that cut nothing is
 detectable. Both deltas straddle zero ($\Kf - \Kz$ agreement, training oracle: $-0.015$
 $[-0.059, 0.026]$; held-out judge: $+0.014$ $[-0.048, 0.075]$), and the per-length-bin breakdown
-points in opposite directions on the two judges: 17 of 20 bins favour $\Kz$ under the training
-oracle, 17 of 20 favour $\Kf$ under the held-out judge. An effect whose sign depends on the judge
+points in opposite directions on the two judges: 17 of 20 bins favor $\Kz$ under the training
+oracle, 17 of 20 favor $\Kf$ under the held-out judge. An effect whose sign depends on the judge
 is not distinguishable from zero. The matched-policy cut is also the weakest-powered one (a single
 model state per run, and only approximately matched, since the policy drifts within the iteration
 under $K$-specific rewards), so this is an absence of evidence rather than evidence of absence; we
@@ -62,7 +62,7 @@ report it alongside the pooled estimate.
 
 The mean best-minus-worst margin within a group is $1.300\times$ larger under $\Kf$
 $[1.275, 1.326]$; the within-group standard deviation grows by $1.293\times$ $[1.267, 1.317]$; the
-ratio of the two is $1.006$ $[1.002, 1.010]$, a pure rescaling that the advantage normalisation
+ratio of the two is $1.006$ $[1.002, 1.010]$, a pure rescaling that the advantage normalization
 absorbs.
 
 One iteration inverts the \emph{level} of this. At training iteration 10 the margin ratio drops to
@@ -76,7 +76,7 @@ whose eight samples the oracle scores increasingly alike. This does not break th
 at that same iteration the ratio of ratios is $0.964$, so margin and standard deviation still move
 together. We offer the over-praise account as consistent with the timing, not as demonstrated.
 
-\subsection{How much the training reward favours praise}
+\subsection{How much the training reward favors praise}
 \label{app:premium}
 
 \begin{figure}[t]
@@ -90,12 +90,12 @@ groups ($\pm 1.96$ SE), by the iteration of the model the candidates were sample
 \label{fig:premium}
 \end{figure}
 
-The keyword marker (Appendix~\ref{app:marker}) lets us ask whether the training reward itself favours
+The keyword marker (Appendix~\ref{app:marker}) lets us ask whether the training reward itself favors
 praise, separately from how often the policy praises (Figure~\ref{fig:premium}). Within each
 group of eight candidates we z-score the rewards, and in the groups that hold both a praising reply
 and a non-praising one we take the praising replies' mean z minus the others'. Early in training
 such groups are rare (about $2\%$ of groups, panel b) and the difference is noisy, negative under
-$\Kz$ at iterations 0--1 and under $\Kf$ at iteration 2. From iteration 4 both rewards favour praise: $0.22$--$0.33$
+$\Kz$ at iterations 0--1 and under $\Kf$ at iteration 2. From iteration 4 both rewards favor praise: $0.22$--$0.33$
 within-group SD under $\Kz$ over iterations 4--7 ($z \geq 2.8$ at each) and $0.16$--$0.21$ under
 $\Kf$ ($z$ above 2 only at iterations 6--7). Both dip at iteration 8; at iteration 9 the $\Kz$
 reward still scores praising replies $0.16$ higher ($z = 5.7$) and the $\Kf$ reward $0.04$ ($z = 1.1$). The share of groups
@@ -103,11 +103,26 @@ holding both kinds rises under both runs, and faster under $\Kz$: from iteration
 half of $\Kz$'s groups, against $0.28$--$0.44$ of $\Kf$'s.
 
 \subsection{The update-direction proxy}
+\label{app:direction}
 
-Writing each iteration's update direction as the advantage-weighted sum of its candidates' sentence
-embeddings, $\operatorname{normalise}(\sum_g w_g \cdot \mathrm{emb}(t_g))$ with $w_g$ the
-standardised group-relative advantage that scales each completion's gradient, the two runs' pooled
-directions have a cosine of $0.804$, or $0.851$ once divided by the attenuation ceiling ($0.945$)
-that two split-half-noisy estimates can reach at all. This is an embedding-space proxy, not the
-gradient: it measures the semantic direction of what the update prefers, and it says the $\Kz$ and
-$\Kf$ policies are pushed along substantially the same direction.
+We write each training iteration's update direction as the advantage-weighted sum of its
+candidates' sentence embeddings, $\operatorname{normalize}(\sum_g w_g \cdot \mathrm{emb}(t_g))$,
+with $w_g$ the standardized group-relative advantage that scales each completion's gradient. This
+is an embedding-space proxy, not the gradient: it measures the semantic direction of what the
+update prefers. Pooled over the ten training iterations, the two runs' directions have a cosine of
+$0.804$, or $0.851$ once divided by the attenuation ceiling ($0.945$) that two noisy estimates can
+reach at all. The pooled value averages over a change along the run. Per training iteration
+(training iteration $n$ samples its candidates from the model of iteration $n{-}1$, the index of
+Figure~\ref{fig:premium}, and produces the model of iteration $n$), over
+every gradient group and corrected for estimation noise with 50 random splits of the
+conversations into halves, the two directions are nearly the same at training iterations 1--3
+($0.92$--$0.96$), less alike at 4 and 5 ($0.80$; iteration 4 produced the first model at which
+$\Kf$ leads, \S\ref{sec:reward}) and further apart at 6--8 ($0.57$--$0.74$). From iteration 2 on
+the two runs sample from different policies, so this divergence reflects what each policy
+proposes as well as what each reward prefers. From iteration 8 on the $\Kf$ direction is itself
+hard to measure (its two halves agree at $0.32$, $0.15$ and $0.20$ at iterations 8--10, against
+$0.55$--$0.89$ before), so the comparison says little at 9 and 10. The $\Kz$ direction stays
+measurable and reverses: at training iteration 9 its noise-corrected cosine with the previous
+iteration's direction is $-0.66$, and at iteration 10 it turns away from iteration 9's again
+($-0.35$), the same two steps at which $\Kz$'s praise share falls and then rises
+(\S\ref{sec:therapist}).
