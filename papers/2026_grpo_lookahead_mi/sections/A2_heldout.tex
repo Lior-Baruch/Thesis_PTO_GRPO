@@ -16,9 +16,12 @@ table (Table~\ref{tab:scores-heldout}) for \S\ref{sec:reward}, the process figur
 $88.3\%$ of the pairwise state $\times$ instrument contrasts the training oracle makes
 (Appendix~\ref{app:saturation}), and it agrees on the direction of every contrast at iteration 10
 in the body. On \QQ\ it separates the runs at 7 of the 10 iterations (4--10) where the training
-oracle does at 6; its best $\Kz$ checkpoint is iteration 3, which the final $\Kf$ policy still
-leads ($\dz\,0.386$), and its gain ratios are $2.50$ against $\Kz$'s last checkpoint and $1.30$
-against its best. The one place it favors $\Kz$ is MITI and MICI at iteration 3. On the process
+oracle does at 6. Against $\Kz$'s best checkpoint (iteration 8, chosen by the training oracle)
+the final $\Kf$ policy leads on \QQ\ ($\dz\,0.384$) and on six of the other eight rows, all but
+Q2 ($\dz\,0.18$) and WAI-SR ($\dz\,0.10$), and its gain ratios are $2.50$ against $\Kz$'s last
+checkpoint and $1.33$ against that best one. We do not select checkpoints on this judge: on its
+own \QQ\ the $\Kz$ run peaks at iteration 3 ($2.64$, against $2.62$ at iteration 8). The one place
+it favors $\Kz$ is MITI and MICI at iteration 3. On the process
 it reads more of the $\Kf$ policy's turns as non-specific praise ($0.20$ at iteration 10, against
 the training oracle's $0.05$), so on its reading the $\Kf$ policy's MI-inconsistent share at
 iteration 10 is $0.47$, lower than $\Kz$'s $0.80$ but more than double the Base's $0.21$; along the
