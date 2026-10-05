@@ -1060,3 +1060,7 @@ held-out judge check it — 8 − 2 = 6); the Discussion gains a short paragraph
 Conclusion (why Q1+Q2; they rate the session from the patient's side, §3.3's description; another
 instrument as reward is untested). §3.1's note marked handled with both locations. The body now
 ends 30 lines into page 11 (was ~15; the visible note markers account for part of it).
+Same day, Lior's read: "Our contributions are twofold" removed (his pick of three options): "We
+make two contributions:" + two bullets (Doron's sentences unchanged otherwise; "First" dropped,
+"Second, and more importantly" → "More importantly"); `enumitem` added to `main.tex` for a compact
+list. Body ends ~32 lines into page 11.
