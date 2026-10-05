@@ -1,8 +1,8 @@
 # Provenance — family `lookahead/reward` · judge `(invariant)`
 
 - **arms scored:** ['GRPO_LA5', 'PTO_LA5']
-- **metrics present:** ['%CR', '%MICO', 'CSQ-8', 'MI-SAT', 'MICI', 'MITI', 'PCT', 'Q1', 'Q1Q2', 'Q2', 'R:Q', 'WAI-SR']
-- **rows:** 25021
+- **metrics present:** ['%CR', '%MICO', 'CSQ-8', 'MI-SAT', 'MICI', 'MIPROC', 'MITI', 'PCT', 'Q1', 'Q1Q2', 'Q2', 'R:Q', 'WAI-SR']
+- **rows:** 27133
 
 ## EdaConfig
 - `family` = lookahead/reward
