@@ -11,13 +11,19 @@ This appendix expands the mechanism paragraph of \S\ref{sec:discussion}.
 \centering
 \includegraphics[width=0.94\textwidth]{figures/faithfulness_grpo.png}
 \caption{Faithfulness of the training reward by prefix length, training iterations 1--10 pooled
-(prefixes from the conversations of $\pi_0$ to $\pi_9$): the share of conversation pairs, compared
-within one (run, iteration, prefix-length) cell, that the training reward at that prefix orders
-the way the full-session score does. The training reward is the training oracle's in both panels;
-the full-session score is \textbf{(a)} the training oracle's and \textbf{(b)} the held-out judge's.
-Chance is $0.5$, below the axis; bands are conversation-level cluster-bootstrap intervals. In (a),
-the value at the shortest admitted prefix, 12 utterances, is the $86$--$89\%$ figure of
-\S\ref{sec:lagrpo}.}
+(prefixes from each run's own conversations of $\pi_0$ to $\pi_9$, so from iteration 2 on the two
+runs' prefixes come from different policies): the share of conversation pairs, compared within one
+(run, iteration, prefix-length) cell, that the training reward at that prefix orders the way the
+full-session score does (pairs tied on either score dropped). The training reward at a prefix is
+the training oracle's \QQ\ for the best of its eight candidates, scored as in Eq.~\ref{eq:reward}
+(with the five simulated turns under $\Kf$). The full-session score is the \QQ\ of the whole
+conversation by \textbf{(a)} the training oracle and \textbf{(b)} the held-out judge, so (b) also
+reflects how far the two judges disagree. Chance is $0.5$, below the axis. Fewer sessions reach
+the longer prefixes, so the later points rest on fewer conversations. Bands: $95\%$
+conversation-level cluster-bootstrap intervals within each (run, iteration); they ignore the
+variation between iterations, so the gap between the runs' bands is not a test of $\Kf$ against
+$\Kz$ (Appendix~\ref{app:faithfulness}). In (a), the value at the shortest admitted prefix, 12
+utterances, is the $86$--$89\%$ figure of \S\ref{sec:lagrpo}.}
 \label{fig:faithfulness}
 \end{figure*}
 
@@ -25,7 +31,7 @@ The training reward scores a \emph{partial} conversation; the evaluation scores 
 The gap between them is measurable as pairwise rank agreement: among pairs of conversations
 compared within one (run, iteration, prefix-length) cell, how often does the training reward at
 that prefix order them the way their full-session scores do? Chance is $0.5$; intervals are
-conversation-level cluster bootstraps.
+$95\%$ conversation-level cluster bootstraps.
 
 Pooled over the ten iterations, agreement is $0.909$ $[0.900, 0.917]$ under $\Kf$ against $0.873$
 $[0.861, 0.884]$ under $\Kz$ on the training oracle, and $0.800$ against $0.747$ on the held-out
@@ -82,10 +88,13 @@ together. We offer the over-praise account as consistent with the timing, not as
 \begin{figure}[t]
 \centering
 \includegraphics[width=0.48\textwidth]{figures/praise_premium_grpo.png}
-\caption{\textbf{(a)} How much higher the training reward scores praising replies: in each group of eight candidates
-that holds both a reply containing a keyword-marker phrase and one without, the mean
+\caption{\textbf{(a)} How much higher each run's own training reward scores praising replies
+among the candidates it sampled ($\Kf$: with the five simulated turns that followed the reply): in
+each group of eight candidates that holds both a reply containing one of the keyword marker's ten
+phrases (Appendix~\ref{app:marker}; matched in the reply only) and one without, the mean
 within-group reward z-score of the praising replies minus that of the others, averaged over such
-groups ($\pm 1.96$ SE), by the iteration of the model the candidates were sampled from.
+groups ($\pm 1.96$ SE over groups; each band reads its own run against zero, and the runs are not
+tested against each other), by the iteration of the model the candidates were sampled from.
 \textbf{(b)} The share of groups that hold both kinds.}
 \label{fig:premium}
 \end{figure}
@@ -96,7 +105,8 @@ group of eight candidates we z-score the rewards, and in the groups that hold bo
 and a non-praising one we take the praising replies' mean z minus the others'. Early in training
 such groups are rare (about $2\%$ of groups, panel b) and the difference is noisy, negative under
 $\Kz$ at iterations 0--1 and under $\Kf$ at iteration 2. From iteration 4 both rewards favor praise: $0.22$--$0.33$
-within-group SD under $\Kz$ over iterations 4--7 ($z \geq 2.8$ at each) and $0.16$--$0.21$ under
+within-group SD under $\Kz$ over iterations 4--7 ($z \geq 2.8$ at each; here $z$ is the difference over its standard error across groups,
+uncorrected) and $0.16$--$0.21$ under
 $\Kf$ ($z$ above 2 only at iterations 6--7). Both dip at iteration 8; at iteration 9 the $\Kz$
 reward still scores praising replies $0.16$ higher ($z = 5.7$) and the $\Kf$ reward $0.04$ ($z = 1.1$). The share of groups
 holding both kinds rises under both runs, and faster under $\Kz$: from iteration 7 on it is about
