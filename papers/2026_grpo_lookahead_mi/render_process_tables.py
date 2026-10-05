@@ -15,9 +15,10 @@ complete score tables (Tables 4 and 6).
   ``better`` run (the sheets already account for lower-is-better measures) wherever ``p_holm``
   < .05, as in Tables 4 and 6.
 
-Before printing, every iteration-10 cell is checked against Table 3 / Table 5 as they stand in the
-.tex (levels to three decimals, and a starred iteration-10 cell must be the one Table 3 bolds), so
-the new tables cannot drift from the body.
+Before printing, every iteration-10 cell is checked against Table 3 / Table 7 as they stand in the
+.tex (levels to three decimals; Table 3's bold must be each row's best printed value of the Base,
+K=0 and K=5; its dz cells and stars must match the iteration-10 test), so the new tables cannot
+drift from the body.
 
     & ..\\..\\.venv\\Scripts\\python.exe render_process_tables.py            # print both tables
     & ..\\..\\.venv\\Scripts\\python.exe render_process_tables.py --codes    # the code-mix table
@@ -108,18 +109,22 @@ def build(judge: str) -> list[str]:
         for _, r in p.iterrows():
             if r.p_holm < 0.05:
                 stars[(key, ARMS["GRPO_LA0" if r.better == "K0" else "GRPO_LA5"], int(r.iteration))] = True
-    # check iteration 10 against the printed Table 3 / Table 5 (exact row labels)
-    t3 = table3_rows(*JUDGES[judge])
-    for key, src, lcol, _, lab, _ in COLS:
+    # check iteration 10 against the printed Table 3 / Table 7 (exact row labels): the levels, the
+    # bold (Lior, 2026-10-05: each row's best of the Base, K=0 and K=5, ties at three decimals all
+    # bold; until then the better run where the contrast is significant) and the dz cell + stars.
+    t3, dz10 = table3_rows(*JUDGES[judge]), table3_dz(*JUDGES[judge])
+    for key, src, lcol, pcol, lab, low in COLS:
         printed = t3[lab]
         got = [level(proc, pers, "GRPO_LA0", 0, src, lcol),
                level(proc, pers, "GRPO_LA0", 10, src, lcol),
                level(proc, pers, "GRPO_LA5", 10, src, lcol)]
         for g, pv in zip(got, printed):
             assert f"{g:.3f}" == pv.lstrip("B"), (judge, key, g, pv)
-        bold = [pv.startswith("B") for pv in printed[1:]]
-        star = [stars.get((key, "K0", 10), False), stars.get((key, "K5", 10), False)]
-        assert bold == star, (judge, key, bold, star)
+        r3 = [round(g, 3) for g in got]
+        best3 = min(r3) if low else max(r3)
+        assert [pv.startswith("B") for pv in printed] == [v == best3 for v in r3], (judge, key, printed)
+        p10 = paired[(paired.metric == pcol) & (paired.iteration == 10)]
+        assert dz_cell(p10.iloc[0]) == dz10[lab], (judge, key, dz10[lab])
     # Lior, 2026-09-30: "bold each column with best score" -- the best printed value of each
     # column over all 21 states (lowest where lower is better); ties at three decimals all bold.
     best = {}
