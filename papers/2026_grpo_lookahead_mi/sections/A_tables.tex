@@ -5,9 +5,9 @@ Table~\ref{tab:scores}: every instrument at every iteration under the training o
 judge's version is Table~\ref{tab:scores-heldout} in Appendix~\ref{app:heldout}, which collects
 that judge's results). Table~\ref{tab:process-all}: the process measures of
 Table~\ref{tab:process} at every iteration (held-out: Table~\ref{tab:process-all-heldout}).
-Table~\ref{tab:codes}: every code of the utterance coder at the Base and at iteration 10, under
-both judges. Figure~\ref{fig:overpraise}: the three praise measures of \S\ref{sec:therapist}
-side by side.
+Table~\ref{tab:codes}: every therapist code of the utterance coder at the Base and at iteration
+10, under both judges. Figure~\ref{fig:overpraise}: the praise of \S\ref{sec:therapist} by
+iteration, as the coder's share under each judge and as the keyword marker.
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
 iteration under both judges.
 
@@ -54,19 +54,24 @@ Base & $3.015$ & $2.966$ & $3.064$ & $2.873$ & $2.359$ & $2.837$ & $3.172$ & $0.
 \bottomrule
 \end{tabular}
 \caption{\textbf{Every instrument at every iteration} under the training oracle: the mean over the
-96 personas (the Base: over its 192 conversations, two per persona). Bold: the best value in each
-column (the lowest for MICI). A star marks the better run at
-an iteration where the persona-paired $\Kf$ vs.\ $\Kz$ contrast on that instrument is significant
-(Holm across iterations 1--10 within instrument); the only star on a $\Kz$ cell is MICI at
-iteration 3. MICI is lower-is-better. The iteration-10 rows are Table~\ref{tab:endpoint};
-Figure~\ref{fig:headline} draws the columns.}
+96 personas (the Base: over its 192 conversations, two per persona). \QQ\ is the mean of Q1 and
+Q2. Scales (Table~\ref{tab:instruments}): Q1, Q2, WAI-SR, MI-SAT and MITI 1--5; CSQ-8 1--4; PCT a
+share (change talk over change plus sustain talk, by the PCT coder; not
+Table~\ref{tab:process}'s change-talk share, which is over all patient utterances); MICI
+MI-inconsistent acts per therapist turn, lower is better. Bold: each column's best value over all
+21 model states, the Base included (a level, not a test). A star marks the better run at an
+iteration where the persona-paired $\Kf$ vs.\ $\Kz$ contrast on that instrument is significant
+(Holm across iterations 1--10 within instrument; one star for any Holm $p<.05$); the only star on a
+$\Kz$ cell is MICI at iteration 3. Table~\ref{tab:endpoint} gives the Base and iteration-10 rows to
+two decimals; Figure~\ref{fig:headline} draws the columns; the held-out judge's version is
+Table~\ref{tab:scores-heldout}.}
 \label{tab:scores}
 \end{table*}
 
 \begin{table*}[t]
 \centering
 \footnotesize
-\setlength{\tabcolsep}{2.8pt}
+\setlength{\tabcolsep}{3.4pt}
 \renewcommand{\arraystretch}{0.92}
 \begin{tabular}{@{}lrrrrrrrrrrrr@{}}
 \toprule
@@ -108,12 +113,22 @@ Base & $0.041$ & $0.018$ & $0.203$ & $0.306$ & $0.248$ & $0.137$ & $0.019$ & $0.
 \end{tabular}
 \caption{\textbf{The process at every iteration} under the training oracle: the twelve measures of
 Table~\ref{tab:process} for the Base and for each run at iterations 1--10 (praise: non-specific
-praise; CT: change talk; ST: sustain talk; $\downarrow$: lower is better). Each value is the mean
-over the run's 96 conversations (the Base: over its 192); the reply and next-utterance columns
-average only the conversations in which that patient utterance occurs. Bold: the best value in
-each column. A star marks the better run at an iteration where the persona-paired $\Kf$ vs.\ $\Kz$
-contrast is significant (Holm across iterations 1--10 within measure). The iteration-10 rows are
-Table~\ref{tab:process}.}
+praise; CT: change talk; ST: sustain talk; $\downarrow$: lower is better, otherwise higher). A
+therapist-turn column is the share of the therapist's turns after the scripted opener whose
+dominant function is that code (MI-adherent and MI-inconsistent: the sums of the code groups of
+Table~\ref{tab:codes}); a reply column, the share of the patient's CT (or ST) utterances that the
+therapist's next turn answers with that code (reflects: a simple or complex reflection); a
+next-utterance column, the share of the patient's CT (or ST) utterances whose next patient
+utterance is CT; CT share, the share of all the patient's utterances that are CT (not PCT, which
+divides by change plus sustain talk). Each value is the mean over the run's 96 conversations (the
+Base: over its 192), except that the therapist-turn columns average only the conversations with a
+therapist turn after the opener (the Base: 184) and the reply and next-utterance columns only those
+in which that patient utterance occurs. Bold: each column's best value over all 21 model states,
+the Base included (a level, not a test). A star marks the better of the two runs at an iteration
+where the persona-paired $\Kf$ vs.\ $\Kz$ contrast at that iteration is significant (Holm across
+iterations 1--10 within measure; one star for any Holm $p<.05$); no star involves the Base. The
+iteration-10 rows are Table~\ref{tab:process}, whose bold marks the cells starred here (not each
+column's best); the held-out judge's version is Table~\ref{tab:process-all-heldout}.}
 \label{tab:process-all}
 \end{table*}
 
@@ -124,8 +139,8 @@ Table~\ref{tab:process}.}
 \renewcommand{\arraystretch}{0.92}
 \begin{tabular}{@{}lrrrlrrrl@{}}
 \toprule
-& \multicolumn{4}{c}{\primaryjudge\ (training oracle)} & \multicolumn{4}{c}{\heldoutjudge\ (held out)}\\
-\cmidrule(lr){2-5}\cmidrule(l){6-9}
+& \multicolumn{3}{c}{training oracle} & $\Kf - \Kz$ & \multicolumn{3}{c}{held-out judge} & $\Kf - \Kz$\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-5}\cmidrule(lr){6-8}\cmidrule(l){9-9}
 Therapist code & Base & $\Kz$ & $\Kf$ & \dz & Base & $\Kz$ & $\Kf$ & \dz\\
 \midrule
 \multicolumn{9}{@{}l}{\emph{MI-adherent}}\\
@@ -146,14 +161,17 @@ giving information & $0.378$ & $0.245$ & $0.227$ & $-0.07$ & $0.205$ & $0.168$ &
 other & $0.029$ & $0.001$ & $0.001$ & $-0.02$ & $0.053$ & $0.000$ & $0.002$ & $+0.14$\\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Every code of the utterance coder} at the Base and at iteration 10, under both
-judges: the share of therapist turns whose dominant function is each code (mean over
-conversations, the Base's 192 and each run's 96; opener excluded; each column sums to one up to
-rounding), grouped as the MI-adherent and MI-inconsistent shares of Table~\ref{tab:process} sum
-them, and the persona-paired \dz\ of $\Kf - \Kz$ with Table~\ref{tab:process}'s test and stars
-(---: both runs at zero). The two judges code the same turns differently: the held-out judge
-labels fewer turns as simple reflections, more of the Base's as closed questions, and as praise
-much of what the training oracle labels affirmation in the $\Kz$ policy. Read each judge's columns
+\caption{\textbf{Every therapist code of the utterance coder} at the Base and at iteration 10,
+under both judges: the share of therapist turns whose dominant function is each code (mean over the
+conversations with a therapist turn after the scripted opener, which is excluded: 184 of the
+Base's 192 and each run's 96; each Base, $\Kz$ and $\Kf$ column sums to one up to rounding). The
+MI-adherent and MI-inconsistent groups sum to those shares in Tables~\ref{tab:process}
+and~\ref{tab:process-heldout}. \dz: the persona-paired $\Kf - \Kz$ at iteration 10 ($n{=}96$;
+positive: more under $\Kf$; ---: undefined, both runs at zero in every conversation); the Base
+enters no test. Stars: Holm across iterations 1--10 within each code, $^{*}p<.05$,
+$^{**}p<.01$, $^{***}p<.001$. The two judges code the same turns differently: the held-out judge
+labels fewer turns as simple reflections, more of the Base's as closed questions, and more of the
+$\Kz$ policy's as praise and fewer as affirmation. Read each judge's columns
 on their own. Figure~\ref{fig:process}a--b draws the training oracle's mix at every iteration.}
 \label{tab:codes}
 \end{table*}
@@ -161,13 +179,17 @@ on their own. Figure~\ref{fig:process}a--b draws the training oracle's mix at ev
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/praise_grpo.png}
-\caption{Praise by iteration, measured three ways (iteration 0 is the Base; mean $\pm$ SE over
-conversations): the share of therapist turns the utterance coder labels non-specific praise under
+\caption{Praise by iteration, measured three ways (iteration 0 is the Base both runs start from; mean $\pm$ SE over
+each model state's conversations; most bands are thinner than the markers): the share of therapist turns the utterance coder labels non-specific praise under
 \textbf{(a)} the training oracle and \textbf{(b)} the held-out judge, and \textbf{(c)} the share
 containing at least one of the keyword marker's ten praise phrases (Appendix~\ref{app:marker}),
-with no model in the loop. Under $\Kz$ all three jump at iteration 8, fall back at 9 and peak at
+with no model in the loop; unlike (a) and (b), (c) counts the scripted opener as a turn, and only
+its course over iterations is read, not its level (Appendix~\ref{app:marker}). Under $\Kz$ all three jump at iteration 8, fall back at 9 and peak at
 10. Under $\Kf$ the training oracle's share and the keyword marker stay at or below $0.07$, while
-the held-out judge's share rises to $0.20$ at iteration 10 (\S\ref{sec:therapist}).}
+the held-out judge's share rises to $0.20$ at iteration 10 (\S\ref{sec:therapist}). No test is
+marked here: the praise columns of Tables~\ref{tab:process-all} and~\ref{tab:process-all-heldout}
+star the iterations at which the $\Kf$ vs.\ $\Kz$ contrast in (a) and (b) is significant (8 and 10;
+5, 6 and 8--10; $\Kf$ lower at each); the keyword marker has no such test.}
 \label{fig:overpraise}
 \end{figure*}
 
@@ -177,9 +199,13 @@ the held-out judge's share rises to $0.20$ at iteration 10 (\S\ref{sec:therapist
 \caption{The therapist's replies by iteration, under the training oracle (top) and the held-out
 judge (bottom): mean $\pm$ SE over the conversations in which the patient's utterance occurred.
 \textbf{(a, e)} The share of the patient's change-talk (CT) utterances the therapist answers with a
-reflection. \textbf{(b, f)} The share of the patient's sustain-talk (ST) utterances it answers
+reflection (simple or complex). \textbf{(b, f)} The share of the patient's sustain-talk (ST) utterances it answers
 with non-specific praise, \textbf{(c, g)} with persuasion, and \textbf{(d, h)} with a reflection.
-Iteration 0 is the Base. The iteration-10 values are the second row block (``The therapist's reply
-to the patient's \ldots'') of Tables~\ref{tab:process} and~\ref{tab:process-heldout}.}
+Iteration 0 is the Base both runs start from. Praise or persuasion in reply to sustain talk (b, c,
+f, g) is MI-inconsistent: lower is better. The iteration-10 values are the second row block (``The
+therapist's reply to the patient's \ldots'') of Tables~\ref{tab:process}
+and~\ref{tab:process-heldout}. No test is marked: the reply columns of
+Tables~\ref{tab:process-all} and~\ref{tab:process-all-heldout} star the iterations at which the
+persona-paired $\Kf$ vs.\ $\Kz$ contrast is significant; the SE bands are not that test.}
 \label{fig:responsiveness}
 \end{figure*}
