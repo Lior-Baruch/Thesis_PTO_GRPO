@@ -48,7 +48,7 @@ from . import process as _process
 __all__ = [
     "DRAW_OFFSET", "INSTRUMENTS", "share_base", "share_base_frames", "levels", "k_contrast",
     "significant_iterations", "score_table", "gains", "process_tables", "text_tables",
-    "marker_and_length", "cap_hits_by_state", "sd_tables", "sd_trend", "agreement_by_state", "agreement_summary",
+    "marker_and_length", "cap_hits_by_state", "marker_leaks_by_state", "sd_tables", "sd_trend", "agreement_by_state", "agreement_summary",
     "state_pair_contrasts", "judge_offset", "shared_base_numbers",
 ]
 
@@ -344,6 +344,21 @@ def cap_hits_by_state(ch: pd.DataFrame) -> pd.DataFrame:
     out["share_of_turns"] = out["n_cap_hits"] / out["n_gen_turns"]
     out["cap_hit_rate_mean"] = g["cap_hit_rate"].mean()
     out["cap_hit_rate_se"] = g["cap_hit_rate"].sem()
+    return out.reset_index()
+
+
+def marker_leaks_by_state(ml: pd.DataFrame) -> pd.DataFrame:
+    """Per (arm, iteration) on a shared Base: therapist turns that contain a malformed chat marker
+    (:func:`~eda_analysis.behavior.marker_leaks`; opener excluded), in the same shape as
+    :func:`cap_hits_by_state`: ``share_of_turns`` pools the state's turns, ``marker_rate_mean`` /
+    ``_se`` weight each conversation equally."""
+    sb = share_base(ml, mode="per_arm")
+    g = sb.groupby(["arm", "iteration"])
+    out = pd.DataFrame({"n_conv": g.size(), "n_gen_turns": g["n_gen_turns"].sum(),
+                        "n_marker_turns": g["n_marker_turns"].sum()})
+    out["share_of_turns"] = out["n_marker_turns"] / out["n_gen_turns"]
+    out["marker_rate_mean"] = g["marker_rate"].mean()
+    out["marker_rate_se"] = g["marker_rate"].sem()
     return out.reset_index()
 
 

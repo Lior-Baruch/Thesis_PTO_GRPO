@@ -926,6 +926,118 @@ def feature_premium(cands_all: pd.DataFrame, feature: str = "overpraise_marker")
     return out.sort_values(["arm", "train_iter"]).reset_index(drop=True)
 
 
+# ── Malformed chat markers in the training candidates ────────────────────────
+# Same pattern as behavior.MALFORMED_MARKER_RE (kept here too so this module needs no behavior
+# import): the exact markers are cut by the trainers' clean_completion, so any "<|im_" / "<im_"
+# left in a completion is a near-miss the stop strings did not catch.
+_RE_MALFORMED = re.compile(r"<\|?im_")
+
+
+def marker_leak_by_iter(cands_all: pd.DataFrame) -> pd.DataFrame:
+    """Per (arm, train_iter), plus an ``all`` row per arm: does the training reward react to the leak?
+
+    ``share`` = candidates whose completion holds a malformed chat marker; ``share_best`` /
+    ``share_worst`` = the same among each group's highest- / lowest-scoring candidates (every
+    candidate tied at the extreme counts); ``r_within`` = the Pearson correlation between reward
+    and the marker indicator after both are centred within their group, i.e. across candidates that
+    competed for the same update (0 = the reward neither favours nor penalises the marker).
+
+    Needs the UNFILTERED frame (``load_weighted_candidates(..., drop_zero_weight=False)``).
+    """
+    if cands_all.empty:
+        return pd.DataFrame()
+    d = cands_all.copy()
+    d["_mk"] = d["completion"].astype(str).map(lambda t: bool(_RE_MALFORMED.search(t))).astype(float)
+    g = d.groupby(_GROUP_KEYS)["score"]
+    d["_best"] = d["score"] == g.transform("max")
+    d["_worst"] = d["score"] == g.transform("min")
+    d["_s"] = d["score"] - g.transform("mean")
+    d["_v"] = d["_mk"] - d.groupby(_GROUP_KEYS)["_mk"].transform("mean")
+
+    def row(sub: pd.DataFrame, arm, it) -> dict:
+        den = float(np.sqrt((sub["_s"] ** 2).sum() * (sub["_v"] ** 2).sum()))
+        return {"arm": arm, "K": sub["K"].iloc[0], "train_iter": it, "n_candidates": len(sub),
+                "n_groups": int(sub.groupby(_GROUP_KEYS).ngroups), "share": float(sub["_mk"].mean()),
+                "share_best": float(sub.loc[sub["_best"], "_mk"].mean()),
+                "share_worst": float(sub.loc[sub["_worst"], "_mk"].mean()),
+                "r_within": float((sub["_s"] * sub["_v"]).sum() / den) if den > 0 else np.nan}
+
+    rows = [row(sub, arm, int(it)) for (arm, it), sub in d.groupby(["arm", "train_iter"])]
+    rows += [row(sub, arm, "all") for arm, sub in d.groupby("arm")]
+    return pd.DataFrame(rows)
+
+
+# ── Per-iteration direction cosines, corrected for estimation noise ──────────
+def _half_cosine(fa: pd.DataFrame, fb: pd.DataFrame, rng, n_splits: int) -> dict:
+    """Cosine between the update directions of two cells, with conversation split-halves.
+
+    Each split draws half of the conversation ids found in EITHER cell; every direction is then
+    estimated on each half. ``rel_a`` / ``rel_b`` = the mean cosine between a cell's two halves
+    (how well its direction is measured at half size); ``half_cross`` = the mean cosine between
+    one cell's half and the OTHER half of the other cell (disjoint conversations, so their
+    estimation errors are independent); ``corrected = half_cross / sqrt(rel_a * rel_b)``, the
+    cosine the two directions would have without estimation noise (≈ 1 = the same direction).
+    ``raw`` is the plain cosine of the two full-sample directions.
+    """
+    ids = np.array(sorted(set(fa["conversation_id"]) | set(fb["conversation_id"])))
+    ra, rb, cr = [], [], []
+    for _ in range(n_splits):
+        h = set(rng.choice(ids, size=len(ids) // 2, replace=False).tolist())
+        a1, a2 = fa[fa["conversation_id"].isin(h)], fa[~fa["conversation_id"].isin(h)]
+        b1, b2 = fb[fb["conversation_id"].isin(h)], fb[~fb["conversation_id"].isin(h)]
+        if min(len(a1), len(a2), len(b1), len(b2)) == 0:
+            continue
+        da1, da2, db1, db2 = _direction(a1), _direction(a2), _direction(b1), _direction(b2)
+        ra.append(float(da1 @ da2))
+        rb.append(float(db1 @ db2))
+        cr.append(0.5 * float(da1 @ db2 + da2 @ db1))
+    if not cr:
+        return {"raw": np.nan, "half_cross": np.nan, "rel_a": np.nan, "rel_b": np.nan,
+                "corrected": np.nan, "n_splits": 0}
+    rel_a, rel_b, half = float(np.mean(ra)), float(np.mean(rb)), float(np.mean(cr))
+    corr = half / np.sqrt(rel_a * rel_b) if rel_a > 0 and rel_b > 0 else np.nan
+    return {"raw": float(_direction(fa) @ _direction(fb)), "half_cross": half,
+            "rel_a": rel_a, "rel_b": rel_b, "corrected": corr, "n_splits": len(cr)}
+
+
+def k_direction_cosines_by_iter(embedded: pd.DataFrame, arm_a: str, arm_b: str, *,
+                                n_splits: int = 50, seed: int = BOOT_SEED) -> pd.DataFrame:
+    """Per training iteration: the cosine between two arms' update directions, noise-corrected.
+
+    The per-iteration companion of :func:`pooled_direction_cosines` (which pools the ten
+    iterations and so averages over any change in agreement along the run). Use with an
+    UNSAMPLED embedded frame: the 400-group cap of :func:`sample_groups` leaves the late
+    per-iteration directions too noisy to compare. Splits are by conversation id, which pairs the
+    same persona across the two arms at one iteration (both runs replay the same persona shuffle).
+    """
+    rows = []
+    for it in sorted(set(embedded.loc[embedded["arm"] == arm_a, "train_iter"])
+                     & set(embedded.loc[embedded["arm"] == arm_b, "train_iter"])):
+        fa = embedded[(embedded["arm"] == arm_a) & (embedded["train_iter"] == it)]
+        fb = embedded[(embedded["arm"] == arm_b) & (embedded["train_iter"] == it)]
+        rows.append({"arm_a": arm_a, "arm_b": arm_b, "train_iter": int(it),
+                     **_half_cosine(fa, fb, _cell_rng(seed, f"{arm_a}|{arm_b}", it), n_splits)})
+    return pd.DataFrame(rows)
+
+
+def direction_stability_by_iter(embedded: pd.DataFrame, *, n_splits: int = 50,
+                                seed: int = BOOT_SEED) -> pd.DataFrame:
+    """Per arm: the noise-corrected cosine between consecutive training iterations' directions.
+
+    ≈ 1 = the update keeps pushing the same way; a negative value = it reversed. Same estimator
+    as :func:`k_direction_cosines_by_iter` (``rel_a`` belongs to ``from_iter``, ``rel_b`` to
+    ``to_iter``).
+    """
+    rows = []
+    for arm, g in embedded.groupby("arm"):
+        its = sorted(g["train_iter"].unique())
+        for a, b in zip(its[:-1], its[1:]):
+            rows.append({"arm": arm, "from_iter": int(a), "to_iter": int(b),
+                         **_half_cosine(g[g["train_iter"] == a], g[g["train_iter"] == b],
+                                        _cell_rng(seed, arm, b), n_splits)})
+    return pd.DataFrame(rows)
+
+
 def pool_mean_by_iter(cands_all: pd.DataFrame) -> pd.DataFrame:
     """Per (arm, iter): the mean feature over ALL candidates — what the policy *generates*.
 

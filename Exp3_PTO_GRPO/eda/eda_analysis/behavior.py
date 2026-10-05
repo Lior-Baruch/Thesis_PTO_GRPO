@@ -421,6 +421,54 @@ def _cap_hits_impl(arms) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+# ── Malformed chat markers (the residual leak) ───────────────────────────────
+# The trainers stop generation at the EXACT strings "<|im_end|>" / "<|im_start|>" and cut a
+# completion at the first one (code/_shared/convs.py::clean_completion), so an exact marker never
+# survives into a stored turn. Near-misses do: GRPO K=0 learned to write "<|im_end>" (no closing
+# pipe) and similar from its iteration 6 on, which no stop string matches. Any "<|im_" or "<im_"
+# left in a stored therapist turn is therefore one of those (found 2026-09-29).
+MALFORMED_MARKER_RE = re.compile(r"<\|?im_")
+
+
+def marker_leaks(arms: Optional[List] = None) -> pd.DataFrame:
+    """Per (arm, iteration, conversation): therapist turns that contain a malformed chat marker.
+
+    Counts every stored therapist turn, the scripted opening line excluded (it is not generated),
+    matching :data:`MALFORMED_MARKER_RE`. Columns: ``n_gen_turns``, ``n_marker_turns``,
+    ``marker_rate`` (NaN for a conversation with no generated turn). Judge-free. Parquet-cached
+    like :func:`cap_hits`.
+    """
+    arms = _arms(arms)
+    return load_cached("marker_leaks", arms, lambda: _marker_leaks_impl(arms),
+                       input_roots=conv_input_roots(arms),
+                       params={"pattern": MALFORMED_MARKER_RE.pattern})
+
+
+def _marker_leaks_impl(arms) -> pd.DataFrame:
+    rows = []
+    for arm in arms:
+        for k in arm.iters:
+            cdir = arm.conv_dir(k)
+            if not cdir or not os.path.isdir(cdir):
+                continue
+            for fn in os.listdir(cdir):
+                m = re.match(r"conversation_(\d+)\.csv$", fn)
+                if not m:
+                    continue
+                try:
+                    cdf = pd.read_csv(os.path.join(cdir, fn))
+                except Exception:
+                    continue
+                th = cdf[cdf["role"] == "therapist"]["conversation"].astype(str).tolist()[1:]
+                hits = sum(bool(MALFORMED_MARKER_RE.search(t)) for t in th)
+                rows.append({"arm": arm.label, "method": arm.method, "K": arm.K,
+                             "model": arm.model_name(k), "iteration": k, "is_base": (k == 0),
+                             "file_index": int(m.group(1)), "n_gen_turns": len(th),
+                             "n_marker_turns": hits,
+                             "marker_rate": hits / len(th) if th else np.nan})
+    return pd.DataFrame(rows)
+
+
 # ── Combined per-iteration trajectory ────────────────────────────────────────
 # Headline behavior trajectory metrics. The semantic affirmation/over-praise signal is
 # carried by the oracle-coded B6_AF (and MICI_OverPraiseRate once MICI is scored), NOT by the
