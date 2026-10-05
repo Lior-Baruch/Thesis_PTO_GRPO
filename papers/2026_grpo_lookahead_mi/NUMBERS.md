@@ -1041,3 +1041,22 @@ utterance 2 is still 7th at 21.5 (row "Ranking position" above stays true). E.1 
 reply was ranked, paired by position, earlier replies preferred (the score's −0.4 per later
 reply). Float crowding moved to step 13 (the length pass will move every
 float). The body still ends about 15 lines into page 11 (31 pages).
+
+## 2026-10-05 — step 12: contributions, abstract, Q1+Q2 (drafted for Doron's read)
+Run before Lior's read-through at his request, so Doron can read it first. No new number: every
+value is one the paper already carried and this ledger already sources. **Contributions (§1):**
+Doron's two original sentences restored verbatim as the frame ("behavior s" → "behaviors"), each
+followed by one result sentence: all eight instruments under both judges (§4; Table 1), and the
+utterance-coding account (§5–6), worded as in the approved 2026-10-01 rewrite. His "most
+important" note marked handled; his original stays as a `%` comment. **Abstract:** rewritten to
+the intro's framing (verifiable vs non-verifiable, the judge sees nothing after the turn) and cut
+from 289 to 194 words (the ACL formatting guide: "The abstract should be no longer than 200
+words"; whitespace count after stripping LaTeX). Kept: all eight instruments under both judges;
+97% vs 80% persistence under the training oracle (`ct_persist`, block above); persuasion in reply
+to sustain talk; single run. Dropped: "leads from the fourth iteration", the evaluation re-draw,
+"2,112 conversations", the judges' disagreement on praise. **Q1+Q2:** §1 gains one sentence (PTO's
+reward, Yosef et al.'s validated questionnaires; six instruments outside the reward + the
+held-out judge check it — 8 − 2 = 6); the Discussion gains a short paragraph before the
+Conclusion (why Q1+Q2; they rate the session from the patient's side, §3.3's description; another
+instrument as reward is untested). §3.1's note marked handled with both locations. The body now
+ends 30 lines into page 11 (was ~15; the visible note markers account for part of it).
