@@ -6,7 +6,7 @@
 
 % \dnotedone{done: merged into one Method section, task setup first}{consider unifying 3 and 4 to one Method Section. maybe easier to understand if 4 comes before 3?}
 A session is a text conversation between a therapist policy and
-a simulated patient who is ambivalent about a health behaviour. 
+a simulated patient who is ambivalent about a health behavior. 
 % \dnotedone{answered: cites Yosef et al. 2024 and the PTO paper}{ref some kfir paper?}
 The patient is simulated by
 \texttt{gpt-4o-mini} conditioned on one of the \textbf{96} persona system prompts introduced by
@@ -15,7 +15,7 @@ enumeration of $2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{pr
 2\ \text{duration} \times 2\ \text{prior attempts} \times 2\ \text{age}$
 (Appendix~\ref{app:prompts}). A session runs until the patient closes it or a cap of 49 utterances
 after the scripted opening is reached; most close earlier, and the untrained therapist's sessions
-average 28.5 utterances. The therapist is based on \texttt{Llama-3.2-1B} under a fixed counsellor system prompt,
+average 28.5 utterances. The therapist is the base (not instruction-tuned) \texttt{Llama-3.2-1B} under a fixed counselor system prompt,
 trained with LoRA adapters, responses capped at 200 tokens (all setting parameters in
 Table~\ref{tab:config}). The oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
 output; the \emph{training} reward is the mean of two of the evaluation instruments, Q1 and Q2
@@ -25,16 +25,16 @@ We train on these two because they were built and validated for this use:
 \citet{yosef2024assessing} introduced them as LLM-evaluator questionnaires for simulated MI sessions
 and showed that the model's ratings are reliable and separate levels of therapist expertise. The
 same reward trained the predecessor PTO policy \citep{baruch2025pto}, and the six other instruments
-stay outside it, so they measure outcomes the policy was never optimised for.
+stay outside it, so they measure outcomes the policy was never optimized for.
 
 \textbf{Why MI.} MI's constructs are defined by the patient's response rather than by the
-counsellor's utterance. Its target outcome is \emph{change talk}, the patient's own statements in
-favour of change (``I guess it would feel like a relief not to be chained to it''), as against
-\emph{sustain talk}, statements in favour of the status quo (``I like my routine''; both from
+counselor's utterance. Its target outcome is \emph{change talk}, the patient's own statements in
+favor of change (``I guess it would feel like a relief not to be chained to it''), as against
+\emph{sustain talk}, statements in favor of the status quo (``I like my routine''; both from
 Appendix~\ref{app:example}), and the MITI coding scheme rates a session on cultivating change talk
 and softening sustain talk, properties of the trajectory rather than of any one turn
 \citep{miller2013mi, moyers2016miti}. The value of a therapist turn is therefore inherently
-delayed, which is what a reward horizon is meant to capture. The counsellor's tools are open
+delayed, which is what a reward horizon is meant to capture. The counselor's tools are open
 questions, \emph{affirmations} (comments on a specific strength or effort of the patient) and
 \emph{reflections}, which restate what the patient said (\emph{simple}) or add meaning to it, such
 as an inferred feeling (\emph{complex}); the field supplies validated instruments and a tradition
@@ -55,7 +55,7 @@ states the procedure; Figure~\ref{fig:schematic} shows one group.
 \includegraphics[width=0.82\textwidth]{figures/method_grpo_group.png}
 \caption{One GRPO group under look-ahead. The policy samples $G{=}8$ completions of a prompt; each
 is rolled forward $K$ turns by the patient simulator $P$ and the policy $\pi$ being trained; the
-oracle scores the extended transcript; the scores are standardised within the group and every
+oracle scores the extended transcript; the scores are standardized within the group and every
 completion carries a gradient. At $K{=}0$ the rollout is skipped, the oracle scores the candidate
 alone, and standard GRPO is recovered.}
 \label{fig:schematic}
@@ -91,8 +91,8 @@ which holds 96 conversations with $P$, one per patient persona; each conversatio
 every patient turn whose prefix has at least MCL utterances (the \emph{minimum context length}, 12
 here; see below) to form the training prompts; the prompts of $5\%$ of the conversations are held
 out as the trainer's validation split. For each prompt GRPO samples $G{=}8$ completions and
-scores them; the policy takes one optimiser step per batch of 16 prompts (128 completions) on the
-group-standardised scores, and after two epochs it is saved as $\pi_{n+1}$ and the loop repeats
+scores them; the policy takes one optimizer step per batch of 16 prompts (128 completions) on the
+group-standardized scores, and after two epochs it is saved as $\pi_{n+1}$ and the loop repeats
 with fresh conversations. The conversations that start an iteration double as the evaluation set
 of $\pi_n$, and a generate-only pass after the last update evaluates the final policy, so every
 policy from the Base $\pi_0$ to $\pi_{10}$ is evaluated; in the figures, iteration $n$ is $\pi_n$.
@@ -119,7 +119,7 @@ distribution of continuations, so $r_g$ is a one-sample Monte Carlo estimate of 
 downstream value, with sampling noise from $P$ and $\pi$ added to the oracle's own; GRPO trains on
 all $G$ candidates, so that variance enters every advantage.
 
-\textbf{The update.} The step maximises the GRPO objective of \citet{shao2024deepseekmath}: the
+\textbf{The update.} The step maximizes the GRPO objective of \citet{shao2024deepseekmath}: the
 per-token surrogate
 \begin{equation}
 \label{eq:grpo}
@@ -131,7 +131,7 @@ clip to $[1{-}\epsilon, 1{+}\epsilon]$, and $\mathrm{KL}_{g,i}$ the per-token KL
 $\pi_n$. Both runs make one update per sampled batch
 (Table~\ref{tab:config}), so $\rho_{g,i}{=}1$ at the update, the clipping is inactive, and the
 step is the advantage-weighted policy gradient over the group with the KL penalty. The loss, the
-advantage normalisation, the KL penalty and the prompt-construction rule are identical across
+advantage normalization, the KL penalty and the prompt-construction rule are identical across
 $K$; the horizon enters only through $r_g$.
 
 \textbf{Minimum context length.} Training prompts are prefixes, so the oracle scores a partial
@@ -157,8 +157,8 @@ CSQ-8 \citep{larsen1979csq} are published patient-report instruments, and MI-SAT
 intervention-satisfaction survey adapted for this task. The other three are coders: a
 MITI~4.2.1-style coder \citep{moyers2016miti} whose four global ratings are averaged; a patient
 change-talk coder (PCT; the share of change talk among change and sustain talk, the patient-side
-outcome MI aims at); and an MI-inconsistent-behaviour coder that counts acts (MICI; acts per therapist turn,
-lower is better). \QQ\ is thus both the optimisation target and a reported outcome; the six
+outcome MI aims at); and an MI-inconsistent-behavior coder that counts acts (MICI; acts per therapist turn,
+lower is better). \QQ\ is thus both the optimization target and a reported outcome; the six
 instruments outside the reward and a held-out judge (below) are the checks on it.
 
 \textbf{The utterance coder.} The eight instruments are session-level aggregates. For
