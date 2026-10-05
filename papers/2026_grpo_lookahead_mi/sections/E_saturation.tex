@@ -42,7 +42,10 @@ agreement differs by more than the effect. Rows are sorted by $r$ minus median; 
 the four that fall well below their median from the four that barely move. Rewarded: the two rubrics
 of the training reward. Coding: the two coders that rate the therapist's behavior (PCT, the third
 coder, rates the patient's talk). The
-disagreement is real but not confined to the rewarded rubric.}
+disagreement is not confined to the rewarded rubric. No test or interval is attached to $r$;
+the evidence is this state's rank among the 21 and its distance below the median. At the $\Kz$
+policy's iteration 10, MICI's $r$ is lower still ($0.204$), while the other seven sit near their
+medians, so MICI's low agreement is not specific to $\Kf$.}
 \label{tab:agreement}
 \end{table}
 
@@ -52,7 +55,7 @@ iteration 5, then $0.877$, $0.842$, $0.769$, and falls to $\mathbf{0.487}$ at it
 $\mathbf{0.544}$ at iteration 10, against a median of $0.842$ across the 21 states (the Base
 $0.858$); the next-lowest state anywhere is $0.744$. The $\Kz$ run never leaves that range on Q1
 ($0.744$--$0.882$). The collapse is not confined to the rewarded rubric: against each
-instrument's own distribution over the 21 states, MITI falls furthest, then Q1, Q2 and MICI,
+instrument's own distribution over the 21 states, MITI falls furthest, then Q1 and Q2 (MICI is low here but lower still at $\Kz$'s iteration 10),
 while CSQ-8, MI-SAT, WAI-SR and PCT barely move (Table~\ref{tab:agreement}).
 With one training run per $K$ we cannot separate ``this checkpoint'' from ``long $\Kf$
 training.''
@@ -74,6 +77,6 @@ have shrunk; only the judge optimized against did.
 \textbf{What this does and does not undermine.} Not the ordering: the held-out judge, still
 discriminating, ranks $\Kf$ above $\Kz$ at iteration 10 at $\dz\,1.030$ on \QQ, a larger effect
 than the saturating training oracle reports. It does limit what the training oracle can say about
-individual conversations of the $\Kf$ run's late checkpoints on Q1, Q2, MITI and MICI, the meaning
+individual conversations of the $\Kf$ run's late checkpoints on Q1, Q2 and MITI, the meaning
 of the absolute endpoint level $4.517$ in the compressed top of its range, and the precise
 magnitude of the residual MI-inconsistency in \S\ref{sec:therapist}.
