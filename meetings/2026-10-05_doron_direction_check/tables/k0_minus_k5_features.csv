@@ -1,0 +1,661 @@
+variant,iteration,arm,feature,corr,share_or_mean
+all,1,GRPO_K0,length (log chars),-0.5513,5.4151
+all,1,GRPO_K0,praise phrase,-0.0463,0.0032
+all,1,GRPO_K0,'you are ...' affirmation,-0.0515,0.0213
+all,1,GRPO_K0,asks a question,0.0993,0.5454
+all,1,GRPO_K0,reflection opener,-0.0595,0.0452
+all,1,GRPO_K0,advice / tips,-0.175,0.202
+all,1,GRPO_K0,numbered or bulleted list,-0.0725,0.0062
+all,1,GRPO_K0,'we' / 'together',0.0862,0.3002
+all,1,GRPO_K0,cut off mid-sentence,-0.4084,0.2316
+all,1,GRPO_K0,degenerate text,-0.3793,0.113
+all,1,GRPO_K0,leaked chat marker,-0.0632,0.018
+all,1,GRPO_K5,length (log chars),-0.5315,5.4813
+all,1,GRPO_K5,praise phrase,-0.0536,0.0033
+all,1,GRPO_K5,'you are ...' affirmation,-0.0919,0.0417
+all,1,GRPO_K5,asks a question,0.1251,0.517
+all,1,GRPO_K5,reflection opener,0.0328,0.0412
+all,1,GRPO_K5,advice / tips,-0.2441,0.1832
+all,1,GRPO_K5,numbered or bulleted list,-0.1183,0.0065
+all,1,GRPO_K5,'we' / 'together',0.1056,0.3488
+all,1,GRPO_K5,cut off mid-sentence,-0.4434,0.2401
+all,1,GRPO_K5,degenerate text,-0.3756,0.1025
+all,1,GRPO_K5,leaked chat marker,-0.0894,0.0189
+all,2,GRPO_K0,length (log chars),-0.5303,5.3502
+all,2,GRPO_K0,praise phrase,-0.0179,0.0031
+all,2,GRPO_K0,'you are ...' affirmation,-0.0597,0.0264
+all,2,GRPO_K0,asks a question,0.1576,0.4676
+all,2,GRPO_K0,reflection opener,-0.1081,0.0556
+all,2,GRPO_K0,advice / tips,-0.1665,0.2265
+all,2,GRPO_K0,numbered or bulleted list,-0.038,0.0094
+all,2,GRPO_K0,'we' / 'together',0.0245,0.3311
+all,2,GRPO_K0,cut off mid-sentence,-0.1101,0.237
+all,2,GRPO_K0,degenerate text,-0.1139,0.0729
+all,2,GRPO_K0,leaked chat marker,-0.0164,0.0194
+all,2,GRPO_K5,length (log chars),-0.5403,5.4447
+all,2,GRPO_K5,praise phrase,-0.0135,0.0026
+all,2,GRPO_K5,'you are ...' affirmation,-0.0529,0.0291
+all,2,GRPO_K5,asks a question,0.307,0.5337
+all,2,GRPO_K5,reflection opener,-0.0771,0.0366
+all,2,GRPO_K5,advice / tips,-0.2089,0.2011
+all,2,GRPO_K5,numbered or bulleted list,0.0131,0.0281
+all,2,GRPO_K5,'we' / 'together',0.0115,0.3083
+all,2,GRPO_K5,cut off mid-sentence,-0.1761,0.232
+all,2,GRPO_K5,degenerate text,-0.1234,0.0893
+all,2,GRPO_K5,leaked chat marker,-0.0202,0.0216
+all,3,GRPO_K0,length (log chars),-0.0476,5.3674
+all,3,GRPO_K0,praise phrase,0.0531,0.003
+all,3,GRPO_K0,'you are ...' affirmation,-0.0173,0.0201
+all,3,GRPO_K0,asks a question,-0.1924,0.5316
+all,3,GRPO_K0,reflection opener,-0.0184,0.0651
+all,3,GRPO_K0,advice / tips,-0.0636,0.274
+all,3,GRPO_K0,numbered or bulleted list,-0.074,0.0105
+all,3,GRPO_K0,'we' / 'together',0.1347,0.3636
+all,3,GRPO_K0,cut off mid-sentence,-0.0851,0.1811
+all,3,GRPO_K0,degenerate text,-0.057,0.0423
+all,3,GRPO_K0,leaked chat marker,-0.0044,0.0248
+all,3,GRPO_K5,length (log chars),-0.1103,5.6311
+all,3,GRPO_K5,praise phrase,0.0203,0.0032
+all,3,GRPO_K5,'you are ...' affirmation,0.0098,0.0393
+all,3,GRPO_K5,asks a question,-0.0909,0.4896
+all,3,GRPO_K5,reflection opener,-0.0115,0.0741
+all,3,GRPO_K5,advice / tips,-0.0744,0.2812
+all,3,GRPO_K5,numbered or bulleted list,-0.0085,0.0043
+all,3,GRPO_K5,'we' / 'together',0.1591,0.3089
+all,3,GRPO_K5,cut off mid-sentence,-0.0483,0.2116
+all,3,GRPO_K5,degenerate text,-0.0077,0.0706
+all,3,GRPO_K5,leaked chat marker,-0.0019,0.018
+all,4,GRPO_K0,length (log chars),-0.3822,5.679
+all,4,GRPO_K0,praise phrase,0.066,0.0124
+all,4,GRPO_K0,'you are ...' affirmation,-0.0101,0.0243
+all,4,GRPO_K0,asks a question,-0.0324,0.2905
+all,4,GRPO_K0,reflection opener,-0.0048,0.0418
+all,4,GRPO_K0,advice / tips,-0.1258,0.5012
+all,4,GRPO_K0,numbered or bulleted list,-0.1698,0.0207
+all,4,GRPO_K0,'we' / 'together',0.2626,0.3905
+all,4,GRPO_K0,cut off mid-sentence,-0.1124,0.3265
+all,4,GRPO_K0,degenerate text,-0.098,0.0317
+all,4,GRPO_K0,leaked chat marker,-0.0361,0.0311
+all,4,GRPO_K5,length (log chars),-0.4302,5.9592
+all,4,GRPO_K5,praise phrase,0.0711,0.0065
+all,4,GRPO_K5,'you are ...' affirmation,-0.0253,0.0333
+all,4,GRPO_K5,asks a question,0.0152,0.4132
+all,4,GRPO_K5,reflection opener,0.008,0.0713
+all,4,GRPO_K5,advice / tips,-0.1707,0.4047
+all,4,GRPO_K5,numbered or bulleted list,-0.057,0.0058
+all,4,GRPO_K5,'we' / 'together',0.1863,0.2408
+all,4,GRPO_K5,cut off mid-sentence,-0.1158,0.2019
+all,4,GRPO_K5,degenerate text,-0.011,0.0394
+all,4,GRPO_K5,leaked chat marker,-0.0134,0.0175
+all,5,GRPO_K0,length (log chars),-0.3226,5.5325
+all,5,GRPO_K0,praise phrase,0.1925,0.0236
+all,5,GRPO_K0,'you are ...' affirmation,0.0442,0.0349
+all,5,GRPO_K0,asks a question,-0.1737,0.1177
+all,5,GRPO_K0,reflection opener,0.0095,0.0276
+all,5,GRPO_K0,advice / tips,0.0727,0.7236
+all,5,GRPO_K0,numbered or bulleted list,-0.0571,0.0301
+all,5,GRPO_K0,'we' / 'together',-0.0595,0.3512
+all,5,GRPO_K0,cut off mid-sentence,0.1429,0.5514
+all,5,GRPO_K0,degenerate text,-0.0221,0.018
+all,5,GRPO_K0,leaked chat marker,0.0123,0.0319
+all,5,GRPO_K5,length (log chars),-0.2783,6.2642
+all,5,GRPO_K5,praise phrase,0.1536,0.0123
+all,5,GRPO_K5,'you are ...' affirmation,0.0277,0.0461
+all,5,GRPO_K5,asks a question,-0.057,0.3825
+all,5,GRPO_K5,reflection opener,0.0383,0.0849
+all,5,GRPO_K5,advice / tips,-0.0451,0.5467
+all,5,GRPO_K5,numbered or bulleted list,0.0277,0.0133
+all,5,GRPO_K5,'we' / 'together',0.0273,0.1778
+all,5,GRPO_K5,cut off mid-sentence,0.0311,0.2287
+all,5,GRPO_K5,degenerate text,0.1046,0.0249
+all,5,GRPO_K5,leaked chat marker,0.0389,0.0157
+all,6,GRPO_K0,length (log chars),-0.3219,5.562
+all,6,GRPO_K0,praise phrase,0.1944,0.0337
+all,6,GRPO_K0,'you are ...' affirmation,0.0504,0.0574
+all,6,GRPO_K0,asks a question,-0.1711,0.0578
+all,6,GRPO_K0,reflection opener,0.0223,0.0191
+all,6,GRPO_K0,advice / tips,-0.0573,0.7894
+all,6,GRPO_K0,numbered or bulleted list,-0.3206,0.0722
+all,6,GRPO_K0,'we' / 'together',0.0733,0.2744
+all,6,GRPO_K0,cut off mid-sentence,-0.0752,0.7018
+all,6,GRPO_K0,degenerate text,-0.0312,0.0206
+all,6,GRPO_K0,leaked chat marker,0.0209,0.07
+all,6,GRPO_K5,length (log chars),-0.2973,6.6511
+all,6,GRPO_K5,praise phrase,0.087,0.0146
+all,6,GRPO_K5,'you are ...' affirmation,0.062,0.0716
+all,6,GRPO_K5,asks a question,-0.1672,0.275
+all,6,GRPO_K5,reflection opener,-0.0239,0.1102
+all,6,GRPO_K5,advice / tips,-0.0789,0.6486
+all,6,GRPO_K5,numbered or bulleted list,-0.0872,0.0185
+all,6,GRPO_K5,'we' / 'together',0.0417,0.2077
+all,6,GRPO_K5,cut off mid-sentence,-0.1405,0.5447
+all,6,GRPO_K5,degenerate text,0.0788,0.0229
+all,6,GRPO_K5,leaked chat marker,0.0142,0.0238
+all,7,GRPO_K0,length (log chars),0.3172,5.7218
+all,7,GRPO_K0,praise phrase,0.0658,0.0469
+all,7,GRPO_K0,'you are ...' affirmation,0.0083,0.0887
+all,7,GRPO_K0,asks a question,0.0124,0.0396
+all,7,GRPO_K0,reflection opener,0.0248,0.0121
+all,7,GRPO_K0,advice / tips,0.306,0.8343
+all,7,GRPO_K0,numbered or bulleted list,0.2514,0.0618
+all,7,GRPO_K0,'we' / 'together',0.0132,0.31
+all,7,GRPO_K0,cut off mid-sentence,-0.0519,0.8672
+all,7,GRPO_K0,degenerate text,-0.0768,0.0184
+all,7,GRPO_K0,leaked chat marker,-0.0563,0.5813
+all,7,GRPO_K5,length (log chars),0.0202,6.7417
+all,7,GRPO_K5,praise phrase,-0.0191,0.0293
+all,7,GRPO_K5,'you are ...' affirmation,-0.05,0.0869
+all,7,GRPO_K5,asks a question,0.0183,0.3084
+all,7,GRPO_K5,reflection opener,0.0013,0.1056
+all,7,GRPO_K5,advice / tips,0.2067,0.5548
+all,7,GRPO_K5,numbered or bulleted list,0.0687,0.0041
+all,7,GRPO_K5,'we' / 'together',-0.1079,0.2542
+all,7,GRPO_K5,cut off mid-sentence,-0.0226,0.6336
+all,7,GRPO_K5,degenerate text,0.0435,0.0136
+all,7,GRPO_K5,leaked chat marker,0.0294,0.02
+all,8,GRPO_K0,length (log chars),0.5437,6.3353
+all,8,GRPO_K0,praise phrase,0.4405,0.1754
+all,8,GRPO_K0,'you are ...' affirmation,0.2932,0.2445
+all,8,GRPO_K0,asks a question,-0.0044,0.0522
+all,8,GRPO_K0,reflection opener,0.0504,0.0264
+all,8,GRPO_K0,advice / tips,0.1235,0.8803
+all,8,GRPO_K0,numbered or bulleted list,0.0798,0.0967
+all,8,GRPO_K0,'we' / 'together',0.1926,0.3681
+all,8,GRPO_K0,cut off mid-sentence,-0.2542,0.8655
+all,8,GRPO_K0,degenerate text,-0.0425,0.0162
+all,8,GRPO_K0,leaked chat marker,-0.2699,0.5007
+all,8,GRPO_K5,length (log chars),-0.0146,6.8282
+all,8,GRPO_K5,praise phrase,0.0277,0.0489
+all,8,GRPO_K5,'you are ...' affirmation,-0.0314,0.1027
+all,8,GRPO_K5,asks a question,-0.1169,0.3692
+all,8,GRPO_K5,reflection opener,0.0294,0.0973
+all,8,GRPO_K5,advice / tips,0.098,0.5117
+all,8,GRPO_K5,numbered or bulleted list,0.0642,0.0039
+all,8,GRPO_K5,'we' / 'together',-0.013,0.3177
+all,8,GRPO_K5,cut off mid-sentence,-0.0047,0.7777
+all,8,GRPO_K5,degenerate text,0.0915,0.0099
+all,8,GRPO_K5,leaked chat marker,0.0384,0.0164
+all,9,GRPO_K0,length (log chars),-0.8232,6.4346
+all,9,GRPO_K0,praise phrase,-0.0795,0.1856
+all,9,GRPO_K0,'you are ...' affirmation,-0.176,0.2625
+all,9,GRPO_K0,asks a question,-0.0965,0.0554
+all,9,GRPO_K0,reflection opener,-0.0968,0.0523
+all,9,GRPO_K0,advice / tips,-0.1125,0.8842
+all,9,GRPO_K0,numbered or bulleted list,-0.2997,0.1565
+all,9,GRPO_K0,'we' / 'together',-0.1368,0.3056
+all,9,GRPO_K0,cut off mid-sentence,0.0615,0.9047
+all,9,GRPO_K0,degenerate text,0.0833,0.0161
+all,9,GRPO_K0,leaked chat marker,0.2139,0.2643
+all,9,GRPO_K5,length (log chars),-0.3299,6.8685
+all,9,GRPO_K5,praise phrase,0.0082,0.0601
+all,9,GRPO_K5,'you are ...' affirmation,0.0299,0.1538
+all,9,GRPO_K5,asks a question,-0.114,0.3473
+all,9,GRPO_K5,reflection opener,-0.0756,0.1081
+all,9,GRPO_K5,advice / tips,-0.1067,0.4121
+all,9,GRPO_K5,numbered or bulleted list,-0.0123,0.004
+all,9,GRPO_K5,'we' / 'together',0.078,0.2761
+all,9,GRPO_K5,cut off mid-sentence,-0.0566,0.8402
+all,9,GRPO_K5,degenerate text,0.1909,0.0069
+all,9,GRPO_K5,leaked chat marker,0.0221,0.0124
+all,10,GRPO_K0,length (log chars),0.5119,6.6909
+all,10,GRPO_K0,praise phrase,0.5667,0.7414
+all,10,GRPO_K0,'you are ...' affirmation,0.411,0.5376
+all,10,GRPO_K0,asks a question,-0.1202,0.049
+all,10,GRPO_K0,reflection opener,-0.0034,0.0269
+all,10,GRPO_K0,advice / tips,0.145,0.9478
+all,10,GRPO_K0,numbered or bulleted list,-0.1551,0.0114
+all,10,GRPO_K0,'we' / 'together',0.0825,0.3949
+all,10,GRPO_K0,cut off mid-sentence,0.0352,0.9214
+all,10,GRPO_K0,degenerate text,-0.0812,0.0075
+all,10,GRPO_K0,leaked chat marker,-0.1292,0.316
+all,10,GRPO_K5,length (log chars),-0.0379,6.9068
+all,10,GRPO_K5,praise phrase,0.0898,0.0803
+all,10,GRPO_K5,'you are ...' affirmation,0.0838,0.1607
+all,10,GRPO_K5,asks a question,-0.0964,0.3253
+all,10,GRPO_K5,reflection opener,0.0047,0.1021
+all,10,GRPO_K5,advice / tips,-0.1492,0.3359
+all,10,GRPO_K5,numbered or bulleted list,0.0001,0.0018
+all,10,GRPO_K5,'we' / 'together',-0.0571,0.2314
+all,10,GRPO_K5,cut off mid-sentence,-0.0175,0.8802
+all,10,GRPO_K5,degenerate text,-0.0026,0.0053
+all,10,GRPO_K5,leaked chat marker,0.0223,0.0095
+no_leak,1,GRPO_K0,length (log chars),-0.5467,5.4038
+no_leak,1,GRPO_K0,praise phrase,-0.0469,0.0032
+no_leak,1,GRPO_K0,'you are ...' affirmation,-0.0512,0.0211
+no_leak,1,GRPO_K0,asks a question,0.1053,0.547
+no_leak,1,GRPO_K0,reflection opener,-0.0609,0.0451
+no_leak,1,GRPO_K0,advice / tips,-0.1708,0.2013
+no_leak,1,GRPO_K0,numbered or bulleted list,-0.0666,0.0057
+no_leak,1,GRPO_K0,'we' / 'together',0.0973,0.2995
+no_leak,1,GRPO_K0,cut off mid-sentence,-0.4065,0.2189
+no_leak,1,GRPO_K0,degenerate text,-0.3734,0.1086
+no_leak,1,GRPO_K0,leaked chat marker,,0.0
+no_leak,1,GRPO_K5,length (log chars),-0.5212,5.4684
+no_leak,1,GRPO_K5,praise phrase,-0.0546,0.0033
+no_leak,1,GRPO_K5,'you are ...' affirmation,-0.0884,0.0414
+no_leak,1,GRPO_K5,asks a question,0.13,0.5179
+no_leak,1,GRPO_K5,reflection opener,0.0407,0.041
+no_leak,1,GRPO_K5,advice / tips,-0.2347,0.1825
+no_leak,1,GRPO_K5,numbered or bulleted list,-0.1183,0.0063
+no_leak,1,GRPO_K5,'we' / 'together',0.1147,0.347
+no_leak,1,GRPO_K5,cut off mid-sentence,-0.4367,0.2274
+no_leak,1,GRPO_K5,degenerate text,-0.3723,0.098
+no_leak,1,GRPO_K5,leaked chat marker,,0.0
+no_leak,2,GRPO_K0,length (log chars),-0.4913,5.3393
+no_leak,2,GRPO_K0,praise phrase,-0.015,0.0031
+no_leak,2,GRPO_K0,'you are ...' affirmation,-0.0553,0.0264
+no_leak,2,GRPO_K0,asks a question,0.158,0.4702
+no_leak,2,GRPO_K0,reflection opener,-0.1057,0.0567
+no_leak,2,GRPO_K0,advice / tips,-0.1661,0.2257
+no_leak,2,GRPO_K0,numbered or bulleted list,-0.031,0.0093
+no_leak,2,GRPO_K0,'we' / 'together',0.0199,0.3293
+no_leak,2,GRPO_K0,cut off mid-sentence,-0.1011,0.2245
+no_leak,2,GRPO_K0,degenerate text,-0.0954,0.0691
+no_leak,2,GRPO_K0,leaked chat marker,,0.0
+no_leak,2,GRPO_K5,length (log chars),-0.5025,5.4328
+no_leak,2,GRPO_K5,praise phrase,-0.0125,0.0023
+no_leak,2,GRPO_K5,'you are ...' affirmation,-0.051,0.0288
+no_leak,2,GRPO_K5,asks a question,0.3096,0.5364
+no_leak,2,GRPO_K5,reflection opener,-0.0787,0.0371
+no_leak,2,GRPO_K5,advice / tips,-0.2035,0.2012
+no_leak,2,GRPO_K5,numbered or bulleted list,0.034,0.0278
+no_leak,2,GRPO_K5,'we' / 'together',0.0165,0.3071
+no_leak,2,GRPO_K5,cut off mid-sentence,-0.1566,0.218
+no_leak,2,GRPO_K5,degenerate text,-0.1038,0.0842
+no_leak,2,GRPO_K5,leaked chat marker,,0.0
+no_leak,3,GRPO_K0,length (log chars),-0.0411,5.3551
+no_leak,3,GRPO_K0,praise phrase,0.053,0.003
+no_leak,3,GRPO_K0,'you are ...' affirmation,-0.0166,0.0199
+no_leak,3,GRPO_K0,asks a question,-0.1892,0.5338
+no_leak,3,GRPO_K0,reflection opener,-0.017,0.0651
+no_leak,3,GRPO_K0,advice / tips,-0.0634,0.2726
+no_leak,3,GRPO_K0,numbered or bulleted list,-0.0728,0.0099
+no_leak,3,GRPO_K0,'we' / 'together',0.1386,0.3622
+no_leak,3,GRPO_K0,cut off mid-sentence,-0.0882,0.1636
+no_leak,3,GRPO_K0,degenerate text,-0.0518,0.0388
+no_leak,3,GRPO_K0,leaked chat marker,,0.0
+no_leak,3,GRPO_K5,length (log chars),-0.1086,5.6214
+no_leak,3,GRPO_K5,praise phrase,0.0192,0.0032
+no_leak,3,GRPO_K5,'you are ...' affirmation,0.0108,0.0389
+no_leak,3,GRPO_K5,asks a question,-0.085,0.4903
+no_leak,3,GRPO_K5,reflection opener,-0.0099,0.0745
+no_leak,3,GRPO_K5,advice / tips,-0.0739,0.281
+no_leak,3,GRPO_K5,numbered or bulleted list,-0.0069,0.004
+no_leak,3,GRPO_K5,'we' / 'together',0.1645,0.3084
+no_leak,3,GRPO_K5,cut off mid-sentence,-0.0442,0.1989
+no_leak,3,GRPO_K5,degenerate text,-0.0053,0.0669
+no_leak,3,GRPO_K5,leaked chat marker,,0.0
+no_leak,4,GRPO_K0,length (log chars),-0.3812,5.6669
+no_leak,4,GRPO_K0,praise phrase,0.064,0.0121
+no_leak,4,GRPO_K0,'you are ...' affirmation,-0.0102,0.0237
+no_leak,4,GRPO_K0,asks a question,-0.0403,0.2911
+no_leak,4,GRPO_K0,reflection opener,-0.0069,0.0415
+no_leak,4,GRPO_K0,advice / tips,-0.119,0.5012
+no_leak,4,GRPO_K0,numbered or bulleted list,-0.1707,0.0205
+no_leak,4,GRPO_K0,'we' / 'together',0.2605,0.3896
+no_leak,4,GRPO_K0,cut off mid-sentence,-0.0998,0.3082
+no_leak,4,GRPO_K0,degenerate text,-0.0891,0.0291
+no_leak,4,GRPO_K0,leaked chat marker,,0.0
+no_leak,4,GRPO_K5,length (log chars),-0.4265,5.9511
+no_leak,4,GRPO_K5,praise phrase,0.0704,0.0063
+no_leak,4,GRPO_K5,'you are ...' affirmation,-0.0255,0.0331
+no_leak,4,GRPO_K5,asks a question,0.0102,0.4143
+no_leak,4,GRPO_K5,reflection opener,0.0103,0.0704
+no_leak,4,GRPO_K5,advice / tips,-0.167,0.403
+no_leak,4,GRPO_K5,numbered or bulleted list,-0.0575,0.0054
+no_leak,4,GRPO_K5,'we' / 'together',0.1857,0.2403
+no_leak,4,GRPO_K5,cut off mid-sentence,-0.1075,0.1893
+no_leak,4,GRPO_K5,degenerate text,0.0032,0.0378
+no_leak,4,GRPO_K5,leaked chat marker,,0.0
+no_leak,5,GRPO_K0,length (log chars),-0.4092,5.5168
+no_leak,5,GRPO_K0,praise phrase,0.166,0.0224
+no_leak,5,GRPO_K0,'you are ...' affirmation,0.0276,0.0333
+no_leak,5,GRPO_K0,asks a question,-0.1962,0.1174
+no_leak,5,GRPO_K0,reflection opener,-0.0051,0.0276
+no_leak,5,GRPO_K0,advice / tips,0.1039,0.7231
+no_leak,5,GRPO_K0,numbered or bulleted list,-0.0573,0.0292
+no_leak,5,GRPO_K0,'we' / 'together',-0.1019,0.3487
+no_leak,5,GRPO_K0,cut off mid-sentence,0.2075,0.5409
+no_leak,5,GRPO_K0,degenerate text,-0.0275,0.0173
+no_leak,5,GRPO_K0,leaked chat marker,,0.0
+no_leak,5,GRPO_K5,length (log chars),-0.2985,6.2593
+no_leak,5,GRPO_K5,praise phrase,0.1489,0.0122
+no_leak,5,GRPO_K5,'you are ...' affirmation,0.023,0.0466
+no_leak,5,GRPO_K5,asks a question,-0.0413,0.3832
+no_leak,5,GRPO_K5,reflection opener,0.0325,0.0851
+no_leak,5,GRPO_K5,advice / tips,-0.0436,0.5465
+no_leak,5,GRPO_K5,numbered or bulleted list,0.035,0.0132
+no_leak,5,GRPO_K5,'we' / 'together',0.0284,0.1765
+no_leak,5,GRPO_K5,cut off mid-sentence,0.0242,0.2177
+no_leak,5,GRPO_K5,degenerate text,0.1068,0.0243
+no_leak,5,GRPO_K5,leaked chat marker,,0.0
+no_leak,6,GRPO_K0,length (log chars),-0.3717,5.5411
+no_leak,6,GRPO_K0,praise phrase,0.1642,0.0319
+no_leak,6,GRPO_K0,'you are ...' affirmation,0.024,0.0567
+no_leak,6,GRPO_K0,asks a question,-0.1784,0.054
+no_leak,6,GRPO_K0,reflection opener,0.0098,0.0189
+no_leak,6,GRPO_K0,advice / tips,-0.0327,0.7893
+no_leak,6,GRPO_K0,numbered or bulleted list,-0.3114,0.0732
+no_leak,6,GRPO_K0,'we' / 'together',0.0347,0.2665
+no_leak,6,GRPO_K0,cut off mid-sentence,-0.0415,0.6859
+no_leak,6,GRPO_K0,degenerate text,-0.0426,0.0191
+no_leak,6,GRPO_K0,leaked chat marker,,0.0
+no_leak,6,GRPO_K5,length (log chars),-0.2868,6.6486
+no_leak,6,GRPO_K5,praise phrase,0.0729,0.0145
+no_leak,6,GRPO_K5,'you are ...' affirmation,0.0563,0.0717
+no_leak,6,GRPO_K5,asks a question,-0.1552,0.2743
+no_leak,6,GRPO_K5,reflection opener,-0.0306,0.1095
+no_leak,6,GRPO_K5,advice / tips,-0.0725,0.6494
+no_leak,6,GRPO_K5,numbered or bulleted list,-0.0731,0.0187
+no_leak,6,GRPO_K5,'we' / 'together',0.0421,0.208
+no_leak,6,GRPO_K5,cut off mid-sentence,-0.1457,0.5346
+no_leak,6,GRPO_K5,degenerate text,0.0735,0.0221
+no_leak,6,GRPO_K5,leaked chat marker,,0.0
+no_leak,7,GRPO_K0,length (log chars),0.369,6.0624
+no_leak,7,GRPO_K0,praise phrase,-0.0137,0.0667
+no_leak,7,GRPO_K0,'you are ...' affirmation,-0.015,0.1308
+no_leak,7,GRPO_K0,asks a question,0.0018,0.05
+no_leak,7,GRPO_K0,reflection opener,0.0278,0.0196
+no_leak,7,GRPO_K0,advice / tips,0.314,0.8203
+no_leak,7,GRPO_K0,numbered or bulleted list,0.3337,0.1132
+no_leak,7,GRPO_K0,'we' / 'together',-0.0351,0.3724
+no_leak,7,GRPO_K0,cut off mid-sentence,-0.0281,0.7259
+no_leak,7,GRPO_K0,degenerate text,-0.1206,0.0257
+no_leak,7,GRPO_K0,leaked chat marker,,0.0
+no_leak,7,GRPO_K5,length (log chars),0.0476,6.7403
+no_leak,7,GRPO_K5,praise phrase,-0.0375,0.0292
+no_leak,7,GRPO_K5,'you are ...' affirmation,-0.0542,0.0874
+no_leak,7,GRPO_K5,asks a question,0.003,0.3091
+no_leak,7,GRPO_K5,reflection opener,-0.021,0.106
+no_leak,7,GRPO_K5,advice / tips,0.1978,0.5541
+no_leak,7,GRPO_K5,numbered or bulleted list,0.0681,0.0041
+no_leak,7,GRPO_K5,'we' / 'together',-0.128,0.2533
+no_leak,7,GRPO_K5,cut off mid-sentence,-0.0139,0.6271
+no_leak,7,GRPO_K5,degenerate text,0.0237,0.0133
+no_leak,7,GRPO_K5,leaked chat marker,,0.0
+no_leak,8,GRPO_K0,length (log chars),-0.1094,6.6757
+no_leak,8,GRPO_K0,praise phrase,0.4758,0.2221
+no_leak,8,GRPO_K0,'you are ...' affirmation,0.2598,0.3186
+no_leak,8,GRPO_K0,asks a question,-0.0857,0.0556
+no_leak,8,GRPO_K0,reflection opener,0.0447,0.0318
+no_leak,8,GRPO_K0,advice / tips,-0.0226,0.8912
+no_leak,8,GRPO_K0,numbered or bulleted list,-0.2246,0.1511
+no_leak,8,GRPO_K0,'we' / 'together',0.1519,0.4264
+no_leak,8,GRPO_K0,cut off mid-sentence,-0.3532,0.7775
+no_leak,8,GRPO_K0,degenerate text,-0.0339,0.0187
+no_leak,8,GRPO_K0,leaked chat marker,,0.0
+no_leak,8,GRPO_K5,length (log chars),-0.1281,6.8278
+no_leak,8,GRPO_K5,praise phrase,0.0525,0.0489
+no_leak,8,GRPO_K5,'you are ...' affirmation,-0.0094,0.1028
+no_leak,8,GRPO_K5,asks a question,-0.1275,0.3688
+no_leak,8,GRPO_K5,reflection opener,0.0027,0.097
+no_leak,8,GRPO_K5,advice / tips,0.0281,0.5112
+no_leak,8,GRPO_K5,numbered or bulleted list,0.0349,0.0038
+no_leak,8,GRPO_K5,'we' / 'together',0.0318,0.3175
+no_leak,8,GRPO_K5,cut off mid-sentence,-0.0575,0.7744
+no_leak,8,GRPO_K5,degenerate text,0.1295,0.0101
+no_leak,8,GRPO_K5,leaked chat marker,,0.0
+no_leak,9,GRPO_K0,length (log chars),-0.8147,6.5376
+no_leak,9,GRPO_K0,praise phrase,-0.0776,0.1962
+no_leak,9,GRPO_K0,'you are ...' affirmation,-0.1563,0.2761
+no_leak,9,GRPO_K0,asks a question,-0.0898,0.0549
+no_leak,9,GRPO_K0,reflection opener,-0.0871,0.0573
+no_leak,9,GRPO_K0,advice / tips,-0.1103,0.889
+no_leak,9,GRPO_K0,numbered or bulleted list,-0.2632,0.172
+no_leak,9,GRPO_K0,'we' / 'together',-0.1232,0.3285
+no_leak,9,GRPO_K0,cut off mid-sentence,0.0465,0.885
+no_leak,9,GRPO_K0,degenerate text,0.089,0.0142
+no_leak,9,GRPO_K0,leaked chat marker,,0.0
+no_leak,9,GRPO_K5,length (log chars),-0.2856,6.8688
+no_leak,9,GRPO_K5,praise phrase,0.0217,0.06
+no_leak,9,GRPO_K5,'you are ...' affirmation,0.0361,0.1541
+no_leak,9,GRPO_K5,asks a question,-0.1259,0.3467
+no_leak,9,GRPO_K5,reflection opener,-0.0904,0.1078
+no_leak,9,GRPO_K5,advice / tips,-0.101,0.4124
+no_leak,9,GRPO_K5,numbered or bulleted list,-0.0014,0.0039
+no_leak,9,GRPO_K5,'we' / 'together',0.0575,0.2753
+no_leak,9,GRPO_K5,cut off mid-sentence,-0.0331,0.8389
+no_leak,9,GRPO_K5,degenerate text,0.1894,0.0069
+no_leak,9,GRPO_K5,leaked chat marker,,0.0
+no_leak,10,GRPO_K0,length (log chars),0.3999,6.7653
+no_leak,10,GRPO_K0,praise phrase,0.5356,0.7793
+no_leak,10,GRPO_K0,'you are ...' affirmation,0.3952,0.5831
+no_leak,10,GRPO_K0,asks a question,-0.1439,0.0394
+no_leak,10,GRPO_K0,reflection opener,-0.0237,0.0288
+no_leak,10,GRPO_K0,advice / tips,0.1383,0.9542
+no_leak,10,GRPO_K0,numbered or bulleted list,-0.1948,0.0122
+no_leak,10,GRPO_K0,'we' / 'together',0.0608,0.4055
+no_leak,10,GRPO_K0,cut off mid-sentence,0.0716,0.9068
+no_leak,10,GRPO_K0,degenerate text,-0.1108,0.0079
+no_leak,10,GRPO_K0,leaked chat marker,,0.0
+no_leak,10,GRPO_K5,length (log chars),-0.0423,6.9069
+no_leak,10,GRPO_K5,praise phrase,0.0876,0.0805
+no_leak,10,GRPO_K5,'you are ...' affirmation,0.0964,0.1609
+no_leak,10,GRPO_K5,asks a question,-0.1138,0.325
+no_leak,10,GRPO_K5,reflection opener,-0.0119,0.1026
+no_leak,10,GRPO_K5,advice / tips,-0.1513,0.3354
+no_leak,10,GRPO_K5,numbered or bulleted list,0.002,0.0017
+no_leak,10,GRPO_K5,'we' / 'together',-0.0547,0.2317
+no_leak,10,GRPO_K5,cut off mid-sentence,-0.0226,0.8794
+no_leak,10,GRPO_K5,degenerate text,-0.0123,0.0054
+no_leak,10,GRPO_K5,leaked chat marker,,0.0
+clean,1,GRPO_K0,length (log chars),-0.3803,5.2901
+clean,1,GRPO_K0,praise phrase,-0.0253,0.0024
+clean,1,GRPO_K0,'you are ...' affirmation,-0.0303,0.0197
+clean,1,GRPO_K0,asks a question,0.0778,0.5732
+clean,1,GRPO_K0,reflection opener,-0.0294,0.0481
+clean,1,GRPO_K0,advice / tips,-0.1491,0.2052
+clean,1,GRPO_K0,numbered or bulleted list,-0.0732,0.0038
+clean,1,GRPO_K0,'we' / 'together',0.1352,0.3
+clean,1,GRPO_K0,cut off mid-sentence,-0.3217,0.1345
+clean,1,GRPO_K0,degenerate text,,0.0
+clean,1,GRPO_K0,leaked chat marker,,0.0
+clean,1,GRPO_K5,length (log chars),-0.3441,5.3748
+clean,1,GRPO_K5,praise phrase,-0.0221,0.0017
+clean,1,GRPO_K5,'you are ...' affirmation,-0.039,0.0422
+clean,1,GRPO_K5,asks a question,0.1167,0.5358
+clean,1,GRPO_K5,reflection opener,0.0977,0.0422
+clean,1,GRPO_K5,advice / tips,-0.1855,0.1842
+clean,1,GRPO_K5,numbered or bulleted list,-0.1382,0.0047
+clean,1,GRPO_K5,'we' / 'together',0.1507,0.3526
+clean,1,GRPO_K5,cut off mid-sentence,-0.3407,0.155
+clean,1,GRPO_K5,degenerate text,,0.0
+clean,1,GRPO_K5,leaked chat marker,,0.0
+clean,2,GRPO_K0,length (log chars),-0.3904,5.2643
+clean,2,GRPO_K0,praise phrase,-0.015,0.0019
+clean,2,GRPO_K0,'you are ...' affirmation,-0.0358,0.0263
+clean,2,GRPO_K0,asks a question,0.1198,0.4765
+clean,2,GRPO_K0,reflection opener,-0.1064,0.059
+clean,2,GRPO_K0,advice / tips,-0.1499,0.2276
+clean,2,GRPO_K0,numbered or bulleted list,-0.0243,0.0088
+clean,2,GRPO_K0,'we' / 'together',0.075,0.3298
+clean,2,GRPO_K0,cut off mid-sentence,-0.0461,0.1743
+clean,2,GRPO_K0,degenerate text,,0.0
+clean,2,GRPO_K0,leaked chat marker,,0.0
+clean,2,GRPO_K5,length (log chars),-0.4179,5.3441
+clean,2,GRPO_K5,praise phrase,-0.0086,0.0015
+clean,2,GRPO_K5,'you are ...' affirmation,-0.0371,0.0289
+clean,2,GRPO_K5,asks a question,0.2703,0.5514
+clean,2,GRPO_K5,reflection opener,-0.0701,0.0375
+clean,2,GRPO_K5,advice / tips,-0.1894,0.2007
+clean,2,GRPO_K5,numbered or bulleted list,0.0008,0.0266
+clean,2,GRPO_K5,'we' / 'together',0.0991,0.3075
+clean,2,GRPO_K5,cut off mid-sentence,-0.1082,0.1546
+clean,2,GRPO_K5,degenerate text,,0.0
+clean,2,GRPO_K5,leaked chat marker,,0.0
+clean,3,GRPO_K0,length (log chars),-0.042,5.315
+clean,3,GRPO_K0,praise phrase,0.0522,0.0028
+clean,3,GRPO_K0,'you are ...' affirmation,-0.0173,0.0197
+clean,3,GRPO_K0,asks a question,-0.1906,0.542
+clean,3,GRPO_K0,reflection opener,-0.0123,0.0656
+clean,3,GRPO_K0,advice / tips,-0.0713,0.2734
+clean,3,GRPO_K0,numbered or bulleted list,-0.0844,0.0093
+clean,3,GRPO_K0,'we' / 'together',0.1337,0.3638
+clean,3,GRPO_K0,cut off mid-sentence,-0.1067,0.1349
+clean,3,GRPO_K0,degenerate text,,0.0
+clean,3,GRPO_K0,leaked chat marker,,0.0
+clean,3,GRPO_K5,length (log chars),-0.1529,5.5597
+clean,3,GRPO_K5,praise phrase,0.0107,0.0022
+clean,3,GRPO_K5,'you are ...' affirmation,0.0091,0.0396
+clean,3,GRPO_K5,asks a question,-0.0877,0.5008
+clean,3,GRPO_K5,reflection opener,-0.0177,0.0767
+clean,3,GRPO_K5,advice / tips,-0.0802,0.2852
+clean,3,GRPO_K5,numbered or bulleted list,-0.019,0.0029
+clean,3,GRPO_K5,'we' / 'together',0.162,0.3089
+clean,3,GRPO_K5,cut off mid-sentence,-0.0972,0.1469
+clean,3,GRPO_K5,degenerate text,,0.0
+clean,3,GRPO_K5,leaked chat marker,,0.0
+clean,4,GRPO_K0,length (log chars),-0.3636,5.6469
+clean,4,GRPO_K0,praise phrase,0.0716,0.0118
+clean,4,GRPO_K0,'you are ...' affirmation,-0.0092,0.024
+clean,4,GRPO_K0,asks a question,-0.0519,0.292
+clean,4,GRPO_K0,reflection opener,-0.0023,0.0415
+clean,4,GRPO_K0,advice / tips,-0.1234,0.504
+clean,4,GRPO_K0,numbered or bulleted list,-0.1723,0.0201
+clean,4,GRPO_K0,'we' / 'together',0.2445,0.3917
+clean,4,GRPO_K0,cut off mid-sentence,-0.0782,0.2905
+clean,4,GRPO_K0,degenerate text,,0.0
+clean,4,GRPO_K0,leaked chat marker,,0.0
+clean,4,GRPO_K5,length (log chars),-0.4171,5.9294
+clean,4,GRPO_K5,praise phrase,0.0717,0.006
+clean,4,GRPO_K5,'you are ...' affirmation,-0.0223,0.0332
+clean,4,GRPO_K5,asks a question,-0.0055,0.4177
+clean,4,GRPO_K5,reflection opener,0.0143,0.0713
+clean,4,GRPO_K5,advice / tips,-0.1639,0.4073
+clean,4,GRPO_K5,numbered or bulleted list,-0.061,0.005
+clean,4,GRPO_K5,'we' / 'together',0.174,0.2405
+clean,4,GRPO_K5,cut off mid-sentence,-0.108,0.1606
+clean,4,GRPO_K5,degenerate text,,0.0
+clean,4,GRPO_K5,leaked chat marker,,0.0
+clean,5,GRPO_K0,length (log chars),-0.2462,5.5042
+clean,5,GRPO_K0,praise phrase,0.2019,0.0226
+clean,5,GRPO_K0,'you are ...' affirmation,0.0631,0.0331
+clean,5,GRPO_K0,asks a question,-0.1477,0.1157
+clean,5,GRPO_K0,reflection opener,0.0201,0.0276
+clean,5,GRPO_K0,advice / tips,0.0769,0.7269
+clean,5,GRPO_K0,numbered or bulleted list,-0.0149,0.0289
+clean,5,GRPO_K0,'we' / 'together',-0.0757,0.3491
+clean,5,GRPO_K0,cut off mid-sentence,0.1128,0.5348
+clean,5,GRPO_K0,degenerate text,,0.0
+clean,5,GRPO_K0,leaked chat marker,,0.0
+clean,5,GRPO_K5,length (log chars),-0.2642,6.2526
+clean,5,GRPO_K5,praise phrase,0.1493,0.0119
+clean,5,GRPO_K5,'you are ...' affirmation,0.0286,0.0472
+clean,5,GRPO_K5,asks a question,-0.024,0.3836
+clean,5,GRPO_K5,reflection opener,0.0346,0.0852
+clean,5,GRPO_K5,advice / tips,-0.0255,0.5497
+clean,5,GRPO_K5,numbered or bulleted list,0.0426,0.0131
+clean,5,GRPO_K5,'we' / 'together',0.0151,0.177
+clean,5,GRPO_K5,cut off mid-sentence,0.0263,0.2006
+clean,5,GRPO_K5,degenerate text,,0.0
+clean,5,GRPO_K5,leaked chat marker,,0.0
+clean,6,GRPO_K0,length (log chars),-0.2354,5.5287
+clean,6,GRPO_K0,praise phrase,0.1872,0.032
+clean,6,GRPO_K0,'you are ...' affirmation,0.0639,0.0569
+clean,6,GRPO_K0,asks a question,-0.1561,0.0504
+clean,6,GRPO_K0,reflection opener,0.0307,0.019
+clean,6,GRPO_K0,advice / tips,-0.0504,0.7934
+clean,6,GRPO_K0,numbered or bulleted list,-0.2908,0.0724
+clean,6,GRPO_K0,'we' / 'together',0.0749,0.2672
+clean,6,GRPO_K0,cut off mid-sentence,-0.1246,0.682
+clean,6,GRPO_K0,degenerate text,,0.0
+clean,6,GRPO_K0,leaked chat marker,,0.0
+clean,6,GRPO_K5,length (log chars),-0.2575,6.6513
+clean,6,GRPO_K5,praise phrase,0.0719,0.0143
+clean,6,GRPO_K5,'you are ...' affirmation,0.0666,0.0723
+clean,6,GRPO_K5,asks a question,-0.1775,0.2736
+clean,6,GRPO_K5,reflection opener,-0.0282,0.1099
+clean,6,GRPO_K5,advice / tips,-0.0619,0.6533
+clean,6,GRPO_K5,numbered or bulleted list,-0.0924,0.0186
+clean,6,GRPO_K5,'we' / 'together',0.0325,0.2082
+clean,6,GRPO_K5,cut off mid-sentence,-0.1578,0.5261
+clean,6,GRPO_K5,degenerate text,,0.0
+clean,6,GRPO_K5,leaked chat marker,,0.0
+clean,7,GRPO_K0,length (log chars),0.4939,6.0556
+clean,7,GRPO_K0,praise phrase,0.0662,0.0677
+clean,7,GRPO_K0,'you are ...' affirmation,0.0603,0.1333
+clean,7,GRPO_K0,asks a question,0.0293,0.0474
+clean,7,GRPO_K0,reflection opener,0.0579,0.0195
+clean,7,GRPO_K0,advice / tips,0.2461,0.826
+clean,7,GRPO_K0,numbered or bulleted list,0.3157,0.1141
+clean,7,GRPO_K0,'we' / 'together',0.0171,0.3735
+clean,7,GRPO_K0,cut off mid-sentence,-0.1075,0.7206
+clean,7,GRPO_K0,degenerate text,,0.0
+clean,7,GRPO_K0,leaked chat marker,,0.0
+clean,7,GRPO_K5,length (log chars),0.0496,6.7412
+clean,7,GRPO_K5,praise phrase,-0.0327,0.0294
+clean,7,GRPO_K5,'you are ...' affirmation,-0.0465,0.0877
+clean,7,GRPO_K5,asks a question,-0.0043,0.3093
+clean,7,GRPO_K5,reflection opener,0.0013,0.1064
+clean,7,GRPO_K5,advice / tips,0.1911,0.5574
+clean,7,GRPO_K5,numbered or bulleted list,0.0636,0.004
+clean,7,GRPO_K5,'we' / 'together',-0.1285,0.2542
+clean,7,GRPO_K5,cut off mid-sentence,-0.022,0.6225
+clean,7,GRPO_K5,degenerate text,,0.0
+clean,7,GRPO_K5,leaked chat marker,,0.0
+clean,8,GRPO_K0,length (log chars),-0.1213,6.6824
+clean,8,GRPO_K0,praise phrase,0.459,0.2242
+clean,8,GRPO_K0,'you are ...' affirmation,0.2527,0.3217
+clean,8,GRPO_K0,asks a question,-0.0875,0.0554
+clean,8,GRPO_K0,reflection opener,0.0494,0.0322
+clean,8,GRPO_K0,advice / tips,-0.0353,0.894
+clean,8,GRPO_K0,numbered or bulleted list,-0.2108,0.1514
+clean,8,GRPO_K0,'we' / 'together',0.1337,0.4295
+clean,8,GRPO_K0,cut off mid-sentence,-0.355,0.7769
+clean,8,GRPO_K0,degenerate text,,0.0
+clean,8,GRPO_K0,leaked chat marker,,0.0
+clean,8,GRPO_K5,length (log chars),-0.1231,6.8314
+clean,8,GRPO_K5,praise phrase,0.0478,0.0493
+clean,8,GRPO_K5,'you are ...' affirmation,-0.0161,0.1033
+clean,8,GRPO_K5,asks a question,-0.1174,0.3693
+clean,8,GRPO_K5,reflection opener,0.0066,0.0973
+clean,8,GRPO_K5,advice / tips,0.0327,0.5131
+clean,8,GRPO_K5,numbered or bulleted list,0.036,0.0037
+clean,8,GRPO_K5,'we' / 'together',0.0367,0.3185
+clean,8,GRPO_K5,cut off mid-sentence,-0.0741,0.7731
+clean,8,GRPO_K5,degenerate text,,0.0
+clean,8,GRPO_K5,leaked chat marker,,0.0
+clean,9,GRPO_K0,length (log chars),-0.8032,6.5399
+clean,9,GRPO_K0,praise phrase,-0.0672,0.1979
+clean,9,GRPO_K0,'you are ...' affirmation,-0.1431,0.2788
+clean,9,GRPO_K0,asks a question,-0.099,0.0536
+clean,9,GRPO_K0,reflection opener,-0.0876,0.0577
+clean,9,GRPO_K0,advice / tips,-0.1003,0.8921
+clean,9,GRPO_K0,numbered or bulleted list,-0.2749,0.1733
+clean,9,GRPO_K0,'we' / 'together',-0.1054,0.3299
+clean,9,GRPO_K0,cut off mid-sentence,0.0443,0.885
+clean,9,GRPO_K0,degenerate text,,0.0
+clean,9,GRPO_K0,leaked chat marker,,0.0
+clean,9,GRPO_K5,length (log chars),-0.2373,6.8717
+clean,9,GRPO_K5,praise phrase,0.0292,0.0602
+clean,9,GRPO_K5,'you are ...' affirmation,0.0489,0.1545
+clean,9,GRPO_K5,asks a question,-0.1339,0.3471
+clean,9,GRPO_K5,reflection opener,-0.0851,0.1081
+clean,9,GRPO_K5,advice / tips,-0.1045,0.4139
+clean,9,GRPO_K5,numbered or bulleted list,-0.0148,0.0038
+clean,9,GRPO_K5,'we' / 'together',0.0585,0.2759
+clean,9,GRPO_K5,cut off mid-sentence,-0.0354,0.8385
+clean,9,GRPO_K5,degenerate text,,0.0
+clean,9,GRPO_K5,leaked chat marker,,0.0
+clean,10,GRPO_K0,length (log chars),0.4039,6.7679
+clean,10,GRPO_K0,praise phrase,0.534,0.7812
+clean,10,GRPO_K0,'you are ...' affirmation,0.3975,0.5853
+clean,10,GRPO_K0,asks a question,-0.1408,0.0385
+clean,10,GRPO_K0,reflection opener,-0.022,0.0288
+clean,10,GRPO_K0,advice / tips,0.1252,0.9562
+clean,10,GRPO_K0,numbered or bulleted list,-0.1904,0.0123
+clean,10,GRPO_K0,'we' / 'together',0.0446,0.4072
+clean,10,GRPO_K0,cut off mid-sentence,0.0823,0.9066
+clean,10,GRPO_K0,degenerate text,,0.0
+clean,10,GRPO_K0,leaked chat marker,,0.0
+clean,10,GRPO_K5,length (log chars),-0.038,6.9089
+clean,10,GRPO_K5,praise phrase,0.0963,0.0802
+clean,10,GRPO_K5,'you are ...' affirmation,0.1036,0.1613
+clean,10,GRPO_K5,asks a question,-0.1229,0.3251
+clean,10,GRPO_K5,reflection opener,-0.0091,0.1029
+clean,10,GRPO_K5,advice / tips,-0.1673,0.3363
+clean,10,GRPO_K5,numbered or bulleted list,-0.0016,0.0017
+clean,10,GRPO_K5,'we' / 'together',-0.0705,0.2315
+clean,10,GRPO_K5,cut off mid-sentence,-0.0161,0.8791
+clean,10,GRPO_K5,degenerate text,,0.0
+clean,10,GRPO_K5,leaked chat marker,,0.0

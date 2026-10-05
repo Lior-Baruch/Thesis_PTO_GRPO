@@ -1,0 +1,96 @@
+{
+ "rounds": {
+  "all": 29861,
+  "no_leak": 28701,
+  "clean": 28567
+ },
+ "candidates": 238888,
+ "pool_size": 4178,
+ "distinct_4_10_word_sentences": 225240,
+ "pool_marker_share": 0.03135471517472475,
+ "keyword_totals": [
+  {
+   "variant": "all",
+   "side": "more_K0",
+   "doron_K0_list_hits": 49,
+   "doron_K5_list_hits": 0,
+   "marker_sentences": 2
+  },
+  {
+   "variant": "all",
+   "side": "more_K5",
+   "doron_K0_list_hits": 0,
+   "doron_K5_list_hits": 10,
+   "marker_sentences": 6
+  },
+  {
+   "variant": "clean",
+   "side": "more_K0",
+   "doron_K0_list_hits": 51,
+   "doron_K5_list_hits": 0,
+   "marker_sentences": 0
+  },
+  {
+   "variant": "clean",
+   "side": "more_K5",
+   "doron_K0_list_hits": 0,
+   "doron_K5_list_hits": 10,
+   "marker_sentences": 0
+  },
+  {
+   "variant": "no_leak",
+   "side": "more_K0",
+   "doron_K0_list_hits": 49,
+   "doron_K5_list_hits": 0,
+   "marker_sentences": 4
+  },
+  {
+   "variant": "no_leak",
+   "side": "more_K5",
+   "doron_K0_list_hits": 0,
+   "doron_K5_list_hits": 10,
+   "marker_sentences": 0
+  }
+ ],
+ "feature_corr_mean": {
+  "all": {
+   "'we' / 'together'": 0.055,
+   "'you are ...' affirmation": 0.023,
+   "advice / tips": -0.041,
+   "asks a question": -0.035,
+   "cut off mid-sentence": -0.093,
+   "degenerate text": -0.041,
+   "leaked chat marker": -0.014,
+   "length (log chars)": -0.208,
+   "numbered or bulleted list": -0.048,
+   "praise phrase": 0.09,
+   "reflection opener": -0.013
+  },
+  "clean": {
+   "'we' / 'together'": 0.06,
+   "'you are ...' affirmation": 0.035,
+   "advice / tips": -0.049,
+   "asks a question": -0.047,
+   "cut off mid-sentence": -0.092,
+   "degenerate text": NaN,
+   "leaked chat marker": NaN,
+   "length (log chars)": -0.194,
+   "numbered or bulleted list": -0.06,
+   "praise phrase": 0.094,
+   "reflection opener": -0.008
+  },
+  "no_leak": {
+   "'we' / 'together'": 0.048,
+   "'you are ...' affirmation": 0.02,
+   "advice / tips": -0.048,
+   "asks a question": -0.043,
+   "cut off mid-sentence": -0.089,
+   "degenerate text": -0.041,
+   "leaked chat marker": NaN,
+   "length (log chars)": -0.247,
+   "numbered or bulleted list": -0.057,
+   "praise phrase": 0.084,
+   "reflection opener": -0.019
+  }
+ }
+}
