@@ -14,8 +14,8 @@ and a held-out judge from another model family, and replicates on a fresh evalua
 horizon also decides what is learned. Coding every utterance of the $2{,}112$ evaluation
 conversations, we find that turn-level reward teaches non-specific praise, including in reply to
 the patient's sustain talk, while look-ahead teaches complex reflections of the patient's change
-talk; under look-ahead a patient's change talk is followed by more change talk ($97\%$ of cases,
-against $80\%$), and it keeps rising through the session where it falls back late under
+talk; under look-ahead a patient's change talk is followed by more change talk ($97\%$ of cases
+under the training oracle, against $80\%$), and it keeps rising through the session where it falls back late under
 turn-level reward. Look-ahead does not teach the MI answer to resistance: its policy meets sustain
 talk with persuasion. Each horizon is a single training run, and the two judges disagree on how
 much the look-ahead policy still praises.
