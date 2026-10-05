@@ -1165,3 +1165,48 @@ reflection colour #9ecae1 → #6baed6 (it printed as the same grey as closed que
 row of the conventions table above was corrected (it claimed 2,000 resamples everywhere). Build: 33
 pages; the body ends ~61 lines into page 11 (Table 3's new header row and Figure 3's panel-(d)
 note).
+
+### Lior's picks on the audit's decisions (same day, by question round)
+
+- **Bold in Tables 3 and 7 = each row's best of the Base, K=0 and K=5 (ties at three decimals all
+  bold)**, the rule of the complete tables; significance stays on the d_z stars. Newly bold: the
+  Base's praise and MI-inconsistent share in both tables (0.041 / 0.248; 0.038 / 0.214), K=5's
+  "sustain talk: reflects it" 0.368 and "after sustain talk" 0.326 (Table 3) and 0.238 (Table 7),
+  and the held-out Base's 0.011 on "sustain talk: praises" (tied with K=5's 0.011: 0.0111 vs
+  0.0107). `render_process_tables.py` now asserts this rule and the iteration-10 d_z cells.
+- **Praise stated within each judge** (no cross-judge level in §5, App B, Figure 8 or the
+  Discussion): under the held-out judge K=5's praise share rises from the Base's 0.04 (0.038) to
+  0.20 (0.203) at iteration 10 — `process_levels_claude-haiku-4-5`, `th_PRA_rate`. App B's opening
+  rule scoped to the instruments; Figure 8's Base code-mix numbers replaced by a pointer to Table 6.
+- **Figure 4's praise link**: "from iteration 3 on, long before its praise peaks" — K=0's
+  between-conversation variance share 0.322 → 0.200 at iteration 3 (`text_diversity`,
+  `persona_var_share`, GRPO_LA0), while all three praise measures peak at iteration 10 (Figure 5).
+- **Table 12 / App F**: "The disagreement is real" → no test attached, the evidence is rank and
+  distance below median. K=0 at iteration 10: MICI r **0.204**, lower than K=5's 0.287; the other
+  seven near their medians (MITI 0.645 vs 0.666, Q1 0.856 vs 0.842, Q2 0.806 vs 0.752, CSQ-8 0.877
+  vs 0.888, PCT 0.949 vs 0.956, MI-SAT 0.947 vs 0.930, WAI-SR 0.919 vs 0.920) —
+  results/lookahead/shared_base/tables/agreement_by_state.md, rows `GRPO_LA0 it 10`, `pearson_r`;
+  medians from Table 12. App F no longer lists MICI among the K=5-specific falls.
+- **Table 3 defines "reflects"** (a simple or complex reflection; `process.py` REFLECT = {SR, CR});
+  one body line.
+- **Table 2 and Appendix E.1 re-picked (supersedes the NEW-0914b persona-84 rows above).**
+  `select_example_illustrative.py --coder` keeps only the (persona, therapist turn) pairs at
+  iteration 10 where BOTH judges' coders label the K=0 reply non-specific praise (PRA) and the K=5
+  reply a complex reflection (CR): **28 pairs**. Its lexical ranking (unchanged) puts **persona 87,
+  utterance 2** first (score 17.5; next 15.58); it is also the only one of the 28 whose K=5 reply
+  answers sustain talk (both coders code K=5's utterance 1 ST; K=0's is NEU under the training
+  oracle and ST held out — hence §6's "the kind of reply Table 2 shows", no longer "the reply of
+  Table 2").
+
+| claim | value | source |
+|---|---|---|
+| Persona 87 | Female, 61, Smoking, ManyYears, tried ManyTimes, StartLowAndChangesToHigh ("a 61-year-old woman who has smoked for many years, has tried to quit many times and was sent to therapy") | `select_example_illustrative.py --persona 87` (`data.canonical_personas()`) |
+| Files | both arms `conversation_20.csv` at iteration 10 | same dump |
+| Lengths | K=0 **32 utterances / 16 therapist turns**; K=5 **18 / 9** (counts include the opener) | same |
+| Utterance 1 differs across arms | sampled anew; Table 2 shows both, each elided with […] | same |
+| Q1+Q2 at iteration 10 | training oracle K=0 **4.306** (4.31) vs K=5 **4.376** (4.38); held out **2.235** (2.24) vs **3.753** (3.75) | score lake via the script, `Q1Q2`, persona 87 |
+| Codes | K=0 reply PRA / PRA; K=5 reply CR / CR (training oracle / held out) | MIPROC, `th_codes` position 1 |
+| Cap | the K=0 reply ends mid-phrase ("every step of"): the 200-token cap; the K=5 reply is complete (614 chars) | the dump |
+| Appendix E.1 | utterances 1–7 of both conversations, generated from the dump (curly apostrophes → ', em dash → ---, straight and curly double quotes typeset, paragraph breaks inside an utterance → `\newline`) | scratch `make_e1.py`, not tracked |
+
+Build: 34 pages (Appendix E.1 is longer); the body ends ~70 lines into page 11.
