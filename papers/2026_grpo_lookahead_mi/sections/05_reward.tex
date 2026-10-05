@@ -5,7 +5,7 @@
 \centering
 \includegraphics[width=0.94\textwidth]{figures/levels_grid_grpo_gpt-4o-mini.png}
 \caption{Every instrument by iteration under the training oracle: mean $\pm$ SE over the 96
-personas (the Base: over its 192 conversations). Iteration 0 is the Base both runs start from
+personas (the Base: over its 192 conversations, two per persona). Iteration 0 is the Base both runs start from
 (dotted line). A star marks an iteration at
 which the persona-paired $\Kf$ vs.\ $\Kz$ contrast is significant; on MICI at iteration 3 it
 favors $\Kz$. The held-out judge's version is Figure~\ref{fig:grid-heldout}.}
@@ -19,29 +19,29 @@ favors $\Kz$. The held-out judge's version is Figure~\ref{fig:grid-heldout}.}
 \renewcommand{\arraystretch}{0.92}
 \begin{tabular}{lrrrrrrrrrr}
 \toprule
-& \multicolumn{5}{c}{\primaryjudge\ (training oracle)} & \multicolumn{5}{c}{\heldoutjudge\ (held out)}\\
-\cmidrule(lr){2-6}\cmidrule(lr){7-11}
+& \multicolumn{3}{c}{training oracle} & \multicolumn{2}{c}{$\Kf - \Kz$} & \multicolumn{3}{c}{held-out judge} & \multicolumn{2}{c}{$\Kf - \Kz$}\\
+\cmidrule(lr){2-4}\cmidrule(lr){5-6}\cmidrule(lr){7-9}\cmidrule(lr){10-11}
 Instrument & Base & $\Kz$ & $\Kf$ & $\Delta$ & \dz & Base & $\Kz$ & $\Kf$ & $\Delta$ & \dz\\
 \midrule
-Q1+Q2 (reward)  & $3.01$ & $3.75$ & $4.52$ & $+0.76$ & $0.91$ & $1.85$ & $2.26$ & $2.87$ & $+0.62$ & $1.03$\\
-\quad Q1        & $2.97$ & $3.61$ & $4.46$ & $+0.86$ & $0.90$ & $1.69$ & $1.87$ & $2.73$ & $+0.86$ & $1.15$\\
-\quad Q2        & $3.06$ & $3.90$ & $4.57$ & $+0.67$ & $0.86$ & $2.01$ & $2.65$ & $3.01$ & $+0.37$ & $0.61$\\
-WAI-SR          & $2.87$ & $3.44$ & $3.73$ & $+0.29$ & $0.51$ & $2.19$ & $2.67$ & $2.96$ & $+0.29$ & $0.44$\\
-CSQ-8           & $2.36$ & $2.77$ & $3.06$ & $+0.29$ & $0.48$ & $2.09$ & $2.48$ & $2.93$ & $+0.45$ & $0.68$\\
-MI-SAT          & $2.84$ & $3.48$ & $3.83$ & $+0.35$ & $0.53$ & $2.48$ & $2.82$ & $3.33$ & $+0.50$ & $0.83$\\
-MITI            & $3.17$ & $3.92$ & $4.54$ & $+0.61$ & $0.74$ & $1.86$ & $2.10$ & $2.38$ & $+0.28$ & $0.50$\\
-PCT             & $0.48$ & $0.57$ & $0.69$ & $+0.11$ & $0.52$ & $0.52$ & $0.61$ & $0.73$ & $+0.11$ & $0.56$\\
-MICI ($\downarrow$) & $0.21$ & $0.84$ & $0.21$ & $-0.63$ & $-1.86$ & $0.36$ & $1.05$ & $0.63$ & $-0.42$ & $-1.57$\\
+Q1+Q2 (reward)  & $3.01$ & $3.75$ & $4.52$ & $+0.76$ & $+0.91$ & $1.85$ & $2.26$ & $2.87$ & $+0.62$ & $+1.03$\\
+\quad Q1        & $2.97$ & $3.61$ & $4.46$ & $+0.86$ & $+0.90$ & $1.69$ & $1.87$ & $2.73$ & $+0.86$ & $+1.15$\\
+\quad Q2        & $3.06$ & $3.90$ & $4.57$ & $+0.67$ & $+0.86$ & $2.01$ & $2.65$ & $3.01$ & $+0.37$ & $+0.61$\\
+WAI-SR          & $2.87$ & $3.44$ & $3.73$ & $+0.29$ & $+0.51$ & $2.19$ & $2.67$ & $2.96$ & $+0.29$ & $+0.44$\\
+CSQ-8           & $2.36$ & $2.77$ & $3.06$ & $+0.29$ & $+0.48$ & $2.09$ & $2.48$ & $2.93$ & $+0.45$ & $+0.68$\\
+MI-SAT          & $2.84$ & $3.48$ & $3.83$ & $+0.35$ & $+0.53$ & $2.48$ & $2.82$ & $3.33$ & $+0.50$ & $+0.83$\\
+MITI            & $3.17$ & $3.92$ & $4.54$ & $+0.61$ & $+0.74$ & $1.86$ & $2.10$ & $2.38$ & $+0.28$ & $+0.50$\\
+PCT (share)     & $0.48$ & $0.57$ & $0.69$ & $+0.11$ & $+0.52$ & $0.52$ & $0.61$ & $0.73$ & $+0.11$ & $+0.56$\\
+MICI (per therapist turn, $\downarrow$) & $0.21$ & $0.84$ & $0.21$ & $-0.63$ & $-1.86$ & $0.36$ & $1.05$ & $0.63$ & $-0.42$ & $-1.57$\\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Every instrument at iteration 10}: the Base's and each run's mean under each judge
-(the runs: over the 96 personas; the Base: over its 192 conversations), and the persona-paired
-contrast $\Kf - \Kz$ ($n{=}96$; positive favors $\Kf$, as does MICI's negative $\Delta$, since it
-is lower-is-better). \textbf{$\Kf$ is better on every instrument under both judges, and every row
-is significant at $p < .001$} (Holm across the nine rows, per judge). Against the Base, each run's
-change is significant on every row (Holm across the nine rows, per judge and run) except the $\Kf$
-policy's on MICI under the training oracle. Levels are in each judge's own units; $\Delta$ is
-computed before rounding.}
+\caption{\textbf{Every instrument at iteration 10}: each run's mean over the 96 personas and the
+Base's over its 192 conversations (two per persona); $\Delta$ and \dz\ are the persona-paired
+contrast $\Kf - \Kz$ ($n{=}96$; positive favors $\Kf$, as do MICI's negative values, lower being
+better). \textbf{$\Kf$ is better on every instrument under both judges, and every row is
+significant at $p < .001$} (Holm across the nine rows, per judge). Against the Base (same
+correction, per run), each run improves significantly on every row but MICI, which worsens
+significantly except for the $\Kf$ policy under the training oracle. Levels are in each judge's own
+units; $\Delta$ is computed before rounding.}
 \label{tab:endpoint}
 \end{table*}
 
@@ -67,7 +67,7 @@ iterations (4 and 6--10), and the other instruments follow the same course: six 
 separate by iteration 6, Q2 and MICI at iterations 9 and 8, and the one significant difference in
 $\Kz$'s favor is MICI at iteration 3. It is not only $\Kf$ climbing: $\Kz$ peaks at iteration 8
 ($4.08$) and falls to $3.75$ over its last two iterations, and even against that best checkpoint
-the final $\Kf$ policy leads significantly on all nine rows of Table~\ref{tab:endpoint} (on \QQ\
+the final $\Kf$ policy leads significantly on all nine rows of Table~\ref{tab:endpoint} (against iteration 8: on \QQ\
 $\dz\,0.74$; $|\dz|$ $0.52$--$1.13$ across the rows). The held-out judge agrees
 (Figure~\ref{fig:grid-heldout}, Table~\ref{tab:scores-heldout}): $\Kf$
 leads significantly at 7 of the 10 iterations (4--10), and against the same iteration-8
