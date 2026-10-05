@@ -83,6 +83,9 @@ def main() -> int:
     ap.add_argument("--persona", type=int, help="dump this persona's full turns instead of ranking")
     ap.add_argument("--turn", type=int, default=None, help="with --persona: the therapist turn index shown")
     ap.add_argument("--n-turns", type=int, default=16)
+    ap.add_argument("--coder", action="store_true",
+                    help="keep only pairs where BOTH judges' utterance coders label the K=5 turn a complex "
+                         "reflection (CR) and the K=0 turn non-specific praise (PRA)")
     a = ap.parse_args()
 
     os.chdir(EDA)
@@ -115,6 +118,25 @@ def main() -> int:
     arm0 = next(x for x in arms if x.K == 0)
     arm5 = next(x for x in arms if x.K == 5)
 
+    # Lior, 2026-10-05: the K=5 reply of the first pick was a question (both coders: closed
+    # question), which the K=5 policy almost never asks; the excerpt should show the behaviour the
+    # paper reports. Each judge's MIPROC codes, therapist position p = utterance index // 2
+    # (position 0 = the scripted opener at utterance 0).
+    codes = {}
+    if a.coder:
+        from eda_analysis import process as Pr  # noqa: E402
+        for tag, label in [("", "primary"), (HELDOUT_TAG, "heldout")]:
+            C.set_active_judge(tag)
+            mp = Pr.load_miproc(arms)
+            mp = mp[mp.iteration == 10]
+            codes[label] = {(int(r.K), int(r.file_index)): (r.th_codes.split("|") if r.th_codes else [])
+                            for r in mp.itertuples()}
+            C.set_active_judge("")
+
+    def code_at(label, k, fi, t):
+        th = codes[label].get((k, fi), [])
+        return th[t // 2] if t // 2 < len(th) else None
+
     if a.persona is not None:
         out = {"persona_id": a.persona, "persona": personas.loc[a.persona].to_dict(),
                "primary": {k: float(scores["primary"].loc[a.persona, c]) for k, c in (("K0", 0), ("K5", 5), ("delta", "delta"))},
@@ -143,7 +165,15 @@ def main() -> int:
                 continue
             f0 = feats(t0[t - 1][1], t0[t][1])
             f5 = feats(t5[t - 1][1], t5[t][1])
+            coded = {}
+            if a.coder:
+                coded = {f"{lab}_{k}": code_at(lab, kk, fi, t)
+                         for lab in ("primary", "heldout") for k, kk, fi in (("K0", 0, fi0), ("K5", 5, fi5))}
+                if not (coded["primary_K5"] == coded["heldout_K5"] == "CR"
+                        and coded["primary_K0"] == coded["heldout_K0"] == "PRA"):
+                    continue
             cands.append({
+                "codes": coded, "same_patient": t0[t - 1][1] == t5[t - 1][1],
                 "persona_id": int(pid), "turn": t, "score": round(score(f0, f5, t), 2),
                 "k0": f0, "k5": f5,
                 "primary": {"K0": float(scores["primary"].loc[pid, 0]), "K5": float(scores["primary"].loc[pid, 5])},
@@ -160,6 +190,8 @@ def main() -> int:
         print(f"persona {c['persona_id']}  turn {c['turn']}  score {c['score']}  "
               f"Q1Q2 primary K0 {pr['K0']:.2f} K5 {pr['K5']:.2f} | held-out K0 {hd['K0']:.2f} K5 {hd['K5']:.2f}")
         print("  persona:", c["persona"])
+        if c["codes"]:
+            print("  codes:", c["codes"], " same patient utterance:", c["same_patient"])
         print("  K0 feats:", c["k0"], "\n  K5 feats:", c["k5"])
         for key in ("K0_patient", "K0_therapist", "K5_patient", "K5_therapist"):
             txt = c["text"][key]
