@@ -1,22 +1,17 @@
 \begin{abstract}
-When an LLM judge supplies the reward for a dialogue policy, it is usually shown the candidate
-turn and nothing after it. In multi-turn goal-oriented dialogue that proxy is short-sighted: the
-turn that reads best on its own is not necessarily the turn that leads anywhere. Motivational
-interviewing (MI) makes the gap concrete, because the value of a counsellor's utterance lies in
-what the patient says next. We present \textbf{\LAGRPO}: before the judge scores a candidate
-therapist turn, the patient simulator and the current policy continue the conversation for $K$
-further turns and the judge scores the continuation. The look-ahead reward comes from
-preference-tree optimisation for MI; moved to Group Relative Policy Optimization (GRPO), it
-reweights every sampled candidate instead of selecting a preference pair. In a controlled pair of
-ten-iteration runs that differ only in the horizon, $K{=}5$ leads on the rewarded rubric from the
-fourth iteration on, leads on all eight MI evaluation instruments under both the training oracle
-and a held-out judge from another model family, and replicates on a fresh evaluation draw. The
-horizon also decides what is learned. Coding every utterance of the $2{,}112$ evaluation
-conversations, we find that turn-level reward teaches non-specific praise, including in reply to
-the patient's sustain talk, while look-ahead teaches complex reflections of the patient's change
-talk; under look-ahead a patient's change talk is followed by more change talk ($97\%$ of cases
-under the training oracle, against $80\%$), and it keeps rising through the session where it falls back late under
-turn-level reward. Look-ahead does not teach the MI answer to resistance: its policy meets sustain
-talk with persuasion. Each horizon is a single training run, and the two judges disagree on how
-much the look-ahead policy still praises.
+Reinforcement learning from model feedback has succeeded mainly on verifiable tasks. In
+non-verifiable, multi-turn dialogue, the LLM judge that supplies the reward usually sees nothing
+after the candidate turn, though its value often lies in what follows. In motivational
+interviewing (MI), a counsellor's utterance matters for what the patient says next. We present
+\textbf{\LAGRPO}, which extends look-ahead reward from preference-tree optimisation to Group
+Relative Policy Optimization (GRPO): before the judge scores a candidate therapist turn, a patient
+simulator and the current policy continue the conversation for $K$ turns, and the judge scores the
+continuation. In two ten-iteration runs that
+differ only in the horizon, $K{=}5$ ends ahead of $K{=}0$ on all eight MI instruments, under the
+training oracle and a held-out judge from another model family. Utterance coding shows that
+turn-level reward teaches non-specific praise, including in reply to sustain talk, while look-ahead
+teaches complex reflections of change talk; under look-ahead, a patient's change talk is followed by
+more change talk in $97\%$ of cases under the training oracle, against $80\%$. Look-ahead does not
+teach the MI response to resistance: its policy meets sustain talk with persuasion. Each horizon is
+a single training run.
 \end{abstract}
