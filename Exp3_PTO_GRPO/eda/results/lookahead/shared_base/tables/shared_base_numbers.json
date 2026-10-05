@@ -276,12 +276,12 @@
   "gains.gpt-4o-mini.Q1Q2.last.GRPO_LA0": {
    "value": 0.738,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.885"
+   "note": "iteration 10 vs Base; dz 0.885; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1Q2.last.GRPO_LA5": {
    "value": 1.502,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.675"
+   "note": "iteration 10 vs Base; dz 1.675; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1Q2.last.ratio": {
    "value": 2.037,
@@ -291,12 +291,12 @@
   "gains.gpt-4o-mini.Q1Q2.best_K0.GRPO_LA0": {
    "value": 1.067,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 1.398"
+   "note": "iteration 8 vs Base; dz 1.398; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1Q2.best_K0.GRPO_LA5": {
    "value": 1.502,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.675"
+   "note": "iteration 10 vs Base; dz 1.675; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1Q2.best_K0.ratio": {
    "value": 1.407,
@@ -306,12 +306,12 @@
   "gains.gpt-4o-mini.Q1.last.GRPO_LA0": {
    "value": 0.641,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.710"
+   "note": "iteration 10 vs Base; dz 0.710; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1.last.GRPO_LA5": {
    "value": 1.499,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.597"
+   "note": "iteration 10 vs Base; dz 1.597; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1.last.ratio": {
    "value": 2.34,
@@ -321,12 +321,12 @@
   "gains.gpt-4o-mini.Q1.best_K0.GRPO_LA0": {
    "value": 0.97,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 1.282"
+   "note": "iteration 8 vs Base; dz 1.282; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1.best_K0.GRPO_LA5": {
    "value": 1.499,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.597"
+   "note": "iteration 10 vs Base; dz 1.597; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q1.best_K0.ratio": {
    "value": 1.546,
@@ -336,12 +336,12 @@
   "gains.gpt-4o-mini.Q2.last.GRPO_LA0": {
    "value": 0.835,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.025"
+   "note": "iteration 10 vs Base; dz 1.025; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q2.last.GRPO_LA5": {
    "value": 1.506,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.680"
+   "note": "iteration 10 vs Base; dz 1.680; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q2.last.ratio": {
    "value": 1.804,
@@ -351,12 +351,12 @@
   "gains.gpt-4o-mini.Q2.best_K0.GRPO_LA0": {
    "value": 1.165,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 1.408"
+   "note": "iteration 8 vs Base; dz 1.408; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q2.best_K0.GRPO_LA5": {
    "value": 1.506,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.680"
+   "note": "iteration 10 vs Base; dz 1.680; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.Q2.best_K0.ratio": {
    "value": 1.292,
@@ -366,12 +366,12 @@
   "gains.gpt-4o-mini.WAI-SR.last.GRPO_LA0": {
    "value": 0.565,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.998"
+   "note": "iteration 10 vs Base; dz 0.998; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.WAI-SR.last.GRPO_LA5": {
    "value": 0.856,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.402"
+   "note": "iteration 10 vs Base; dz 1.402; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.WAI-SR.last.ratio": {
    "value": 1.515,
@@ -381,12 +381,12 @@
   "gains.gpt-4o-mini.WAI-SR.best_K0.GRPO_LA0": {
    "value": 0.501,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 0.925"
+   "note": "iteration 8 vs Base; dz 0.925; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.WAI-SR.best_K0.GRPO_LA5": {
    "value": 0.856,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.402"
+   "note": "iteration 10 vs Base; dz 1.402; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.WAI-SR.best_K0.ratio": {
    "value": 1.709,
@@ -396,12 +396,12 @@
   "gains.gpt-4o-mini.CSQ-8.last.GRPO_LA0": {
    "value": 0.415,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.672"
+   "note": "iteration 10 vs Base; dz 0.672; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.CSQ-8.last.GRPO_LA5": {
    "value": 0.704,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.040"
+   "note": "iteration 10 vs Base; dz 1.040; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.CSQ-8.last.ratio": {
    "value": 1.697,
@@ -411,12 +411,12 @@
   "gains.gpt-4o-mini.CSQ-8.best_K0.GRPO_LA0": {
    "value": 0.39,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 0.670"
+   "note": "iteration 8 vs Base; dz 0.670; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.CSQ-8.best_K0.GRPO_LA5": {
    "value": 0.704,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.040"
+   "note": "iteration 10 vs Base; dz 1.040; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.CSQ-8.best_K0.ratio": {
    "value": 1.805,
@@ -426,12 +426,12 @@
   "gains.gpt-4o-mini.MI-SAT.last.GRPO_LA0": {
    "value": 0.642,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.787"
+   "note": "iteration 10 vs Base; dz 0.787; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MI-SAT.last.GRPO_LA5": {
    "value": 0.995,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.165"
+   "note": "iteration 10 vs Base; dz 1.165; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MI-SAT.last.ratio": {
    "value": 1.549,
@@ -441,12 +441,12 @@
   "gains.gpt-4o-mini.MI-SAT.best_K0.GRPO_LA0": {
    "value": 0.604,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 0.770"
+   "note": "iteration 8 vs Base; dz 0.770; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MI-SAT.best_K0.GRPO_LA5": {
    "value": 0.995,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.165"
+   "note": "iteration 10 vs Base; dz 1.165; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MI-SAT.best_K0.ratio": {
    "value": 1.647,
@@ -456,12 +456,12 @@
   "gains.gpt-4o-mini.MITI.last.GRPO_LA0": {
    "value": 0.75,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.045"
+   "note": "iteration 10 vs Base; dz 1.045; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MITI.last.GRPO_LA5": {
    "value": 1.365,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.780"
+   "note": "iteration 10 vs Base; dz 1.780; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MITI.last.ratio": {
    "value": 1.819,
@@ -471,12 +471,12 @@
   "gains.gpt-4o-mini.MITI.best_K0.GRPO_LA0": {
    "value": 1.062,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 1.620"
+   "note": "iteration 8 vs Base; dz 1.620; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MITI.best_K0.GRPO_LA5": {
    "value": 1.365,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.780"
+   "note": "iteration 10 vs Base; dz 1.780; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MITI.best_K0.ratio": {
    "value": 1.284,
@@ -486,12 +486,12 @@
   "gains.gpt-4o-mini.PCT.last.GRPO_LA0": {
    "value": 0.095,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.496"
+   "note": "iteration 10 vs Base; dz 0.496; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.PCT.last.GRPO_LA5": {
    "value": 0.206,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.964"
+   "note": "iteration 10 vs Base; dz 0.964; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.PCT.last.ratio": {
    "value": 2.165,
@@ -501,12 +501,12 @@
   "gains.gpt-4o-mini.PCT.best_K0.GRPO_LA0": {
    "value": 0.093,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 0.423"
+   "note": "iteration 8 vs Base; dz 0.423; p_holm 0.0001"
   },
   "gains.gpt-4o-mini.PCT.best_K0.GRPO_LA5": {
    "value": 0.206,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.964"
+   "note": "iteration 10 vs Base; dz 0.964; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.PCT.best_K0.ratio": {
    "value": 2.223,
@@ -516,12 +516,12 @@
   "gains.gpt-4o-mini.MICI.last.GRPO_LA0": {
    "value": 0.628,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.936"
+   "note": "iteration 10 vs Base; dz 1.936; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MICI.last.GRPO_LA5": {
    "value": 0.0,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.002"
+   "note": "iteration 10 vs Base; dz 0.002; p_holm 0.9084"
   },
   "gains.gpt-4o-mini.MICI.last.ratio": {
    "value": 0.001,
@@ -531,12 +531,12 @@
   "gains.gpt-4o-mini.MICI.best_K0.GRPO_LA0": {
    "value": 0.325,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 1.115"
+   "note": "iteration 8 vs Base; dz 1.115; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.MICI.best_K0.GRPO_LA5": {
    "value": 0.0,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.002"
+   "note": "iteration 10 vs Base; dz 0.002; p_holm 0.9084"
   },
   "gains.gpt-4o-mini.MICI.best_K0.ratio": {
    "value": 0.001,
@@ -546,12 +546,12 @@
   "gains.claude-haiku-4-5.Q1Q2.last.GRPO_LA0": {
    "value": 0.409,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.802"
+   "note": "iteration 10 vs Base; dz 0.802; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q1Q2.last.GRPO_LA5": {
    "value": 1.025,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.705"
+   "note": "iteration 10 vs Base; dz 1.705; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q1Q2.last.ratio": {
    "value": 2.504,
@@ -559,29 +559,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.Q1Q2.best_K0.GRPO_LA0": {
-   "value": 0.789,
+   "value": 0.769,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 1.651"
+   "note": "iteration 8 vs Base; dz 1.555; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q1Q2.best_K0.GRPO_LA5": {
    "value": 1.025,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.705"
+   "note": "iteration 10 vs Base; dz 1.705; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q1Q2.best_K0.ratio": {
-   "value": 1.3,
+   "value": 1.332,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.Q1.last.GRPO_LA0": {
    "value": 0.179,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.278"
+   "note": "iteration 10 vs Base; dz 0.278; p_holm 0.0038"
   },
   "gains.claude-haiku-4-5.Q1.last.GRPO_LA5": {
    "value": 1.044,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.259"
+   "note": "iteration 10 vs Base; dz 1.259; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q1.last.ratio": {
    "value": 5.826,
@@ -589,29 +589,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.Q1.best_K0.GRPO_LA0": {
-   "value": 0.89,
+   "value": 0.637,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 1.402"
+   "note": "iteration 8 vs Base; dz 1.056; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q1.best_K0.GRPO_LA5": {
    "value": 1.044,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.259"
+   "note": "iteration 10 vs Base; dz 1.259; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q1.best_K0.ratio": {
-   "value": 1.173,
+   "value": 1.637,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.Q2.last.GRPO_LA0": {
    "value": 0.64,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.341"
+   "note": "iteration 10 vs Base; dz 1.341; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q2.last.GRPO_LA5": {
    "value": 1.007,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.928"
+   "note": "iteration 10 vs Base; dz 1.928; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q2.last.ratio": {
    "value": 1.574,
@@ -619,29 +619,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.Q2.best_K0.GRPO_LA0": {
-   "value": 0.688,
+   "value": 0.901,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 1.458"
+   "note": "iteration 8 vs Base; dz 1.867; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q2.best_K0.GRPO_LA5": {
    "value": 1.007,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.928"
+   "note": "iteration 10 vs Base; dz 1.928; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.Q2.best_K0.ratio": {
-   "value": 1.463,
+   "value": 1.117,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.WAI-SR.last.GRPO_LA0": {
    "value": 0.476,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.814"
+   "note": "iteration 10 vs Base; dz 0.814; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.WAI-SR.last.GRPO_LA5": {
    "value": 0.764,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.452"
+   "note": "iteration 10 vs Base; dz 1.452; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.WAI-SR.last.ratio": {
    "value": 1.606,
@@ -649,29 +649,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.WAI-SR.best_K0.GRPO_LA0": {
-   "value": 0.664,
+   "value": 0.701,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 1.233"
+   "note": "iteration 8 vs Base; dz 1.490; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.WAI-SR.best_K0.GRPO_LA5": {
    "value": 0.764,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.452"
+   "note": "iteration 10 vs Base; dz 1.452; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.WAI-SR.best_K0.ratio": {
-   "value": 1.15,
+   "value": 1.089,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.CSQ-8.last.GRPO_LA0": {
    "value": 0.395,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.593"
+   "note": "iteration 10 vs Base; dz 0.593; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.CSQ-8.last.GRPO_LA5": {
    "value": 0.846,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.801"
+   "note": "iteration 10 vs Base; dz 1.801; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.CSQ-8.last.ratio": {
    "value": 2.14,
@@ -679,29 +679,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.CSQ-8.best_K0.GRPO_LA0": {
-   "value": 0.61,
+   "value": 0.592,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 1.056"
+   "note": "iteration 8 vs Base; dz 1.046; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.CSQ-8.best_K0.GRPO_LA5": {
    "value": 0.846,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.801"
+   "note": "iteration 10 vs Base; dz 1.801; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.CSQ-8.best_K0.ratio": {
-   "value": 1.386,
+   "value": 1.429,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.MI-SAT.last.GRPO_LA0": {
    "value": 0.345,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.544"
+   "note": "iteration 10 vs Base; dz 0.544; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MI-SAT.last.GRPO_LA5": {
    "value": 0.848,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.324"
+   "note": "iteration 10 vs Base; dz 1.324; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MI-SAT.last.ratio": {
    "value": 2.461,
@@ -709,29 +709,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.MI-SAT.best_K0.GRPO_LA0": {
-   "value": 0.501,
+   "value": 0.437,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 0.882"
+   "note": "iteration 8 vs Base; dz 0.817; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MI-SAT.best_K0.GRPO_LA5": {
    "value": 0.848,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 1.324"
+   "note": "iteration 10 vs Base; dz 1.324; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MI-SAT.best_K0.ratio": {
-   "value": 1.693,
+   "value": 1.942,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.MITI.last.GRPO_LA0": {
    "value": 0.24,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.461"
+   "note": "iteration 10 vs Base; dz 0.461; p_holm 0.0001"
   },
   "gains.claude-haiku-4-5.MITI.last.GRPO_LA5": {
    "value": 0.516,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.936"
+   "note": "iteration 10 vs Base; dz 0.936; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MITI.last.ratio": {
    "value": 2.152,
@@ -739,29 +739,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.MITI.best_K0.GRPO_LA0": {
-   "value": 0.523,
+   "value": 0.359,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 1.028"
+   "note": "iteration 8 vs Base; dz 0.755; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MITI.best_K0.GRPO_LA5": {
    "value": 0.516,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.936"
+   "note": "iteration 10 vs Base; dz 0.936; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MITI.best_K0.ratio": {
-   "value": 0.985,
+   "value": 1.435,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.PCT.last.GRPO_LA0": {
    "value": 0.096,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.558"
+   "note": "iteration 10 vs Base; dz 0.558; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.PCT.last.GRPO_LA5": {
    "value": 0.209,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.962"
+   "note": "iteration 10 vs Base; dz 0.962; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.PCT.last.ratio": {
    "value": 2.17,
@@ -769,29 +769,29 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.PCT.best_K0.GRPO_LA0": {
-   "value": 0.084,
+   "value": 0.08,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 0.456"
+   "note": "iteration 8 vs Base; dz 0.397; p_holm 0.0001"
   },
   "gains.claude-haiku-4-5.PCT.best_K0.GRPO_LA5": {
    "value": 0.209,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.962"
+   "note": "iteration 10 vs Base; dz 0.962; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.PCT.best_K0.ratio": {
-   "value": 2.475,
+   "value": 2.617,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.MICI.last.GRPO_LA0": {
    "value": 0.695,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 2.462"
+   "note": "iteration 10 vs Base; dz 2.462; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MICI.last.GRPO_LA5": {
    "value": 0.273,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.888"
+   "note": "iteration 10 vs Base; dz 0.888; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MICI.last.ratio": {
    "value": 0.393,
@@ -799,17 +799,17 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.MICI.best_K0.GRPO_LA0": {
-   "value": 0.052,
+   "value": 0.543,
    "source": "gains",
-   "note": "iteration 3 vs Base; dz 0.194"
+   "note": "iteration 8 vs Base; dz 1.441; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MICI.best_K0.GRPO_LA5": {
    "value": 0.273,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.888"
+   "note": "iteration 10 vs Base; dz 0.888; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.MICI.best_K0.ratio": {
-   "value": 5.207,
+   "value": 0.502,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },

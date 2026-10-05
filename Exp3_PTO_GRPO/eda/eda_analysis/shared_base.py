@@ -40,8 +40,8 @@ import pandas as pd
 
 from .constants import BOOT_SEED, DISPLAY_NAMES, k_of, method_of
 from .ledger import ledger_entry, round3
-from .lookahead import (LOWER_BETTER, RUBRICS, best_iteration, model_name, paired_k_frames,
-                        wide_by_persona)
+from .lookahead import (LOWER_BETTER, RUBRICS, best_iteration, holm_within, model_name,
+                        paired_k_frames, wide_by_persona)
 from .stats import paired_arrays
 from . import process as _process
 
@@ -207,18 +207,24 @@ def score_table(lv: pd.DataFrame, kc: pd.DataFrame, judge: str, *,
 
 
 def gains(sc_sb: Mapping[str, pd.DataFrame], metrics: Sequence[str] = ("Q1Q2",), *,
-          method: str = "GRPO", anchor_metric: str = "Q1Q2") -> pd.DataFrame:
+          method: str = "GRPO", anchor_metric: str = "Q1Q2",
+          select_judge: Optional[str] = None) -> pd.DataFrame:
     """Each arm's gain over the shared Base, persona-paired (Base = the persona's two-draw mean).
 
     Anchors: ``last`` (both arms at their last iteration) and ``best_K0`` (the K=0 arm at its best
-    trained iteration on ``anchor_metric`` under THAT judge, the K=5 arm still at its last).
-    ``ratio_K5_over_K0`` = K=5's gain / K=0's gain at that anchor (on the K=5 rows)."""
+    trained iteration on ``anchor_metric`` under ``select_judge`` — default the mapping's first key,
+    the training oracle — scored at that SAME iteration by every judge; the K=5 arm still at its
+    last). One selection rule for both judges (Lior, 2026-10-05): picking the checkpoint on the
+    held-out judge would select on the evaluation itself. ``ratio_K5_over_K0`` = K=5's gain / K=0's
+    gain at that anchor (on the K=5 rows). ``p_holm`` = Holm across ``metrics`` within
+    (judge, anchor, arm)."""
     rows = []
     a0, a5 = f"{method}_LA0", f"{method}_LA5"
+    sel = select_judge if select_judge is not None else next(iter(sc_sb))
+    best0 = best_iteration(sc_sb[sel], a0, anchor_metric)
     for j, f in sc_sb.items():
         last0 = int(f.loc[f["arm"] == a0, "iteration"].max())
         last5 = int(f.loc[f["arm"] == a5, "iteration"].max())
-        best0 = best_iteration(f, a0, anchor_metric)
         base_col = model_name(method, 0, 0)
         for m in metrics:
             W = wide_by_persona(f, m)
@@ -242,6 +248,9 @@ def gains(sc_sb: Mapping[str, pd.DataFrame], metrics: Sequence[str] = ("Q1Q2",),
     out = pd.DataFrame(rows)
     if "ratio_K5_over_K0" not in out.columns:
         out["ratio_K5_over_K0"] = np.nan
+    if not out.empty:
+        out = holm_within(out, ["judge", "anchor", "arm"], "p", "p_holm")
+        out = out[[c for c in out.columns if c != "ratio_K5_over_K0"] + ["ratio_K5_over_K0"]]
     return out
 
 
@@ -485,7 +494,7 @@ def shared_base_numbers(*, lv: pd.DataFrame, gains_t: pd.DataFrame, sig: pd.Data
         put(f"levels.{r.judge}.{r.metric}.{r.arm}.final", round3(r.mean), "levels_long", f"iteration {r.iteration}")
     for r in gains_t.itertuples():
         put(f"gains.{r.judge}.{r.metric}.{r.anchor}.{r.arm}", round3(r.gain), "gains",
-            f"iteration {r.iteration} vs Base; dz {r.dz:.3f}")
+            f"iteration {r.iteration} vs Base; dz {r.dz:.3f}; p_holm {r.p_holm:.4f}")
         if not pd.isna(r.ratio_K5_over_K0):
             put(f"gains.{r.judge}.{r.metric}.{r.anchor}.ratio", round(float(r.ratio_K5_over_K0), 3), "gains",
                 "K=5 gain / K=0 gain")
