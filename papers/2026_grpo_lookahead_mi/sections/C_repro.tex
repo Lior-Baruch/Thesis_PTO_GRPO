@@ -6,8 +6,9 @@
 
 Both runs are launched from the same notebook with the same configuration block; the run identity
 is encoded in the experiment name, which also determines the output directory, so two runs can
-never share a folder. The tracked \texttt{run\_metadata.json} of each run records the full resolved
-configuration. Diffing the two files yields exactly two substantive differences
+never share a folder. The tracked \texttt{run\_metadata.json} of each run records the resolved
+configuration except the look-ahead rollout's sampling settings, which are set in the notebook's
+configuration block. Diffing the two files yields exactly two substantive differences
 (\texttt{lookahead\_k}: absent vs.\ 5; \texttt{lookahead\_sub\_batch\_size}: absent vs.\ 128) plus
 the run's own name, adapter repository, two output paths, and start timestamp. The sub-batch only
 sets how many look-ahead rollouts advance together; the $\Kf$ run's iteration 1 and the first 30
@@ -33,16 +34,16 @@ Conversations / iteration & 96 \\
 Patient personas & the same 96 (\S\ref{app:prompts}) \\
 Group size $G$ & 8 \\
 KL $\beta$ & 0.01 \\
-GRPO temperature & 1.2 \\
+GRPO temperature & 1.2 (sampling the $G$ candidates) \\
 GRPO loss variant & standard (\texttt{grpo}) \\
 Policy updates per sampled batch & 1 \\
-Train batch $\times$ accumulation & $64 \times 2$ \\
+Train batch $\times$ accumulation & $64 \times 2 = 128$ completions (16 prompts) \\
 Trainer validation split & 0.05 of conversations \\
 Min.\ context length (MCL) & 12 utterances \\
-Session cap & 49 utterances after the opening \\
-Max tokens / response & 200 \\
+Session cap & 49 utterances after the scripted opener \\
+Max tokens / response & 200 (therapist and patient) \\
 Therapist context & 2{,}048 tokens \\
-Therapist / patient temperature & 0.9 / 0.7 \\
+Therapist / patient temperature & 0.9 / 0.7 (conversations and look-ahead) \\
 Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
 Software & TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 \\
 Hardware & one NVIDIA A100 (Google Colab) \\
@@ -53,7 +54,11 @@ Optimizer steps, 10 iterations & $1{,}128$ ($\Kz$) / $1{,}070$ ($\Kf$) \\
 \end{tabular}}
 \caption{Resolved configuration, identical across the two runs except the final three rows: the
 two look-ahead settings (the only substantive configuration fields that differ) and the
-optimizer-step counts. Source: each run's \texttt{run\_metadata.json}; the step counts are read
+optimizer-step counts, which are not set but follow from how many training prompts each run's own
+conversations yield (one step per 16 prompts, two epochs per iteration). Source: each run's
+\texttt{run\_metadata.json}, except the look-ahead rollout temperatures (used by the $\Kf$ run
+only), which that file does not record and which are read from the training notebook's
+configuration block; the step counts are read
 from the per-step training artifacts (\S\ref{app:repro-cost}). $^{\dagger}$64 in iteration 1 and
 the first 30 steps of iteration 2.}
 \label{tab:config}
@@ -83,7 +88,11 @@ utterance coder & this work & one code per therapist and per patient utterance &
 \bottomrule
 \end{tabular}
 \caption{The eight instruments and the utterance coder. \QQ\ is the mean of the Q1 and Q2 means. CT
-and ST are the patient's change-talk and sustain-talk utterance counts. MICI is lower-is-better;
+and ST are the patient's change-talk and sustain-talk utterance counts. WAI-SR: Working Alliance
+Inventory, Short Revised; CSQ-8: Client Satisfaction Questionnaire; MI-SAT: MI intervention
+satisfaction; MITI: Motivational Interviewing Treatment Integrity; PCT: patient change talk; MICI:
+MI-inconsistent behavior, its acts the six behavior counts summed. The other seven are
+higher-is-better; MICI is lower-is-better;
 \S\ref{sec:therapist} uses its over-praise count. The utterance coder is
 described in \S\ref{app:coder}.}
 \label{tab:instruments}
@@ -191,7 +200,7 @@ each therapist utterance; a turn counts if it contains any of ten patterns: ``I'
 exists as a direction check on the oracle's over-praise count and is deliberately crude
 (``beautiful'' matches any use of the word); it is reported as the share of therapist turns
 matched, never as a count of acts, and its absolute level is not a measurement. Its agreement with
-the coded praise share (Figure~\ref{fig:process}a) is what \S\ref{sec:therapist} relies on.
+the coded praise share (Figure~\ref{fig:overpraise}) is what \S\ref{sec:therapist} relies on.
 
 \subsection{Anti-degeneracy}
 
@@ -218,8 +227,11 @@ conversations.
 All contrasts are persona-paired. The 96 personas are reshuffled every iteration, so pairing
 recovers the persona identity by replaying the shuffle; pairing on file order would join unrelated
 conversations across iterations. Tests
-are Wilcoxon signed-rank; effect sizes are Cohen's \dz; intervals are 2{,}000-resample percentile
-bootstraps at a fixed seed, so a re-render reproduces the same bounds. Holm correction is applied
+are Wilcoxon signed-rank; effect sizes are Cohen's \dz; intervals are percentile
+bootstraps at a fixed seed, so a re-render reproduces the same bounds: the dispersion ratios of
+Appendix~\ref{app:mechanism} resample groups 2{,}000 times, its rank-agreement intervals and the
+bands of Figure~\ref{fig:faithfulness} resample conversations within each model state 1{,}000
+times, and the band of Figure~\ref{fig:textspace-body}(a) resamples conversations. Holm correction is applied
 within each family (instruments within one matched contrast, or iterations within one sweep) and
 is not pooled across families.
 
