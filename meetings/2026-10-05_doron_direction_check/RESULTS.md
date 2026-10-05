@@ -24,6 +24,10 @@ reading against text features that were fixed before his deck existed.
 - **Code.** [`check_doron_directions_2026-10-05.py`](../build/check_doron_directions_2026-10-05.py) writes
   `tables/`; [`plot_doron_direction_check_2026-10-05.py`](../build/plot_doron_direction_check_2026-10-05.py)
   draws `figures/` from those tables.
+- **Page for Doron.** The same findings as an interactive page: published (private until shared from
+  its Share menu) at https://claude.ai/artifact/6abLspnceumrbDhBzviAJe. Its source is
+  [`page_for_doron.html`](page_for_doron.html), with the chart data embedded from `tables/`. To change it,
+  edit that file and republish it to the same URL (pass the URL, or a new artifact is created).
 
 ## Findings
 

@@ -1,0 +1,703 @@
+<title>Win/Lose Direction Check</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+/* Layout: one reading column (~68ch) inside a 960px frame; figures may use the full frame.
+   Verdicts first, then the five findings in the order of the deck, then caveats. */
+:root {
+  --bg: #f4f4f1; --surface: #fcfcfb; --fg: #141413; --fg-2: #52514e; --muted: #898781;
+  --grid: #e1e0d9; --axis: #c3c2b7; --rule: #dcdbd4; --accent: #1c5cab;
+  --k0: #d55e00; --k5: #e69f00; --pair: #1c5cab; --best: #1c5cab; --worst: #86b6ef;
+  --div-neg: #184f95; --div-mid: #f0efec; --div-pos: #b3261e; --on-strong: #ffffff;
+  --shade: rgba(137, 135, 129, 0.13);
+  --good: #0ca30c; --warning: #fab219; --serious: #ec835a; --neutral: #898781;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", "Segoe UI", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121211; --surface: #1a1a19; --fg: #f1f1ee; --fg-2: #c3c2b7; --muted: #8f8e87;
+    --grid: #2c2c29; --axis: #4a4a45; --rule: #30302c; --accent: #6da7ec;
+    --k0: #c0390f; --k5: #c98500; --pair: #3987e5; --best: #86b6ef; --worst: #256abf;
+    --div-neg: #9ec5f4; --div-mid: #383835; --div-pos: #f19a98; --on-strong: #111110;
+    --shade: rgba(195, 194, 183, 0.08);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121211; --surface: #1a1a19; --fg: #f1f1ee; --fg-2: #c3c2b7; --muted: #8f8e87;
+  --grid: #2c2c29; --axis: #4a4a45; --rule: #30302c; --accent: #6da7ec;
+  --k0: #c0390f; --k5: #c98500; --pair: #3987e5; --best: #86b6ef; --worst: #256abf;
+  --div-neg: #9ec5f4; --div-mid: #383835; --div-pos: #f19a98; --on-strong: #111110;
+  --shade: rgba(195, 194, 183, 0.08);
+  color-scheme: dark;
+}
+
+body { background: var(--bg); color: var(--fg); font: 400 16px/1.6 var(--font-body); }
+.page { max-width: 960px; margin: 0 auto; padding-inline: 20px; padding-block: 40px 64px; display: grid; gap: 56px; }
+.page, .finding, .verdicts, .setup, .finding ul { grid-template-columns: minmax(0, 1fr); }
+.page > *, .finding > * { min-width: 0; }
+.prose { max-width: 68ch; }
+.prose > * + * { margin-top: 0.9em; }
+h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; letter-spacing: -0.005em; }
+h1 { font-size: clamp(30px, 5vw, 40px); line-height: 1.1; font-weight: 600; }
+h2 { font-size: 26px; line-height: 1.2; font-weight: 600; }
+h3 { font-size: 18px; line-height: 1.3; font-weight: 600; }
+p, ul, ol, dl, figure { margin: 0; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 2px; }
+code, .num { font-family: var(--font-data); font-size: 0.88em; }
+.num { font-variant-numeric: tabular-nums; }
+.eyebrow { font: 500 12.5px/1.4 var(--font-data); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-2); }
+
+/* masthead */
+.masthead { display: grid; gap: 16px; padding-bottom: 28px; border-bottom: 1px solid var(--rule); }
+.lede { font-size: 18px; line-height: 1.55; max-width: 64ch; color: var(--fg); }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 22px; font: 400 13px/1.5 var(--font-data); color: var(--fg-2); }
+.meta b { font-weight: 500; color: var(--fg); }
+
+/* verdicts */
+.verdicts { display: grid; gap: 18px; }
+.vtable { display: grid; border-top: 1px solid var(--rule); }
+.vrow { display: grid; grid-template-columns: 9.5rem minmax(0, 1fr) minmax(0, 1.35fr); gap: 4px 24px; padding: 14px 0; border-bottom: 1px solid var(--rule); align-items: baseline; }
+.vrow.head { font: 500 12px/1.4 var(--font-data); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-2); padding: 10px 0; }
+.claim { font-weight: 500; }
+.found { color: var(--fg); }
+.found a { white-space: nowrap; font-size: 14px; }
+.chip { display: inline-flex; align-items: center; gap: 7px; font: 500 12.5px/1.2 var(--font-data); color: var(--fg); white-space: nowrap; }
+.chip i { display: inline-grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font: 600 10.5px/1 var(--font-body); font-style: normal; color: #ffffff; background: var(--c); }
+.chip.good { --c: var(--good); } .chip.warning { --c: var(--warning); } .chip.warning i { color: #141413; }
+.chip.serious { --c: var(--serious); } .chip.serious i { color: #141413; } .chip.neutral { --c: var(--neutral); }
+
+/* setup */
+.setup { display: grid; gap: 18px; }
+.deflist { display: grid; grid-template-columns: 11rem minmax(0, 1fr); gap: 12px 24px; max-width: 80ch; }
+.deflist dt { font: 500 13px/1.6 var(--font-data); color: var(--fg-2); padding-top: 2px; }
+.deflist dd { margin: 0; }
+
+/* findings */
+.finding { display: grid; gap: 22px; }
+.finding header { display: grid; gap: 6px; }
+.finding ul { padding-left: 1.15em; display: grid; gap: 8px; }
+.finding li::marker { color: var(--muted); }
+.lead-in { font-weight: 600; }
+.quotes { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 14px 28px; max-width: 80ch; }
+.quotes > div { display: grid; gap: 8px; align-content: start; }
+.quotes h3 { font-size: 15px; display: flex; align-items: center; gap: 8px; }
+.quotes blockquote { margin: 0; padding-left: 14px; border-left: 2px solid var(--rule); font-style: italic; color: var(--fg); }
+.swatch { width: 10px; height: 10px; border-radius: 2px; background: var(--c); flex: none; }
+
+/* figures */
+figure.chart { background: var(--surface); border: 1px solid var(--rule); border-radius: 6px; padding: 20px 20px 14px; display: grid; gap: 14px; min-width: 0; }
+figure.chart.narrow { max-width: 620px; }
+.fig-head { display: grid; gap: 4px; }
+.fig-label { font: 500 12px/1.4 var(--font-data); letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-2); }
+.fig-title { font: 600 17px/1.3 var(--font-display); }
+.fig-sub { font-size: 14px; color: var(--fg-2); max-width: 78ch; }
+.chart ul.legend { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13.5px; color: var(--fg); }
+.chart ul.legend li { display: inline-flex; align-items: center; gap: 8px; }
+.legend svg { width: 30px; height: 14px; overflow: visible; }
+.multiples { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 28px; }
+.multiples.stack { grid-template-columns: minmax(0, 1fr); max-width: 760px; gap: 22px; }
+.panel { display: grid; gap: 4px; min-width: 0; }
+.panel-title { font: 600 13.5px/1.35 var(--font-body); color: var(--fg); }
+.plot { width: 100%; min-width: 0; }
+.plot svg { display: block; overflow: visible; }
+.heat-scale { display: grid; grid-template-columns: auto minmax(100px, 240px) auto; justify-content: start; align-items: center; gap: 10px; font: 400 12px/1.3 var(--font-data); color: var(--fg-2); }
+.heat-scale .bar { height: 10px; border-radius: 2px; background: linear-gradient(in oklab to right, var(--div-neg), var(--div-mid), var(--div-pos)); }
+
+/* svg marks */
+.plot text, .legend text { font-family: var(--font-data); }
+.tick { font-size: 11px; fill: var(--fg-2); }
+.grid { stroke: var(--grid); stroke-width: 1; }
+.zero, .baseline { stroke: var(--axis); stroke-width: 1; }
+.shade { fill: var(--shade); }
+.shade-label { font-size: 10.5px; fill: var(--fg-2); }
+.endlabel { font: 400 12px var(--font-body) !important; fill: var(--fg); }
+.valuelabel { font-size: 12px; fill: var(--fg); }
+.catlabel { font: 400 12.5px var(--font-body) !important; fill: var(--fg-2); }
+.rowlabel { font: 400 12.5px var(--font-body) !important; fill: var(--fg); }
+.cellv { font-size: 11px; font-variant-numeric: tabular-nums; pointer-events: none; }
+.s-k0 { --c: var(--k0); } .s-k5 { --c: var(--k5); } .s-pair { --c: var(--pair); }
+.s-best { --c: var(--best); } .s-worst { --c: var(--worst); } .s-ink { --c: var(--fg-2); }
+.line { fill: none; stroke: var(--c); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.line.dash { stroke-dasharray: 5 4; stroke-linecap: butt; }
+.mk { fill: var(--c); stroke: var(--surface); stroke-width: 2; }
+.mk.hollow { fill: var(--surface); stroke: var(--c); stroke-width: 2; }
+.barmark { fill: var(--c); }
+.ref { stroke: var(--fg-2); stroke-width: 1.2; stroke-dasharray: 5 4; }
+.crosshair { stroke: var(--muted); stroke-width: 1; }
+.hit { fill: transparent; cursor: crosshair; }
+.cell { stroke: none; }
+.cell.on { stroke: var(--fg); stroke-width: 1.5; }
+
+/* data tables */
+details.data { font-size: 14px; }
+details.data summary { cursor: pointer; color: var(--accent); font: 500 13px/1.6 var(--font-data); width: fit-content; }
+.tablewrap { overflow-x: auto; margin-top: 10px; }
+table { border-collapse: collapse; font: 400 12.5px/1.45 var(--font-data); font-variant-numeric: tabular-nums; white-space: nowrap; }
+th, td { padding: 4px 10px; text-align: right; border-bottom: 1px solid var(--grid); }
+th { font-weight: 500; color: var(--fg-2); }
+th:first-child, td:first-child { text-align: left; }
+caption { text-align: left; font: 500 12.5px/1.6 var(--font-body); color: var(--fg-2); padding-bottom: 4px; }
+.mini { display: inline-block; vertical-align: top; margin-right: 24px; }
+.kw td:first-child, .kw th:first-child { white-space: normal; min-width: 16rem; }
+
+/* tooltip */
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--surface); color: var(--fg); border: 1px solid var(--rule); border-radius: 6px; padding: 8px 10px; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12); font: 400 12.5px/1.5 var(--font-body); max-width: 300px; }
+.tip-title { font-weight: 600; margin-bottom: 3px; }
+.tip-row { display: grid; grid-template-columns: 16px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.tip-row.nosw { grid-template-columns: minmax(0, 1fr) auto; }
+.tip-sw { width: 14px; height: 0; border-top: 2px solid var(--c); }
+.tip-sw.dash { border-top-style: dashed; }
+.tip-v { font-family: var(--font-data); font-variant-numeric: tabular-nums; }
+.tip-note { color: var(--fg-2); font-size: 12px; margin-top: 3px; }
+
+.caveats ul { padding-left: 1.15em; display: grid; gap: 8px; }
+footer.source { border-top: 1px solid var(--rule); padding-top: 18px; font-size: 13.5px; color: var(--fg-2); display: grid; gap: 4px; }
+
+@media (max-width: 720px) {
+  .vrow { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .vrow.head { display: none; }
+  .deflist { grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .deflist dd { margin-bottom: 10px; }
+  .multiples { grid-template-columns: minmax(0, 1fr); }
+  figure.chart { padding: 16px 14px 12px; }
+  .page { padding-inline: 16px; gap: 44px; }
+}
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+
+<main class="page">
+
+<header class="masthead">
+  <p class="eyebrow">Reply to “Win/Lose Direction: Does the Embedding Model Matter?” · 5 October 2026</p>
+  <h1>Win/lose directions, re-checked on our data</h1>
+  <p class="lede">We re-ran the deck’s quantities on the GRPO K=0 and K=5 rounds with one encoder, gte-base, and added three checks. We removed the replies that carry a leaked chat marker or degenerate text, corrected the cosines for sampling noise, and tested the K=0-vs-K=5 reading against text features that were fixed on 29 September, before the deck.</p>
+  <p class="meta"><span><b>29,861</b> train rounds</span><span><b>238,888</b> candidates</span><span>iterations <b>1–10</b></span><span>encoder <b>gte-base-en-v1.5</b></span></p>
+</header>
+
+<section class="verdicts" aria-labelledby="verdicts-h">
+  <h2 id="verdicts-h">What holds</h2>
+  <div class="vtable" role="table" aria-label="Verdict per reading in the deck">
+    <div class="vrow head" role="row"><span role="columnheader">Verdict</span><span role="columnheader">Reading in the deck</span><span role="columnheader">On our data</span></div>
+    <div class="vrow" role="row">
+      <span role="cell"><span class="chip serious"><i aria-hidden="true">!</i>Encoder artefact</span></span>
+      <p class="claim" role="cell">The lose side is templated list openers with chat tokens.</p>
+      <p class="found" role="cell">Replies with a leaked marker win and lose at the base rate. Marker sentences surface at the lose end because gte places them near garbled text, and garbled replies do lose. <a href="#s1">Finding 1</a></p>
+    </div>
+    <div class="vrow" role="row">
+      <span role="cell"><span class="chip good"><i aria-hidden="true">✓</i>Holds</span></span>
+      <p class="claim" role="cell">K=0’s winning replies are praise and support.</p>
+      <p class="found" role="cell">From iteration 3 on, in every variant. Your praise keywords hit 49 of the 100 K=0-side sentences of K0&nbsp;−&nbsp;K5 and none on the K=5 side. <a href="#s2">Findings 2, 5</a></p>
+    </div>
+    <div class="vrow" role="row">
+      <span role="cell"><span class="chip warning"><i aria-hidden="true">~</i>Mostly noise</span></span>
+      <p class="claim" role="cell">The arms diverge late, and each arm’s direction drifts.</p>
+      <p class="found" role="cell">K=5’s direction loses its reliability (0.87 at iteration 4, 0.07 at iteration 10). Corrected for noise, both arms are stable through iteration 8, with a real partial divergence at iterations 4–8. <a href="#s3">Finding 3</a></p>
+    </div>
+    <div class="vrow" role="row">
+      <span role="cell"><span class="chip good"><i aria-hidden="true">✓</i>Real effect</span></span>
+      <p class="claim" role="cell">The break in K=0 at iteration 9.</p>
+      <p class="found" role="cell">A reliable reversal toward agreement replies. The 32 candidates with a failed grader call are excluded, so they cannot cause it. <a href="#s4">Finding 4</a></p>
+    </div>
+    <div class="vrow" role="row">
+      <span role="cell"><span class="chip warning"><i aria-hidden="true">~</i>Partly</span></span>
+      <p class="claim" role="cell">K=5’s winning replies are reframing.</p>
+      <p class="found" role="cell">K=5’s side of the difference mixes reframes, open questions, tips and topic sentences. It mainly lacks K=0’s pull toward praise. <a href="#s5">Finding 5</a></p>
+    </div>
+    <div class="vrow" role="row">
+      <span role="cell"><span class="chip neutral"><i aria-hidden="true">–</i>Not tested</span></span>
+      <p class="claim" role="cell">The result is the same in every embedder.</p>
+      <p class="found" role="cell">Only one encoder was run here. <a href="#caveats">Caveats</a></p>
+    </div>
+  </div>
+</section>
+
+<section class="setup" aria-labelledby="setup-h">
+  <h2 id="setup-h">What we ran</h2>
+  <dl class="deflist">
+    <dt>Rounds</dt>
+    <dd>The 29,861 <code>train</code> rounds with at least two distinct rewards (K=0 15,726, K=5 14,135), holding 238,888 candidates. The embeddings come from the 29 September analysis.</dd>
+    <dt>Best and worst</dt>
+    <dd>When several candidates share the best (or worst) reward, their embeddings are averaged. The deck takes a single best and a single worst.</dd>
+    <dt>Sentence pool</dt>
+    <dd>Your recipe: sentences of 4–10 words seen at least 3 times, capped at 4,488. Only 4,178 sentences reach 3 occurrences on our rounds (out of 225,240 distinct), and 3.1% of them contain a chat marker.</dd>
+    <dt>Variants</dt>
+    <dd><b>All candidates</b>; <b>leaked removed</b> (any candidate containing <code>&lt;|im_…</code>); <b>leaked and degenerate removed</b>. The filtered variants re-pick best and worst among the candidates that remain.</dd>
+    <dt>Noise-corrected cosine</dt>
+    <dd>Patients are split in half 50 times. Corrected cosine = cos(half A of one direction, half B of the other) ÷ √(reliability₁ × reliability₂), where reliability is a direction’s own split-half cosine. A value near 1 means the same direction once sampling noise is removed.</dd>
+  </dl>
+</section>
+
+<section class="finding" id="s1" aria-labelledby="s1-h">
+  <header>
+    <p class="eyebrow">Finding 1</p>
+    <h2 id="s1-h">Leaked chat markers do not lose</h2>
+  </header>
+  <ul class="prose">
+    <li><span class="lead-in">K=0 leaks a lot.</span> 19.9% of K=0’s candidates carry a leaked marker, rising to 58.1% at iteration 7 and 50.1% at iteration 8. K=5: 1.7%.</li>
+    <li><span class="lead-in">The leak is not on the losing side.</span> Among K=0’s best candidates 21.3% leak, among its worst 19.3%. The within-round correlation with reward is +0.05.</li>
+    <li><span class="lead-in">Removing leaked candidates barely moves the directions.</span> Their cosine with the all-candidates direction averages 0.96 for K=0 (lowest 0.83) and is at least 0.99 for K=5.</li>
+  </ul>
+  <figure class="chart" id="fig-artefacts">
+    <div class="fig-head">
+      <p class="fig-label">Figure 1</p>
+      <p class="fig-title">Leaked replies win and lose at the base rate; degenerate replies lose</p>
+      <p class="fig-sub">Share of each round’s best and worst candidates (ties averaged) that carry the artefact.</p>
+    </div>
+    <ul class="legend">
+      <li><svg viewBox="0 0 30 14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" class="line s-best"/><circle cx="15" cy="7" r="4.2" class="mk s-best"/></svg>best candidate(s)</li>
+      <li><svg viewBox="0 0 30 14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" class="line dash s-worst"/><rect x="11" y="3" width="8" height="8" class="mk s-worst"/></svg>worst candidate(s)</li>
+    </ul>
+    <div class="multiples">
+      <div class="panel"><p class="panel-title">Leaked chat marker · K=0</p><div class="plot" data-chart="art-leak-GRPO_K0"></div></div>
+      <div class="panel"><p class="panel-title">Leaked chat marker · K=5</p><div class="plot" data-chart="art-leak-GRPO_K5"></div></div>
+      <div class="panel"><p class="panel-title">Degenerate text · K=0</p><div class="plot" data-chart="art-degenerate-GRPO_K0"></div></div>
+      <div class="panel"><p class="panel-title">Degenerate text · K=5</p><div class="plot" data-chart="art-degenerate-GRPO_K5"></div></div>
+    </div>
+    <details class="data"><summary>Show the numbers</summary><div class="tablewrap" data-table="art"></div></details>
+  </figure>
+  <ul class="prose">
+    <li><span class="lead-in">Yet markers crowd the lose end of the sentence pool.</span> 45–48% of each arm’s 10 lowest-projecting sentences contain one, against 3.1% of the pool. With leaked candidates removed from the direction it is still 44–47%. With degenerate candidates removed as well it drops to 12–19%.</li>
+  </ul>
+  <figure class="chart narrow" id="fig-markers">
+    <div class="fig-head">
+      <p class="fig-label">Figure 2</p>
+      <p class="fig-title">Markers crowd the lose end until degenerate replies are removed</p>
+      <p class="fig-sub">Marker share among each direction’s 10 lowest-projecting pool sentences, mean over iterations 1–10. The 10 highest-projecting sentences carry none in any variant.</p>
+    </div>
+    <ul class="legend">
+      <li><span class="swatch s-k0"></span>K=0</li>
+      <li><span class="swatch s-k5"></span>K=5</li>
+      <li><svg viewBox="0 0 30 14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" class="ref"/></svg>whole pool (3.1%)</li>
+    </ul>
+    <div class="plot" data-chart="markers"></div>
+    <details class="data"><summary>Show the numbers</summary><div class="tablewrap" data-table="markers"></div></details>
+  </figure>
+  <div class="prose">
+    <p><span class="lead-in">Reading.</span> The direction pushes away from degenerate text, which is several times more common among the worst candidates than among the best (K=0 6.2% vs 1.6%, K=5 5.2% vs 1.9%). In gte space, sentences that carry a marker sit near garbled text, so they surface at the lose end even though leaked replies themselves win and lose at the base rate. The marker-heavy lose lists describe the encoder’s geometry. The reward does not penalise leaked replies.</p>
+  </div>
+</section>
+
+<section class="finding" id="s2" aria-labelledby="s2-h">
+  <header>
+    <p class="eyebrow">Finding 2</p>
+    <h2 id="s2-h">The win side replicates</h2>
+  </header>
+  <div class="quotes">
+    <div>
+      <h3><span class="swatch s-k0"></span>K=0, from iteration 3 on, in every variant</h3>
+      <blockquote>I’m thrilled to support you on your weight loss journey.</blockquote>
+      <blockquote>I’m so proud of you and your commitment to change.</blockquote>
+    </div>
+    <div>
+      <h3><span class="swatch s-k5"></span>K=5</h3>
+      <blockquote>Remember, quitting smoking is a journey, not a destination.</blockquote>
+      <blockquote>How do you want to approach weight loss?</blockquote>
+    </div>
+  </div>
+  <p class="prose">K=0’s top win sentences are support and praise. K=5’s are encouragement about the process and open questions.</p>
+</section>
+
+<section class="finding" id="s3" aria-labelledby="s3-h">
+  <header>
+    <p class="eyebrow">Finding 3</p>
+    <h2 id="s3-h">Most of the late divergence and drift is noise</h2>
+  </header>
+  <ul class="prose">
+    <li><span class="lead-in">The raw numbers match the deck.</span> K=0 and K=5 agree early (raw cosine 0.83–0.87 at iterations 1–3), and the raw cosine falls late (−0.03 at iteration 9, 0.12 at iteration 10).</li>
+    <li><span class="lead-in">K=5 stops having a direction.</span> Its reliability drops from 0.87 at iteration 4 to 0.17 and 0.07 at iterations 9–10, so there is little left to agree with. Its top sentences at iterations 9–10 are noise.</li>
+    <li><span class="lead-in">The divergence at iterations 4–8 is real but partial.</span> The noise-corrected cosine is 0.48–0.79 there.</li>
+    <li><span class="lead-in">Each arm is stable once noise is removed.</span> The raw cosine between consecutive iterations falls (K=0 from 0.92 at iteration 2 to 0.70 at iteration 7; K=5 from 0.92 at iteration 3 to 0.18 at iteration 10). Noise-corrected it is 0.91–0.98 for K=0 through iteration 8 and 0.77–1.03 for K=5. K=5’s values at iterations 9–10 rest on reliabilities of 0.17 and 0.07, so they say little.</li>
+  </ul>
+  <figure class="chart" id="fig-cosines">
+    <div class="fig-head">
+      <p class="fig-label">Figure 3</p>
+      <p class="fig-title">K=5 stops having a direction; corrected for noise, each arm holds its own</p>
+      <p class="fig-sub">Directions from all candidates. Corrected = cross-half cosine ÷ √(reliability₁ × reliability₂), over 50 random patient half-splits. Shaded: iterations where K=5’s reliability is 0.17 or lower.</p>
+    </div>
+    <ul class="legend">
+      <li><span class="swatch s-pair"></span>K=0 vs K=5</li>
+      <li><span class="swatch s-k0"></span>K=0</li>
+      <li><span class="swatch s-k5"></span>K=5</li>
+      <li><svg viewBox="0 0 30 14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" class="line s-ink"/><circle cx="15" cy="7" r="4.2" class="mk s-ink"/></svg>noise-corrected</li>
+      <li><svg viewBox="0 0 30 14" aria-hidden="true"><line x1="1" y1="7" x2="29" y2="7" class="line dash s-ink"/><circle cx="15" cy="7" r="4" class="mk hollow s-ink"/></svg>raw</li>
+    </ul>
+    <div class="multiples">
+      <div class="panel"><p class="panel-title">K=0 direction vs K=5 direction, same iteration</p><div class="plot" data-chart="cos-pair"></div></div>
+      <div class="panel"><p class="panel-title">Reliability (split-half cosine of a direction)</p><div class="plot" data-chart="cos-rel"></div></div>
+      <div class="panel"><p class="panel-title">K=0: iteration t vs iteration t−1</p><div class="plot" data-chart="cos-stab-GRPO_K0"></div></div>
+      <div class="panel"><p class="panel-title">K=5: iteration t vs iteration t−1</p><div class="plot" data-chart="cos-stab-GRPO_K5"></div></div>
+    </div>
+    <details class="data"><summary>Show the numbers</summary><div class="tablewrap" data-table="cos"></div></details>
+  </figure>
+</section>
+
+<section class="finding" id="s4" aria-labelledby="s4-h">
+  <header>
+    <p class="eyebrow">Finding 4</p>
+    <h2 id="s4-h">K=0’s iteration 9 is a real reversal</h2>
+  </header>
+  <ul class="prose">
+    <li><span class="lead-in">It is reliable.</span> K=0’s iteration-9 direction has split-half reliability 0.77 over 1,200 rounds, and its cosine with iteration 8 is −0.30 (noise-corrected −0.32). It is the drop in Figure 3, bottom left.</li>
+    <li><span class="lead-in">The grader failure cannot explain it.</span> Only 32 candidates lost their reward that iteration, and they are excluded from every round.</li>
+    <li><span class="lead-in">Agreement wins that iteration.</span> Its winning sentences are agreement replies: <q>Absolutely, you’re absolutely right.</q> <q>I understand exactly where you’re coming from.</q></li>
+    <li><span class="lead-in">Iteration 10 follows neither.</span> Its direction is unrelated to iteration 9’s (cosine −0.08).</li>
+  </ul>
+</section>
+
+<section class="finding" id="s5" aria-labelledby="s5-h">
+  <header>
+    <p class="eyebrow">Finding 5</p>
+    <h2 id="s5-h">K0 − K5: the praise side replicates, the reframing side only partly</h2>
+  </header>
+  <ul class="prose">
+    <li><span class="lead-in">The K=0 side is praise and support</span> in most iterations, with or without the filters: <q>I couldn’t be more proud of you.</q> <q>You have my full support and unconditional acceptance.</q></li>
+    <li><span class="lead-in">The K=5 side is mixed.</span> It has reframes and open questions (<q>What other ideas come to mind?</q>, <q>So, instead of focusing on what you need to do,</q>; iterations 3 and 5). It also has tips (<q>One tip is to keep a food journal.</q>, <q>Remember, consistency is key.</q>) and smoking-cessation topic sentences (iterations 4 and 9).</li>
+    <li><span class="lead-in">Your keyword lists, applied to the 10 top sentences per side per iteration</span> (100 per side):
+      <div class="tablewrap"><table class="kw">
+        <thead><tr><th>Keyword list</th><th>K=0 side</th><th>K=5 side</th></tr></thead>
+        <tbody>
+          <tr><td>praise (proud, thrilled, grateful, vulnerab…, trust, courage, here for you)</td><td>49 <span style="color: var(--fg-2)">(51 with both filters)</span></td><td>0</td></tr>
+          <tr><td>reframing (instead of, what if, different perspective/approach, break this down, interesting observation)</td><td>0</td><td>10</td></tr>
+        </tbody>
+      </table></div>
+    </li>
+    <li><span class="lead-in">Text features fixed on 29 September</span> (Figure 4), each correlated with a candidate’s projection on K0&nbsp;−&nbsp;K5 within each arm’s own candidates, leaked and degenerate candidates removed:
+      <ul>
+        <li><i>praise phrase</i> lines up with the K=0 side from iteration 5 on, mostly inside K=0’s own candidates: +0.19 to +0.53 at iterations 5, 6, 8 and 10, against +0.05 to +0.15 in K=5’s;</li>
+        <li><i>reflection opener</i> stays near zero throughout (−0.11 to +0.10);</li>
+        <li><i>length</i> is the strongest correlate. Longer replies sit on the K=5 side in most iterations; the two sign flips (iterations 7 and 10) come from K=0’s candidates (+0.49, +0.40).</li>
+      </ul>
+    </li>
+  </ul>
+  <figure class="chart" id="fig-features">
+    <div class="fig-head">
+      <p class="fig-label">Figure 4</p>
+      <p class="fig-title">Praise lines up with the K=0 side from iteration 5, mostly within K=0’s own replies</p>
+      <p class="fig-sub">Correlation of each text feature with a candidate’s projection on the K0 − K5 direction. Positive: the feature goes with the K=0 side.</p>
+    </div>
+    <div class="heat-scale" aria-hidden="true"><span>−0.8 · K=5 side</span><span class="bar"></span><span>K=0 side · +0.8</span></div>
+    <div class="multiples stack">
+      <div class="panel"><p class="panel-title">Within K=0’s candidates</p><div class="plot" data-chart="heat-GRPO_K0"></div></div>
+      <div class="panel"><p class="panel-title">Within K=5’s candidates</p><div class="plot" data-chart="heat-GRPO_K5"></div></div>
+    </div>
+    <details class="data"><summary>Show the numbers</summary><div class="tablewrap" data-table="feat"></div></details>
+  </figure>
+  <div class="prose">
+    <p><span class="lead-in">Reading.</span> “K=0’s reward pulls toward validation and praise” holds. “K=5’s reward pulls toward reframing” is too strong. The data support a narrower claim: K=5’s reward lacks K=0’s pull toward praise, and its side of the difference mixes questions, reframes, tips and topic content.</p>
+  </div>
+</section>
+
+<section class="caveats" id="caveats" aria-labelledby="caveats-h">
+  <div class="prose">
+    <h2 id="caveats-h">Caveats</h2>
+    <ul>
+      <li><span class="lead-in">One encoder.</span> The deck’s claim that the result holds in every embedder is not tested here. gte is an external sentence encoder, like Qwen3 and mxbai.</li>
+      <li><span class="lead-in">The directions are weak per round.</span> On 29 September, a held-out direction picked K=0’s winner in about 69% of rounds and ranked a round’s 8 candidates at Spearman ≈ 0.2. The mean direction summarises a tendency; it does not decide most rounds.</li>
+      <li><span class="lead-in">Top-sentence lists are read by eye.</span> Only the keyword counts and the feature correlations are quantitative, and the keyword lists were written after the sentences had been seen.</li>
+    </ul>
+  </div>
+</section>
+
+<footer class="source">
+  <p>Lior Baruch · 5 October 2026 · thesis repository, <code>meetings/2026-10-05_doron_direction_check/</code></p>
+  <p>Scripts: <code>check_doron_directions_2026-10-05.py</code> (tables) and <code>plot_doron_direction_check_2026-10-05.py</code> (static figures), both in <code>meetings/build/</code>.</p>
+</footer>
+
+</main>
+
+<div id="tip" aria-hidden="true" hidden></div>
+
+<script type="application/json" id="chart-data">{"art":{"GRPO_K0":{"leak_among_best":[0.0212,0.0172,0.0264,0.0331,0.0372,0.077,0.613,0.5032,0.2772,0.3751],"leak_among_worst":[0.0138,0.0253,0.0234,0.0354,0.0316,0.0615,0.5456,0.512,0.2483,0.2848],"degenerate_among_best":[0.0585,0.0379,0.0193,0.0119,0.0061,0.0071,0.013,0.0073,0.0124,0.0017],"degenerate_among_worst":[0.1915,0.1403,0.0865,0.0741,0.0393,0.0358,0.0359,0.0275,0.0226,0.0191]},"GRPO_K5":{"leak_among_best":[0.0182,0.0206,0.0183,0.0157,0.0162,0.0214,0.0175,0.0139,0.0108,0.0083],"leak_among_worst":[0.0229,0.0227,0.0167,0.0178,0.0218,0.03,0.0189,0.0156,0.0122,0.008],"degenerate_among_best":[0.0713,0.0645,0.0398,0.0202,0.0106,0.0116,0.0065,0.0088,0.0065,0.0047],"degenerate_among_worst":[0.1435,0.1578,0.1164,0.0742,0.0493,0.0418,0.0229,0.0149,0.0138,0.007]}},"cos":{"pair_raw":[0.8301,0.8708,0.8424,0.7182,0.6797,0.3589,0.4919,0.5276,-0.0264,0.1234],"pair_cor":[0.9535,0.9604,0.9025,0.7639,0.794,0.4798,0.6804,0.7515,-0.0527,0.3679],"rel_k0":[0.9314,0.8317,0.9049,0.8942,0.6887,0.5924,0.6137,0.7415,0.7738,0.9168],"rel_k5":[0.6365,0.8087,0.8354,0.8717,0.8033,0.576,0.5035,0.3848,0.1732,0.0694],"stab_k0_raw":[null,0.9181,0.8657,0.8752,0.8299,0.7317,0.6998,0.7535,-0.2999,-0.08],"stab_k0_cor":[null,0.9791,0.9305,0.9223,0.9456,0.9411,0.9361,0.9138,-0.3184,-0.0766],"stab_k5_raw":[null,0.8632,0.9163,0.8861,0.8738,0.7529,0.5443,0.6252,0.3556,0.179],"stab_k5_cor":[null,1.0303,1.0167,0.9585,0.9566,0.9282,0.7745,0.9936,0.8249,0.9519],"n_k0":[1660,729,1858,1539,1789,1299,1965,1203,1200,2484],"n_k5":[846,1154,1771,1684,1396,1107,1004,1650,1690,1833]},"markers":{"all":{"GRPO_K0":[0.7,1.0,1.0,0.8,0.1,0.3,0.0,0.9,0.0,0.0],"GRPO_K5":[0.8,1.0,0.7,0.6,0.0,0.1,0.5,0.0,0.8,0.0]},"clean":{"GRPO_K0":[0.4,0.3,0.8,0.0,0.0,0.1,0.3,0.0,0.0,0.0],"GRPO_K5":[0.0,0.8,0.0,0.2,0.0,0.0,0.1,0.0,0.1,0.0]},"no_leak":{"GRPO_K0":[0.7,1.0,1.0,0.8,0.1,0.4,0.4,0.0,0.0,0.0],"GRPO_K5":[0.9,1.0,0.8,0.5,0.0,0.1,0.5,0.0,0.9,0.0]}},"pool_marker_share":0.031,"feat":{"order":["praise phrase","'you are ...' affirmation","'we' / 'together'","reflection opener","asks a question","advice / tips","numbered or bulleted list","cut off mid-sentence","length (log chars)"],"GRPO_K0":[[-0.0253,-0.015,0.0522,0.0716,0.2019,0.1872,0.0662,0.459,-0.0672,0.534],[-0.0303,-0.0358,-0.0173,-0.0092,0.0631,0.0639,0.0603,0.2527,-0.1431,0.3975],[0.1352,0.075,0.1337,0.2445,-0.0757,0.0749,0.0171,0.1337,-0.1054,0.0446],[-0.0294,-0.1064,-0.0123,-0.0023,0.0201,0.0307,0.0579,0.0494,-0.0876,-0.022],[0.0778,0.1198,-0.1906,-0.0519,-0.1477,-0.1561,0.0293,-0.0875,-0.099,-0.1408],[-0.1491,-0.1499,-0.0713,-0.1234,0.0769,-0.0504,0.2461,-0.0353,-0.1003,0.1252],[-0.0732,-0.0243,-0.0844,-0.1723,-0.0149,-0.2908,0.3157,-0.2108,-0.2749,-0.1904],[-0.3217,-0.0461,-0.1067,-0.0782,0.1128,-0.1246,-0.1075,-0.355,0.0443,0.0823],[-0.3803,-0.3904,-0.042,-0.3636,-0.2462,-0.2354,0.4939,-0.1213,-0.8032,0.4039]],"GRPO_K5":[[-0.0221,-0.0086,0.0107,0.0717,0.1493,0.0719,-0.0327,0.0478,0.0292,0.0963],[-0.039,-0.0371,0.0091,-0.0223,0.0286,0.0666,-0.0465,-0.0161,0.0489,0.1036],[0.1507,0.0991,0.162,0.174,0.0151,0.0325,-0.1285,0.0367,0.0585,-0.0705],[0.0977,-0.0701,-0.0177,0.0143,0.0346,-0.0282,0.0013,0.0066,-0.0851,-0.0091],[0.1167,0.2703,-0.0877,-0.0055,-0.024,-0.1775,-0.0043,-0.1174,-0.1339,-0.1229],[-0.1855,-0.1894,-0.0802,-0.1639,-0.0255,-0.0619,0.1911,0.0327,-0.1045,-0.1673],[-0.1382,0.0008,-0.019,-0.061,0.0426,-0.0924,0.0636,0.036,-0.0148,-0.0016],[-0.3407,-0.1082,-0.0972,-0.108,0.0263,-0.1578,-0.022,-0.0741,-0.0354,-0.0161],[-0.3441,-0.4179,-0.1529,-0.4171,-0.2642,-0.2575,0.0496,-0.1231,-0.2373,-0.038]]}}</script>
+
+<script>
+(function () {
+  const D = JSON.parse(document.getElementById('chart-data').textContent);
+  const IT = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  const NS = 'http://www.w3.org/2000/svg';
+  const LAB = { GRPO_K0: 'K=0', GRPO_K5: 'K=5' };
+  const CLS = { GRPO_K0: 'k0', GRPO_K5: 'k5' };
+  const SHAPE = { GRPO_K0: 'o', GRPO_K5: 's' };
+  const FEAT_LABEL = {
+    'praise phrase': 'praise phrase', "'you are ...' affirmation": '“you are …” affirmation',
+    "'we' / 'together'": '“we” / “together”', 'reflection opener': 'reflection opener',
+    'asks a question': 'asks a question', 'advice / tips': 'advice / tips',
+    'numbered or bulleted list': 'numbered or bulleted list', 'cut off mid-sentence': 'cut off mid-sentence',
+    'length (log chars)': 'length (log chars)'
+  };
+  const VARIANTS = [['all', 'all candidates'], ['no_leak', 'leaked removed'], ['clean', 'leaked and degenerate removed']];
+
+  const minus = (s) => s.replace('-', '−');
+  const pct = (v) => { const p = v * 100; return (p > 0 && p < 10 ? p.toFixed(1) : p.toFixed(0)) + '%'; };
+  const cosf = (v) => minus(v.toFixed(2));
+  const sgn = (v) => (Math.abs(v) < 0.005 ? '0.00' : (v > 0 ? '+' : '−') + Math.abs(v).toFixed(2));
+  const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
+
+  function s(tag, attrs, parent) {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  }
+  function txt(parent, attrs, content) { const t = s('text', attrs, parent); t.textContent = content; return t; }
+
+  /* tooltip */
+  const tip = document.getElementById('tip');
+  function showTip(evt, title, rows, note) {
+    tip.replaceChildren();
+    const h = document.createElement('div'); h.className = 'tip-title'; h.textContent = title; tip.appendChild(h);
+    rows.forEach((r) => {
+      const row = document.createElement('div'); row.className = 'tip-row' + (r.cls ? '' : ' nosw');
+      if (r.cls) { const sw = document.createElement('span'); sw.className = 'tip-sw s-' + r.cls + (r.dash ? ' dash' : ''); row.appendChild(sw); }
+      const l = document.createElement('span'); l.textContent = r.label;
+      const v = document.createElement('span'); v.className = 'tip-v'; v.textContent = r.value;
+      row.append(l, v); tip.appendChild(row);
+    });
+    if (note) { const n = document.createElement('div'); n.className = 'tip-note'; n.textContent = note; tip.appendChild(n); }
+    tip.hidden = false;
+    const pad = 14, tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = evt.clientX + pad, y = evt.clientY + pad;
+    if (x + tw > window.innerWidth - 8) x = evt.clientX - tw - pad;
+    if (y + th > window.innerHeight - 8) y = evt.clientY - th - pad;
+    tip.style.left = Math.max(8, x) + 'px';
+    tip.style.top = Math.max(8, y) + 'px';
+  }
+  function hideTip() { tip.hidden = true; }
+
+  /* line panel: iterations 1-10 on x, one shared y scale per figure */
+  function linePanel(host, cfg) {
+    const W = Math.max(240, host.clientWidth), H = cfg.h || 210;
+    const m = { t: 10, r: cfg.r == null ? 16 : cfg.r, b: 26, l: 40 };
+    host.replaceChildren();
+    const svg = s('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': cfg.aria }, host);
+    const X = (i) => m.l + ((i - 0.6) / 9.8) * (W - m.l - m.r);
+    const Y = (v) => m.t + ((cfg.y[1] - v) / (cfg.y[1] - cfg.y[0])) * (H - m.t - m.b);
+    if (cfg.shade) {
+      s('rect', { x: X(8.5), y: m.t, width: X(10.4) - X(8.5), height: H - m.t - m.b, class: 'shade' }, svg);
+      const t = s('text', { x: (X(8.5) + X(10.4)) / 2, y: H - m.b - 22, class: 'shade-label', 'text-anchor': 'middle' }, svg);
+      s('tspan', { x: (X(8.5) + X(10.4)) / 2, dy: 0 }, t).textContent = 'K=5 rel.';
+      s('tspan', { x: (X(8.5) + X(10.4)) / 2, dy: 12 }, t).textContent = '≤ 0.17';
+    }
+    cfg.ticks.forEach((v) => {
+      s('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: v === 0 ? 'zero' : 'grid' }, svg);
+      txt(svg, { x: m.l - 7, y: Y(v), class: 'tick', 'text-anchor': 'end', 'dominant-baseline': 'middle' }, cfg.fmt(v));
+    });
+    s('line', { x1: m.l, x2: W - m.r, y1: H - m.b, y2: H - m.b, class: 'baseline' }, svg);
+    IT.forEach((i) => txt(svg, { x: X(i), y: H - m.b + 16, class: 'tick', 'text-anchor': 'middle' }, String(i)));
+    const cross = s('line', { y1: m.t, y2: H - m.b, class: 'crosshair', visibility: 'hidden' }, svg);
+    const g = s('g', {}, svg);
+    cfg.series.forEach((se) => {
+      let d = '', pen = false;
+      se.values.forEach((v, k) => {
+        if (v == null) { pen = false; return; }
+        d += (pen ? 'L' : 'M') + X(IT[k]).toFixed(1) + ',' + Y(v).toFixed(1); pen = true;
+      });
+      s('path', { d, class: 'line s-' + se.cls + (se.dash ? ' dash' : '') }, g);
+    });
+    cfg.series.forEach((se) => se.values.forEach((v, k) => {
+      if (v == null) return;
+      const c = 'mk s-' + se.cls + (se.hollow ? ' hollow' : '');
+      if (se.shape === 's') s('rect', { x: X(IT[k]) - 4, y: Y(v) - 4, width: 8, height: 8, class: c }, g);
+      else s('circle', { cx: X(IT[k]), cy: Y(v), r: se.hollow ? 4 : 4.2, class: c }, g);
+    }));
+    (cfg.labels || []).forEach((L) => {
+      const v = cfg.series[L.i].values[9];
+      txt(svg, { x: X(10) + 9, y: Y(v) + (L.dy || 0), class: 'endlabel', 'dominant-baseline': 'middle' }, L.text);
+    });
+    const hit = s('rect', { x: m.l, y: 0, width: W - m.l - m.r, height: H, class: 'hit' }, svg);
+    const onMove = (e) => {
+      const r = svg.getBoundingClientRect();
+      const i = Math.min(10, Math.max(1, Math.round(0.6 + ((e.clientX - r.left - m.l) / (W - m.l - m.r)) * 9.8)));
+      cross.setAttribute('x1', X(i)); cross.setAttribute('x2', X(i)); cross.setAttribute('visibility', 'visible');
+      const rows = cfg.series.map((se) => ({ cls: se.cls, dash: se.dash, label: se.label, value: se.values[i - 1] == null ? '—' : cfg.tipFmt(se.values[i - 1]) }));
+      showTip(e, cfg.tipTitle + ' · iteration ' + i, rows, cfg.note ? cfg.note(i) : '');
+    };
+    hit.addEventListener('pointermove', onMove);
+    hit.addEventListener('pointerdown', onMove);
+    hit.addEventListener('pointerleave', () => { cross.setAttribute('visibility', 'hidden'); hideTip(); });
+  }
+
+  /* figure 1 */
+  function artPanel(kind, arm) {
+    const A = D.art[arm];
+    const leak = kind === 'leak';
+    return (host) => linePanel(host, {
+      aria: (leak ? 'Leaked chat marker' : 'Degenerate text') + ' share among best and worst candidates, ' + LAB[arm],
+      y: leak ? [0, 0.66] : [0, 0.205], ticks: leak ? [0, 0.2, 0.4, 0.6] : [0, 0.05, 0.1, 0.15, 0.2],
+      fmt: (v) => (v * 100).toFixed(0) + '%', tipFmt: pct, r: 50,
+      tipTitle: (leak ? 'Leaked marker' : 'Degenerate') + ' · ' + LAB[arm],
+      series: [
+        { label: 'best candidate(s)', values: A[kind + '_among_best'], cls: 'best', shape: 'o' },
+        { label: 'worst candidate(s)', values: A[kind + '_among_worst'], cls: 'worst', shape: 's', dash: true }
+      ],
+      labels: kind === 'degenerate' && arm === 'GRPO_K0' ? [{ i: 1, text: 'worst', dy: -3 }, { i: 0, text: 'best', dy: 3 }] : []
+    });
+  }
+
+  /* figure 2 */
+  function markersChart(host) {
+    const W = Math.max(260, host.clientWidth), H = 250;
+    const m = { t: 22, r: 8, b: 46, l: 40 };
+    host.replaceChildren();
+    const svg = s('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Chat-marker share among the 10 lowest-projecting pool sentences, per variant and arm' }, host);
+    const Y = (v) => m.t + ((0.55 - v) / 0.55) * (H - m.t - m.b);
+    [0, 0.1, 0.2, 0.3, 0.4, 0.5].forEach((v) => {
+      s('line', { x1: m.l, x2: W - m.r, y1: Y(v), y2: Y(v), class: v === 0 ? 'baseline' : 'grid' }, svg);
+      txt(svg, { x: m.l - 7, y: Y(v), class: 'tick', 'text-anchor': 'end', 'dominant-baseline': 'middle' }, (v * 100).toFixed(0) + '%');
+    });
+    const gw = (W - m.l - m.r) / VARIANTS.length, bw = Math.min(24, gw * 0.24), gap = 4;
+    s('line', { x1: m.l, x2: W - m.r, y1: Y(D.pool_marker_share), y2: Y(D.pool_marker_share), class: 'ref' }, svg);
+    VARIANTS.forEach(([v, name], vi) => {
+      const cx = m.l + gw * (vi + 0.5);
+      const words = name.split(' ');
+      const lines = name.length > 16 && gw < 220 ? [words.slice(0, 2).join(' '), words.slice(2).join(' ')] : [name];
+      const t = s('text', { x: cx, y: H - m.b + 18, class: 'catlabel', 'text-anchor': 'middle' }, svg);
+      lines.forEach((ln, k) => { s('tspan', { x: cx, dy: k ? 15 : 0 }, t).textContent = ln; });
+      ['GRPO_K0', 'GRPO_K5'].forEach((arm, ai) => {
+        const vals = D.markers[v][arm], mu = mean(vals);
+        const x0 = cx + (ai === 0 ? -gap / 2 - bw : gap / 2), x1 = x0 + bw, yb = Y(0), yt = Y(mu), rr = Math.min(4, (yb - yt) / 2);
+        s('path', { d: `M${x0},${yb}V${yt + rr}Q${x0},${yt} ${x0 + rr},${yt}H${x1 - rr}Q${x1},${yt} ${x1},${yt + rr}V${yb}Z`, class: 'barmark s-' + CLS[arm] }, svg);
+        txt(svg, { x: (x0 + x1) / 2, y: yt - 6, class: 'valuelabel', 'text-anchor': 'middle' }, (mu * 100).toFixed(0) + '%');
+        const hit = s('rect', { x: x0 - 3, y: Y(0.55), width: bw + 6, height: yb - Y(0.55), class: 'hit' }, svg);
+        const onBar = (e) => showTip(e, LAB[arm] + ' · ' + name,
+          [{ label: 'mean over iterations 1–10', value: pct(mu) }, { label: 'whole pool', value: '3.1%' }],
+          'Per iteration (of 10 sentences): ' + vals.map((x) => Math.round(x * 10)).join(', '));
+        hit.addEventListener('pointermove', onBar);
+        hit.addEventListener('pointerdown', onBar);
+        hit.addEventListener('pointerleave', hideTip);
+      });
+    });
+  }
+
+  /* figure 3 */
+  const C = D.cos;
+  const relNote = (i) => 'Reliability: K=0 ' + C.rel_k0[i - 1].toFixed(2) + ', K=5 ' + C.rel_k5[i - 1].toFixed(2);
+  const cosBase = { y: [-0.45, 1.1], ticks: [-0.4, -0.2, 0, 0.2, 0.4, 0.6, 0.8, 1.0], fmt: (v) => minus(v.toFixed(1)), tipFmt: cosf, r: 74 };
+  function pairPanel(host) {
+    linePanel(host, Object.assign({}, cosBase, {
+      aria: 'Cosine between the K=0 and K=5 directions per iteration, raw and noise-corrected', shade: true,
+      tipTitle: 'K=0 vs K=5', note: relNote,
+      series: [
+        { label: 'raw', values: C.pair_raw, cls: 'pair', dash: true, hollow: true },
+        { label: 'noise-corrected', values: C.pair_cor, cls: 'pair' }
+      ],
+      labels: [{ i: 1, text: 'corrected', dy: -4 }, { i: 0, text: 'raw', dy: 4 }]
+    }));
+  }
+  function relPanel(host) {
+    linePanel(host, Object.assign({}, cosBase, {
+      aria: 'Split-half reliability of the K=0 and K=5 directions per iteration', tipTitle: 'Reliability',
+      note: (i) => 'Rounds: K=0 ' + C.n_k0[i - 1].toLocaleString('en-US') + ', K=5 ' + C.n_k5[i - 1].toLocaleString('en-US'),
+      series: [
+        { label: 'K=0', values: C.rel_k0, cls: 'k0', shape: 'o' },
+        { label: 'K=5', values: C.rel_k5, cls: 'k5', shape: 's' }
+      ],
+      labels: [{ i: 0, text: 'K=0' }, { i: 1, text: 'K=5' }]
+    }));
+  }
+  function stabPanel(arm) {
+    const k = arm === 'GRPO_K0' ? 'k0' : 'k5';
+    return (host) => linePanel(host, Object.assign({}, cosBase, {
+      aria: LAB[arm] + ' direction: cosine between consecutive iterations, raw and noise-corrected',
+      tipTitle: LAB[arm] + ', t vs t−1', shade: arm === 'GRPO_K5', note: relNote,
+      series: [
+        { label: 'raw', values: C['stab_' + k + '_raw'], cls: k, shape: SHAPE[arm], dash: true, hollow: true },
+        { label: 'noise-corrected', values: C['stab_' + k + '_cor'], cls: k, shape: SHAPE[arm] }
+      ],
+      labels: arm === 'GRPO_K5' ? [{ i: 1, text: 'corrected' }, { i: 0, text: 'raw' }] : []
+    }));
+  }
+
+  /* figure 4 */
+  function heatPanel(arm) {
+    return (host) => {
+      const order = D.feat.order, vals = D.feat[arm], vmax = 0.8;
+      const W = Math.max(260, host.clientWidth), lw = W < 440 ? 132 : 162, ch = 26;
+      const cw = (W - lw) / 10, H = order.length * ch + 24;
+      host.replaceChildren();
+      const svg = s('svg', { width: W, height: H, viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': 'Feature correlations with the K0 minus K5 projection, ' + LAB[arm] + ' candidates' }, host);
+      const showVals = cw >= 34;
+      order.forEach((f, i) => {
+        txt(svg, { x: lw - 8, y: i * ch + ch / 2, class: 'rowlabel', 'text-anchor': 'end', 'dominant-baseline': 'middle' }, FEAT_LABEL[f]);
+        vals[i].forEach((v, j) => {
+          const p = Math.min(100, (Math.abs(v) / vmax) * 100).toFixed(0);
+          const pole = v >= 0 ? 'var(--div-pos)' : 'var(--div-neg)';
+          const r = s('rect', { x: lw + j * cw + 1, y: i * ch + 1, width: cw - 2, height: ch - 2, rx: 2, class: 'cell' }, svg);
+          r.style.fill = `color-mix(in oklab, ${pole} ${p}%, var(--div-mid))`;
+          if (showVals) {
+            const t = txt(svg, { x: lw + j * cw + cw / 2, y: i * ch + ch / 2, class: 'cellv', 'text-anchor': 'middle', 'dominant-baseline': 'central' }, sgn(v));
+            t.style.fill = Math.abs(v) > 0.42 ? 'var(--on-strong)' : 'var(--fg)';
+          }
+          const onCell = (e) => { r.classList.add('on'); showTip(e, LAB[arm] + ' candidates · iteration ' + (j + 1), [{ label: FEAT_LABEL[f], value: sgn(v) }], v > 0 ? 'Goes with the K=0 side' : v < 0 ? 'Goes with the K=5 side' : ''); };
+          r.addEventListener('pointermove', onCell);
+          r.addEventListener('pointerdown', onCell);
+          r.addEventListener('pointerleave', () => { r.classList.remove('on'); hideTip(); });
+        });
+      });
+      IT.forEach((it, j) => txt(svg, { x: lw + j * cw + cw / 2, y: order.length * ch + 16, class: 'tick', 'text-anchor': 'middle' }, String(it)));
+    };
+  }
+
+  /* data tables */
+  function table(caption, head, rows) {
+    const t = document.createElement('table');
+    if (caption) { const c = document.createElement('caption'); c.textContent = caption; t.appendChild(c); }
+    const th = document.createElement('thead'), tr = document.createElement('tr');
+    head.forEach((h) => { const e = document.createElement('th'); e.textContent = h; tr.appendChild(e); });
+    th.appendChild(tr); t.appendChild(th);
+    const tb = document.createElement('tbody');
+    rows.forEach((r) => { const e = document.createElement('tr'); r.forEach((c) => { const d = document.createElement('td'); d.textContent = c; e.appendChild(d); }); tb.appendChild(e); });
+    t.appendChild(tb);
+    return t;
+  }
+  const TABLES = {
+    art: () => table('Share of best / worst candidates carrying the artefact', ['iteration', 'K=0 leak best', 'K=0 leak worst', 'K=5 leak best', 'K=5 leak worst', 'K=0 degen. best', 'K=0 degen. worst', 'K=5 degen. best', 'K=5 degen. worst'],
+      IT.map((i, k) => [String(i)].concat(['leak', 'degenerate'].flatMap((kind) => ['GRPO_K0', 'GRPO_K5'].flatMap((arm) => [pct(D.art[arm][kind + '_among_best'][k]), pct(D.art[arm][kind + '_among_worst'][k])]))))),
+    markers: () => table('Marker share among the 10 lowest-projecting sentences', ['variant', 'arm', 'mean', ...IT.map(String)],
+      VARIANTS.flatMap(([v, name]) => ['GRPO_K0', 'GRPO_K5'].map((arm) => [name, LAB[arm], pct(mean(D.markers[v][arm])), ...D.markers[v][arm].map((x) => (x * 100).toFixed(0) + '%')]))),
+    cos: () => table('Cosines, directions from all candidates', ['iteration', 'rounds K=0', 'rounds K=5', 'K0 vs K5 raw', 'K0 vs K5 corr.', 'reliab. K=0', 'reliab. K=5', 'K=0 t vs t−1 raw', 'K=0 corr.', 'K=5 t vs t−1 raw', 'K=5 corr.'],
+      IT.map((i, k) => [String(i), C.n_k0[k].toLocaleString('en-US'), C.n_k5[k].toLocaleString('en-US'), cosf(C.pair_raw[k]), cosf(C.pair_cor[k]), cosf(C.rel_k0[k]), cosf(C.rel_k5[k])]
+        .concat(['stab_k0_raw', 'stab_k0_cor', 'stab_k5_raw', 'stab_k5_cor'].map((key) => C[key][k] == null ? '—' : cosf(C[key][k]))))),
+    feat: () => {
+      const wrap = document.createElement('div');
+      ['GRPO_K0', 'GRPO_K5'].forEach((arm) => {
+        const t = table('Within ' + LAB[arm] + '’s candidates', ['feature', ...IT.map(String)], D.feat.order.map((f, i) => [FEAT_LABEL[f], ...D.feat[arm][i].map(sgn)]));
+        t.classList.add('mini'); wrap.appendChild(t);
+      });
+      return wrap;
+    }
+  };
+  document.querySelectorAll('[data-table]').forEach((el) => el.appendChild(TABLES[el.dataset.table]()));
+
+  /* charts: render at the host's real width, re-render when it changes */
+  const RENDER = {
+    'art-leak-GRPO_K0': artPanel('leak', 'GRPO_K0'), 'art-leak-GRPO_K5': artPanel('leak', 'GRPO_K5'),
+    'art-degenerate-GRPO_K0': artPanel('degenerate', 'GRPO_K0'), 'art-degenerate-GRPO_K5': artPanel('degenerate', 'GRPO_K5'),
+    markers: markersChart,
+    'cos-pair': pairPanel, 'cos-rel': relPanel, 'cos-stab-GRPO_K0': stabPanel('GRPO_K0'), 'cos-stab-GRPO_K5': stabPanel('GRPO_K5'),
+    'heat-GRPO_K0': heatPanel('GRPO_K0'), 'heat-GRPO_K5': heatPanel('GRPO_K5')
+  };
+  const hosts = Array.from(document.querySelectorAll('[data-chart]'));
+  const widths = new Map();
+  function renderHost(h) {
+    const w = h.clientWidth;
+    if (!w || widths.get(h) === w) return;
+    widths.set(h, w);
+    RENDER[h.dataset.chart](h);
+  }
+  hosts.forEach(renderHost);
+  if ('ResizeObserver' in window) {
+    let queued = false;
+    const ro = new ResizeObserver(() => {
+      if (queued) return; queued = true;
+      requestAnimationFrame(() => { queued = false; hosts.forEach(renderHost); });
+    });
+    hosts.forEach((h) => ro.observe(h));
+  }
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { widths.clear(); hosts.forEach(renderHost); });
+})();
+</script>
