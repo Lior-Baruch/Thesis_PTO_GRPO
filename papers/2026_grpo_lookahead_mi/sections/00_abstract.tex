@@ -2,11 +2,11 @@
 Reinforcement learning from model feedback has succeeded mainly on verifiable tasks. In
 non-verifiable, multi-turn dialogue, the LLM judge that supplies the reward usually sees nothing
 after the candidate turn, though its value often lies in what follows. In motivational
-interviewing (MI), a counsellor's utterance matters for what the patient says next. We present
-\textbf{\LAGRPO}, which extends look-ahead reward from preference-tree optimisation to Group
+interviewing (MI), a counselor's utterance matters for what the patient says next. We present
+\textbf{\LAGRPO}, which extends look-ahead reward from preference-tree optimization to Group
 Relative Policy Optimization (GRPO): before the judge scores a candidate therapist turn, a patient
 simulator and the current policy continue the conversation for $K$ turns, and the judge scores the
-continuation. In two ten-iteration runs that
+continuation. In two ten-iteration runs of a 1B-parameter therapist that
 differ only in the horizon, $K{=}5$ ends ahead of $K{=}0$ on all eight MI instruments, under the
 training oracle and a held-out judge from another model family. Utterance coding shows that
 turn-level reward teaches non-specific praise, including in reply to sustain talk, while look-ahead
