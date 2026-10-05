@@ -138,7 +138,7 @@ def main() -> int:
     for pid in personas.index:
         fi0, t0 = conv(arm0, pid)
         fi5, t5 = conv(arm5, pid)
-        for t in range(2, min(len(t0), len(t5), 12), 2):
+        for t in range(2, min(len(t0), len(t5)), 2):
             if t0[t][0] != "therapist" or t5[t][0] != "therapist":
                 continue
             f0 = feats(t0[t - 1][1], t0[t][1])
