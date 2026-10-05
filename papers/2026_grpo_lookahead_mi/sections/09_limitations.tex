@@ -37,7 +37,7 @@ runs at other values of $K$ are needed to find out.
 Every conversation is between two language models, and every number is in-sample with respect to
 the patient distribution: the 96 personas are the exhaustive enumeration of the persona grid, and
 the self-training loop uses the same 96 for training rollouts and for evaluation at every
-iteration, so generalisation to unseen patients is unmeasurable without authoring new personas.
+iteration, so generalization to unseen patients is unmeasurable without authoring new personas.
 % Lior, 2026-09-29: evaluating the trained models on newly authored personas seems easy and cheap
 % (new persona prompts + generate-only passes + scoring); a candidate follow-up that would turn
 % this sentence into a measurement.
@@ -51,9 +51,9 @@ patient is a known weak point in itself: given identical profiles, LLM-simulated
 express themselves more uniformly positively than human patients do
 \citep{hoang2026standardised}, which bears directly on a finding about praise. %No human MI coder has
 %rated any conversation in this experiment;
-The oracle is highly self-repeatable (ICC 0.92--0.99 on
-the two $K{=}0$ states with a repeat draw), and the over-praise
-finding is the most robust behavioural claim here precisely because the keyword marker, a plain
+The oracle is highly self-repeatable (ICC 0.92--0.99 when it
+re-scores the conversations of the $\Kz$ run's iterations 8 and 10), and the over-praise
+finding is the most robust behavioral claim here precisely because the keyword marker, a plain
 search for ten praise phrases with no language model involved, finds the same rise.
 % \dnotedone{rephrased}{[the keyword marker corroborates it without a model in the loop -?]}
 % \dnotedone{cut the cap sentences (Lior); \S\ref{sec:method} states the cap and Appendix~\ref{app:example} explains the mid-sentence endings}{[many ? oops..!]}
