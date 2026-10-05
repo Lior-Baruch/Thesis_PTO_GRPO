@@ -1033,7 +1033,11 @@ K=0 0.796, `lookahead/shared_base/tables/persist_levels_gpt-4o-mini.md`; held ou
 rule is scoped to questionnaire scores ("not on a common scale … compared only through contrasts
 and never averaged"), so the praise-share comparison (K=5 0.05 vs 0.20 held out) no longer
 contradicts it; §1 expands and cites DPO at its first mention (`rafailov2023dpo`, now in the
-references); Appendix E.1 says what `select_example_illustrative.py` ranks (the first five
-therapist replies after the scripted opening, utterances 2–10, paired by position), not "every
-(persona, therapist-turn) pair". Float crowding moved to step 13 (the length pass will move every
+references); Appendix E.1 and `select_example_illustrative.py` now agree. The script ranked only
+utterances 2–10 (a `range(…, 12)` cap) while E.1 said "every pair"; Lior asked why only the first
+five, so the cap was removed: ranked over every reply, the top 34 pairs are identical, the first
+reply past utterance 10 enters at 35th (persona 7, utterance 14, 17.64), and persona 84's
+utterance 2 is still 7th at 21.5 (row "Ranking position" above stays true). E.1 now says every
+reply was ranked, paired by position, earlier replies preferred (the score's −0.4 per later
+reply). Float crowding moved to step 13 (the length pass will move every
 float). The body still ends about 15 lines into page 11 (31 pages).
