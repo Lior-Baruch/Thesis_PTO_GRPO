@@ -37,6 +37,13 @@ over ten iterations in which the model trains on its own conversations. The utte
 \S\ref{sec:therapist}--\ref{sec:patient} show what that difference adds up to.
 \label{sec:mechanism}
 
+\dnotedone{the reward choice, and what it leaves open}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
+Both runs optimised the mean of Q1 and Q2, which we chose because \citet{yosef2024assessing}
+built and validated these questionnaires for LLM evaluation of simulated MI sessions. They rate the
+session from the patient's side: satisfaction, alliance and relational communication. Whether the horizon changes what is
+learned in the same way under a reward built from another instrument, such as the MITI ratings, we
+did not test.
+
 \textbf{Conclusion.}
 % \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
 Scoring the continuation rather than single turns raised what the same optimiser extracted from the
