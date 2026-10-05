@@ -248,7 +248,7 @@ CODE_LABEL = {"OQ": "open question", "CQ": "closed question", "SR": "simple refl
               "CONF": "confront", "OTH": "other"}
 # Reflections blue, questions teal, affirmation green, praise vermilion (the turn-level hack),
 # information grey, persuasion purple, the rest light.
-CODE_COL = {"OQ": "#1b9e77", "CQ": "#a6dbc9", "SR": "#9ecae1", "CR": "#08519c", "AF": "#33a02c",
+CODE_COL = {"OQ": "#1b9e77", "CQ": "#a6dbc9", "SR": "#6baed6", "CR": "#08519c", "AF": "#33a02c",
             "PRA": "#d55e00", "GI": "#bdbdbd", "PERS": "#984ea3", "SEEK": "#f0e442",
             "CONF": "#7f7f7f", "OTH": "#e5e5e5"}
 YIELD_CODES = ["CR", "SR", "AF", "GI", "PRA", "PERS"]

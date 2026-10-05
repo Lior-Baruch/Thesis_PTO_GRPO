@@ -217,7 +217,7 @@ def codes() -> list[str]:
         for code, name in group:
             row = [per_judge[j][code] for j in JUDGES]
             out.append(f"{name} & " + " & ".join(row[0] + row[1]) + r"\\")
-    print("% codes: praise / complex reflection / persuasion match Tables 3 and 6", file=sys.stderr)
+    print("% codes: praise / complex reflection / persuasion match Tables 3 and 7", file=sys.stderr)
     return out
 
 
