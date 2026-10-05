@@ -18,8 +18,8 @@ after the scripted opening is reached; most close earlier, and the untrained the
 average 28.5 utterances. The therapist is the base (not instruction-tuned) \texttt{Llama-3.2-1B} under a fixed counselor system prompt,
 trained with LoRA adapters, responses capped at 200 tokens (all setting parameters in
 Table~\ref{tab:config}). The oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
-output; the \emph{training} reward is the mean of two of the evaluation instruments, Q1 and Q2
-(\S\ref{sec:setup}). 
+output; the \emph{training} reward is the mean of two of the evaluation instruments, Q1 and Q2,
+written \QQ\ (\S\ref{sec:setup}). 
 \dnotedone{done here, and now also in the intro (the paragraph presenting the method) and in the Discussion (before the Conclusion)}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
 We train on these two because they were built and validated for this use:
 \citet{yosef2024assessing} introduced them as LLM-evaluator questionnaires for simulated MI sessions
@@ -53,11 +53,11 @@ states the procedure; Figure~\ref{fig:schematic} shows one group.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.82\textwidth]{figures/method_grpo_group.png}
-\caption{One GRPO group under look-ahead. The policy samples $G{=}8$ completions of a prompt; each
+\caption{One GRPO group under look-ahead. The policy samples $G{=}8$ completions $t_g$ of a prompt $c$; each
 is rolled forward $K$ turns by the patient simulator $P$ and the policy $\pi$ being trained; the
 oracle scores the extended transcript; the scores are standardized within the group and every
-completion carries a gradient. At $K{=}0$ the rollout is skipped, the oracle scores the candidate
-alone, and standard GRPO is recovered.}
+completion, but no rollout turn, carries a gradient. At $K{=}0$ the rollout is skipped, the oracle
+scores $c \oplus t_g$ alone, and standard GRPO is recovered.}
 \label{fig:schematic}
 \end{figure*}
 
@@ -70,8 +70,8 @@ alone, and standard GRPO is recovered.}
   iterations $N$
 \FOR{$n = 0, \dots, N-1$}
   \STATE $\mathcal{C} \gets$ 96 conversations of $\pi_n$ with $P$ \COMMENT{eval set of $\pi_n$}
-  \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$ with $\geq$ MCL turns, less a
-    5\% validation split
+  \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$, $\geq$ MCL utterances, less a
+    validation split (5\% of conversations)
   \STATE $\pi \gets \pi_n$
   \FOR{each batch of 16 prompts $c \in \mathcal{D}$ (two epochs)}
     \STATE $t_1, \dots, t_G \sim \pi(\cdot \mid c)$ for each $c$
@@ -95,7 +95,7 @@ scores them; the policy takes one optimizer step per batch of 16 prompts (128 co
 group-standardized scores, and after two epochs it is saved as $\pi_{n+1}$ and the loop repeats
 with fresh conversations. The conversations that start an iteration double as the evaluation set
 of $\pi_n$, and a generate-only pass after the last update evaluates the final policy, so every
-policy from the Base $\pi_0$ to $\pi_{10}$ is evaluated; in the figures, iteration $n$ is $\pi_n$.
+policy from the Base $\pi_0$ to $\pi_{10}$ is evaluated; in the figures, iteration $n$ is $\pi_n$, and the Base pools the two runs' iteration-0 conversations (192).
 
 \textbf{The look-ahead reward.} 
 % \dnotedone{rephrased: now names what the two runs differ in}{from what??}
