@@ -377,11 +377,7 @@ file list use `git ls-files Exp3_PTO_GRPO`, and for what each module does see
 
 ```
 Exp3_PTO_GRPO/
-├── README.md      map of this folder only (code/ eda/ history/ + how they connect); the spec stays HERE
-├── code/          the trainers. Two method dirs (GRPO_Exp3/, PTO_Exp3/) over one _shared/ layer;
-│                  system_prompts_builder.py + questionnaires.py live here ONCE (canonical copies —
-│                  the EDA package sys.path-prepends code/ to import the same files); tools/ holds the
-│                  stand-alone utilities (_local_smoke.py, generate_eval_convs.{py,ipynb}). → code/README.md
+├── code/          the trainers → code/README.md
 ├── data/          ALL THREE subdirs are Google Drive symlinks (backed up + reachable from Colab).
 │                  GITIGNORED, so the schemas below are the only record of their shape:
 │   ├── eval_scores/   THE SCORE LAKE — every grader's scores, one shape:
@@ -396,64 +392,23 @@ Exp3_PTO_GRPO/
 │   └── {grpo,pto}_Exp3/   runs/<MODE_TAG>/<EXP_NAME>/ (run_metadata.json + iteration_N/{adapter,
 │                          training}/, PTO also pref_pairs/) and
 │                          conversations/<MODE_TAG>/<EXP_NAME>/model_iter_<N>_TT*_TP*/
-├── eda/           the analysis. eda_analysis/ package + notebooks/<top>/<sub>.ipynb (one per results
-│                  FAMILY: arms/{outcomes,questionnaires,validity,heterogeneity,training,preference,stats},
-│                  lookahead/{reward,transfer,behaviour,mechanism,replication,text,process}, method/contrast,
-│                  compute/cost, measurement/validity) + notebooks/scoring/ (the PAID side) + tools/
-│                  (render_results.py, consolidate_scores.py, score_crossgen.py, strip_notebook_outputs.py)
-│                  + results/. Artifacts nest results/<top>/<sub>/{figures,tables}/[<judge>/][<group>/]
-│                  — the <judge>/ leaf (short label) ONLY under arms/*, whose artifacts one grader
-│                  produced; every other family is judge-invariant (both graders inside, no judge
-│                  level). NAVIGATION starts at the hand-authored results/README.md (question →
-│                  headline artifacts + reading rules). Each <top>/ carries a hand-authored
-│                  SUMMARY.md + auto INDEX.md;
-│                  results/{METRICS_REFERENCE,LIMITATIONS}.md and results/schematics/ (the
-│                  hand-authored METHOD diagrams — build_method_figures.py + CAPTIONS.md, no
-│                  notebook, no judge level, in exports.PRESERVE) sit at the results root.
-│                  → eda/README.md
-└── history/       the only dated history: CHANGELOG_{STATUS,EDA,TRAINER}.md behind a stable index.
+├── eda/           the analysis → eda/README.md (results navigation: eda/results/README.md)
+└── history/       the only dated history (see the Doc map)
 ```
 
 (`figures/` — the schematics' old home — and `eda/docs/` moved into `eda/results/` on 2026-08-18;
 the last pre-reorg state is commit `abe5cb3`; its *code and docs* only — the pre-reorg
 `results/L0|L5` renders live solely in the archival bundle `G:\My Drive\Thesis_PTO_GRPO\_git_archive\Thesis_PTO_GRPO_prerewrite_2026-08-19_b7b44ac.bundle`.)
 
-`meetings/` moved OUT of here to the repo root — decks span experiments and now also present the
-`papers/` drafts, so they sit beside `papers/` rather than inside one experiment. The deck builders
-still read this experiment's `eda/results/`; they resolve it as `REPO/Exp3_PTO_GRPO/`.
+## Exp3 · EDA workflow
 
-## Exp3 · EDA workflow (short version — full guide in [eda/README.md](Exp3_PTO_GRPO/eda/README.md))
-1. **Score:** `Run_Eval.ipynb` — its `EXPERIMENTS` registry is auto-generated from
-   `eda_analysis.data.discover_arms()`, so a run is scoreable as soon as its conversations land on
-   disk (empty in-flight `model_iter` dirs are skipped). Writes
-   `data/eval_scores/judge=<tag>/rep=<r>/`.
-2. **Analyze:** one notebook per results **family**, `notebooks/<top>/<sub>.ipynb` ↔
-   `results/<top>/<sub>/` 1:1 — `arms/*` (per-arm descriptives, all four arms on one axis),
-   `lookahead/*` (RQ-i, K=0 vs K=5 within each optimizer), `method/contrast` (RQ-ii — incl.
-   **`headline_grid`**, THE four-arm endpoint grid with both graders side by side, each arm anchored
-   to its own base), `compute/cost`
-   (GPU-h + API axis, budget sweeps), `measurement/validity` (judge validity, multi-judge, and
-   **`judge_saturation`** — the per-conversation agreement collapse and its SD mechanism); everything
-   auto-discovers arms from disk — no registry edits anywhere. Cell 1 is always
-   `EdaConfig(family="<top>/<sub>", judge=os.environ.get("EDA_JUDGE", ""))` → `notebook_setup`. The
-   **FAMILY knob** sets the output root (the default arm filter is every arm; there is no VIEW); the
-   orthogonal **JUDGE knob** selects which grader's scores are read and, for `arms/*` only, which
-   `<judge>/` leaf is written — every other family is judge-invariant (loads both graders via
-   `scores_by_judge`, exports with no judge level, ignores `EDA_JUDGE`).
-3. **Regenerate:** `python tools/render_results.py` renders **everything** — `arms/*` once per grader
-   in the score lake + the four judge-invariant tops once (units = (top, judge), parallel; a bare
-   run can no longer leave a held-out judge's leaf stale). Subsets: `--top arms lookahead`,
-   `--family lookahead/reward`, `--judge <tag>` (`--judge ""` = primary only), `--list`. → `results/<top>/<sub>/`.
-   Hand-authored files (`results/<top>/SUMMARY.md`, `METRICS_REFERENCE.md`, `LIMITATIONS.md`,
-   `schematics/`) are never touched.
-   Run **`python -m eda_analysis._selfcheck`** after any EDA change (26 checks; `--fast` = the 12
-   structural ones).
-
-The FAMILY/JUDGE systems, `EdaConfig`, the exports API (`save_fig`/`save_table`/`save_numbers`/
-`build_index`/`reset_results`/`PRESERVE`), parquet cache, output-clean policy, the package module map
-and the 2026-08-18 old→new migration table are all documented in
-[eda/README.md](Exp3_PTO_GRPO/eda/README.md) — not here. Eval **numbers** are not maintained here
-either: see the Doc map.
+**The how-to lives ONLY in [eda/README.md](Exp3_PTO_GRPO/eda/README.md)** — scoring
+(`Run_Eval.ipynb`), the FAMILY/JUDGE knobs + the `EdaConfig` cell-1 contract, `render_results.py`
+and its subset flags, the exports API. Always-on rules: everything auto-discovers arms from disk
+(no registry edits anywhere); `python tools/render_results.py` regenerates `results/` and never
+touches the hand-authored files (`SUMMARY.md`, `METRICS_REFERENCE.md`, `LIMITATIONS.md`,
+`schematics/`); run **`python -m eda_analysis._selfcheck`** after any EDA change. Eval **numbers**
+are not maintained here either: see the Doc map.
 
 ## Exp3 · Diagnostic: partial-conversation oracle (reward-faithfulness)
 
@@ -631,60 +586,11 @@ Let Drive Desktop finish syncing (tray ✓) before running the Colab cell.
 
 ## Exp3 · EDA extension points
 
-**Analysis layer (`eda_analysis/` top level)** needs **no registry edits** — it auto-discovers arms from
-disk. Extend it by concern: a new rubric → `eda_analysis/constants.py::QUESTIONNAIRES` + `data.py` (the
-scores backbone); a new arm naming scheme → `data.py::parse_experiment_name`; new stats → `stats.py`; new
-figures → the topic module in `plotting/` (+ its `__init__` re-export); **a new family (a new question)** →
-one entry in `config.py::FAMILIES` (+ `PER_JUDGE_TOPS` if one grader produces its artifacts) + one notebook
-`notebooks/<top>/<sub>.ipynb` on the cell-1 contract (`_selfcheck`'s `family map` keeps the two 1:1;
-`render_results.py` and `build_index` pick it up; a new *top* also gets a hand-authored `results/<top>/SUMMARY.md`);
-a results-layout change → `exports.py` (leaf composition) + `config.py` (`FAMILIES`/`PER_JUDGE_TOPS`);
-anything about **what a run COST** → `compute.py` (see below). The eight modules promoted from the paper
-generators on 2026-08-18 — `lookahead`, `transfer`, `tails`, `dispersion`, `faithfulness`, `crossgen`,
-`replication`, `instruments` (+ their `plotting/` twins) — take frames and return tidy DataFrames/figs,
-never write to disk, seed with `constants.BOOT_SEED`, and must keep reproducing the paper's frozen
-`analysis/out/*.json` fixture (the `paper fixture anchors` self-check). (`figures`/`plots` are still aliased to
-`plotting`; the data-module aliases `discovery`/`personas`/`scores`/`select` were retired — use
-`eda_analysis.data.*` / the top-level re-exports.)
-
-**The COMPUTE axis (`eda_analysis/compute.py`).** Every other contrast in the EDA is
-indexed by **iteration**, which is not a fixed unit of spend — a K=5 step costs ~1.9× a K=0 step and a
-whole PTO iteration costs a fraction of a GRPO one. `compute.py` reconstructs GPU-hours per (arm,
-iteration) from **artifact mtimes** and exposes `iso_compute_contrast` / `budget_sweep` so a lever can be
-read at matched *budget*. Rendered by `notebooks/compute/cost.ipynb` into `results/compute/cost/tables/{compute_by_arm,
-compute_by_iteration,iso_compute_contrast,step_multiplier,budget_sweep_<contrast>_<judge>,
-budget_sweep_crossjudge{,_verdicts},iso_channels{,_selected},api_calls,api_ratio}` + figures
-`{compute_trajectory,cost_breakdown,budget_sweep,api_calls}` — no `<judge>/` level: both graders are inside.
-  - ⚠ **Never time a run from `iteration_metadata.json`.** `training_time_s` / `generation_time_s` /
-    `pref_pair_time_s` are per-PROCESS, so a resumed iteration records only its last session
-    (GRPO_LA5 iter 1 logs 14,501 s for 7.7 h of steps; PTO logs `pref_pair_time_s = 3.2 s` for a
-    ~30 min build it reloaded from `pairs.csv`).
-  - An iteration is billed `generate + build + train`. **`build` is PTO-only and is its DOMINANT
-    phase** (5.7 of PTO_LA0's 8.1 h) — GRPO has no build because its reward computation happens
-    inside the training loop, which is why per-step timings alone cannot compare the two methods.
-  - `train` is timed from `training/completions/*.parquet` for GRPO (one per optimizer step) and
-    from TensorBoard `wall_time` for PTO (DPOTrainer writes no per-step artifact).
-  - Any mtime delta outside `(0, 3600 s)` is a resume gap or a re-synced Drive mtime and is
-    **imputed at the phase median**, so the step counts once rather than being dropped or billing
-    days of idle time. `n_imputed` reports how often that fired.
-  - ⚠ **Iso-compute pairs DIFFERENT iterations across arms**, so `file_index` pairing is invalid
-    there (personas reshuffle `seed + k + 1`); everything in the module pairs on `persona_id`.
-    Pinned by the `compute axis (GPU-hours)` self-check.
-  - ⚠ **Quote `budget_sweep`, not a single iso-compute row** — the lever's sign is a function of
-    budget (GRPO K=5 is clearly worse at ≤18 GPU-h and only draws level at ~23–27).
-
-**Scoring layer (`eda_analysis/scoring/` — the Run_Eval + Judge_Reliability backend):**
-
-- **`scoring/registry.py::ORACLE_TOKEN_ALIASES`** — add new oracle-name aliases here (CSQ vs CSQ_8 etc.). `conversations._normalize_oracle_token(strict=True)` raises on unknowns; default `strict=False` lets unknowns fall through to "Other" for backward compat.
-- **`scoring/registry.py::COMPOSITE_METRICS`** — add new composites (mean across multiple source columns) here. Currently holds just `Q1Q2_Mean`; the same pattern can produce `MITI_GlobalMean` etc.
-- **`scoring/registry.py::EXPERIMENTS`** — registry of trained-model data locations, **auto-generated at import** by `build_experiments_from_disk()` from `eda_analysis.data.discover_arms()` (2026-07-11). New runs are picked up automatically once their conversations land; nothing to edit. (If the Drive symlinks are offline the registry is empty and a warning prints.)
-- **`scoring/judge.py`** — add second-judge providers/models here (`JudgeSpec`); outputs land in `data/eval_scores/judge=<tag>/rep=<r>/`, never in another grader's partition. **Claude judges:** `json_schema` rejects `minimum`/`maximum`/`minItems`/`maxItems` (folded into `description` instead — do NOT just drop them, or the array-shaped rubrics lose their one-score-per-item guarantee), and Sonnet 5 / Opus 4.8+ need `thinking={"type":"disabled"}` or adaptive thinking eats `max_tokens`.
-- **`scoring/judge_plan.py`** (FREE pre-flight, no API) — `check_rubric_parity()` is **the gate before any second-judge spend**: it verifies every constraint stripped for Claude was restated in `description` and the encodings are otherwise structurally identical. Runs automatically in `_selfcheck`. Also `prefix_report()` (which rubrics actually prompt-cache), `plan_sweep()` (coverage-aware call count, skips existing CSVs), `estimate_cost`/`sweep_report`. **Pricing lives in `JUDGE_PRICING` — verify against the billing dashboard before quoting a number.**
-- **`scoring/judge_batch.py`** (PAID) — the full-sweep path via **Anthropic Message Batches (50% off)**: `submit_sweep` → `poll_batches` → `collect_batches`, three separate phases with manifests persisted under `data/eval_scores/_batches/` so collection works from a fresh kernel. `custom_id` is an opaque index into that manifest, never an encoded path (model+metric+oracle overflows the 64-char limit and a truncation collision would write a score to the wrong model's folder). Anthropic-only by design — the primary judge already has a full rep, and extra reps are cheap enough for the live path.
-- **`reliability.py`** (analysis layer, disk-only) — the FREE read side of `data/eval_scores/`: ICC/agreement/contrast tables for `measurement/validity.ipynb` §1, plus the **multi-judge** layer for its §2 (`variance_components_arm` → arm vs judge-level vs arm×judge + `dependability_k1/k2`, `gain_retention`, `all_pairs_contrasts`, `sign_preservation`, `concordance_by_effect_size`). Figures in `plotting/reliability.py`. Keep the paid scoring in `scoring/judge*.py` and the presentation here, so judge results render inside `tools/render_results.py`.
-  - ⚠ **Never average raw scores across judges.** The primary oracle WAS the training reward and the second judge is held out — that is train-vs-test, not two raters. The level offset is 1.2–1.7 points *and model-dependent*, so averaging applies a silent model-dependent shrinkage to every effect. Combine only contrasts or standardized quantities.
-  - ⚠ **Pair on `persona_id`, not `file_index`** (`attach_persona`). The 96 personas are reshuffled each iteration, so a `file_index` join across unmatched iterations pairs unrelated conversations. Means survive it; `dz` and CIs do not.
-- **Prompt caching is narrower than the gotcha below implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with every conversation already scored (`8 × 44 × 96 = 33,792` cells per grader as of 2026-08-25; read the live count off `results/measurement/validity/tables/multijudge_coverage.md`).
+**Where each kind of EDA change goes lives ONLY in [eda/README.md](Exp3_PTO_GRPO/eda/README.md)**
+§ "Extension points" (analysis layer, the COMPUTE axis, and the `scoring/` registry + judge
+gotchas) — per the Doc map above, that file owns the package module map. It is the current copy:
+the duplicate that used to sit here had already drifted (it never picked up `config.py::FAMILY_READS`,
+without which a new cross-top notebook races under `render_results.py`).
 
 ## Exp3 · Gotchas
 
@@ -712,6 +618,7 @@ budget_sweep_crossjudge{,_verdicts},iso_channels{,_selected},api_calls,api_ratio
 - **Local sm_120 import order: `trl` must be imported BEFORE `torch`.** On the local Blackwell GPU, `from trl import …` *after* torch is already imported **segfaults at CUDA init** (a native init-order conflict, exit 139 — not OOM, not a bug in the trainers; Colab is unaffected, which is why the full runs ran there). The trainer modules already import `trl` first; only matters if you run something locally that imports torch/`_shared` first. Verified 2026-06-07.
 - **Local offline smoke:** [code/tools/_local_smoke.py](Exp3_PTO_GRPO/code/tools/_local_smoke.py) (moved from `code/` on 2026-08-18) — from `code/`: `python tools\_local_smoke.py {stopgen|dpo|grpo|all}`. Tiny, no OpenAI; validates the stop-string bind, the DPO prompt-cap + no-OOM (grad-ckpt+precompute), and a GRPO step on the local GPU (~3 GB peak). Imports `trl` first (see above). All three PASS as of 2026-06-07.
 - **Oracle prompt caching depends on the rubric-first layout.** [questionnaires.py](Exp3_PTO_GRPO/code/questionnaires.py) `get_prompt_eval_questionnaire` puts the fixed instructions + questionnaire rubric FIRST and the variable transcript LAST, so OpenAI's automatic prompt caching hits the ~1,084-token fixed prefix on every oracle call (≈50 % input discount + lower latency — matters for the oracle bill, the binding cost constraint above, even though wall-clock is GPU-bound; see next bullet). The margin over OpenAI's 1,024-token minimum is thin: **don't trim the oracle instructions/rubric or move the transcript ahead of them**, or caching silently stops (verified 2026-06-07: prefix is transcript-independent for Q1). Patient API calls auto-cache too (stable system + growing-history prefix). The therapist's local `model.generate` has **no** cross-call prefix reuse under HF — that would need vLLM (a real build here, not a flag: the look-ahead and *all* of PTO's generation use custom `model.generate`, not TRL's `use_vllm` path).
+- **Prompt caching is narrower than the rubric-first gotcha above implies** (measured 2026-07-27 by `prefix_report`): only **Q1 and Q2** clear OpenAI's 1,024-token minimum. WAI-SR/CSQ-8/MI-SAT are rubric-first but too short (403–507 tok); **MITI/PCT/MICI interpolate a per-conversation utterance count into the instructions ahead of the rubric**, truncating their prefix to 138–206 tok. Documented, NOT fixed — those counts are the rate metrics' denominators, and editing the prompt would break comparability with every conversation already scored (`8 × 44 × 96 = 33,792` cells per grader as of 2026-08-25; read the live count off `results/measurement/validity/tables/multijudge_coverage.md`).
 - **Where GRPO's wall-clock actually goes (MEASURED 2026-08-17 — supersedes the earlier guesses).**
   Read per-step times off the mtimes of `iteration_N/training/completions/*.parquet`, not off
   `iteration_metadata.json`: ⚠ **`training_time_s` is per-PROCESS, so a resumed iteration records
