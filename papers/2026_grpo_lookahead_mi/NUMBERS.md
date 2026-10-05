@@ -1024,3 +1024,16 @@ matches the panels; Figure 3/8 legend "confront", panel (c) label clear of the t
 y from 0.65; Figure 10 (a) y to 0.95. The redraw made Figures 1, 3 and 4 taller (+7, +14, +15 pt);
 with the text fixes the body now ends about 16 lines into page 11 (it ended on the last line of
 page 10).
+
+## 2026-10-05 — the four waiting items fixed (before Lior's read-through)
+Text-only fixes (no number changed), each Lior's pick: the abstract's "97% of cases, against 80%"
+now says "under the training oracle" (`ct_persist` at iteration 10, per conversation: K=5 0.968 vs
+K=0 0.796, `lookahead/shared_base/tables/persist_levels_gpt-4o-mini.md`; held out 0.935 vs 0.734,
+`persist_levels_claude-haiku-4-5.md`; both significant, `k_persistence.md`); §3.3's cross-judge
+rule is scoped to questionnaire scores ("not on a common scale … compared only through contrasts
+and never averaged"), so the praise-share comparison (K=5 0.05 vs 0.20 held out) no longer
+contradicts it; §1 expands and cites DPO at its first mention (`rafailov2023dpo`, now in the
+references); Appendix E.1 says what `select_example_illustrative.py` ranks (the first five
+therapist replies after the scripted opening, utterances 2–10, paired by position), not "every
+(persona, therapist-turn) pair". Float crowding moved to step 13 (the length pass will move every
+float). The body still ends about 15 lines into page 11 (31 pages).
