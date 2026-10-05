@@ -6,7 +6,7 @@ A higher score is not by itself evidence of better therapy.
 % \dnotedone{rephrased: typical pair, chosen by a stated rule (Appendix E.2)}{[median-contrast -?]}
 % \dnotedone{renamed `utterance coder' (defined in §3.3); `both graders' dropped}{[process coder ?}
 Table~\ref{tab:excerpt} illustrates
-the behavioural difference between the two runs' final policies; this section and the next quantify it, mostly
+the behavioral difference between the two runs' final policies; this section and the next quantify it, mostly
 with the utterance coder (\S\ref{sec:setup}).
 
 \begin{table}[tb]
@@ -55,18 +55,20 @@ iteration 10, against the Base. Opener excluded throughout.}
 \label{fig:process}
 \end{figure*}
 
-\textbf{The two policies learn different behaviours.} Initially, the Base's turns are mostly
+\textbf{The two policies learn different behaviors.} Initially, the Base's turns are mostly
 information giving and persuasion, then simple reflections and open questions, with no other code
 above $0.05$ of turns (Figure~\ref{fig:process}a--b, iteration 0).
 % \dnotedone{renamed: `turn-level reward' is now K=0}{k=0?}
 % \dnotedone{reworded: `the distribution of therapist behaviours shifts'}{[the mix -?]}
 % \dnotedone{renamed: `significantly', defined once in §3.3}{[clears Holm ?]}
 Under $\Kz$ the
-distribution of therapist behaviours shifts, late and unevenly, toward \textbf{non-specific
+distribution of therapist behaviors shifts, late and unevenly, toward \textbf{non-specific
 praise}: from $0.04$ of the Base's turns to $0.22$ of the $\Kz$ policy's at iteration 8, $0.08$ at
 iteration 9 and $0.41$ at iteration 10 (Figure~\ref{fig:process}a; the values and tests at every
 iteration are in Table~\ref{tab:process-all}), significantly more than under
-$\Kf$ at iterations 8 and 10. 
+$\Kf$ at iterations 8 and 10. The dip at iteration 9 follows the one late round of training in
+which the $\Kz$ reward barely favored praise and its preferred direction reversed
+(Appendices~\ref{app:premium} and~\ref{app:direction}).
 % \dnotedone{reworded: now `Under K=5 it' (the behaviour distribution)}{[the mix \textasciitilde{}]}
 Under $\Kf$ it moves instead toward \textbf{complex reflections}:
 from $0.02$ of the Base's turns to $0.23$ at iteration 10, significantly more than under $\Kz$ at
@@ -81,11 +83,11 @@ reflex} \citep{miller2013mi}, rises from $0.20$ of the Base's turns to $0.28$ of
 significantly higher than under $\Kz$ at six of the ten iterations (2 and 6--10). 
 % \dnotedone{rephrased: says what Chiu et al. report}{[the failure mode \citet{chiu2024bolt} report for LLM therapists -?]}
 It is the
-tendency \citet{chiu2024bolt} report in LLM therapists, which advise where an MI counsellor would
+tendency \citet{chiu2024bolt} report in LLM therapists, which advise where an MI counselor would
 be more likely to reflect. The share of MI-inconsistent turns therefore ends lower under $\Kf$
 ($0.33$ against $0.46$ at iteration 10; Base $0.25$), but that gap is the $\Kz$ policy's late
 praise rather than an MI gain of the $\Kf$ policy, whose own share rises with its persuasion: the
-difference is significant in $\Kz$'s favour at iterations 2, 6 and 9 and in $\Kf$'s only at
+difference is significant in $\Kz$'s favor at iterations 2, 6 and 9 and in $\Kf$'s only at
 iteration 10. The held-out judge agrees on the direction of each of these changes but reads more
 of the $\Kf$ policy's turns as praise ($0.20$ at iteration 10, against the training oracle's
 $0.05$; Appendix Figure~\ref{fig:process-heldout}).
