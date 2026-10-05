@@ -21,12 +21,15 @@ reading against text features that were fixed before his deck existed.
   cos(half A of one direction, half B of the other), divided by √(reliability₁ × reliability₂), where
   reliability is a direction's own split-half cosine. A value near 1 means "the same direction once
   noise is removed".
-- **Code.** [`check_doron_directions_2026-10-05.py`](../build/check_doron_directions_2026-10-05.py).
+- **Code.** [`check_doron_directions_2026-10-05.py`](../build/check_doron_directions_2026-10-05.py) writes
+  `tables/`; [`plot_doron_direction_check_2026-10-05.py`](../build/plot_doron_direction_check_2026-10-05.py)
+  draws `figures/` from those tables.
 
 ## Findings
 
 **1. Leaked chat markers do not lose. The markers in the "lose" sentence lists are a readout artefact**
-(`tables/artefact_rates.csv`, `tables/marker_share_top_sentences.csv`).
+(`tables/artefact_rates.csv`, `tables/marker_share_top_sentences.csv`; `figures/artefacts.png`,
+`figures/lose_end_markers.png`).
 - **K=0 leaks a lot.** 19.9% of K=0 candidates contain a leaked marker (58.1% at iteration 7, 50.1% at
   iteration 8); K=5 1.7%.
 - **The leak is not on the losing side.** Among K=0's best candidates 21.3% leak, among its worst 19.3%.
@@ -43,6 +46,10 @@ reading against text features that were fixed before his deck existed.
 - **So the deck's "lose = templated list openers with chat tokens" describes the encoder, not the
   reward.** This corrects my caveat of 2026-10-04.
 
+![Leaked and degenerate shares among best and worst candidates](figures/artefacts.png)
+
+![Chat-marker share at the lose end of the sentence pool, per variant](figures/lose_end_markers.png)
+
 **2. The "win" side replicates** (`tables/top_sentences.md`).
 - **K=0.** From iteration 3 on, K=0's top win sentences are support and praise in every variant ("I'm
   thrilled to support you on your weight loss journey", "I'm so proud of you and your commitment to
@@ -50,7 +57,7 @@ reading against text features that were fixed before his deck existed.
 - **K=5.** Its top win sentences are encouragement about the process ("Remember, quitting smoking is a
   journey, not a destination") and open questions ("How do you want to approach weight loss?").
 
-**3. Most of the late divergence and instability is noise** (`tables/cosines.csv`).
+**3. Most of the late divergence and instability is noise** (`tables/cosines.csv`; `figures/cosines.png`).
 
 | iteration | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10 |
 |---|---|---|---|---|---|---|---|---|---|---|
@@ -69,6 +76,8 @@ reading against text features that were fixed before his deck existed.
   is 0.91–0.98 for K=0 through iteration 8, and 0.77–1.03 for K=5. K=5's iteration 9–10 values rest on
   reliabilities of 0.17 and 0.07, so they say little.
 
+![K0-vs-K5 cosine, reliability and consecutive-iteration stability, raw and noise-corrected](figures/cosines.png)
+
 **4. K=0's iteration 9 is a real reversal, not the grader failure.**
 - **It is reliable.** K=0's iteration-9 direction has split-half reliability 0.77 over 1,200 rounds, and
   its cosine with iteration 8 is −0.30 (noise-corrected −0.32).
@@ -79,7 +88,7 @@ reading against text features that were fixed before his deck existed.
 - **Iteration 10 follows neither.** Its direction is unrelated to iteration 9's (cosine −0.08).
 
 **5. K0 − K5: the praise side replicates; the "reframing" side only partly** (`tables/k0_minus_k5_sentences.md`,
-`tables/k0_minus_k5_features.csv`, `tables/doron_keyword_counts.csv`).
+`tables/k0_minus_k5_features.csv`, `tables/doron_keyword_counts.csv`; `figures/features.png`).
 - **The K=0 side is praise and support** in most iterations, with or without the filter: "I couldn't be
   more proud of you", "You have my full support and unconditional acceptance".
 - **The K=5 side is mixed.** It has reframes and open questions ("What other ideas come to mind?",
@@ -90,12 +99,17 @@ reading against text features that were fixed before his deck existed.
   - his praise list hits 49 of 100 on the K=0 side (51 clean) and 0 on the K=5 side;
   - his reframing list hits 10 of 100 on the K=5 side and 0 on the K=0 side.
 - **Text features fixed on 2026-09-29.** Each is correlated with the projection on K0 − K5, within each
-  arm's own candidates (clean variant):
+  arm's own candidates (clean variant). The values below are the mean of the two arms; the figure shows
+  each arm:
   - *praise phrase:* lines up with the K=0 side from iteration 5 on (+0.13 to +0.32, except iterations 7
-    and 9) and not before (−0.02 to +0.07);
+    and 9) and not before (−0.02 to +0.07). The pull sits mostly in K=0's own candidates: at iterations
+    5, 6, 8 and 10 it is +0.19 to +0.53 there, against +0.05 to +0.15 in K=5's;
   - *reflection opener:* about zero throughout (−0.09 to +0.03);
   - *length:* the strongest correlate. The K=5 side holds the longer replies in 8 of 10 iterations
-    (correlation as low as −0.52); in iterations 7 and 10 the sign flips (+0.27, +0.18).
+    (correlation as low as −0.52); in iterations 7 and 10 the sign flips (+0.27, +0.18). Both flips come
+    from K=0's candidates (+0.49, +0.40); within K=5's, length leans to the K=5 side in 9 of 10 iterations.
+
+![Text-feature correlations with the projection on K0 − K5, per arm](figures/features.png)
 - **Reading.** "K=0's reward pulls toward validation and praise" holds. "K=5's reward pulls toward
   reframing" is too strong. What the data supports is that K=5's reward lacks K=0's pull toward praise,
   and its side of the difference mixes questions, reframes, tips and topic content.
