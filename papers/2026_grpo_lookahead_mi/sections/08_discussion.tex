@@ -32,10 +32,12 @@ not: it meets sustain talk with persuasion, and under the held-out judge its pra
 above the Base's. We could not isolate how the horizon produces these differences inside the
 update. We tested three explanations and none was confirmed (Appendix~\ref{app:mechanism}); for
 example, the $\Kf$ reward agrees only slightly better with the score of the finished session, and
-no better at the first iteration, where both runs start from the Base. What remains is a small
-difference in which candidate each group prefers, repeated at every training step and compounded
-over ten iterations in which the model trains on its own conversations. The utterance codes of
-\S\ref{sec:therapist}--\ref{sec:patient} show what that difference adds up to.
+no better at the first iteration, where both runs start from the Base. What we can measure is
+that the two rewards prefer different candidates within a group
+(Appendices~\ref{app:premium} and~\ref{app:direction}) and that the updates differ in size: in
+every iteration the $\Kz$ policy moved further from the policy it started from, with gradients
+about twice as large (Appendix~\ref{app:trainer}). The utterance codes of
+\S\ref{sec:therapist}--\ref{sec:patient} show what these differences add up to.
 \label{sec:mechanism}
 
 \dnotedone{the reward choice, and what it leaves open}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
