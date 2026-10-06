@@ -13,12 +13,12 @@ therapist.
 % \dnotedone{rephrased}{[their ?]}
 The difference is clearest in praise. In the middle of training, both rewards gave higher scores to
 replies that praised the patient. Late in training, only the $\Kz$ reward, which scores a turn
-before the patient has answered it, still did: among candidates sampled from the iteration-9
-model, replies containing a praise phrase scored $0.16$ within-group standard deviations above the candidates for the same
+before the patient has answered it, still did: among candidates sampled from each run's own
+iteration-9 model, replies containing a praise phrase scored $0.16$ within-group standard deviations above the candidates for the same
 prompt that did not praise, against $0.04$ under the $\Kf$ reward, which also sees the next five
 turns (Appendix~\ref{app:premium}). The $\Kz$ policy ends up praising in $0.41$ of its turns and in
-reply to a third of the patient's sustain talk, and late in the session its patients express even
-less change talk than the Base's. What the $\Kf$ run learned instead is to keep the patient's
+reply to a third of the patient's sustain talk, and late in the session its patients' share of
+change talk falls below the Base's (Figure~\ref{fig:process}d, not tested). What the $\Kf$ run learned instead is to keep the patient's
 change talk going.
 % \dnotedone{rephrased}{[again after $97\%$ of their change talk ??]}
 When a patient expressed change talk, their next utterance was change talk again in $97\%$ of
@@ -43,16 +43,21 @@ about twice as large (Appendix~\ref{app:trainer}). The utterance codes of
 \dnotedone{the reward choice, and what it leaves open}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
 Both runs optimized the mean of Q1 and Q2, which we chose because \citet{yosef2024assessing}
 built and validated these questionnaires for LLM evaluation of simulated MI sessions. They rate the
-session from the patient's side: satisfaction, alliance and relational communication. Whether the horizon changes what is
+session from the patient's side: satisfaction, alliance and relational communication. Q1 also
+credits moves that MI holds back: its rubric gives as good examples a therapist who ``suggests
+practical steps \ldots, provides uplifting messages, or encourages perseverance'' and one who
+``provides advice or information that directly relates to'' the patient's challenges
+(Appendix~\ref{app:instruments}), so the reward partly credits both habits we document, the $\Kz$
+policy's praise and the $\Kf$ policy's persuasion. Whether the horizon changes what is
 learned in the same way under a reward built from another instrument, such as the MITI ratings, we
 did not test.
 
 \textbf{Conclusion.}
 % \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
 Scoring the continuation rather than single turns raised what the same optimizer extracted from the
-same oracle, and it decided what kind of therapist the policy became: one that praises the patient
-even when they argue for the status quo, or one that reflects the patient's change talk and hears
-more of it, though it still persuades when the patient resists.
+same oracle, and in this pair of runs it decided what kind of therapist the policy became: one that
+praises the patient even when they argue for the status quo, or one that reflects the patient's
+change talk and hears more of it, though it still persuades when the patient argues against change.
 % \dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
 % \dnotedone{cut}{coding the process as well as the outcome ??}
 % \dnotedone{cut}{headroom ??}
