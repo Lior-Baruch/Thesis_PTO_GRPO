@@ -108,7 +108,7 @@ $\tau_0(x)$ is empty. Then
 \label{eq:reward}
 r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \end{equation}
-At $K{=}0$ the oracle scores the candidate alone. 
+At $K{=}0$ the oracle scores the conversation so far, ending on the candidate, with nothing after it.
 % \dnotedone{rephrased; cost clause cut, costs stay in Limitations}{[at the price of three [why? is this important?] patient-simulator calls and two policy generations per candidate and roughly twice the per-step wall-clock \ldots{} this all seems too AI. rephrase to make it clear and focus on what is interesting..]}
 At $K{=}5$ it scores the candidate together with
 the five turns that followed it under the current policy, so a candidate is credited for where it
@@ -155,16 +155,17 @@ items on session satisfaction and on alliance and relational communication, show
 separate levels of therapist expertise. WAI-SR \citep{hatcher2006waisr} and
 CSQ-8 \citep{larsen1979csq} are published patient-report instruments, and MI-SAT is a six-item
 intervention-satisfaction survey adapted for this task. The other three are coders: a
-MITI~4.2.1-style coder \citep{moyers2016miti} whose four global ratings are averaged; a patient
+MITI~4.2.1-style coder \citep{moyers2016miti4,moyers2016miti} whose four global ratings are averaged; a patient
 change-talk coder (PCT; the share of change talk among change and sustain talk, the patient-side
 outcome MI aims at); and an MI-inconsistent-behavior coder that counts acts (MICI; acts per therapist turn,
-lower is better). \QQ\ is thus both the optimization target and a reported outcome; the six
+lower is better). PCT and MICI adapt the client codes and the MI-inconsistent codes of the MISC~2.5
+\citep{houck2010misc} (Appendix~\ref{app:instruments}). \QQ\ is thus both the optimization target and a reported outcome; the six
 instruments outside the reward and a held-out judge (below) are the checks on it.
 
 \textbf{The utterance coder.} The eight instruments are session-level aggregates. For
 \S\ref{sec:therapist}--\ref{sec:patient} we also label every utterance: an LLM \emph{utterance
-coder} assigns one code to every therapist utterance, its dominant function in MITI and MISC terms
-(open question, closed question, simple reflection, complex reflection, affirmation, non-specific
+coder} assigns one code to every therapist utterance, its dominant function in the terms of
+MITI~4.2.1 and the MISC~2.5 \citep{moyers2016miti,houck2010misc} (open question, closed question, simple reflection, complex reflection, affirmation, non-specific
 praise, giving information, persuasion, seeking collaboration, confront, other), and one code to
 every patient utterance (change talk, sustain talk, neutral), in transcript order
 (Appendix~\ref{app:coder}). Affirmation follows the MITI definition, a comment on a specific client
