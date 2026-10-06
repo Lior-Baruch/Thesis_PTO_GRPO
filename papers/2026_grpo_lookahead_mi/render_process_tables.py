@@ -48,7 +48,7 @@ COLS = [
     ("pra", "proc", "th_PRA_rate", "th_PRA_rate", f"non-specific praise {DN}", True),
     ("cr", "proc", "th_CR_rate", "th_CR_rate", "complex reflection", False),
     ("pers", "proc", "th_PERS_rate", "th_PERS_rate", f"persuasion {DN}", True),
-    ("adh", "proc", "mi_adherent_rate", "mi_adherent_rate", "MI-adherent share", False),
+    ("adh", "proc", "mi_adherent_rate", "mi_adherent_rate", "MI-consistent share", False),
     ("inc", "proc", "mi_incons_rate", "mi_incons_rate", f"MI-inconsistent share {DN}", True),
     ("refl_ct", "proc", "refl_after_ct", "refl_after_ct", "change talk: reflects it", False),
     ("pra_st", "proc", "pra_after_st", "pra_after_st", f"sustain talk: praises {DN}", True),
@@ -159,7 +159,7 @@ def build(judge: str) -> list[str]:
 # three codes the text discusses; the full mix was a stacked figure. Grouped as the coder's
 # MI-adherent / MI-inconsistent sums are (``eda_analysis.process.MI_ADHERENT`` / ``MI_INCONSISTENT``).
 CODE_GROUPS = [
-    ("MI-adherent", [("OQ", "open question"), ("SR", "simple reflection"),
+    ("MI-consistent", [("OQ", "open question"), ("SR", "simple reflection"),
                      ("CR", "complex reflection"), ("AF", "affirmation"),
                      ("SEEK", "seeking collaboration")]),
     ("MI-inconsistent", [("PRA", "non-specific praise"), ("PERS", "persuasion"),
