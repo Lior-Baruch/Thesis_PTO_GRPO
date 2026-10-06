@@ -26,7 +26,10 @@ simulated users \citep{qian2025userrl}, regression onto future rewards
 \citep{zhou2025sweetrl}. Related GRPO methods assign credit using later user turns
 \citep{zhao2026faca} or aggregate rewards over future branches of a dialogue
 \citep{peng2026atgrpo}, and Sotopia-RL \citep{yu2025sotopiarl} refines episode-level
-feedback on social interactions into utterance-level rewards.
+feedback on social interactions into utterance-level rewards. For search and game agents,
+\citet{wei2025multiturn} add to each turn's advantage the discounted advantages of later turns and
+of the final outcome, and report that training on turns as independent examples reached high
+per-turn reward but low task success.
 
 A particularly direct way to address delayed credit is to simulate what happens after a
 candidate action and let those consequences affect its reward. Simulated continuations
@@ -58,7 +61,12 @@ LLM judges can exhibit systematic preferences, including sycophancy-related effe
 \citep{singhal2024long, dubois2024lengthcontrolled}. In multi-turn learning, the temporal
 scope of the judge creates an additional opportunity for proxy exploitation: a behavior may
 look desirable in the turn where it occurs while having undesirable effects later in the
-interaction. We therefore evaluate the trained policies not only with the model used to
+interaction. Validating the user is one such behavior: \citet{cheng2026elephant} describe
+\emph{social sycophancy}, the excessive preservation of a user's desired self-image, and find the
+preferred responses of preference datasets more validating than the rejected ones, and
+\citet{moore2025stigma} argue that sycophancy works against therapy, whose aims include
+confrontation as well as support. The non-specific praise that turn-level reward teaches in our
+experiments is an instance of this tendency. We therefore evaluate the trained policies not only with the model used to
 produce the training reward, but also with a held-out judge from another model family and
 with measures outside the rewarded rubric.
 
@@ -92,9 +100,14 @@ temporal credit because therapist behavior is evaluated partly through what it e
 the patient. MI aims to cultivate \emph{change talk}, the patient's own language in favor
 of change, while reducing or productively responding to \emph{sustain talk}
 \citep{moyers2016miti}. Its process tradition therefore examines not only what a therapist
-says, but how therapist and patient utterances unfold sequentially. MI has established
+says, but how therapist and patient utterances unfold sequentially: sequential coding studies
+estimate how often each therapist behavior is immediately followed by change or sustain talk
+\citep{moyers2006therapist, apodaca2016which}, and meta-analyses relate therapist skills to the
+patient's language \citep{magill2014technical, magill2018meta}. Our analysis of the patient's next
+utterance applies the same lag-one reading to simulated sessions. MI has established
 coding schemes such as MITI \citep{moyers2016miti}, and computational work has developed
-expert-annotated counseling corpora \citep{wu2022annomi}, automatic measures of
+expert-annotated counseling corpora \citep{wu2022annomi}, detection and scoring of counselor
+reflections \citep{can2016sounds, min2022pair}, automatic measures of
 counseling quality \citep{perezrosas2019goodcounselor, yosef2024assessing}, and simulated
 patients for training counselors and clinicians
 \citep{steenstra2025scaffolding, wang2024patientpsi}. Recent work also trains LLM
