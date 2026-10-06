@@ -171,9 +171,18 @@ from .process import (  # noqa: E402
     transition_matrix, ct_trajectory, parity, parity_pooled, process_numbers,
 )
 
+# encoders — the GRPO update direction in five embedding spaces (lookahead/mechanism 1d); CPU-only,
+# reads the caches tools/embed_encoders.py writes
+from .encoders import (  # noqa: E402
+    ENCODERS, ENCODER_CACHE_DIR, CATEGORIES, EncoderCacheMissing, cache_status, required_texts,
+    require_caches, load_encoder_embeddings, embedded_for, conversation_sums, encoder_cosines,
+    sentence_pool, category_scores, category_summary, top_sentences, lexical_logodds, LEAK, POOL_MARKER,
+    degenerate_text, clean_mask, clean_counts, lexical_logodds_clean, plot_encoder_categories,
+)
+
 from . import (plotting, data, stats, behavior, training, pref, exports, reliability,
                compute, lookahead, transfer, tails, dispersion, faithfulness, crossgen,
-               replication, instruments, text, process, shared_base)  # noqa: E402,F401
+               replication, instruments, text, process, shared_base, encoders)  # noqa: E402,F401
 figures = plots = plotting              # notebooks: figures.set_style / plots.trajectory_grid
 # Register the plotting aliases as importable submodules too, so ``from eda_analysis.figures import X``
 # resolves — not only attribute access.
@@ -270,6 +279,12 @@ __all__ = [
     "TH_CODES", "PT_CODES", "PROCESS_K_METRICS", "PROCESS_METRIC_LABELS", "PROCESS_FAMILIES",
     "load_miproc", "conversation_metrics", "utterance_long", "transition_yield", "responsiveness",
     "transition_matrix", "ct_trajectory", "parity", "parity_pooled", "process_numbers", "process",
+    # encoders — the GRPO update direction in five embedding spaces (lookahead/mechanism 1d)
+    "ENCODERS", "ENCODER_CACHE_DIR", "CATEGORIES", "EncoderCacheMissing", "cache_status", "required_texts",
+    "require_caches", "load_encoder_embeddings", "embedded_for", "conversation_sums", "encoder_cosines",
+    "sentence_pool", "category_scores", "category_summary", "top_sentences", "lexical_logodds", "LEAK",
+    "POOL_MARKER", "degenerate_text", "clean_mask", "clean_counts", "lexical_logodds_clean", "plot_encoder_categories",
+    "encoders",
     "plotting", "data", "figures", "plots", "stats", "behavior", "training", "pref",
     "reliability", "compute",
     "lookahead", "transfer", "tails", "dispersion", "faithfulness", "crossgen", "replication",
