@@ -8,32 +8,40 @@ Answers below are drafts to paste, each with the section of the paper that backs
 section numbers against the final PDF before pasting. This file is local only: `overleaf.py` never
 pushes it.
 
+**Numbering as of 2026-10-06** (re-pointed against `main.aux` after step 11's reviewer batch B):
+body §1 Introduction, §2 Related work, §3 Method (3.1 task, simulator and oracle; 3.2 GRPO with
+look-ahead; 3.3 evaluation design), §4 Results (reward and instruments), §5 the therapist, §6 the
+patient, §7 Discussion. Appendices: A supplementary results, B held-out judge, C mechanism (C.1–C.6),
+D Reproducibility (D.1 configuration, D.2 instruments, D.3 utterance coder, D.4 patient and therapist
+prompts, D.5 keyword marker, D.6 anti-degeneracy, D.7 evaluation and statistics, D.8 cost accounting,
+D.9 artifacts), E examples, F saturation. **Table 12 = configuration, Table 13 = instruments.**
+
 ## A. For every submission
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after the Discussion (five paragraphs since 2026-09-29): one training run per K; matched iterations vs matched cost (plain words; the iso-compute numbers in Appendix D); K ∈ {0, 5} only; simulation only / in-sample / same-model patient / no human validation; instruments and the utterance coder. (The 200-token cap was cut from the Limitations 2026-09-29; §3 and Table 7 state it, Appendix E explains the mid-sentence endings.) |
-| A2 | Potential risks? | **Yes.** | "Ethics Statement": no clinical claim; the over-praise failure mode is safety-relevant; the simulated population is narrow; judges inherit their models' biases; compute. |
+| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after the Discussion (five paragraphs since 2026-09-29): one training run per K; matched iterations vs matched cost (plain words; the iso-compute numbers in D.8); K ∈ {0, 5} only; simulation only / in-sample / same-model patient / no human validation; instruments and the utterance coder (incl. the judges' low per-utterance agreement, κ 0.08–0.26, since 2026-10-06). (The 200-token cap was cut from the Limitations 2026-09-29; §3.1 and Table 12 state it, Appendix E explains the mid-sentence endings.) |
+| A2 | Potential risks? | **Yes.** | "Ethics Statement": no clinical claim, no persona discloses a crisis (so crisis handling is untested), released adapters get a research-only model card; the over-praise failure mode is safety-relevant; the simulated population is narrow; judges inherit their models' biases. (The compute paragraph was cut; compute is in D.8.) |
 
 ## B. Scientific artifacts used or created
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| B1 | Cited the creators of artifacts used? | **Yes.** | Llama-3.2-1B, gpt-4o-mini, Claude Haiku 4.5 named in §4 and Table 5; GRPO (Shao et al., 2024) §2–3; DPO/PTO origin §1–2; instruments Q1/Q2 (Yosef et al., 2024), WAI-SR (Hatcher & Gillaspy, 2006), CSQ-8 (Larsen et al., 1979), MITI 4.2.1 (Moyers et al., 2015) in §4 and Table 6; TRL / transformers / PEFT versions in Table 5. |
+| B1 | Cited the creators of artifacts used? | **Partly** (until the citations below are added). | Cited: GRPO (Shao et al., 2024) §2–3; PTO origin §1–2; instruments Q1/Q2 (Yosef et al., 2024), WAI-SR (Hatcher & Gillaspy, 2006), CSQ-8 (Larsen et al., 1979), MITI 4.2.1 (Moyers et al., 2016) + MISC 2.5 (Houck et al., 2010) for MITI, PCT, MICI and the utterance coder, in §3.3 and Table 13; the five encoders of Appendix C.6. **Named but not cited:** Llama-3.2-1B, LoRA, TRL, transformers, PEFT (§3.1, Table 12), gpt-4o-mini, Claude Haiku 4.5. Adding bib entries for Llama 3 (Grattafiori et al., 2024), LoRA (Hu et al., 2022), Transformers (Wolf et al., 2020), TRL and PEFT would make this a plain "Yes". |
 | B2 | License / terms discussed? | **Partly** — Appendix D "Artifacts" says the base model is openly licensed and the APIs were used within their terms of service (moved out of the Ethics Statement 2026-09-29). Add the exact license name (Llama 3.2 Community License) there if a reviewer asks; the created artifacts (personas, coder prompts, code) will be released under a permissive license — state which one when the archive is prepared. |
 | B3 | Use consistent with intended use? | **Yes.** | Ethics Statement: research artifact only, no clinical use; the base model is used within its license; the created artifacts are for research. |
-| B4 | Checks for PII / offensive content? | **N/A for data** (no human data: every conversation is between two language models, Ethics Statement ¶1). The persona prompts are synthetic (Appendix C.3). |
-| B5 | Documentation of artifacts? | **Yes.** | Appendix C.2 (instruments and prompts), C.3 (persona and therapist prompts, verbatim), C.4 (the lexical marker), Table 6. Language: English only — say so explicitly in the checklist. |
-| B6 | Relevant statistics? | **Yes.** | 96 personas per model state; 2 arms × 11 states = 22 states; 8 instruments; two graders; the trainer's 0.05 eval split (Table 5); conversation lengths (§4, §6, Appendix D). |
+| B4 | Checks for PII / offensive content? | **N/A for data** (no human data: every conversation is between two language models, Ethics Statement ¶1). The persona prompts are synthetic (Appendix D.4) and none discloses a crisis (Ethics Statement ¶1). |
+| B5 | Documentation of artifacts? | **Yes.** | Appendix D.2 (instruments and their sources, Table 13), D.3 (the utterance coder), D.4 (persona and therapist prompts, verbatim), D.5 (the keyword marker). Language: English only — say so explicitly in the checklist. |
+| B6 | Relevant statistics? | **Yes.** | 96 personas per model state; 21 model states (the pooled Base of 192 conversations, two draws, + 10 iterations × 2 runs = 1 + 2 × 10 = 21); 8 instruments + the utterance coder; two judges; the trainer's 0.05 validation split (§3.2, Table 12); conversation lengths (§4, §6, Appendix D). |
 
 ## C. Computational experiments
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| C1 | Parameters, compute budget, infrastructure? | **Yes.** | 1B-parameter policy with LoRA r=16 (Table 5); 27.9 (K=0) + 51.2 (K=5) = 79.1 GPU-hours, one A100 (Limitations; Table 5; Appendix D.8 — the Ethics compute paragraph was cut 2026-09-29); API call counts (Appendix D "Cost accounting"; moved out of the Limitations 2026-09-29). |
-| C2 | Experimental setup and hyperparameter search? | **Yes, with a caveat.** | Every hyperparameter in Table 5; both arms share one configuration and differ in two tracked fields (§4, C.1). **No hyperparameter search was run** — the GRPO settings were fixed a priori and matched across arms; say so in the checklist ("single configuration, no search"). |
-| C3 | Descriptive statistics (error bars, single run vs mean)? | **Yes.** | Mean ± SE over 96 personas (Figures 2, 4, 5); persona-paired Wilcoxon, Cohen's d_z, 2,000-resample bootstrap CIs, Holm correction (§4, C.6); **single training run per arm**, stated in the Limitations and the abstract; the evaluation re-draw (§5). |
-| C4 | Packages, versions, settings? | **Yes.** | TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 (Table 5); TRL `loss_type="grpo"`, `scale_rewards="group"`, one inner update per batch (Table 5, §3). |
+| C1 | Parameters, compute budget, infrastructure? | **Yes.** | 1B-parameter policy with LoRA r=16 on all attention and MLP projections (Table 12); one A100 (Table 12); 27.9 (K=0) + 51.2 (K=5) = 79.1 GPU-hours (Limitations; Appendix D.8 — not in the table; the Ethics compute paragraph was cut 2026-09-29); API call counts (D.8; moved out of the Limitations 2026-09-29). |
+| C2 | Experimental setup and hyperparameter search? | **Yes, with a caveat.** | Table 12 lists the resolved configuration (since 2026-10-06 incl. optimizer, schedule, warm-up, clipping, LoRA targets, KL form, advantage formula, clip ε, sampling and judge decoding); both arms share one configuration and differ in two tracked fields (§3.3 "The two runs", D.1). **No hyperparameter search was run** — the GRPO settings were fixed a priori and matched across arms; say so in the checklist ("single configuration, no search"). |
+| C3 | Descriptive statistics (error bars, single run vs mean)? | **Yes.** | Mean ± SE over the 96 personas or over conversations (Figures 2, 3c, 5, 6, 7, 8c); a conversation-level bootstrap band in Figure 4a; persona-paired Wilcoxon, Cohen's d_z, percentile bootstrap intervals (2,000 resamples for the dispersion ratios of Appendix C, 1,000 elsewhere), Holm correction within each family (§3.3, D.7); **single training run per arm**, stated in the Limitations and the abstract; the evaluation re-draw of the final policy (§4, "A second draw of the final policy"). |
+| C4 | Packages, versions, settings? | **Yes.** | TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 (Table 12); TRL `loss_type="grpo"` with clip ε 0.2 and one inner update per batch, and the group-standardized advantage (r − mean)/(std + 10⁻⁴) — i.e. `scale_rewards="group"` — in Table 12 and §3.2 (Algorithm 1). |
 
 ## D. Human annotators / human participants
 
@@ -52,7 +60,7 @@ Limitations "Simulation only, in sample, without human validation").
    draft has not been through them). Cover-note questions: see `REVIEW_2026-09-16.md` § E.
 2. **Anonymised code archive.** The CFP wants software as "a single .tgz or .zip archive" uploaded
    with the submission, or an anonymised repository (Anonymous GitHub); "links to cloud services
-   like Google Drive, Dropbox etc. are not acceptable". Appendix C.8 promises the analysis tables,
+   like Google Drive, Dropbox etc. are not acceptable". Appendix D.9 promises the analysis tables,
    the claims ledger and the selection scripts — decide what goes in the archive (the two trainer
    notebooks + `_shared/`, the EDA package, the results tables, `NUMBERS.md`, the paper's scripts)
    and strip names/paths/keys from it.

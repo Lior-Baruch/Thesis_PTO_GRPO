@@ -1343,3 +1343,26 @@ can be off by one in the 3rd decimal (e.g. 0.21751 → "0.217"); quote from the 
 | therapist kappa between judges | 21 states 0.078-0.260, median 0.201; Base 0.188; K0 it10 0.078; K5 it10 0.152 | `process/tables/judge_agreement_overall` (positions = policy turns, opener excluded) |
 | per-code kappa, all states | PRA 0.236, CR 0.270, PERS 0.253, AF+PRA merged 0.407 | `judge_agreement_codes` scope all states |
 | patient kappa | 21 states 0.411-0.740, median 0.603; CT 0.711, ST 0.696 | same, all patient turns |
+
+## 2026-10-06 — step 11, notes round 3 (batch B: reproducibility)
+
+Lior's pick: "Yes, all six". Values read (read-only, no API calls) by an independent agent from the
+runs' checkpoints, the code and the generation logs; scratch dumps in the session scratchpad
+`repro/` (`training_args_dump.json`, `gen_audit.json`), not tracked. Table 12 (`tab:config`) became a
+two-block `table*` — as a one-column list it was 88 pt taller than a page.
+
+| Claim | Value | Source |
+|---|---|---|
+| Table 12 optimizer / schedule / clipping rows | AdamW fused, β (0.9, 0.999), ε 1e-8, weight decay 0; LR 1e-5 cosine; warm-up 1–2 steps (`warmup_steps` = ⌈1% of the iteration's steps⌉: 2, or 1 in K=0 iterations 2 and 9 and K=5 iterations 5 and 6); `max_grad_norm` 1.0 | `training_args.bin` of all 38 saved checkpoints under `data/grpo_Exp3/runs/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA{0,5}_MCL12_G8/iteration_*/training/checkpoint-*/`; identical except `warmup_steps` |
+| Table 12 GRPO rows | `loss_type` grpo, `epsilon` 0.2, `num_iterations` 1 (clip inactive), `beta` 0.01, `scale_rewards` group, `importance_sampling_level` token, `temperature` 1.2, `top_p` 1.0 / `top_k` 0 (none), `mask_truncated_completions` False (kept in the loss) | same |
+| advantage `(r − mean)/(std + 1e-4)` | TRL 1.4.0 GRPOTrainer with `scale_rewards="group"` | pinned TRL source |
+| LoRA dropout 0.05, all attention + MLP projections | `adapter_config.json` of each checkpoint | same checkpoints |
+| therapist top-p 0.9 / top-k 50 | top-p 0.9 from the base model's `generation_config.json`, top-k 50 the transformers default; neither is overridden at the conversation / look-ahead decode sites | `_shared/convs.py`, `_shared/reward.py` decode calls |
+| training oracle T 0, max 256 tokens, strict schema; evaluation primary T 0.1 seed 42; held-out default temperature, no extended thinking; both max 1,024 tokens | as stated (training: no seed, 60 s × 3 attempts) | `_shared/reward.py` (training); `eda/eda_analysis/scoring/registry.py` (T 0.1), `pipeline.py` (seed, attempts), `judge.py` (held-out: no temperature or thinking sent, max 1,024) |
+| empty candidate → reward 0 (oracle range 1–5) | `REWARD_FLOOR = 0.0`; 29 of 130,688 logged K=0 candidates, 28 of 121,088 K=5 | `grpo_trainer.py`; per-iteration `generations.jsonl` (count of floored-empty candidates) |
+| six iterations with partial generation logs | K=0 iterations 2, 6, 8; K=5 iterations 1, 2, 7 (log coverage < 1) | same; `tail_audit_by_iter` `log_coverage` for K=5 |
+| KL-reference exception | K=5 iteration 1 crashed at step 54, resumed from a checkpoint without the saved reference; steps 55–108 regularized toward the step-54 policy | the iteration's checkpoints + the trainer's resume path |
+| rollouts ending neither full nor patient-closed (A_tables) | 2.54% = 3,081 of 121,088 (2,019 no tail + 1,010 ending on a therapist turn + 52 empty therapist turn); per iteration 5.6, 4.9, 3.4, 1.6, 1.7, 3.6, 2.1, 2.3, 1.9, 1.1% | `results/lookahead/mechanism/tables/tail_audit_by_iter.md`, `tails_numbers.json` (GRPO_LA5) |
+| look-ahead patient call attempted three times | back-off 1 s then 2 s, on top of the SDK's own retries; after the last failure the rollout freezes and the oracle scores the transcript so far | `_shared/convs.py` `generate_patient_response_async`; freeze in `_shared/reward.py` |
+| Q1 anchors quoted in D.2 | motivation item: "suggests practical steps to achieve the patient's goal, provides uplifting messages, or encourages perseverance"; relevance item: "provides advice or information that directly relates to challenges or tasks that the patient faces regularly" | `code/questionnaires.py` `get_questionnaire_1` (lines 284, 292) |
+| D.8 call counts | read from the generation logs, scaled to the optimizer-step count in the six partial-log iterations (the earlier "exact counts" wording was wrong) | `compute/cost` tables |
