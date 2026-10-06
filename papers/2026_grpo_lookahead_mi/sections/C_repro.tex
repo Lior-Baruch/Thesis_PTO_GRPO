@@ -107,7 +107,11 @@ response (Q1: overall satisfaction with the chat and with its content, motivatio
 whether anything was learned, and its relevance to everyday life; Q2: seventeen relational items
 such as ``the therapist seemed to understand me'', ``the therapist did not judge me'', and ``the
 therapist made me feel like he cared about me''). WAI-SR, CSQ-8 and MI-SAT are scored from the
-patient's perspective with their item wording and response anchors. The three coders are addressed
+patient's perspective with their item wording and response anchors. MI-SAT's six items come from a
+satisfaction survey that an earlier intervention study's principal investigator wrote for that
+study, without psychometric validation; they ask whether the intervention was helpful for the
+behavior the patient wants to change, enjoyable, interesting, easy to use and worth the time, and
+whether the patient is now more likely to change that behavior (1 = not at all, 5 = very much). The three coders are addressed
 as a certified MITI coder. The MITI coder returns four global ratings (cultivating change talk,
 softening sustain talk, partnership, empathy), whose mean is the MITI score. The PCT coder rates the patient's expressed importance,
 confidence and readiness to change and classifies every patient utterance as change talk, sustain
@@ -254,11 +258,11 @@ smaller look-ahead sub-batch (64; Table~\ref{tab:config}), so the per-step multi
 over the settled iterations 3--10.
 
 Compared at equal GPU-hours rather than equal iterations, with each run at its best checkpoint
-within the budget (chosen and scored on \QQ\ by the same judge), the result depends on the budget.
-At about 13 GPU-hours the $\Kz$ run is ahead ($\dz\,-0.74$ under the training oracle, $-0.78$
-under the held-out judge, $\Kf$ minus $\Kz$); at about 23 GPU-hours the two are level under the
-training oracle ($\dz\,0.07$, not significant) and $\Kf$ leads under the held-out judge
-($\dz\,0.33$, significant); beyond the $\Kz$ run's total of $27.9$ GPU-hours the comparison is the
+within the budget (chosen on \QQ\ by the training oracle, as in \S\ref{sec:reward}, and scored by
+both judges), the result depends on the budget. At about 13 GPU-hours the $\Kz$ run is ahead
+($\dz\,-0.74$ under the training oracle, $-0.49$ under the held-out judge, $\Kf$ minus $\Kz$); at
+about 23 GPU-hours the two are level under the training oracle ($\dz\,0.07$, not significant) and
+$\Kf$ leads under the held-out judge ($\dz\,0.27$, significant); beyond the $\Kz$ run's total of $27.9$ GPU-hours the comparison is the
 best-checkpoint comparison of \S\ref{sec:reward}. Because the GPU-hours are reconstructed from
 timestamps, this reading is coarser than the iteration-matched one.
 
