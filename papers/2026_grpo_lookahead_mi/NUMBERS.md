@@ -1245,3 +1245,22 @@ questionnaires I found in my files regarding the study we did with Stav. We didn
 them in Stav's studies." So the survey is unpublished and there is nothing to cite: Table 11 says
 "unpublished survey, adapted", Appendix D.2 "shared with us by a colleague" (anonymous for
 review), and the camera-ready Acknowledgements thank her (README, Before submission).
+
+## 2026-10-06 — step 11, notes round 3 (first batch: coder sources + two must-fixes)
+
+Lior's picks on the round-3 page (https://claude.ai/artifact/F8t9EzUh5GA6exTRgDkEMz): apply the coder
+sources and the two must-fixes first; Figure 9 re-score, the persona-21 example and the embedding
+appendix follow. No number changed in this batch.
+
+| Edit | Where | Source (checked against the primary document) |
+|---|---|---|
+| PCT = MISC 2.5 client categories; CT/(CT+ST) = MISC "Percentage Client Change Talk (%CT)" | Table 11 Source cell; App D.2; §3.3 one sentence | Houck et al. MISC 2.5 PDF, p. 38 (three mutually exclusive client categories) and p. 48 (%CT); casaa.unm.edu/assets/docs/misc25.pdf. Undated PDF; 2010 is the conventional year |
+| %CT relates to outcomes | App D.2 | Magill et al. 2018, JCCP 86(2):140-157, doi 10.1037/ccp0000250 (abstract: "higher proportion change talk was related to reductions in risk behavior at follow up") |
+| DARN-CAT incl. Activation; importance/confidence/readiness rulers | App D.2 | Miller & Rollnick 2013 (already cited), via the Guilford MI-3 glossary |
+| MICI: confront, advise w/o permission, warn, direct = MISC MI-inconsistent codes; raise concern w/o permission unused; cheerleading coded as confront | App D.2 | MISC 2.5 pp. 19-20 (cheerleading as Confront), pp. 47-48 (MIIN) |
+| Our confront also names warning, so one act can count twice | App D.2 | questionnaires.py `MICI_BEHAVIOR_ITEMS["MICI_Confront"]` |
+| Coders never get the target behavior | App D.2 | `change_goal` is passed nowhere in eda_analysis/scoring, eda/tools or code/_shared (grep) |
+| Utterance coder = MITI 4.2.1 + MISC 2.5 (open/closed split, direct, sequential coding of both speakers; client codes); one code per turn as AnnoMI | §3.3; Table 11; App D.3 | MITI 4.2.1 E.4.d ("Closed and open questions are not differentiated"), E.4.f.2 (non-specific praise not coded), E.4.a.1 (structure not GI), E.4.g.2 (confront incl. warning, moralizing); AnnoMI ICASSP 2022 ("the annotator is required to choose the main behaviour") |
+| MITI 4 peer-reviewed paper beside the manual | §3.3; Table 11 | Moyers, Rowell, Manuel, Ernst & Houck 2016, J Subst Abuse Treat 65:36-42, doi 10.1016/j.jsat.2016.01.001 (the 4.2.1 manual's pages read "Draft: Do not cite without permission") |
+| Must-fix: "At K=0 the oracle scores the candidate alone" contradicted Eq. 1 | §3.2 | now "the conversation so far, ending on the candidate, with nothing after it" |
+| Must-fix: CollabLLM and RLHS cited | §2 (Delayed credit) | CollabLLM: PMLR 267:67260-67283 (proceedings.mlr.press/v267/wu25i.html); multiturn-aware reward forward-samples w = 1-3 turns with a user simulator; PPO and offline/online DPO. RLHS: arXiv 2501.08617 (v3 June 2025, no venue) |

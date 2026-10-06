@@ -51,8 +51,14 @@ whose point of view the oracle adopts.
 - **WAI-SR** (Hatcher & Gillaspy 2006) and **CSQ-8** (Larsen/Attkisson et al. 1979) are classically
   validated human-report scales, here completed by the oracle in the patient's voice.
 - **MI-SAT** is an adapted MI-intervention satisfaction survey (validated-style, not canonical).
-- **MITI 4.2** (Moyers et al.) is the official MI treatment-integrity coding system; **PCT** and
-  **MICI** are custom MITI-style coders (change-talk / MI-inconsistent behavior) built for Exp3.
+- **MITI 4.2** (Moyers et al.) is the official MI treatment-integrity coding system. **PCT** and
+  **MICI** adapt the MISC 2.5 manual (Houck et al. 2010): PCT's change / sustain / neutral client
+  codes and its reported CT/(CT+ST) are MISC's "percentage change talk"; four of MICI's six
+  behaviour codes (confront, advise without permission, warn, direct) are MISC's MI-inconsistent
+  codes, while over-praise, the severity global and the per-turn rate were added for Exp3. The
+  utterance coder (MIPROC) condenses MITI 4.2.1's behaviour codes plus MISC 2.5's open/closed
+  question split and client codes. (Sources checked against the CASAA manuals 2026-10-06; the
+  paper's instruments table cites them.)
 
 **Groupings the EDA relies on** (from `eda_analysis/__init__.py`):
 
