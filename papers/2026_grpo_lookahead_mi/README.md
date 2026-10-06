@@ -602,7 +602,9 @@ Beyond those:
   2026-09-24 restructure; the Ethics compute paragraph it cites is gone; 22 model states for 21).
   Re-point them after the length pass.
 - Camera-ready only: switch `acl` to `[final]` (the author block is already filled in) and add the
-  Acknowledgements disclosure. The Acknowledgements also thank **Momi Zisquit**, who shared the
+  Acknowledgements disclosure. The Acknowledgements also thank **Momi (Moreah) Zisquit** — second author
+  of Yosef et al. (2024), whose first author is Stav Yosef, so "the study with Stav" is most likely
+  that one (Lior to confirm; if so, D.2 could say the survey was prepared for it) — who shared the
   MI-SAT survey (email to Lior and Doron, 2025-08-18: one of two questionnaires from her files on
   the study with Stav, not used in Stav's studies). The review version says only "shared with us by
   a colleague" (Appendix D.2) and Table 11 "unpublished survey, adapted": there is no publication to
