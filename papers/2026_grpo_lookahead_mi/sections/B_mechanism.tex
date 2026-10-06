@@ -10,20 +10,19 @@ This appendix expands the mechanism paragraph of \S\ref{sec:discussion}.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/faithfulness_grpo.png}
-\caption{Faithfulness of the training reward by prefix length, training iterations 1--10 pooled
-(prefixes from each run's own conversations of $\pi_0$ to $\pi_9$, so from iteration 2 on the two
-runs' prefixes come from different policies): the share of conversation pairs, compared within one
-(run, iteration, prefix-length) cell, that the training reward at that prefix orders the way the
-full-session score does (pairs tied on either score dropped). The training reward at a prefix is
-the training oracle's \QQ\ for the best of its eight candidates, scored as in Eq.~\ref{eq:reward}
-(with the five simulated turns under $\Kf$). The full-session score is the \QQ\ of the whole
-conversation by \textbf{(a)} the training oracle and \textbf{(b)} the held-out judge, so (b) also
-reflects how far the two judges disagree. Chance is $0.5$, below the axis. Fewer sessions reach
-the longer prefixes, so the later points rest on fewer conversations. Bands: $95\%$
-conversation-level cluster-bootstrap intervals within each (run, iteration); they ignore the
-variation between iterations, so the gap between the runs' bands is not a test of $\Kf$ against
-$\Kz$ (Appendix~\ref{app:faithfulness}). In (a), the value at the shortest admitted prefix, 12
-utterances, is the $86$--$89\%$ figure of \S\ref{sec:lagrpo}.}
+\caption{Faithfulness by prefix length on the Base's 192 conversations: the share of conversation
+pairs, compared within one Base draw at one prefix length, that a score of the prefix orders the
+way the full-session score does (pairs tied on either score dropped; chance is $0.5$, below the
+axis). The full-session score is the \QQ\ of the whole conversation by \textbf{(a)} the training
+oracle and \textbf{(b)} the held-out judge, so (b) also reflects how far the two judges disagree.
+Grey triangles: the training oracle's \QQ\ of the prefix alone, at every patient turn from two
+utterances. Circles and squares: the training reward at the first training iteration, whose
+prompts are prefixes of these conversations (the oracle's \QQ\ for the best of eight candidates,
+with the five simulated turns under $\Kf$; Eq.~\ref{eq:reward}); it starts at MCL${=}12$, since
+shorter prefixes (shaded) are never trained on. Fewer sessions reach the longer prefixes, and at
+50 utterances, the session cap, a prefix can be the whole session. Bands: $95\%$
+conversation-level cluster-bootstrap intervals. The training reward pooled over the ten iterations
+is described in the text.}
 \label{fig:faithfulness}
 \end{figure*}
 
@@ -36,11 +35,10 @@ $95\%$ conversation-level cluster bootstraps.
 Pooled over the ten iterations, agreement is $0.909$ $[0.900, 0.917]$ under $\Kf$ against $0.873$
 $[0.861, 0.884]$ under $\Kz$ on the training oracle, and $0.800$ against $0.747$ on the held-out
 judge; both differences have intervals excluding zero, and $\Kf$ is the more faithful run at 7 of
-10 iterations under both judges. By prefix length, agreement at the shortest admitted prefix (12
-utterances) is $0.860$ under $\Kz$ and $0.886$ under $\Kf$ on the training oracle, and it does
-not fall with length ($0.897$ and $0.936$ at 50 utterances); this is the $86$--$89\%$ figure
-quoted in \S\ref{sec:lagrpo} (Figure~\ref{fig:faithfulness}). Because MCL${=}12$ admits no shorter prefix, this experiment cannot
-itself reproduce the pilot's short-prefix finding; it shows that the knob operates above it. Two qualifications travel with that number. First, the
+10 iterations under both judges. By prefix length, pooled over the ten iterations, agreement at the
+shortest admitted prefix (12 utterances) is $0.860$ under $\Kz$ and $0.886$ under $\Kf$ on the
+training oracle, and it does not fall with length ($0.897$ and $0.936$ at 50 utterances); this is
+the $86$--$89\%$ figure quoted in \S\ref{sec:lagrpo}. Two qualifications travel with the difference between the runs. First, the
 iteration-level Wilcoxon test, with the ten iterations rather than the conversations as the unit of
 observation, does \emph{not} clear $.05$ ($p = .084$ training oracle, $p = .193$ held out). The
 pooled interval resamples conversations within each iteration and so ignores the variation between
@@ -49,6 +47,18 @@ describe the difference as small and consistent rather than significant. Second,
 the two runs are \emph{different policies} generating \emph{different conversations}, so this
 comparison measures a joint property of the scoring rule and of the trajectory the scoring rule put
 the policy on; it cannot separate them.
+
+To see what MCL removes, we also scored, with the training oracle, every prefix of the Base's 192
+conversations that ends on a patient turn, from two utterances on (2{,}722 prefixes; the prefix
+alone, with no candidate and no look-ahead). Its agreement with the training oracle's full-session
+score rises from $0.735$ $[0.690, 0.774]$ at two utterances to $0.803$ at ten and $0.846$ at
+twelve, and reaches $0.976$ at fifty, where a prefix can be the whole session; with the held-out
+judge's full-session score it rises from $0.688$ to $0.782$ at twelve and $0.838$ at fifty
+(Figure~\ref{fig:faithfulness}). From twelve utterances on, the first iteration's training reward,
+whose prompts are prefixes of the same conversations, follows the prefix alone closely ($0.846$
+under $\Kz$ and $0.831$ under $\Kf$ at twelve, $0.977$ and $0.963$ at fifty, training oracle): at
+the Base, choosing the best of eight candidates and adding the five simulated turns barely change
+how well the training oracle's reward ranks conversations.
 
 \subsection{At a matched policy, the effect disappears}
 
