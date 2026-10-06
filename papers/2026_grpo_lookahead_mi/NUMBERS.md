@@ -1238,5 +1238,10 @@ enjoyable, interesting, easy to use, worth the time spent and likelihood of chan
 (Appendix G). Items were rated on a 5-point Likert-type scale … (1 = not at all; 5 = very much).
 The survey was created by the PI for this study and therefore has not undergone psychometric
 analysis." It does not name the study. Appendix D.2 now says that much and lists the six items
-(from `MI_SAT_ITEMS` in Exp3_PTO_GRPO/code/questionnaires.py); Table 11's source cell stays
-"adapted, this work" until the study's reference is known (OPEN: ask for it).
+(from `MI_SAT_ITEMS` in Exp3_PTO_GRPO/code/questionnaires.py); Table 11's source cell stayed
+"adapted, this work" until the study's reference was known. Settled the same day from Lior's
+copy of the email (Momi Zisquit, 2025-08-18, to Lior and Doron): she attached "the two
+questionnaires I found in my files regarding the study we did with Stav. We didn't end up using
+them in Stav's studies." So the survey is unpublished and there is nothing to cite: Table 11 says
+"unpublished survey, adapted", Appendix D.2 "shared with us by a colleague" (anonymous for
+review), and the camera-ready Acknowledgements thank her (README, Before submission).
