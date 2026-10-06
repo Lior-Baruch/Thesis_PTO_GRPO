@@ -1210,3 +1210,33 @@ note).
 | Appendix E.1 | utterances 1–7 of both conversations, generated from the dump (curly apostrophes → ', em dash → ---, straight and curly double quotes typeset, paragraph breaks inside an utterance → `\newline`) | scratch `make_e1.py`, not tracked |
 
 Build: 34 pages (Appendix E.1 is longer); the body ends ~70 lines into page 11.
+
+## 2026-10-06 — the two questions left open by round 2
+
+**Appendix D.8: equal-GPU-hour checkpoints chosen by the training oracle only** (Lior: "yes, also
+D.8 choose best checkpoint using training oracle only"). No EDA change: the cross-judge sweep
+already selects on one judge and scores on the other. Source:
+results/compute/cost/tables/budget_sweep_crossjudge.md, contrast `GRPO_K`, `select_judge` =
+gpt-4o-mini, `eval_judge` = each judge, `select_metric` = `eval_metric` = Q1Q2 (paper sign K=5 −
+K=0 = the table's `mean_delta`/`dz`, arm_a = LA5).
+
+| Claim (App D.8) | Value | Row |
+|---|---|---|
+| ~13 GPU-h, training oracle | dz **−0.74** (−0.742), p_holm < .001; K=5 iteration 2 (13.27 GPU-h) vs K=0 iteration 4 (10.75) | `budget_gpu_h` 13.27, eval gpt-4o-mini (unchanged) |
+| ~13 GPU-h, held out | dz **−0.49** (−0.489), p_holm < .001; same checkpoints — was −0.78 when the held-out judge picked K=0's iteration 3 | eval claude-haiku-4-5 |
+| ~23 GPU-h, training oracle | dz **0.07** (0.074), p_holm .814, not significant; K=5 iteration 4 (23.21) vs K=0 iteration 8 (22.28) | eval gpt-4o-mini (unchanged) |
+| ~23 GPU-h, held out | dz **0.27** (0.266), p_holm .035, significant; same checkpoints — was 0.33 with K=0's held-out pick (iteration 3) | eval claude-haiku-4-5 |
+| "beyond 27.9 GPU-h the comparison is §4's best-checkpoint one" | K=0's best within any budget ≥ 27.9 is iteration 8 for both judges now, as in §4 | same table, `best_iter_b` = 8 |
+
+The Limitations sentence keeps its verdicts (K=0 ahead at ~13 GPU-h; level under the training
+oracle and K=5 ahead held out at ~23); the superseded held-out rows are NEW lines 498–499 above.
+
+**MI-SAT's provenance** (Lior: "momi sent it to my email with some details (Aug 2025)"). Gmail is
+not reachable from here; the details are on Drive as `Satisfaction Survey.docx` (2025-08-25, a
+second copy 2025-09-24): "Satisfaction was evaluated with a 6-item survey on how helpful,
+enjoyable, interesting, easy to use, worth the time spent and likelihood of changing behavior
+(Appendix G). Items were rated on a 5-point Likert-type scale … (1 = not at all; 5 = very much).
+The survey was created by the PI for this study and therefore has not undergone psychometric
+analysis." It does not name the study. Appendix D.2 now says that much and lists the six items
+(from `MI_SAT_ITEMS` in Exp3_PTO_GRPO/code/questionnaires.py); Table 11's source cell stays
+"adapted, this work" until the study's reference is known (OPEN: ask for it).
