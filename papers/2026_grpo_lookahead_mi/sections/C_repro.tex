@@ -80,11 +80,11 @@ Q2 & \citet{yosef2024assessing} & 17 items, 1--5 & mean \\
 WAI-SR & \citet{hatcher2006waisr} & 12 items, 1--5 & mean \\
 CSQ-8 & \citet{larsen1979csq} & 8 items, 1--4 & mean \\
 MI-SAT & unpublished survey, adapted & 6 items, 1--5 & mean \\
-MITI & \citet{moyers2016miti} & 4 globals, 1--5 & mean of the globals \\
-PCT & this work & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
-MICI & this work & 1 global, 1--5; 6 behavior counts & acts per therapist turn \\
+MITI & \citet{moyers2016miti4,moyers2016miti} & 4 globals, 1--5 & mean of the globals \\
+PCT & \citet{houck2010misc}, adapted & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
+MICI & \citet{houck2010misc}, adapted & 1 global, 1--5; 6 behavior counts & acts per therapist turn \\
 \midrule
-utterance coder & this work & one code per therapist and per patient utterance & \S\ref{sec:therapist}--\ref{sec:patient} \\
+utterance coder & \begin{tabular}[t]{@{}l@{}}\citet{moyers2016miti},\\ \citet{houck2010misc}, adapted\end{tabular} & one code per therapist and per patient utterance & \S\ref{sec:therapist}--\ref{sec:patient} \\
 \bottomrule
 \end{tabular}
 \caption{The eight instruments and the utterance coder. \QQ\ is the mean of the Q1 and Q2 means. CT
@@ -115,11 +115,26 @@ whether the patient is now more likely to change that behavior (1 = not at all, 
 as a certified MITI coder. The MITI coder returns four global ratings (cultivating change talk,
 softening sustain talk, partnership, empathy), whose mean is the MITI score. The PCT coder rates the patient's expressed importance,
 confidence and readiness to change and classifies every patient utterance as change talk, sustain
-talk or neutral. The MICI coder rates overall severity and counts six MI-inconsistent behaviors
+talk or neutral. These are the three client categories of the MISC~2.5 \citep{houck2010misc}, with
+change talk defined as in \citet{miller2013mi} (desire, ability, reasons, need, commitment,
+activation, taking steps), and the reported score, CT/(CT+ST), is the MISC's percentage change
+talk, a proportion that a meta-analysis of human MI sessions relates to reduced risk behavior at
+follow-up \citep{magill2018meta}. Unlike the MISC, the coder labels each speaking turn rather than
+each thought unit and works from the transcript alone; its three ratings, modeled on the
+importance, confidence and readiness rulers \citep{miller2013mi}, are our addition and are not
+reported. The MICI coder rates overall severity and counts six MI-inconsistent behaviors
 across the therapist's turns, any number per utterance: confront, advise without permission, warn,
 direct, judge/label, and over-praise, the last defined to the judge as ``effusive, generic, or
 excessive praise NOT tied to a specific client strength/effort (`you're amazing', `I'm so proud of
-you'). A genuine, specific MI affirmation does NOT count here.'' The MICI score reported in
+you'). A genuine, specific MI affirmation does NOT count here.'' Confront, advise without
+permission, warn and direct are MI-inconsistent codes of the MISC~2.5 \citep{houck2010misc} (its
+fifth, raise concern without permission, is not used); judge/label lists separately the judging
+and labeling that the MISC and MITI~4.2.1 include in confront, and our confront definition also
+names warning, so one act can be counted twice. Over-praise, the severity rating and the per-turn
+rate are ours. Neither manual counts non-specific praise as MI-inconsistent in itself: MITI~4.2.1
+leaves it uncoded, and the MISC~2.5 codes brief praise as an affirmation and codes it as confront
+only when it overrides what the client has said (``cheerleading''). None of the three coders is
+given the target behavior; the judge infers it from the conversation. The MICI score reported in
 Table~\ref{tab:endpoint} divides these counts by the number of therapist utterances, which the
 prompt states; \S\ref{sec:therapist} uses the over-praise count.
 
@@ -131,7 +146,18 @@ the same rubric-first layout. The judge is addressed as an MI process coder trai
 4.2.1 and MISC manuals and told to assign exactly one code to every therapist utterance, its
 dominant function (the function that occupies most of the utterance; a turn that praises at
 length and ends in one question is coded as praise), and exactly one code to every patient
-utterance, in transcript order. The therapist codes are: open question (invites elaboration);
+utterance, in transcript order. The codebook adapts MITI~4.2.1
+\citep{moyers2016miti4,moyers2016miti} with three elements of the MISC~2.5 \citep{houck2010misc}:
+the split of open and closed questions, which MITI~4 does not make, the direct code (merged here
+with confront), and the coding of every utterance of both speakers in order; the patient codes are
+the MISC's three client categories. Where both manuals divide a turn into units that can each
+receive a code, the coder gives each turn one code for its dominant function, as AnnoMI's
+annotators choose one main behavior per utterance \citep{wu2022annomi}. It also departs from
+MITI~4.2.1 in four ways: non-specific praise is a code of its own (MITI~4.2.1 leaves it uncoded and
+the MISC~2.5 counts it as an affirmation); persuasion with and without permission are merged, as
+are seeking collaboration and emphasizing autonomy; structuring statements are coded as giving
+information; and warning and moralizing are coded as persuasion, where MITI~4.2.1 codes them as
+confront. The therapist codes are: open question (invites elaboration);
 closed question; simple reflection (repeats or rephrases, adding little or no meaning); complex
 reflection (adds substantial meaning or emphasis: an inferred feeling, a metaphor, a double-sided
 reflection); affirmation, in the MITI~4.2.1 sense of a comment on a specific client strength,
