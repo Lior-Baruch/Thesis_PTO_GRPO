@@ -1,6 +1,6 @@
 \begin{abstract}
 Reinforcement learning from model feedback has succeeded mainly on verifiable tasks. In
-non-verifiable, multi-turn dialogue, the LLM judge that supplies the reward usually sees nothing
+non-verifiable, multi-turn dialogue, the LLM judge that supplies the reward commonly sees nothing
 after the candidate turn, though its value often lies in what follows. In motivational
 interviewing (MI), a counselor's utterance matters for what the patient says next. We present
 \textbf{\LAGRPO}, which extends look-ahead reward from preference-tree optimization to Group
@@ -10,8 +10,8 @@ continuation. In two ten-iteration runs of a 1B-parameter therapist that
 differ only in the horizon, $K{=}5$ ends ahead of $K{=}0$ on all eight MI instruments, under the
 training oracle and a held-out judge from another model family. Utterance coding shows that
 turn-level reward teaches non-specific praise, including in reply to sustain talk, while look-ahead
-teaches complex reflections of change talk; under look-ahead, a patient's change talk is followed by
+teaches complex reflections of change talk. Under look-ahead, a patient's change talk is followed by
 more change talk in $97\%$ of cases under the training oracle, against $80\%$. Look-ahead does not
-teach the MI response to resistance: its policy meets sustain talk with persuasion. Each horizon is
+teach the MI response to sustain talk: its policy meets it with persuasion. Each horizon is
 a single training run.
 \end{abstract}
