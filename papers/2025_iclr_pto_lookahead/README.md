@@ -48,3 +48,8 @@ and citing it as a main-conference paper would be wrong. The venue is the SSI-FM
   year      = {2025}
 }
 ```
+
+Since August 2026 the paper is also on arXiv ([2608.12062](https://arxiv.org/abs/2608.12062), v2
+2026-09-01, cs.CL). The root README cites it with the arXiv fields added (`eprint = {2608.12062}`,
+`archivePrefix = {arXiv}`, `primaryClass = {cs.CL}`, `url`); the live draft's `refs.bib` still
+carries the entry above.
