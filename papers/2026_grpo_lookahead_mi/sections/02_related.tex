@@ -37,7 +37,11 @@ preference learning through Monte Carlo tree search and process-level evaluation
 \citep{kazemnejad2024vineppo}, for example, uses sampled future reasoning steps to improve
 credit assignment within a reasoning trajectory. Dialogue differs in an important respect:
 the future trajectory is jointly produced by the policy and another agent, so the
-consequences of a candidate action include how the interlocutor responds. A preliminary
+consequences of a candidate action include how the interlocutor responds. CollabLLM
+\citep{wu2025collabllm} uses this in training: it rewards an assistant's response by sampling the
+next few turns with a simulated user and scoring the extended conversation, and trains with PPO and
+DPO. RLHS \citep{liang2025rlhs} shows evaluators simulated outcomes before they give feedback and
+reports less sycophancy than with feedback on predicted outcomes. A preliminary
 workshop paper introduced $K$-turn look-ahead for motivational interviewing
 \citep{baruch2025pto}. Here we isolate the same underlying variable in GRPO:
 whether a candidate therapist turn is rewarded for how it appears now or for the interaction
