@@ -92,6 +92,51 @@ whose eight samples the oracle scores increasingly alike. This does not break th
 at that same iteration the ratio of ratios is $0.964$, so margin and standard deviation still move
 together. We offer the over-praise account as consistent with the timing, not as demonstrated.
 
+\subsection{The size of the updates}
+\label{app:trainer}
+
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lrrrrrr}
+\toprule
+& \multicolumn{2}{c}{KL ($\times 10^{3}$)} & \multicolumn{2}{c}{gradient norm} & \multicolumn{2}{c}{entropy}\\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+Iteration & $\Kz$ & $\Kf$ & $\Kz$ & $\Kf$ & $\Kz$ & $\Kf$\\
+\midrule
+1 & $9.0$ & $0.8$ & $0.21$ & $0.17$ & $3.48$ & $3.28$\\
+2 & $30.1$ & $4.5$ & $0.21$ & $0.19$ & $3.21$ & $3.19$\\
+3 & $26.0$ & $11.3$ & $0.27$ & $0.22$ & $2.51$ & $3.03$\\
+4 & $10.7$ & $7.7$ & $0.30$ & $0.22$ & $2.25$ & $2.50$\\
+5 & $15.2$ & $5.9$ & $0.40$ & $0.21$ & $2.01$ & $2.24$\\
+6 & $15.1$ & $4.2$ & $0.46$ & $0.19$ & $2.02$ & $2.22$\\
+7 & $29.1$ & $4.2$ & $0.51$ & $0.19$ & $1.99$ & $2.19$\\
+8 & $14.5$ & $5.8$ & $0.41$ & $0.20$ & $1.98$ & $2.16$\\
+9 & $16.7$ & $6.2$ & $0.40$ & $0.19$ & $2.04$ & $2.16$\\
+10 & $113.2$ & $7.6$ & $0.37$ & $0.20$ & $1.79$ & $2.25$\\
+\midrule
+median & $16.0$ & $5.9$ & $0.39$ & $0.20$ & $2.03$ & $2.24$\\
+\bottomrule
+\end{tabular}
+\caption{What the trainer logged, as the mean over each training iteration's optimizer steps:
+the per-token KL estimate between the policy and the policy the iteration started from (the
+reference of Eq.~\ref{eq:grpo}), the gradient norm before clipping, and the entropy of the sampled
+completions. Every step of both runs is logged (1{,}128 and 1{,}070 steps). The last row is the
+median over the ten iterations.}
+\label{tab:trainer}
+\end{table}
+
+The trainer logged, at every optimizer step, the per-token KL estimate between the policy and the
+policy the iteration started from, the gradient norm and the entropy of the sampled completions
+(Table~\ref{tab:trainer}). In every iteration the $\Kz$ policy moved further from its starting
+policy (median over the iterations $0.016$ against $0.006$) and with gradients about twice as
+large ($0.39$ against $0.20$), and in eight of the ten its completions had lower entropy. Both runs
+use the same $\beta$ and learning rate (Table~\ref{tab:config}), so the
+difference is in the updates themselves. The iterations are consecutive states of one run per $K$,
+so we read the ten-of-ten pattern descriptively rather than as a test; the logs do not say which
+property of the reward produces it.
+
 \subsection{How much the training reward favors praise}
 \label{app:premium}
 
