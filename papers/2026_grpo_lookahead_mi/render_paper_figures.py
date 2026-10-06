@@ -482,6 +482,37 @@ def praise_premium() -> Path:
     return save_at_width(fig, name, default_frac=0.48, w_pad=0.8)
 
 
+def encoder_categories() -> Path:
+    """Appendix C.5 (2026-10-06, Lior's round-3 note: Doron's win/lose direction in several encoders,
+    read through sentences): how far each run's update direction (the paper's advantage-weighted
+    estimator, all candidates) points toward the praise / question / advice sentences of the pool,
+    by training iteration -- the mean over the five encoders (line) and their range (band). Reads
+    ``mechanism.xlsx::direction_encoders_categories_summary_grpo`` (sheet name truncated by Excel)."""
+    x = pd.ExcelFile(MECHANISM_XLSX)
+    sheet = next(s for s in x.sheet_names if s.startswith("direction_encoders_categories_s"))
+    d = x.parse(sheet)
+    d = d[d.arm.isin(COL)]
+    name = "direction_categories_grpo.png"
+    cats = (("praise", "(a) praise"), ("question", "(b) question"), ("advice", "(c) advice"))
+    fig, axes = plt.subplots(1, 3, figsize=figsize(name, 0.27), sharey=True)
+    for ax, (cat, title) in zip(axes, cats):
+        ax.axhline(0, color="#444444", lw=0.8)
+        for arm in ("GRPO_LA0", "GRPO_LA5"):
+            g = d[(d.arm == arm) & (d.category == cat)].sort_values("train_iter")
+            ax.fill_between(g.train_iter, g.z_min, g.z_max, color=COL[arm], alpha=0.18, lw=0)
+            ax.plot(g.train_iter, g.z_mean, color=COL[arm], label=LAB[arm], ms=3.0, lw=1.4, **STY[arm])
+        ax.set_xticks(range(1, 11, 3))
+        ax.set_xlabel("training iteration")
+        ax.set_title(title, loc="left", fontweight="bold")
+    axes[0].set_ylabel("category vs. other\nsentences (pool SD)")
+    axes[0].legend(frameon=False, loc="lower left", fontsize=6.0)
+    out = save_at_width(fig, name, w_pad=1.2)
+    k0p = d[(d.arm == "GRPO_LA0") & (d.category == "praise")].set_index("train_iter")
+    print("K=0 praise, iterations 4-8 and 10 (must match Appendix C.5):")
+    print(k0p.loc[[4, 5, 6, 7, 8, 9, 10], ["z_mean", "z_min", "n_ci_above_0"]].round(2).to_string())
+    return out
+
+
 def saturation() -> Path:
     """Three panels: (a) per-state cross-grader agreement, (b) each grader's Q1 spread along BOTH
     arms, (c) the share of conversations at or above 4.5 on Q1 (the ceiling). Panel (a) reads
@@ -906,7 +937,7 @@ def main(argv: list[str] | None = None) -> int:
     # overpraise() drew the single-panel keyword-marker figure until 2026-10-05, when praise()
     # put it beside the coder's praise share under both judges; kept, not called.
     every = (levels_grid_primary, levels_grid_heldout, praise, process, process_heldout,
-             responsiveness, textspace_body, praise_premium, faithfulness)
+             responsiveness, textspace_body, praise_premium, faithfulness, encoder_categories)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}
     unknown = [n for n in names if n not in by_name]
