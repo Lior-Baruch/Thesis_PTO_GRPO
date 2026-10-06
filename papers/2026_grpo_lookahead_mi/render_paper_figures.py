@@ -888,6 +888,55 @@ def levels_grid_heldout() -> Path:
 
 
 def faithfulness() -> Path:
+    """Appendix C.1's figure since 2026-10-06 (Lior's round-3 note: the pooled curve below was flat,
+    because MCL=12 removes the part that moves). Per judge panel: the training oracle's score of a
+    Base PREFIX ALONE from 2 utterances (``mechanism.xlsx::faithfulness_prefix_alone_grpo``, pooled
+    over the two Base draws; eda/tools/score_partial.py) and the training reward at the first
+    iteration, which samples from that same Base (``faithfulness_matched_policy_long``, GRPO,
+    ``train_iter_1``), K=0 and K=5, from MCL=12. The region below MCL is shaded. Prints the 2 / 12 /
+    50-utterance values the text quotes."""
+    x = pd.ExcelFile(MECHANISM_XLSX)
+    pa = x.parse("faithfulness_prefix_alone_grpo")
+    pa = pa[pa["sample"] == "pooled"]
+    mp = x.parse(next(s for s in x.sheet_names if s.startswith("faithfulness_matched_policy_lon")))
+    mp = mp[(mp.method == "GRPO") & (mp.cut == "train_iter_1")].copy()
+    mp["n_turns"] = pd.to_numeric(mp.n_turns, errors="coerce")
+    mp = mp[mp.n_turns.notna()]
+    name = "faithfulness_grpo.png"
+    fig, axes = plt.subplots(1, 2, figsize=figsize(name, 0.32), sharey=True)
+    panels = ((PRIMARY, "(a) training oracle"), (HELDOUT, "(b) held-out judge"))
+    grey = "#5f5f5f"
+    for ax, (judge, title) in zip(axes, panels):
+        ax.axvspan(1, 12, color="#e9e9e9", lw=0, zorder=0)
+        ax.axvline(12, color="#9a9a9a", lw=0.8, ls=":", zorder=1)
+        g = pa[pa.judge == judge].sort_values("n_turns")
+        ax.fill_between(g.n_turns, g.ci_lo, g.ci_hi, color=grey, alpha=0.18, lw=0)
+        ax.plot(g.n_turns, g.agreement, color=grey, marker="^", ms=2.6, lw=1.2, label="prefix alone (Base)")
+        m = mp[mp.judge == judge].sort_values("n_turns")
+        for arm, k in (("GRPO_LA0", "K0"), ("GRPO_LA5", "K5")):
+            ax.fill_between(m.n_turns, m[f"{k}_lo"], m[f"{k}_hi"], color=COL[arm], alpha=0.16, lw=0)
+            ax.plot(m.n_turns, m[f"agr_{k}"], color=COL[arm], ms=2.6, lw=1.2,
+                    label=f"training reward, {LAB[arm]}", **STY[arm])
+        ax.set_xticks([2, 12, 20, 30, 40, 50])
+        ax.set_xlim(1, 51)
+        ax.set_xlabel("prefix length (utterances)")
+        ax.set_title(title, loc="left", fontweight="bold")
+    axes[0].text(6.5, 0.995, "below MCL", ha="center", va="top", fontsize=6.0, color="#666666")
+    axes[1].text(6.5, 0.995, "below MCL", ha="center", va="top", fontsize=6.0, color="#666666")
+    axes[0].set_ylim(0.6, 1.0)
+    axes[0].set_ylabel("agreement with the\nfull-session ranking")
+    axes[0].legend(frameon=False, loc="lower right", fontsize=5.8, handlelength=1.6, labelspacing=0.25)
+    out = save_at_width(fig, name, w_pad=1.6)
+    print("prefix alone, pooled Base (must match Appendix C.1 and the method paragraph):")
+    print(pa[pa.n_turns.isin([2, 10, 12, 50])].pivot_table(index="judge", columns="n_turns",
+                                                            values="agreement").round(3).to_string())
+    print("training reward, iteration 1:")
+    print(mp[mp.n_turns.isin([12, 50])].pivot_table(index="judge", columns="n_turns",
+                                                    values=["agr_K0", "agr_K5"]).round(3).to_string())
+    return out
+
+
+def faithfulness_pooled() -> Path:
     """Appendix B.1 (added 2026-09-22 on Doron's "ref specific subsection and related figure"):
     the faithfulness of the training reward by prefix length, GRPO arms, iterations 1-10 pooled,
     one panel per grader -- from ``mechanism.xlsx`` sheet ``faithfulness_curve_long`` (the rows
