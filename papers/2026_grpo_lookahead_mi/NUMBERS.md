@@ -1264,3 +1264,22 @@ appendix follow. No number changed in this batch.
 | MITI 4 peer-reviewed paper beside the manual | §3.3; Table 11 | Moyers, Rowell, Manuel, Ernst & Houck 2016, J Subst Abuse Treat 65:36-42, doi 10.1016/j.jsat.2016.01.001 (the 4.2.1 manual's pages read "Draft: Do not cite without permission") |
 | Must-fix: "At K=0 the oracle scores the candidate alone" contradicted Eq. 1 | §3.2 | now "the conversation so far, ending on the candidate, with nothing after it" |
 | Must-fix: CollabLLM and RLHS cited | §2 (Delayed credit) | CollabLLM: PMLR 267:67260-67283 (proceedings.mlr.press/v267/wu25i.html); multiturn-aware reward forward-samples w = 1-3 turns with a user simulator; PPO and offline/online DPO. RLHS: arXiv 2501.08617 (v3 June 2025, no venue) |
+
+## 2026-10-06 — step 11, notes round 3 (second batch: Appendix E.2 = a persona from a seeded draw)
+
+Lior's pick: Table 2 / E.1 stay persona 87; E.2 becomes persona 21, utterances 1-4, chosen from a
+seeded random draw (replacing the median-rule persona 93). Source: `select_example_random.py`
+(`numpy.random.default_rng(20261006).choice(96, size=8, replace=False)` = 93, 34, 51, 89, 73, 65, 29, 21).
+The pick: three independent judge lenses (MI coder, NLP reader, skeptical co-author) all ranked persona
+21 first among the eight (round-3 decision page).
+
+| Claim (E.2) | Value | Source |
+|---|---|---|
+| persona 21 | Male, 61, smoking many years, never tried, cooperation High | `canonical_personas()` |
+| conversation lengths | K=0 20 utterances (10 therapist turns), K=5 50 (session cap) | conversation_84.csv in each run's model_iter_10 |
+| Q1+Q2, training oracle | K=0 4.91, K=5 5.00 (diff +0.09, rank 66 of 96) | score lake, iteration 10 |
+| Q1+Q2, held-out judge | K=0 2.98, K=5 3.42 (diff +0.44, rank 59 of 96) | same |
+| "below the median" | medians of the 96 differences: +0.53 training oracle, +0.64 held out | same |
+| codes, utterances 2 and 4 | K=0: PRA/PRA, AF/PRA; K=5: PERS/CQ, CR/CR (training oracle / held out) | MIPROC th_codes, position = utterance // 2 |
+| "persuasion is K=5's most frequent code at iteration 10 under both judges" | 0.279 vs complex reflection 0.230 and giving information 0.227 (training oracle); 0.268 vs 0.242 (held out) | Table 6 (`tab:codes`) |
+| first patient utterance identical in both conversations | yes, verbatim | the two CSVs |
