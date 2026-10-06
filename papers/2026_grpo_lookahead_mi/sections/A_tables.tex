@@ -17,7 +17,13 @@ draws.
 $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ had a rollout that ran all
 five turns, and most of the rest ended because the simulated patient closed the session ($16\%$
 of all candidates). Candidates whose rollout ended early scored at or slightly below their
-group's mean (by at most $0.09$ points).
+group's mean (by at most $0.09$ points). A patient call inside the rollout is attempted three
+times; if it still fails, the rollout stops and the oracle scores the transcript so far, as it does
+when either speaker closes the session or the policy's turn is empty. Of the logged candidates,
+$2.5\%$ ($3{,}081$) ended neither after five turns nor with the patient closing the session
+($1.1$--$5.6\%$ per iteration), an upper bound on rollouts cut short by a failed call. The
+candidates that were scored but not logged belong to the parts of three iterations that ran before
+a crash and resume.
 
 \begin{table*}[t]
 \centering
