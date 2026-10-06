@@ -139,10 +139,11 @@ conversation while the evaluation scores a whole session.
 % \dnotedone{done: cites Appendix C.1 and its new figure}{ref specific subsection and related figure}
 In a pilot on an earlier configuration
 of this task the oracle's ranking of very short prefixes agreed poorly with its ranking of the
-completed sessions and recovered from roughly ten utterances, so both runs discard prefixes
-shorter than MCL${=}12$; at that minimum, under the training oracle, the training reward ranks the
-conversations the prefixes come from as their full-session scores do in $86$--$89\%$ of pairs, and
-the agreement rises slightly with prefix length (Appendix~\ref{app:faithfulness}, Figure~\ref{fig:faithfulness}).
+completed sessions, so both runs discard prefixes shorter than MCL${=}12$. The Base's own
+conversations show the same: the training oracle's score of a prefix ranks them as their
+full-session scores do in $74\%$ of pairs at two utterances, $85\%$ at twelve and $98\%$ at fifty
+(Appendix~\ref{app:faithfulness}, Figure~\ref{fig:faithfulness}). Over the ten training iterations
+the training reward at the minimum prefix agrees in $86$--$89\%$ of pairs.
 
 \subsection{Evaluation design}
 \label{sec:setup}
