@@ -9,7 +9,9 @@ Table~\ref{tab:codes}: every therapist code of the utterance coder at the Base a
 10, under both judges. Figure~\ref{fig:overpraise}: the praise of \S\ref{sec:therapist} by
 iteration, as the coder's share under each judge and as the keyword marker.
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
-iteration under both judges.
+iteration under both judges. Table~\ref{tab:coop}: the $\Kf - \Kz$ contrast within each third of
+the personas by cooperation, followed by a test over the whole run and a comparison of the two Base
+draws.
 
 \textbf{The look-ahead rollouts.} In most cases the five-turn look-ahead ran as specified: of the
 $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ had a rollout that ran all
@@ -209,3 +211,67 @@ Tables~\ref{tab:process-all} and~\ref{tab:process-all-heldout} star the iteratio
 persona-paired $\Kf$ vs.\ $\Kz$ contrast is significant; the SE bands are not that test.}
 \label{fig:responsiveness}
 \end{figure*}
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{5pt}
+\begin{tabular}{llrrrr}
+\toprule
+& & \multicolumn{2}{c}{training oracle, $\Kf - \Kz$} & \multicolumn{2}{c}{held-out judge, $\Kf - \Kz$}\\
+\cmidrule(lr){3-4}\cmidrule(lr){5-6}
+Instrument & Personas & iteration 10 & vs.\ $\Kz$ at 8 & iteration 10 & vs.\ $\Kz$ at 8\\
+\midrule
+\QQ & cooperative & $+0.20$ ($+0.31$) & $+0.02$ ($\dagger$) & $+0.69^{***}$ ($+1.11$) & $-0.02$ ($-0.02$)\\
+ & warms up & $+0.96^{***}$ ($+1.28$) & $+0.61^{***}$ ($+1.18$) & $+0.81^{***}$ ($+1.24$) & $+0.52^{**}$ ($+0.74$)\\
+ & resistant & $+1.13^{***}$ ($+1.36$) & $+0.68^{***}$ ($+0.95$) & $+0.35^{***}$ ($+0.85$) & $+0.26^{**}$ ($+0.68$)\\
+\addlinespace
+PCT & cooperative & $0.00$ ($+0.02$) & $+0.01$ ($+0.12$) & $0.00$ ($-0.09$) & $0.00$ ($-0.07$)\\
+ & warms up & $+0.18^{***}$ ($+1.06$) & $+0.17^{***}$ ($+0.95$) & $+0.22^{***}$ ($+1.45$) & $+0.25^{***}$ ($+1.28$)\\
+ & resistant & $+0.15^{*}$ ($+0.51$) & $+0.15^{**}$ ($+0.59$) & $+0.12^{*}$ ($+0.45$) & $+0.14^{**}$ ($+0.56$)\\
+\addlinespace
+MICI ($\downarrow$) & cooperative & $-0.88^{***}$ ($-2.62$) & $-0.49^{***}$ ($-1.88$) & $-0.57^{***}$ ($-2.32$) & $-0.48^{***}$ ($-1.30$)\\
+ & warms up & $-0.64^{***}$ ($-3.00$) & $-0.33^{***}$ ($-1.18$) & $-0.33^{***}$ ($-1.27$) & $-0.16^{**}$ ($-0.60$)\\
+ & resistant & $-0.36^{***}$ ($-1.64$) & $-0.15^{***}$ ($-0.70$) & $-0.37^{***}$ ($-1.48$) & $-0.17^{**}$ ($-0.61$)\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Where the lead comes from}: the persona-paired $\Kf - \Kz$ contrast within each third of
+the personas, grouped by the cooperation the simulator prompt sets (cooperative throughout;
+uncooperative at first and more open later; uncooperative throughout; 32 personas each), as
+$\Delta$ (\dz). ``Iteration 10'' compares the two final policies; ``vs.\ $\Kz$ at 8'' compares the
+final $\Kf$ policy with $\Kz$'s best checkpoint (chosen by the training oracle, used under both
+judges). Stars: Holm across the three thirds within each column and instrument ($^{*}p<.05$,
+$^{**}p<.01$, $^{***}p<.001$). Positive favors $\Kf$, except MICI, where lower is better.
+$^\dagger$Every conversation of both runs scores 4.5 or above, so \dz\ is not meaningful.}
+\label{tab:coop}
+\end{table*}
+
+\textbf{Where the lead comes from.} The 96 personas fall into three thirds by the cooperation the
+simulator prompt sets (Table~\ref{tab:coop}). At iteration 10 the gap on \QQ\ under the training
+oracle is concentrated in the two less cooperative thirds ($+0.96$ and $+1.13$); with cooperative
+personas it is $+0.20$, not significant, as both runs score near the top of the scale there ($91\%$
+and $100\%$ of conversations at 4.5 or above). Against $\Kz$'s iteration-8 checkpoint the
+cooperative third is level under both judges, so the best-checkpoint lead comes entirely from the
+other two. PCT follows the same pattern. MICI runs the other way: its gap is largest with
+cooperative patients, whom the $\Kz$ policy praises most ($0.94$ over-praise acts per therapist turn
+at iteration 10, against $0.48$ with uncooperative ones; at most $0.08$ under $\Kf$). On WAI-SR, the
+$\Kf$ policy's gain over the Base is largest on the task and goal items ($+0.96$ and $+0.85$ under
+the training oracle, against $+0.76$ on the bond) and the $\Kz$ policy's on the bond ($+0.63$,
+against $+0.57$ and $+0.49$). At iteration 10 the $\Kf$ lead lies on task and goal (\dz\ $0.51$ and
+$0.57$; held out $0.68$ and $0.53$) and is small or absent on the bond (\dz\ $0.26$; held out
+$-0.06$).
+
+\textbf{A test over the whole run.} To check that the iteration-10 contrast does not depend on the
+endpoint, we averaged each persona's $\Kf - \Kz$ difference over iterations 1--10 and tested the 96
+averages (Wilcoxon, Holm across the nine rows of Table~\ref{tab:endpoint}). Every row favors $\Kf$
+under both judges at $p < .001$ (\QQ: \dz\ $0.92$, held out $1.13$; $|\dz|$ from $0.66$ to $1.04$
+across the rows under the training oracle and from $0.54$ to $1.26$ under the held-out judge). Over
+iterations 1--7 alone, MICI favors $\Kz$ under the training oracle (\dz\ $0.38$), as at iteration 3
+in Figure~\ref{fig:headline}.
+
+\textbf{The two Base draws.} The Base is two independent draws of 96 conversations from the same
+model. Compared with the persona-paired tests of Table~\ref{tab:endpoint}, they differ by at most
+\dz\ $0.13$ across its nine rows under the training oracle and $0.15$ under the held-out judge, and
+by at most $0.18$ and $0.24$ across the twelve process measures of Table~\ref{tab:process}; no row
+reaches $p < .05$ even before correction. This is the size of difference that sampling the
+conversations alone produces.
