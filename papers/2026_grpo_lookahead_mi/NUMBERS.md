@@ -1283,3 +1283,25 @@ The pick: three independent judge lenses (MI coder, NLP reader, skeptical co-aut
 | codes, utterances 2 and 4 | K=0: PRA/PRA, AF/PRA; K=5: PERS/CQ, CR/CR (training oracle / held out) | MIPROC th_codes, position = utterance // 2 |
 | "persuasion is K=5's most frequent code at iteration 10 under both judges" | 0.279 vs complex reflection 0.230 and giving information 0.227 (training oracle); 0.268 vs 0.242 (held out) | Table 6 (`tab:codes`) |
 | first patient utterance identical in both conversations | yes, verbatim | the two CSVs |
+
+## 2026-10-06 — step 11, notes round 3 (third batch: the update direction in five encoders, App C.5 + §5 clause)
+
+Lior's pick: "Appendix + one body clause". Source: the EDA's `lookahead/mechanism` family, section 1d
+(`eda_analysis/encoders.py`, caches by `eda/tools/embed_encoders.py`), tables under
+`Exp3_PTO_GRPO/eda/results/lookahead/mechanism/tables/` (all also in `mechanism.xlsx`). Estimator = the
+paper's (advantage-weighted, sum |w| = 2 per group, all train candidates); the MiniLM rows equal
+`direction_k_by_iter_grpo.md` / `direction_stability_grpo.md` exactly (max |diff| 4.7e-16).
+
+| Claim | Value | Table |
+|---|---|---|
+| K0 vs K5 corrected, iterations 1-3, five encoders | 0.797 (qwen3, it. 1) to 0.971 (gte, it. 2) → "0.80--0.97" | `direction_encoders_k_by_iter_grpo` |
+| furthest apart before 9: iteration 6 | 0.428 (qwen3) to 0.766 (llama8) → "0.43--0.77"; iterations 4-8 otherwise ≥ 0.62 | same |
+| K0 reverses at 9 (vs 8) | −0.728 (qwen3) to −0.369 (gte) → "−0.73 to −0.37" | `direction_encoders_stability_grpo` |
+| K5 split-half 8-10 | llama8 0.352-0.690; the other four 0.055-0.399 → "0.35--0.69 … 0.06--0.40" | `rel_b` of the k_by_iter table |
+| pool | 4,045 sentences (4,178 seen ≥ 3 times, minus marker sentences incl. `\|im` fragments) | notebook 1d print |
+| K0 praise, iterations 4-8 and 10 | z_min 0.57, 1.05, 1.05, 0.87, 1.15, 1.11; all five intervals above 0; iteration 9: mean −0.27, none above 0 | `direction_encoders_categories_summary_grpo` |
+| K5 advice through 5, questions at 6 | advice intervals above 0 in 5,5,5,5,4 encoders (it. 1-5); question 5 at it. 6 | same |
+| K5 praise | mean −0.26 to 0.40 (it. 1-6), 0.59 to 0.88 (7-10); max 3 of 5 intervals above 0 | same |
+| sentences in ≥ 3 encoders' top 5 (K0−K5) | it. 3: "I'm thrilled to support you on your weight loss journey." / "What could you focus on instead?"; it. 5: "Fantastic, I'm so proud of you!" / "What if we focus on the bigger picture?"; it. 10: thanks for honesty/vulnerability/trust in minilm, gte, mxbai, qwen3, "You are amazing, and I'm so proud of you" in llama8 | `direction_encoders_top_sentences_grpo` |
+| words (clean: no leaked marker, no degenerate text; 22.8% of K0's, 4.9% of K5's candidates dropped) | K0 4-10: you 9.0, i 8.7, so 7.0, proud 6.6, every 6.6, i'm 6.2, step 5.8; K0 it. 10: me 5.3, my 4.0, myself 4.0, admire 3.8, unwavering 3.7, courage 3.6; K5 1-3: yourself 5.5, cravings 4.6, small 4.2, behavior 4.1, losers i −5.3, me −3.6; K5 4-10: healthy 3.3, quit 3.2, exercise 3.1, schedule 2.9 | `direction_lexical_logodds_clean_grpo` |
+| §5 clause "in every other round from the fourth on … five sentence encoders" | training iterations 4-8 and 10 (the dip round is 9) | categories summary |

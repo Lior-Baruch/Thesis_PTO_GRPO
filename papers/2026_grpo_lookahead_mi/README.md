@@ -458,7 +458,8 @@ references from p. 12, Appendices A–F pp. 16–31, each on a new page.
   `bbox_inches="tight"` crop made the PNGs wider and LaTeX shrank their type to ~0.9), no text
   below 5.8 pt: the two level grids (Figures 2 and 7), `process` and
   `process_heldout` (Figures 3 and 8), `textspace_body` (Figure 4), `overpraise` (Figure 5),
-  `responsiveness` (Figure 6), `faithfulness` (Figure 9) and `praise_premium` (Figure 10). They read
+  `responsiveness` (Figure 6), `faithfulness` (Figure 9), `praise_premium` (Figure 10) and
+  `encoder_categories` (Figure 11, since 2026-10-06; `mechanism.xlsx::direction_encoders_categories_summary_grpo`). They read
   `lookahead/shared_base/tables/shared_base.xlsx` (sheets `levels_long`, `k_contrast`,
   `marker_and_length`, `process_levels_<judge>`, `persist_levels_<judge>`, `ct_trajectory_<judge>`,
   `text_diversity`) and `mechanism.xlsx` (`praise_premium_grpo`, `faithfulness_curve_long`). Kept
