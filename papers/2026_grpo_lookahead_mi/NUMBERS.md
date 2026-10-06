@@ -1305,3 +1305,17 @@ paper's (advantage-weighted, sum |w| = 2 per group, all train candidates); the M
 | sentences in ≥ 3 encoders' top 5 (K0−K5) | it. 3: "I'm thrilled to support you on your weight loss journey." / "What could you focus on instead?"; it. 5: "Fantastic, I'm so proud of you!" / "What if we focus on the bigger picture?"; it. 10: thanks for honesty/vulnerability/trust in minilm, gte, mxbai, qwen3, "You are amazing, and I'm so proud of you" in llama8 | `direction_encoders_top_sentences_grpo` |
 | words (clean: no leaked marker, no degenerate text; 22.8% of K0's, 4.9% of K5's candidates dropped) | K0 4-10: you 9.0, i 8.7, so 7.0, proud 6.6, every 6.6, i'm 6.2, step 5.8; K0 it. 10: me 5.3, my 4.0, myself 4.0, admire 3.8, unwavering 3.7, courage 3.6; K5 1-3: yourself 5.5, cravings 4.6, small 4.2, behavior 4.1, losers i −5.3, me −3.6; K5 4-10: healthy 3.3, quit 3.2, exercise 3.1, schedule 2.9 | `direction_lexical_logodds_clean_grpo` |
 | §5 clause "in every other round from the fourth on … five sentence encoders" | training iterations 4-8 and 10 (the dip round is 9) | categories summary |
+
+## 2026-10-06 — step 11, notes round 3 (fourth batch: Figure 9 = the Base prefix scored alone from 2 utterances)
+
+Lior's pick: re-score the Base's prefixes (he gave the go; 5,444 gpt-4o-mini calls, `eda/tools/score_partial.py
+--run`, all landed, 0 errors). Source: `lookahead/mechanism/tables/faithfulness_prefix_alone_grpo.md` (pooled
+over the two Base draws) and the `train_iter_1` GRPO rows of `faithfulness_matched_policy_long.md`.
+
+| Claim | Value | Table |
+|---|---|---|
+| prefix alone, training oracle: 2 / 10 / 12 / 50 utterances | 0.735 [0.690, 0.774] / 0.803 / 0.846 / 0.976 → §3.2 "74% … 85% … 98%" | prefix_alone, judge gpt-4o-mini, pooled |
+| prefix alone, held-out judge: 2 / 12 / 50 | 0.688 / 0.782 / 0.838 | judge claude-haiku-4-5 |
+| 2,722 prefixes, 192 conversations | 1,373 (LA0 Base) + 1,349 (LA5 Base); n_convs 192 at n_turns 2 | score_partial dry run; table |
+| iteration-1 training reward at 12 / 50, training oracle | K0 0.846 / 0.977, K5 0.831 / 0.963 | matched_policy_long, cut train_iter_1 |
+| pooled 1-10 at 12 / 50 (unchanged, now prose only) | K0 0.860 / 0.897, K5 0.886 / 0.936 | faithfulness_curve_long |
