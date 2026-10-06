@@ -3,15 +3,17 @@
 \textbf{No human subjects, and no clinical claim.} Every conversation in this work is between two
 language models. No human patient data was collected, used, or generated, and no human participants
 were involved at any stage. Additionally, we do not suggest that the resulting model is safe or effective
-for use with people. %A 1B-parameter model trained against a simulated patient and graded by another language model is a research artifact; motivational interviewing is a clinical skill practised with people in distress, and no number in this paper bridges that gap.
+for use with people. None of the 96 personas discloses a crisis or a risk of harm, so how either policy
+responds to such a disclosure is untested, and any adapter we release will carry a model card
+stating that it is a research artifact not for use with people. %A 1B-parameter model trained against a simulated patient and graded by another language model is a research artifact; motivational interviewing is a clinical skill practised with people in distress, and no number in this paper bridges that gap.
 
 \textbf{The failure mode we document is safety-relevant.} The $K{=}0$ policy learned to praise its
 patient, including when the patient argued for the status quo, and its training reward scored
 praising replies above the others while it did so (Appendix~\ref{app:premium}). In
-a counseling setting that is not a neutral artifact of optimization: unearned affirmation of
-ambivalence or of a harmful plan is precisely the error MI trains counselors out of. We report it
+a counseling setting that is not a neutral artifact of optimization: unearned praise for
+ambivalence or for a harmful plan is precisely the error MI trains counselors out of. We report it
 prominently, including what the look-ahead policy learned instead, persuasion when the patient
-resists (\S\ref{sec:therapist}--\ref{sec:patient}), so that a reader evaluating this line of work sees the failure mode
+argues against change (\S\ref{sec:therapist}--\ref{sec:patient}), so that a reader evaluating this line of work sees the failure mode
 as clearly as the improvement.
 
 \textbf{Simulated patients encode a narrow population.} The 96 personas vary six attributes around
