@@ -29,8 +29,8 @@ started from.
 \toprule
 Setting & Value & Setting & Value \\
 \midrule
-Therapist model & \texttt{Llama-3.2-1B} (base), bf16 & Candidate sampling & temperature 1.2, no top-$p$/top-$k$ \\
-LoRA & $r{=}16$, $\alpha{=}16$, dropout 0.05, all attention and MLP projections & Candidates at the token cap & kept in the loss \\
+Therapist model & \texttt{Llama-3.2-1B} (base; \citealp{grattafiori2024llama3}), bf16 & Candidate sampling & temperature 1.2, no top-$p$/top-$k$ \\
+LoRA \citep{hu2022lora} & $r{=}16$, $\alpha{=}16$, dropout 0.05, all attention and MLP projections & Candidates at the token cap & kept in the loss \\
 Precision & bf16, gradient checkpointing & Reward for an empty candidate & 0 (the oracle's range is 1--5) \\
 Optimizer & AdamW (fused), $\beta{=}(0.9, 0.999)$, $\epsilon{=}10^{-8}$, no weight decay & Conversations / iteration & 96 \\
 Learning rate & $1\mathrm{e}{-}5$, cosine to 0 within each iteration & Patient personas & the same 96 (\S\ref{app:prompts}) \\
@@ -43,7 +43,7 @@ Epochs / iteration & 2 & Therapist top-$p$ / top-$k$ & 0.9 / 50 (the base model'
 Train batch $\times$ accumulation & $64 \times 2 = 128$ completions (16 prompts) & Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
 Trainer validation split & 0.05 of conversations & Training oracle call & temperature 0, max 256 tokens, strict JSON schema \\
 Group size $G$ & 8 & Evaluation judges & \texttt{gpt-4o-mini-2024-07-18} at temperature 0.1, seed 42; \texttt{claude-haiku-4-5-20251001} at the API's default temperature; both max 1{,}024 tokens, JSON schema \\
-KL & $\beta{=}0.01$, per-token estimate to the iteration-start policy & Software & TRL 1.4.0, transformers 5.8.1, PEFT 0.19.1 \\
+KL & $\beta{=}0.01$, per-token estimate to the iteration-start policy & Software & TRL 1.4.0 \citep{vonwerra2020trl}, transformers 5.8.1 \citep{wolf2020transformers}, PEFT 0.19.1 \citep{mangrulkar2022peft} \\
 Advantage & $(r_g - \text{mean})/(\text{std} + 10^{-4})$ within the group & Hardware & one NVIDIA A100 (Google Colab) \\
 GRPO loss variant & standard (\texttt{grpo}), clip $\epsilon{=}0.2$ & & \\
 Policy updates per sampled batch & 1 (so the clip is inactive) & & \\
