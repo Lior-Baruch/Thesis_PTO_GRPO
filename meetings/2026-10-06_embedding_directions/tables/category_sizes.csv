@@ -1,0 +1,8 @@
+category,n_sentences,examples
+praise,400,I'm so proud of you! | I'm so proud of you. | That’s great to hear. | I’m so proud of you. | I’m so proud of you! | That’s great to hear!
+thanks,316,"Thank you for sharing that information. | Thank you for sharing that, Emma. | Thank you for sharing that, James. | I appreciate your honesty. | Thank you so much! | Thank you for your feedback."
+agreement,182,"Absolutely, I hear you. | Absolutely, I completely understand. | Absolutely, I get it. | Absolutely, I understand completely. | Absolutely, I totally understand. | Of course, I understand."
+question,374,"What do you think? | So, what do you think? | What does it mean for you to be a smoker? | Would you mind telling me a bit more about them? | What will you do? | What will you eat?"
+reflection opener,55,"How do you feel when you think about smoking? | Emma, it sounds like you're feeling overwhelmed and disheartened. | How do they make you feel? | Do you feel like your health is important to you? | How do you feel about your relationships? | You mentioned setting new goals based on your experiences."
+advice,95,"Alright, let's try to put things into perspective. | Maybe that's something you should consider. | Alright, let’s start with understanding your goals. | Well, we'll start with a question about your weight. | Let`s start by creating a plan. | It’s important to start with a small change."
+list preamble,261,Here are some examples: | Here are some ideas: | Here are a few examples: | Here are a few ideas: | Here are a few suggestions: | Here are some suggestions:

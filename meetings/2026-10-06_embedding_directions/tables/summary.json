@@ -1,0 +1,26 @@
+{
+ "rounds": 29861,
+ "candidates": 238888,
+ "leaked": 0.11281437326278423,
+ "degenerate": 0.033936405344764074,
+ "pool": 4178,
+ "clean_pool": 4047,
+ "categories": {
+  "praise": 400,
+  "thanks": 316,
+  "agreement": 182,
+  "question": 374,
+  "reflection opener": 55,
+  "advice": 95,
+  "list preamble": 261
+ },
+ "vocab_general": 20000,
+ "vocab_corpus": 4766,
+ "embedders": [
+  "minilm",
+  "gte",
+  "mxbai",
+  "qwen3",
+  "llama8"
+ ]
+}

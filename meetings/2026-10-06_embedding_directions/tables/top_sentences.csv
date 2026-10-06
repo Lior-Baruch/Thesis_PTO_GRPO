@@ -1,0 +1,3001 @@
+embedder,iteration,direction,side,rank,sentence
+minilm,1,K=0,win,1,Here are a few tips to help you stay motivated:
+minilm,1,K=0,win,2,Here are some tips to help you stay motivated:
+minilm,1,K=0,win,3,You mentioned setting new goals based on your experiences.
+minilm,1,K=0,win,4,Here are some tips for staying motivated:
+minilm,1,K=0,win,5,"Break down your goals into smaller, achievable steps."
+minilm,1,K=0,win,6,Here are some tips to keep you motivated:
+minilm,1,K=0,win,7,What more can I do to help you move forward?
+minilm,1,K=0,win,8,Do you ever feel like you could make some progress?
+minilm,1,K=0,win,9,This will help you avoid temptation and keep you motivated.
+minilm,1,K=0,win,10,Those are all great approaches to staying motivated.
+minilm,1,K=0,lose,1,"Sure, I get it."
+minilm,1,K=0,lose,2,"Of course, I get it."
+minilm,1,K=0,lose,3,"Well, I don’t know."
+minilm,1,K=0,lose,4,Sorry for the delay.
+minilm,1,K=0,lose,5,Can you hear me?
+minilm,1,K=0,lose,6,"Yes, I get it."
+minilm,1,K=0,lose,7,Here we go again.
+minilm,1,K=0,lose,8,"Don’t worry, I get it."
+minilm,1,K=0,lose,9,Can you tell me more?
+minilm,1,K=0,lose,10,"Absolutely, I get it."
+minilm,1,K=5,win,1,"Break down your goals into smaller, achievable steps."
+minilm,1,K=5,win,2,Setting realistic goals is key.
+minilm,1,K=5,win,3,Here are a few key strategies:
+minilm,1,K=5,win,4,What are your long-term goals?
+minilm,1,K=5,win,5,What are your physical goals for yourself?
+minilm,1,K=5,win,6,Balancing a healthy lifestyle with flexibility is important.
+minilm,1,K=5,win,7,"Set small, achievable goals."
+minilm,1,K=5,win,8,Set small achievable goals.
+minilm,1,K=5,win,9,Some effective strategies include:
+minilm,1,K=5,win,10,You mentioned setting new goals based on your experiences.
+minilm,1,K=5,lose,1,Do you have any other questions for me?
+minilm,1,K=5,lose,2,"It’s kind of like a conversation, you know."
+minilm,1,K=5,lose,3,"Well, you said you needed someone to talk to."
+minilm,1,K=5,lose,4,"Okay, here they are:"
+minilm,1,K=5,lose,5,"Of course, that's okay."
+minilm,1,K=5,lose,6,Let me ask you another question.
+minilm,1,K=5,lose,7,Let me ask you a few more questions.
+minilm,1,K=5,lose,8,Sorry for the delay.
+minilm,1,K=5,lose,9,"It’s kind of like a conversation, you know?"
+minilm,1,K=5,lose,10,Do you have any questions for me?
+minilm,1,K0-K5,more_K0,1,I'm here to help you overcome this problem.
+minilm,1,K0-K5,more_K0,2,I’m here to help you overcome this problem.
+minilm,1,K0-K5,more_K0,3,Let's continue with the next step in our counseling session.
+minilm,1,K0-K5,more_K0,4,"But if you want to quit, I’m here to help."
+minilm,1,K0-K5,more_K0,5,"Okay, well, let’s start by talking about your relationships."
+minilm,1,K0-K5,more_K0,6,"Okay, well, let's start by talking about your relationships."
+minilm,1,K0-K5,more_K0,7,Do you have any other thoughts or questions?
+minilm,1,K0-K5,more_K0,8,I just wanted to make sure I understand your situation.
+minilm,1,K0-K5,more_K0,9,I understand that you don't believe in therapy.
+minilm,1,K0-K5,more_K0,10,You’ve tried quitting before.
+minilm,1,K0-K5,more_K5,1,Do you know any of those strategies?
+minilm,1,K0-K5,more_K5,2,The five strategies are:
+minilm,1,K0-K5,more_K5,3,These strategies are simple yet powerful.
+minilm,1,K0-K5,more_K5,4,The two strategies are:
+minilm,1,K0-K5,more_K5,5,The four strategies are:
+minilm,1,K0-K5,more_K5,6,Setting realistic goals is key.
+minilm,1,K0-K5,more_K5,7,Here are a few examples of strategies:
+minilm,1,K0-K5,more_K5,8,The three strategies are:
+minilm,1,K0-K5,more_K5,9,Some effective strategies include:
+minilm,1,K0-K5,more_K5,10,Those are great strategies.
+minilm,2,K=0,win,1,"Break down your goals into smaller, achievable steps."
+minilm,2,K=0,win,2,What do you think should be the first step?
+minilm,2,K=0,win,3,What’s your motivation for change?
+minilm,2,K=0,win,4,What more can I do to help you move forward?
+minilm,2,K=0,win,5,Here are the first three specific goals and actionable steps:
+minilm,2,K=0,win,6,You mentioned setting new goals based on your experiences.
+minilm,2,K=0,win,7,What do you think would be a good first step?
+minilm,2,K=0,win,8,What progress have you made so far?
+minilm,2,K=0,win,9,Finding balance and overcoming barriers requires a proactive approach.
+minilm,2,K=0,win,10,It’s important to start with a small change.
+minilm,2,K=0,lose,1,"Of course, that's okay."
+minilm,2,K=0,lose,2,"Of course, that's fine."
+minilm,2,K=0,lose,3,Can you hear me?
+minilm,2,K=0,lose,4,"Don’t worry, I get it."
+minilm,2,K=0,lose,5,"Of course, that’s fine."
+minilm,2,K=0,lose,6,"Sure, I get it."
+minilm,2,K=0,lose,7,"Yeah, I can see that."
+minilm,2,K=0,lose,8,"Yes, I get it."
+minilm,2,K=0,lose,9,"Alright, so that's something."
+minilm,2,K=0,lose,10,It doesn't happen overnight.
+minilm,2,K=5,win,1,This will help you avoid temptation and keep you motivated.
+minilm,2,K=5,win,2,A plan can help you stay motivated and avoid distractions.
+minilm,2,K=5,win,3,Here are some tips to help you stay motivated:
+minilm,2,K=5,win,4,Here are some tips for staying motivated:
+minilm,2,K=5,win,5,Here are a few tips to help you stay motivated:
+minilm,2,K=5,win,6,"Break down your goals into smaller, achievable steps."
+minilm,2,K=5,win,7,Here are some tips to keep you motivated:
+minilm,2,K=5,win,8,Balancing a healthy lifestyle with flexibility is important.
+minilm,2,K=5,win,9,You mentioned setting new goals based on your experiences.
+minilm,2,K=5,win,10,Those are all great approaches to staying motivated.
+minilm,2,K=5,lose,1,Let me know if you have any questions.
+minilm,2,K=5,lose,2,Let me know if you have any other questions.
+minilm,2,K=5,lose,3,Here are the questions:
+minilm,2,K=5,lose,4,Do you have any questions?
+minilm,2,K=5,lose,5,Sorry for the delay.
+minilm,2,K=5,lose,6,Do you have any questions about that?
+minilm,2,K=5,lose,7,"Well, let's see if this helps."
+minilm,2,K=5,lose,8,Do you have any other questions?
+minilm,2,K=5,lose,9,Let me ask you a few questions.
+minilm,2,K=5,lose,10,Those are great questions.
+minilm,2,K0-K5,more_K0,1,Let me know if you have any questions or concerns.
+minilm,2,K0-K5,more_K0,2,Here are some questions to consider:
+minilm,2,K0-K5,more_K0,3,Do you have any questions or concerns?
+minilm,2,K0-K5,more_K0,4,What progress have you made so far?
+minilm,2,K0-K5,more_K0,5,Let me know if you have any questions.
+minilm,2,K0-K5,more_K0,6,Do you have any other questions or concerns?
+minilm,2,K0-K5,more_K0,7,Here are a few additional things to keep in mind:
+minilm,2,K0-K5,more_K0,8,Great progress so far.
+minilm,2,K0-K5,more_K0,9,Do you have any other concerns or questions?
+minilm,2,K0-K5,more_K0,10,I’m always here to provide support and guidance.
+minilm,2,K0-K5,more_K5,1,This will help you avoid temptation and keep you motivated.
+minilm,2,K0-K5,more_K5,2,Don’t just choose activities that you think will be fun.
+minilm,2,K0-K5,more_K5,3,It is called exposure therapy.
+minilm,2,K0-K5,more_K5,4,Have you tried hypnosis or cognitive behavioral therapy?
+minilm,2,K0-K5,more_K5,5,"But remember, it's not easy to change your habits."
+minilm,2,K0-K5,more_K5,6,Instead of thinking about
+minilm,2,K0-K5,more_K5,7,Find activities that you enjoy.
+minilm,2,K0-K5,more_K5,8,You can also use nicotine replacement therapy.
+minilm,2,K0-K5,more_K5,9,A plan can help you stay motivated and avoid distractions.
+minilm,2,K0-K5,more_K5,10,Have you ever tried cognitive behavioral therapy?
+minilm,3,K=0,win,1,Here are a few tips to help you stay motivated:
+minilm,3,K=0,win,2,Here are some tips to help you stay motivated:
+minilm,3,K=0,win,3,This will help you avoid temptation and keep you motivated.
+minilm,3,K=0,win,4,Here are some tips for staying motivated:
+minilm,3,K=0,win,5,Here are some tips to keep you motivated:
+minilm,3,K=0,win,6,Congratulations on taking the first step towards a healthier you!
+minilm,3,K=0,win,7,A plan can help you stay motivated and avoid distractions.
+minilm,3,K=0,win,8,"Break down your goals into smaller, achievable steps."
+minilm,3,K=0,win,9,Balancing a healthy lifestyle with flexibility is important.
+minilm,3,K=0,win,10,Are there any other ways to quit?
+minilm,3,K=0,lose,1,"It’s kind of like a conversation, you know."
+minilm,3,K=0,lose,2,"Well, let's see if this helps."
+minilm,3,K=0,lose,3,"Ok, well, I see."
+minilm,3,K=0,lose,4,"It’s kind of like a conversation, you know?"
+minilm,3,K=0,lose,5,"Alright, I see what you mean."
+minilm,3,K=0,lose,6,"Well, I'm not exactly sure."
+minilm,3,K=0,lose,7,"Sure, that’s a good question."
+minilm,3,K=0,lose,8,"Sure, I see what you mean."
+minilm,3,K=0,lose,9,"Alright, let me try to summarize the conversation so far."
+minilm,3,K=0,lose,10,"Yeah, I can see that."
+minilm,3,K=5,win,1,Here are some tips for staying motivated:
+minilm,3,K=5,win,2,Here are some tips to help you stay motivated:
+minilm,3,K=5,win,3,"Break down your goals into smaller, achievable steps."
+minilm,3,K=5,win,4,Here are some tips to keep you motivated:
+minilm,3,K=5,win,5,Here are a few tips to help you stay motivated:
+minilm,3,K=5,win,6,A plan can help you stay motivated and avoid distractions.
+minilm,3,K=5,win,7,This will help you avoid temptation and keep you motivated.
+minilm,3,K=5,win,8,What’s your motivation for change?
+minilm,3,K=5,win,9,Setting realistic goals is key.
+minilm,3,K=5,win,10,Reward yourself for making progress.
+minilm,3,K=5,lose,1,Sorry for the delay.
+minilm,3,K=5,lose,2,Let me know if you have any questions.
+minilm,3,K=5,lose,3,Let me know if you have any other questions.
+minilm,3,K=5,lose,4,"Of course, that's okay."
+minilm,3,K=5,lose,5,"Of course, that’s fine."
+minilm,3,K=5,lose,6,"Well, let's see if this helps."
+minilm,3,K=5,lose,7,"Of course, that's fine."
+minilm,3,K=5,lose,8,"All right, sounds good."
+minilm,3,K=5,lose,9,"Of course, that’s totally okay."
+minilm,3,K=5,lose,10,Here are the questions:
+minilm,3,K0-K5,more_K0,1,Good luck with your weight loss journey!
+minilm,3,K0-K5,more_K0,2,I'm thrilled to support you on your weight loss journey.
+minilm,3,K0-K5,more_K0,3,Congratulations on taking the first step towards a healthier you!
+minilm,3,K0-K5,more_K0,4,I'm excited to support you on your weight loss journey.
+minilm,3,K0-K5,more_K0,5,Best of luck to you!
+minilm,3,K0-K5,more_K0,6,Have you ever tried a support group?
+minilm,3,K0-K5,more_K0,7,Have you considered joining a support group?
+minilm,3,K0-K5,more_K0,8,Thank you for being patient!
+minilm,3,K0-K5,more_K0,9,Congratulations on taking the first step towards a healthier you.
+minilm,3,K0-K5,more_K0,10,I'm delighted to support you every step of the way.
+minilm,3,K0-K5,more_K5,1,One is to try to distract yourself with something else.
+minilm,3,K0-K5,more_K5,2,"So, what's the real point of"
+minilm,3,K0-K5,more_K5,3,"So, what’s the real point of"
+minilm,3,K0-K5,more_K5,4,"Ah, I see what you mean."
+minilm,3,K0-K5,more_K5,5,How would that change your perspective?
+minilm,3,K0-K5,more_K5,6,I know what you mean.
+minilm,3,K0-K5,more_K5,7,"Oh, I see what you mean."
+minilm,3,K0-K5,more_K5,8,That's a fair point.
+minilm,3,K0-K5,more_K5,9,That's a valuable perspective.
+minilm,3,K0-K5,more_K5,10,That's exactly the goal.
+minilm,4,K=0,win,1,Let's celebrate your progress every step of the way.
+minilm,4,K=0,win,2,I'm so proud of your commitment and progress!
+minilm,4,K=0,win,3,Do you ever feel like you could make some progress?
+minilm,4,K=0,win,4,Congratulations on your commitment and progress!
+minilm,4,K=0,win,5,I'm here to support you and celebrate your progress.
+minilm,4,K=0,win,6,I'm so proud of your progress and commitment.
+minilm,4,K=0,win,7,Congratulations on taking the first step!
+minilm,4,K=0,win,8,Here are some ways you can celebrate your progress:
+minilm,4,K=0,win,9,"Break down your goals into smaller, achievable steps."
+minilm,4,K=0,win,10,I'm so proud of your commitment and progress so far.
+minilm,4,K=0,lose,1,That would be helpful.
+minilm,4,K=0,lose,2,The three examples are:
+minilm,4,K=0,lose,3,Some examples could include:
+minilm,4,K=0,lose,4,"For example, “I feel tired and have headaches”"
+minilm,4,K=0,lose,5,Here are the examples:
+minilm,4,K=0,lose,6,Some examples might be:
+minilm,4,K=0,lose,7,Here are the specific examples:
+minilm,4,K=0,lose,8,Here are two specific examples:
+minilm,4,K=0,lose,9,Here are the three examples:
+minilm,4,K=0,lose,10,They're just a response to stress or anxiety.
+minilm,4,K=5,win,1,Do you think you’re ready to quit smoking?
+minilm,4,K=5,win,2,This will help you avoid temptation and keep you motivated.
+minilm,4,K=5,win,3,Here are some tips for staying motivated:
+minilm,4,K=5,win,4,Here are some tips to help you stay motivated:
+minilm,4,K=5,win,5,Here are a few tips to help you stay motivated:
+minilm,4,K=5,win,6,Quitting smoking isn’t easy.
+minilm,4,K=5,win,7,Are there any other ways to quit?
+minilm,4,K=5,win,8,Why do you find it so hard to quit?
+minilm,4,K=5,win,9,Are you willing to try to quit smoking?
+minilm,4,K=5,win,10,A plan can help you stay motivated and avoid distractions.
+minilm,4,K=5,lose,1,"Well, let's see if this helps."
+minilm,4,K=5,lose,2,Let me know if you have any questions.
+minilm,4,K=5,lose,3,Let me know if you have any other questions.
+minilm,4,K=5,lose,4,Let me know if you have any questions or concerns.
+minilm,4,K=5,lose,5,Here are some additional considerations:
+minilm,4,K=5,lose,6,"Alright, let me try to summarize the conversation so far."
+minilm,4,K=5,lose,7,Do you have any questions about that?
+minilm,4,K=5,lose,8,"Well, that's what we'll talk about in our next session."
+minilm,4,K=5,lose,9,Let me ask you a few questions.
+minilm,4,K=5,lose,10,Here are the questions:
+minilm,4,K0-K5,more_K0,1,I’m here to support you through this process.
+minilm,4,K0-K5,more_K0,2,Thank you for being open and committed to this process.
+minilm,4,K0-K5,more_K0,3,"Sure, let's work on the first step together."
+minilm,4,K0-K5,more_K0,4,I'm excited to support you on this journey.
+minilm,4,K0-K5,more_K0,5,Here's the step-by-step plan:
+minilm,4,K0-K5,more_K0,6,I'm thrilled to support you on this journey.
+minilm,4,K0-K5,more_K0,7,I'm so excited to support you on this journey.
+minilm,4,K0-K5,more_K0,8,That's definitely a step in the right direction!
+minilm,4,K0-K5,more_K0,9,I'm delighted to support you every step of the way.
+minilm,4,K0-K5,more_K0,10,I’m excited to support you on this journey.
+minilm,4,K0-K5,more_K5,1,You can also use nicotine replacement therapy.
+minilm,4,K0-K5,more_K5,2,There are many different methods to cut down on smoking.
+minilm,4,K0-K5,more_K5,3,Quitting smoking is not an overnight process.
+minilm,4,K0-K5,more_K5,4,What are some of the reasons you smoke?
+minilm,4,K0-K5,more_K5,5,"Finally, you could try to avoid smoking in high-stress situations."
+minilm,4,K0-K5,more_K5,6,Nicotine replacement therapy and support groups are both good options.
+minilm,4,K0-K5,more_K5,7,Quitting smoking isn’t easy.
+minilm,4,K0-K5,more_K5,8,What is it that makes you want to smoke?
+minilm,4,K0-K5,more_K5,9,What does it mean for you to be a smoker?
+minilm,4,K0-K5,more_K5,10,"Nicotine replacement therapy, support groups, or medication?"
+minilm,5,K=0,win,1,Are there any other ways to quit?
+minilm,5,K=0,win,2,Congratulations on taking the first step!
+minilm,5,K=0,win,3,Here are a few tips to help you stay motivated:
+minilm,5,K=0,win,4,Here are some tips to help you stay motivated:
+minilm,5,K=0,win,5,I'm so proud of you for taking this courageous step.
+minilm,5,K=0,win,6,I’m so proud of you for taking this courageous step.
+minilm,5,K=0,win,7,Here are some tips for staying motivated:
+minilm,5,K=0,win,8,Congratulations on taking the first step towards a healthier you!
+minilm,5,K=0,win,9,What more can I do to help you move forward?
+minilm,5,K=0,win,10,Here are some tips to keep you motivated:
+minilm,5,K=0,lose,1,"Absolutely, that makes sense."
+minilm,5,K=0,lose,2,"Absolutely, I get it."
+minilm,5,K=0,lose,3,"Absolutely, that's an excellent question."
+minilm,5,K=0,lose,4,"Yes, that makes sense."
+minilm,5,K=0,lose,5,"Sure, that makes sense."
+minilm,5,K=0,lose,6,"That's a valid concern, and I get it."
+minilm,5,K=0,lose,7,"Okay, that makes sense to me."
+minilm,5,K=0,lose,8,"Absolutely, I totally get that."
+minilm,5,K=0,lose,9,"Absolutely, I absolutely get it."
+minilm,5,K=0,lose,10,I absolutely get it.
+minilm,5,K=5,win,1,Do you think you’re ready to quit smoking?
+minilm,5,K=5,win,2,What are your physical goals for yourself?
+minilm,5,K=5,win,3,Are you willing to try to quit smoking?
+minilm,5,K=5,win,4,Have you ever tried to quit smoking in the past?
+minilm,5,K=5,win,5,Why do you find it so hard to quit?
+minilm,5,K=5,win,6,Quitting smoking isn’t easy.
+minilm,5,K=5,win,7,Have you ever tried to quit smoking before?
+minilm,5,K=5,win,8,Quitting smoking is not an overnight process.
+minilm,5,K=5,win,9,Do you mind telling me about your smoking habits again?
+minilm,5,K=5,win,10,Why do you think you need to quit?
+minilm,5,K=5,lose,1,Let me know if you have any questions.
+minilm,5,K=5,lose,2,Let me know if you have any other questions.
+minilm,5,K=5,lose,3,Let me know if you have any questions or concerns.
+minilm,5,K=5,lose,4,Here are a few additional things to keep in mind:
+minilm,5,K=5,lose,5,Here are a few additional things to consider:
+minilm,5,K=5,lose,6,Here are some additional things to consider:
+minilm,5,K=5,lose,7,Here are some additional things to keep in mind:
+minilm,5,K=5,lose,8,I’m not sure I understand your question.
+minilm,5,K=5,lose,9,Here are a few things to keep in mind:
+minilm,5,K=5,lose,10,Here are a few things to consider:
+minilm,5,K0-K5,more_K0,1,Here are a few specific actions you can take:
+minilm,5,K0-K5,more_K0,2,Congratulations on taking the first step!
+minilm,5,K0-K5,more_K0,3,Here are some specific actions you could take:
+minilm,5,K0-K5,more_K0,4,Best of luck on your journey!
+minilm,5,K0-K5,more_K0,5,Congratulations on your success!
+minilm,5,K0-K5,more_K0,6,Here are three specific actions you can take:
+minilm,5,K0-K5,more_K0,7,Congratulations on taking action today!
+minilm,5,K0-K5,more_K0,8,I'm so excited for this journey together!
+minilm,5,K0-K5,more_K0,9,What’s your next step?
+minilm,5,K0-K5,more_K0,10,Congratulations on taking the first step.
+minilm,5,K0-K5,more_K5,1,"Absolutely, that makes sense."
+minilm,5,K0-K5,more_K5,2,"Yes, I absolutely agree."
+minilm,5,K0-K5,more_K5,3,"Absolutely, that's exactly right."
+minilm,5,K0-K5,more_K5,4,"Absolutely, I absolutely get it."
+minilm,5,K0-K5,more_K5,5,It means the world to me.
+minilm,5,K0-K5,more_K5,6,"Absolutely, I completely get it."
+minilm,5,K0-K5,more_K5,7,"Yeah, that's exactly right."
+minilm,5,K0-K5,more_K5,8,"Absolutely, that’s exactly right."
+minilm,5,K0-K5,more_K5,9,"Yes, that makes sense."
+minilm,5,K0-K5,more_K5,10,"Absolutely, it's completely understandable."
+minilm,6,K=0,win,1,Thank you so much for your dedication and commitment!
+minilm,6,K=0,win,2,Thank you so much for your courage and commitment.
+minilm,6,K=0,win,3,Congratulations on taking the first step!
+minilm,6,K=0,win,4,I'm here to support you every step of the way!
+minilm,6,K=0,win,5,I'm so proud of your commitment and progress!
+minilm,6,K=0,win,6,Thank you so much for your dedication and courage.
+minilm,6,K=0,win,7,I'm so proud of your dedication and progress so far.
+minilm,6,K=0,win,8,I’m here to support you every step of the way!
+minilm,6,K=0,win,9,Congratulations on your progress so far!
+minilm,6,K=0,win,10,Congratulations on taking the first step towards a healthier you!
+minilm,6,K=0,lose,1,Here is an example:
+minilm,6,K=0,lose,2,Here are the examples:
+minilm,6,K=0,lose,3,What comes to mind?
+minilm,6,K=0,lose,4,What else can you think of?
+minilm,6,K=0,lose,5,Here are two examples:
+minilm,6,K=0,lose,6,What else can we think of?
+minilm,6,K=0,lose,7,Here are a couple of examples:
+minilm,6,K=0,lose,8,Some examples might be:
+minilm,6,K=0,lose,9,Here are some examples:
+minilm,6,K=0,lose,10,That's exactly what I'm looking for.
+minilm,6,K=5,win,1,Here are some tips for staying motivated:
+minilm,6,K=5,win,2,Here are some tips to keep you motivated:
+minilm,6,K=5,win,3,Here are some tips to help you stay motivated:
+minilm,6,K=5,win,4,Here are a few tips to help you stay motivated:
+minilm,6,K=5,win,5,"For example, do you want to lose weight?"
+minilm,6,K=5,win,6,Let's say you want to lose weight.
+minilm,6,K=5,win,7,What are your physical goals for yourself?
+minilm,6,K=5,win,8,A plan can help you stay motivated and avoid distractions.
+minilm,6,K=5,win,9,How much weight do you want to lose?
+minilm,6,K=5,win,10,I think that’s what makes you a motivated individual.
+minilm,6,K=5,lose,1,Let me know if you have any questions or concerns.
+minilm,6,K=5,lose,2,Here are some additional considerations:
+minilm,6,K=5,lose,3,Let me know if you have any questions.
+minilm,6,K=5,lose,4,Sorry for the delay.
+minilm,6,K=5,lose,5,That’s a lot to consider.
+minilm,6,K=5,lose,6,Here are some additional things to consider:
+minilm,6,K=5,lose,7,"Great, thank you for your patience."
+minilm,6,K=5,lose,8,"You’ve been here before, and you know what to do."
+minilm,6,K=5,lose,9,Best of luck on your journey.
+minilm,6,K=5,lose,10,Which one would you be most comfortable with?
+minilm,6,K0-K5,more_K0,1,Thank you so much for your courage and commitment.
+minilm,6,K0-K5,more_K0,2,Best of luck on your journey!
+minilm,6,K0-K5,more_K0,3,Best of luck to you!
+minilm,6,K0-K5,more_K0,4,Congratulations on taking the first step!
+minilm,6,K0-K5,more_K0,5,Best of luck on your journey.
+minilm,6,K0-K5,more_K0,6,Good luck on your journey to a smoke-free life.
+minilm,6,K0-K5,more_K0,7,Thank you so much for your dedication and courage.
+minilm,6,K0-K5,more_K0,8,I'm so excited to support you on your journey.
+minilm,6,K0-K5,more_K0,9,Good luck in your journey!
+minilm,6,K0-K5,more_K0,10,I’m excited to support you on your journey.
+minilm,6,K0-K5,more_K5,1,Instead of thinking about
+minilm,6,K0-K5,more_K5,2,What comes to mind?
+minilm,6,K0-K5,more_K5,3,Here are some tips for staying motivated:
+minilm,6,K0-K5,more_K5,4,Let’s talk about motivation.
+minilm,6,K0-K5,more_K5,5,What other ideas come to mind?
+minilm,6,K0-K5,more_K5,6,What else can we think of?
+minilm,6,K0-K5,more_K5,7,Here are a few examples:
+minilm,6,K0-K5,more_K5,8,Here are some tips to keep you motivated:
+minilm,6,K0-K5,more_K5,9,Some examples might be:
+minilm,6,K0-K5,more_K5,10,I’m talking about the mindset.
+minilm,7,K=0,win,1,I am so proud of your commitment and resilience.
+minilm,7,K=0,win,2,I'm so supportive and proud of you.
+minilm,7,K=0,win,3,I'm so proud of your dedication and commitment.
+minilm,7,K=0,win,4,I'm so proud of your courage and dedication.
+minilm,7,K=0,win,5,I'm so proud of your resilience and commitment.
+minilm,7,K=0,win,6,How can I support you along this journey?
+minilm,7,K=0,win,7,I'm so proud of your commitment and dedication.
+minilm,7,K=0,win,8,I’m so proud of your courage and dedication.
+minilm,7,K=0,win,9,I'm so proud of your commitment and resilience.
+minilm,7,K=0,win,10,I'm so proud of you for taking this courageous step.
+minilm,7,K=0,lose,1,Here are the four key features:
+minilm,7,K=0,lose,2,Here are some additional considerations:
+minilm,7,K=0,lose,3,"Great, here are a few suggestions:"
+minilm,7,K=0,lose,4,"Great, here they are:"
+minilm,7,K=0,lose,5,Here are a few additional things to keep in mind:
+minilm,7,K=0,lose,6,That's an excellent question!
+minilm,7,K=0,lose,7,Here are some possibilities:
+minilm,7,K=0,lose,8,The four key features are:
+minilm,7,K=0,lose,9,That’s an excellent question!
+minilm,7,K=0,lose,10,Here are a few considerations:
+minilm,7,K=5,win,1,I think you're just being very resistant to change.
+minilm,7,K=5,win,2,How do you deal with this?
+minilm,7,K=5,win,3,Why do you want to change?
+minilm,7,K=5,win,4,What’s your motivation for change?
+minilm,7,K=5,win,5,I'm so proud of you and your commitment to change.
+minilm,7,K=5,win,6,"So, what is it that you're trying to change?"
+minilm,7,K=5,win,7,What do you want to change?
+minilm,7,K=5,win,8,How do you feel about your relationships?
+minilm,7,K=5,win,9,I understand where you’re coming from and appreciate your honesty.
+minilm,7,K=5,win,10,What are the things you want to change?
+minilm,7,K=5,lose,1,That would be helpful.
+minilm,7,K=5,lose,2,That might be helpful.
+minilm,7,K=5,lose,3,Tracking your progress is a great idea.
+minilm,7,K=5,lose,4,Have you ever tried hypnotherapy?
+minilm,7,K=5,lose,5,That sounds exactly right!
+minilm,7,K=5,lose,6,I’ll keep that in mind.
+minilm,7,K=5,lose,7,That sounds very helpful.
+minilm,7,K=5,lose,8,Have a great session!
+minilm,7,K=5,lose,9,Your plan could include activities such as:
+minilm,7,K=5,lose,10,Sounds like a good start!
+minilm,7,K0-K5,more_K0,1,Here are some tips to help you stay motivated:
+minilm,7,K0-K5,more_K0,2,Here are some tips for staying motivated:
+minilm,7,K0-K5,more_K0,3,Do you like going to the gym?
+minilm,7,K0-K5,more_K0,4,Are you asking if I can help you with motivation?
+minilm,7,K0-K5,more_K0,5,Here are a few tips to help you stay motivated:
+minilm,7,K0-K5,more_K0,6,Here are some tips to keep you motivated:
+minilm,7,K0-K5,more_K0,7,"Absolutely, I'm so proud of your commitment and enthusiasm."
+minilm,7,K0-K5,more_K0,8,This will help you avoid temptation and keep you motivated.
+minilm,7,K0-K5,more_K0,9,Track your progress regularly.
+minilm,7,K0-K5,more_K0,10,And have you considered trying meditation or yoga?
+minilm,7,K0-K5,more_K5,1,The four key features are:
+minilm,7,K0-K5,more_K5,2,Here are the key takeaways:
+minilm,7,K0-K5,more_K5,3,"So, what is it that you're trying to change?"
+minilm,7,K0-K5,more_K5,4,Let's move on to another question:
+minilm,7,K0-K5,more_K5,5,Here are the four questions:
+minilm,7,K0-K5,more_K5,6,Let's move on to the next question:
+minilm,7,K0-K5,more_K5,7,Here are the four key features:
+minilm,7,K0-K5,more_K5,8,The four questions are:
+minilm,7,K0-K5,more_K5,9,The three specific questions are:
+minilm,7,K0-K5,more_K5,10,Here they are again:
+minilm,8,K=0,win,1,Congratulations on taking the first step towards a healthier you!
+minilm,8,K=0,win,2,I'm so grateful for your courage and resilience.
+minilm,8,K=0,win,3,I'm so proud of you and your resilience.
+minilm,8,K=0,win,4,Thank you so much for your dedication and courage.
+minilm,8,K=0,win,5,"You're on your way to a healthier, happier you!"
+minilm,8,K=0,win,6,Congratulations on taking the first step towards a healthier you.
+minilm,8,K=0,win,7,Thank you for being vulnerable and courageous.
+minilm,8,K=0,win,8,I'm so proud of your courage and resilience.
+minilm,8,K=0,win,9,"You are amazing, and I am so proud of you."
+minilm,8,K=0,win,10,You are amazing and I am so proud of you!
+minilm,8,K=0,lose,1,Here are some additional considerations:
+minilm,8,K=0,lose,2,"Great, here are a few ideas:"
+minilm,8,K=0,lose,3,Here are a few considerations:
+minilm,8,K=0,lose,4,Here are some ideas to keep in mind:
+minilm,8,K=0,lose,5,That sounds like an interesting idea.
+minilm,8,K=0,lose,6,That's a smart idea.
+minilm,8,K=0,lose,7,"For example, you could choose to:"
+minilm,8,K=0,lose,8,Here are a few ideas to keep in mind:
+minilm,8,K=0,lose,9,Here are some key considerations:
+minilm,8,K=0,lose,10,Some ideas could include:
+minilm,8,K=5,win,1,What do you want to change about your body?
+minilm,8,K=5,win,2,"For example, do you want to lose weight?"
+minilm,8,K=5,win,3,Let's say you want to lose weight.
+minilm,8,K=5,win,4,Do you like going to the gym?
+minilm,8,K=5,win,5,Let’s make this change and improve your overall health.
+minilm,8,K=5,win,6,What are your physical goals for yourself?
+minilm,8,K=5,win,7,Do you think about your health a lot?
+minilm,8,K=5,win,8,Or maybe you just want to be healthier.
+minilm,8,K=5,win,9,What do you think about your weight?
+minilm,8,K=5,win,10,I'm thrilled to support you on your weight loss journey.
+minilm,8,K=5,lose,1,Here are some steps we can take:
+minilm,8,K=5,lose,2,Here are some ideas to get started:
+minilm,8,K=5,lose,3,Here are some tips to get started:
+minilm,8,K=5,lose,4,Here are some strategies to consider:
+minilm,8,K=5,lose,5,Here are some tips for getting started:
+minilm,8,K=5,lose,6,Here are some ways to get started:
+minilm,8,K=5,lose,7,Here are some ideas to help you get started:
+minilm,8,K=5,lose,8,Here are some tips to help you get started:
+minilm,8,K=5,lose,9,Here are some ideas to get you started:1.
+minilm,8,K=5,lose,10,Here are the essential steps:
+minilm,8,K0-K5,more_K0,1,I wish you the best of luck.
+minilm,8,K0-K5,more_K0,2,I'm so grateful for your courage and resilience.
+minilm,8,K0-K5,more_K0,3,I'm so proud of you and your resilience.
+minilm,8,K0-K5,more_K0,4,How can I best support you?
+minilm,8,K0-K5,more_K0,5,Your courage and resilience are truly inspiring.
+minilm,8,K0-K5,more_K0,6,You deserve so much love and support.
+minilm,8,K0-K5,more_K0,7,"You are amazing, and I am so proud of you."
+minilm,8,K0-K5,more_K0,8,Be compassionate with yourself.
+minilm,8,K0-K5,more_K0,9,You inspire me with your courage and resilience.
+minilm,8,K0-K5,more_K0,10,You are amazing and I am so proud of you!
+minilm,8,K0-K5,more_K5,1,"For example, you could choose to:"
+minilm,8,K0-K5,more_K5,2,Let's look at some examples:
+minilm,8,K0-K5,more_K5,3,Let me give you an example:
+minilm,8,K0-K5,more_K5,4,"For example, you could:"
+minilm,8,K0-K5,more_K5,5,"For example, do you want to lose weight?"
+minilm,8,K0-K5,more_K5,6,How would that change your perspective?
+minilm,8,K0-K5,more_K5,7,"Absolutely, that’s exactly what I want to do."
+minilm,8,K0-K5,more_K5,8,"Absolutely, I understand exactly what you're looking for."
+minilm,8,K0-K5,more_K5,9,That’s exactly the feedback I want to hear.
+minilm,8,K0-K5,more_K5,10,That's exactly what I'm looking for.
+minilm,9,K=0,win,1,"Sure, let's work on implementing the tips together."
+minilm,9,K=0,win,2,Here are some additional considerations:
+minilm,9,K=0,win,3,"Absolutely, that's an excellent question."
+minilm,9,K=0,win,4,I think we can go over what we already discussed.
+minilm,9,K=0,win,5,"Absolutely, that's exactly the right approach."
+minilm,9,K=0,win,6,"Great, that's exactly the right approach!"
+minilm,9,K=0,win,7,Here are some additional considerations to keep in mind:
+minilm,9,K=0,win,8,"Absolutely, that's an excellent idea!"
+minilm,9,K=0,win,9,"Sure, let's work on the first step together."
+minilm,9,K=0,win,10,"Sure, I think that's a great idea."
+minilm,9,K=0,lose,1,Here are some tips for staying motivated:
+minilm,9,K=0,lose,2,This will help you avoid temptation and keep you motivated.
+minilm,9,K=0,lose,3,Here are some tips to help you stay motivated:
+minilm,9,K=0,lose,4,Here are a few tips to help you stay motivated:
+minilm,9,K=0,lose,5,Here are some tips to keep you motivated:
+minilm,9,K=0,lose,6,What are your physical goals for yourself?
+minilm,9,K=0,lose,7,Did it help you quit smoking or manage cravings?
+minilm,9,K=0,lose,8,Track your cravings with an app.
+minilm,9,K=0,lose,9,"I started exercising, and my mood changed."
+minilm,9,K=0,lose,10,Are there any other ways to quit?
+minilm,9,K=5,win,1,What will you do for exercise?
+minilm,9,K=5,win,2,Would you like to try it?
+minilm,9,K=5,win,3,Let's explore some strategies for making exercise enjoyable.
+minilm,9,K=5,win,4,Or are you exercising too little?
+minilm,9,K=5,win,5,Have you ever tried nicotine replacement therapies?
+minilm,9,K=5,win,6,Do you like going to the gym?
+minilm,9,K=5,win,7,Have you ever tried yoga?
+minilm,9,K=5,win,8,Have you tried nicotine replacement therapies?
+minilm,9,K=5,win,9,How do you want to approach weight loss?
+minilm,9,K=5,win,10,You can also use nicotine replacement therapy.
+minilm,9,K=5,lose,1,What matters most to you?
+minilm,9,K=5,lose,2,What's important to you?
+minilm,9,K=5,lose,3,What really matters to you?
+minilm,9,K=5,lose,4,How about some thoughts about your well-being?
+minilm,9,K=5,lose,5,What matters to you?
+minilm,9,K=5,lose,6,How do you feel about your relationships?
+minilm,9,K=5,lose,7,I believe in you and your ability to succeed.
+minilm,9,K=5,lose,8,Can you tell me what’s important to you?
+minilm,9,K=5,lose,9,The most important thing is that you
+minilm,9,K=5,lose,10,"Alright, let's try to put things into perspective."
+minilm,9,K0-K5,more_K0,1,The second question is:
+minilm,9,K0-K5,more_K0,2,"Absolutely, that's an excellent question."
+minilm,9,K0-K5,more_K0,3,Here are some additional considerations:
+minilm,9,K0-K5,more_K0,4,That's an excellent question.
+minilm,9,K0-K5,more_K0,5,"Absolutely, that’s a great question."
+minilm,9,K0-K5,more_K0,6,That's such a valid and important question.
+minilm,9,K0-K5,more_K0,7,"Absolutely, that's a great question."
+minilm,9,K0-K5,more_K0,8,That's great that you've been thinking about these questions.
+minilm,9,K0-K5,more_K0,9,That’s an excellent question.
+minilm,9,K0-K5,more_K0,10,"Sure, let's work on implementing the tips together."
+minilm,9,K0-K5,more_K5,1,This will help you avoid temptation and keep you motivated.
+minilm,9,K0-K5,more_K5,2,Here are some tips for staying motivated:
+minilm,9,K0-K5,more_K5,3,Did it help you quit smoking or manage cravings?
+minilm,9,K0-K5,more_K5,4,What will you do for exercise?
+minilm,9,K0-K5,more_K5,5,Here are some tips to help you stay motivated:
+minilm,9,K0-K5,more_K5,6,Here are a few tips to help you stay motivated:
+minilm,9,K0-K5,more_K5,7,Track your cravings with an app.
+minilm,9,K0-K5,more_K5,8,Here are some tips to keep you motivated:
+minilm,9,K0-K5,more_K5,9,Have you tried nicotine replacement therapies?
+minilm,9,K0-K5,more_K5,10,Or are you exercising too little?
+minilm,10,K=0,win,1,Thank you so much for your dedication and courage.
+minilm,10,K=0,win,2,I'm so grateful for your courage and resilience.
+minilm,10,K=0,win,3,Thank you so much for being so honest and vulnerable.
+minilm,10,K=0,win,4,"You are amazing, and I am so proud of you."
+minilm,10,K=0,win,5,I'm so proud of you and your courage.
+minilm,10,K=0,win,6,I'm so proud of your courage and resilience.
+minilm,10,K=0,win,7,Thank you so much for being open and courageous.
+minilm,10,K=0,win,8,You are so strong and courageous.
+minilm,10,K=0,win,9,Thank you so much for your courage and commitment.
+minilm,10,K=0,win,10,You inspire me with your courage and resilience.
+minilm,10,K=0,lose,1,Here are some practical suggestions:
+minilm,10,K=0,lose,2,Here are a few practical suggestions:
+minilm,10,K=0,lose,3,Your plan could include activities such as:
+minilm,10,K=0,lose,4,Here are a few ideas to keep in mind:
+minilm,10,K=0,lose,5,Here are some practical ideas:
+minilm,10,K=0,lose,6,Here are some practical tips:
+minilm,10,K=0,lose,7,Here are some ideas to keep in mind:
+minilm,10,K=0,lose,8,Here are a few considerations:
+minilm,10,K=0,lose,9,Here are some key considerations:
+minilm,10,K=0,lose,10,Here are a few strategies to keep in mind:
+minilm,10,K=5,win,1,Let’s talk about your diet plan.
+minilm,10,K=5,win,2,Balancing a healthy lifestyle with flexibility is important.
+minilm,10,K=5,win,3,What will you eat?
+minilm,10,K=5,win,4,Congratulations on taking the first step towards a healthier you!
+minilm,10,K=5,win,5,Let’s make this change and improve your overall health.
+minilm,10,K=5,win,6,Let’s talk about your diet.
+minilm,10,K=5,win,7,Can you tell me a little bit about your diet?
+minilm,10,K=5,win,8,Congratulations on taking the first step towards a healthier you.
+minilm,10,K=5,win,9,I'm going to ask a few questions about your weight.
+minilm,10,K=5,win,10,One tip is to keep a food journal.
+minilm,10,K=5,lose,1,I’m not here to give you a lecture on emotions.
+minilm,10,K=5,lose,2,I’m not here to give you a lecture on feelings.
+minilm,10,K=5,lose,3,I recognize that feeling.
+minilm,10,K=5,lose,4,"First, acknowledge and validate your feelings."
+minilm,10,K=5,lose,5,I understand that feeling.
+minilm,10,K=5,lose,6,"Well, David, I’m sorry that you’re not feeling that way."
+minilm,10,K=5,lose,7,I can understand that feeling.
+minilm,10,K=5,lose,8,How do they make you feel?
+minilm,10,K=5,lose,9,"Hey, David, I’m sorry that you’re not feeling that way."
+minilm,10,K=5,lose,10,It's okay to feel that way.
+minilm,10,K0-K5,more_K0,1,Thank you so much for being so honest and vulnerable.
+minilm,10,K0-K5,more_K0,2,Thank you for being vulnerable and courageous.
+minilm,10,K0-K5,more_K0,3,Thank you for being so honest and vulnerable.
+minilm,10,K0-K5,more_K0,4,Thank you so much for being open and courageous.
+minilm,10,K0-K5,more_K0,5,I'm so grateful for your courage and resilience.
+minilm,10,K0-K5,more_K0,6,Thank you so much for your courage and commitment.
+minilm,10,K0-K5,more_K0,7,Thank you so much for your dedication and courage.
+minilm,10,K0-K5,more_K0,8,You are so strong and courageous.
+minilm,10,K0-K5,more_K0,9,I'm so grateful for your courage and commitment.
+minilm,10,K0-K5,more_K0,10,Thank you for being vulnerable and honest with me.
+minilm,10,K0-K5,more_K5,1,Your plan could include activities such as:
+minilm,10,K0-K5,more_K5,2,Here are some practical suggestions:
+minilm,10,K0-K5,more_K5,3,Here are a few practical suggestions:
+minilm,10,K0-K5,more_K5,4,Here are the 3 practical steps:
+minilm,10,K0-K5,more_K5,5,Here are some key considerations for a successful first week:
+minilm,10,K0-K5,more_K5,6,Small plans that you can easily follow.
+minilm,10,K0-K5,more_K5,7,Here are some practical tips:
+minilm,10,K0-K5,more_K5,8,Here are the three practical steps:
+minilm,10,K0-K5,more_K5,9,That sounds like a smart plan!
+minilm,10,K0-K5,more_K5,10,One tip is to keep a food journal.
+gte,1,K=0,win,1,Thank you for partnering with me on this journey.
+gte,1,K=0,win,2,Thank you so much for being committed to this journey!
+gte,1,K=0,win,3,How can I support you along this journey?
+gte,1,K=0,win,4,Do you ever feel like you could make some progress?
+gte,1,K=0,win,5,"However, I want to encourage you to keep trying."
+gte,1,K=0,win,6,"Sure, let's work on the next step together."
+gte,1,K=0,win,7,"Sure, let's work on the first step together."
+gte,1,K=0,win,8,I'm excited to continue supporting you on your journey.
+gte,1,K=0,win,9,You mentioned setting new goals based on your experiences.
+gte,1,K=0,win,10,We can explore different possible goals together.
+gte,1,K=0,lose,1,The steps are as follows:
+gte,1,K=0,lose,2,Here are the details:
+gte,1,K=0,lose,3,"Don't worry, it's all confidential, and I won't tell anyone."
+gte,1,K=0,lose,4,Here are the three examples:
+gte,1,K=0,lose,5,"For example, “I feel tired and have headaches”"
+gte,1,K=0,lose,6,Here are three examples:
+gte,1,K=0,lose,7,The three examples are:
+gte,1,K=0,lose,8,You don’t have to
+gte,1,K=0,lose,9,The strategies are as follows:
+gte,1,K=0,lose,10,Here are the examples:
+gte,1,K=5,win,1,How do you want to approach weight loss?
+gte,1,K=5,win,2,"Remember that progress, not perfection, is the key."
+gte,1,K=5,win,3,One tip is to set small goals.
+gte,1,K=5,win,4,"Focus on progress, not perfection."
+gte,1,K=5,win,5,You mentioned setting new goals based on your experiences.
+gte,1,K=5,win,6,Setting realistic goals is key.
+gte,1,K=5,win,7,"Remember, small steps lead to big results."
+gte,1,K=5,win,8,What are your physical goals for yourself?
+gte,1,K=5,win,9,Track your progress regularly.
+gte,1,K=5,win,10,Do you ever feel like you could make some progress?
+gte,1,K=5,lose,1,You don’t have to talk to me about this.
+gte,1,K=5,lose,2,I’m not here to give you a lecture on emotions.
+gte,1,K=5,lose,3,I’m not here to give you a lecture on feelings.
+gte,1,K=5,lose,4,"Don't worry, it's all confidential, and I won't tell anyone."
+gte,1,K=5,lose,5,"Well, I understand that you don’t believe in my theory."
+gte,1,K=5,lose,6,But I’m not going to tell you what to do.
+gte,1,K=5,lose,7,We've got you covered.
+gte,1,K=5,lose,8,Here they are again:
+gte,1,K=5,lose,9,I’m so excited for you.
+gte,1,K=5,lose,10,"James, let me ask you one last question."
+gte,1,K0-K5,more_K0,1,I couldn’t be more proud of you.
+gte,1,K0-K5,more_K0,2,Thank you so much for your trust and openness.
+gte,1,K0-K5,more_K0,3,I could not be more proud of you.
+gte,1,K0-K5,more_K0,4,Thank you so much for your openness and trust.
+gte,1,K0-K5,more_K0,5,I couldn't be more proud of you.
+gte,1,K0-K5,more_K0,6,"I understand, but let me ask you another question."
+gte,1,K0-K5,more_K0,7,"Great, I’m so proud of you."
+gte,1,K0-K5,more_K0,8,I’m truly proud of you.
+gte,1,K0-K5,more_K0,9,Thank you for being so honest and open with me.
+gte,1,K0-K5,more_K0,10,I understand your frustration and skepticism.
+gte,1,K0-K5,more_K5,1,One tip is to keep a food journal.
+gte,1,K0-K5,more_K5,2,One tip is to set small goals.
+gte,1,K0-K5,more_K5,3,Here are three tips:
+gte,1,K0-K5,more_K5,4,Here are some tips to keep you on track:
+gte,1,K0-K5,more_K5,5,Balancing a healthy lifestyle with flexibility is important.
+gte,1,K0-K5,more_K5,6,Here are some practical tips:
+gte,1,K0-K5,more_K5,7,Here are some tips:
+gte,1,K0-K5,more_K5,8,Here are a few tips:
+gte,1,K0-K5,more_K5,9,Here are some tips for staying motivated:
+gte,1,K0-K5,more_K5,10,Choose activities that you actually enjoy.2.
+gte,2,K=0,win,1,How do you want to approach weight loss?
+gte,2,K=0,win,2,"Remember, quitting smoking is a journey, not a destination."
+gte,2,K=0,win,3,"Remember, progress is the key."
+gte,2,K=0,win,4,"Remember that progress, not perfection, is the key."
+gte,2,K=0,win,5,It’s important to start with a small change.
+gte,2,K=0,win,6,Let’s make this change and improve your overall health.
+gte,2,K=0,win,7,You are non-judgmental while encouraging the patient to change.
+gte,2,K=0,win,8,What’s your motivation for change?
+gte,2,K=0,win,9,Let's create a plan to track your progress:
+gte,2,K=0,win,10,I'm excited to support you on your weight loss journey.
+gte,2,K=0,lose,1,"Don't worry, it's all confidential, and I won't tell anyone."
+gte,2,K=0,lose,2,That sounds like magic!
+gte,2,K=0,lose,3,"Oh, I love that."
+gte,2,K=0,lose,4,That sounds really interesting.
+gte,2,K=0,lose,5,That’s exactly what I’m talking about.
+gte,2,K=0,lose,6,That sounds so exciting!
+gte,2,K=0,lose,7,"That's so great, James."
+gte,2,K=0,lose,8,"That’s all for today, James."
+gte,2,K=0,lose,9,That's exactly what I'm talking about.
+gte,2,K=0,lose,10,That's so exciting to hear.
+gte,2,K=5,win,1,Do you ever feel like you could make some progress?
+gte,2,K=5,win,2,It’s important to start with a small change.
+gte,2,K=5,win,3,"Remember that progress, not perfection, is the key."
+gte,2,K=5,win,4,"But remember, it's not easy to change your habits."
+gte,2,K=5,win,5,How do you want to approach weight loss?
+gte,2,K=5,win,6,"Focus on progress, not perfection."
+gte,2,K=5,win,7,"Remember, small steps lead to big results."
+gte,2,K=5,win,8,Start with small changes.
+gte,2,K=5,win,9,"Remember, small changes can make a big difference."
+gte,2,K=5,win,10,Reward yourself for making progress.
+gte,2,K=5,lose,1,Here are the details:
+gte,2,K=5,lose,2,Sorry for the delay.
+gte,2,K=5,lose,3,See you next time!
+gte,2,K=5,lose,4,That’s such a relief!
+gte,2,K=5,lose,5,"Ah, that’s great to hear."
+gte,2,K=5,lose,6,See you next time.
+gte,2,K=5,lose,7,See you next week!
+gte,2,K=5,lose,8,That's such a relief!
+gte,2,K=5,lose,9,"Oh, that’s great to hear."
+gte,2,K=5,lose,10,That’s such a relief to hear.
+gte,2,K0-K5,more_K0,1,What can I do to support you?
+gte,2,K0-K5,more_K0,2,Can you tell me a little bit about your diet?
+gte,2,K0-K5,more_K0,3,Do you have any other concerns or questions?
+gte,2,K0-K5,more_K0,4,I'm going to ask a few questions about your weight.
+gte,2,K0-K5,more_K0,5,Do you have any other questions or concerns?
+gte,2,K0-K5,more_K0,6,How can I best support you?
+gte,2,K0-K5,more_K0,7,Thank you for sharing your concerns!
+gte,2,K0-K5,more_K0,8,I’d like to ask you a few questions.
+gte,2,K0-K5,more_K0,9,Let me ask you a few questions.
+gte,2,K0-K5,more_K0,10,Do you have any questions or concerns?
+gte,2,K0-K5,more_K5,1,It is called exposure therapy.
+gte,2,K0-K5,more_K5,2,The possibilities are endless.
+gte,2,K0-K5,more_K5,3,I’m talking about the mindset.
+gte,2,K0-K5,more_K5,4,Have you tried hypnosis or cognitive behavioral therapy?
+gte,2,K0-K5,more_K5,5,"I changed my mindset, and I realized"
+gte,2,K0-K5,more_K5,6,Allow yourself to make mistakes and learn from them.
+gte,2,K0-K5,more_K5,7,What works for one person might not work for another.
+gte,2,K0-K5,more_K5,8,Don’t just choose activities that you think will be fun.
+gte,2,K0-K5,more_K5,9,Be patient with yourself.
+gte,2,K0-K5,more_K5,10,Instead of thinking about
+gte,3,K=0,win,1,I'm excited to support you on your weight loss journey.
+gte,3,K=0,win,2,I'm thrilled to support you on your weight loss journey.
+gte,3,K=0,win,3,"Remember, quitting smoking is a journey, not a destination."
+gte,3,K=0,win,4,I'm so proud of you and your commitment to change.
+gte,3,K=0,win,5,Thank you so much for being committed to this journey!
+gte,3,K=0,win,6,You are non-judgmental while encouraging the patient to change.
+gte,3,K=0,win,7,I believe in you and believe you can do this.
+gte,3,K=0,win,8,I’m happy to support you on this journey.
+gte,3,K=0,win,9,Let’s make this change and improve your overall health.
+gte,3,K=0,win,10,It’s important to start with a small change.
+gte,3,K=0,lose,1,What do you think of that?
+gte,3,K=0,lose,2,What do you think?</|im_end|>
+gte,3,K=0,lose,3,What do you think about that?
+gte,3,K=0,lose,4,"James, let me ask you one more question."
+gte,3,K=0,lose,5,That's an important question.
+gte,3,K=0,lose,6,How does that sound?
+gte,3,K=0,lose,7,That's an important question!
+gte,3,K=0,lose,8,That’s an important question.
+gte,3,K=0,lose,9,So what do you think?
+gte,3,K=0,lose,10,What else do you think?
+gte,3,K=5,win,1,"But remember, it's not easy to change your habits."
+gte,3,K=5,win,2,It’s important to start with a small change.
+gte,3,K=5,win,3,"Remember, quitting smoking is a journey, not a destination."
+gte,3,K=5,win,4,"Remember, small changes can make a big difference."
+gte,3,K=5,win,5,Start with small changes.
+gte,3,K=5,win,6,"Remember, small changes can lead to big results."
+gte,3,K=5,win,7,"Start with small, achievable goals."
+gte,3,K=5,win,8,You have to make a plan and stick to it.
+gte,3,K=5,win,9,"Remember that this is a journey, not a destination."
+gte,3,K=5,win,10,One tip is to set small goals.
+gte,3,K=5,lose,1,"Hey James, thank you for doing your homework."
+gte,3,K=5,lose,2,I love how you're
+gte,3,K=5,lose,3,"Absolutely, I appreciate your frustration."
+gte,3,K=5,lose,4,My heart goes out to you.
+gte,3,K=5,lose,5,"Great to hear from you, Emma."
+gte,3,K=5,lose,6,Glad to hear that.
+gte,3,K=5,lose,7,"Hey, I understand your frustration."
+gte,3,K=5,lose,8,Thanks for reaching out.
+gte,3,K=5,lose,9,"Great, glad to hear that."
+gte,3,K=5,lose,10,"That's good to hear, Emma."
+gte,3,K0-K5,more_K0,1,I'm thrilled to support you on your weight loss journey.
+gte,3,K0-K5,more_K0,2,I'm excited to support you on your weight loss journey.
+gte,3,K0-K5,more_K0,3,I'm so happy to support you on this journey.
+gte,3,K0-K5,more_K0,4,I’m here to support you through this process.
+gte,3,K0-K5,more_K0,5,I'm so supportive and proud of you.
+gte,3,K0-K5,more_K0,6,I’m so happy to support you on this journey.
+gte,3,K0-K5,more_K0,7,I’m happy to support you on this journey.
+gte,3,K0-K5,more_K0,8,"Awesome, I'm so proud of you!"
+gte,3,K0-K5,more_K0,9,"Awesome, I’m so proud of you!"
+gte,3,K0-K5,more_K0,10,I'm thrilled to support you on this journey.
+gte,3,K0-K5,more_K5,1,What other ideas come to mind?
+gte,3,K0-K5,more_K5,2,What could you focus on instead?
+gte,3,K0-K5,more_K5,3,What comes to mind?
+gte,3,K0-K5,more_K5,4,What else could you think of?
+gte,3,K0-K5,more_K5,5,What do you suggest?
+gte,3,K0-K5,more_K5,6,What else do you have in mind?
+gte,3,K0-K5,more_K5,7,What would you do?
+gte,3,K0-K5,more_K5,8,Instead of thinking about
+gte,3,K0-K5,more_K5,9,What would that be?
+gte,3,K0-K5,more_K5,10,Some ideas could include:
+gte,4,K=0,win,1,I'm thrilled to support you on your weight loss journey.
+gte,4,K=0,win,2,I'm excited to support you on your weight loss journey.
+gte,4,K=0,win,3,I'm so proud of you and your commitment to change.
+gte,4,K=0,win,4,I'm so proud of your commitment and progress!
+gte,4,K=0,win,5,I'm here to support you and celebrate your progress.
+gte,4,K=0,win,6,Thank you so much for being committed to this journey!
+gte,4,K=0,win,7,I’m so proud of you for committing to this plan.
+gte,4,K=0,win,8,I’m so happy to support you on this journey.
+gte,4,K=0,win,9,I believe in you and believe you can do this.
+gte,4,K=0,win,10,I’m so proud of you for committing to this.
+gte,4,K=0,lose,1,That's a great list of tips.
+gte,4,K=0,lose,2,What other ideas come to mind?
+gte,4,K=0,lose,3,You know that there’s got to be a better way.
+gte,4,K=0,lose,4,What else have you tried?
+gte,4,K=0,lose,5,What do you smell?
+gte,4,K=0,lose,6,What else can we think of?
+gte,4,K=0,lose,7,What else could you think of?
+gte,4,K=0,lose,8,Do you mind telling me about your smoking habits again?
+gte,4,K=0,lose,9,That sounds really interesting.
+gte,4,K=0,lose,10,Are there any other methods that you have tried?
+gte,4,K=5,win,1,"Remember, quitting smoking is a journey, not a destination."
+gte,4,K=5,win,2,Quitting smoking is not an overnight process.
+gte,4,K=5,win,3,"But remember, it's not easy to change your habits."
+gte,4,K=5,win,4,"Remember, small changes can make a big difference."
+gte,4,K=5,win,5,It’s important to start with a small change.
+gte,4,K=5,win,6,Quitting smoking isn’t easy.
+gte,4,K=5,win,7,"But let me tell you something, quitting smoking isn’t easy."
+gte,4,K=5,win,8,"Remember that progress, not perfection, is the key."
+gte,4,K=5,win,9,"And let me tell you something, quitting smoking isn’t easy."
+gte,4,K=5,win,10,Let’s make this change and improve your overall health.
+gte,4,K=5,lose,1,That’s an interesting approach.
+gte,4,K=5,lose,2,That's an interesting approach.
+gte,4,K=5,lose,3,"Alright, so we've covered a few options."
+gte,4,K=5,lose,4,That's a great list of strategies.
+gte,4,K=5,lose,5,That’s an interesting approach!
+gte,4,K=5,lose,6,"Well, that's what we'll talk about in our next session."
+gte,4,K=5,lose,7,"That sounds amazing, James."
+gte,4,K=5,lose,8,"That's so great, James."
+gte,4,K=5,lose,9,What do you think?</|im_end|>
+gte,4,K=5,lose,10,"That's so insightful, James."
+gte,4,K0-K5,more_K0,1,"Awesome, I’m so proud of you!"
+gte,4,K0-K5,more_K0,2,"Awesome, I'm so proud of you!"
+gte,4,K0-K5,more_K0,3,"Great, I’m so proud of you!"
+gte,4,K0-K5,more_K0,4,"Wonderful, I'm so proud of you!"
+gte,4,K0-K5,more_K0,5,"Wonderful, I’m so proud of you!"
+gte,4,K0-K5,more_K0,6,"Great, I'm so proud of you!"
+gte,4,K0-K5,more_K0,7,"Absolutely, I'm so proud of you!"
+gte,4,K0-K5,more_K0,8,"Fantastic, I'm so proud of you!"
+gte,4,K0-K5,more_K0,9,"Absolutely, I’m so proud of you!"
+gte,4,K0-K5,more_K0,10,"Fantastic, I’m so proud of you!"
+gte,4,K0-K5,more_K5,1,Quitting smoking isn’t easy.
+gte,4,K0-K5,more_K5,2,Sounds like you’re struggling with your smoking habit.
+gte,4,K0-K5,more_K5,3,"Nicotine replacement therapy, support groups, or self-help resources?"
+gte,4,K0-K5,more_K5,4,Are there any other ways to quit?
+gte,4,K0-K5,more_K5,5,"And let me tell you something, quitting smoking isn’t easy."
+gte,4,K0-K5,more_K5,6,Quitting smoking is not an overnight process.
+gte,4,K0-K5,more_K5,7,"But let me tell you something, quitting smoking isn’t easy."
+gte,4,K0-K5,more_K5,8,What is it that makes you want to smoke?
+gte,4,K0-K5,more_K5,9,"Nicotine replacement therapy, support groups, or medication?"
+gte,4,K0-K5,more_K5,10,Do you think you’re ready to quit smoking?
+gte,5,K=0,win,1,I'm so proud of you and your commitment to change.
+gte,5,K=0,win,2,I’m so proud of you for taking these brave steps.
+gte,5,K=0,win,3,I’m so proud of you for taking this brave step.
+gte,5,K=0,win,4,I’m so proud of you for taking action.
+gte,5,K=0,win,5,I’m so proud of you for taking this courageous step.
+gte,5,K=0,win,6,I'm so proud of your commitment and progress!
+gte,5,K=0,win,7,I'm so proud of you for being brave and accountable.
+gte,5,K=0,win,8,I'm thrilled to support you on your weight loss journey.
+gte,5,K=0,win,9,I’m so proud of you for taking these steps.
+gte,5,K=0,win,10,I’m so proud of you for taking the first step.
+gte,5,K=0,lose,1,That's an interesting thought.
+gte,5,K=0,lose,2,That's an interesting idea.
+gte,5,K=0,lose,3,That’s an interesting thought.
+gte,5,K=0,lose,4,That sounds really interesting.
+gte,5,K=0,lose,5,That’s an interesting idea.
+gte,5,K=0,lose,6,That sounds like an interesting idea.
+gte,5,K=0,lose,7,That’s an interesting insight.
+gte,5,K=0,lose,8,That's an interesting observation.
+gte,5,K=0,lose,9,That's an important consideration.
+gte,5,K=0,lose,10,Have you considered that?
+gte,5,K=5,win,1,Quitting smoking is not an overnight process.
+gte,5,K=5,win,2,"Remember, quitting smoking is a journey, not a destination."
+gte,5,K=5,win,3,But I’m also not saying that it will be impossible.
+gte,5,K=5,win,4,"But remember, it's not easy to change your habits."
+gte,5,K=5,win,5,I’m just saying that it can be done.
+gte,5,K=5,win,6,Set small achievable goals.
+gte,5,K=5,win,7,"Set small, achievable goals."
+gte,5,K=5,win,8,"Start with small, achievable goals."
+gte,5,K=5,win,9,"Focus on the process, not the outcome."
+gte,5,K=5,win,10,"Break down your goals into smaller, achievable steps."
+gte,5,K=5,lose,1,That's such a relief!
+gte,5,K=5,lose,2,That’s good to hear!
+gte,5,K=5,lose,3,That's great to hear!
+gte,5,K=5,lose,4,That's awesome to hear!
+gte,5,K=5,lose,5,That's good to hear.
+gte,5,K=5,lose,6,That's wonderful to hear!
+gte,5,K=5,lose,7,That's fantastic to hear!
+gte,5,K=5,lose,8,That’s good to hear.
+gte,5,K=5,lose,9,That’s such a relief!
+gte,5,K=5,lose,10,That's awesome to hear.
+gte,5,K0-K5,more_K0,1,"Awesome, I’m so proud of you!"
+gte,5,K0-K5,more_K0,2,"Fantastic, I’m so proud of you!"
+gte,5,K0-K5,more_K0,3,"Wonderful, I’m so proud of you!"
+gte,5,K0-K5,more_K0,4,I’m so proud of you!
+gte,5,K0-K5,more_K0,5,I’m proud of you!
+gte,5,K0-K5,more_K0,6,"Wow, I’m so proud of you!"
+gte,5,K0-K5,more_K0,7,"Great, I’m so proud of you!"
+gte,5,K0-K5,more_K0,8,"You are amazing, and I’m so proud of you!"
+gte,5,K0-K5,more_K0,9,"Absolutely, I’m so proud of you!"
+gte,5,K0-K5,more_K0,10,"Awesome, I'm so proud of you!"
+gte,5,K0-K5,more_K5,1,Instead of focusing on
+gte,5,K0-K5,more_K5,2,Instead of thinking about
+gte,5,K0-K5,more_K5,3,"So, instead of focusing on what you need to do,"
+gte,5,K0-K5,more_K5,4,"Okay, maybe you could think about it differently."
+gte,5,K0-K5,more_K5,5,A plan can help you stay motivated and avoid distractions.
+gte,5,K0-K5,more_K5,6,What if we focus on the bigger picture?
+gte,5,K0-K5,more_K5,7,What could you focus on instead?
+gte,5,K0-K5,more_K5,8,Maybe that's something you should consider.
+gte,5,K0-K5,more_K5,9,Don’t just choose activities that you think will be fun.
+gte,5,K0-K5,more_K5,10,That’s a lot to think about.
+gte,6,K=0,win,1,I'm thrilled to support you on your weight loss journey.
+gte,6,K=0,win,2,I'm so proud of you and your commitment to change.
+gte,6,K=0,win,3,"Absolutely, I'm so proud of your commitment and enthusiasm."
+gte,6,K=0,win,4,I'm excited to support you on your weight loss journey.
+gte,6,K=0,win,5,I'm so proud of your commitment and progress!
+gte,6,K=0,win,6,"Absolutely, I'm so proud of you!"
+gte,6,K=0,win,7,"Absolutely, I’m so proud of you!"
+gte,6,K=0,win,8,I'm so proud of your commitment and resilience.
+gte,6,K=0,win,9,I'm so proud of your resilience and commitment.
+gte,6,K=0,win,10,I'm so excited to support you on your journey.
+gte,6,K=0,lose,1,The roadmap includes the following steps:
+gte,6,K=0,lose,2,The five steps are as follows:
+gte,6,K=0,lose,3,The key steps are:
+gte,6,K=0,lose,4,The steps are as follows:
+gte,6,K=0,lose,5,Here are the steps:
+gte,6,K=0,lose,6,That sounds like a good list.
+gte,6,K=0,lose,7,Here are the five steps:
+gte,6,K=0,lose,8,The five steps are:
+gte,6,K=0,lose,9,That's a great list of tips.
+gte,6,K=0,lose,10,Here are the key steps:
+gte,6,K=5,win,1,How do you want to approach weight loss?
+gte,6,K=5,win,2,How much weight do you want to lose?
+gte,6,K=5,win,3,How do you think about your weight?
+gte,6,K=5,win,4,What is it that you want to accomplish?
+gte,6,K=5,win,5,What are your physical goals for yourself?
+gte,6,K=5,win,6,I’m talking about the mindset.
+gte,6,K=5,win,7,What are your goals?
+gte,6,K=5,win,8,What do you want to achieve?
+gte,6,K=5,win,9,I’m talking about the way you think about your body.
+gte,6,K=5,win,10,Do you have any goals for this session?
+gte,6,K=5,lose,1,"Remember, you are not alone."
+gte,6,K=5,lose,2,That’s an important step.
+gte,6,K=5,lose,3,"That’s good to hear, James."
+gte,6,K=5,lose,4,That's a great step forward.
+gte,6,K=5,lose,5,"Wow, what a transformation!"
+gte,6,K=5,lose,6,That’s a good sign.
+gte,6,K=5,lose,7,"That's good to hear, James."
+gte,6,K=5,lose,8,That’s such a relief!
+gte,6,K=5,lose,9,That’s good to hear.
+gte,6,K=5,lose,10,That’s a great step!
+gte,6,K0-K5,more_K0,1,"Absolutely, I'm so proud of your commitment and enthusiasm."
+gte,6,K0-K5,more_K0,2,"Absolutely, I'm so proud of you!"
+gte,6,K0-K5,more_K0,3,I'm so proud of your commitment and progress!
+gte,6,K0-K5,more_K0,4,"Absolutely, I’m so proud of you!"
+gte,6,K0-K5,more_K0,5,I fully support you and believe in you.
+gte,6,K0-K5,more_K0,6,I'm so proud of you and your commitment to change.
+gte,6,K0-K5,more_K0,7,I'm so proud of your commitment and enthusiasm.
+gte,6,K0-K5,more_K0,8,I'm so supportive and proud of you.
+gte,6,K0-K5,more_K0,9,I'm so proud of your commitment and resilience.
+gte,6,K0-K5,more_K0,10,I'm so proud of your commitment and determination.
+gte,6,K0-K5,more_K5,1,That’s exactly what I was thinking.
+gte,6,K0-K5,more_K5,2,That’s exactly what I’m thinking.
+gte,6,K0-K5,more_K5,3,What comes to mind?
+gte,6,K0-K5,more_K5,4,That's exactly what I was thinking.
+gte,6,K0-K5,more_K5,5,What other ideas come to mind?
+gte,6,K0-K5,more_K5,6,What are your physical goals for yourself?
+gte,6,K0-K5,more_K5,7,I’m talking about the mindset.
+gte,6,K0-K5,more_K5,8,"Oh, I’m not sure that I can answer that."
+gte,6,K0-K5,more_K5,9,What would that be?
+gte,6,K0-K5,more_K5,10,How do you think about your weight?
+gte,7,K=0,win,1,I’m here to support you in any way I can.
+gte,7,K=0,win,2,I’m always here to provide support and guidance.
+gte,7,K=0,win,3,I’m here to support you every step of the way.
+gte,7,K=0,win,4,I'm thrilled to support you on your weight loss journey.
+gte,7,K=0,win,5,I'm here to support you in any way I can.
+gte,7,K=0,win,6,I’m honored to support you on this journey.
+gte,7,K=0,win,7,I'm here to support you and celebrate your progress.
+gte,7,K=0,win,8,I’m here to support you through this process.
+gte,7,K=0,win,9,I’m here to support you every step of the way!
+gte,7,K=0,win,10,I'm here to support you every step
+gte,7,K=0,lose,1,That sounds like a good list.
+gte,7,K=0,lose,2,That sounds really interesting.
+gte,7,K=0,lose,3,Those sound like great tips.
+gte,7,K=0,lose,4,Here are the five critical elements:
+gte,7,K=0,lose,5,I think that's the key.
+gte,7,K=0,lose,6,Here are the five critical elements of the comprehensive plan:
+gte,7,K=0,lose,7,That sounds like an interesting idea.
+gte,7,K=0,lose,8,I like that idea.
+gte,7,K=0,lose,9,Those sound like good ideas.
+gte,7,K=0,lose,10,That's a great list of tips.
+gte,7,K=5,win,1,You are non-judgmental while encouraging the patient to change.
+gte,7,K=5,win,2,"Remember, quitting smoking is a journey, not a destination."
+gte,7,K=5,win,3,It’s not about trying to
+gte,7,K=5,win,4,Thank you for sharing this journey with me!
+gte,7,K=5,win,5,Thank you for sharing this journey with me.
+gte,7,K=5,win,6,Quitting smoking is not an overnight process.
+gte,7,K=5,win,7,It doesn’t have to be all or nothing.
+gte,7,K=5,win,8,It’s about letting go
+gte,7,K=5,win,9,Thank you for sharing your journey with me.
+gte,7,K=5,win,10,Thank you for being brave and honest with yourself.
+gte,7,K=5,lose,1,Do you know any of those strategies?
+gte,7,K=5,lose,2,Here are some tips to help you get started:
+gte,7,K=5,lose,3,Here are some tips to help you:1.
+gte,7,K=5,lose,4,What do you smell?
+gte,7,K=5,lose,5,Here are some tips:
+gte,7,K=5,lose,6,Here are some tips to get you started:
+gte,7,K=5,lose,7,Here are some tips to keep you on track:
+gte,7,K=5,lose,8,Here are a few key strategies:
+gte,7,K=5,lose,9,Here are a few tips:
+gte,7,K=5,lose,10,Here are some helpful strategies:
+gte,7,K0-K5,more_K0,1,I’m always here to provide support and guidance.
+gte,7,K0-K5,more_K0,2,I’m here to support you every step of the way.
+gte,7,K0-K5,more_K0,3,I'm here to support you every step
+gte,7,K0-K5,more_K0,4,I’m here to support you in any way I can.
+gte,7,K0-K5,more_K0,5,I'm here to support you every step of the
+gte,7,K0-K5,more_K0,6,I'm here to support you every step of the way.
+gte,7,K0-K5,more_K0,7,I’m here to support you every step of the way!
+gte,7,K0-K5,more_K0,8,We’re here to support you every step of the way.
+gte,7,K0-K5,more_K0,9,I'm here to support you in any way I can.
+gte,7,K0-K5,more_K0,10,I'm here to support you every step of the way
+gte,7,K0-K5,more_K5,1,It's about recognizing that
+gte,7,K0-K5,more_K5,2,I think that sounds great.
+gte,7,K0-K5,more_K5,3,That sounds great to me.
+gte,7,K0-K5,more_K5,4,Let's take a different approach.
+gte,7,K0-K5,more_K5,5,That's exactly what I'm suggesting.
+gte,7,K0-K5,more_K5,6,Let’s take a different approach.
+gte,7,K0-K5,more_K5,7,"Great, that sounds amazing!"
+gte,7,K0-K5,more_K5,8,"Well, that sounds great."
+gte,7,K0-K5,more_K5,9,That sounds good to me.
+gte,7,K0-K5,more_K5,10,"Ok, let's try a different approach."
+gte,8,K=0,win,1,I'm thrilled to support you on your weight loss journey.
+gte,8,K=0,win,2,I'm here to support you and celebrate your progress.
+gte,8,K=0,win,3,You have my full support and unconditional acceptance.
+gte,8,K=0,win,4,I'm so proud of your resilience and commitment.
+gte,8,K=0,win,5,I'm so proud of your commitment and progress!
+gte,8,K=0,win,6,I'm so supportive and proud of you.
+gte,8,K=0,win,7,I am so proud of your commitment and resilience.
+gte,8,K=0,win,8,I'm honored to support you every step of the way.
+gte,8,K=0,win,9,I'm so proud of your commitment and resilience.
+gte,8,K=0,win,10,You have my complete and unconditional support.
+gte,8,K=0,lose,1,Here are some practical ideas:
+gte,8,K=0,lose,2,Here are some ideas to consider:
+gte,8,K=0,lose,3,Here are a few ideas to consider:
+gte,8,K=0,lose,4,Here are a few ideas to explore:
+gte,8,K=0,lose,5,Here are some next steps to consider:
+gte,8,K=0,lose,6,Here are some steps to consider:
+gte,8,K=0,lose,7,Here are some key considerations:
+gte,8,K=0,lose,8,Here are a few ideas to get started:
+gte,8,K=0,lose,9,Here’s a few ideas:
+gte,8,K=0,lose,10,Here are some strategies to consider:
+gte,8,K=5,win,1,It's also about being in the moment with your body.
+gte,8,K=5,win,2,I’m talking about the way you think about your body.
+gte,8,K=5,win,3,What do you want to change about your body?
+gte,8,K=5,win,4,"For example, do you want to lose weight?"
+gte,8,K=5,win,5,"Remember, this is a journey, not a race."
+gte,8,K=5,win,6,How do you want to approach weight loss?
+gte,8,K=5,win,7,"Remember, it's a journey, not a race."
+gte,8,K=5,win,8,"Remember, it’s a journey, not a race."
+gte,8,K=5,win,9,I'm excited to support you on your weight loss journey.
+gte,8,K=5,win,10,What are your physical goals for yourself?
+gte,8,K=5,lose,1,That's a great solution!
+gte,8,K=5,lose,2,Those sound like great tips.
+gte,8,K=5,lose,3,That makes a lot of sense!
+gte,8,K=5,lose,4,That makes a lot of sense.
+gte,8,K=5,lose,5,That’s an interesting idea.
+gte,8,K=5,lose,6,Those sound like good ideas.
+gte,8,K=5,lose,7,That sounds like a good list.
+gte,8,K=5,lose,8,That sounds like an interesting idea.
+gte,8,K=5,lose,9,That sounds like a good starting point.
+gte,8,K=5,lose,10,That's an interesting idea.
+gte,8,K0-K5,more_K0,1,You have my full support and unconditional acceptance.
+gte,8,K0-K5,more_K0,2,You have my full support and understanding.
+gte,8,K0-K5,more_K0,3,You have my complete and unconditional support.
+gte,8,K0-K5,more_K0,4,You have my complete support.
+gte,8,K0-K5,more_K0,5,I'm so supportive and proud of you.
+gte,8,K0-K5,more_K0,6,"Absolutely, I appreciate your frustration."
+gte,8,K0-K5,more_K0,7,You have my full support!
+gte,8,K0-K5,more_K0,8,"Absolutely, you have my full support."
+gte,8,K0-K5,more_K0,9,I'm thrilled to support you every step of the way.
+gte,8,K0-K5,more_K0,10,You have my full support and encouragement.
+gte,8,K0-K5,more_K5,1,I’m talking about the way you think about your body.
+gte,8,K0-K5,more_K5,2,Don’t just choose activities that you think will be fun.
+gte,8,K0-K5,more_K5,3,What are your physical goals for yourself?
+gte,8,K0-K5,more_K5,4,What activities will you choose.
+gte,8,K0-K5,more_K5,5,"So, instead of focusing on what you need to do,"
+gte,8,K0-K5,more_K5,6,What activities will you choose?
+gte,8,K0-K5,more_K5,7,It's also about being in the moment with your body.
+gte,8,K0-K5,more_K5,8,"For example, do you want to lose weight?"
+gte,8,K0-K5,more_K5,9,Your plan could include activities such as:
+gte,8,K0-K5,more_K5,10,What do you want to change about your body?
+gte,9,K=0,win,1,"Absolutely, you’re absolutely right."
+gte,9,K=0,win,2,"Absolutely, you're absolutely right."
+gte,9,K=0,win,3,"Absolutely, that's exactly right!"
+gte,9,K=0,win,4,"Absolutely, that's absolutely brilliant."
+gte,9,K=0,win,5,"Absolutely, that’s exactly right!"
+gte,9,K=0,win,6,"Absolutely, that’s exactly right."
+gte,9,K=0,win,7,"Absolutely, that's exactly right."
+gte,9,K=0,win,8,"Well, you’re absolutely right."
+gte,9,K=0,win,9,"Absolutely, you're exactly right."
+gte,9,K=0,win,10,You said it perfectly.
+gte,9,K=0,lose,1,"Nicotine replacement therapy, support groups, or self-help resources?"
+gte,9,K=0,lose,2,"But remember, it's not easy to change your habits."
+gte,9,K=0,lose,3,Reward yourself for making progress.
+gte,9,K=0,lose,4,Reward yourself for your progress.
+gte,9,K=0,lose,5,"I started exercising, and my mood changed."
+gte,9,K=0,lose,6,"Nicotine replacement therapy, support groups, or medication?"
+gte,9,K=0,lose,7,I felt like a failure.
+gte,9,K=0,lose,8,Did it help you quit smoking or manage cravings?
+gte,9,K=0,lose,9,Let's create a plan to track your progress:
+gte,9,K=0,lose,10,Track your cravings with an app.
+gte,9,K=5,win,1,Have you ever tried yoga?
+gte,9,K=5,win,2,"Of course, no pressure."
+gte,9,K=5,win,3,What about trying something new?
+gte,9,K=5,win,4,"For example, do you want to lose weight?"
+gte,9,K=5,win,5,What will you do for exercise?
+gte,9,K=5,win,6,Are you open to trying something new?
+gte,9,K=5,win,7,Is that something you could try?
+gte,9,K=5,win,8,Have you ever tried nicotine replacement therapies?
+gte,9,K=5,win,9,No pressure at all.
+gte,9,K=5,win,10,Have you tried nicotine replacement therapies?
+gte,9,K=5,lose,1,"Focus on the process, not the outcome."
+gte,9,K=5,lose,2,I think we’re getting somewhere.
+gte,9,K=5,lose,3,The most important thing is that you
+gte,9,K=5,lose,4,"Okay, I think we’re getting somewhere."
+gte,9,K=5,lose,5,We're on the right track.
+gte,9,K=5,lose,6,"Remember, progress is the key."
+gte,9,K=5,lose,7,I think you’re on the right track.
+gte,9,K=5,lose,8,"Focus on progress, not perfection."
+gte,9,K=5,lose,9,"Remember, this process is"
+gte,9,K=5,lose,10,One tip is to set small goals.
+gte,9,K0-K5,more_K0,1,We're on the right track.
+gte,9,K0-K5,more_K0,2,I see you’re right.
+gte,9,K0-K5,more_K0,3,You’re hitting the nail on the head.
+gte,9,K0-K5,more_K0,4,I think you hit the nail on the head.
+gte,9,K0-K5,more_K0,5,I think you’re on the right track.
+gte,9,K0-K5,more_K0,6,I completely understand what you're saying.
+gte,9,K0-K5,more_K0,7,You hit the nail on the head.
+gte,9,K0-K5,more_K0,8,Thank you from the bottom
+gte,9,K0-K5,more_K0,9,Thank you for being so clear and specific.
+gte,9,K0-K5,more_K0,10,I think you're on the right track.
+gte,9,K0-K5,more_K5,1,"I started exercising, and my mood changed."
+gte,9,K0-K5,more_K5,2,Track your cravings with an app.
+gte,9,K0-K5,more_K5,3,"Nicotine replacement therapy, support groups, or self-help resources?"
+gte,9,K0-K5,more_K5,4,What will you do for exercise?
+gte,9,K0-K5,more_K5,5,Have you ever tried yoga?
+gte,9,K0-K5,more_K5,6,And have you considered trying meditation or yoga?
+gte,9,K0-K5,more_K5,7,Did it help you quit smoking or manage cravings?
+gte,9,K0-K5,more_K5,8,Or maybe you just want to be healthier.
+gte,9,K0-K5,more_K5,9,"Nicotine replacement therapy, support groups, or medication?"
+gte,9,K0-K5,more_K5,10,What do you think about trying nicotine patches or gum?
+gte,10,K=0,win,1,I’m so proud of you and I believe in you.
+gte,10,K=0,win,2,I'm so proud of you and believe in you.
+gte,10,K=0,win,3,I’m so proud of your commitment and resilience.
+gte,10,K=0,win,4,I am so proud of your commitment and resilience.
+gte,10,K=0,win,5,I'm so proud of you and I believe in you.
+gte,10,K=0,win,6,I'm so supportive and proud of you.
+gte,10,K=0,win,7,I'm so proud of you and your courage.
+gte,10,K=0,win,8,I'm so proud of your courage and resilience.
+gte,10,K=0,win,9,I'm so proud of you for taking this courageous step.
+gte,10,K=0,win,10,I'm so proud of your courage and commitment.
+gte,10,K=0,lose,1,Are you interested in trying some of these tips?
+gte,10,K=0,lose,2,"Sure, let's work on implementing the tips together."
+gte,10,K=0,lose,3,Sounds like a plan!
+gte,10,K=0,lose,4,That sounds like a plan!
+gte,10,K=0,lose,5,Sounds like a good plan!
+gte,10,K=0,lose,6,Sounds like a plan.
+gte,10,K=0,lose,7,That sounds like a good plan!
+gte,10,K=0,lose,8,"Yeah, that sounds like a good plan."
+gte,10,K=0,lose,9,That sounds like a plan.
+gte,10,K=0,lose,10,Sounds like a good plan.
+gte,10,K=5,win,1,You don’t have to change everything at once.
+gte,10,K=5,win,2,Balancing a healthy lifestyle with flexibility is important.
+gte,10,K=5,win,3,"Remember, consistency is key."
+gte,10,K=5,win,4,Remember that consistency is key.
+gte,10,K=5,win,5,One tip is to keep a food journal.
+gte,10,K=5,win,6,Let’s make this change and improve your overall health.
+gte,10,K=5,win,7,Setting realistic goals is key.
+gte,10,K=5,win,8,What are the things you want to change?
+gte,10,K=5,win,9,I’m not saying that it will be easy.
+gte,10,K=5,win,10,What’s important to you?
+gte,10,K=5,lose,1,I hear what you’re feeling.
+gte,10,K=5,lose,2,I understand what you're feeling.
+gte,10,K=5,lose,3,I can understand how you feel.
+gte,10,K=5,lose,4,It's okay to feel that way.
+gte,10,K=5,lose,5,I know how you feel.
+gte,10,K=5,lose,6,I can understand that feeling.
+gte,10,K=5,lose,7,I understand how you feel.
+gte,10,K=5,lose,8,"Well, I understand how you feel."
+gte,10,K=5,lose,9,"Okay, I understand how you feel."
+gte,10,K=5,lose,10,"Of course, I understand how you feel."
+gte,10,K0-K5,more_K0,1,I'm so proud of you for taking this courageous step.
+gte,10,K0-K5,more_K0,2,I'm honored to walk this journey with you.
+gte,10,K0-K5,more_K0,3,I’m so proud to be on this journey with you.
+gte,10,K0-K5,more_K0,4,It's okay to feel that way.
+gte,10,K0-K5,more_K0,5,I’m so proud of you for taking this courageous step.
+gte,10,K0-K5,more_K0,6,I'm so supportive and proud of you.
+gte,10,K0-K5,more_K0,7,I'm so proud of you for taking this step.
+gte,10,K0-K5,more_K0,8,I'm so proud to be your partner on this journey.
+gte,10,K0-K5,more_K0,9,I'm so proud of you and your courage.
+gte,10,K0-K5,more_K0,10,I'm so honored to be a part of your journey.
+gte,10,K0-K5,more_K5,1,"Remember, consistency is key."
+gte,10,K0-K5,more_K5,2,Remember that consistency is key.
+gte,10,K0-K5,more_K5,3,Are you interested in trying some of these tips?
+gte,10,K0-K5,more_K5,4,One tip is to keep a food journal.
+gte,10,K0-K5,more_K5,5,Here are some tips for staying motivated:
+gte,10,K0-K5,more_K5,6,Here are some practical tips:
+gte,10,K0-K5,more_K5,7,Here are some tips to keep you on track:
+gte,10,K0-K5,more_K5,8,Let’s talk about your diet plan.
+gte,10,K0-K5,more_K5,9,Let’s start by setting your goal for the next week.
+gte,10,K0-K5,more_K5,10,Here are some tips to help you stay motivated:
+mxbai,1,K=0,win,1,I believe in you and believe you can do this.
+mxbai,1,K=0,win,2,That’s a great mindset to have!
+mxbai,1,K=0,win,3,That's a great mindset to have!
+mxbai,1,K=0,win,4,I think we should start by setting some goals together.
+mxbai,1,K=0,win,5,That’s a great mindset!
+mxbai,1,K=0,win,6,That's a great mindset!
+mxbai,1,K=0,win,7,I'm excited to continue supporting you on your journey.
+mxbai,1,K=0,win,8,Here are some key considerations for a successful first week:
+mxbai,1,K=0,win,9,That's a great first step!
+mxbai,1,K=0,win,10,I'm excited to support you every step of the way.
+mxbai,1,K=0,lose,1,"Alright, well, that’s disappointing."
+mxbai,1,K=0,lose,2,That's obviously not good for your health.
+mxbai,1,K=0,lose,3,"You’re right, that’s not fair."
+mxbai,1,K=0,lose,4,"Don't worry, it's all confidential, and I won't tell anyone."
+mxbai,1,K=0,lose,5,I hear your frustration.
+mxbai,1,K=0,lose,6,You seem to be avoiding the question.
+mxbai,1,K=0,lose,7,That's a bit disappointing.
+mxbai,1,K=0,lose,8,That’s a bit disappointing.
+mxbai,1,K=0,lose,9,Sorry to hear that.
+mxbai,1,K=0,lose,10,Sorry for the delay.
+mxbai,1,K=5,win,1,"Start with small, achievable goals."
+mxbai,1,K=5,win,2,Setting realistic goals is key.
+mxbai,1,K=5,win,3,One tip is to set small goals.
+mxbai,1,K=5,win,4,Even small steps can make a big difference.
+mxbai,1,K=5,win,5,"Remember, small steps lead to big results."
+mxbai,1,K=5,win,6,"Focus on progress, not perfection."
+mxbai,1,K=5,win,7,Set realistic and achievable goals.
+mxbai,1,K=5,win,8,Balancing a healthy lifestyle with flexibility is important.
+mxbai,1,K=5,win,9,"Remember that progress, not perfection, is the key."
+mxbai,1,K=5,win,10,Finding balance and overcoming barriers requires a proactive approach.
+mxbai,1,K=5,lose,1,"Hey, David, I’m sorry that you’re not feeling that way."
+mxbai,1,K=5,lose,2,"Well, David, I’m sorry that you’re not feeling that way."
+mxbai,1,K=5,lose,3,Sorry for the delay.
+mxbai,1,K=5,lose,4,"James, let me ask you one last question."
+mxbai,1,K=5,lose,5,I'm sorry if I'm being rude.
+mxbai,1,K=5,lose,6,I’m sorry you feel that way.
+mxbai,1,K=5,lose,7,I’ll let you know when we’re done.
+mxbai,1,K=5,lose,8,"Well, you said you wanted someone to talk to."
+mxbai,1,K=5,lose,9,"Well, you said you needed someone to talk to."
+mxbai,1,K=5,lose,10,"Well, I understand that you don’t believe in my theory."
+mxbai,1,K0-K5,more_K0,1,I’m here to understand what you’re feeling.
+mxbai,1,K0-K5,more_K0,2,I totally understand what you’re going through.
+mxbai,1,K0-K5,more_K0,3,I understand what you're going through.
+mxbai,1,K0-K5,more_K0,4,I understand what you’re going through.
+mxbai,1,K0-K5,more_K0,5,I understand how you're feeling.
+mxbai,1,K0-K5,more_K0,6,I understand how you’re feeling.
+mxbai,1,K0-K5,more_K0,7,I totally understand how you’re feeling.
+mxbai,1,K0-K5,more_K0,8,"Absolutely, I understand what you're going through."
+mxbai,1,K0-K5,more_K0,9,I understand what you're feeling.
+mxbai,1,K0-K5,more_K0,10,I completely understand how you feel.
+mxbai,1,K0-K5,more_K5,1,Or maybe you just want to be healthier.
+mxbai,1,K0-K5,more_K5,2,What works for one person might not work for another.
+mxbai,1,K0-K5,more_K5,3,Set small achievable goals.
+mxbai,1,K0-K5,more_K5,4,Let's say you want to lose weight.
+mxbai,1,K0-K5,more_K5,5,One tip is to set small goals.
+mxbai,1,K0-K5,more_K5,6,"For example, do you want to lose weight?"
+mxbai,1,K0-K5,more_K5,7,Celebrate small successes along the way.
+mxbai,1,K0-K5,more_K5,8,Or are you exercising too little?
+mxbai,1,K0-K5,more_K5,9,Celebrate small victories along the way.
+mxbai,1,K0-K5,more_K5,10,Balancing a healthy lifestyle with flexibility is important.
+mxbai,2,K=0,win,1,Setting realistic goals is key.
+mxbai,2,K=0,win,2,How do you want to approach weight loss?
+mxbai,2,K=0,win,3,Here are the first three specific goals and actionable steps:
+mxbai,2,K=0,win,4,Let’s make this change and improve your overall health.
+mxbai,2,K=0,win,5,Here are some key considerations for a successful first week:
+mxbai,2,K=0,win,6,"Focus on progress, not perfection."
+mxbai,2,K=0,win,7,"Remember that progress, not perfection, is the key."
+mxbai,2,K=0,win,8,I think we should start by setting some goals together.
+mxbai,2,K=0,win,9,"Start with small, achievable goals."
+mxbai,2,K=0,win,10,It’s important to start with a small change.
+mxbai,2,K=0,lose,1,"Don't worry, it's all confidential, and I won't tell anyone."
+mxbai,2,K=0,lose,2,You don’t have to talk to me about this.
+mxbai,2,K=0,lose,3,"Alright, well, that’s disappointing."
+mxbai,2,K=0,lose,4,There you have it.
+mxbai,2,K=0,lose,5,It's okay if you don't believe me.
+mxbai,2,K=0,lose,6,"Well, I understand that you don’t believe in my theory."
+mxbai,2,K=0,lose,7,Let me know if you need anything else.
+mxbai,2,K=0,lose,8,Sorry for the delay.
+mxbai,2,K=0,lose,9,That's it for today.
+mxbai,2,K=0,lose,10,That’s it for today.
+mxbai,2,K=5,win,1,"But remember, it's not easy to change your habits."
+mxbai,2,K=5,win,2,Balancing a healthy lifestyle with flexibility is important.
+mxbai,2,K=5,win,3,"Remember, small steps lead to big results."
+mxbai,2,K=5,win,4,Even small steps can make a big difference.
+mxbai,2,K=5,win,5,Do you ever feel like you could make some progress?
+mxbai,2,K=5,win,6,"I changed my mindset, and I realized"
+mxbai,2,K=5,win,7,"Start with small, achievable goals."
+mxbai,2,K=5,win,8,Don’t get discouraged if you don’t see immediate results.
+mxbai,2,K=5,win,9,"Remember, small changes can lead to big results."
+mxbai,2,K=5,win,10,Finding balance and overcoming barriers requires a proactive approach.
+mxbai,2,K=5,lose,1,I’ll let you know when we’re done.
+mxbai,2,K=5,lose,2,"Alright, you asked for a statement."
+mxbai,2,K=5,lose,3,Let me know if you have any other questions.
+mxbai,2,K=5,lose,4,"But if you have any questions, please let me know."
+mxbai,2,K=5,lose,5,Let me know if you need anything else.
+mxbai,2,K=5,lose,6,Let me know if you have any questions.
+mxbai,2,K=5,lose,7,Sorry for the delay.
+mxbai,2,K=5,lose,8,Let’s see what they have to say.
+mxbai,2,K=5,lose,9,Let me ask you some questions.
+mxbai,2,K=5,lose,10,Do you have any other questions for me?
+mxbai,2,K0-K5,more_K0,1,Here are the first three specific goals and actionable steps:
+mxbai,2,K0-K5,more_K0,2,Let’s look at some potential areas for improvement:
+mxbai,2,K0-K5,more_K0,3,Let's begin with the questions.
+mxbai,2,K0-K5,more_K0,4,Let’s talk about your goals.
+mxbai,2,K0-K5,more_K0,5,Do you have any other questions or concerns?
+mxbai,2,K0-K5,more_K0,6,Here are a few additional suggestions:
+mxbai,2,K0-K5,more_K0,7,The roadmap includes the following steps:
+mxbai,2,K0-K5,more_K0,8,Here are a couple of suggestions:
+mxbai,2,K0-K5,more_K0,9,Do you have other questions or concerns?
+mxbai,2,K0-K5,more_K0,10,"Great, here are a few suggestions:"
+mxbai,2,K0-K5,more_K5,1,They're just a response to stress or anxiety.
+mxbai,2,K0-K5,more_K5,2,Have you ever tried meditation?
+mxbai,2,K0-K5,more_K5,3,Have you ever tried hypnosis?
+mxbai,2,K0-K5,more_K5,4,Have you ever tried mindfulness?
+mxbai,2,K0-K5,more_K5,5,Have you tried hypnosis or cognitive behavioral therapy?
+mxbai,2,K0-K5,more_K5,6,It is called exposure therapy.
+mxbai,2,K0-K5,more_K5,7,Have you ever tried hypnotherapy?
+mxbai,2,K0-K5,more_K5,8,Have you ever tried cognitive behavioral therapy?
+mxbai,2,K0-K5,more_K5,9,What an amazing realization!
+mxbai,2,K0-K5,more_K5,10,Don’t just choose activities that you think will be fun.
+mxbai,3,K=0,win,1,I'm thrilled to support you on your weight loss journey.
+mxbai,3,K=0,win,2,I'm excited to support you on your weight loss journey.
+mxbai,3,K=0,win,3,Let’s make this change and improve your overall health.
+mxbai,3,K=0,win,4,Good luck with your weight loss journey!
+mxbai,3,K=0,win,5,Congratulations on taking the first step towards a healthier you!
+mxbai,3,K=0,win,6,"You're on your way to a healthier, happier you!"
+mxbai,3,K=0,win,7,This will help you avoid temptation and keep you motivated.
+mxbai,3,K=0,win,8,I can help you with building a plan for quitting.
+mxbai,3,K=0,win,9,Balancing a healthy lifestyle with flexibility is important.
+mxbai,3,K=0,win,10,The 5 critical elements of a successful quit plan are:
+mxbai,3,K=0,lose,1,"Alright, well, that’s disappointing."
+mxbai,3,K=0,lose,2,Let’s see what they have to say.
+mxbai,3,K=0,lose,3,"So, what do you say?"
+mxbai,3,K=0,lose,4,That's an interesting question.
+mxbai,3,K=0,lose,5,That's a fair question.
+mxbai,3,K=0,lose,6,That’s an interesting question.
+mxbai,3,K=0,lose,7,"Well, I guess we’ll have to agree to disagree."
+mxbai,3,K=0,lose,8,That’s a bit disappointing.
+mxbai,3,K=0,lose,9,That's a bit disappointing.
+mxbai,3,K=0,lose,10,That’s a fair question.
+mxbai,3,K=5,win,1,"Start with small, achievable goals."
+mxbai,3,K=5,win,2,Setting realistic goals is key.
+mxbai,3,K=5,win,3,One tip is to set small goals.
+mxbai,3,K=5,win,4,Set realistic and achievable goals.
+mxbai,3,K=5,win,5,"Break down your goals into smaller, achievable steps."
+mxbai,3,K=5,win,6,"But remember, it's not easy to change your habits."
+mxbai,3,K=5,win,7,This will help you avoid temptation and keep you motivated.
+mxbai,3,K=5,win,8,A plan can help you stay motivated and avoid distractions.
+mxbai,3,K=5,win,9,I think we should start by setting some goals together.
+mxbai,3,K=5,win,10,"Focus on progress, not perfection."
+mxbai,3,K=5,lose,1,Let me know if you need anything else.
+mxbai,3,K=5,lose,2,Sorry for the delay.
+mxbai,3,K=5,lose,3,Let me know if you have any questions.
+mxbai,3,K=5,lose,4,"Alright, you asked for a statement."
+mxbai,3,K=5,lose,5,Let me know if you have any other questions.
+mxbai,3,K=5,lose,6,"Alright, well, that’s disappointing."
+mxbai,3,K=5,lose,7,I’ll let you know when we’re done.
+mxbai,3,K=5,lose,8,"Alright, so that's something."
+mxbai,3,K=5,lose,9,Let’s see what they have to say.
+mxbai,3,K=5,lose,10,I hear your frustration.
+mxbai,3,K0-K5,more_K0,1,I'm thrilled to support you on your weight loss journey.
+mxbai,3,K0-K5,more_K0,2,I'm excited to support you on your weight loss journey.
+mxbai,3,K0-K5,more_K0,3,I’m so happy to support you on this journey.
+mxbai,3,K0-K5,more_K0,4,I'm so happy to support you on this journey.
+mxbai,3,K0-K5,more_K0,5,I'm so supportive and proud of you.
+mxbai,3,K0-K5,more_K0,6,I'm so excited to support you on your journey.
+mxbai,3,K0-K5,more_K0,7,I'm thrilled to support you on this journey.
+mxbai,3,K0-K5,more_K0,8,I’m thrilled to support you on this journey.
+mxbai,3,K0-K5,more_K0,9,I’m happy to support you on this journey.
+mxbai,3,K0-K5,more_K0,10,I'm happy to support you every step of the way.
+mxbai,3,K0-K5,more_K5,1,What other ideas come to mind?
+mxbai,3,K0-K5,more_K5,2,What could you focus on instead?
+mxbai,3,K0-K5,more_K5,3,What else do you have in mind?
+mxbai,3,K0-K5,more_K5,4,What else can we think of?
+mxbai,3,K0-K5,more_K5,5,What do you have in mind?
+mxbai,3,K0-K5,more_K5,6,What would you like to focus on?
+mxbai,3,K0-K5,more_K5,7,What else could you think of?
+mxbai,3,K0-K5,more_K5,8,What if we focus on the bigger picture?
+mxbai,3,K0-K5,more_K5,9,What else can you think of?
+mxbai,3,K0-K5,more_K5,10,What do you think that would be?
+mxbai,4,K=0,win,1,I'm thrilled to support you on your weight loss journey.
+mxbai,4,K=0,win,2,I’m so proud of you for taking these brave steps.
+mxbai,4,K=0,win,3,I'm excited to support you on your weight loss journey.
+mxbai,4,K=0,win,4,I'm so proud of you for taking these steps.
+mxbai,4,K=0,win,5,I’m so proud of you for taking the first step.
+mxbai,4,K=0,win,6,I’m so proud of you for taking these steps.
+mxbai,4,K=0,win,7,I'm so proud of you for taking the first step.
+mxbai,4,K=0,win,8,I'm so proud of you for taking these important steps.
+mxbai,4,K=0,win,9,I'm so proud of you and your progress so far.
+mxbai,4,K=0,win,10,I’m so proud of you for taking this courageous step.
+mxbai,4,K=0,lose,1,Have you ever tried nicotine replacement therapies?
+mxbai,4,K=0,lose,2,Have you tried nicotine replacement therapies?
+mxbai,4,K=0,lose,3,Are they all smokers?
+mxbai,4,K=0,lose,4,Have you tried nicotine addiction treatment?
+mxbai,4,K=0,lose,5,How long have you been smoking?
+mxbai,4,K=0,lose,6,Have you ever tried a vaping device before?
+mxbai,4,K=0,lose,7,Are your friends all smokers?
+mxbai,4,K=0,lose,8,"Nicotine replacement therapy, support groups, or medication?"
+mxbai,4,K=0,lose,9,You can also use nicotine replacement therapy.
+mxbai,4,K=0,lose,10,Do you mind telling me about your smoking habits again?
+mxbai,4,K=5,win,1,"Remember, quitting smoking is a journey, not a destination."
+mxbai,4,K=5,win,2,Quitting smoking is not an overnight process.
+mxbai,4,K=5,win,3,Let’s make this change and improve your overall health.
+mxbai,4,K=5,win,4,Quitting smoking isn’t easy.
+mxbai,4,K=5,win,5,"But remember, it's not easy to change your habits."
+mxbai,4,K=5,win,6,Balancing a healthy lifestyle with flexibility is important.
+mxbai,4,K=5,win,7,Or maybe you just want to be healthier.
+mxbai,4,K=5,win,8,"Start with small, achievable goals."
+mxbai,4,K=5,win,9,The 5 critical elements of a successful quit plan are:
+mxbai,4,K=5,win,10,This will help you avoid temptation and keep you motivated.
+mxbai,4,K=5,lose,1,Let me know if you have any questions.
+mxbai,4,K=5,lose,2,Let me know if you have any other questions.
+mxbai,4,K=5,lose,3,Let me know if you need anything else.
+mxbai,4,K=5,lose,4,"But if you have any questions, please let me know."
+mxbai,4,K=5,lose,5,Let’s see what they have to say.
+mxbai,4,K=5,lose,6,Let me know if you have any questions or concerns.
+mxbai,4,K=5,lose,7,Let me tell you more.
+mxbai,4,K=5,lose,8,"Alright, you asked for a statement."
+mxbai,4,K=5,lose,9,Let us know how it goes.
+mxbai,4,K=5,lose,10,"Well, that's what we'll talk about in our next session."
+mxbai,4,K0-K5,more_K0,1,I'm so thrilled for you.
+mxbai,4,K0-K5,more_K0,2,I'm so glad you're excited.
+mxbai,4,K0-K5,more_K0,3,"Great, I'm so excited for you!"
+mxbai,4,K0-K5,more_K0,4,"Great, I'm so excited for you."
+mxbai,4,K0-K5,more_K0,5,"Great, I'm so pleased to hear that!"
+mxbai,4,K0-K5,more_K0,6,"Awesome, I'm so excited for you!"
+mxbai,4,K0-K5,more_K0,7,I'm so excited for you!
+mxbai,4,K0-K5,more_K0,8,"Awesome, I'm so excited for you."
+mxbai,4,K0-K5,more_K0,9,I'm so incredibly proud of you!
+mxbai,4,K0-K5,more_K0,10,"Wow, I'm so proud of you!"
+mxbai,4,K0-K5,more_K5,1,Quitting smoking isn’t easy.
+mxbai,4,K0-K5,more_K5,2,There are many different methods to cut down on smoking.
+mxbai,4,K0-K5,more_K5,3,Have you ever tried to quit smoking in the past?
+mxbai,4,K0-K5,more_K5,4,Have you ever tried to quit smoking before?
+mxbai,4,K0-K5,more_K5,5,What is it that makes you want to smoke?
+mxbai,4,K0-K5,more_K5,6,Did it help you quit smoking or manage cravings?
+mxbai,4,K0-K5,more_K5,7,Quitting smoking is not an overnight process.
+mxbai,4,K0-K5,more_K5,8,"Finally, you could try to avoid smoking in high-stress situations."
+mxbai,4,K0-K5,more_K5,9,Are you willing to try to quit smoking?
+mxbai,4,K0-K5,more_K5,10,"Nicotine replacement therapy, support groups, or medication?"
+mxbai,5,K=0,win,1,Here are your three actionable steps:
+mxbai,5,K=0,win,2,Your three actionable steps are:
+mxbai,5,K=0,win,3,Here are three actionable steps you can take:
+mxbai,5,K=0,win,4,Here are the three actionable steps:
+mxbai,5,K=0,win,5,The 5 critical elements of a successful quit plan are:
+mxbai,5,K=0,win,6,The three actionable steps are:
+mxbai,5,K=0,win,7,The three actionable steps are as follows:
+mxbai,5,K=0,win,8,Here are the five actionable steps:
+mxbai,5,K=0,win,9,Quitting smoking is not an overnight process.
+mxbai,5,K=0,win,10,The five actionable steps are:
+mxbai,5,K=0,lose,1,That's an interesting question.
+mxbai,5,K=0,lose,2,That’s an interesting question.
+mxbai,5,K=0,lose,3,That would be helpful.
+mxbai,5,K=0,lose,4,That's a fair question.
+mxbai,5,K=0,lose,5,That’s an interesting observation.
+mxbai,5,K=0,lose,6,"Ah, that’s a good question."
+mxbai,5,K=0,lose,7,That's an interesting observation.
+mxbai,5,K=0,lose,8,That’s a fair question.
+mxbai,5,K=0,lose,9,That’s an interesting thought.
+mxbai,5,K=0,lose,10,That's an interesting thought.
+mxbai,5,K=5,win,1,Quitting smoking is not an overnight process.
+mxbai,5,K=5,win,2,The 5 critical elements of a successful quit plan are:
+mxbai,5,K=5,win,3,"Remember, quitting smoking is a journey, not a destination."
+mxbai,5,K=5,win,4,"But remember, it's not easy to change your habits."
+mxbai,5,K=5,win,5,How do you want to approach weight loss?
+mxbai,5,K=5,win,6,Quitting smoking isn’t easy.
+mxbai,5,K=5,win,7,Are you willing to try to quit smoking?
+mxbai,5,K=5,win,8,"Break down your goals into smaller, achievable steps."
+mxbai,5,K=5,win,9,Setting realistic goals is key.
+mxbai,5,K=5,win,10,It’s important to start with a small change.
+mxbai,5,K=5,lose,1,"Ah, that’s great to hear."
+mxbai,5,K=5,lose,2,"Awesome, here it is:"
+mxbai,5,K=5,lose,3,"Well, that's good to hear."
+mxbai,5,K=5,lose,4,"Well, that's great to hear."
+mxbai,5,K=5,lose,5,"Awesome, here they are:"
+mxbai,5,K=5,lose,6,"Well, I'm glad to hear that."
+mxbai,5,K=5,lose,7,"Ok, well, I see."
+mxbai,5,K=5,lose,8,I'm so honored to be
+mxbai,5,K=5,lose,9,"That's awesome to hear, David."
+mxbai,5,K=5,lose,10,Let me know if you need anything else.
+mxbai,5,K0-K5,more_K0,1,"Fantastic, I'm so proud of you!"
+mxbai,5,K0-K5,more_K0,2,"Fantastic, I'm so proud of you."
+mxbai,5,K0-K5,more_K0,3,"Fantastic, I’m so proud of you!"
+mxbai,5,K0-K5,more_K0,4,"Wow, I'm so proud of you!"
+mxbai,5,K0-K5,more_K0,5,"Excellent, I'm so proud of you!"
+mxbai,5,K0-K5,more_K0,6,"Great, I'm so proud of you!"
+mxbai,5,K0-K5,more_K0,7,I'm so incredibly proud of you!
+mxbai,5,K0-K5,more_K0,8,"Wonderful, I'm so proud of you!"
+mxbai,5,K0-K5,more_K0,9,"Wonderful, I’m so proud of you!"
+mxbai,5,K0-K5,more_K0,10,"Great job, I'm so proud of you!"
+mxbai,5,K0-K5,more_K5,1,"Focus on the process, not the outcome."
+mxbai,5,K0-K5,more_K5,2,That’s an interesting thought.
+mxbai,5,K0-K5,more_K5,3,What if we focus on the bigger picture?
+mxbai,5,K0-K5,more_K5,4,That’s a lot to think about.
+mxbai,5,K0-K5,more_K5,5,"It's going to take time and effort, but it's possible."
+mxbai,5,K0-K5,more_K5,6,Let's brainstorm some ideas together.
+mxbai,5,K0-K5,more_K5,7,"So, what’s the real point of"
+mxbai,5,K0-K5,more_K5,8,That’s an interesting idea.
+mxbai,5,K0-K5,more_K5,9,That's an interesting thought.
+mxbai,5,K0-K5,more_K5,10,That’s an interesting point.
+mxbai,6,K=0,win,1,I'm thrilled that you're ready to take action.
+mxbai,6,K=0,win,2,I’m so proud of you for taking action.
+mxbai,6,K=0,win,3,I'm so proud of you for taking these important steps.
+mxbai,6,K=0,win,4,Congratulations on taking action today!
+mxbai,6,K=0,win,5,I'm so proud of you and your commitment to change.
+mxbai,6,K=0,win,6,I’m so proud of you for taking this important step.
+mxbai,6,K=0,win,7,I'm so proud of you for taking this important step.
+mxbai,6,K=0,win,8,I'm happy to support you every step of the way.
+mxbai,6,K=0,win,9,I’m so proud of you for taking this courageous step.
+mxbai,6,K=0,win,10,I'm so proud of you for taking this courageous step.
+mxbai,6,K=0,lose,1,Some ideas might include:
+mxbai,6,K=0,lose,2,Some ideas could include:
+mxbai,6,K=0,lose,3,Here are some initial ideas:
+mxbai,6,K=0,lose,4,That’s an interesting idea.
+mxbai,6,K=0,lose,5,That sounds like an interesting idea.
+mxbai,6,K=0,lose,6,What other ideas come to mind?
+mxbai,6,K=0,lose,7,One is to try to distract yourself with something else.
+mxbai,6,K=0,lose,8,Here are some ideas:<br>
+mxbai,6,K=0,lose,9,That’s an interesting observation.
+mxbai,6,K=0,lose,10,That's an interesting idea.
+mxbai,6,K=5,win,1,How do you want to approach weight loss?
+mxbai,6,K=5,win,2,What if we focus on the bigger picture?
+mxbai,6,K=5,win,3,"For example, do you want to lose weight?"
+mxbai,6,K=5,win,4,Let’s talk about motivation.
+mxbai,6,K=5,win,5,How do you think about your weight?
+mxbai,6,K=5,win,6,The three strategies are:
+mxbai,6,K=5,win,7,The three specific strategies are:
+mxbai,6,K=5,win,8,"Focus on the process, not the outcome."
+mxbai,6,K=5,win,9,The five strategies are:
+mxbai,6,K=5,win,10,"So, what’s the real point of"
+mxbai,6,K=5,lose,1,Thank you for your trust.
+mxbai,6,K=5,lose,2,Thank you for your confidence.
+mxbai,6,K=5,lose,3,Thank you for your trust and commitment.
+mxbai,6,K=5,lose,4,Thank you for your trust and enthusiasm.
+mxbai,6,K=5,lose,5,Thank you so much for your trust and commitment.
+mxbai,6,K=5,lose,6,"Well, that's a tough situation to be in."
+mxbai,6,K=5,lose,7,"Well, that’s a tough situation to be in."
+mxbai,6,K=5,lose,8,Thank you for your confidence and commitment.
+mxbai,6,K=5,lose,9,Thank you for your cooperation.
+mxbai,6,K=5,lose,10,Thank you for your trust in me.
+mxbai,6,K0-K5,more_K0,1,I’m so proud of you for taking this important step.
+mxbai,6,K0-K5,more_K0,2,I'm so proud of you for taking this important step.
+mxbai,6,K0-K5,more_K0,3,I’m so proud of you for taking this courageous step.
+mxbai,6,K0-K5,more_K0,4,I'm so proud of you for taking this courageous step.
+mxbai,6,K0-K5,more_K0,5,I'm so proud of you for taking these important steps.
+mxbai,6,K0-K5,more_K0,6,I'm happy to support you every step of the way.
+mxbai,6,K0-K5,more_K0,7,Thank you for your confidence and commitment.
+mxbai,6,K0-K5,more_K0,8,I’m so proud of you for taking this brave step.
+mxbai,6,K0-K5,more_K0,9,I’m so proud of you for taking this step.
+mxbai,6,K0-K5,more_K0,10,I'm so proud of you for taking this step.
+mxbai,6,K0-K5,more_K5,1,What other ideas come to mind?
+mxbai,6,K0-K5,more_K5,2,"So, what’s the real point of"
+mxbai,6,K0-K5,more_K5,3,"So, what's the real point of"
+mxbai,6,K0-K5,more_K5,4,Some ideas might include:
+mxbai,6,K0-K5,more_K5,5,Some ideas could include:
+mxbai,6,K0-K5,more_K5,6,What could you focus on instead?
+mxbai,6,K0-K5,more_K5,7,Here are some specific ideas:
+mxbai,6,K0-K5,more_K5,8,What if we focus on the bigger picture?
+mxbai,6,K0-K5,more_K5,9,Here are some initial ideas:
+mxbai,6,K0-K5,more_K5,10,Instead of focusing on
+mxbai,7,K=0,win,1,You are non-judgmental while encouraging the patient to change.
+mxbai,7,K=0,win,2,I believe in you and believe you can do this.
+mxbai,7,K=0,win,3,I'm so proud of you and your commitment to change.
+mxbai,7,K=0,win,4,I’m always here to provide support and guidance.
+mxbai,7,K=0,win,5,I'm thrilled to support you on your weight loss journey.
+mxbai,7,K=0,win,6,"Remember, quitting smoking is a journey, not a destination."
+mxbai,7,K=0,win,7,I'm here to support you and celebrate your progress.
+mxbai,7,K=0,win,8,I’m so proud of your courage and determination.
+mxbai,7,K=0,win,9,I’m so proud of your commitment and resilience.
+mxbai,7,K=0,win,10,Thank you for trusting me and believing in yourself.
+mxbai,7,K=0,lose,1,"Awesome, here they are:"
+mxbai,7,K=0,lose,2,"Great, here they are:"
+mxbai,7,K=0,lose,3,"Awesome, here it is:"
+mxbai,7,K=0,lose,4,Those all sound great.
+mxbai,7,K=0,lose,5,The four key features are:
+mxbai,7,K=0,lose,6,"Well, here they are:"
+mxbai,7,K=0,lose,7,Here are the four key features:
+mxbai,7,K=0,lose,8,Those all sound good.
+mxbai,7,K=0,lose,9,That's a great list!
+mxbai,7,K=0,lose,10,That sounds really interesting.
+mxbai,7,K=5,win,1,I'm so proud of you and your commitment to change.
+mxbai,7,K=5,win,2,Thank you for being open and reflective.
+mxbai,7,K=5,win,3,What a transformative experience!
+mxbai,7,K=5,win,4,Thank you for being open and courageous.
+mxbai,7,K=5,win,5,That's such a beautiful perspective!
+mxbai,7,K=5,win,6,Thank you so much for being open and courageous.
+mxbai,7,K=5,win,7,Thank you so much for being open and thoughtful.
+mxbai,7,K=5,win,8,"So, what is it that you're trying to change?"
+mxbai,7,K=5,win,9,"Remember, quitting smoking is a journey, not a destination."
+mxbai,7,K=5,win,10,It’s about letting go
+mxbai,7,K=5,lose,1,Track your progress regularly.
+mxbai,7,K=5,lose,2,A plan can help you stay motivated and avoid distractions.
+mxbai,7,K=5,lose,3,Here are some tips to keep you on track:
+mxbai,7,K=5,lose,4,Maybe something like this:
+mxbai,7,K=5,lose,5,Keep track of your progress.
+mxbai,7,K=5,lose,6,"Don't worry, it's all confidential, and I won't tell anyone."
+mxbai,7,K=5,lose,7,Here are some tips to get started:
+mxbai,7,K=5,lose,8,Here are some tips to keep you motivated:
+mxbai,7,K=5,lose,9,Here are a few suggestions to get started:
+mxbai,7,K=5,lose,10,That would be helpful.
+mxbai,7,K0-K5,more_K0,1,You asked if I can help you with motivation.
+mxbai,7,K0-K5,more_K0,2,Are you asking if I can help you with motivation?
+mxbai,7,K0-K5,more_K0,3,You asked if I could help you with motivation.
+mxbai,7,K0-K5,more_K0,4,Track your progress regularly.
+mxbai,7,K0-K5,more_K0,5,A plan can help you stay motivated and avoid distractions.
+mxbai,7,K0-K5,more_K0,6,I’m here to support you every step of the way.
+mxbai,7,K0-K5,more_K0,7,I will support you every step of the way.
+mxbai,7,K0-K5,more_K0,8,I’m not sure I can do it.
+mxbai,7,K0-K5,more_K0,9,I'm here to support you every step
+mxbai,7,K0-K5,more_K0,10,Here are some tips to help you stay motivated:
+mxbai,7,K0-K5,more_K5,1,"Great, that sounds amazing!"
+mxbai,7,K0-K5,more_K5,2,"Wow, that sounds fantastic!"
+mxbai,7,K0-K5,more_K5,3,The four key features are:
+mxbai,7,K0-K5,more_K5,4,"Wow, that sounds amazing!"
+mxbai,7,K0-K5,more_K5,5,And there you have it!
+mxbai,7,K0-K5,more_K5,6,That's a great observation!
+mxbai,7,K0-K5,more_K5,7,And the best part?
+mxbai,7,K0-K5,more_K5,8,What a transformative experience!
+mxbai,7,K0-K5,more_K5,9,"Wow, that sounds incredible!"
+mxbai,7,K0-K5,more_K5,10,"Yes, that sounds great!"
+mxbai,8,K=0,win,1,I'm thrilled to support you on your weight loss journey.
+mxbai,8,K=0,win,2,"You are brave, beautiful, and unstoppable."
+mxbai,8,K=0,win,3,"You're on your way to a healthier, happier you!"
+mxbai,8,K=0,win,4,Good luck on your journey to a healthier you.
+mxbai,8,K=0,win,5,You deserve so much love and support.
+mxbai,8,K=0,win,6,I'm so proud of you and your resilience.
+mxbai,8,K=0,win,7,"You are amazing, and I’m so proud of you!"
+mxbai,8,K=0,win,8,You are amazing and I am so proud of you!
+mxbai,8,K=0,win,9,I'm excited to support you on your weight loss journey.
+mxbai,8,K=0,win,10,Thank you for trusting me and believing in yourself!
+mxbai,8,K=0,lose,1,That’s the tricky part.
+mxbai,8,K=0,lose,2,Here are a few additional strategies to consider:
+mxbai,8,K=0,lose,3,That’s part of the learning process.
+mxbai,8,K=0,lose,4,Here are a few tips to get you started:
+mxbai,8,K=0,lose,5,"It's going to take time and effort, but it's possible."
+mxbai,8,K=0,lose,6,Here are a few ideas to get started:
+mxbai,8,K=0,lose,7,Sounds like a good strategy.
+mxbai,8,K=0,lose,8,Here are a few ideas to consider:
+mxbai,8,K=0,lose,9,Here are a few strategies you could try:
+mxbai,8,K=0,lose,10,That sounds like a reasonable start.
+mxbai,8,K=5,win,1,I'm thrilled to support you on your weight loss journey.
+mxbai,8,K=5,win,2,I'm so proud of you and your commitment to change.
+mxbai,8,K=5,win,3,"You're on your way to a healthier, happier you!"
+mxbai,8,K=5,win,4,I'm excited to support you on your weight loss journey.
+mxbai,8,K=5,win,5,Let’s make this change and improve your overall health.
+mxbai,8,K=5,win,6,"I started exercising, and my mood changed."
+mxbai,8,K=5,win,7,Congratulations on taking the first step towards a healthier you.
+mxbai,8,K=5,win,8,What do you want to change about your body?
+mxbai,8,K=5,win,9,Congratulations on taking the first step towards a healthier you!
+mxbai,8,K=5,win,10,Balancing a healthy lifestyle with flexibility is important.
+mxbai,8,K=5,lose,1,Here are a few strategies you could try:
+mxbai,8,K=5,lose,2,Here are a few tips:<br>
+mxbai,8,K=5,lose,3,Do you know any of those strategies?
+mxbai,8,K=5,lose,4,Here are a few things you could try:
+mxbai,8,K=5,lose,5,Here are some strategies you can try:
+mxbai,8,K=5,lose,6,Here are a few ideas:<br>
+mxbai,8,K=5,lose,7,Here are some tips:
+mxbai,8,K=5,lose,8,Here are a few suggestions to get started:
+mxbai,8,K=5,lose,9,Let's brainstorm some ideas together.
+mxbai,8,K=5,lose,10,Here are some helpful strategies:
+mxbai,8,K0-K5,more_K0,1,I’m here to help you to stop smoking.
+mxbai,8,K0-K5,more_K0,2,I’m always here for you.
+mxbai,8,K0-K5,more_K0,3,Have a wonderful day!
+mxbai,8,K0-K5,more_K0,4,"Ok, Emma, I’m here to help you to stop smoking."
+mxbai,8,K0-K5,more_K0,5,Have a great rest of your day!
+mxbai,8,K0-K5,more_K0,6,Have a good day!
+mxbai,8,K0-K5,more_K0,7,I’m here for you.
+mxbai,8,K0-K5,more_K0,8,I'm here for you.
+mxbai,8,K0-K5,more_K0,9,You deserve so much love and support.
+mxbai,8,K0-K5,more_K0,10,You inspire me every day.
+mxbai,8,K0-K5,more_K5,1,And it’s something that you believe is worth achieving.
+mxbai,8,K0-K5,more_K5,2,That's a great step forward.
+mxbai,8,K0-K5,more_K5,3,It’s part of the process.
+mxbai,8,K0-K5,more_K5,4,Even small changes can make a big difference.
+mxbai,8,K0-K5,more_K5,5,The roadmap includes the following steps:
+mxbai,8,K0-K5,more_K5,6,"Remember, small changes can lead to big results."
+mxbai,8,K0-K5,more_K5,7,That’s a big step.
+mxbai,8,K0-K5,more_K5,8,That’s part of the process.
+mxbai,8,K0-K5,more_K5,9,Small changes can make a big difference.
+mxbai,8,K0-K5,more_K5,10,Don’t just choose activities that you think will be fun.
+mxbai,9,K=0,win,1,"Great, that's exactly what we'll do!"
+mxbai,9,K=0,win,2,"Absolutely, that's exactly what we're going to do."
+mxbai,9,K=0,win,3,"Alright, that sounds reasonable."
+mxbai,9,K=0,win,4,"Absolutely, that's exactly what we'll do."
+mxbai,9,K=0,win,5,"Great, that's exactly right."
+mxbai,9,K=0,win,6,"Great, that's exactly right!"
+mxbai,9,K=0,win,7,"Absolutely, that’s exactly what we’ll do."
+mxbai,9,K=0,win,8,"Sure, that sounds reasonable."
+mxbai,9,K=0,win,9,"Alright, so we've covered a few options."
+mxbai,9,K=0,win,10,"Absolutely, that's exactly what we will do."
+mxbai,9,K=0,lose,1,Good luck on your journey to a healthier you.
+mxbai,9,K=0,lose,2,"Remember, quitting smoking is a journey, not a destination."
+mxbai,9,K=0,lose,3,Be gentle with yourself.
+mxbai,9,K=0,lose,4,Be kind to yourself.
+mxbai,9,K=0,lose,5,"Nicotine replacement therapy, support groups, or self-help resources?"
+mxbai,9,K=0,lose,6,Be compassionate with yourself.
+mxbai,9,K=0,lose,7,"You're on your way to a healthier, happier you!"
+mxbai,9,K=0,lose,8,Don't be hard on yourself.
+mxbai,9,K=0,lose,9,Did it help you quit smoking or manage cravings?
+mxbai,9,K=0,lose,10,Do you think about your health a lot?
+mxbai,9,K=5,win,1,Have you tried nicotine replacement therapies?
+mxbai,9,K=5,win,2,Have you ever tried nicotine replacement therapies?
+mxbai,9,K=5,win,3,Let's say you want to lose weight.
+mxbai,9,K=5,win,4,Did it help you quit smoking or manage cravings?
+mxbai,9,K=5,win,5,Have you ever tried yoga?
+mxbai,9,K=5,win,6,What would make you feel better physically?
+mxbai,9,K=5,win,7,What will you do for exercise?
+mxbai,9,K=5,win,8,"I started exercising, and my mood changed."
+mxbai,9,K=5,win,9,Have you tried nicotine addiction treatment?
+mxbai,9,K=5,win,10,Or are you exercising too little?
+mxbai,9,K=5,lose,1,"Remember, progress is more important than perfection."
+mxbai,9,K=5,lose,2,"Focus on the process, not the outcome."
+mxbai,9,K=5,lose,3,What if we focus on the bigger picture?
+mxbai,9,K=5,lose,4,"Whatever your goals are, it’s important to talk about them."
+mxbai,9,K=5,lose,5,"Remember, progress is the key."
+mxbai,9,K=5,lose,6,"Remember that progress, not perfection, is the key."
+mxbai,9,K=5,lose,7,What do you value most in your life?
+mxbai,9,K=5,lose,8,That's a valuable perspective.
+mxbai,9,K=5,lose,9,"Alright, let’s try to put things into perspective."
+mxbai,9,K=5,lose,10,"Remember, success takes time and patience."
+mxbai,9,K0-K5,more_K0,1,"Alright, let's try to put things into perspective."
+mxbai,9,K0-K5,more_K0,2,That's exactly what we'll focus on.
+mxbai,9,K0-K5,more_K0,3,Those are great priorities.
+mxbai,9,K0-K5,more_K0,4,That’s exactly what we’ll focus on.
+mxbai,9,K0-K5,more_K0,5,"Absolutely, that’s exactly what we’ll focus on."
+mxbai,9,K0-K5,more_K0,6,Let’s break this down a bit more.
+mxbai,9,K0-K5,more_K0,7,That's a really valuable insight.
+mxbai,9,K0-K5,more_K0,8,That's a valuable perspective.
+mxbai,9,K0-K5,more_K0,9,"Alright, let’s try to put things into perspective."
+mxbai,9,K0-K5,more_K0,10,"Alright, let me try to summarize the conversation so far."
+mxbai,9,K0-K5,more_K5,1,Did it help you quit smoking or manage cravings?
+mxbai,9,K0-K5,more_K5,2,"I started exercising, and my mood changed."
+mxbai,9,K0-K5,more_K5,3,What would make you feel better physically?
+mxbai,9,K0-K5,more_K5,4,Have you tried nicotine replacement therapies?
+mxbai,9,K0-K5,more_K5,5,"Nicotine replacement therapy, support groups, or self-help resources?"
+mxbai,9,K0-K5,more_K5,6,"Nicotine replacement therapy, support groups, or medication?"
+mxbai,9,K0-K5,more_K5,7,Have you ever tried nicotine replacement therapies?
+mxbai,9,K0-K5,more_K5,8,Or maybe you just want to be healthier.
+mxbai,9,K0-K5,more_K5,9,Let's say you want to lose weight.
+mxbai,9,K0-K5,more_K5,10,Have you tried nicotine addiction treatment?
+mxbai,10,K=0,win,1,I'm so proud of your courage and resilience.
+mxbai,10,K=0,win,2,Thank you so much for being so honest and vulnerable.
+mxbai,10,K=0,win,3,I'm so grateful for your courage and resilience.
+mxbai,10,K=0,win,4,Thank you for being vulnerable and courageous.
+mxbai,10,K=0,win,5,Thank you so much for being open and vulnerable.
+mxbai,10,K=0,win,6,Thank you for being so honest and vulnerable.
+mxbai,10,K=0,win,7,Thank you so much for being open and courageous.
+mxbai,10,K=0,win,8,You inspire me with your courage and resilience.
+mxbai,10,K=0,win,9,I'm so inspired by your courage and resilience.
+mxbai,10,K=0,win,10,You are so strong and courageous.
+mxbai,10,K=0,lose,1,Here are a few key strategies:
+mxbai,10,K=0,lose,2,Here are a few ideas to get started:
+mxbai,10,K=0,lose,3,Here are a few strategies you could try:
+mxbai,10,K=0,lose,4,Here are a few more tips:
+mxbai,10,K=0,lose,5,Here are a few additional strategies to consider:
+mxbai,10,K=0,lose,6,Here are a few tips:<br>
+mxbai,10,K=0,lose,7,Here are a few additional tips:
+mxbai,10,K=0,lose,8,Here are a few ideas to get you started:
+mxbai,10,K=0,lose,9,Here are the strategies:
+mxbai,10,K=0,lose,10,Here are some ideas to get you started:1.
+mxbai,10,K=5,win,1,Let’s talk about your diet plan.
+mxbai,10,K=5,win,2,Balancing a healthy lifestyle with flexibility is important.
+mxbai,10,K=5,win,3,What will you eat?
+mxbai,10,K=5,win,4,Let’s talk about your diet.
+mxbai,10,K=5,win,5,Can you tell me a little bit about your diet?
+mxbai,10,K=5,win,6,Here are the five critical elements of the comprehensive plan:
+mxbai,10,K=5,win,7,Here are the questions:
+mxbai,10,K=5,win,8,Here are some key considerations:
+mxbai,10,K=5,win,9,The four questions are:1.
+mxbai,10,K=5,win,10,Here are the four questions:
+mxbai,10,K=5,lose,1,I can understand that feeling.
+mxbai,10,K=5,lose,2,I hear what you’re feeling.
+mxbai,10,K=5,lose,3,I understand your feelings.
+mxbai,10,K=5,lose,4,I can understand how you feel.
+mxbai,10,K=5,lose,5,I understand that feeling.
+mxbai,10,K=5,lose,6,I’m sorry you feel that way.
+mxbai,10,K=5,lose,7,I’m here to understand what you’re feeling.
+mxbai,10,K=5,lose,8,It's okay to feel that way.
+mxbai,10,K=5,lose,9,I understand how you’re feeling.
+mxbai,10,K=5,lose,10,I understand how you're feeling.
+mxbai,10,K0-K5,more_K0,1,Thank you for being so honest and vulnerable.
+mxbai,10,K0-K5,more_K0,2,Thank you so much for being open and vulnerable.
+mxbai,10,K0-K5,more_K0,3,Thank you for being vulnerable and courageous.
+mxbai,10,K0-K5,more_K0,4,Thank you so much for being so honest and vulnerable.
+mxbai,10,K0-K5,more_K0,5,Thank you for being open and vulnerable.
+mxbai,10,K0-K5,more_K0,6,Thank you for being vulnerable and honest.
+mxbai,10,K0-K5,more_K0,7,Thank you for being open and vulnerable with me.
+mxbai,10,K0-K5,more_K0,8,Thank you for being honest and vulnerable.
+mxbai,10,K0-K5,more_K0,9,Thank you for your honesty and vulnerability.
+mxbai,10,K0-K5,more_K0,10,Your bravery and vulnerability are truly inspiring.
+mxbai,10,K0-K5,more_K5,1,Here are the first three specific goals and actionable steps:
+mxbai,10,K0-K5,more_K5,2,Here are the questions:
+mxbai,10,K0-K5,more_K5,3,Here are some key considerations:
+mxbai,10,K0-K5,more_K5,4,Here are a few key areas to focus on:
+mxbai,10,K0-K5,more_K5,5,Here are a few key strategies:
+mxbai,10,K0-K5,more_K5,6,Here are the five critical elements of the comprehensive plan:
+mxbai,10,K0-K5,more_K5,7,The four questions are:1.
+mxbai,10,K0-K5,more_K5,8,Here are the four key features:
+mxbai,10,K0-K5,more_K5,9,The roadmap includes the following steps:
+mxbai,10,K0-K5,more_K5,10,The strategies are as follows:
+qwen3,1,K=0,win,1,It sounds like you’re taking steps in the right direction.
+qwen3,1,K=0,win,2,What more can I do to help you move forward?
+qwen3,1,K=0,win,3,"Start with small, achievable goals."
+qwen3,1,K=0,win,4,"Break down your goals into smaller, achievable steps."
+qwen3,1,K=0,win,5,Finding balance and overcoming barriers requires a proactive approach.
+qwen3,1,K=0,win,6,What’s getting in the way of you achieving those things?
+qwen3,1,K=0,win,7,It sounds like you have a good plan in place.
+qwen3,1,K=0,win,8,Here are some tips for staying motivated:
+qwen3,1,K=0,win,9,It sounds like you're making good progress.
+qwen3,1,K=0,win,10,What might be stopping you from trying again?
+qwen3,1,K=0,lose,1,"Well, here they are:"
+qwen3,1,K=0,lose,2,"Absolutely, here they are:"
+qwen3,1,K=0,lose,3,"Sure, here they are:"
+qwen3,1,K=0,lose,4,"Perfect, here they are:"
+qwen3,1,K=0,lose,5,"Okay, here they are:"
+qwen3,1,K=0,lose,6,What do you think?<|im
+qwen3,1,K=0,lose,7,I’m here to be
+qwen3,1,K=0,lose,8,When time is up.
+qwen3,1,K=0,lose,9,I couldn't have said it better myself.
+qwen3,1,K=0,lose,10,"Oh, I love that."
+qwen3,1,K=5,win,1,One tip is to set small goals.
+qwen3,1,K=5,win,2,"Break down your goals into smaller, achievable steps."
+qwen3,1,K=5,win,3,"Start with small, achievable goals."
+qwen3,1,K=5,win,4,Here are a few tips to help you stay motivated:
+qwen3,1,K=5,win,5,"Set small, achievable goals."
+qwen3,1,K=5,win,6,Here are some tips to help you stay motivated:
+qwen3,1,K=5,win,7,Here are some tips to keep you motivated:
+qwen3,1,K=5,win,8,Set small achievable goals.
+qwen3,1,K=5,win,9,Setting realistic goals is key.
+qwen3,1,K=5,win,10,Here are some tips for staying motivated:
+qwen3,1,K=5,lose,1,"Oh, I’m not sure that I can answer that."
+qwen3,1,K=5,lose,2,"Alright, we will begin with the questions."
+qwen3,1,K=5,lose,3,"Well, I’m not sure that I can answer that."
+qwen3,1,K=5,lose,4,"James, let me ask you one last question."
+qwen3,1,K=5,lose,5,Let me ask you some questions.
+qwen3,1,K=5,lose,6,Let me ask you a question.
+qwen3,1,K=5,lose,7,Let's begin with the questions.
+qwen3,1,K=5,lose,8,Let me ask you a few questions.
+qwen3,1,K=5,lose,9,I’m not sure I understand your question.
+qwen3,1,K=5,lose,10,What do you think?</|im_end|>
+qwen3,1,K0-K5,more_K0,1,Do you have any questions for me?
+qwen3,1,K0-K5,more_K0,2,Do you have any other questions for me?
+qwen3,1,K0-K5,more_K0,3,"I understand, but let me ask you another question."
+qwen3,1,K0-K5,more_K0,4,I’m not sure I understand your question.
+qwen3,1,K0-K5,more_K0,5,"I understand that, but let me ask you another question."
+qwen3,1,K0-K5,more_K0,6,Do you have any questions or concerns?
+qwen3,1,K0-K5,more_K0,7,Do you have any questions about that?
+qwen3,1,K0-K5,more_K0,8,Is there anything else you’d like to discuss?
+qwen3,1,K0-K5,more_K0,9,Is there anything else I can help you with today?
+qwen3,1,K0-K5,more_K0,10,Can I ask you something else?
+qwen3,1,K0-K5,more_K5,1,Set small achievable goals.
+qwen3,1,K0-K5,more_K5,2,Choose activities that you actually enjoy.2.
+qwen3,1,K0-K5,more_K5,3,One tip is to set small goals.
+qwen3,1,K0-K5,more_K5,4,Don’t compare yourself to others.
+qwen3,1,K0-K5,more_K5,5,The three actionable goals are:
+qwen3,1,K0-K5,more_K5,6,Here are the first three specific goals and actionable steps:
+qwen3,1,K0-K5,more_K5,7,"Set small, achievable goals."
+qwen3,1,K0-K5,more_K5,8,"You're on your way to a healthier, happier you!"
+qwen3,1,K0-K5,more_K5,9,Here are your three actionable goals:
+qwen3,1,K0-K5,more_K5,10,"Well, first off, you should not worry about losing weight."
+qwen3,2,K=0,win,1,One tip is to set small goals.
+qwen3,2,K=0,win,2,Setting realistic goals is key.
+qwen3,2,K=0,win,3,"Start with small, achievable goals."
+qwen3,2,K=0,win,4,Here are the first three specific goals and actionable steps:
+qwen3,2,K=0,win,5,"But remember, it's not easy to change your habits."
+qwen3,2,K=0,win,6,"Break down your goals into smaller, achievable steps."
+qwen3,2,K=0,win,7,Here are a few tips to help you stay motivated:
+qwen3,2,K=0,win,8,"Set small, achievable goals."
+qwen3,2,K=0,win,9,Here are some tips to help you stay motivated:
+qwen3,2,K=0,win,10,Let’s start by setting your goal for the next week.
+qwen3,2,K=0,lose,1,I’ll be here tomorrow from 10am to noon.
+qwen3,2,K=0,lose,2,What do you think?<|im
+qwen3,2,K=0,lose,3,"Of course, of course!"
+qwen3,2,K=0,lose,4,"Alright, thank you for your time."
+qwen3,2,K=0,lose,5,That’s all for today.
+qwen3,2,K=0,lose,6,"Oh, I love that."
+qwen3,2,K=0,lose,7,"Of course, of course."
+qwen3,2,K=0,lose,8,When time is up.
+qwen3,2,K=0,lose,9,"Yeah, that's exactly it."
+qwen3,2,K=0,lose,10,That’s all for now.
+qwen3,2,K=5,win,1,"But remember, it's not easy to change your habits."
+qwen3,2,K=5,win,2,One tip is to set small goals.
+qwen3,2,K=5,win,3,"Remember, quitting smoking is a journey, not a destination."
+qwen3,2,K=5,win,4,"Start with small, achievable goals."
+qwen3,2,K=5,win,5,A plan can help you stay motivated and avoid distractions.
+qwen3,2,K=5,win,6,You don’t have to change everything at once.
+qwen3,2,K=5,win,7,Balancing a healthy lifestyle with flexibility is important.
+qwen3,2,K=5,win,8,"Finally, you could try to avoid smoking in high-stress situations."
+qwen3,2,K=5,win,9,It’s important to start with a small change.
+qwen3,2,K=5,win,10,You mentioned setting new goals based on your experiences.
+qwen3,2,K=5,lose,1,What do you think?</|im_end|>
+qwen3,2,K=5,lose,2,Do you have any questions for me?
+qwen3,2,K=5,lose,3,What do you think?<|im
+qwen3,2,K=5,lose,4,What do you say?
+qwen3,2,K=5,lose,5,Here are the questions:
+qwen3,2,K=5,lose,6,"So, what do you say?"
+qwen3,2,K=5,lose,7,Do you have any questions?
+qwen3,2,K=5,lose,8,Let me know if you have any questions.
+qwen3,2,K=5,lose,9,Can you tell me about it?
+qwen3,2,K=5,lose,10,Tell me more about yourself.
+qwen3,2,K0-K5,more_K0,1,Here are some questions to help you get started:
+qwen3,2,K0-K5,more_K0,2,Do you have any questions for me?
+qwen3,2,K0-K5,more_K0,3,Do you have any questions or concerns?
+qwen3,2,K0-K5,more_K0,4,Let me know if you have any questions or concerns.
+qwen3,2,K0-K5,more_K0,5,Here are some questions to consider:
+qwen3,2,K0-K5,more_K0,6,What do you think would be a good first step?
+qwen3,2,K0-K5,more_K0,7,"Alright, let’s start with understanding your goals."
+qwen3,2,K0-K5,more_K0,8,What are your priorities?
+qwen3,2,K0-K5,more_K0,9,What are your goals?
+qwen3,2,K0-K5,more_K0,10,"Alright, let's start with understanding your goals."
+qwen3,2,K0-K5,more_K5,1,I understand that you don't believe in therapy.
+qwen3,2,K0-K5,more_K5,2,But it doesn’t have to be that way.
+qwen3,2,K0-K5,more_K5,3,But it doesn't have to be that way.
+qwen3,2,K0-K5,more_K5,4,One is to try to distract yourself with something else.
+qwen3,2,K0-K5,more_K5,5,It is called exposure therapy.
+qwen3,2,K0-K5,more_K5,6,"But remember, it's not easy to change your habits."
+qwen3,2,K0-K5,more_K5,7,Choose activities that you actually enjoy.2.
+qwen3,2,K0-K5,more_K5,8,But I’m also not saying that it will be impossible.
+qwen3,2,K0-K5,more_K5,9,"I started exercising, and my mood changed."
+qwen3,2,K0-K5,more_K5,10,Have you ever tried cognitive behavioral therapy?
+qwen3,3,K=0,win,1,"But remember, it's not easy to change your habits."
+qwen3,3,K=0,win,2,"Remember, quitting smoking is a journey, not a destination."
+qwen3,3,K=0,win,3,One tip is to set small goals.
+qwen3,3,K=0,win,4,"Start with small, achievable goals."
+qwen3,3,K=0,win,5,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,3,K=0,win,6,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,3,K=0,win,7,"Break down your goals into smaller, achievable steps."
+qwen3,3,K=0,win,8,Here are a few tips to help you stay motivated:
+qwen3,3,K=0,win,9,Quitting smoking isn’t easy.
+qwen3,3,K=0,win,10,I can help you with building a plan for quitting.
+qwen3,3,K=0,lose,1,What do you think?<|im
+qwen3,3,K=0,lose,2,What do you think?</|im_end|>
+qwen3,3,K=0,lose,3,Here they are again:
+qwen3,3,K=0,lose,4,What do you say?
+qwen3,3,K=0,lose,5,"Well, here they are:"
+qwen3,3,K=0,lose,6,"Oh, I see, I was confused."
+qwen3,3,K=0,lose,7,"So, what do you say?"
+qwen3,3,K=0,lose,8,"Perfect, here they are:"
+qwen3,3,K=0,lose,9,What do you see?
+qwen3,3,K=0,lose,10,Why are you here?
+qwen3,3,K=5,win,1,"But remember, it's not easy to change your habits."
+qwen3,3,K=5,win,2,One tip is to set small goals.
+qwen3,3,K=5,win,3,"Start with small, achievable goals."
+qwen3,3,K=5,win,4,A plan can help you stay motivated and avoid distractions.
+qwen3,3,K=5,win,5,"Break down your goals into smaller, achievable steps."
+qwen3,3,K=5,win,6,Here are a few tips to help you stay motivated:
+qwen3,3,K=5,win,7,This will help you avoid temptation and keep you motivated.
+qwen3,3,K=5,win,8,"Remember, quitting smoking is a journey, not a destination."
+qwen3,3,K=5,win,9,Here are some tips to help you stay motivated:
+qwen3,3,K=5,win,10,You don’t have to change everything at once.
+qwen3,3,K=5,lose,1,"Alright, thank you for your time."
+qwen3,3,K=5,lose,2,Do you have any questions about that?
+qwen3,3,K=5,lose,3,That's a really great question.
+qwen3,3,K=5,lose,4,That's such a great question.
+qwen3,3,K=5,lose,5,That’s such a great question.
+qwen3,3,K=5,lose,6,That's such a valid question!
+qwen3,3,K=5,lose,7,That’s a great question.
+qwen3,3,K=5,lose,8,That's a great question.
+qwen3,3,K=5,lose,9,That’s a valid question.
+qwen3,3,K=5,lose,10,That’s such a great question!
+qwen3,3,K0-K5,more_K0,1,I’m here to support you every step of the way!
+qwen3,3,K0-K5,more_K0,2,I’m here to support you through this process.
+qwen3,3,K0-K5,more_K0,3,I'm thrilled to support you on your weight loss journey.
+qwen3,3,K0-K5,more_K0,4,I'm here to support you every step of the way!
+qwen3,3,K0-K5,more_K0,5,Have you considered joining a support group?
+qwen3,3,K0-K5,more_K0,6,"Ok, Emma, I’m here to help you to stop smoking."
+qwen3,3,K0-K5,more_K0,7,I’m here to help you to stop smoking.
+qwen3,3,K0-K5,more_K0,8,I’m here to support you every step of the way.
+qwen3,3,K0-K5,more_K0,9,I’m here to help you every step of the way.
+qwen3,3,K0-K5,more_K0,10,I'm here to support you every step of the
+qwen3,3,K0-K5,more_K5,1,"Focus on the process, not the outcome."
+qwen3,3,K0-K5,more_K5,2,Don’t just choose activities that you think will be fun.
+qwen3,3,K0-K5,more_K5,3,What if we focus on the bigger picture?
+qwen3,3,K0-K5,more_K5,4,"So, instead of focusing on what you need to do,"
+qwen3,3,K0-K5,more_K5,5,What are the things you want to change?
+qwen3,3,K0-K5,more_K5,6,What if we tried something different?
+qwen3,3,K0-K5,more_K5,7,What do you want to change?
+qwen3,3,K0-K5,more_K5,8,Let’s look at these thoughts from a different perspective.
+qwen3,3,K0-K5,more_K5,9,What could you focus on instead?
+qwen3,3,K0-K5,more_K5,10,Why do you want to change?
+qwen3,4,K=0,win,1,It sounds like you’re taking steps in the right direction.
+qwen3,4,K=0,win,2,"Remember, you’re not alone in this journey."
+qwen3,4,K=0,win,3,I’m so proud of you for taking these steps.
+qwen3,4,K=0,win,4,"Remember, it's a journey, not a destination."
+qwen3,4,K=0,win,5,"Remember, it’s a journey, not a destination."
+qwen3,4,K=0,win,6,I’m so proud of you for taking the first step.
+qwen3,4,K=0,win,7,But let’s keep our goals in mind.
+qwen3,4,K=0,win,8,"Well, first off, you should not worry about losing weight."
+qwen3,4,K=0,win,9,"Remember, this is a journey, not a destination."
+qwen3,4,K=0,win,10,I'm so proud of you for committing to these steps.
+qwen3,4,K=0,lose,1,Find activities that you enjoy.
+qwen3,4,K=0,lose,2,What do you think?<|im
+qwen3,4,K=0,lose,3,When time is up.
+qwen3,4,K=0,lose,4,Are they all smokers?
+qwen3,4,K=0,lose,5,Track your cravings with an app.
+qwen3,4,K=0,lose,6,Have you ever tried nicotine replacement therapies?
+qwen3,4,K=0,lose,7,Tell me more about yourself.
+qwen3,4,K=0,lose,8,What do you think?</|im_end|>
+qwen3,4,K=0,lose,9,Here are the details:
+qwen3,4,K=0,lose,10,Create a support network.
+qwen3,4,K=5,win,1,"Remember, quitting smoking is a journey, not a destination."
+qwen3,4,K=5,win,2,"But remember, it's not easy to change your habits."
+qwen3,4,K=5,win,3,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,4,K=5,win,4,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,4,K=5,win,5,Quitting smoking is not an overnight process.
+qwen3,4,K=5,win,6,Quitting smoking isn’t easy.
+qwen3,4,K=5,win,7,One tip is to set small goals.
+qwen3,4,K=5,win,8,But let’s keep our goals in mind.
+qwen3,4,K=5,win,9,You don’t have to change everything at once.
+qwen3,4,K=5,win,10,"Start with small, achievable goals."
+qwen3,4,K=5,lose,1,What do you think?<|im
+qwen3,4,K=5,lose,2,Here are the questions:
+qwen3,4,K=5,lose,3,Tell me more about yourself.
+qwen3,4,K=5,lose,4,Here are the three questions:
+qwen3,4,K=5,lose,5,Here are the four questions:
+qwen3,4,K=5,lose,6,Can you tell me about it?
+qwen3,4,K=5,lose,7,I'm here for you.
+qwen3,4,K=5,lose,8,I’m here for you.
+qwen3,4,K=5,lose,9,"Absolutely, that's exactly what I'm here for!"
+qwen3,4,K=5,lose,10,What do you think?</|im_end|>
+qwen3,4,K0-K5,more_K0,1,"Well, I understand your concerns."
+qwen3,4,K0-K5,more_K0,2,I absolutely understand your skepticism.
+qwen3,4,K0-K5,more_K0,3,"Absolutely, I understand your skepticism."
+qwen3,4,K0-K5,more_K0,4,"Absolutely, I understand your hesitations."
+qwen3,4,K0-K5,more_K0,5,"Of course, I understand your skepticism."
+qwen3,4,K0-K5,more_K0,6,"Well, I understand your skepticism."
+qwen3,4,K0-K5,more_K0,7,"Absolutely, I understand your concerns."
+qwen3,4,K0-K5,more_K0,8,"Alright, I understand your skepticism."
+qwen3,4,K0-K5,more_K0,9,"Okay, I understand your skepticism."
+qwen3,4,K0-K5,more_K0,10,"Hey, I understand your concerns."
+qwen3,4,K0-K5,more_K5,1,There are many different methods to cut down on smoking.
+qwen3,4,K0-K5,more_K5,2,Quitting smoking is not an overnight process.
+qwen3,4,K0-K5,more_K5,3,Quitting smoking isn’t easy.
+qwen3,4,K0-K5,more_K5,4,"Finally, you could try to avoid smoking in high-stress situations."
+qwen3,4,K0-K5,more_K5,5,"Remember, quitting smoking is a journey, not a destination."
+qwen3,4,K0-K5,more_K5,6,Have you ever tried to quit smoking before?
+qwen3,4,K0-K5,more_K5,7,What are some of the reasons you smoke?
+qwen3,4,K0-K5,more_K5,8,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,4,K0-K5,more_K5,9,You can also use nicotine replacement therapy.
+qwen3,4,K0-K5,more_K5,10,Have you ever tried to quit smoking in the past?
+qwen3,5,K=0,win,1,Here are the first three specific goals and actionable steps:
+qwen3,5,K=0,win,2,Here are three concrete steps you can start with today:
+qwen3,5,K=0,win,3,Here are a few practical steps you can take:
+qwen3,5,K=0,win,4,Here are some ways you can celebrate your progress:
+qwen3,5,K=0,win,5,Here are three actionable steps you can take:
+qwen3,5,K=0,win,6,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,5,K=0,win,7,Here are a few simple steps you can take:
+qwen3,5,K=0,win,8,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,5,K=0,win,9,Here are a few specific actions you can take:
+qwen3,5,K=0,win,10,"Remember, quitting smoking is a journey, not a destination."
+qwen3,5,K=0,lose,1,What do you think?<|im
+qwen3,5,K=0,lose,2,Why are you here?
+qwen3,5,K=0,lose,3,What do you think?</|im_end|>
+qwen3,5,K=0,lose,4,That's what we're here for!
+qwen3,5,K=0,lose,5,What comes to mind?
+qwen3,5,K=0,lose,6,That’s an interesting thought.
+qwen3,5,K=0,lose,7,That's an interesting thought.
+qwen3,5,K=0,lose,8,What would that be?
+qwen3,5,K=0,lose,9,That’s an interesting insight.
+qwen3,5,K=0,lose,10,What do you think that would be?
+qwen3,5,K=5,win,1,"Remember, quitting smoking is a journey, not a destination."
+qwen3,5,K=5,win,2,"Well, first off, you should not worry about losing weight."
+qwen3,5,K=5,win,3,"So, instead of focusing on what you need to do,"
+qwen3,5,K=5,win,4,"But remember, it's not easy to change your habits."
+qwen3,5,K=5,win,5,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,5,K=5,win,6,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,5,K=5,win,7,But what if we took a different approach?
+qwen3,5,K=5,win,8,But let’s keep our goals in mind.
+qwen3,5,K=5,win,9,But what if we tried a different approach?
+qwen3,5,K=5,win,10,You don’t have to change everything at once.
+qwen3,5,K=5,lose,1,I'm here for you.
+qwen3,5,K=5,lose,2,Tell me more about yourself.
+qwen3,5,K=5,lose,3,I’m here for you.
+qwen3,5,K=5,lose,4,Keep me updated on how things are going.
+qwen3,5,K=5,lose,5,Create a support system.
+qwen3,5,K=5,lose,6,What do you think?<|im
+qwen3,5,K=5,lose,7,Create a support network.
+qwen3,5,K=5,lose,8,I’m here to help!
+qwen3,5,K=5,lose,9,Can you tell me about it?
+qwen3,5,K=5,lose,10,Build a support system.
+qwen3,5,K0-K5,more_K0,1,Here are a few simple steps you can take:
+qwen3,5,K0-K5,more_K0,2,Here are a few practical steps you can take:
+qwen3,5,K0-K5,more_K0,3,Here are a few specific actions you can take:
+qwen3,5,K0-K5,more_K0,4,What can I do to support you?
+qwen3,5,K0-K5,more_K0,5,Here are some specific steps you can take:
+qwen3,5,K0-K5,more_K0,6,I’m so proud of you for taking these brave steps.
+qwen3,5,K0-K5,more_K0,7,Here are the specific steps you can take:
+qwen3,5,K0-K5,more_K0,8,I’m so proud of you for taking these steps.
+qwen3,5,K0-K5,more_K0,9,I'm so supportive and proud of you.
+qwen3,5,K0-K5,more_K0,10,I’m thrilled to support you every step of the way.
+qwen3,5,K0-K5,more_K5,1,Instead of focusing on
+qwen3,5,K0-K5,more_K5,2,They're not inherently bad.
+qwen3,5,K0-K5,more_K5,3,Instead of thinking about
+qwen3,5,K0-K5,more_K5,4,"So, instead of focusing on what you need to do,"
+qwen3,5,K0-K5,more_K5,5,It’s not about trying to
+qwen3,5,K0-K5,more_K5,6,What if we focus on the bigger picture?
+qwen3,5,K0-K5,more_K5,7,Let’s look at these thoughts from a different perspective.
+qwen3,5,K0-K5,more_K5,8,"Focus on the process, not the outcome."
+qwen3,5,K0-K5,more_K5,9,But I think you’re missing the point here.
+qwen3,5,K0-K5,more_K5,10,Let’s look at this from a different perspective.
+qwen3,6,K=0,win,1,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,6,K=0,win,2,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,6,K=0,win,3,Do you think you’re ready to quit smoking?
+qwen3,6,K=0,win,4,"But if you want to quit, I’m here to help."
+qwen3,6,K=0,win,5,"Ok, Emma, I’m here to help you to stop smoking."
+qwen3,6,K=0,win,6,I’m so proud of you for taking this courageous step.
+qwen3,6,K=0,win,7,"Absolutely, you have my full support."
+qwen3,6,K=0,win,8,I'm thrilled that you're ready to take action.
+qwen3,6,K=0,win,9,I'm so proud of you for taking this courageous step.
+qwen3,6,K=0,win,10,I'm honored to support you every step of the way.
+qwen3,6,K=0,lose,1,Here they are again:
+qwen3,6,K=0,lose,2,"Well, here they are:"
+qwen3,6,K=0,lose,3,"Okay, here they are:"
+qwen3,6,K=0,lose,4,"Perfect, here they are:"
+qwen3,6,K=0,lose,5,Find activities that you enjoy.
+qwen3,6,K=0,lose,6,Let's explore it further.
+qwen3,6,K=0,lose,7,Let's look at some examples:
+qwen3,6,K=0,lose,8,Track your cravings with an app.
+qwen3,6,K=0,lose,9,"Great, here they are:"
+qwen3,6,K=0,lose,10,"Awesome, here they are:"
+qwen3,6,K=5,win,1,How do you want to approach weight loss?
+qwen3,6,K=5,win,2,"So, instead of focusing on what you need to do,"
+qwen3,6,K=5,win,3,"Well, first off, you should not worry about losing weight."
+qwen3,6,K=5,win,4,I couldn’t have said it better myself.
+qwen3,6,K=5,win,5,I couldn't have said it better myself.
+qwen3,6,K=5,win,6,But what if we took a different approach?
+qwen3,6,K=5,win,7,"For example, do you want to lose weight?"
+qwen3,6,K=5,win,8,How much weight do you want to lose?
+qwen3,6,K=5,win,9,Let's say you want to lose weight.
+qwen3,6,K=5,win,10,But what if we tried a different approach?
+qwen3,6,K=5,lose,1,Great progress so far.
+qwen3,6,K=5,lose,2,It doesn't happen overnight.
+qwen3,6,K=5,lose,3,It’s a great start.
+qwen3,6,K=5,lose,4,"It's going to take time and effort, but it's possible."
+qwen3,6,K=5,lose,5,It takes time and effort.
+qwen3,6,K=5,lose,6,"Great, that’s a start."
+qwen3,6,K=5,lose,7,Congratulations on taking the first step!
+qwen3,6,K=5,lose,8,Congratulations on taking the first step.
+qwen3,6,K=5,lose,9,We’re just getting started.
+qwen3,6,K=5,lose,10,You’re making great progress.
+qwen3,6,K0-K5,more_K0,1,I'm thrilled that you're ready to take action.
+qwen3,6,K0-K5,more_K0,2,"It's going to take time and effort, but it's possible."
+qwen3,6,K0-K5,more_K0,3,I'm ready to support you every step of the way.
+qwen3,6,K0-K5,more_K0,4,I believe in you and believe you can do this.
+qwen3,6,K0-K5,more_K0,5,Thank you for being vulnerable and courageous.
+qwen3,6,K0-K5,more_K0,6,Even small steps can make a big difference.
+qwen3,6,K0-K5,more_K0,7,You have my full support and encouragement.
+qwen3,6,K0-K5,more_K0,8,I'm honored to support you every step of the way.
+qwen3,6,K0-K5,more_K0,9,Thank you for your confidence and openness.
+qwen3,6,K0-K5,more_K0,10,Congratulations on taking action today!
+qwen3,6,K0-K5,more_K5,1,How do you want to approach weight loss?
+qwen3,6,K0-K5,more_K5,2,"So, instead of focusing on what you need to do,"
+qwen3,6,K0-K5,more_K5,3,But what if we took a different approach?
+qwen3,6,K0-K5,more_K5,4,But what if we tried a different approach?
+qwen3,6,K0-K5,more_K5,5,"For example, do you want to lose weight?"
+qwen3,6,K0-K5,more_K5,6,Let’s look at these thoughts from a different perspective.
+qwen3,6,K0-K5,more_K5,7,Let's say you want to lose weight.
+qwen3,6,K0-K5,more_K5,8,Let’s look at this from a different perspective.
+qwen3,6,K0-K5,more_K5,9,"Well, first off, you should not worry about losing weight."
+qwen3,6,K0-K5,more_K5,10,That’s exactly what I was getting at.
+qwen3,7,K=0,win,1,Be compassionate with yourself.
+qwen3,7,K=0,win,2,I'm so proud of you and
+qwen3,7,K=0,win,3,"But if you want to quit, I’m here to help."
+qwen3,7,K=0,win,4,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,7,K=0,win,5,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,7,K=0,win,6,"Ok, Emma, I’m here to help you to stop smoking."
+qwen3,7,K=0,win,7,"Nicotine replacement therapy, support groups, or self-help resources?"
+qwen3,7,K=0,win,8,I’m here to support you in any way I can.
+qwen3,7,K=0,win,9,I couldn’t have said it better myself.
+qwen3,7,K=0,win,10,I’m so proud of you for taking this courageous step.
+qwen3,7,K=0,lose,1,Here are the questions:
+qwen3,7,K=0,lose,2,"Great, here they are:"
+qwen3,7,K=0,lose,3,Here are the four questions:
+qwen3,7,K=0,lose,4,"Perfect, here they are:"
+qwen3,7,K=0,lose,5,Here are some key considerations:
+qwen3,7,K=0,lose,6,Here are the five critical elements:
+qwen3,7,K=0,lose,7,The four key features are:
+qwen3,7,K=0,lose,8,The four questions are:
+qwen3,7,K=0,lose,9,Here are the four key features:
+qwen3,7,K=0,lose,10,Here are the details:
+qwen3,7,K=5,win,1,But what if we took a different approach?
+qwen3,7,K=5,win,2,I couldn’t have said it better myself.
+qwen3,7,K=5,win,3,I couldn't have said it better myself.
+qwen3,7,K=5,win,4,But I’m not talking about that.
+qwen3,7,K=5,win,5,But it doesn’t have to be that way.
+qwen3,7,K=5,win,6,But it doesn't have to be that way.
+qwen3,7,K=5,win,7,"Well, first off, you should not worry about losing weight."
+qwen3,7,K=5,win,8,But what if we tried a different approach?
+qwen3,7,K=5,win,9,"So, instead of focusing on what you need to do,"
+qwen3,7,K=5,win,10,Let’s look at this from a different perspective.
+qwen3,7,K=5,lose,1,Find activities that you enjoy.
+qwen3,7,K=5,lose,2,Track your cravings with an app.
+qwen3,7,K=5,lose,3,Would you like to set some goals and objectives?
+qwen3,7,K=5,lose,4,Ready to get started?
+qwen3,7,K=5,lose,5,Here are some tips for getting started:
+qwen3,7,K=5,lose,6,Here are some tips to get started:
+qwen3,7,K=5,lose,7,Here are some starting points:
+qwen3,7,K=5,lose,8,You CAN do this!
+qwen3,7,K=5,lose,9,Keep me updated on how things are going.
+qwen3,7,K=5,lose,10,Track your progress regularly.
+qwen3,7,K0-K5,more_K0,1,I’ll help you set a goal for yourself.
+qwen3,7,K0-K5,more_K0,2,Let’s start by setting your goal for the next week.
+qwen3,7,K0-K5,more_K0,3,I will support you every step of the way.
+qwen3,7,K0-K5,more_K0,4,Here are three concrete steps you can start with today:
+qwen3,7,K0-K5,more_K0,5,Here are some tips to keep you motivated:
+qwen3,7,K0-K5,more_K0,6,Here are a few tips to help you stay motivated:
+qwen3,7,K0-K5,more_K0,7,I’m here to support you in any way I can.
+qwen3,7,K0-K5,more_K0,8,I'm here to support you in any way I can.
+qwen3,7,K0-K5,more_K0,9,Let’s start by setting your goal for the next month.
+qwen3,7,K0-K5,more_K0,10,Here are some tips to help you stay motivated:
+qwen3,7,K0-K5,more_K5,1,Let’s look at this from a different perspective.
+qwen3,7,K0-K5,more_K5,2,But I think you’re missing the point here.
+qwen3,7,K0-K5,more_K5,3,Let’s look at these thoughts from a different perspective.
+qwen3,7,K0-K5,more_K5,4,That’s a beautiful insight.
+qwen3,7,K0-K5,more_K5,5,That’s an interesting perspective.
+qwen3,7,K0-K5,more_K5,6,That's an interesting perspective.
+qwen3,7,K0-K5,more_K5,7,That’s an interesting insight.
+qwen3,7,K0-K5,more_K5,8,That’s an interesting point.
+qwen3,7,K0-K5,more_K5,9,That's an interesting point.
+qwen3,7,K0-K5,more_K5,10,Instead of focusing on
+qwen3,8,K=0,win,1,I'm so proud of you and
+qwen3,8,K=0,win,2,"Of course, I’m so proud of you!"
+qwen3,8,K=0,win,3,I couldn’t have said it better myself.
+qwen3,8,K=0,win,4,"Absolutely, I'm so proud of you!"
+qwen3,8,K=0,win,5,"Absolutely, I’m so proud of you!"
+qwen3,8,K=0,win,6,I couldn't have said it better myself.
+qwen3,8,K=0,win,7,"I'm so proud of you, Emma!"
+qwen3,8,K=0,win,8,Thank you for trusting me and believing in yourself!
+qwen3,8,K=0,win,9,"You are amazing, and I’m so proud of you!"
+qwen3,8,K=0,win,10,You're amazing and I'm so proud of you!
+qwen3,8,K=0,lose,1,Let's brainstorm some ideas together.
+qwen3,8,K=0,lose,2,The two strategies are:
+qwen3,8,K=0,lose,3,Here are a few ideas to explore:
+qwen3,8,K=0,lose,4,Here are the two strategies:
+qwen3,8,K=0,lose,5,Here are some ideas:
+qwen3,8,K=0,lose,6,Here are some ideas to consider:
+qwen3,8,K=0,lose,7,Here are some things to think about:
+qwen3,8,K=0,lose,8,Here are a few ideas:
+qwen3,8,K=0,lose,9,The three strategies are:
+qwen3,8,K=0,lose,10,Here are a few ideas to consider:
+qwen3,8,K=5,win,1,I couldn’t have said it better myself.
+qwen3,8,K=5,win,2,I couldn't have said it better myself.
+qwen3,8,K=5,win,3,I'm so proud of you and
+qwen3,8,K=5,win,4,"Of course, I’m so proud of you!"
+qwen3,8,K=5,win,5,Do you like going to the gym?
+qwen3,8,K=5,win,6,That’s such a powerful shift.
+qwen3,8,K=5,win,7,I’m so proud of you for taking this courageous step.
+qwen3,8,K=5,win,8,My mom told me that I needed to change.
+qwen3,8,K=5,win,9,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,8,K=5,win,10,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,8,K=5,lose,1,Here are some tips for getting started:
+qwen3,8,K=5,lose,2,Here are some tips to get started:
+qwen3,8,K=5,lose,3,Here are three tips:
+qwen3,8,K=5,lose,4,Here are some tips to get you started:
+qwen3,8,K=5,lose,5,Here are some helpful strategies:
+qwen3,8,K=5,lose,6,Here are some practical tips:
+qwen3,8,K=5,lose,7,Here are a few tips to get you started:
+qwen3,8,K=5,lose,8,Here are some tips to help you get started:
+qwen3,8,K=5,lose,9,Here are some tips:
+qwen3,8,K=5,lose,10,Here are some starting points:
+qwen3,8,K0-K5,more_K0,1,- Be kind to yourself.
+qwen3,8,K0-K5,more_K0,2,Be compassionate with yourself.
+qwen3,8,K0-K5,more_K0,3,I believe in you and your ability to succeed.
+qwen3,8,K0-K5,more_K0,4,Thank you for trusting me and believing in yourself!
+qwen3,8,K0-K5,more_K0,5,Be kind to yourself.
+qwen3,8,K0-K5,more_K0,6,Be gentle with yourself.
+qwen3,8,K0-K5,more_K0,7,"You are amazing, and I believe in you."
+qwen3,8,K0-K5,more_K0,8,Good luck on your journey to a healthier you.
+qwen3,8,K0-K5,more_K0,9,"Fantastic, I’m so happy to hear that!"
+qwen3,8,K0-K5,more_K0,10,"Great, I’m so happy to hear that!"
+qwen3,8,K0-K5,more_K5,1,"So, instead of focusing on what you need to do,"
+qwen3,8,K0-K5,more_K5,2,Let’s look at these thoughts from a different perspective.
+qwen3,8,K0-K5,more_K5,3,Instead of thinking about
+qwen3,8,K0-K5,more_K5,4,But what if we took a different approach?
+qwen3,8,K0-K5,more_K5,5,But what if we tried a different approach?
+qwen3,8,K0-K5,more_K5,6,Instead of focusing on
+qwen3,8,K0-K5,more_K5,7,Let’s look at this from a different perspective.
+qwen3,8,K0-K5,more_K5,8,Why do you want to change?
+qwen3,8,K0-K5,more_K5,9,But I think you’re missing the point here.
+qwen3,8,K0-K5,more_K5,10,That’s part of the process.
+qwen3,9,K=0,win,1,The three concrete steps are:
+qwen3,9,K=0,win,2,Here are the three specific steps:
+qwen3,9,K=0,win,3,The three specific steps are:
+qwen3,9,K=0,win,4,The three steps are:
+qwen3,9,K=0,win,5,Here are the three steps:
+qwen3,9,K=0,win,6,The three actionable steps are:
+qwen3,9,K=0,win,7,Here are the three key steps:
+qwen3,9,K=0,win,8,Here are the three questions:
+qwen3,9,K=0,win,9,The three specific steps include:
+qwen3,9,K=0,win,10,The three specific actions are:
+qwen3,9,K=0,lose,1,How do you feel when you think about smoking?
+qwen3,9,K=0,lose,2,"Remember, quitting smoking is a journey, not a destination."
+qwen3,9,K=0,lose,3,Be compassionate with yourself.
+qwen3,9,K=0,lose,4,"But remember, it's not easy to change your habits."
+qwen3,9,K=0,lose,5,- Be kind to yourself.
+qwen3,9,K=0,lose,6,Did it help you quit smoking or manage cravings?
+qwen3,9,K=0,lose,7,"Nicotine replacement therapy, support groups, or self-help resources?"
+qwen3,9,K=0,lose,8,What is it that makes you want to smoke?
+qwen3,9,K=0,lose,9,Have you ever tried to quit smoking in the past?
+qwen3,9,K=0,lose,10,"I started exercising, and my mood changed."
+qwen3,9,K=5,win,1,"I’ll admit, it’s a little bit unconventional."
+qwen3,9,K=5,win,2,So why not give it a try?
+qwen3,9,K=5,win,3,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,9,K=5,win,4,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,9,K=5,win,5,Have you ever tried to quit smoking before?
+qwen3,9,K=5,win,6,Let's explore some strategies for making exercise enjoyable.
+qwen3,9,K=5,win,7,But what if we took a different approach?
+qwen3,9,K=5,win,8,Have you ever tried to quit smoking in the past?
+qwen3,9,K=5,win,9,But what if we tried a different approach?
+qwen3,9,K=5,win,10,"Alright, here’s some ideas: 1."
+qwen3,9,K=5,lose,1,"Focus on the process, not the outcome."
+qwen3,9,K=5,lose,2,What do you value?
+qwen3,9,K=5,lose,3,What are your values?
+qwen3,9,K=5,lose,4,What are your priorities?
+qwen3,9,K=5,lose,5,I'm here to support
+qwen3,9,K=5,lose,6,I'm here to support you every step of the way
+qwen3,9,K=5,lose,7,I'm here to support you every step
+qwen3,9,K=5,lose,8,What do you want to achieve?
+qwen3,9,K=5,lose,9,You are worth it.
+qwen3,9,K=5,lose,10,I’m here to support you through this process.
+qwen3,9,K0-K5,more_K0,1,The three concrete steps are:
+qwen3,9,K0-K5,more_K0,2,The three key steps are:
+qwen3,9,K0-K5,more_K0,3,Here are the three key steps:
+qwen3,9,K0-K5,more_K0,4,The three specific actions are:
+qwen3,9,K0-K5,more_K0,5,The three specific steps are:
+qwen3,9,K0-K5,more_K0,6,The three specific questions are:
+qwen3,9,K0-K5,more_K0,7,The three steps are:
+qwen3,9,K0-K5,more_K0,8,Here are the three essential steps:
+qwen3,9,K0-K5,more_K0,9,The three specific steps include:
+qwen3,9,K0-K5,more_K0,10,The three questions are:
+qwen3,9,K0-K5,more_K5,1,"But let me tell you something, quitting smoking isn’t easy."
+qwen3,9,K0-K5,more_K5,2,"And let me tell you something, quitting smoking isn’t easy."
+qwen3,9,K0-K5,more_K5,3,Have you ever tried to quit smoking before?
+qwen3,9,K0-K5,more_K5,4,Did it help you quit smoking or manage cravings?
+qwen3,9,K0-K5,more_K5,5,Have you ever tried to quit smoking in the past?
+qwen3,9,K0-K5,more_K5,6,"I started exercising, and my mood changed."
+qwen3,9,K0-K5,more_K5,7,Quitting smoking isn’t easy.
+qwen3,9,K0-K5,more_K5,8,"Remember, quitting smoking is a journey, not a destination."
+qwen3,9,K0-K5,more_K5,9,How do you feel when you think about smoking?
+qwen3,9,K0-K5,more_K5,10,Do you think you’re ready to quit smoking?
+qwen3,10,K=0,win,1,I'm so proud of you and
+qwen3,10,K=0,win,2,I couldn’t have said it better myself.
+qwen3,10,K=0,win,3,I'm so proud of you and your courage.
+qwen3,10,K=0,win,4,I’m so proud of you and I believe in you.
+qwen3,10,K=0,win,5,Thank you for trusting me and believing in yourself!
+qwen3,10,K=0,win,6,I’m so proud of you for taking this courageous step.
+qwen3,10,K=0,win,7,I couldn't have said it better myself.
+qwen3,10,K=0,win,8,I’m so proud of your courage and determination.
+qwen3,10,K=0,win,9,"Of course, I’m so proud of you!"
+qwen3,10,K=0,win,10,I'm so proud of your courage and resilience.
+qwen3,10,K=0,lose,1,Here are three specific steps you can focus on:
+qwen3,10,K=0,lose,2,The three steps are:
+qwen3,10,K=0,lose,3,Here are a few ideas to explore:
+qwen3,10,K=0,lose,4,The three concrete steps are:
+qwen3,10,K=0,lose,5,The three specific steps are:
+qwen3,10,K=0,lose,6,Here are the three steps:
+qwen3,10,K=0,lose,7,Here are a few ideas:
+qwen3,10,K=0,lose,8,Here are the three specific steps:
+qwen3,10,K=0,lose,9,The three key steps are:
+qwen3,10,K=0,lose,10,Here are the three key steps:
+qwen3,10,K=5,win,1,Let’s make this change and improve your overall health.
+qwen3,10,K=5,win,2,"Well, first off, you should not worry about losing weight."
+qwen3,10,K=5,win,3,"Plus, you'll be a healthier person and have more energy."
+qwen3,10,K=5,win,4,"So, we’re starting fresh this time."
+qwen3,10,K=5,win,5,Congratulations on taking the first step towards a healthier you!
+qwen3,10,K=5,win,6,"But remember, it's not easy to change your habits."
+qwen3,10,K=5,win,7,Congratulations on taking the first step towards a healthier you.
+qwen3,10,K=5,win,8,"So, instead of focusing on what you need to do,"
+qwen3,10,K=5,win,9,Let’s start by setting your goal for the next year.
+qwen3,10,K=5,win,10,One tip is to keep a food journal.
+qwen3,10,K=5,lose,1,I understand your feelings.
+qwen3,10,K=5,lose,2,I’m here to understand what you’re feeling.
+qwen3,10,K=5,lose,3,I understand that feeling.
+qwen3,10,K=5,lose,4,I understand what you're feeling.
+qwen3,10,K=5,lose,5,How do they make you feel?
+qwen3,10,K=5,lose,6,I understand how you feel.
+qwen3,10,K=5,lose,7,"First, acknowledge and validate your feelings."
+qwen3,10,K=5,lose,8,How do you want to feel?
+qwen3,10,K=5,lose,9,I understand exactly what you're feeling.
+qwen3,10,K=5,lose,10,I understand how you’re feeling.
+qwen3,10,K0-K5,more_K0,1,I'm so proud of you and your courage.
+qwen3,10,K0-K5,more_K0,2,Thank you for being honest and vulnerable with me.
+qwen3,10,K0-K5,more_K0,3,I’m so proud of your courage and determination.
+qwen3,10,K0-K5,more_K0,4,Thank you so much for being so honest and vulnerable.
+qwen3,10,K0-K5,more_K0,5,I'm so grateful for your courage and commitment.
+qwen3,10,K0-K5,more_K0,6,I'm so proud of your courage and commitment.
+qwen3,10,K0-K5,more_K0,7,I fully support you and believe in you.
+qwen3,10,K0-K5,more_K0,8,I'm so grateful for your courage and resilience.
+qwen3,10,K0-K5,more_K0,9,I appreciate your honesty and vulnerability.
+qwen3,10,K0-K5,more_K0,10,Thank you for being vulnerable and honest with me.
+qwen3,10,K0-K5,more_K5,1,One tip is to keep a food journal.
+qwen3,10,K0-K5,more_K5,2,Let's create a plan to track your progress:
+qwen3,10,K0-K5,more_K5,3,Here are a few ideas to get started:
+qwen3,10,K0-K5,more_K5,4,One tip is to set small goals.
+qwen3,10,K0-K5,more_K5,5,Here are a few ideas to keep in mind:
+qwen3,10,K0-K5,more_K5,6,Here are some tips to keep you on track:
+qwen3,10,K0-K5,more_K5,7,Here are three specific steps you can focus on:
+qwen3,10,K0-K5,more_K5,8,"Break down your goals into smaller, achievable steps."
+qwen3,10,K0-K5,more_K5,9,Here are a few ideas to get you started:
+qwen3,10,K0-K5,more_K5,10,Let’s start by setting your goal for the next year.
+llama8,1,K=0,win,1,Here are three concrete steps you can start with today:
+llama8,1,K=0,win,2,It sounds like you’re taking steps in the right direction.
+llama8,1,K=0,win,3,Here are three specific steps you can focus on:
+llama8,1,K=0,win,4,Here are three specific steps you can start with:
+llama8,1,K=0,win,5,Here are three actionable steps you can take:
+llama8,1,K=0,win,6,Here are three specific steps you can take:
+llama8,1,K=0,win,7,It sounds like you have a good plan in place.
+llama8,1,K=0,win,8,Here are some actionable steps you can take:
+llama8,1,K=0,win,9,Here are three specific actions you can take:
+llama8,1,K=0,win,10,Can you share more about the strategies you’ve been trying?
+llama8,1,K=0,lose,1,What do you think?</|im_end|>
+llama8,1,K=0,lose,2,"For example, “I feel tired and have headaches”"
+llama8,1,K=0,lose,3,"Nicotine replacement therapy, support groups, or medication?"
+llama8,1,K=0,lose,4,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,1,K=0,lose,5,When time is up.
+llama8,1,K=0,lose,6,You can also use nicotine replacement therapy.
+llama8,1,K=0,lose,7,The three concrete steps are:
+llama8,1,K=0,lose,8,"Of course, of course."
+llama8,1,K=0,lose,9,It is called exposure therapy.
+llama8,1,K=0,lose,10,that come with it.
+llama8,1,K=5,win,1,"Break down your goals into smaller, achievable steps."
+llama8,1,K=5,win,2,Even small steps can make a big difference.
+llama8,1,K=5,win,3,Small changes can make a big difference.
+llama8,1,K=5,win,4,Set realistic and achievable goals.
+llama8,1,K=5,win,5,Even small changes can make a big difference.
+llama8,1,K=5,win,6,"Remember, small changes can lead to big results."
+llama8,1,K=5,win,7,"Remember, small changes can make a big difference."
+llama8,1,K=5,win,8,"Start with small, achievable goals."
+llama8,1,K=5,win,9,Setting realistic goals is key.
+llama8,1,K=5,win,10,Remember to celebrate your small victories along the way.
+llama8,1,K=5,lose,1,What do you think?</|im_end|>
+llama8,1,K=5,lose,2,I am here to
+llama8,1,K=5,lose,3,"Well, I don’t know."
+llama8,1,K=5,lose,4,"Ok, well, I see."
+llama8,1,K=5,lose,5,"Ok, Emma, I understand."
+llama8,1,K=5,lose,6,I'm here to be
+llama8,1,K=5,lose,7,Let me try again.
+llama8,1,K=5,lose,8,I’m just the assistant.
+llama8,1,K=5,lose,9,"I understand, but I’m still here."
+llama8,1,K=5,lose,10,I’m here to be
+llama8,1,K0-K5,more_K0,1,"Alright, let’s get started."
+llama8,1,K0-K5,more_K0,2,"Alright, let's get started."
+llama8,1,K0-K5,more_K0,3,"Alright, I’m getting to my point."
+llama8,1,K0-K5,more_K0,4,"So, let’s get started."
+llama8,1,K0-K5,more_K0,5,"Alright, let’s try again."
+llama8,1,K0-K5,more_K0,6,"Alright, let me ask you something."
+llama8,1,K0-K5,more_K0,7,"Alright, here we go."
+llama8,1,K0-K5,more_K0,8,"Alright, so let’s start over."
+llama8,1,K0-K5,more_K0,9,"Well, I’m not sure that I can answer that."
+llama8,1,K0-K5,more_K0,10,"Alright, so let's start over."
+llama8,1,K0-K5,more_K5,1,"Break down your goals into smaller, achievable steps."
+llama8,1,K0-K5,more_K5,2,Set small achievable goals.
+llama8,1,K0-K5,more_K5,3,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,1,K0-K5,more_K5,4,"Nicotine replacement therapy, support groups, or medication?"
+llama8,1,K0-K5,more_K5,5,"Set small, achievable goals."
+llama8,1,K0-K5,more_K5,6,Don’t compare yourself to others or set unrealistic expectations.
+llama8,1,K0-K5,more_K5,7,Reward yourself for making progress.
+llama8,1,K0-K5,more_K5,8,Celebrate small successes along the way.
+llama8,1,K0-K5,more_K5,9,Celebrate small victories along the way.
+llama8,1,K0-K5,more_K5,10,Don’t just choose activities that you think will be fun.
+llama8,2,K=0,win,1,Here are three specific steps you can focus on:
+llama8,2,K=0,win,2,Here are three concrete steps you can start with today:
+llama8,2,K=0,win,3,Here are three specific steps you can start with:
+llama8,2,K=0,win,4,Here are three specific steps you can take:
+llama8,2,K=0,win,5,Here are three actionable steps you can take:
+llama8,2,K=0,win,6,"Break down your goals into smaller, achievable steps."
+llama8,2,K=0,win,7,Here are three specific actions you can take:
+llama8,2,K=0,win,8,Here are some actionable steps you can take:
+llama8,2,K=0,win,9,Setting realistic goals is key.
+llama8,2,K=0,win,10,Here are a few practical steps you can take:
+llama8,2,K=0,lose,1,What do you think?</|im_end|>
+llama8,2,K=0,lose,2,"Well, I don’t know."
+llama8,2,K=0,lose,3,"Ok, well, I see."
+llama8,2,K=0,lose,4,"You got it, James."
+llama8,2,K=0,lose,5,"Oh, I see, I was confused."
+llama8,2,K=0,lose,6,"Ok, Emma, I understand."
+llama8,2,K=0,lose,7,Just let me know.
+llama8,2,K=0,lose,8,"Ah, there you go."
+llama8,2,K=0,lose,9,I’ll be here tomorrow from 10am to noon.
+llama8,2,K=0,lose,10,"Of course, of course."
+llama8,2,K=5,win,1,"Break down your goals into smaller, achievable steps."
+llama8,2,K=5,win,2,"Remember, quitting smoking is a journey, not a destination."
+llama8,2,K=5,win,3,Even small steps can make a big difference.
+llama8,2,K=5,win,4,Small changes can make a big difference.
+llama8,2,K=5,win,5,Finding balance and overcoming barriers requires a proactive approach.
+llama8,2,K=5,win,6,"Remember, small changes can make a big difference."
+llama8,2,K=5,win,7,"Remember, small changes can lead to big results."
+llama8,2,K=5,win,8,Even small changes can make a big difference.
+llama8,2,K=5,win,9,Allow yourself to make mistakes and learn from them.
+llama8,2,K=5,win,10,"Whatever your goals are, it’s important to talk about them."
+llama8,2,K=5,lose,1,What do you think?</|im_end|>
+llama8,2,K=5,lose,2,"Awesome, here you go:"
+llama8,2,K=5,lose,3,"Great, here you go:"
+llama8,2,K=5,lose,4,"Great, here you go."
+llama8,2,K=5,lose,5,What do you think?<|im
+llama8,2,K=5,lose,6,"Awesome, here it is:"
+llama8,2,K=5,lose,7,"Great, here they are:"
+llama8,2,K=5,lose,8,"Great, here we go."
+llama8,2,K=5,lose,9,"Great, here we go!"
+llama8,2,K=5,lose,10,"Great, here we go:"
+llama8,2,K0-K5,more_K0,1,Here are some key considerations:
+llama8,2,K0-K5,more_K0,2,Here are your suggested steps:
+llama8,2,K0-K5,more_K0,3,Here are the key steps:
+llama8,2,K0-K5,more_K0,4,Here are the specific steps:
+llama8,2,K0-K5,more_K0,5,Here are the specific examples:
+llama8,2,K0-K5,more_K0,6,Here are the details:
+llama8,2,K0-K5,more_K0,7,Here are some specific examples:
+llama8,2,K0-K5,more_K0,8,Here are the steps:
+llama8,2,K0-K5,more_K0,9,Here are some additional considerations:
+llama8,2,K0-K5,more_K0,10,Here are the next steps:
+llama8,2,K0-K5,more_K5,1,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,2,K0-K5,more_K5,2,"Nicotine replacement therapy, support groups, or medication?"
+llama8,2,K0-K5,more_K5,3,"Remember, quitting smoking is a journey, not a destination."
+llama8,2,K0-K5,more_K5,4,Quitting smoking is not an overnight process.
+llama8,2,K0-K5,more_K5,5,Nicotine replacement therapy and support groups are both good options.
+llama8,2,K0-K5,more_K5,6,Quitting smoking isn’t easy.
+llama8,2,K0-K5,more_K5,7,Allow yourself to make mistakes and learn from them.
+llama8,2,K0-K5,more_K5,8,"Plus, you'll be a healthier person and have more energy."
+llama8,2,K0-K5,more_K5,9,Have you tried hypnosis or cognitive behavioral therapy?
+llama8,2,K0-K5,more_K5,10,"I started exercising, and my mood changed."
+llama8,3,K=0,win,1,"Together, we can create a plan that works for you."
+llama8,3,K=0,win,2,"Break down your goals into smaller, achievable steps."
+llama8,3,K=0,win,3,"Remember, quitting smoking is a journey, not a destination."
+llama8,3,K=0,win,4,Your journey is unique and important to you.
+llama8,3,K=0,win,5,"Remember, small changes can make a big difference."
+llama8,3,K=0,win,6,Even small steps can make a big difference.
+llama8,3,K=0,win,7,Finding balance and overcoming barriers requires a proactive approach.
+llama8,3,K=0,win,8,"Whatever your goals are, it’s important to talk about them."
+llama8,3,K=0,win,9,"Remember, small changes can lead to big results."
+llama8,3,K=0,win,10,Congratulations on taking the first step towards a healthier you.
+llama8,3,K=0,lose,1,What do you think?</|im_end|>
+llama8,3,K=0,lose,2,What do you think?<|im
+llama8,3,K=0,lose,3,"Sure, here they are:"
+llama8,3,K=0,lose,4,"Ok, well, I see."
+llama8,3,K=0,lose,5,"Great, here they are:"
+llama8,3,K=0,lose,6,Would that be okay?
+llama8,3,K=0,lose,7,"Ah, there you go."
+llama8,3,K=0,lose,8,"Perfect, here they are:"
+llama8,3,K=0,lose,9,"Awesome, here they are:"
+llama8,3,K=0,lose,10,"Great, here we go."
+llama8,3,K=5,win,1,"Break down your goals into smaller, achievable steps."
+llama8,3,K=5,win,2,Even small steps can make a big difference.
+llama8,3,K=5,win,3,Small changes can make a big difference.
+llama8,3,K=5,win,4,"Remember, small changes can make a big difference."
+llama8,3,K=5,win,5,Finding balance and overcoming barriers requires a proactive approach.
+llama8,3,K=5,win,6,"Remember, small changes can lead to big results."
+llama8,3,K=5,win,7,"Start with small, achievable goals."
+llama8,3,K=5,win,8,Even small changes can make a big difference.
+llama8,3,K=5,win,9,"Remember, small steps lead to big results."
+llama8,3,K=5,win,10,A plan can help you stay motivated and avoid distractions.
+llama8,3,K=5,lose,1,What do you think?</|im_end|>
+llama8,3,K=5,lose,2,"Great, here you go."
+llama8,3,K=5,lose,3,"Awesome, here you go:"
+llama8,3,K=5,lose,4,"Great, here you go:"
+llama8,3,K=5,lose,5,"Great, here they are:"
+llama8,3,K=5,lose,6,"Ok, Emma, I understand."
+llama8,3,K=5,lose,7,"Great, here we go."
+llama8,3,K=5,lose,8,"Awesome, here they are:"
+llama8,3,K=5,lose,9,"Great, here we go!"
+llama8,3,K=5,lose,10,"Ok, well, I see."
+llama8,3,K0-K5,more_K0,1,I'm so excited to support you on your journey.
+llama8,3,K0-K5,more_K0,2,I'm excited to support you every step of the way.
+llama8,3,K0-K5,more_K0,3,We're here to help you every step of the way.
+llama8,3,K0-K5,more_K0,4,I’m excited to support you every step of the way.
+llama8,3,K0-K5,more_K0,5,I’m excited to support you on your journey.
+llama8,3,K0-K5,more_K0,6,Thank you for partnering with me on this journey.
+llama8,3,K0-K5,more_K0,7,We’re here to help you every step of the way.
+llama8,3,K0-K5,more_K0,8,I'm so happy to be your partner on this journey.
+llama8,3,K0-K5,more_K0,9,I'm excited to support you on your weight loss journey.
+llama8,3,K0-K5,more_K0,10,I'm thrilled to support you on your weight loss journey.
+llama8,3,K0-K5,more_K5,1,What could you focus on instead?
+llama8,3,K0-K5,more_K5,2,One is to try to distract yourself with something else.
+llama8,3,K0-K5,more_K5,3,What would that feel like?
+llama8,3,K0-K5,more_K5,4,What else could you think of?
+llama8,3,K0-K5,more_K5,5,What might that look like?
+llama8,3,K0-K5,more_K5,6,What would that look like?
+llama8,3,K0-K5,more_K5,7,What would that feel like to you?
+llama8,3,K0-K5,more_K5,8,Maybe something like this:
+llama8,3,K0-K5,more_K5,9,What would that be?
+llama8,3,K0-K5,more_K5,10,What else can you think of?
+llama8,4,K=0,win,1,Your journey is unique and important to you.
+llama8,4,K=0,win,2,We’re here to support you every step of the way.
+llama8,4,K=0,win,3,I’m excited to support you every step of the way.
+llama8,4,K=0,win,4,We’re here to help you every step of the way.
+llama8,4,K=0,win,5,"You are amazing, and I’m so proud of you!"
+llama8,4,K=0,win,6,I’m thrilled to support you every step of the way.
+llama8,4,K=0,win,7,We're here to support you every step of the way!
+llama8,4,K=0,win,8,We're here to support you every step of the way.
+llama8,4,K=0,win,9,I’m so proud of you for taking this brave step.
+llama8,4,K=0,win,10,It sounds like you’re taking steps in the right direction.
+llama8,4,K=0,lose,1,What do you think?</|im_end|>
+llama8,4,K=0,lose,2,"Nicotine replacement therapy, support groups, or medication?"
+llama8,4,K=0,lose,3,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,4,K=0,lose,4,"For example, “I feel tired and have headaches”"
+llama8,4,K=0,lose,5,The three concrete steps are:
+llama8,4,K=0,lose,6,Are they all smokers?
+llama8,4,K=0,lose,7,Have you tried hypnosis or cognitive behavioral therapy?
+llama8,4,K=0,lose,8,What do you think?<|im
+llama8,4,K=0,lose,9,Have you tried nicotine addiction treatment?
+llama8,4,K=0,lose,10,You can also use nicotine replacement therapy.
+llama8,4,K=5,win,1,"Break down your goals into smaller, achievable steps."
+llama8,4,K=5,win,2,Even small steps can make a big difference.
+llama8,4,K=5,win,3,"Remember, quitting smoking is a journey, not a destination."
+llama8,4,K=5,win,4,"Remember, small changes can make a big difference."
+llama8,4,K=5,win,5,Small changes can make a big difference.
+llama8,4,K=5,win,6,"Remember, small changes can lead to big results."
+llama8,4,K=5,win,7,Even small changes can make a big difference.
+llama8,4,K=5,win,8,Allow yourself to make mistakes and learn from them.
+llama8,4,K=5,win,9,"Start with small, achievable goals."
+llama8,4,K=5,win,10,"Remember, small steps lead to big results."
+llama8,4,K=5,lose,1,What do you think?</|im_end|>
+llama8,4,K=5,lose,2,What do you think?<|im
+llama8,4,K=5,lose,3,"Absolutely, here they are:"
+llama8,4,K=5,lose,4,"Awesome, here you go:"
+llama8,4,K=5,lose,5,"Awesome, here they are:"
+llama8,4,K=5,lose,6,"Great, here you go:"
+llama8,4,K=5,lose,7,"Great, here you go."
+llama8,4,K=5,lose,8,"Perfect, here they are:"
+llama8,4,K=5,lose,9,Here are the examples:
+llama8,4,K=5,lose,10,"Great, here they are:"
+llama8,4,K0-K5,more_K0,1,Here are the details:
+llama8,4,K0-K5,more_K0,2,Here’s what I think.
+llama8,4,K0-K5,more_K0,3,Here are the steps:
+llama8,4,K0-K5,more_K0,4,Here are my thoughts:
+llama8,4,K0-K5,more_K0,5,Here are your suggested steps:
+llama8,4,K0-K5,more_K0,6,Here’s what I think:
+llama8,4,K0-K5,more_K0,7,Here are the steps in detail:
+llama8,4,K0-K5,more_K0,8,Thanks for reaching out.
+llama8,4,K0-K5,more_K0,9,Here are the questions:
+llama8,4,K0-K5,more_K0,10,Here are the next steps:
+llama8,4,K0-K5,more_K5,1,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,4,K0-K5,more_K5,2,"Nicotine replacement therapy, support groups, or medication?"
+llama8,4,K0-K5,more_K5,3,"For example, “I feel tired and have headaches”"
+llama8,4,K0-K5,more_K5,4,Nicotine replacement therapy and support groups are both good options.
+llama8,4,K0-K5,more_K5,5,"Finally, you could try to avoid smoking in high-stress situations."
+llama8,4,K0-K5,more_K5,6,"I started exercising, and my mood changed."
+llama8,4,K0-K5,more_K5,7,"Break down your goals into smaller, achievable steps."
+llama8,4,K0-K5,more_K5,8,Have you tried hypnosis or cognitive behavioral therapy?
+llama8,4,K0-K5,more_K5,9,One is to try to distract yourself with something else.
+llama8,4,K0-K5,more_K5,10,A plan can help you stay motivated and avoid distractions.
+llama8,5,K=0,win,1,Here are three concrete steps you can start with today:
+llama8,5,K=0,win,2,Here are three actionable steps you can take:
+llama8,5,K=0,win,3,Here are three specific steps you can focus on:
+llama8,5,K=0,win,4,Here are three specific steps you can start with:
+llama8,5,K=0,win,5,"Start with small, achievable goals."
+llama8,5,K=0,win,6,Here are three specific steps you can take:
+llama8,5,K=0,win,7,"Break down your goals into smaller, achievable steps."
+llama8,5,K=0,win,8,Your journey is unique and important to you.
+llama8,5,K=0,win,9,Here are some actionable steps you can take:
+llama8,5,K=0,win,10,Here are three specific actions you can take:
+llama8,5,K=0,lose,1,What do you think?</|im_end|>
+llama8,5,K=0,lose,2,that come with it.
+llama8,5,K=0,lose,3,What do you think?<|im
+llama8,5,K=0,lose,4,"So, they could also be a good option for you."
+llama8,5,K=0,lose,5,Are they all smokers?
+llama8,5,K=0,lose,6,When time is up.
+llama8,5,K=0,lose,7,That might be helpful.
+llama8,5,K=0,lose,8,That would be helpful.
+llama8,5,K=0,lose,9,The second question is:
+llama8,5,K=0,lose,10,What would that be?
+llama8,5,K=5,win,1,"Break down your goals into smaller, achievable steps."
+llama8,5,K=5,win,2,"Remember, quitting smoking is a journey, not a destination."
+llama8,5,K=5,win,3,Even small steps can make a big difference.
+llama8,5,K=5,win,4,Allow yourself to make mistakes and learn from them.
+llama8,5,K=5,win,5,"Start with small, achievable goals."
+llama8,5,K=5,win,6,Small changes can make a big difference.
+llama8,5,K=5,win,7,"Remember, small changes can make a big difference."
+llama8,5,K=5,win,8,Even small changes can make a big difference.
+llama8,5,K=5,win,9,"Remember, small changes can lead to big results."
+llama8,5,K=5,win,10,Quitting smoking is not an overnight process.
+llama8,5,K=5,lose,1,What do you think?</|im_end|>
+llama8,5,K=5,lose,2,What do you think?<|im
+llama8,5,K=5,lose,3,"Absolutely, here they are:"
+llama8,5,K=5,lose,4,"Awesome, here you go:"
+llama8,5,K=5,lose,5,"Awesome, here they are:"
+llama8,5,K=5,lose,6,"I understand that, James."
+llama8,5,K=5,lose,7,"Great, here are a few examples:"
+llama8,5,K=5,lose,8,"Great, here you go."
+llama8,5,K=5,lose,9,"Great, here you go:"
+llama8,5,K=5,lose,10,"That's exactly right, James."
+llama8,5,K0-K5,more_K0,1,Here are three specific steps you can take:
+llama8,5,K0-K5,more_K0,2,Here are three actionable steps you can take:
+llama8,5,K0-K5,more_K0,3,Here are three specific actions you can take:
+llama8,5,K0-K5,more_K0,4,Here are three specific examples:
+llama8,5,K0-K5,more_K0,5,Here are your three actionable steps:
+llama8,5,K0-K5,more_K0,6,Here are some actionable steps you can take:
+llama8,5,K0-K5,more_K0,7,Here are three specific recommendations:
+llama8,5,K0-K5,more_K0,8,Here are some actionable suggestions:
+llama8,5,K0-K5,more_K0,9,Here are some practical suggestions:
+llama8,5,K0-K5,more_K0,10,Here are some specific steps you can take:
+llama8,5,K0-K5,more_K5,1,Instead of thinking about
+llama8,5,K0-K5,more_K5,2,"Plus, you'll be a healthier person and have more energy."
+llama8,5,K0-K5,more_K5,3,"For example, “I feel tired and have headaches”"
+llama8,5,K0-K5,more_K5,4,Did it help you quit smoking or manage cravings?
+llama8,5,K0-K5,more_K5,5,"For example, do you want to lose weight?"
+llama8,5,K0-K5,more_K5,6,Don’t just choose activities that you think will be fun.
+llama8,5,K0-K5,more_K5,7,Let's say you want to lose weight.
+llama8,5,K0-K5,more_K5,8,Instead of focusing on
+llama8,5,K0-K5,more_K5,9,A plan can help you stay motivated and avoid distractions.
+llama8,5,K0-K5,more_K5,10,Have you ever tried to quit smoking in the past?
+llama8,6,K=0,win,1,Here are three concrete steps you can start with today:
+llama8,6,K=0,win,2,Here are three actionable steps you can take:
+llama8,6,K=0,win,3,Here are three specific steps you can start with:
+llama8,6,K=0,win,4,Here are three specific steps you can take:
+llama8,6,K=0,win,5,Here are three specific steps you can focus on:
+llama8,6,K=0,win,6,Here are three specific actions you can take:
+llama8,6,K=0,win,7,Here are some actionable steps you can take:
+llama8,6,K=0,win,8,Here are three specific strategies that you can try:
+llama8,6,K=0,win,9,"You are amazing, and I’m so proud of you!"
+llama8,6,K=0,win,10,I’m excited to support you every step of the way.
+llama8,6,K=0,lose,1,"For example, “I feel tired and have headaches”"
+llama8,6,K=0,lose,2,What do you think?</|im_end|>
+llama8,6,K=0,lose,3,When time is up.
+llama8,6,K=0,lose,4,"Finally, you could try to avoid smoking in high-stress situations."
+llama8,6,K=0,lose,5,"For example, are you eating too much?"
+llama8,6,K=0,lose,6,"Nicotine replacement therapy, support groups, or medication?"
+llama8,6,K=0,lose,7,It is called exposure therapy.
+llama8,6,K=0,lose,8,"For example, do you want to lose weight?"
+llama8,6,K=0,lose,9,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,6,K=0,lose,10,Are they all smokers?
+llama8,6,K=5,win,1,What could you focus on instead?
+llama8,6,K=5,win,2,What if we tried something different?
+llama8,6,K=5,win,3,Do you ever feel like you could make some progress?
+llama8,6,K=5,win,4,"Break down your goals into smaller, achievable steps."
+llama8,6,K=5,win,5,What works for one person might not work for another.
+llama8,6,K=5,win,6,Don’t just choose activities that you think will be fun.
+llama8,6,K=5,win,7,What if we focus on the bigger picture?
+llama8,6,K=5,win,8,What if you tried something new and it didn’t work?
+llama8,6,K=5,win,9,What might that look like for you?
+llama8,6,K=5,win,10,What would that look like for you?
+llama8,6,K=5,lose,1,What do you think?</|im_end|>
+llama8,6,K=5,lose,2,"Absolutely, here they are:"
+llama8,6,K=5,lose,3,The three concrete steps are:
+llama8,6,K=5,lose,4,"I understand that, James."
+llama8,6,K=5,lose,5,It doesn't happen overnight.
+llama8,6,K=5,lose,6,"Perfect, here they are:"
+llama8,6,K=5,lose,7,"You got it, James."
+llama8,6,K=5,lose,8,"That’s all for today, James."
+llama8,6,K=5,lose,9,"Absolutely, it's completely understandable."
+llama8,6,K=5,lose,10,When time is up.
+llama8,6,K0-K5,more_K0,1,"Absolutely, you are not alone."
+llama8,6,K0-K5,more_K0,2,"Absolutely, you’re not alone."
+llama8,6,K0-K5,more_K0,3,"Absolutely, you're not alone."
+llama8,6,K0-K5,more_K0,4,"Absolutely, you have my full support."
+llama8,6,K0-K5,more_K0,5,We're here to support you every step of the way!
+llama8,6,K0-K5,more_K0,6,We’re here to support you every step of the way.
+llama8,6,K0-K5,more_K0,7,We're here to support you every step of the way.
+llama8,6,K0-K5,more_K0,8,"Absolutely, you've got this!"
+llama8,6,K0-K5,more_K0,9,We’re here to help you every step of the way.
+llama8,6,K0-K5,more_K0,10,We're here to help you every step of the way.
+llama8,6,K0-K5,more_K5,1,"For example, “I feel tired and have headaches”"
+llama8,6,K0-K5,more_K5,2,"For example, do you want to lose weight?"
+llama8,6,K0-K5,more_K5,3,"For example, are you eating too much?"
+llama8,6,K0-K5,more_K5,4,One is to try to distract yourself with something else.
+llama8,6,K0-K5,more_K5,5,Have you tried hypnosis or cognitive behavioral therapy?
+llama8,6,K0-K5,more_K5,6,Maybe something like this:
+llama8,6,K0-K5,more_K5,7,What would that feel like?
+llama8,6,K0-K5,more_K5,8,What would that feel like to you?
+llama8,6,K0-K5,more_K5,9,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,6,K0-K5,more_K5,10,Don’t just choose activities that you think will be fun.
+llama8,7,K=0,win,1,"Remember, quitting smoking is a journey, not a destination."
+llama8,7,K=0,win,2,Finding balance and overcoming barriers requires a proactive approach.
+llama8,7,K=0,win,3,Your courage and resilience are truly inspiring.
+llama8,7,K=0,win,4,Your commitment and resilience are truly inspiring.
+llama8,7,K=0,win,5,Allow yourself to make mistakes and learn from them.
+llama8,7,K=0,win,6,Your courage and commitment are truly inspiring.
+llama8,7,K=0,win,7,You inspire me with your courage and resilience.
+llama8,7,K=0,win,8,Your courage and determination are truly inspiring.
+llama8,7,K=0,win,9,Your journey is unique and important to you.
+llama8,7,K=0,win,10,Your courage and dedication are truly inspiring.
+llama8,7,K=0,lose,1,"Great, here they are:"
+llama8,7,K=0,lose,2,"Awesome, here they are:"
+llama8,7,K=0,lose,3,"Awesome, here you go:"
+llama8,7,K=0,lose,4,"Great, here you go:"
+llama8,7,K=0,lose,5,"Great, here are a few examples:"
+llama8,7,K=0,lose,6,Here are the examples:
+llama8,7,K=0,lose,7,"Great, here are the key steps:"
+llama8,7,K=0,lose,8,"Awesome, here it is:"
+llama8,7,K=0,lose,9,"Perfect, here they are:"
+llama8,7,K=0,lose,10,"Great, here you go."
+llama8,7,K=5,win,1,Finding balance and overcoming barriers requires a proactive approach.
+llama8,7,K=5,win,2,Your journey is unique and important to you.
+llama8,7,K=5,win,3,What works for one person might not work for another.
+llama8,7,K=5,win,4,Your courage and resilience are truly inspiring.
+llama8,7,K=5,win,5,Small changes can make a big difference.
+llama8,7,K=5,win,6,You inspire me with your courage and resilience.
+llama8,7,K=5,win,7,"Remember, quitting smoking is a journey, not a destination."
+llama8,7,K=5,win,8,Your commitment and resilience are truly inspiring.
+llama8,7,K=5,win,9,Allow yourself to make mistakes and learn from them.
+llama8,7,K=5,win,10,Your success is your own.
+llama8,7,K=5,lose,1,What do you think?</|im_end|>
+llama8,7,K=5,lose,2,The three concrete steps are:
+llama8,7,K=5,lose,3,"Great, here are a few examples:"
+llama8,7,K=5,lose,4,"Absolutely, here they are:"
+llama8,7,K=5,lose,5,"Great, here are the key steps:"
+llama8,7,K=5,lose,6,I’ll be here tomorrow from 10am to noon.
+llama8,7,K=5,lose,7,What do you think?<|im
+llama8,7,K=5,lose,8,"Great, here are a few options:"
+llama8,7,K=5,lose,9,"You got it, James."
+llama8,7,K=5,lose,10,The four questions are:1.
+llama8,7,K0-K5,more_K0,1,I’ll be here tomorrow from 10am to noon.
+llama8,7,K0-K5,more_K0,2,Seek support from others.
+llama8,7,K0-K5,more_K0,3,I’m always here to provide support and guidance.
+llama8,7,K0-K5,more_K0,4,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,7,K0-K5,more_K0,5,I will support you every step of the way.
+llama8,7,K0-K5,more_K0,6,A plan can help you stay motivated and avoid distractions.
+llama8,7,K0-K5,more_K0,7,"Nicotine replacement therapy, support groups, or medication?"
+llama8,7,K0-K5,more_K0,8,Feel free to reach out anytime with questions or concerns.
+llama8,7,K0-K5,more_K0,9,I’m here to support you in any way I can.
+llama8,7,K0-K5,more_K0,10,One tip is to set small goals.
+llama8,7,K0-K5,more_K5,1,Here are the details:
+llama8,7,K0-K5,more_K5,2,"Awesome, here they are:"
+llama8,7,K0-K5,more_K5,3,"Great, here they are:"
+llama8,7,K0-K5,more_K5,4,"Awesome, here it is:"
+llama8,7,K0-K5,more_K5,5,"Perfect, here they are:"
+llama8,7,K0-K5,more_K5,6,Here are the examples:
+llama8,7,K0-K5,more_K5,7,Here they are again:
+llama8,7,K0-K5,more_K5,8,Here are the top recommendations:
+llama8,7,K0-K5,more_K5,9,"Okay, here they are:"
+llama8,7,K0-K5,more_K5,10,"Awesome, here you go:"
+llama8,8,K=0,win,1,"You are amazing, and I’m so proud of you!"
+llama8,8,K=0,win,2,"You are amazing, and I am so proud of you."
+llama8,8,K=0,win,3,You are amazing and I am so proud of you!
+llama8,8,K=0,win,4,"You are amazing, and I'm so proud of you."
+llama8,8,K=0,win,5,"You are amazing, and I'm so proud of you!"
+llama8,8,K=0,win,6,"You are incredible, and I'm so proud of you."
+llama8,8,K=0,win,7,You are incredible and I'm so proud of you.
+llama8,8,K=0,win,8,"You're amazing, and I'm so proud of you."
+llama8,8,K=0,win,9,You're amazing and I'm so proud of you!
+llama8,8,K=0,win,10,"You rock, and I'm so proud of you."
+llama8,8,K=0,lose,1,The first element is identifying your triggers.
+llama8,8,K=0,lose,2,The first three specific actions are:
+llama8,8,K=0,lose,3,The three specific steps include:
+llama8,8,K=0,lose,4,The three specific strategies are:
+llama8,8,K=0,lose,5,The four specific actions are:
+llama8,8,K=0,lose,6,The three specific actions are:
+llama8,8,K=0,lose,7,The three concrete steps are:
+llama8,8,K=0,lose,8,Some popular options include:
+llama8,8,K=0,lose,9,The three specific steps are:
+llama8,8,K=0,lose,10,The three specific strategies are as follows:
+llama8,8,K=5,win,1,Your courage and resilience are truly inspiring.
+llama8,8,K=5,win,2,"Remember, quitting smoking is a journey, not a destination."
+llama8,8,K=5,win,3,Your commitment and resilience are truly inspiring.
+llama8,8,K=5,win,4,Your journey is unique and important to you.
+llama8,8,K=5,win,5,Your success is your own.
+llama8,8,K=5,win,6,Your courage and commitment are truly inspiring.
+llama8,8,K=5,win,7,Your courage and determination are truly inspiring.
+llama8,8,K=5,win,8,You deserve so much love and support.
+llama8,8,K=5,win,9,Your courage and dedication are truly inspiring.
+llama8,8,K=5,win,10,"You are amazing, and I’m so proud of you!"
+llama8,8,K=5,lose,1,What do you think?</|im_end|>
+llama8,8,K=5,lose,2,The three concrete steps are:
+llama8,8,K=5,lose,3,Some examples could include:
+llama8,8,K=5,lose,4,The three examples are:
+llama8,8,K=5,lose,5,Some examples might be:
+llama8,8,K=5,lose,6,The four questions are:1.
+llama8,8,K=5,lose,7,The first element is identifying your triggers.
+llama8,8,K=5,lose,8,What do you think?<|im
+llama8,8,K=5,lose,9,"For example, if you"
+llama8,8,K=5,lose,10,You can also use nicotine replacement therapy.
+llama8,8,K0-K5,more_K0,1,You are amazing and I am so proud of you!
+llama8,8,K0-K5,more_K0,2,"You rock, and I'm so proud of you."
+llama8,8,K0-K5,more_K0,3,"You are amazing, and I am so proud of you."
+llama8,8,K0-K5,more_K0,4,You are incredible and I'm so proud of you.
+llama8,8,K0-K5,more_K0,5,"You are amazing, and I'm so proud of you."
+llama8,8,K0-K5,more_K0,6,You're amazing and I'm so proud of you!
+llama8,8,K0-K5,more_K0,7,"You are amazing, and I’m so proud of you!"
+llama8,8,K0-K5,more_K0,8,"You are amazing, and I'm so proud of you!"
+llama8,8,K0-K5,more_K0,9,"You are incredible, and I'm so proud of you."
+llama8,8,K0-K5,more_K0,10,"You're amazing, and I'm so proud of you."
+llama8,8,K0-K5,more_K5,1,It's about recognizing that
+llama8,8,K0-K5,more_K5,2,Don’t just choose activities that you think will be fun.
+llama8,8,K0-K5,more_K5,3,Instead of focusing on
+llama8,8,K0-K5,more_K5,4,These strategies are simple yet powerful.
+llama8,8,K0-K5,more_K5,5,Setting realistic goals is key.
+llama8,8,K0-K5,more_K5,6,"Focus on the process, not the outcome."
+llama8,8,K0-K5,more_K5,7,"So, instead of focusing on what you need to do,"
+llama8,8,K0-K5,more_K5,8,That’s an important distinction.
+llama8,8,K0-K5,more_K5,9,Instead of thinking about
+llama8,8,K0-K5,more_K5,10,The roadmap includes the following steps:
+llama8,9,K=0,win,1,Here are the three examples:
+llama8,9,K=0,win,2,Here are the three specific steps:
+llama8,9,K=0,win,3,Here are the 3 practical steps:
+llama8,9,K=0,win,4,Here are the 3 steps:
+llama8,9,K=0,win,5,Here are the three practical steps:
+llama8,9,K=0,win,6,Here are the three steps:
+llama8,9,K=0,win,7,"Absolutely, that's exactly right!"
+llama8,9,K=0,win,8,Here are the three strategies:
+llama8,9,K=0,win,9,Here are the two strategies:
+llama8,9,K=0,win,10,Here are the three specific strategies:
+llama8,9,K=0,lose,1,Allow yourself to make mistakes and learn from them.
+llama8,9,K=0,lose,2,"Remember, quitting smoking is a journey, not a destination."
+llama8,9,K=0,lose,3,Remember to celebrate your small victories along the way.
+llama8,9,K=0,lose,4,Reward yourself for making progress.
+llama8,9,K=0,lose,5,"Break down your goals into smaller, achievable steps."
+llama8,9,K=0,lose,6,Don’t compare yourself to others or set unrealistic expectations.
+llama8,9,K=0,lose,7,Reward yourself for your progress.
+llama8,9,K=0,lose,8,You are non-judgmental while encouraging the patient to change.
+llama8,9,K=0,lose,9,Surround yourself with people who support you.
+llama8,9,K=0,lose,10,A plan can help you stay motivated and avoid distractions.
+llama8,9,K=5,win,1,Did it help you quit smoking or manage cravings?
+llama8,9,K=5,win,2,Congratulations on taking the first step towards a healthier you!
+llama8,9,K=5,win,3,Congratulations on taking the first step towards a healthier you.
+llama8,9,K=5,win,4,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,9,K=5,win,5,"Nicotine replacement therapy, support groups, or medication?"
+llama8,9,K=5,win,6,Quitting smoking isn’t easy.
+llama8,9,K=5,win,7,Reward yourself for making progress.
+llama8,9,K=5,win,8,Quitting smoking is not an overnight process.
+llama8,9,K=5,win,9,Nicotine replacement therapy and support groups are both good options.
+llama8,9,K=5,win,10,Track your cravings with an app.
+llama8,9,K=5,lose,1,What do you think?</|im_end|>
+llama8,9,K=5,lose,2,And I think that
+llama8,9,K=5,lose,3,"But, I want you to know that it is possible."
+llama8,9,K=5,lose,4,I believe that you
+llama8,9,K=5,lose,5,What do you think?<|im
+llama8,9,K=5,lose,6,The second question is:
+llama8,9,K=5,lose,7,The most important thing is that you
+llama8,9,K=5,lose,8,And it’s something that you believe is worth achieving.
+llama8,9,K=5,lose,9,"I understand that, James."
+llama8,9,K=5,lose,10,But I think it’s important to do both.
+llama8,9,K0-K5,more_K0,1,Here are the three steps:
+llama8,9,K0-K5,more_K0,2,Here are the four key features:
+llama8,9,K0-K5,more_K0,3,Here are the three specific steps:
+llama8,9,K0-K5,more_K0,4,Here are the 3 steps:
+llama8,9,K0-K5,more_K0,5,Here are the three examples:
+llama8,9,K0-K5,more_K0,6,Here are the three questions:
+llama8,9,K0-K5,more_K0,7,"Absolutely, here they are:"
+llama8,9,K0-K5,more_K0,8,Here are the two strategies:
+llama8,9,K0-K5,more_K0,9,Here are the three key steps:
+llama8,9,K0-K5,more_K0,10,The second question is:
+llama8,9,K0-K5,more_K5,1,Reward yourself for making progress.
+llama8,9,K0-K5,more_K5,2,Reward yourself for your progress.
+llama8,9,K0-K5,more_K5,3,"Remember, quitting smoking is a journey, not a destination."
+llama8,9,K0-K5,more_K5,4,"Nicotine replacement therapy, support groups, or self-help resources?"
+llama8,9,K0-K5,more_K5,5,Allow yourself to make mistakes and learn from them.
+llama8,9,K0-K5,more_K5,6,"Nicotine replacement therapy, support groups, or medication?"
+llama8,9,K0-K5,more_K5,7,Quitting smoking is not an overnight process.
+llama8,9,K0-K5,more_K5,8,Did it help you quit smoking or manage cravings?
+llama8,9,K0-K5,more_K5,9,"Break down your goals into smaller, achievable steps."
+llama8,9,K0-K5,more_K5,10,Quitting smoking isn’t easy.
+llama8,10,K=0,win,1,"You are amazing, and I am so proud of you."
+llama8,10,K=0,win,2,"You are amazing, and I’m so proud of you!"
+llama8,10,K=0,win,3,You are amazing and I am so proud of you!
+llama8,10,K=0,win,4,"You are incredible, and I'm so proud of you."
+llama8,10,K=0,win,5,"You are amazing, and I'm so proud of you."
+llama8,10,K=0,win,6,"You are amazing, and I'm so proud of you!"
+llama8,10,K=0,win,7,You are incredible and I'm so proud of you.
+llama8,10,K=0,win,8,"I believe in you, and I'm so proud of you."
+llama8,10,K=0,win,9,"You're amazing, and I'm so proud of you."
+llama8,10,K=0,win,10,You're amazing and I'm so proud of you!
+llama8,10,K=0,lose,1,The three specific steps include:
+llama8,10,K=0,lose,2,The three concrete steps are:
+llama8,10,K=0,lose,3,The first three specific actions are:
+llama8,10,K=0,lose,4,The three specific strategies are:
+llama8,10,K=0,lose,5,The four specific actions are:
+llama8,10,K=0,lose,6,The three specific actions are:
+llama8,10,K=0,lose,7,The three specific steps are:
+llama8,10,K=0,lose,8,The three specific questions are:
+llama8,10,K=0,lose,9,The five specific steps are:
+llama8,10,K=0,lose,10,The three specific strategies are as follows:
+llama8,10,K=5,win,1,Balancing a healthy lifestyle with flexibility is important.
+llama8,10,K=5,win,2,You can achieve your goals and have a better life.
+llama8,10,K=5,win,3,Your commitment and resilience are truly inspiring.
+llama8,10,K=5,win,4,"Plus, you'll be a healthier person and have more energy."
+llama8,10,K=5,win,5,"Together, we can create a plan that works for you."
+llama8,10,K=5,win,6,"Break down your goals into smaller, achievable steps."
+llama8,10,K=5,win,7,"Together, we’ll create a plan that will help"
+llama8,10,K=5,win,8,Your hard work and commitment are truly inspiring.
+llama8,10,K=5,win,9,Tailoring my treatment plan to my specific needs is key.
+llama8,10,K=5,win,10,Your courage and dedication are truly inspiring.
+llama8,10,K=5,lose,1,What do you think?</|im_end|>
+llama8,10,K=5,lose,2,What do you think?<|im
+llama8,10,K=5,lose,3,What does that sound like to you?
+llama8,10,K=5,lose,4,What does that feel like?
+llama8,10,K=5,lose,5,What does that feel like to you?
+llama8,10,K=5,lose,6,What do you mean by that?
+llama8,10,K=5,lose,7,What does that feel like for you?
+llama8,10,K=5,lose,8,What else can we think of?
+llama8,10,K=5,lose,9,What do you want me to say?
+llama8,10,K=5,lose,10,What does that look like?
+llama8,10,K0-K5,more_K0,1,"I believe in you, and I'm so proud of you."
+llama8,10,K0-K5,more_K0,2,"You are amazing, and I’m so proud of you!"
+llama8,10,K0-K5,more_K0,3,"You are amazing, and I am so proud of you."
+llama8,10,K0-K5,more_K0,4,"You are amazing, and I'm so proud of you."
+llama8,10,K0-K5,more_K0,5,"You are amazing, and I'm so proud of you!"
+llama8,10,K0-K5,more_K0,6,"You're amazing, and I'm so proud of you."
+llama8,10,K0-K5,more_K0,7,"You are incredible, and I'm so proud of you."
+llama8,10,K0-K5,more_K0,8,You are amazing and I am so proud of you!
+llama8,10,K0-K5,more_K0,9,"You are amazing, and I believe in you."
+llama8,10,K0-K5,more_K0,10,You're amazing and I'm so proud of you!
+llama8,10,K0-K5,more_K5,1,The roadmap includes the following steps:
+llama8,10,K0-K5,more_K5,2,One tip is to set small goals.
+llama8,10,K0-K5,more_K5,3,Set small achievable goals.
+llama8,10,K0-K5,more_K5,4,The three specific strategies are:
+llama8,10,K0-K5,more_K5,5,The first three specific actions are:
+llama8,10,K0-K5,more_K5,6,The three specific steps include:
+llama8,10,K0-K5,more_K5,7,The three specific strategies are as follows:
+llama8,10,K0-K5,more_K5,8,The five strategies are:
+llama8,10,K0-K5,more_K5,9,The five specific steps are:
+llama8,10,K0-K5,more_K5,10,The four specific actions are:
