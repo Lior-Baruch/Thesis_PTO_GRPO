@@ -469,6 +469,105 @@ def _marker_leaks_impl(arms) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+# ── Session lengths + who closed the session ─────────────────────────────────
+# An eval conversation ends when the patient or the therapist writes SESSION ENDED
+# (code/_shared/convs.py::handle_session_end records who, in `session_ended_by`), at the utterance
+# cap (run_metadata `num_utterances_for_data`, 49 in Exp3 — a capped session stores 50 rows), or
+# when a generated therapist turn is empty after `clean_completion`, which ends the conversation
+# WITHOUT a `session_ended_by` (`stopped`). MEASURED 2026-10-06 on the two GRPO runs: 38 of 2,112
+# conversations are `stopped`, 30 of them at the 2-utterance minimum, 35 in the Base or
+# iterations 1-3; `therapist` closes 6.
+ENDED_BY = ("patient", "therapist", "turn_cap", "stopped")
+DEFAULT_UTT_CAP = 49
+
+
+def session_lengths(arms: Optional[List] = None, *, attach_persona: bool = True) -> pd.DataFrame:
+    """Per (arm, iteration, conversation): how long the session and its turns ran, and who closed it.
+
+    Columns: ``conv_len`` (utterances, the scripted opener included), ``n_th_turns``,
+    ``n_pt_turns``, ``th_chars_mean`` (characters per therapist turn, opener included — equal to
+    :func:`text_metrics`' ``mean_turn_len``, asserted to 0 difference on the GRPO runs),
+    ``th_chars_mean_gen`` (opener dropped: generated turns only), ``pt_chars_mean``,
+    ``th_chars_total`` / ``pt_chars_total``, ``ended_by`` (one of :data:`ENDED_BY`; see the block
+    comment above) and ``utt_cap``. Judge-free. Parquet-cached like :func:`text_metrics`.
+
+    ⚠ Every column is POST-TREATMENT for a K contrast: look-ahead changes how long both speakers
+    talk. ``pt_chars_mean`` in particular is part of what the rubrics score (MI aims to get the
+    patient talking; PCT codes the patient's own utterances), so it is an outcome-side quantity,
+    not a nuisance variable — see :func:`~eda_analysis.lookahead.length_adjusted_k_contrast`.
+    """
+    arms = _arms(arms)
+    return load_cached("session_lengths", arms,
+                       lambda: _session_lengths_impl(arms, attach_persona=attach_persona),
+                       input_roots=conv_input_roots(arms), params={"attach_persona": attach_persona})
+
+
+def _ended_by(cdf: pd.DataFrame, cap: int) -> str:
+    eb = cdf["session_ended_by"].dropna() if "session_ended_by" in cdf.columns else pd.Series(dtype=object)
+    if len(eb):
+        return str(eb.iloc[0])
+    return "turn_cap" if len(cdf) >= cap else "stopped"
+
+
+def _session_lengths_impl(arms, *, attach_persona: bool = True) -> pd.DataFrame:
+    rows = []
+    for arm in arms:
+        cap = int(arm.config.get("num_utterances_for_data", DEFAULT_UTT_CAP))
+        for k in arm.iters:
+            cdir = arm.conv_dir(k)
+            if not cdir or not os.path.isdir(cdir):
+                continue
+            for fn in os.listdir(cdir):
+                m = re.match(r"conversation_(\d+)\.csv$", fn)
+                if not m:
+                    continue
+                try:
+                    cdf = pd.read_csv(os.path.join(cdir, fn))
+                except Exception:
+                    continue
+                role = cdf["role"].astype(str)
+                txt = cdf["conversation"].fillna("").astype(str)
+                th = txt[role == "therapist"].str.len().to_numpy()
+                pt = txt[role == "patient"].str.len().to_numpy()
+                rows.append({"arm": arm.label, "method": arm.method, "K": arm.K,
+                             "model": arm.model_name(k), "iteration": k, "is_base": (k == 0),
+                             "file_index": int(m.group(1)), "conv_len": len(cdf),
+                             "n_th_turns": int(th.size), "n_pt_turns": int(pt.size),
+                             "th_chars_mean": float(th.mean()) if th.size else np.nan,
+                             "th_chars_mean_gen": float(th[1:].mean()) if th.size > 1 else np.nan,
+                             "pt_chars_mean": float(pt.mean()) if pt.size else np.nan,
+                             "th_chars_total": int(th.sum()), "pt_chars_total": int(pt.sum()),
+                             "ended_by": _ended_by(cdf, cap), "utt_cap": cap})
+    df = pd.DataFrame(rows)
+    if not df.empty and attach_persona:
+        df = _attach_by_arm(df, arms)
+    return df
+
+
+def session_lengths_by_state(sl: pd.DataFrame, ch: Optional[pd.DataFrame] = None,
+                             ml: Optional[pd.DataFrame] = None) -> pd.DataFrame:
+    """Per (arm, iteration): the :func:`session_lengths` columns averaged over conversations (+ SE),
+    the share of sessions closed by each :data:`ENDED_BY` reason, and — when the frames are given —
+    the POOLED share of therapist turns at the response cap (:func:`cap_hits`) and holding a
+    malformed chat marker (:func:`marker_leaks`), both opener excluded (``n_hits / n_gen_turns``,
+    the same reading as ``shared_base.cap_hits_by_state``'s ``share_of_turns``). Pass frames that
+    went through ``shared_base.share_base`` to get the pooled-Base view."""
+    g = sl.groupby(["arm", "iteration"])
+    cols = ["th_chars_mean", "th_chars_mean_gen", "pt_chars_mean", "conv_len", "n_th_turns", "n_pt_turns"]
+    out = g[cols].mean().join(g[cols].sem().add_suffix("_se")).join(g.size().rename("n_conv"))
+    eb = sl.assign(_one=1).pivot_table(index=["arm", "iteration"], columns="ended_by", values="_one",
+                                       aggfunc="sum", fill_value=0)
+    for c in ENDED_BY:
+        out[f"ended_{c}"] = (eb[c] if c in eb.columns else 0) / out["n_conv"]
+    if ch is not None:
+        gc = ch.groupby(["arm", "iteration"])
+        out["cap_share_of_turns"] = gc["n_cap_hits"].sum() / gc["n_gen_turns"].sum()
+    if ml is not None:
+        gm = ml.groupby(["arm", "iteration"])
+        out["marker_share_of_turns"] = gm["n_marker_turns"].sum() / gm["n_gen_turns"].sum()
+    return out.reset_index()
+
+
 # ── Combined per-iteration trajectory ────────────────────────────────────────
 # Headline behavior trajectory metrics. The semantic affirmation/over-praise signal is
 # carried by the oracle-coded B6_AF (and MICI_OverPraiseRate once MICI is scored), NOT by the

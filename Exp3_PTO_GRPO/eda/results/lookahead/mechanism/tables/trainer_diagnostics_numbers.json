@@ -1,0 +1,800 @@
+{
+ "_family": "lookahead/mechanism",
+ "_name": "trainer_diagnostics_numbers",
+ "_judge": null,
+ "numbers": {
+  "coverage.GRPO_LA0": {
+   "value": {
+    "optimizer_steps": 1128,
+    "logged_steps": 1128,
+    "duplicate_rows": 0,
+    "missing_steps": 0,
+    "iterations": 10
+   },
+   "source": "tables/trainer_log_coverage.md",
+   "note": "optimizer_steps = sum of max_steps; logged = distinct steps in each latest checkpoint's log_history"
+  },
+  "coverage.GRPO_LA5": {
+   "value": {
+    "optimizer_steps": 1070,
+    "logged_steps": 1070,
+    "duplicate_rows": 0,
+    "missing_steps": 0,
+    "iterations": 10
+   },
+   "source": "tables/trainer_log_coverage.md",
+   "note": "optimizer_steps = sum of max_steps; logged = distinct steps in each latest checkpoint's log_history"
+  },
+  "by_iter.GRPO_LA0.iter1": {
+   "value": {
+    "n_steps": 108,
+    "kl": 0.008984560319260237,
+    "kl_lq": 0.017002541175181116,
+    "kl_step1": 0.0,
+    "kl_net": 0.008984560319260237,
+    "kl_max": 0.02812209539115429,
+    "grad_norm": 0.20705099886766187,
+    "grad_norm_lq": 0.21043764937807014,
+    "n_grad_clipped": 0,
+    "entropy": 3.481519247646685,
+    "entropy_lq": 3.466847547778377,
+    "frac_reward_zero_std": 0.03935185185185185,
+    "clipped_ratio": 0.12065972222222222,
+    "mean_length": 73.30678530092592,
+    "reward": 3.0644658737712436,
+    "reward_std": 0.9715415465610998,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=1",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter2": {
+   "value": {
+    "n_steps": 94,
+    "kl": 0.030149986063677598,
+    "kl_lq": 0.04284340418719997,
+    "kl_step1": 0.0006387947360053658,
+    "kl_net": 0.029511191327672232,
+    "kl_max": 0.053617676720023155,
+    "grad_norm": 0.2137139379344088,
+    "grad_norm_lq": 0.20821728433171907,
+    "n_grad_clipped": 0,
+    "entropy": 3.2100165486335754,
+    "entropy_lq": 3.0094763537247977,
+    "frac_reward_zero_std": 0.022606382978723406,
+    "clipped_ratio": 0.09433178191489362,
+    "mean_length": 70.04903590425532,
+    "reward": 3.0219507800771837,
+    "reward_std": 0.9032059470389752,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=2",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter3": {
+   "value": {
+    "n_steps": 118,
+    "kl": 0.026024667903538242,
+    "kl_lq": 0.04734440731505553,
+    "kl_step1": 0.0005916324735153466,
+    "kl_net": 0.025433035430022895,
+    "kl_max": 0.05659638158977032,
+    "grad_norm": 0.2744315411832373,
+    "grad_norm_lq": 0.2948562944928805,
+    "n_grad_clipped": 0,
+    "entropy": 2.5092311708603874,
+    "entropy_lq": 2.4343015948931375,
+    "frac_reward_zero_std": 0.015889830508474576,
+    "clipped_ratio": 0.051509533898305086,
+    "mean_length": 62.88824152542373,
+    "reward": 3.2025668964547624,
+    "reward_std": 0.8670834770142022,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=3",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter4": {
+   "value": {
+    "n_steps": 100,
+    "kl": 0.010684027993993367,
+    "kl_lq": 0.01707098603248596,
+    "kl_step1": 0.0007035855378489941,
+    "kl_net": 0.009980442456144373,
+    "kl_max": 0.020579466596245766,
+    "grad_norm": 0.3019823344051838,
+    "grad_norm_lq": 0.30953651130199433,
+    "n_grad_clipped": 0,
+    "entropy": 2.251999927163124,
+    "entropy_lq": 2.1491026377677915,
+    "frac_reward_zero_std": 0.038125,
+    "clipped_ratio": 0.06265625,
+    "mean_length": 77.505546875,
+    "reward": 3.6482977771759035,
+    "reward_std": 0.6092026707530022,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=4",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter5": {
+   "value": {
+    "n_steps": 118,
+    "kl": 0.01521921839458489,
+    "kl_lq": 0.022787467980136474,
+    "kl_step1": 0.0007258651021402329,
+    "kl_net": 0.014493353292444658,
+    "kl_max": 0.026904836297035217,
+    "grad_norm": 0.4036098940897796,
+    "grad_norm_lq": 0.418828680117925,
+    "n_grad_clipped": 0,
+    "entropy": 2.0063054405026515,
+    "entropy_lq": 1.9314475258191426,
+    "frac_reward_zero_std": 0.0524364406779661,
+    "clipped_ratio": 0.05978548728813559,
+    "mean_length": 75.66697563559322,
+    "reward": 3.7106430712392773,
+    "reward_std": 0.5334590021836556,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=5",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter6": {
+   "value": {
+    "n_steps": 116,
+    "kl": 0.015084229080018522,
+    "kl_lq": 0.023522959251342148,
+    "kl_step1": 0.0007513521704822779,
+    "kl_net": 0.014332876909536245,
+    "kl_max": 0.03430742211639881,
+    "grad_norm": 0.4630575932819268,
+    "grad_norm_lq": 0.4623639624694298,
+    "n_grad_clipped": 0,
+    "entropy": 2.0206985201301246,
+    "entropy_lq": 2.025283065335504,
+    "frac_reward_zero_std": 0.05441810344827586,
+    "clipped_ratio": 0.12405711206896551,
+    "mean_length": 81.60142780172414,
+    "reward": 3.765928465744545,
+    "reward_std": 0.5632611212545428,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=6",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter7": {
+   "value": {
+    "n_steps": 128,
+    "kl": 0.029115347796960123,
+    "kl_lq": 0.039428921591024846,
+    "kl_step1": 0.0007715023821219802,
+    "kl_net": 0.028343845414838142,
+    "kl_max": 0.057067207992076874,
+    "grad_norm": 0.5065440088510513,
+    "grad_norm_lq": 0.5096814939752221,
+    "n_grad_clipped": 1,
+    "entropy": 1.9933521314524114,
+    "entropy_lq": 1.9089037757366896,
+    "frac_reward_zero_std": 0.04052734375,
+    "clipped_ratio": 0.1627197265625,
+    "mean_length": 91.7449951171875,
+    "reward": 3.907724540680647,
+    "reward_std": 0.4929148266091943,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=7",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter8": {
+   "value": {
+    "n_steps": 108,
+    "kl": 0.014519675736125835,
+    "kl_lq": 0.02520822174847126,
+    "kl_step1": 0.0007841837359592319,
+    "kl_net": 0.013735492000166603,
+    "kl_max": 0.02923800889402628,
+    "grad_norm": 0.40647622087487467,
+    "grad_norm_lq": 0.384003108298337,
+    "n_grad_clipped": 0,
+    "entropy": 1.9785617247775749,
+    "entropy_lq": 1.9686429699261982,
+    "frac_reward_zero_std": 0.041087962962962965,
+    "clipped_ratio": 0.3638599537037037,
+    "mean_length": 133.55967881944446,
+    "reward": 3.9710899348612183,
+    "reward_std": 0.5137543438209428,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=8",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter9": {
+   "value": {
+    "n_steps": 80,
+    "kl": 0.016727867257941398,
+    "kl_lq": 0.02629302223213017,
+    "kl_step1": 0.0007777323189657182,
+    "kl_net": 0.01595013493897568,
+    "kl_max": 0.030654226429760456,
+    "grad_norm": 0.3994787331670523,
+    "grad_norm_lq": 0.4637210041284561,
+    "n_grad_clipped": 0,
+    "entropy": 2.0426926508545877,
+    "entropy_lq": 2.01304387152195,
+    "frac_reward_zero_std": 0.0625,
+    "clipped_ratio": 0.517578125,
+    "mean_length": 151.30859375,
+    "reward": 3.867660844326019,
+    "reward_std": 0.6082311972975731,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=9",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA0.iter10": {
+   "value": {
+    "n_steps": 158,
+    "kl": 0.1131602833145136,
+    "kl_lq": 0.13868740927428008,
+    "kl_step1": 0.000814528320915997,
+    "kl_net": 0.1123457549935976,
+    "kl_max": 0.23271237313747406,
+    "grad_norm": 0.37463548722900925,
+    "grad_norm_lq": 0.34836654737591743,
+    "n_grad_clipped": 0,
+    "entropy": 1.7884285280221626,
+    "entropy_lq": 1.8007349148392677,
+    "frac_reward_zero_std": 0.01740506329113924,
+    "clipped_ratio": 0.7651799841772152,
+    "mean_length": 178.42855023734177,
+    "reward": 3.905133982247944,
+    "reward_std": 0.4889477434792096,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA0 iteration=10",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter1": {
+   "value": {
+    "n_steps": 108,
+    "kl": 0.0008181908295362653,
+    "kl_lq": 0.0006276911590248346,
+    "kl_step1": 0.0,
+    "kl_net": 0.0008181908295362653,
+    "kl_max": 0.0018584706704132259,
+    "grad_norm": 0.171632322103337,
+    "grad_norm_lq": 0.16808316911812182,
+    "n_grad_clipped": 0,
+    "entropy": 3.276130110025406,
+    "entropy_lq": 3.2233764176015502,
+    "frac_reward_zero_std": 0.020833333333333332,
+    "clipped_ratio": 0.13252314814814814,
+    "mean_length": 76.49131944444444,
+    "reward": 2.8153262866867914,
+    "reward_std": 1.0501861285280298,
+    "lookahead_turns": 4.418836805555555,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=1",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter2": {
+   "value": {
+    "n_steps": 104,
+    "kl": 0.004488877952378691,
+    "kl_lq": 0.006528364583993187,
+    "kl_step1": 0.0004849921097047627,
+    "kl_net": 0.0040038858426739285,
+    "kl_max": 0.009968985337764025,
+    "grad_norm": 0.19338239972981122,
+    "grad_norm_lq": 0.1871090938265507,
+    "n_grad_clipped": 0,
+    "entropy": 3.1940107064751477,
+    "entropy_lq": 3.1046257064892697,
+    "frac_reward_zero_std": 0.025841346153846152,
+    "clipped_ratio": 0.11636117788461539,
+    "mean_length": 77.19268329326923,
+    "reward": 3.158664882183075,
+    "reward_std": 1.011495940387249,
+    "lookahead_turns": 4.409705528846154,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=2",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter3": {
+   "value": {
+    "n_steps": 112,
+    "kl": 0.011329339619416194,
+    "kl_lq": 0.015068658161908388,
+    "kl_step1": 0.0006207346741575748,
+    "kl_net": 0.01070860494525862,
+    "kl_max": 0.01805824413895607,
+    "grad_norm": 0.21857168512152775,
+    "grad_norm_lq": 0.21950248894946917,
+    "n_grad_clipped": 1,
+    "entropy": 3.0301829810653413,
+    "entropy_lq": 2.9161545655557086,
+    "frac_reward_zero_std": 0.01171875,
+    "clipped_ratio": 0.10198102678571429,
+    "mean_length": 80.33858816964286,
+    "reward": 3.331155621579715,
+    "reward_std": 0.8143750040658883,
+    "lookahead_turns": 4.466029575892857,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=3",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter4": {
+   "value": {
+    "n_steps": 106,
+    "kl": 0.007731290094561014,
+    "kl_lq": 0.012128073394436526,
+    "kl_step1": 0.0007255787786561996,
+    "kl_net": 0.007005711315904814,
+    "kl_max": 0.013529277872294188,
+    "grad_norm": 0.22471288451046315,
+    "grad_norm_lq": 0.2326494422223833,
+    "n_grad_clipped": 0,
+    "entropy": 2.495994472278739,
+    "entropy_lq": 2.327761694237038,
+    "frac_reward_zero_std": 0.007075471698113208,
+    "clipped_ratio": 0.11387087264150944,
+    "mean_length": 99.93241450471699,
+    "reward": 3.632499451907176,
+    "reward_std": 0.7895728613970414,
+    "lookahead_turns": 4.33704304245283,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=4",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter5": {
+   "value": {
+    "n_steps": 88,
+    "kl": 0.00588553933101304,
+    "kl_lq": 0.009074554143642838,
+    "kl_step1": 0.0007431642734445632,
+    "kl_net": 0.005142375057568477,
+    "kl_max": 0.009698658250272274,
+    "grad_norm": 0.21475053239952435,
+    "grad_norm_lq": 0.21904490278525787,
+    "n_grad_clipped": 0,
+    "entropy": 2.2422030588442627,
+    "entropy_lq": 2.1580355898900465,
+    "frac_reward_zero_std": 0.008522727272727272,
+    "clipped_ratio": 0.16139914772727273,
+    "mean_length": 121.72682883522727,
+    "reward": 3.9680799435485494,
+    "reward_std": 0.6395353986458345,
+    "lookahead_turns": 4.1565163352272725,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=5",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter6": {
+   "value": {
+    "n_steps": 70,
+    "kl": 0.0041863885309015,
+    "kl_lq": 0.005925364468971061,
+    "kl_step1": 0.0007590421882923692,
+    "kl_net": 0.0034273463426091307,
+    "kl_max": 0.006784210680052638,
+    "grad_norm": 0.18884890036923543,
+    "grad_norm_lq": 0.18522649258375168,
+    "n_grad_clipped": 0,
+    "entropy": 2.216037401982716,
+    "entropy_lq": 2.209998885790507,
+    "frac_reward_zero_std": 0.011607142857142858,
+    "clipped_ratio": 0.41026785714285713,
+    "mean_length": 164.09363839285714,
+    "reward": 3.8896316630499705,
+    "reward_std": 0.7653567424842289,
+    "lookahead_turns": 3.9630580357142855,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=6",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter7": {
+   "value": {
+    "n_steps": 106,
+    "kl": 0.0041804851860879864,
+    "kl_lq": 0.006583840206817344,
+    "kl_step1": 0.000766234821639955,
+    "kl_net": 0.0034142503644480314,
+    "kl_max": 0.007203824585303664,
+    "grad_norm": 0.18862687824469693,
+    "grad_norm_lq": 0.1918748092872125,
+    "n_grad_clipped": 0,
+    "entropy": 2.185851368701683,
+    "entropy_lq": 2.197626577483283,
+    "frac_reward_zero_std": 0.04540094339622641,
+    "clipped_ratio": 0.5113502358490566,
+    "mean_length": 173.04481132075472,
+    "reward": 4.120390502911694,
+    "reward_std": 0.7248666823472617,
+    "lookahead_turns": 4.399174528301887,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=7",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter8": {
+   "value": {
+    "n_steps": 110,
+    "kl": 0.005829917078319175,
+    "kl_lq": 0.007831913019929613,
+    "kl_step1": 0.0007734896207693964,
+    "kl_net": 0.005056427457549779,
+    "kl_max": 0.009250129573047161,
+    "grad_norm": 0.20475259721279143,
+    "grad_norm_lq": 0.19744920570935523,
+    "n_grad_clipped": 1,
+    "entropy": 2.162052422220057,
+    "entropy_lq": 2.152587366955621,
+    "frac_reward_zero_std": 0.0625,
+    "clipped_ratio": 0.7056107954545454,
+    "mean_length": 186.6825284090909,
+    "reward": 4.065522228587757,
+    "reward_std": 0.7547917105934837,
+    "lookahead_turns": 4.428267045454546,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=8",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter9": {
+   "value": {
+    "n_steps": 130,
+    "kl": 0.006163359539305719,
+    "kl_lq": 0.008024958900712205,
+    "kl_step1": 0.0007566406857222319,
+    "kl_net": 0.005406718853583487,
+    "kl_max": 0.008703316561877728,
+    "grad_norm": 0.18529603148882207,
+    "grad_norm_lq": 0.18796271492134442,
+    "n_grad_clipped": 0,
+    "entropy": 2.1638368817476126,
+    "entropy_lq": 2.1842527172782202,
+    "frac_reward_zero_std": 0.1875,
+    "clipped_ratio": 0.8191105769230769,
+    "mean_length": 192.05883413461538,
+    "reward": 4.26658649627979,
+    "reward_std": 0.7517182645889429,
+    "lookahead_turns": 4.5325120192307695,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=9",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "by_iter.GRPO_LA5.iter10": {
+   "value": {
+    "n_steps": 136,
+    "kl": 0.007607273199134986,
+    "kl_lq": 0.008298461941783042,
+    "kl_step1": 0.0007978761568665504,
+    "kl_net": 0.006809397042268435,
+    "kl_max": 0.021651333663612604,
+    "grad_norm": 0.19764351242167108,
+    "grad_norm_lq": 0.19606243643690557,
+    "n_grad_clipped": 0,
+    "entropy": 2.246590997366344,
+    "entropy_lq": 2.275813779410194,
+    "frac_reward_zero_std": 0.15762867647058823,
+    "clipped_ratio": 0.89453125,
+    "mean_length": 196.1848575367647,
+    "reward": 4.437222172232235,
+    "reward_std": 0.563551145770094,
+    "lookahead_turns": 4.612821691176471,
+    "lr_peak": 1e-05
+   },
+   "source": "tables/trainer_diagnostics_by_iter.md row arm=GRPO_LA5 iteration=10",
+   "note": "iteration means over optimizer steps; _lq = last quarter"
+  },
+  "k_contrast.mean.kl": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.005857728204666108,
+    "median_b": 0.015973542826263145,
+    "ratio_of_medians": 0.3667144019569056,
+    "n_a_higher": 0.0,
+    "n_a_lower": 10.0,
+    "mean_delta": -0.022144920249995925,
+    "dz": -0.7335568414067336,
+    "ci_lo": -0.04164730580079874,
+    "ci_hi": -0.009586167898591035,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=kl stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.mean.grad_norm": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.19551295607574115,
+    "median_b": 0.3870571101980308,
+    "ratio_of_medians": 0.5051268945187714,
+    "n_a_higher": 0.0,
+    "n_a_lower": 10.0,
+    "mean_delta": -0.15627630062823053,
+    "dz": -1.5103229084691079,
+    "ci_lo": -0.21726420912503586,
+    "ci_hi": -0.09573108425768662,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=grad_norm stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.mean.entropy": {
+   "value": {
+    "n": 10.0,
+    "median_a": 2.244397028105303,
+    "median_b": 2.031695585492356,
+    "ratio_of_medians": 1.1046915906751855,
+    "n_a_higher": 8.0,
+    "n_a_lower": 2.0,
+    "mean_delta": 0.19300845106640244,
+    "dz": 0.9272290657472595,
+    "ci_lo": 0.07071342162544206,
+    "ci_hi": 0.30891179534816793,
+    "p": 0.037109375,
+    "p_holm": 0.07421875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=entropy stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.mean.frac_reward_zero_std": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.023337339743589744,
+    "median_b": 0.03993959780092593,
+    "ratio_of_medians": 0.5843158426359694,
+    "n_a_higher": 5.0,
+    "n_a_lower": 5.0,
+    "mean_delta": 0.015428041171258344,
+    "dz": 0.23592952858371313,
+    "ci_lo": -0.019588632649507165,
+    "ci_hi": 0.054785266589958234,
+    "p": 1.0,
+    "p_holm": 1.0
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=frac_reward_zero_std stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.mean.clipped_ratio": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.28583350243506495,
+    "median_b": 0.12235841714559387,
+    "ratio_of_medians": 2.3360346521559903,
+    "n_a_higher": 10.0,
+    "n_a_lower": 0.0,
+    "mean_delta": 0.1644668411720855,
+    "dz": 1.1844199140372507,
+    "ci_lo": 0.08370032769694552,
+    "ci_hi": 0.24548881004899448,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=clipped_ratio stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.mean.mean_length": {
+   "value": {
+    "n": 10.0,
+    "median_a": 142.9102336140422,
+    "median_b": 79.55348733836206,
+    "ratio_of_medians": 1.796404386475317,
+    "n_a_higher": 10.0,
+    "n_a_lower": 0.0,
+    "mean_delta": 37.16866730744876,
+    "dz": 1.2973188380226817,
+    "ci_lo": 21.4290664391728,
+    "ci_hi": 53.61294666956975,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=mean_length stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.mean.kl_net": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.0050994012575591285,
+    "median_b": 0.01522174411571017,
+    "ratio_of_medians": 0.33500768497981126,
+    "n_a_higher": 0.0,
+    "n_a_lower": 10.0,
+    "mean_delta": -0.02213177790312577,
+    "dz": -0.7333442553457334,
+    "ci_lo": -0.041632661587355936,
+    "ci_hi": -0.00959013181803481,
+    "p": 0.001953125
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=kl_net stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.mean.reward": {
+   "value": {
+    "n": 10.0,
+    "median_a": 3.92885580329926,
+    "median_b": 3.7382857684919113,
+    "ratio_of_medians": 1.0509779205253824,
+    "n_a_higher": 8.0,
+    "n_a_lower": 2.0,
+    "mean_delta": 0.16196170823880096,
+    "dz": 0.7558718949003632,
+    "ci_lo": 0.03913989350178294,
+    "ci_hi": 0.2808802492097787,
+    "p": 0.048828125
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=reward stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=False"
+  },
+  "k_contrast.mean.reward_std": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.7600742265388563,
+    "median_b": 0.585746159276058,
+    "ratio_of_medians": 1.2976170897616397,
+    "n_a_higher": 9.0,
+    "n_a_lower": 1.0,
+    "mean_delta": 0.13138480027956567,
+    "dz": 1.4818112322877766,
+    "ci_lo": 0.07636027614459626,
+    "ci_hi": 0.17820962941754862,
+    "p": 0.00390625
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=reward_std stat=mean",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=False"
+  },
+  "k_contrast.lq.kl": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.007928435960320909,
+    "median_b": 0.025750621990300714,
+    "ratio_of_medians": 0.30789298849974384,
+    "n_a_higher": 0.0,
+    "n_a_lower": 10.0,
+    "mean_delta": -0.032009746080608845,
+    "dz": -0.8908303302014664,
+    "ci_lo": -0.05509711915278999,
+    "ci_hi": -0.01670864201757213,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=kl stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.lq.grad_norm": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.19396862286205904,
+    "median_b": 0.36618482783712725,
+    "ratio_of_medians": 0.5297014188374101,
+    "n_a_higher": 0.0,
+    "n_a_lower": 10.0,
+    "mean_delta": -0.16250477800295995,
+    "dz": -1.5301267343604632,
+    "ci_lo": -0.22670572137983439,
+    "ci_hi": -0.10044330293898393,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=grad_norm stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.lq.entropy": {
+   "value": {
+    "n": 10.0,
+    "median_a": 2.2429063326003504,
+    "median_b": 2.0191634684287267,
+    "ratio_of_medians": 1.1108096831534575,
+    "n_a_higher": 9.0,
+    "n_a_lower": 1.0,
+    "mean_delta": 0.20424490433485826,
+    "dz": 1.0033458770731243,
+    "ci_lo": 0.08194847749291485,
+    "ci_hi": 0.3113399615229429,
+    "p": 0.037109375,
+    "p_holm": 0.07421875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=entropy stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.lq.frac_reward_zero_std": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.02488425925925926,
+    "median_b": 0.03986111111111111,
+    "ratio_of_medians": 0.624274099883856,
+    "n_a_higher": 4.0,
+    "n_a_lower": 5.0,
+    "mean_delta": 0.01573422735517056,
+    "dz": 0.22608687678628872,
+    "ci_lo": -0.022986351326275894,
+    "ci_hi": 0.05811069867972442,
+    "p": 1.0,
+    "p_holm": 1.0
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=frac_reward_zero_std stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.lq.clipped_ratio": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.28334122474747475,
+    "median_b": 0.12581317848020435,
+    "ratio_of_medians": 2.252079060160269,
+    "n_a_higher": 10.0,
+    "n_a_lower": 0.0,
+    "mean_delta": 0.1583057084980616,
+    "dz": 1.0148519209944948,
+    "ci_lo": 0.06950076942708273,
+    "ci_hi": 0.24915855864881373,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=clipped_ratio stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.lq.mean_length": {
+   "value": {
+    "n": 10.0,
+    "median_a": 145.10221354166669,
+    "median_b": 81.61596623563219,
+    "ratio_of_medians": 1.777865535803918,
+    "n_a_higher": 10.0,
+    "n_a_lower": 0.0,
+    "mean_delta": 35.83098666022282,
+    "dz": 1.2010263307454154,
+    "ci_lo": 19.593555235708504,
+    "ci_hi": 53.19801155829228,
+    "p": 0.001953125,
+    "p_holm": 0.01171875
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=mean_length stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=True"
+  },
+  "k_contrast.lq.reward": {
+   "value": {
+    "n": 10.0,
+    "median_a": 3.976416012253424,
+    "median_b": 3.750020517837042,
+    "ratio_of_medians": 1.0603718015246923,
+    "n_a_higher": 9.0,
+    "n_a_lower": 1.0,
+    "mean_delta": 0.1623321942394395,
+    "dz": 0.7965551443481859,
+    "ci_lo": 0.04159790284491511,
+    "ci_hi": 0.2700682627394846,
+    "p": 0.037109375
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=reward stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=False"
+  },
+  "k_contrast.lq.reward_std": {
+   "value": {
+    "n": 10.0,
+    "median_a": 0.7478538726766903,
+    "median_b": 0.5766256619732955,
+    "ratio_of_medians": 1.2969486479624015,
+    "n_a_higher": 9.0,
+    "n_a_lower": 1.0,
+    "mean_delta": 0.12721129471736312,
+    "dz": 1.3312314897379265,
+    "ci_lo": 0.06465226587217832,
+    "ci_hi": 0.1763614309255211,
+    "p": 0.005859375
+   },
+   "source": "tables/trainer_diagnostics_k_contrast.md row metric=reward_std stat=lq",
+   "note": "GRPO_LA5 - GRPO_LA0 (+ => K=5 higher); paired on training iteration; comparable=False"
+  }
+ }
+}

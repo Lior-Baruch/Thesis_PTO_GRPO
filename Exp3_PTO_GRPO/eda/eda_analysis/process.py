@@ -18,6 +18,10 @@ process-research quantities (Moyers & Martin 2006 style sequential analysis):
   praise-after-sustain-talk.
 - **parity** — the per-utterance counts summed per conversation vs the conversation-level MITI and
   PCT counts the same grader already produced: a free validity check of the new coder.
+- **inter-judge agreement** — both graders code the SAME numbered transcripts, so their codes are
+  compared utterance by utterance: Cohen's kappa overall and one-vs-rest per code (conversation-level
+  cluster bootstrap), the code × code confusion, and the conversation-level agreement on each
+  code's share (:func:`align_judge_codes`, :class:`JudgeAgreement`, :func:`judge_share_agreement`).
 
 Loaders read the lake under the ACTIVE judge (``constants.set_active_judge``), so the notebook
 loops graders and puts them side by side — never averaged. The scripted therapist opener
@@ -25,8 +29,9 @@ loops graders and puts them side by side — never averaged. The scripted therap
 """
 from __future__ import annotations
 
+import re
 from collections import Counter
-from typing import Dict, List, Optional, Sequence
+from typing import Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
 import pandas as pd
@@ -481,4 +486,333 @@ def process_numbers(levels_by_judge: Dict[str, pd.DataFrame], yields_by_judge: D
         for _, r in p.iterrows():
             out[f"parity.{j}.{r['instrument']}.{r['count']}.rho_pooled"] = {"value": round(float(r["rho_pooled"]), 4),
                                                                             "source": "parity_pooled", "note": "Fisher-z pooled within-state ρ"}
+    return out
+
+
+
+
+
+# ╔══════════════════════════════════════════════════════════════════════════════╗
+# ║  Inter-judge agreement of the utterance codes                                  ║
+# ╚══════════════════════════════════════════════════════════════════════════════╝
+# Both graders run MIPROC on the SAME numbered transcripts, so their two code arrays are
+# position-aligned by construction (the scorer length-validates each array against the transcript's
+# role counts). The functions below audit that alignment against the conversation CSVs, then measure
+# how often the two judges give the same utterance the same code: Cohen's kappa overall and per code
+# (one-vs-rest), with a conversation-level cluster bootstrap, the confusion matrix, and the
+# conversation-level agreement on each code's share (the unit every persona-paired contrast uses).
+
+#: Merged therapist categories reported beside the eleven codes. A boundary disagreement (AF vs PRA,
+#: SR vs CR, OQ vs CQ) vanishes when the pair is merged, so a merged kappa well above the split ones
+#: says the judges find the same turns and divide them differently.
+TH_MERGES = {
+    "reflection (SR+CR)": set(REFLECT),
+    "question (OQ+CQ)": set(QUESTION),
+    "praise or affirmation (AF+PRA)": {"AF", "PRA"},
+    "MI-adherent (OQ+SR+CR+AF+SEEK)": set(MI_ADHERENT),
+    "MI-inconsistent (PRA+PERS+CONF)": set(MI_INCONSISTENT),
+}
+_ROLE_MARKER_RE = re.compile(r"(?m)^\s*\[(?:THERAPIST|PATIENT)\]")
+
+
+def _codes(s) -> List[str]:
+    return s.split("|") if isinstance(s, str) and s else []
+
+
+def _state_label(arm: str, iteration: int) -> str:
+    """Iteration 0 of every arm is the one shared Base policy (independent draws): pooled as ``Base``."""
+    return "Base" if int(iteration) == 0 else f"{arm} it {int(iteration)}"
+
+
+def align_judge_codes(conv_a: pd.DataFrame, conv_b: pd.DataFrame, utt: Optional[pd.DataFrame] = None
+                      ) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """Pair two judges' MIPROC code sequences on the SAME conversations and audit the alignment.
+
+    ``conv_a`` / ``conv_b`` are :func:`load_miproc` frames read under two judges (``a`` = the
+    training oracle by convention). They join on ``(arm, iteration, file_index)`` — the same
+    conversation file, so no persona replay is involved; ``persona_id`` is carried and must agree.
+    ``utt`` (optional, recommended) is :func:`eda_analysis.text.load_utterances` for the same arms:
+    the true utterance count per role, the role order, and any line INSIDE an utterance that starts
+    with a ``[THERAPIST]`` / ``[PATIENT]`` marker (the scorer counts utterances with that regex on the
+    joined transcript, so an embedded marker would shift every later code by one position).
+
+    Returns ``(aligned, audit)``. ``audit``: one row per conversation in either frame, the checks, a
+    ``reason`` and an ``ok`` flag. ``aligned``: the ``ok`` rows with ``th_a, th_b, pt_a, pt_b``. A
+    conversation is dropped when it is missing under a judge, the judges' sequences differ in length,
+    or (given ``utt``) a sequence's length differs from the utterance count, the roles do not
+    alternate therapist-first, or an utterance carries an embedded role marker. The opener codes
+    (``opener_a`` / ``opener_b``; the prompt pins therapist #1 to OQ) are reported, never dropped.
+
+    Note: alignment by position is all this checks. A judge that codes utterance p partly from its
+    neighbours passes it; see the change-point note in :class:`JudgeAgreement`.
+    """
+    keys = ["arm", "iteration", "file_index"]
+    meta = [c for c in ("method", "K", "model", "is_base", "persona_id") if c in conv_a.columns]
+    a = conv_a[keys + meta + ["th_codes", "pt_codes"]].rename(columns={"th_codes": "th_a", "pt_codes": "pt_a"})
+    b = conv_b[keys + (["persona_id"] if "persona_id" in conv_b.columns else []) + ["th_codes", "pt_codes"]]
+    b = b.rename(columns={"th_codes": "th_b", "pt_codes": "pt_b", "persona_id": "persona_id_b"})
+    m = a.merge(b, on=keys, how="outer", indicator=True)
+    m["in_both"] = m.pop("_merge").eq("both")
+    for side in ("a", "b"):
+        m[f"n_th_{side}"] = m[f"th_{side}"].map(lambda s: len(_codes(s)))
+        m[f"n_pt_{side}"] = m[f"pt_{side}"].map(lambda s: len(_codes(s)))
+        m[f"opener_{side}"] = m[f"th_{side}"].map(lambda s: (_codes(s) or [None])[0])
+    m["len_match"] = (m["n_th_a"] == m["n_th_b"]) & (m["n_pt_a"] == m["n_pt_b"])
+    m["persona_match"] = ((m["persona_id"] == m["persona_id_b"]) if {"persona_id", "persona_id_b"} <= set(m.columns)
+                          else True)
+    if utt is not None and not utt.empty:
+        u = utt[keys + ["utt_idx", "role", "text"]].copy()
+        u["role_ok"] = u["role"].eq(np.where(u["utt_idx"] % 2 == 0, "therapist", "patient"))
+        u["n_markers"] = u["text"].fillna("").astype(str).map(lambda t: len(_ROLE_MARKER_RE.findall(t)))
+        g = u.groupby(keys)
+        uc = pd.DataFrame({"n_th_utt": g["role"].agg(lambda r: int((r == "therapist").sum())),
+                           "n_pt_utt": g["role"].agg(lambda r: int((r == "patient").sum())),
+                           "roles_alternate": g["role_ok"].all(),
+                           "embedded_markers": g["n_markers"].sum()}).reset_index()
+        m = m.merge(uc, on=keys, how="left")
+        m["has_utterances"] = m["n_th_utt"].notna()
+        m["count_match"] = ((m["n_th_a"] == m["n_th_utt"]) & (m["n_pt_a"] == m["n_pt_utt"]) &
+                            (m["n_th_b"] == m["n_th_utt"]) & (m["n_pt_b"] == m["n_pt_utt"]))
+        m["roles_alternate"] = m["roles_alternate"].fillna(False).astype(bool)
+        m["embedded_markers"] = m["embedded_markers"].fillna(0).astype(int)
+    else:
+        m["has_utterances"] = True; m["count_match"] = True; m["roles_alternate"] = True; m["embedded_markers"] = 0
+    checks = [("in_both", "missing under one judge"), ("has_utterances", "conversation file not found"),
+              ("len_match", "judges' sequence lengths differ"),
+              ("count_match", "sequence length differs from the utterance count"),
+              ("roles_alternate", "roles do not alternate therapist-first"),
+              ("persona_match", "persona_id differs between judges")]
+    m["reason"] = ""
+    for col, why in reversed(checks):                     # first failing check wins
+        m.loc[~m[col].astype(bool), "reason"] = why
+    m.loc[m["reason"].eq("") & (m["embedded_markers"] > 0), "reason"] = "embedded role marker inside an utterance"
+    m["ok"] = m["reason"].eq("")
+    audit = m.drop(columns=[c for c in ("th_a", "th_b", "pt_a", "pt_b", "persona_id_b") if c in m.columns])
+    aligned = m.loc[m["ok"], keys + meta + ["th_a", "th_b", "pt_a", "pt_b"]].reset_index(drop=True)
+    return aligned, audit.sort_values(keys).reset_index(drop=True)
+
+
+def alignment_summary(audit: pd.DataFrame) -> pd.DataFrame:
+    """Per (arm, iteration): conversations audited and kept, drops by reason, and opener codes that
+    are not OQ under each judge (reported, not dropped)."""
+    g = audit.groupby(["arm", "iteration"], sort=True)
+    out = pd.DataFrame({"n_convs": g.size(), "n_kept": g["ok"].sum(),
+                        "opener_not_OQ_a": g["opener_a"].agg(lambda s: int((s.notna() & (s != "OQ")).sum())),
+                        "opener_not_OQ_b": g["opener_b"].agg(lambda s: int((s.notna() & (s != "OQ")).sum()))})
+    bad = audit.loc[~audit["ok"]]
+    if not bad.empty:
+        out = out.join(bad.groupby(["arm", "iteration", "reason"]).size().unstack(fill_value=0), how="left")
+    return out.fillna(0).astype(int).reset_index()
+
+
+def _kappa_arr(M: np.ndarray):
+    """Cohen's kappa, observed and chance agreement and kappa_max over the last two axes of a
+    (..., L, L) confusion array; kappa_max is the most agreement the two marginals allow."""
+    M = np.asarray(M, float)
+    n = M.sum((-2, -1))
+    with np.errstate(invalid="ignore", divide="ignore"):
+        po = np.trace(M, axis1=-2, axis2=-1) / n
+        r = M.sum(-1) / n[..., None]; c = M.sum(-2) / n[..., None]
+        pe = (r * c).sum(-1); pmax = np.minimum(r, c).sum(-1)
+        return (po - pe) / (1 - pe), po, pe, (pmax - pe) / (1 - pe)
+
+
+def _collapse_arr(M: np.ndarray, members: np.ndarray) -> np.ndarray:
+    """(..., L, L) confusion → (..., 2, 2) in-set vs rest (rows judge a, columns judge b)."""
+    s = members.astype(float); t = 1.0 - s
+    blk = [[np.einsum("i,...ij,j->...", x, M, y) for y in (s, t)] for x in (s, t)]
+    return np.stack([np.stack(row, -1) for row in blk], -2)
+
+
+class JudgeAgreement:
+    """Utterance-level agreement between two judges' MIPROC codes, with a conversation-level
+    cluster bootstrap whose replicates are shared by every scope (as :class:`faithfulness.AgreementBoot`).
+
+    Built once per role (``"therapist"`` / ``"patient"``) from :func:`align_judge_codes`'s
+    ``aligned`` frame; ``start`` is the role's first position that enters (default: therapist 1, so
+    the scripted opener never counts; patient 0 — pass 1 to drop the patient's reply to the opener,
+    the utterance the two judges code most differently). Each (arm, iteration) cell holds the summed
+    L×L confusion (rows judge a, columns judge b) and ``B`` replicates with the cell's conversations
+    resampled with replacement (seeded :data:`BOOT_SEED`); a scope is a set of cells, so the Base, an
+    endpoint and the all-states pool come from the same replicates. Utterances inside a conversation
+    are not independent, hence the conversation is the resampling unit.
+
+    Notes
+    -----
+    - Kappa takes each judge's own code shares as given, so a code one judge uses far more often
+      than the other caps the attainable value: read ``kappa`` beside ``kappa_max``.
+    - Kappa falls when one code dominates a state (chance agreement is then high): a policy that
+      praises in most turns gives a low PRA kappa even where the judges overlap heavily — read
+      ``pos_agreement`` (2·both / (n_a + n_b)) beside it.
+    - Pooled over states, kappa also credits agreeing on WHICH states use a code, so the pool can
+      exceed every per-state value; read the per-state scopes for agreement on one policy.
+    - Neither judge is ground truth, and no human coding exists to say which one is right.
+    """
+
+    def __init__(self, aligned: pd.DataFrame, role: str, *, start: Optional[int] = None,
+                 B: int = 2000, seed: int = BOOT_SEED):
+        self.role = role
+        self.codes = TH_CODES if role == "therapist" else PT_CODES
+        self.L, self.B = len(self.codes), B
+        start = (1 if role == "therapist" else 0) if start is None else start
+        pos = {c: i for i, c in enumerate(self.codes)}
+        ca, cb = ("th_a", "th_b") if role == "therapist" else ("pt_a", "pt_b")
+        X = np.zeros((len(aligned), self.L * self.L), dtype=np.int64)
+        for i, (sa, sb) in enumerate(zip(aligned[ca], aligned[cb])):
+            for p, q in zip(_codes(sa)[start:], _codes(sb)[start:]):
+                X[i, pos[p] * self.L + pos[q]] += 1
+        rng = np.random.default_rng(seed)
+        self.cells: Dict[tuple, dict] = {}
+        for (arm, it), idx in aligned.reset_index(drop=True).groupby(["arm", "iteration"], sort=True).indices.items():
+            Xc = X[idx]; n = len(idx)
+            W = np.zeros((B, n), dtype=np.int64)
+            np.add.at(W, (np.repeat(np.arange(B), n), rng.integers(0, n, size=B * n)), 1)
+            self.cells[(arm, int(it))] = {"M": Xc.sum(0), "Mb": W @ Xc, "n_convs": n}
+
+    def _scope(self, cells):
+        cells = [c for c in cells if c in self.cells]
+        if not cells:
+            return None, None, 0
+        M = sum(self.cells[c]["M"] for c in cells).reshape(self.L, self.L).astype(float)
+        Mb = sum(self.cells[c]["Mb"] for c in cells).reshape(self.B, self.L, self.L).astype(float)
+        return M, Mb, sum(self.cells[c]["n_convs"] for c in cells)
+
+    def overall(self, scopes: Dict[str, Sequence[tuple]], alpha: float = 0.05) -> pd.DataFrame:
+        """Per scope: conversations, utterances, observed and chance agreement, Cohen's kappa with
+        its cluster-bootstrap percentile interval, and kappa_max."""
+        rows = []
+        for lab, cells in scopes.items():
+            M, Mb, nc = self._scope(cells)
+            if M is None:
+                continue
+            k, po, pe, kmax = _kappa_arr(M)
+            kb = _kappa_arr(Mb)[0]
+            rows.append({"scope": lab, "role": self.role, "n_convs": nc, "n_utterances": int(M.sum()),
+                         "p_observed": float(po), "p_chance": float(pe), "kappa": float(k),
+                         "kappa_lo": float(np.nanquantile(kb, alpha / 2)),
+                         "kappa_hi": float(np.nanquantile(kb, 1 - alpha / 2)), "kappa_max": float(kmax)})
+        return pd.DataFrame(rows)
+
+    def per_code(self, scopes: Dict[str, Sequence[tuple]], merges: Optional[Dict[str, set]] = None,
+                 alpha: float = 0.05) -> pd.DataFrame:
+        """Per (scope, code): each judge's count and share of the scope's utterances (utterance-
+        pooled, not the per-conversation mean of :func:`state_table`), the count both gave it,
+        one-vs-rest kappa with its cluster-bootstrap interval and kappa_max, and the positive
+        specific agreement ``pos_agreement`` = 2·both / (n_a + n_b). ``merges`` (e.g.
+        :data:`TH_MERGES`) adds merged categories as extra rows flagged ``merged=True``."""
+        sets = [(c, {c}, False) for c in self.codes] + [(k, set(v), True) for k, v in (merges or {}).items()]
+        rows = []
+        for lab, cells in scopes.items():
+            M, Mb, nc = self._scope(cells)
+            if M is None:
+                continue
+            n = M.sum()
+            for name, members, merged in sets:
+                mask = np.array([c in members for c in self.codes])
+                T2 = _collapse_arr(M, mask); k, _, _, kmax = _kappa_arr(T2)
+                kb = _kappa_arr(_collapse_arr(Mb, mask))[0]
+                ok = np.isfinite(kb).any()
+                na, nb, both = T2[0].sum(), T2[:, 0].sum(), T2[0, 0]
+                rows.append({"scope": lab, "role": self.role, "code": name, "merged": merged,
+                             "n_utterances": int(n), "n_a": int(na), "n_b": int(nb), "n_both": int(both),
+                             "share_a": na / n if n else np.nan, "share_b": nb / n if n else np.nan,
+                             "kappa": float(k),
+                             "kappa_lo": float(np.nanquantile(kb, alpha / 2)) if ok else np.nan,
+                             "kappa_hi": float(np.nanquantile(kb, 1 - alpha / 2)) if ok else np.nan,
+                             "kappa_max": float(kmax),
+                             "pos_agreement": 2 * both / (na + nb) if (na + nb) else np.nan})
+        return pd.DataFrame(rows)
+
+    def confusion(self, cells: Sequence[tuple], normalize: Optional[str] = None) -> pd.DataFrame:
+        """Code × code counts for one scope, rows = judge a, columns = judge b. ``"row"``: P(judge b's
+        code | judge a's code); ``"col"``: P(judge a's code | judge b's code)."""
+        M, _, _ = self._scope(cells)
+        D = pd.DataFrame(M if M is not None else 0.0, index=self.codes, columns=self.codes)
+        if normalize == "row":
+            return D.div(D.sum(1).replace(0, np.nan), axis=0)
+        if normalize == "col":
+            return D.div(D.sum(0).replace(0, np.nan), axis=1)
+        return D.astype(int)
+
+
+def agreement_scopes(aligned: pd.DataFrame, *, method: Optional[str] = None, endpoint: Optional[int] = None,
+                     per_state: bool = False) -> Dict[str, List[tuple]]:
+    """The scopes the write-up reads, for one method's arms (all arms when ``method`` is None):
+    ``Base`` (iteration 0 of every arm, pooled), each arm at ``endpoint`` (default: that arm's own
+    last iteration), and ``all states`` (every (arm, iteration), both Base draws included);
+    ``per_state=True`` adds one scope per remaining model state."""
+    a = aligned if method is None else aligned[aligned["method"] == method]
+    cells = sorted({(x, int(i)) for x, i in zip(a["arm"], a["iteration"])})
+    arms = sorted({x for x, _ in cells})
+    sc: Dict[str, List[tuple]] = {"Base": [c for c in cells if c[1] == 0]}
+    ends = {x: (endpoint if endpoint is not None else max(i for y, i in cells if y == x)) for x in arms}
+    for x in arms:
+        sc[_state_label(x, ends[x])] = [(x, ends[x])]
+    sc["all states"] = cells
+    if per_state:
+        for x, i in cells:
+            if i > 0 and i != ends[x]:
+                sc[_state_label(x, i)] = [(x, i)]
+    return sc
+
+
+def judge_share_agreement(aligned: pd.DataFrame, *, min_convs: int = 10) -> pd.DataFrame:
+    """Conversation-level agreement: per (state, code), Spearman ρ across conversations between the
+    two judges' per-conversation SHARE of the code (therapist: share of policy turns, opener
+    excluded; patient: share of patient turns), and the two mean shares — the per-conversation unit
+    every persona-paired contrast of this family uses. ``state`` pools the Base; a conversation with
+    no policy turn enters no therapist row. ``state == "all states"`` rows are the Fisher-z pooled
+    within-state ρ (n-weighted), as in :func:`parity_pooled`, so between-state differences in a code's
+    level cannot inflate them. Carries ``method`` when ``aligned`` has it."""
+    from scipy.stats import spearmanr
+    recs = []
+    has_m = "method" in aligned.columns
+    for r in aligned.itertuples(index=False):
+        st = _state_label(r.arm, r.iteration); meth = r.method if has_m else ""
+        for role, xa, xb, codes in (("therapist", _codes(r.th_a)[1:], _codes(r.th_b)[1:], TH_CODES),
+                                    ("patient", _codes(r.pt_a), _codes(r.pt_b), PT_CODES)):
+            if xa:
+                recs += [(meth, st, role, c, xa.count(c) / len(xa), xb.count(c) / len(xb)) for c in codes]
+    d = pd.DataFrame(recs, columns=["method", "state", "role", "code", "share_a", "share_b"])
+    rows = []
+    for (meth, st, role, c), g in d.groupby(["method", "state", "role", "code"], sort=False):
+        a, b = g["share_a"].to_numpy(float), g["share_b"].to_numpy(float)
+        ok = len(g) >= min_convs and np.ptp(a) > 0 and np.ptp(b) > 0
+        rows.append({"method": meth, "state": st, "role": role, "code": c, "n_convs": len(g),
+                     "rho": float(spearmanr(a, b).correlation) if ok else np.nan,
+                     "mean_share_a": float(a.mean()), "mean_share_b": float(b.mean())})
+    out = pd.DataFrame(rows)
+    pooled = []
+    for (meth, role, c), g in out.groupby(["method", "role", "code"], sort=False):
+        z = np.arctanh(np.clip(g["rho"].to_numpy(float), -0.999, 0.999)); w = g["n_convs"].to_numpy(float)
+        ok = np.isfinite(z)
+        pooled.append({"method": meth, "state": "all states", "role": role, "code": c, "n_convs": int(w.sum()),
+                       "rho": float(np.tanh((z[ok] * w[ok]).sum() / w[ok].sum())) if ok.any() else np.nan,
+                       "n_states_with_rho": int(ok.sum()),
+                       "mean_share_a": float((g["mean_share_a"] * w).sum() / w.sum()),
+                       "mean_share_b": float((g["mean_share_b"] * w).sum() / w.sum())})
+    out = pd.concat([out, pd.DataFrame(pooled)], ignore_index=True)
+    return out if has_m else out.drop(columns="method")
+
+
+def judge_agreement_numbers(overall: pd.DataFrame, per_code: pd.DataFrame,
+                            codes: Sequence[str] = ("PRA", "AF", "CR", "SR", "PERS", "GI",
+                                                    "praise or affirmation (AF+PRA)", "reflection (SR+CR)",
+                                                    "CT", "ST", "NEU")) -> Dict[str, dict]:
+    """Ledger entries (the ``exports.save_numbers`` shape) for the agreement scalars a write-up
+    quotes: overall kappa per (method, role, scope) and per-code kappa for ``codes``."""
+    from .ledger import ledger_entry
+    out = {}
+    for _, r in overall.iterrows():
+        m = r.get("method", "all")
+        out[f"agreement.{m}.{r['role']}.{r['scope']}.kappa"] = ledger_entry(
+            round(float(r["kappa"]), 3), "judge_agreement_overall",
+            f"95% cluster bootstrap [{r['kappa_lo']:.3f}, {r['kappa_hi']:.3f}]; {int(r['n_utterances'])} "
+            f"utterances in {int(r['n_convs'])} conversations; kappa_max {r['kappa_max']:.3f}")
+    for _, r in per_code[per_code["code"].isin(codes)].iterrows():
+        m = r.get("method", "all")
+        out[f"agreement.{m}.{r['role']}.{r['scope']}.{r['code']}.kappa"] = ledger_entry(
+            round(float(r["kappa"]), 3), "judge_agreement_codes",
+            f"one-vs-rest, 95% [{r['kappa_lo']:.3f}, {r['kappa_hi']:.3f}]; shares {r['share_a']:.3f} / "
+            f"{r['share_b']:.3f}; both {int(r['n_both'])} of {int(r['n_utterances'])}")
     return out

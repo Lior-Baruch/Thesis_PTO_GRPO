@@ -62,6 +62,9 @@ from .stats import (  # noqa: E402
 from .training import (  # noqa: E402
     advantage_signal_by_iter, reward_distribution_frame,
     load_branch_reliability, tb_curves, parse_run_tb,
+    trainer_log_steps, trainer_log_coverage, trainer_diagnostics_by_iter, trainer_diagnostics_table,
+    trainer_diagnostics_k_contrast, trainer_diagnostics_trends, trainer_diagnostics_by_length,
+    trainer_diagnostics_numbers,
 )
 from .pref import (  # noqa: E402
     pref_word_ranking, pref_word_drift_heatmap, plot_category_drift, top_words_by_iter,
@@ -76,6 +79,8 @@ from .pref import (  # noqa: E402
     reweight, weighting_decomposition, rule_reconstruction_check,
     pool_mean_by_iter, pair_yield_by_iter, pref_examples,
     plot_selection_vs_generation, plot_pair_yield,
+    # within-group reward vs completion length / the 200-token cap (lookahead/behaviour 3b)
+    candidate_cap_flags, reward_length_within_group,
 )
 
 # Submodules + backward-compat aliases. ``figures``/``plots`` -> ``plotting`` are KEPT (heavily used
@@ -106,6 +111,7 @@ from .lookahead import (  # noqa: E402
     model_name, stars, favours, wide_by_persona, holm_within, paired_k_frames, k_levels,
     k_table1, channel_k_frames, did_by_iter, method_gap_by_iter, endpoint_contrasts,
     best_iteration, lookahead_numbers,
+    length_adjusted_k_contrast, length_decomposition, length_confound_numbers,
 )
 # RQ-i transfer to the held-out grader: cross-K pairs, sign ladder, retention by K
 from .transfer import (  # noqa: E402
@@ -150,7 +156,7 @@ from .replication import (  # noqa: E402
 from .instruments import (  # noqa: E402
     ARM_ORDER, PCT_METRICS, PAIR_NOTE, instrument_frames_by_judge, endpoints,
     matched_endpoints, wai_subscale_parity, wai_subscales,
-    wai_kcontrast, wai_fig_data, pct_kcontrast, q2_items, hetero_kcontrast, hetero_ceiling,
+    wai_kcontrast, wai_scores_long, wai_fig_data, pct_kcontrast, q2_items, hetero_kcontrast, hetero_ceiling,
     instruments_numbers,
 )
 
@@ -169,6 +175,9 @@ from .process import (  # noqa: E402
     TH_CODES, PT_CODES, PROCESS_K_METRICS, PROCESS_METRIC_LABELS, PROCESS_FAMILIES,
     load_miproc, conversation_metrics, utterance_long, transition_yield, responsiveness,
     transition_matrix, ct_trajectory, parity, parity_pooled, process_numbers,
+    # inter-judge agreement of the utterance codes (lookahead/process 5)
+    TH_MERGES, align_judge_codes, alignment_summary, JudgeAgreement, agreement_scopes,
+    judge_share_agreement, judge_agreement_numbers,
 )
 
 # encoders — the GRPO update direction in five embedding spaces (lookahead/mechanism 1d); CPU-only,
@@ -209,6 +218,9 @@ __all__ = [
     "k_means_by_iter", "rank_agreement_by_nturns", "filter_thin_arms", "thin_arms",
     "advantage_signal_by_iter", "reward_distribution_frame",
     "load_branch_reliability", "tb_curves", "parse_run_tb",
+    "trainer_log_steps", "trainer_log_coverage", "trainer_diagnostics_by_iter", "trainer_diagnostics_table",
+    "trainer_diagnostics_k_contrast", "trainer_diagnostics_trends", "trainer_diagnostics_by_length",
+    "trainer_diagnostics_numbers",
     "pref_word_ranking", "pref_word_drift_heatmap", "plot_category_drift", "top_words_by_iter",
     "preference_direction_drift", "plot_direction_drift", "learn_unlearn_words", "plot_learn_unlearn",
     "load_weighted_candidates", "sample_groups", "embed_candidates", "direction_by_iter",
@@ -219,6 +231,7 @@ __all__ = [
     "reweight", "weighting_decomposition", "rule_reconstruction_check",
     "pool_mean_by_iter", "pair_yield_by_iter", "pref_examples",
     "plot_selection_vs_generation", "plot_pair_yield",
+    "candidate_cap_flags", "reward_length_within_group",
     # compute axis (GPU-hours per iteration; iso-compute + budget-sweep contrasts; floor columns,
     # cost ratios, sweeps x graders, iso-channels)
     "iteration_compute", "compute_summary", "step_multiplier", "iso_compute_pairs",
@@ -232,6 +245,7 @@ __all__ = [
     "HOLM_NOTE", "model_name", "stars", "favours", "wide_by_persona", "holm_within",
     "paired_k_frames", "k_levels", "k_table1", "channel_k_frames", "did_by_iter",
     "method_gap_by_iter", "endpoint_contrasts", "best_iteration", "lookahead_numbers",
+    "length_adjusted_k_contrast", "length_decomposition", "length_confound_numbers",
     # transfer — RQ-i transfer to the held-out grader: cross-K pairs, sign ladder, retention by K
     "SCALE_FLOOR", "RATE_FLOOR", "to_reliability_long",
     "cross_k_pairs", "sign_ladder", "retention_by_k", "transfer_numbers",
@@ -266,7 +280,7 @@ __all__ = [
     # instruments — held-out instruments under K: WAI-SR subscales, PCT, Q2 items, heterogeneity
     "ARM_ORDER", "PCT_METRICS", "PAIR_NOTE",
     "instrument_frames_by_judge", "endpoints", "matched_endpoints",
-    "wai_subscale_parity", "wai_subscales", "wai_kcontrast", "wai_fig_data", "pct_kcontrast",
+    "wai_subscale_parity", "wai_subscales", "wai_kcontrast", "wai_scores_long", "wai_fig_data", "pct_kcontrast",
     "q2_items", "hetero_kcontrast", "hetero_ceiling", "instruments_numbers",
     # text — embedding + judge-free text evals on the eval conversations
     "TEXT_K_METRICS", "TEXT_METRIC_LABELS", "PROFILE_FEATURES", "load_utterances", "embed_utterances",
@@ -279,6 +293,8 @@ __all__ = [
     "TH_CODES", "PT_CODES", "PROCESS_K_METRICS", "PROCESS_METRIC_LABELS", "PROCESS_FAMILIES",
     "load_miproc", "conversation_metrics", "utterance_long", "transition_yield", "responsiveness",
     "transition_matrix", "ct_trajectory", "parity", "parity_pooled", "process_numbers", "process",
+    "TH_MERGES", "align_judge_codes", "alignment_summary", "JudgeAgreement", "agreement_scopes",
+    "judge_share_agreement", "judge_agreement_numbers",
     # encoders — the GRPO update direction in five embedding spaces (lookahead/mechanism 1d)
     "ENCODERS", "ENCODER_CACHE_DIR", "CATEGORIES", "EncoderCacheMissing", "cache_status", "required_texts",
     "require_caches", "load_encoder_embeddings", "embedded_for", "conversation_sums", "encoder_cosines",

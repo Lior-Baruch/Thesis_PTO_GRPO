@@ -22,6 +22,13 @@ that view and nothing else:
   :func:`~eda_analysis.process.persistence_by_state`), the embedding-space tables, the judge-free
   over-praise marker, session length, the therapist turns that hit the response cap, and the
   saturation statistics of the paper's Appendix E.
+* Where the K=5 lead comes from: the K contrast within the persona's cooperation clause
+  (:func:`coop_strata`) and on the WAI-SR subscales (:func:`gains` with ``best_k0=`` on
+  :func:`~eda_analysis.instruments.wai_scores_long` frames).
+* Two robustness tables for the K contrast: :func:`k_trajectory` — the contrast averaged over a
+  window of iterations, a test no endpoint choice can move — and :func:`base_draws` — the two draws
+  this module pools, compared with each other (the noise floor of the persona-paired contrast; the
+  one place this family reads them apart).
 
 **K contrasts start at iteration 1.** Iteration 0 is one policy with one Base, so there is nothing
 to contrast there; the Holm family is ITERATIONS 1..N within (judge, method, metric) — one test
@@ -38,18 +45,20 @@ from typing import Dict, List, Mapping, Optional, Sequence
 import numpy as np
 import pandas as pd
 
-from .constants import BOOT_SEED, DISPLAY_NAMES, k_of, method_of
+from .constants import BOOT_SEED, COOP_LABEL, COOP_ORDER, DISPLAY_NAMES, k_of, method_of
 from .ledger import ledger_entry, round3
-from .lookahead import (LOWER_BETTER, RUBRICS, best_iteration, holm_within, model_name,
-                        paired_k_frames, wide_by_persona)
-from .stats import paired_arrays
+from .lookahead import (FIVE_POINT, LOWER_BETTER, RUBRICS, best_iteration, holm_within, model_name,
+                        paired_k_frames, stars, wide_by_persona)
+from .stats import holm, paired_arrays
 from . import process as _process
 
 __all__ = [
     "DRAW_OFFSET", "INSTRUMENTS", "share_base", "share_base_frames", "levels", "k_contrast",
-    "significant_iterations", "score_table", "gains", "process_tables", "text_tables",
+    "significant_iterations", "score_table", "gains", "coop_strata", "process_tables", "text_tables",
     "marker_and_length", "cap_hits_by_state", "marker_leaks_by_state", "sd_tables", "sd_trend", "agreement_by_state", "agreement_summary",
     "state_pair_contrasts", "judge_offset", "shared_base_numbers",
+    "PROCESS_TABLE3", "process_measures_long", "k_trajectory", "base_draws", "base_draws_summary",
+    "robustness_numbers",
 ]
 
 #: Added to the second base draw's ``file_index`` so (arm, iteration, file_index) stays unique.
@@ -208,20 +217,24 @@ def score_table(lv: pd.DataFrame, kc: pd.DataFrame, judge: str, *,
 
 def gains(sc_sb: Mapping[str, pd.DataFrame], metrics: Sequence[str] = ("Q1Q2",), *,
           method: str = "GRPO", anchor_metric: str = "Q1Q2",
-          select_judge: Optional[str] = None) -> pd.DataFrame:
+          select_judge: Optional[str] = None, best_k0: Optional[int] = None) -> pd.DataFrame:
     """Each arm's gain over the shared Base, persona-paired (Base = the persona's two-draw mean).
 
     Anchors: ``last`` (both arms at their last iteration) and ``best_K0`` (the K=0 arm at its best
     trained iteration on ``anchor_metric`` under ``select_judge`` — default the mapping's first key,
     the training oracle — scored at that SAME iteration by every judge; the K=5 arm still at its
     last). One selection rule for both judges (Lior, 2026-10-05): picking the checkpoint on the
-    held-out judge would select on the evaluation itself. ``ratio_K5_over_K0`` = K=5's gain / K=0's
-    gain at that anchor (on the K=5 rows). ``p_holm`` = Holm across ``metrics`` within
+    held-out judge would select on the evaluation itself. ``best_k0`` overrides the selection with
+    an iteration chosen elsewhere — pass it when the frames do not carry ``anchor_metric`` (e.g. the
+    WAI-SR subscale frames of :func:`~eda_analysis.instruments.wai_scores_long`, which have no Q1+Q2
+    to select on; without it the selection returns -1 and the ``best_K0`` rows silently vanish), so
+    the subscales are read at the SAME checkpoint as the rubrics. ``ratio_K5_over_K0`` = K=5's gain /
+    K=0's gain at that anchor (on the K=5 rows). ``p_holm`` = Holm across ``metrics`` within
     (judge, anchor, arm)."""
     rows = []
     a0, a5 = f"{method}_LA0", f"{method}_LA5"
     sel = select_judge if select_judge is not None else next(iter(sc_sb))
-    best0 = best_iteration(sc_sb[sel], a0, anchor_metric)
+    best0 = int(best_k0) if best_k0 is not None else best_iteration(sc_sb[sel], a0, anchor_metric)
     for j, f in sc_sb.items():
         last0 = int(f.loc[f["arm"] == a0, "iteration"].max())
         last5 = int(f.loc[f["arm"] == a5, "iteration"].max())
@@ -252,6 +265,92 @@ def gains(sc_sb: Mapping[str, pd.DataFrame], metrics: Sequence[str] = ("Q1Q2",),
         out = holm_within(out, ["judge", "anchor", "arm"], "p", "p_holm")
         out = out[[c for c in out.columns if c != "ratio_K5_over_K0"] + ["ratio_K5_over_K0"]]
     return out
+
+
+def coop_strata(sc: Mapping[str, pd.DataFrame], metrics: Sequence[str] = ("Q1Q2", "PCT", "MICI"), *,
+                method: str = "GRPO", anchor_metric: str = "Q1Q2",
+                select_judge: Optional[str] = None, best_k0: Optional[int] = None,
+                ceiling: float = 4.5) -> pd.DataFrame:
+    """The K contrast WITHIN the persona's cooperation clause, in the paper's sign (K=5 − K=0).
+
+    ``sc`` = ``{judge: scores_long}`` with ``cooperation_level`` attached (``scores_by_judge``; the
+    raw, ``per_arm`` or ``single`` frames all give the same rows — no Base is read). Strata =
+    :data:`constants.COOP_LABEL` (High → Cooperative, StartLowAndChangesToHigh → Warms up, Low →
+    Resistant; 32 personas each) plus an ``All`` reference row (96). Anchors as :func:`gains`:
+    ``last`` = both runs at their last iteration; ``best_K0`` = the K=0 run at its best trained
+    iteration on ``anchor_metric`` under ``select_judge`` (default the mapping's first key, the
+    training oracle), read at that SAME iteration under every judge, the K=5 run still at its last.
+    ``best_k0`` overrides that selection (as in :func:`gains`) — pass it for frames that carry no
+    ``anchor_metric``, e.g. a behaviour-channel frame (``behavior.channel_scores_long`` with
+    ``cooperation_level`` mapped on), so the channel is split at the SAME checkpoint as the rubrics.
+
+    Columns: ``judge, metric, anchor, iter_K0, iter_K5, cooperation, n`` (paired personas),
+    ``mean_K0, mean_K5`` (stratum means on those personas), ``delta_K5_minus_K0, dz_K5_minus_K0,
+    ci_lo, ci_hi`` (95% percentile bootstrap over the persona deltas, ``BOOT_SEED``), ``p``
+    (Wilcoxon signed-rank), ``p_holm`` (Holm across the THREE strata within (judge, metric, anchor);
+    NaN on ``All``, which is outside the family), ``better`` (``K5``/``K0`` read through
+    lower-is-better: MICI), ``het_H, het_p`` (Kruskal–Wallis across the three strata's persona
+    deltas = the stratum × K interaction; on the ``All`` row only — the test a "the lead is
+    concentrated in …" sentence needs), ``share_K0_ge, share_K5_ge`` (share of the stratum's
+    conversations at or above ``ceiling``; 1–5 rubrics only — the ceiling diagnostic, since a
+    stratum already at the top of the scale cannot show a K gap).
+
+    Reproduces the GRPO rows of :func:`~eda_analysis.instruments.hetero_kcontrast` with every sign
+    negated (``matched_final`` ↔ ``last``; ``own_best`` ↔ ``best_K0`` only while the K=5 run's own
+    best is its last iteration — ``own_best`` moves BOTH arms to their own best, this anchor moves
+    only K=0, which is the paper's rule).
+
+    ⚠ A stratum at the ceiling (e.g. Cooperative on the training oracle, ~100% at ≥ 4.5) has a
+    collapsed SD, so its ``dz`` is inflated: read ``share_*_ge`` before quoting a stratum's dz.
+    """
+    from scipy.stats import kruskal
+    a0, a5 = f"{method}_LA0", f"{method}_LA5"
+    sel = select_judge if select_judge is not None else next(iter(sc))
+    best0 = int(best_k0) if best_k0 is not None else best_iteration(sc[sel], a0, anchor_metric)
+    parts = []
+    for j, f in sc.items():
+        last0 = int(f.loc[f["arm"] == a0, "iteration"].max())
+        last5 = int(f.loc[f["arm"] == a5, "iteration"].max())
+        coop = (f.drop_duplicates("persona_id").set_index("persona_id")["cooperation_level"]
+                .map(COOP_LABEL))
+        for m in metrics:
+            W = wide_by_persona(f, m)
+            if W.empty:
+                continue
+            for anchor, it0 in (("last", last0), ("best_K0", best0)):
+                c0, c5 = model_name(method, 0, it0), model_name(method, 5, last5)
+                if c0 not in W.columns or c5 not in W.columns:
+                    continue
+                D = pd.DataFrame({"k0": W[c0], "k5": W[c5]}).join(coop.rename("coop"))
+                rows = []
+                for c in COOP_ORDER + ["All"]:
+                    d = D if c == "All" else D[D["coop"] == c]
+                    r = paired_arrays(d["k5"].to_numpy(), d["k0"].to_numpy())
+                    k0m, k5m = float(d["k0"].mean()), float(d["k5"].mean())
+                    hi_better = m not in LOWER_BETTER
+                    rows.append({"judge": j, "metric": m, "anchor": anchor, "iter_K0": it0, "iter_K5": last5,
+                                 "cooperation": c, "n": r["n"], "mean_K0": k0m, "mean_K5": k5m,
+                                 "delta_K5_minus_K0": r["mean_delta"], "dz_K5_minus_K0": r["dz"],
+                                 "ci_lo": r["ci_lo"], "ci_hi": r["ci_hi"], "p": r["p"],
+                                 "better": "" if k0m == k5m else ("K5" if (k5m > k0m) == hi_better else "K0"),
+                                 "share_K0_ge": float((d["k0"] >= ceiling).mean()) if m in FIVE_POINT else np.nan,
+                                 "share_K5_ge": float((d["k5"] >= ceiling).mean()) if m in FIVE_POINT else np.nan})
+                t = pd.DataFrame(rows)
+                strata = t["cooperation"] != "All"
+                ph = np.full(len(t), np.nan)
+                ph[strata.to_numpy()] = holm(t.loc[strata, "p"].to_numpy())
+                t["p_holm"] = ph
+                dd = (D["k5"] - D["k0"]).to_frame("d").join(D["coop"]).dropna()
+                kw = kruskal(*[dd.loc[dd["coop"] == c, "d"].to_numpy() for c in COOP_ORDER])
+                t["het_H"] = np.where(strata, np.nan, float(kw.statistic))
+                t["het_p"] = np.where(strata, np.nan, float(kw.pvalue))
+                parts.append(t)
+    cols = ["judge", "metric", "anchor", "iter_K0", "iter_K5", "cooperation", "n", "mean_K0", "mean_K5",
+            "delta_K5_minus_K0", "dz_K5_minus_K0", "ci_lo", "ci_hi", "p", "p_holm", "better",
+            "het_H", "het_p", "share_K0_ge", "share_K5_ge"]
+    if not parts:
+        return pd.DataFrame(columns=cols)
+    return pd.concat(parts, ignore_index=True)[cols]
 
 
 # ── the process coder (MIPROC) ──────────────────────────────────────────────────
@@ -472,6 +571,202 @@ def judge_offset(lv_one: pd.DataFrame, metric: str = "Q1Q2") -> pd.DataFrame:
                                                        values="mean").reset_index()
     d["offset"] = d[pj] - d[hj]
     return d.rename(columns={pj: "mean_primary", hj: "mean_heldout"})
+
+
+# ── robustness: the K contrast over a window of iterations, and the two base draws apart ──────
+
+#: The twelve per-conversation process measures of the paper's Table 3, in its row order.
+PROCESS_TABLE3 = ["th_PRA_rate", "th_CR_rate", "th_PERS_rate", "mi_adherent_rate", "mi_incons_rate",
+                  "refl_after_ct", "pra_after_st", "pers_after_st", "refl_after_st",
+                  "ct_persist", "st_to_ct", "ct_prop"]
+_LB_ALL = set(LOWER_BETTER) | set(_process.LOWER_BETTER) | {"ct_relapse"}
+
+
+def process_measures_long(conv: pd.DataFrame, arms, metrics: Sequence[str] = PROCESS_TABLE3) -> pd.DataFrame:
+    """The per-conversation process measures in the ``scores_long`` shape (``questionnaire`` = the
+    metric id, ``score``, ``model``, ``persona_id``) — :func:`process.to_scores_long` plus the
+    persistence metrics of :func:`process.persistence_metrics`, so one frame carries all twelve
+    measures of the paper's Table 3. Pass the RAW MIPROC frame (``process.load_miproc``), not a
+    :func:`share_base` one: the caller decides whether the Base is pooled."""
+    pm = _process.persistence_metrics(conv)
+    keys = [c for c in ("arm", "iteration", "file_index") if c in conv.columns]
+    pcols = [m for m in metrics if m in _process.PERSISTENCE_METRICS]
+    wide = conv.merge(pm[keys + pcols], on=keys, how="left") if pcols else conv
+    return _process.to_scores_long(wide, arms, metrics=list(metrics))
+
+
+def _better_delta(metric: str, delta_k5_minus_k0: float) -> str:
+    if delta_k5_minus_k0 is None or np.isnan(delta_k5_minus_k0) or delta_k5_minus_k0 == 0:
+        return ""
+    return "K5" if ((delta_k5_minus_k0 > 0) != (metric in _LB_ALL)) else "K0"
+
+
+def k_trajectory(sc: Mapping[str, pd.DataFrame], metrics: Sequence[str] = RUBRICS, *,
+                 method: str = "GRPO", windows: Sequence[tuple] = ((1, None), (4, None)),
+                 min_share: float = 0.0) -> pd.DataFrame:
+    """The K contrast averaged over a WINDOW of trained iterations — one test per (judge, window,
+    metric) that no choice of endpoint can move.
+
+    Per persona: ``d_i = K5_i − K0_i`` at every iteration ``i`` of the window where both runs
+    scored that persona (persona-paired WITHIN each iteration, as :func:`k_contrast`), then
+    ``dbar`` = the mean of those ``d_i``. The test is the one-sample Wilcoxon signed-rank test of
+    ``dbar`` over the personas (``stats.paired_arrays(dbar, 0)``: n, mean, ``dz`` = mean/SD of
+    ``dbar``, persona-bootstrap 95% CI seeded with ``BOOT_SEED``). ``p_holm`` = Holm across
+    ``metrics`` within (judge, window). Paper sign: ``+`` = K=5 higher; ``better`` reads it through
+    lower-is-better (MICI and the ``process.LOWER_BETTER`` measures).
+
+    ``windows`` = ``(first, last)`` pairs; ``last=None`` = the last iteration BOTH runs reached
+    under that judge (read off the frame, never hard-coded). The label is ``"first-last"``.
+    Iteration 0 never enters (one policy, one Base), so the frames may be raw or
+    :func:`share_base` ones. ``min_share`` = the share of the window's iterations a persona needs
+    to count (at least one; ``n_complete`` = personas present at every one). It only bites on the
+    conditional measures (``*_after_*``, ``ct_persist``, ``st_to_ct``), which are undefined in a
+    conversation without the conditioning patient code: a persona seen at one or two iterations
+    gets an extreme ``dbar``, the persona means turn heavy-tailed, and the Wilcoxon p and the mean
+    can disagree. Use ``min_share=0.5`` for those (the per-iteration dz behind
+    ``mean_dz_by_iter`` is then over the same kept personas).
+
+    Also per row: ``mean_K0`` / ``mean_K5`` (the mean over personas of each run's window mean, over
+    the same cells as ``dbar``, so ``mean_K5 − mean_K0 == delta_K5_minus_K0``), ``n_iters_K5_ahead``
+    (window iterations whose point estimate favours K=5) and ``mean_dz_by_iter`` (the mean of the
+    per-iteration dz).
+
+    ⚠ ``dz`` here is NOT on the scale of a single-iteration dz: averaging ``n_iters`` draws per
+    persona shrinks the conversation-level noise in the denominator, so a window dz is larger than
+    the per-iteration dz of the same effect. Compare it with ``mean_dz_by_iter``, never with
+    Table 1. ⚠ The test conditions on the two training runs: the unit is the persona, the
+    iterations are one run's trajectory, so it bounds evaluation noise and endpoint choice, never
+    run-to-run training variance. ⚠ A window chosen AFTER seeing the onset (e.g. 4–10) is a
+    post-hoc window; the full window (1–N) is the one that can be stated in advance.
+    """
+    a0, a5 = f"{method}_LA0", f"{method}_LA5"
+    rows = []
+    for j, f in sc.items():
+        it0 = {int(i) for i in f.loc[f["arm"] == a0, "iteration"]}
+        it5 = {int(i) for i in f.loc[f["arm"] == a5, "iteration"]}
+        matched = sorted(i for i in it0 & it5 if i > 0)
+        if not matched:
+            continue
+        for lo, hi in windows:
+            hi_ = matched[-1] if hi is None else int(hi)
+            its = [i for i in matched if lo <= i <= hi_]
+            for m in metrics:
+                W = wide_by_persona(f, m)
+                its_m = [i for i in its if model_name(method, 0, i) in W.columns
+                         and model_name(method, 5, i) in W.columns]
+                if W.empty or not its_m:
+                    continue
+                X5 = pd.DataFrame({i: W[model_name(method, 5, i)] for i in its_m})
+                X0 = pd.DataFrame({i: W[model_name(method, 0, i)] for i in its_m})
+                D = X5 - X0
+                k = D.notna().sum(axis=1)
+                keep = k >= max(1, int(np.ceil(min_share * len(its_m))))
+                D, X5, X0 = D[keep], X5[keep].where(D[keep].notna()), X0[keep].where(D[keep].notna())
+                dbar = D.mean(axis=1)
+                r = paired_arrays(dbar.to_numpy(), np.zeros(len(dbar)))
+                per_it = []
+                for i in its_m:
+                    d = D[i].dropna()
+                    sd = float(d.std(ddof=1)) if len(d) > 1 else 0.0
+                    per_it.append({"mean_delta": float(d.mean()) if len(d) else np.nan,
+                                   "dz": float(d.mean() / sd) if sd > 0 else np.nan})
+                rows.append({"judge": j, "method": method, "window": f"{lo}-{hi_}", "metric": m,
+                             "n_iters": len(its_m), "n": r["n"], "n_complete": int((k[keep] == len(its_m)).sum()),
+                             "mean_K0": float(X0.mean(axis=1).mean()), "mean_K5": float(X5.mean(axis=1).mean()),
+                             "delta_K5_minus_K0": r["mean_delta"], "dz_K5_minus_K0": r["dz"],
+                             "ci_lo_K5_minus_K0": r["ci_lo"], "ci_hi_K5_minus_K0": r["ci_hi"], "p": r["p"],
+                             "n_iters_K5_ahead": int(sum(_better_delta(m, q["mean_delta"]) == "K5" for q in per_it)),
+                             "mean_dz_by_iter": float(np.nanmean([q["dz"] for q in per_it]))})
+    cols = ["judge", "method", "window", "metric", "n_iters", "n", "n_complete", "mean_K0", "mean_K5",
+            "delta_K5_minus_K0", "dz_K5_minus_K0", "ci_lo_K5_minus_K0", "ci_hi_K5_minus_K0", "p", "p_holm",
+            "sig", "better", "n_iters_K5_ahead", "mean_dz_by_iter"]
+    if not rows:
+        return pd.DataFrame(columns=cols)
+    out = holm_within(pd.DataFrame(rows), ["judge", "window"], "p", "p_holm")
+    out["sig"] = out["p_holm"].map(stars)
+    out["better"] = [_better_delta(m, d) for m, d in zip(out["metric"], out["delta_K5_minus_K0"])]
+    return out[cols]
+
+
+def base_draws(sc: Mapping[str, pd.DataFrame], metrics: Sequence[str] = RUBRICS, *,
+               method: str = "GRPO") -> pd.DataFrame:
+    """The two base draws the shared Base pools, compared with EACH OTHER: the noise floor of the
+    persona-paired contrast. Draw 1 = the K=0 run's iteration 0, draw 2 = the K=5 run's — one
+    untrained policy, the same 96 personas, two independent samples of conversations.
+
+    Same pipeline as the paper's K contrast — persona-paired Wilcoxon, ``dz``, persona-bootstrap
+    95% CI (``BOOT_SEED``) — with ``delta`` = draw 2 − draw 1 (the K=5 − K=0 orientation, so a
+    row reads like a K contrast with no training behind it) and ``p_holm`` = Holm across
+    ``metrics`` within judge (the family of the paper's Table 1). ``mean_draw1`` / ``mean_draw2``
+    are over the paired personas, so their difference is ``delta``.
+
+    ⚠ Pass frames from BEFORE :func:`share_base` (``scores_by_judge`` / the raw MIPROC long frame):
+    a shared frame gives both runs the same pooled rows and the contrast collapses to zero — so
+    this raises on a frame carrying ``base_draw``. ⚠ The draws are close to, not exactly,
+    independent: they share the scripted opener, and in a minority of personas the patient's first
+    reply (and sometimes the next therapist turn) came out identical — a shared prefix of ~1% of
+    utterances, which if anything makes this floor slightly optimistic.
+    """
+    d1, d2 = model_name(method, 0, 0), model_name(method, 5, 0)
+    rows = []
+    for j, f in sc.items():
+        if "base_draw" in f.columns:
+            raise ValueError("base_draws needs the draws APART: pass the frames from before share_base")
+        for m in metrics:
+            W = wide_by_persona(f, m)
+            if W.empty or d1 not in W.columns or d2 not in W.columns:
+                continue
+            P = W[[d1, d2]].dropna()
+            r = paired_arrays(P[d2].to_numpy(), P[d1].to_numpy())
+            rows.append({"judge": j, "method": method, "metric": m, "n": r["n"],
+                         "mean_draw1": float(P[d1].mean()), "mean_draw2": float(P[d2].mean()),
+                         "delta": r["mean_delta"], "dz": r["dz"], "ci_lo": r["ci_lo"], "ci_hi": r["ci_hi"],
+                         "p": r["p"]})
+    cols = ["judge", "method", "metric", "n", "mean_draw1", "mean_draw2", "delta", "dz", "ci_lo", "ci_hi",
+            "p", "p_holm", "sig"]
+    if not rows:
+        return pd.DataFrame(columns=cols)
+    out = holm_within(pd.DataFrame(rows), ["judge"], "p", "p_holm")
+    out["sig"] = out["p_holm"].map(stars)
+    return out[cols]
+
+
+def base_draws_summary(bd: pd.DataFrame, *, by: Sequence[str] = ("judge",), alpha: float = 0.05) -> pd.DataFrame:
+    """Per group (default per judge; add ``"family"`` when instrument and process rows are stacked):
+    how many rows, the largest ``|dz|`` and its metric, how many rows clear ``alpha`` raw and after
+    Holm, and the smallest ``p_holm`` — the "max |dz| X, none significant" sentence, off a table."""
+    rows = []
+    for key, g in bd.groupby(list(by), sort=False):
+        g = g.dropna(subset=["dz"])
+        i = g["dz"].abs().idxmax()
+        rows.append({**dict(zip(by, key if isinstance(key, tuple) else (key,))),
+                     "n_metrics": len(g), "max_abs_dz": float(abs(g.loc[i, "dz"])),
+                     "metric_at_max": g.loc[i, "metric"], "dz_at_max": float(g.loc[i, "dz"]),
+                     "n_p_lt_alpha": int((g["p"] < alpha).sum()), "n_holm_sig": int((g["p_holm"] < alpha).sum()),
+                     "min_p": float(g["p"].min()), "min_p_holm": float(g["p_holm"].min())})
+    return pd.DataFrame(rows)
+
+
+def robustness_numbers(*, traj: pd.DataFrame, floor_sum: pd.DataFrame,
+                       traj_process: Optional[pd.DataFrame] = None) -> dict:
+    """Ledger keys for :func:`k_trajectory` and :func:`base_draws_summary`; the notebook merges
+    them into :func:`shared_base_numbers`' mapping with ``dict.update``."""
+    out = {}
+    for name, t in (("k_trajectory", traj), ("k_trajectory_process", traj_process)):
+        if t is None or not len(t):
+            continue
+        for rr in t.itertuples():
+            out[f"traj.{rr.judge}.{rr.window}.{rr.metric}.dz"] = ledger_entry(
+                round3(rr.dz_K5_minus_K0), name,
+                f"K5 - K0 = {rr.delta_K5_minus_K0:+.3f} (persona mean over iterations {rr.window}); "
+                f"p_holm {rr.p_holm:.1e}; n {rr.n}; K5 ahead at {rr.n_iters_K5_ahead} of {rr.n_iters}; "
+                f"mean per-iteration dz {rr.mean_dz_by_iter:+.3f}")
+    for rr in floor_sum.itertuples():
+        out[f"floor.{rr.judge}.{rr.family}.max_abs_dz"] = ledger_entry(
+            round3(rr.max_abs_dz), "base_draws_summary",
+            f"{rr.metric_at_max} (dz {rr.dz_at_max:+.3f}); {rr.n_holm_sig} of {rr.n_metrics} Holm-significant, "
+            f"{rr.n_p_lt_alpha} at raw p < .05; Base draw 2 - draw 1")
+    return out
 
 
 # ── the ledger ──────────────────────────────────────────────────────────────────

@@ -4,7 +4,9 @@ The four-arm, persona-paired K contrast (``<METHOD>_LA0`` minus ``<METHOD>_LA5``
 iteration, on every rubric, under the training oracle (gpt-4o-mini) and the held-out judge
 (Claude Haiku 4.5) side by side — plus the oracle-coded behaviour channels (MICI / MITI, per turn
 and per session), the deterministic text channels, the K × method difference-in-differences, the
-method gap at each K, and the endpoint contrasts the write-up quotes.
+method gap at each K, and the endpoint contrasts the write-up quotes. The length-confound
+section (:func:`length_adjusted_k_contrast`, :func:`length_decomposition`) is the exception to the
+sign convention below: it reports the paper's ``K5 − K0`` (column names say so).
 
 **Provenance.** Promoted on 2026-08-18 from the look-ahead paper's generators
 ``papers/2026_lookahead_pto_grpo/analysis/k_contrast_headline.py`` (rubric + channel contrasts,
@@ -53,6 +55,8 @@ import pandas as pd
 from .constants import LOWER_IS_BETTER as _LIB
 from .constants import support_note
 from .stats import holm, paired_arrays
+from scipy import stats as _st
+from .constants import BOOT_SEED
 from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
 from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 
@@ -63,6 +67,8 @@ __all__ = [
     "paired_k_frames", "k_levels", "k_table1", "k_summary", "channel_k_frames",
     "did_by_iter", "method_gap_by_iter", "endpoint_contrasts", "best_iteration",
     "lookahead_numbers",
+    "LENGTH_COVARIATES", "LENGTH_SPECS", "LENGTH_NOTE", "DECOMP_COLS", "length_adjusted_k_contrast",
+    "length_decomposition", "length_confound_numbers",
 ]
 
 # ── vocabulary ────────────────────────────────────────────────────────────────
@@ -602,6 +608,275 @@ def endpoint_contrasts(scores_by_judge: Mapping[str, pd.DataFrame], *, pairs=Non
     end["favours_primary"] = [favours(m, d, "A", "B") for m, d in zip(end["metric"], end["primary_delta"])]
     end["favours_judge"] = [favours(m, d, "A", "B") for m, d in zip(end["metric"], end["judge_delta"])]
     return end[cols].reset_index(drop=True)
+
+
+# ── length confounds: does turn / session length explain the K contrast? ────────────────────
+
+#: covariate -> (column of behavior.session_lengths [+ cap_hits / marker_leaks], unit, slope scale)
+LENGTH_COVARIATES = {
+    "d_th_chars": ("th_chars_mean", "therapist chars / turn", 100.0),
+    "d_pt_chars": ("pt_chars_mean", "patient chars / turn", 100.0),
+    "d_conv_len": ("conv_len", "utterances / session", 1.0),
+    "d_cap_share": ("cap_hit_rate", "share of generated therapist turns at the 200-token cap", 1.0),
+    "d_marker_share": ("marker_rate", "share of generated therapist turns with a malformed marker", 1.0),
+}
+#: the model specifications; ``length3`` is the reviewer's question as asked
+LENGTH_SPECS = {
+    "length3": ("d_th_chars", "d_pt_chars", "d_conv_len"),
+    "therapist+session": ("d_th_chars", "d_conv_len"),
+    "therapist": ("d_th_chars",),
+    "length3+cap+leak": ("d_th_chars", "d_pt_chars", "d_conv_len", "d_cap_share", "d_marker_share"),
+}
+LENGTH_NOTE = (
+    "Every length covariate is post-treatment (look-ahead changes how long both speakers talk), so the "
+    "adjusted contrast is the lead NOT linearly attributable to the length differences, not a causal "
+    "direct effect. Patient turn length is outcome-side: MI aims to get the patient talking and PCT codes "
+    "the patient's own utterances, so adjusting for it removes part of what the rubrics measure. "
+    "origin_mahalanobis = distance of the zero-difference point from the personas' covariate-difference "
+    "centroid in SD units; above ~1.5 the intercept is an extrapolation.")
+
+
+def _ols_t(y: np.ndarray, X: np.ndarray):
+    """OLS (X holds the intercept column). beta, classical SE, R^2, residual df."""
+    n, p = X.shape
+    xtx = np.linalg.pinv(X.T @ X)
+    beta = xtx @ X.T @ y
+    res = y - X @ beta
+    df = n - p
+    s2 = float(res @ res) / df if df > 0 else np.nan
+    tss = float(((y - y.mean()) ** 2).sum())
+    return beta, np.sqrt(np.diag(xtx) * s2), (1.0 - float(res @ res) / tss if tss > 0 else np.nan), df
+
+
+def _k_persona_diffs(sc: pd.DataFrame, lengths: pd.DataFrame, metric: str, method: str, it: int,
+                     covariates: Mapping) -> pd.DataFrame:
+    """One row per persona at iteration ``it``: K5 − K0 on ``metric`` (``dy``) and on every covariate
+    column present in ``lengths``. Pairs on ``persona_id`` (never ``file_index``)."""
+    a0, a5 = f"{method}_LA0", f"{method}_LA5"
+    s = sc[(sc["questionnaire"] == metric) & (sc["iteration"] == it) & sc["arm"].isin([a0, a5])]
+    y = s.pivot_table(index="persona_id", columns="arm", values="score", aggfunc="mean")
+    L = lengths[(lengths["iteration"] == it) & lengths["arm"].isin([a0, a5])]
+    if y.empty or L.empty or a0 not in y or a5 not in y:
+        return pd.DataFrame()
+    out = pd.DataFrame({"dy": y[a5] - y[a0]})
+    for cov, (col, _u, _s) in covariates.items():
+        if col in L.columns:
+            w = L.pivot_table(index="persona_id", columns="arm", values=col, aggfunc="mean")
+            if a0 in w and a5 in w:
+                out[cov] = w[a5] - w[a0]
+    return out
+
+
+def length_adjusted_k_contrast(scores_by_judge: Mapping[str, pd.DataFrame], lengths: pd.DataFrame, *,
+                               method: str = "GRPO", metrics: Sequence[str] = ("Q1Q2", "PCT"),
+                               specs: Optional[Mapping[str, Sequence[str]]] = None,
+                               covariates: Mapping = LENGTH_COVARIATES,
+                               iterations: Optional[Sequence[int]] = None,
+                               n_boot: int = 2000, seed: int = BOOT_SEED) -> pd.DataFrame:
+    """The persona-paired K contrast ADJUSTED for length differences, per (judge, metric, iteration, spec).
+
+    For each persona: ``dy`` = K5 − K0 on ``metric`` (the paper's sign) and the K5 − K0 differences
+    in the spec's covariates (:data:`LENGTH_COVARIATES`: mean therapist and patient characters per
+    turn, utterances per session, optionally cap-hit and malformed-marker shares). OLS of ``dy`` on
+    the covariate differences over the personas; the INTERCEPT is the adjusted contrast — the K5 − K0
+    gap predicted for a persona whose two sessions had equal lengths. ``lengths`` =
+    :func:`~eda_analysis.behavior.session_lengths` (persona attached; merge ``cap_hit_rate`` /
+    ``marker_rate`` from ``behavior.cap_hits`` / ``marker_leaks`` on (arm, iteration, file_index) for
+    the cap/leak spec). Iteration 0 is skipped by default (no single Base pairing).
+
+    Columns: ``raw_K5_minus_K0`` (+ bootstrap CI, Wilcoxon ``raw_p`` — :func:`stats.paired_arrays`),
+    ``adj_K5_minus_K0`` + classical-t 95 % CI + persona-bootstrap CI (``n_boot`` resamples at
+    ``seed``) + ``adj_p`` and ``adj_p_holm`` (Holm across iterations within (judge, metric, spec) —
+    the paper's family), ``share_remaining`` = adj / raw, ``r2``, ``origin_mahalanobis`` (see
+    :data:`LENGTH_NOTE`), per covariate ``mean_<cov>``, ``share_pos_<cov>`` (personas whose K=5
+    session was longer — near 0 or 1 = no support around zero) and slope ``b_<cov>`` ± SE (per 100
+    characters for the character covariates).
+
+    ⚠ Read with :data:`LENGTH_NOTE`. The slopes are identified from the SAME persona-level variation
+    the K contrast lives in, so a covariate that tracks session quality (patient length does)
+    absorbs quality; :func:`length_decomposition` takes the slope from within-state variation instead.
+    """
+    specs = dict(specs or LENGTH_SPECS)
+    rows = []
+    for judge, sc in scores_by_judge.items():
+        its = list(iterations) if iterations is not None else sorted(
+            int(i) for i in set(sc.loc[sc["arm"] == f"{method}_LA0", "iteration"])
+            & set(sc.loc[sc["arm"] == f"{method}_LA5", "iteration"]) if int(i) > 0)
+        for metric in metrics:
+            for it in its:
+                D = _k_persona_diffs(sc, lengths, metric, method, it, covariates)
+                if D.empty:
+                    continue
+                for spec, covs in specs.items():
+                    covs = [c for c in covs if c in D.columns]
+                    d = D[["dy", *covs]].dropna()
+                    n = len(d)
+                    if n < len(covs) + 3:
+                        continue
+                    y = d["dy"].to_numpy(float)
+                    Z = d[covs].to_numpy(float)
+                    X = np.column_stack([np.ones(n), Z])
+                    beta, se, r2, df = _ols_t(y, X)
+                    tcrit = _st.t.ppf(0.975, df)
+                    raw = paired_arrays(y, np.zeros(n), n_boot=n_boot, seed=seed)
+                    rng = np.random.default_rng(seed)
+                    idx = rng.integers(0, n, size=(n_boot, n))
+                    bs = np.array([np.linalg.lstsq(X[i], y[i], rcond=None)[0][0] for i in idx])
+                    mu = Z.mean(axis=0)
+                    try:
+                        maha = float(np.sqrt(mu @ np.linalg.solve(np.atleast_2d(np.cov(Z, rowvar=False)), mu)))
+                    except np.linalg.LinAlgError:
+                        maha = np.nan
+                    r = {"judge": judge, "method": method, "metric": metric, "iteration": int(it),
+                         "spec": spec, "covariates": "+".join(covs), "n": n,
+                         "raw_K5_minus_K0": raw["mean_delta"], "raw_ci_lo": raw["ci_lo"],
+                         "raw_ci_hi": raw["ci_hi"], "raw_p": raw["p"],
+                         "adj_K5_minus_K0": float(beta[0]),
+                         "adj_ci_lo": float(beta[0] - tcrit * se[0]), "adj_ci_hi": float(beta[0] + tcrit * se[0]),
+                         "adj_ci_lo_boot": float(np.percentile(bs, 2.5)),
+                         "adj_ci_hi_boot": float(np.percentile(bs, 97.5)),
+                         "adj_p": float(2 * _st.t.sf(abs(beta[0] / se[0]), df)) if se[0] > 0 else np.nan,
+                         "share_remaining": float(beta[0] / raw["mean_delta"]) if raw["mean_delta"] else np.nan,
+                         "r2": r2, "origin_mahalanobis": maha}
+                    for j, c in enumerate(covs, start=1):
+                        scale = covariates[c][2]
+                        r[f"mean_{c}"] = float(Z[:, j - 1].mean())
+                        r[f"share_pos_{c}"] = float((Z[:, j - 1] > 0).mean())
+                        r[f"b_{c}"] = float(beta[j] * scale)
+                        r[f"b_{c}_se"] = float(se[j] * scale)
+                    rows.append(r)
+    out = pd.DataFrame(rows)
+    if out.empty:
+        return out
+    return holm_within(out, ["judge", "method", "metric", "spec"], "adj_p", "adj_p_holm")
+
+
+#: the within-state decomposition's covariates: short name -> session_lengths column, slope scale
+DECOMP_COLS = {"th": ("th_chars_mean", 100.0), "pt": ("pt_chars_mean", 100.0), "len": ("conv_len", 1.0)}
+
+
+def length_decomposition(scores_by_judge: Mapping[str, pd.DataFrame], lengths: pd.DataFrame, *,
+                         method: str = "GRPO", metrics: Sequence[str] = ("Q1Q2", "PCT"),
+                         covsets: Sequence[Sequence[str]] = (("th",), ("th", "len"), ("th", "pt", "len")),
+                         iterations: Optional[Sequence[int]] = None, slope: str = "pooled",
+                         n_boot: int = 2000, seed: int = BOOT_SEED) -> pd.DataFrame:
+    """Oaxaca-style split of the K5 − K0 gap at each iteration into a part EXPLAINED by length and the rest.
+
+    ``explained`` = Σ_c β_c · (mean K5 − mean K0 of covariate c over the paired personas);
+    ``adj_K5_minus_K0`` = raw − explained. β comes from WITHIN-STATE variation only — score on the
+    covariates with one fixed effect per model state (run × iteration), i.e. how score moves with
+    length across the conversations of ONE policy — so, unlike :func:`length_adjusted_k_contrast`, the
+    slope is never estimated from the K contrast itself. ``slope="pooled"``: one β over all trained
+    states of both runs (1,920 conversations on the GRPO grid); ``"per_iteration"``: one β per iteration
+    (the two runs' states). Covariates by short name (:data:`DECOMP_COLS`: ``th`` therapist chars /
+    turn, ``pt`` patient chars / turn, ``len`` utterances). CIs: persona bootstrap (personas
+    resampled jointly across every state with multinomial count weights, ``n_boot`` at ``seed``) —
+    for the adjusted gap and for each covariate's part. ``b_<c>`` per 100 characters for th/pt.
+
+    ⚠ A within-state slope is still confounded by persona (talkative personas may also be rated
+    higher) and the patient-length term is outcome-side (:data:`LENGTH_NOTE`). Quote the ``th`` and
+    ``th+len`` rows as the length control and the ``th+pt+len`` row as the upper bound on what
+    length can account for.
+    """
+    if slope not in ("pooled", "per_iteration"):
+        raise ValueError(f"slope must be 'pooled' or 'per_iteration', got {slope!r}")
+    a0, a5 = f"{method}_LA0", f"{method}_LA5"
+    allc = list(DECOMP_COLS)
+    rows = []
+    for judge, sc in scores_by_judge.items():
+        its = list(iterations) if iterations is not None else sorted(
+            int(i) for i in set(sc.loc[sc["arm"] == a0, "iteration"]) & set(sc.loc[sc["arm"] == a5, "iteration"])
+            if int(i) > 0)
+        for metric in metrics:
+            s = sc[(sc["questionnaire"] == metric) & sc["arm"].isin([a0, a5]) & sc["iteration"].isin(its)]
+            s = s.groupby(["arm", "iteration", "persona_id"], as_index=False)["score"].mean()
+            L = lengths[lengths["arm"].isin([a0, a5]) & lengths["iteration"].isin(its)]
+            L = L.groupby(["arm", "iteration", "persona_id"], as_index=False)[
+                [DECOMP_COLS[c][0] for c in allc]].mean()
+            F = s.merge(L, on=["arm", "iteration", "persona_id"], how="inner")
+            if F.empty:
+                continue
+            personas = sorted(F["persona_id"].unique())
+            pidx = {p: i for i, p in enumerate(personas)}
+            P = len(personas)
+            cube = np.full((2, len(its), P, 1 + len(allc)), np.nan)   # [run, iteration, persona, (score, covs)]
+            for r in F.itertuples(index=False):
+                cube[0 if r.arm == a0 else 1, its.index(int(r.iteration)), pidx[r.persona_id]] = \
+                    [r.score, *(getattr(r, DECOMP_COLS[c][0]) for c in allc)]
+            ok = ~np.isnan(cube).any(axis=3)
+            cube0 = np.nan_to_num(cube)
+            rng = np.random.default_rng(seed)
+            W = np.vstack([np.ones(P), rng.multinomial(P, np.full(P, 1.0 / P), size=n_boot)])  # row 0 = point
+            for covs in covsets:
+                vi = [1 + allc.index(c) for c in covs]
+                k = len(vi)
+                Sxx = np.zeros((W.shape[0], len(its), k, k))
+                Sxy = np.zeros((W.shape[0], len(its), k))
+                for ri in range(2):
+                    for ti in range(len(its)):
+                        w = W * ok[ri, ti]
+                        sw = w.sum(1, keepdims=True)
+                        X, y = cube0[ri, ti][:, vi], cube0[ri, ti][:, 0]
+                        mx, my = (w @ X) / sw, (w @ y) / sw[:, 0]
+                        Sxx[:, ti] += np.einsum("bp,pi,pj->bij", w, X, X) - sw[:, :, None] * np.einsum("bi,bj->bij", mx, mx)
+                        Sxy[:, ti] += (w @ (X * y[:, None])) - sw * mx * my[:, None]
+                if slope == "pooled":
+                    beta = np.linalg.solve(Sxx.sum(1), Sxy.sum(1)[..., None])[..., 0][:, None, :].repeat(len(its), 1)
+                else:
+                    beta = np.linalg.solve(Sxx, Sxy[..., None])[..., 0]
+                for ti, it in enumerate(its):
+                    m = ok[0, ti] & ok[1, ti]
+                    w = W * m
+                    dbar = (w @ (cube0[1, ti] - cube0[0, ti])) / w.sum(1)[:, None]   # K5 − K0, per draw
+                    parts = beta[:, ti, :] * dbar[:, vi]
+                    raw, adj = dbar[:, 0], dbar[:, 0] - parts.sum(1)
+                    r = {"judge": judge, "method": method, "metric": metric, "iteration": int(it),
+                         "slope": slope, "covariates": "+".join(covs), "n": int(m.sum()),
+                         "raw_K5_minus_K0": float(raw[0]), "explained": float(parts[0].sum()),
+                         "adj_K5_minus_K0": float(adj[0]),
+                         "adj_ci_lo": float(np.percentile(adj[1:], 2.5)),
+                         "adj_ci_hi": float(np.percentile(adj[1:], 97.5)),
+                         "share_remaining": float(adj[0] / raw[0]) if raw[0] else np.nan}
+                    for j, c in enumerate(covs):
+                        r[f"part_{c}"] = float(parts[0, j])
+                        r[f"part_{c}_ci_lo"] = float(np.percentile(parts[1:, j], 2.5))
+                        r[f"part_{c}_ci_hi"] = float(np.percentile(parts[1:, j], 97.5))
+                        r[f"b_{c}"] = float(beta[0, ti, j] * DECOMP_COLS[c][1])
+                        r[f"d_{c}"] = float(dbar[0, vi[j]])
+                    rows.append(r)
+    return pd.DataFrame(rows)
+
+
+def length_confound_numbers(adj: pd.DataFrame, dec: pd.DataFrame, rl: Optional[pd.DataFrame] = None, *,
+                            table_adj: str = "tables/length_adjusted_k.md",
+                            table_dec: str = "tables/length_decomposition.md",
+                            table_rl: str = "tables/reward_length_within_group.md") -> Dict[str, dict]:
+    """Ledger for ``exports.save_numbers``: ``length_adj.<method>.<judge>.<metric>.<spec>.iter<n>``
+    (raw, adjusted, CI, Holm p, share remaining), ``length_dec.<method>.<judge>.<metric>.<slope>.<covs>.iter<n>``
+    and, if given, ``reward_length.<arm>.train_iter<n>`` (within-group r + CI)."""
+    N: Dict[str, dict] = {}
+    for r in adj.itertuples(index=False):
+        N[f"length_adj.{r.method}.{r.judge}.{r.metric}.{r.spec}.iter{r.iteration}"] = ledger_entry(
+            {"raw": round3(r.raw_K5_minus_K0), "adj": round3(r.adj_K5_minus_K0),
+             "adj_ci": [round3(r.adj_ci_lo), round3(r.adj_ci_hi)], "p_holm": json_scalar(r.adj_p_holm),
+             "share_remaining": round3(r.share_remaining), "origin_mahalanobis": round3(r.origin_mahalanobis),
+             "n": int(r.n)},
+            source=f"{table_adj} :: judge={r.judge}, method={r.method}, metric={r.metric}, spec={r.spec}, iteration={r.iteration}",
+            note="K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)")
+    for r in dec.itertuples(index=False):
+        N[f"length_dec.{r.method}.{r.judge}.{r.metric}.{r.slope}.{r.covariates}.iter{r.iteration}"] = ledger_entry(
+            {"raw": round3(r.raw_K5_minus_K0), "explained": round3(r.explained), "adj": round3(r.adj_K5_minus_K0),
+             "adj_ci": [round3(r.adj_ci_lo), round3(r.adj_ci_hi)], "share_remaining": round3(r.share_remaining)},
+            source=f"{table_dec} :: judge={r.judge}, metric={r.metric}, slope={r.slope}, covariates={r.covariates}, iteration={r.iteration}",
+            note="K5 - K0; within-state slope (state fixed effects); persona bootstrap CI")
+    if rl is not None:
+        for r in rl.itertuples(index=False):
+            N[f"reward_length.{r.arm}.{r.feature}.{r.candidates}.train_iter{r.train_iter}"] = ledger_entry(
+                {"r_within": round3(r.r_within), "ci": [round3(r.r_ci_lo), round3(r.r_ci_hi)],
+                 "n_groups": int(r.n_groups)},
+                source=f"{table_rl} :: arm={r.arm}, feature={r.feature}, candidates={r.candidates}, train_iter={r.train_iter}",
+                note="training oracle; reward and feature centred within each gradient group")
+    return N
 
 
 # ── 6. the ledger ─────────────────────────────────────────────────────────────

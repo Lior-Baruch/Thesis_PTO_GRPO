@@ -2177,6 +2177,656 @@
    "value": 1.805,
    "source": "judge_offset",
    "note": "primary − held-out, over states"
+  },
+  "traj.gpt-4o-mini.1-10.Q1Q2.dz": {
+   "value": 0.921,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.218 (persona mean over iterations 1-10); p_holm 1.7e-11; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.304"
+  },
+  "traj.gpt-4o-mini.1-10.Q1.dz": {
+   "value": 1.044,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.290 (persona mean over iterations 1-10); p_holm 5.6e-13; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.364"
+  },
+  "traj.gpt-4o-mini.1-10.Q2.dz": {
+   "value": 0.661,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.145 (persona mean over iterations 1-10); p_holm 3.8e-08; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.205"
+  },
+  "traj.gpt-4o-mini.1-10.WAI-SR.dz": {
+   "value": 0.887,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.198 (persona mean over iterations 1-10); p_holm 2.0e-11; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.351"
+  },
+  "traj.gpt-4o-mini.1-10.CSQ-8.dz": {
+   "value": 0.807,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.187 (persona mean over iterations 1-10); p_holm 7.9e-10; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.314"
+  },
+  "traj.gpt-4o-mini.1-10.MI-SAT.dz": {
+   "value": 0.826,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.253 (persona mean over iterations 1-10); p_holm 2.7e-11; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.341"
+  },
+  "traj.gpt-4o-mini.1-10.MITI.dz": {
+   "value": 0.811,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.180 (persona mean over iterations 1-10); p_holm 4.1e-10; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.281"
+  },
+  "traj.gpt-4o-mini.1-10.PCT.dz": {
+   "value": 0.849,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.074 (persona mean over iterations 1-10); p_holm 7.9e-10; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.340"
+  },
+  "traj.gpt-4o-mini.1-10.MICI.dz": {
+   "value": -0.873,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = -0.085 (persona mean over iterations 1-10); p_holm 6.4e-11; n 96; K5 ahead at 4 of 10; mean per-iteration dz -0.255"
+  },
+  "traj.gpt-4o-mini.4-10.Q1Q2.dz": {
+   "value": 1.142,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.318 (persona mean over iterations 4-10); p_holm 1.0e-13; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.463"
+  },
+  "traj.gpt-4o-mini.4-10.Q1.dz": {
+   "value": 1.261,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.425 (persona mean over iterations 4-10); p_holm 1.5e-14; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.547"
+  },
+  "traj.gpt-4o-mini.4-10.Q2.dz": {
+   "value": 0.856,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.212 (persona mean over iterations 4-10); p_holm 3.8e-11; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.318"
+  },
+  "traj.gpt-4o-mini.4-10.WAI-SR.dz": {
+   "value": 0.987,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.276 (persona mean over iterations 4-10); p_holm 5.9e-13; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.492"
+  },
+  "traj.gpt-4o-mini.4-10.CSQ-8.dz": {
+   "value": 0.916,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.266 (persona mean over iterations 4-10); p_holm 2.6e-11; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.447"
+  },
+  "traj.gpt-4o-mini.4-10.MI-SAT.dz": {
+   "value": 0.922,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.345 (persona mean over iterations 4-10); p_holm 2.7e-12; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.468"
+  },
+  "traj.gpt-4o-mini.4-10.MITI.dz": {
+   "value": 1.041,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.259 (persona mean over iterations 4-10); p_holm 2.3e-12; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.417"
+  },
+  "traj.gpt-4o-mini.4-10.PCT.dz": {
+   "value": 0.882,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.100 (persona mean over iterations 4-10); p_holm 5.1e-10; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.453"
+  },
+  "traj.gpt-4o-mini.4-10.MICI.dz": {
+   "value": -1.248,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = -0.140 (persona mean over iterations 4-10); p_holm 4.3e-15; n 96; K5 ahead at 4 of 7; mean per-iteration dz -0.442"
+  },
+  "traj.gpt-4o-mini.1-7.Q1Q2.dz": {
+   "value": 0.333,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.084 (persona mean over iterations 1-7); p_holm 5.8e-03; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.132"
+  },
+  "traj.gpt-4o-mini.1-7.Q1.dz": {
+   "value": 0.461,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.128 (persona mean over iterations 1-7); p_holm 2.1e-04; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.187"
+  },
+  "traj.gpt-4o-mini.1-7.Q2.dz": {
+   "value": 0.159,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.041 (persona mean over iterations 1-7); p_holm 8.2e-02; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.058"
+  },
+  "traj.gpt-4o-mini.1-7.WAI-SR.dz": {
+   "value": 0.585,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.130 (persona mean over iterations 1-7); p_holm 1.7e-06; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.239"
+  },
+  "traj.gpt-4o-mini.1-7.CSQ-8.dz": {
+   "value": 0.508,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.116 (persona mean over iterations 1-7); p_holm 7.0e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.206"
+  },
+  "traj.gpt-4o-mini.1-7.MI-SAT.dz": {
+   "value": 0.547,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.169 (persona mean over iterations 1-7); p_holm 3.2e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.227"
+  },
+  "traj.gpt-4o-mini.1-7.MITI.dz": {
+   "value": 0.314,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.074 (persona mean over iterations 1-7); p_holm 1.6e-02; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.136"
+  },
+  "traj.gpt-4o-mini.1-7.PCT.dz": {
+   "value": 0.573,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.047 (persona mean over iterations 1-7); p_holm 2.2e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.242"
+  },
+  "traj.gpt-4o-mini.1-7.MICI.dz": {
+   "value": 0.378,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.037 (persona mean over iterations 1-7); p_holm 2.2e-03; n 96; K5 ahead at 1 of 7; mean per-iteration dz +0.150"
+  },
+  "traj.claude-haiku-4-5.1-10.Q1Q2.dz": {
+   "value": 1.128,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.301 (persona mean over iterations 1-10); p_holm 3.1e-14; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.386"
+  },
+  "traj.claude-haiku-4-5.1-10.Q1.dz": {
+   "value": 1.256,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.413 (persona mean over iterations 1-10); p_holm 6.5e-15; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.443"
+  },
+  "traj.claude-haiku-4-5.1-10.Q2.dz": {
+   "value": 0.787,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.189 (persona mean over iterations 1-10); p_holm 7.3e-10; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.247"
+  },
+  "traj.claude-haiku-4-5.1-10.WAI-SR.dz": {
+   "value": 0.602,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.131 (persona mean over iterations 1-10); p_holm 6.5e-07; n 96; K5 ahead at 6 of 10; mean per-iteration dz +0.193"
+  },
+  "traj.claude-haiku-4-5.1-10.CSQ-8.dz": {
+   "value": 0.937,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.232 (persona mean over iterations 1-10); p_holm 2.7e-11; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.333"
+  },
+  "traj.claude-haiku-4-5.1-10.MI-SAT.dz": {
+   "value": 1.241,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.324 (persona mean over iterations 1-10); p_holm 1.7e-15; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.467"
+  },
+  "traj.claude-haiku-4-5.1-10.MITI.dz": {
+   "value": 0.642,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.128 (persona mean over iterations 1-10); p_holm 1.9e-07; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.227"
+  },
+  "traj.claude-haiku-4-5.1-10.PCT.dz": {
+   "value": 0.93,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.086 (persona mean over iterations 1-10); p_holm 1.8e-11; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.386"
+  },
+  "traj.claude-haiku-4-5.1-10.MICI.dz": {
+   "value": -0.543,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = -0.077 (persona mean over iterations 1-10); p_holm 2.3e-06; n 96; K5 ahead at 6 of 10; mean per-iteration dz -0.240"
+  },
+  "traj.claude-haiku-4-5.4-10.Q1Q2.dz": {
+   "value": 1.287,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.436 (persona mean over iterations 4-10); p_holm 3.9e-15; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.566"
+  },
+  "traj.claude-haiku-4-5.4-10.Q1.dz": {
+   "value": 1.46,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.610 (persona mean over iterations 4-10); p_holm 7.0e-16; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.660"
+  },
+  "traj.claude-haiku-4-5.4-10.Q2.dz": {
+   "value": 0.864,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.263 (persona mean over iterations 4-10); p_holm 5.4e-11; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.348"
+  },
+  "traj.claude-haiku-4-5.4-10.WAI-SR.dz": {
+   "value": 0.758,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.210 (persona mean over iterations 4-10); p_holm 9.7e-10; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.317"
+  },
+  "traj.claude-haiku-4-5.4-10.CSQ-8.dz": {
+   "value": 1.085,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.329 (persona mean over iterations 4-10); p_holm 9.4e-13; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.473"
+  },
+  "traj.claude-haiku-4-5.4-10.MI-SAT.dz": {
+   "value": 1.34,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.453 (persona mean over iterations 4-10); p_holm 2.5e-15; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.648"
+  },
+  "traj.claude-haiku-4-5.4-10.MITI.dz": {
+   "value": 0.835,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.192 (persona mean over iterations 4-10); p_holm 2.3e-10; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.351"
+  },
+  "traj.claude-haiku-4-5.4-10.PCT.dz": {
+   "value": 1.006,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.121 (persona mean over iterations 4-10); p_holm 1.0e-11; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.540"
+  },
+  "traj.claude-haiku-4-5.4-10.MICI.dz": {
+   "value": -0.796,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = -0.132 (persona mean over iterations 4-10); p_holm 2.3e-10; n 96; K5 ahead at 5 of 7; mean per-iteration dz -0.411"
+  },
+  "traj.claude-haiku-4-5.1-7.Q1Q2.dz": {
+   "value": 0.687,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.197 (persona mean over iterations 1-7); p_holm 2.1e-07; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.244"
+  },
+  "traj.claude-haiku-4-5.1-7.Q1.dz": {
+   "value": 0.75,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.268 (persona mean over iterations 1-7); p_holm 1.5e-08; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.274"
+  },
+  "traj.claude-haiku-4-5.1-7.Q2.dz": {
+   "value": 0.492,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.126 (persona mean over iterations 1-7); p_holm 1.3e-04; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.167"
+  },
+  "traj.claude-haiku-4-5.1-7.WAI-SR.dz": {
+   "value": 0.24,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.051 (persona mean over iterations 1-7); p_holm 6.7e-02; n 96; K5 ahead at 4 of 7; mean per-iteration dz +0.080"
+  },
+  "traj.claude-haiku-4-5.1-7.CSQ-8.dz": {
+   "value": 0.511,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.135 (persona mean over iterations 1-7); p_holm 4.9e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.203"
+  },
+  "traj.claude-haiku-4-5.1-7.MI-SAT.dz": {
+   "value": 0.839,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.200 (persona mean over iterations 1-7); p_holm 5.5e-10; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.307"
+  },
+  "traj.claude-haiku-4-5.1-7.MITI.dz": {
+   "value": 0.291,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.060 (persona mean over iterations 1-7); p_holm 1.3e-02; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.116"
+  },
+  "traj.claude-haiku-4-5.1-7.PCT.dz": {
+   "value": 0.633,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.050 (persona mean over iterations 1-7); p_holm 1.1e-06; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.257"
+  },
+  "traj.claude-haiku-4-5.1-7.MICI.dz": {
+   "value": 0.125,
+   "source": "k_trajectory",
+   "note": "K5 - K0 = +0.017 (persona mean over iterations 1-7); p_holm 2.4e-01; n 96; K5 ahead at 3 of 7; mean per-iteration dz +0.052"
+  },
+  "traj.gpt-4o-mini.1-10.th_PRA_rate.dz": {
+   "value": -1.094,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.062 (persona mean over iterations 1-10); p_holm 1.6e-13; n 96; K5 ahead at 7 of 10; mean per-iteration dz -0.262"
+  },
+  "traj.gpt-4o-mini.1-10.th_CR_rate.dz": {
+   "value": 1.347,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.070 (persona mean over iterations 1-10); p_holm 8.0e-15; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.366"
+  },
+  "traj.gpt-4o-mini.1-10.th_PERS_rate.dz": {
+   "value": 0.95,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.103 (persona mean over iterations 1-10); p_holm 3.7e-12; n 96; K5 ahead at 0 of 10; mean per-iteration dz +0.358"
+  },
+  "traj.gpt-4o-mini.1-10.mi_adherent_rate.dz": {
+   "value": 0.726,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.069 (persona mean over iterations 1-10); p_holm 3.0e-08; n 96; K5 ahead at 7 of 10; mean per-iteration dz +0.220"
+  },
+  "traj.gpt-4o-mini.1-10.mi_incons_rate.dz": {
+   "value": 0.35,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.040 (persona mean over iterations 1-10); p_holm 4.2e-03; n 96; K5 ahead at 2 of 10; mean per-iteration dz +0.146"
+  },
+  "traj.gpt-4o-mini.1-10.refl_after_ct.dz": {
+   "value": 1.014,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.100 (persona mean over iterations 1-10); p_holm 3.3e-10; n 72; K5 ahead at 9 of 10; mean per-iteration dz +0.405"
+  },
+  "traj.gpt-4o-mini.1-10.pra_after_st.dz": {
+   "value": -1.016,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.050 (persona mean over iterations 1-10); p_holm 1.5e-08; n 64; K5 ahead at 8 of 10; mean per-iteration dz -0.265"
+  },
+  "traj.gpt-4o-mini.1-10.pers_after_st.dz": {
+   "value": 1.165,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.142 (persona mean over iterations 1-10); p_holm 1.4e-09; n 64; K5 ahead at 0 of 10; mean per-iteration dz +0.371"
+  },
+  "traj.gpt-4o-mini.1-10.refl_after_st.dz": {
+   "value": 0.625,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.062 (persona mean over iterations 1-10); p_holm 6.9e-06; n 64; K5 ahead at 7 of 10; mean per-iteration dz +0.165"
+  },
+  "traj.gpt-4o-mini.1-10.ct_persist.dz": {
+   "value": 0.686,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.079 (persona mean over iterations 1-10); p_holm 3.9e-07; n 71; K5 ahead at 9 of 10; mean per-iteration dz +0.306"
+  },
+  "traj.gpt-4o-mini.1-10.st_to_ct.dz": {
+   "value": 0.724,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.058 (persona mean over iterations 1-10); p_holm 2.5e-06; n 64; K5 ahead at 8 of 10; mean per-iteration dz +0.232"
+  },
+  "traj.gpt-4o-mini.1-10.ct_prop.dz": {
+   "value": 1.084,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.101 (persona mean over iterations 1-10); p_holm 6.1e-14; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.349"
+  },
+  "traj.gpt-4o-mini.4-10.th_PRA_rate.dz": {
+   "value": -1.247,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.089 (persona mean over iterations 4-10); p_holm 4.9e-15; n 96; K5 ahead at 6 of 7; mean per-iteration dz -0.380"
+  },
+  "traj.gpt-4o-mini.4-10.th_CR_rate.dz": {
+   "value": 1.335,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.098 (persona mean over iterations 4-10); p_holm 6.0e-15; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.528"
+  },
+  "traj.gpt-4o-mini.4-10.th_PERS_rate.dz": {
+   "value": 0.919,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.116 (persona mean over iterations 4-10); p_holm 1.8e-12; n 96; K5 ahead at 0 of 7; mean per-iteration dz +0.403"
+  },
+  "traj.gpt-4o-mini.4-10.mi_adherent_rate.dz": {
+   "value": 0.989,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.112 (persona mean over iterations 4-10); p_holm 4.9e-12; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.357"
+  },
+  "traj.gpt-4o-mini.4-10.mi_incons_rate.dz": {
+   "value": 0.189,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.027 (persona mean over iterations 4-10); p_holm 1.7e-01; n 96; K5 ahead at 2 of 7; mean per-iteration dz +0.098"
+  },
+  "traj.gpt-4o-mini.4-10.refl_after_ct.dz": {
+   "value": 1.312,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.126 (persona mean over iterations 4-10); p_holm 3.0e-11; n 70; K5 ahead at 6 of 7; mean per-iteration dz +0.496"
+  },
+  "traj.gpt-4o-mini.4-10.pra_after_st.dz": {
+   "value": -1.111,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.067 (persona mean over iterations 4-10); p_holm 3.0e-09; n 64; K5 ahead at 6 of 7; mean per-iteration dz -0.360"
+  },
+  "traj.gpt-4o-mini.4-10.pers_after_st.dz": {
+   "value": 1.077,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.161 (persona mean over iterations 4-10); p_holm 3.0e-09; n 64; K5 ahead at 0 of 7; mean per-iteration dz +0.422"
+  },
+  "traj.gpt-4o-mini.4-10.refl_after_st.dz": {
+   "value": 0.692,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.093 (persona mean over iterations 4-10); p_holm 6.1e-06; n 64; K5 ahead at 6 of 7; mean per-iteration dz +0.249"
+  },
+  "traj.gpt-4o-mini.4-10.ct_persist.dz": {
+   "value": 0.783,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.100 (persona mean over iterations 4-10); p_holm 5.3e-09; n 69; K5 ahead at 7 of 7; mean per-iteration dz +0.402"
+  },
+  "traj.gpt-4o-mini.4-10.st_to_ct.dz": {
+   "value": 0.853,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.081 (persona mean over iterations 4-10); p_holm 1.3e-07; n 64; K5 ahead at 7 of 7; mean per-iteration dz +0.334"
+  },
+  "traj.gpt-4o-mini.4-10.ct_prop.dz": {
+   "value": 1.248,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.142 (persona mean over iterations 4-10); p_holm 6.0e-15; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.485"
+  },
+  "traj.gpt-4o-mini.1-7.th_PRA_rate.dz": {
+   "value": -0.156,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.008 (persona mean over iterations 1-7); p_holm 2.7e-01; n 96; K5 ahead at 4 of 7; mean per-iteration dz -0.061"
+  },
+  "traj.gpt-4o-mini.1-7.th_CR_rate.dz": {
+   "value": 0.614,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.023 (persona mean over iterations 1-7); p_holm 2.5e-07; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.191"
+  },
+  "traj.gpt-4o-mini.1-7.th_PERS_rate.dz": {
+   "value": 0.744,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.081 (persona mean over iterations 1-7); p_holm 2.1e-08; n 96; K5 ahead at 0 of 7; mean per-iteration dz +0.279"
+  },
+  "traj.gpt-4o-mini.1-7.mi_adherent_rate.dz": {
+   "value": 0.251,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.026 (persona mean over iterations 1-7); p_holm 2.5e-01; n 96; K5 ahead at 4 of 7; mean per-iteration dz +0.109"
+  },
+  "traj.gpt-4o-mini.1-7.mi_incons_rate.dz": {
+   "value": 0.691,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.072 (persona mean over iterations 1-7); p_holm 1.4e-07; n 96; K5 ahead at 0 of 7; mean per-iteration dz +0.247"
+  },
+  "traj.gpt-4o-mini.1-7.refl_after_ct.dz": {
+   "value": 0.424,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.043 (persona mean over iterations 1-7); p_holm 7.5e-03; n 70; K5 ahead at 6 of 7; mean per-iteration dz +0.224"
+  },
+  "traj.gpt-4o-mini.1-7.pra_after_st.dz": {
+   "value": -0.208,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.007 (persona mean over iterations 1-7); p_holm 2.7e-01; n 64; K5 ahead at 5 of 7; mean per-iteration dz -0.079"
+  },
+  "traj.gpt-4o-mini.1-7.pers_after_st.dz": {
+   "value": 0.859,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.106 (persona mean over iterations 1-7); p_holm 1.0e-06; n 64; K5 ahead at 0 of 7; mean per-iteration dz +0.272"
+  },
+  "traj.gpt-4o-mini.1-7.refl_after_st.dz": {
+   "value": 0.184,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.018 (persona mean over iterations 1-7); p_holm 2.8e-01; n 64; K5 ahead at 4 of 7; mean per-iteration dz +0.066"
+  },
+  "traj.gpt-4o-mini.1-7.ct_persist.dz": {
+   "value": 0.424,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.048 (persona mean over iterations 1-7); p_holm 5.4e-03; n 70; K5 ahead at 6 of 7; mean per-iteration dz +0.208"
+  },
+  "traj.gpt-4o-mini.1-7.st_to_ct.dz": {
+   "value": 0.425,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.037 (persona mean over iterations 1-7); p_holm 1.7e-02; n 64; K5 ahead at 5 of 7; mean per-iteration dz +0.161"
+  },
+  "traj.gpt-4o-mini.1-7.ct_prop.dz": {
+   "value": 0.566,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.053 (persona mean over iterations 1-7); p_holm 6.1e-06; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.200"
+  },
+  "traj.claude-haiku-4-5.1-10.th_PRA_rate.dz": {
+   "value": -1.648,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.124 (persona mean over iterations 1-10); p_holm 1.3e-15; n 96; K5 ahead at 8 of 10; mean per-iteration dz -0.492"
+  },
+  "traj.claude-haiku-4-5.1-10.th_CR_rate.dz": {
+   "value": 1.719,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.097 (persona mean over iterations 1-10); p_holm 2.7e-16; n 96; K5 ahead at 10 of 10; mean per-iteration dz +0.456"
+  },
+  "traj.claude-haiku-4-5.1-10.th_PERS_rate.dz": {
+   "value": 1.236,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.115 (persona mean over iterations 1-10); p_holm 4.0e-14; n 96; K5 ahead at 0 of 10; mean per-iteration dz +0.413"
+  },
+  "traj.claude-haiku-4-5.1-10.mi_adherent_rate.dz": {
+   "value": 1.499,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.136 (persona mean over iterations 1-10); p_holm 1.3e-15; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.521"
+  },
+  "traj.claude-haiku-4-5.1-10.mi_incons_rate.dz": {
+   "value": -0.082,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.009 (persona mean over iterations 1-10); p_holm 4.6e-01; n 96; K5 ahead at 3 of 10; mean per-iteration dz -0.031"
+  },
+  "traj.claude-haiku-4-5.1-10.refl_after_ct.dz": {
+   "value": 1.506,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.116 (persona mean over iterations 1-10); p_holm 9.2e-13; n 74; K5 ahead at 10 of 10; mean per-iteration dz +0.488"
+  },
+  "traj.claude-haiku-4-5.1-10.pra_after_st.dz": {
+   "value": -2.976,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.143 (persona mean over iterations 1-10); p_holm 2.0e-11; n 64; K5 ahead at 9 of 10; mean per-iteration dz -0.662"
+  },
+  "traj.claude-haiku-4-5.1-10.pers_after_st.dz": {
+   "value": 1.53,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.186 (persona mean over iterations 1-10); p_holm 9.1e-11; n 64; K5 ahead at 0 of 10; mean per-iteration dz +0.504"
+  },
+  "traj.claude-haiku-4-5.1-10.refl_after_st.dz": {
+   "value": 0.586,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.038 (persona mean over iterations 1-10); p_holm 4.1e-05; n 64; K5 ahead at 6 of 10; mean per-iteration dz +0.137"
+  },
+  "traj.claude-haiku-4-5.1-10.ct_persist.dz": {
+   "value": 1.198,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.151 (persona mean over iterations 1-10); p_holm 2.0e-11; n 74; K5 ahead at 10 of 10; mean per-iteration dz +0.465"
+  },
+  "traj.claude-haiku-4-5.1-10.st_to_ct.dz": {
+   "value": 0.338,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.026 (persona mean over iterations 1-10); p_holm 4.4e-02; n 64; K5 ahead at 8 of 10; mean per-iteration dz +0.111"
+  },
+  "traj.claude-haiku-4-5.1-10.ct_prop.dz": {
+   "value": 1.589,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.143 (persona mean over iterations 1-10); p_holm 1.3e-15; n 96; K5 ahead at 10 of 10; mean per-iteration dz +0.496"
+  },
+  "traj.claude-haiku-4-5.4-10.th_PRA_rate.dz": {
+   "value": -1.759,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.175 (persona mean over iterations 4-10); p_holm 8.0e-16; n 96; K5 ahead at 7 of 7; mean per-iteration dz -0.704"
+  },
+  "traj.claude-haiku-4-5.4-10.th_CR_rate.dz": {
+   "value": 1.703,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.132 (persona mean over iterations 4-10); p_holm 2.7e-16; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.605"
+  },
+  "traj.claude-haiku-4-5.4-10.th_PERS_rate.dz": {
+   "value": 1.217,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.135 (persona mean over iterations 4-10); p_holm 1.2e-13; n 96; K5 ahead at 0 of 7; mean per-iteration dz +0.479"
+  },
+  "traj.claude-haiku-4-5.4-10.mi_adherent_rate.dz": {
+   "value": 2.098,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.211 (persona mean over iterations 4-10); p_holm 2.5e-16; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.812"
+  },
+  "traj.claude-haiku-4-5.4-10.mi_incons_rate.dz": {
+   "value": -0.291,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.039 (persona mean over iterations 4-10); p_holm 1.2e-02; n 96; K5 ahead at 3 of 7; mean per-iteration dz -0.132"
+  },
+  "traj.claude-haiku-4-5.4-10.refl_after_ct.dz": {
+   "value": 1.812,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.156 (persona mean over iterations 4-10); p_holm 7.9e-13; n 73; K5 ahead at 7 of 7; mean per-iteration dz +0.653"
+  },
+  "traj.claude-haiku-4-5.4-10.pra_after_st.dz": {
+   "value": -3.121,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.200 (persona mean over iterations 4-10); p_holm 1.8e-11; n 64; K5 ahead at 7 of 7; mean per-iteration dz -0.942"
+  },
+  "traj.claude-haiku-4-5.4-10.pers_after_st.dz": {
+   "value": 1.577,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.222 (persona mean over iterations 4-10); p_holm 9.9e-11; n 64; K5 ahead at 0 of 7; mean per-iteration dz +0.600"
+  },
+  "traj.claude-haiku-4-5.4-10.refl_after_st.dz": {
+   "value": 0.595,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.050 (persona mean over iterations 4-10); p_holm 2.0e-05; n 64; K5 ahead at 4 of 7; mean per-iteration dz +0.173"
+  },
+  "traj.claude-haiku-4-5.4-10.ct_persist.dz": {
+   "value": 1.2,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.186 (persona mean over iterations 4-10); p_holm 5.7e-12; n 73; K5 ahead at 7 of 7; mean per-iteration dz +0.571"
+  },
+  "traj.claude-haiku-4-5.4-10.st_to_ct.dz": {
+   "value": 0.39,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.036 (persona mean over iterations 4-10); p_holm 4.7e-03; n 64; K5 ahead at 7 of 7; mean per-iteration dz +0.158"
+  },
+  "traj.claude-haiku-4-5.4-10.ct_prop.dz": {
+   "value": 1.564,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.193 (persona mean over iterations 4-10); p_holm 1.7e-15; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.662"
+  },
+  "traj.claude-haiku-4-5.1-7.th_PRA_rate.dz": {
+   "value": -0.323,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.025 (persona mean over iterations 1-7); p_holm 7.9e-04; n 96; K5 ahead at 5 of 7; mean per-iteration dz -0.129"
+  },
+  "traj.claude-haiku-4-5.1-7.th_CR_rate.dz": {
+   "value": 0.692,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.029 (persona mean over iterations 1-7); p_holm 9.5e-09; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.229"
+  },
+  "traj.claude-haiku-4-5.1-7.th_PERS_rate.dz": {
+   "value": 0.935,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.099 (persona mean over iterations 1-7); p_holm 2.1e-11; n 96; K5 ahead at 0 of 7; mean per-iteration dz +0.357"
+  },
+  "traj.claude-haiku-4-5.1-7.mi_adherent_rate.dz": {
+   "value": 0.383,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.040 (persona mean over iterations 1-7); p_holm 1.8e-03; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.180"
+  },
+  "traj.claude-haiku-4-5.1-7.mi_incons_rate.dz": {
+   "value": 0.56,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.073 (persona mean over iterations 1-7); p_holm 9.3e-06; n 96; K5 ahead at 0 of 7; mean per-iteration dz +0.229"
+  },
+  "traj.claude-haiku-4-5.1-7.refl_after_ct.dz": {
+   "value": 0.592,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.045 (persona mean over iterations 1-7); p_holm 1.4e-07; n 73; K5 ahead at 7 of 7; mean per-iteration dz +0.261"
+  },
+  "traj.claude-haiku-4-5.1-7.pra_after_st.dz": {
+   "value": -0.748,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = -0.031 (persona mean over iterations 1-7); p_holm 3.5e-06; n 64; K5 ahead at 6 of 7; mean per-iteration dz -0.254"
+  },
+  "traj.claude-haiku-4-5.1-7.pers_after_st.dz": {
+   "value": 0.888,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.129 (persona mean over iterations 1-7); p_holm 2.2e-07; n 64; K5 ahead at 0 of 7; mean per-iteration dz +0.352"
+  },
+  "traj.claude-haiku-4-5.1-7.refl_after_st.dz": {
+   "value": 0.023,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.002 (persona mean over iterations 1-7); p_holm 8.6e-01; n 64; K5 ahead at 3 of 7; mean per-iteration dz -0.000"
+  },
+  "traj.claude-haiku-4-5.1-7.ct_persist.dz": {
+   "value": 0.948,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.132 (persona mean over iterations 1-7); p_holm 9.6e-10; n 73; K5 ahead at 7 of 7; mean per-iteration dz +0.407"
+  },
+  "traj.claude-haiku-4-5.1-7.st_to_ct.dz": {
+   "value": 0.143,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.011 (persona mean over iterations 1-7); p_holm 4.9e-01; n 64; K5 ahead at 5 of 7; mean per-iteration dz +0.058"
+  },
+  "traj.claude-haiku-4-5.1-7.ct_prop.dz": {
+   "value": 1.058,
+   "source": "k_trajectory_process",
+   "note": "K5 - K0 = +0.105 (persona mean over iterations 1-7); p_holm 1.8e-12; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.379"
+  },
+  "floor.gpt-4o-mini.instruments.max_abs_dz": {
+   "value": 0.128,
+   "source": "base_draws_summary",
+   "note": "MITI (dz -0.128); 0 of 9 Holm-significant, 0 at raw p < .05; Base draw 2 - draw 1"
+  },
+  "floor.claude-haiku-4-5.instruments.max_abs_dz": {
+   "value": 0.147,
+   "source": "base_draws_summary",
+   "note": "MICI (dz -0.147); 0 of 9 Holm-significant, 0 at raw p < .05; Base draw 2 - draw 1"
+  },
+  "floor.gpt-4o-mini.process.max_abs_dz": {
+   "value": 0.18,
+   "source": "base_draws_summary",
+   "note": "st_to_ct (dz -0.180); 0 of 12 Holm-significant, 0 at raw p < .05; Base draw 2 - draw 1"
+  },
+  "floor.claude-haiku-4-5.process.max_abs_dz": {
+   "value": 0.24,
+   "source": "base_draws_summary",
+   "note": "ct_persist (dz -0.240); 0 of 12 Holm-significant, 0 at raw p < .05; Base draw 2 - draw 1"
   }
  }
 }

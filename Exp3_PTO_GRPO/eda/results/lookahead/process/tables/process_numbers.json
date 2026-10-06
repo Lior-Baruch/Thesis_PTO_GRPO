@@ -1122,6 +1122,526 @@
    "value": 0.9465,
    "source": "parity_pooled",
    "note": "Fisher-z pooled within-state ρ"
+  },
+  "agreement.GRPO.therapist.Base.kappa": {
+   "value": 0.188,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.149, 0.229]; 2564 utterances in 192 conversations; kappa_max 0.556"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.kappa": {
+   "value": 0.078,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.040, 0.119]; 1128 utterances in 96 conversations; kappa_max 0.486"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.kappa": {
+   "value": 0.152,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.107, 0.196]; 1437 utterances in 96 conversations; kappa_max 0.707"
+  },
+  "agreement.GRPO.therapist.all states.kappa": {
+   "value": 0.241,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.230, 0.253]; 28866 utterances in 2112 conversations; kappa_max 0.678"
+  },
+  "agreement.PTO.therapist.Base.kappa": {
+   "value": 0.222,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.178, 0.269]; 2653 utterances in 192 conversations; kappa_max 0.608"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.kappa": {
+   "value": 0.211,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.175, 0.247]; 886 utterances in 96 conversations; kappa_max 0.591"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.kappa": {
+   "value": 0.172,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.107, 0.244]; 1285 utterances in 96 conversations; kappa_max 0.725"
+  },
+  "agreement.PTO.therapist.all states.kappa": {
+   "value": 0.226,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.213, 0.239]; 24066 utterances in 2111 conversations; kappa_max 0.691"
+  },
+  "agreement.GRPO.patient.Base.kappa": {
+   "value": 0.631,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.579, 0.679]; 2722 utterances in 192 conversations; kappa_max 0.945"
+  },
+  "agreement.GRPO.patient.GRPO_LA0 it 10.kappa": {
+   "value": 0.551,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.477, 0.620]; 1195 utterances in 96 conversations; kappa_max 0.979"
+  },
+  "agreement.GRPO.patient.GRPO_LA5 it 10.kappa": {
+   "value": 0.661,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.612, 0.709]; 1529 utterances in 96 conversations; kappa_max 0.911"
+  },
+  "agreement.GRPO.patient.all states.kappa": {
+   "value": 0.609,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.594, 0.624]; 30777 utterances in 2112 conversations; kappa_max 0.922"
+  },
+  "agreement.PTO.patient.Base.kappa": {
+   "value": 0.607,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.554, 0.655]; 2807 utterances in 192 conversations; kappa_max 0.922"
+  },
+  "agreement.PTO.patient.PTO_LA0 it 10.kappa": {
+   "value": 0.582,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.522, 0.635]; 975 utterances in 96 conversations; kappa_max 0.995"
+  },
+  "agreement.PTO.patient.PTO_LA5 it 10.kappa": {
+   "value": 0.677,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.616, 0.732]; 1374 utterances in 96 conversations; kappa_max 0.955"
+  },
+  "agreement.PTO.patient.all states.kappa": {
+   "value": 0.658,
+   "source": "judge_agreement_overall",
+   "note": "95% cluster bootstrap [0.644, 0.670]; 25979 utterances in 2111 conversations; kappa_max 0.981"
+  },
+  "agreement.GRPO.therapist.Base.SR.kappa": {
+   "value": 0.069,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.017, 0.172]; shares 0.160 / 0.025; both 26 of 2564"
+  },
+  "agreement.GRPO.therapist.Base.CR.kappa": {
+   "value": 0.027,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.020, 0.090]; shares 0.019 / 0.028; both 3 of 2564"
+  },
+  "agreement.GRPO.therapist.Base.AF.kappa": {
+   "value": 0.206,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.105, 0.320]; shares 0.024 / 0.021; both 13 of 2564"
+  },
+  "agreement.GRPO.therapist.Base.PRA.kappa": {
+   "value": 0.099,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.036, 0.177]; shares 0.039 / 0.032; both 12 of 2564"
+  },
+  "agreement.GRPO.therapist.Base.GI.kappa": {
+   "value": 0.235,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.168, 0.316]; shares 0.371 / 0.184; both 301 of 2564"
+  },
+  "agreement.GRPO.therapist.Base.PERS.kappa": {
+   "value": 0.274,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.190, 0.360]; shares 0.193 / 0.144; both 170 of 2564"
+  },
+  "agreement.GRPO.therapist.Base.reflection (SR+CR).kappa": {
+   "value": 0.17,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.086, 0.259]; shares 0.179 / 0.053; both 71 of 2564"
+  },
+  "agreement.GRPO.therapist.Base.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.286,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.195, 0.369]; shares 0.063 / 0.054; both 49 of 2564"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.SR.kappa": {
+   "value": 0.0,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.000, 0.000]; shares 0.066 / 0.000; both 0 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.CR.kappa": {
+   "value": 0.073,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.021, 0.205]; shares 0.019 / 0.020; both 2 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.AF.kappa": {
+   "value": -0.022,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.038, -0.008]; shares 0.153 / 0.012; both 0 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.PRA.kappa": {
+   "value": 0.061,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.003, 0.119]; shares 0.431 / 0.742; both 379 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.GI.kappa": {
+   "value": 0.179,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.112, 0.254]; shares 0.256 / 0.184; both 88 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.PERS.kappa": {
+   "value": 0.053,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.016, 0.147]; shares 0.069 / 0.028; both 5 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.reflection (SR+CR).kappa": {
+   "value": 0.194,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.107, 0.288]; shares 0.084 / 0.020; both 13 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA0 it 10.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.133,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.075, 0.196]; shares 0.584 / 0.754; both 531 of 1128"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.SR.kappa": {
+   "value": 0.0,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.000, 0.000]; shares 0.040 / 0.000; both 0 of 1437"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.CR.kappa": {
+   "value": 0.219,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.122, 0.314]; shares 0.271 / 0.301; both 182 of 1437"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.AF.kappa": {
+   "value": 0.031,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.025, 0.104]; shares 0.152 / 0.054; both 16 of 1437"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.PRA.kappa": {
+   "value": 0.031,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.029, 0.092]; shares 0.046 / 0.208; both 19 of 1437"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.GI.kappa": {
+   "value": 0.185,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.111, 0.261]; shares 0.179 / 0.135; both 70 of 1437"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.PERS.kappa": {
+   "value": 0.199,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.108, 0.291]; shares 0.298 / 0.244; both 161 of 1437"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.reflection (SR+CR).kappa": {
+   "value": 0.204,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.110, 0.297]; shares 0.311 / 0.301; both 197 of 1437"
+  },
+  "agreement.GRPO.therapist.GRPO_LA5 it 10.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.217,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.138, 0.295]; shares 0.198 / 0.262; both 130 of 1437"
+  },
+  "agreement.GRPO.therapist.all states.SR.kappa": {
+   "value": 0.044,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.023, 0.071]; shares 0.082 / 0.006; both 70 of 28866"
+  },
+  "agreement.GRPO.therapist.all states.CR.kappa": {
+   "value": 0.27,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.230, 0.311]; shares 0.062 / 0.083; both 675 of 28866"
+  },
+  "agreement.GRPO.therapist.all states.AF.kappa": {
+   "value": 0.104,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.085, 0.123]; shares 0.078 / 0.029; both 219 of 28866"
+  },
+  "agreement.GRPO.therapist.all states.PRA.kappa": {
+   "value": 0.236,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.210, 0.264]; shares 0.070 / 0.143; both 951 of 28866"
+  },
+  "agreement.GRPO.therapist.all states.GI.kappa": {
+   "value": 0.333,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.313, 0.354]; shares 0.393 / 0.301; both 5623 of 28866"
+  },
+  "agreement.GRPO.therapist.all states.PERS.kappa": {
+   "value": 0.253,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.230, 0.277]; shares 0.226 / 0.181; both 2373 of 28866"
+  },
+  "agreement.GRPO.therapist.all states.reflection (SR+CR).kappa": {
+   "value": 0.234,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.202, 0.263]; shares 0.144 / 0.089; both 1071 of 28866"
+  },
+  "agreement.GRPO.therapist.all states.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.407,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.385, 0.428]; shares 0.149 / 0.172; both 2325 of 28866"
+  },
+  "agreement.PTO.therapist.Base.SR.kappa": {
+   "value": 0.066,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.024, 0.122]; shares 0.152 / 0.012; both 19 of 2653"
+  },
+  "agreement.PTO.therapist.Base.CR.kappa": {
+   "value": 0.071,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.008, 0.162]; shares 0.029 / 0.032; both 8 of 2653"
+  },
+  "agreement.PTO.therapist.Base.AF.kappa": {
+   "value": 0.2,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.095, 0.324]; shares 0.023 / 0.018; both 12 of 2653"
+  },
+  "agreement.PTO.therapist.Base.PRA.kappa": {
+   "value": 0.095,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.028, 0.171]; shares 0.029 / 0.027; both 9 of 2653"
+  },
+  "agreement.PTO.therapist.Base.GI.kappa": {
+   "value": 0.288,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.219, 0.360]; shares 0.377 / 0.200; both 362 of 2653"
+  },
+  "agreement.PTO.therapist.Base.PERS.kappa": {
+   "value": 0.368,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.274, 0.461]; shares 0.179 / 0.165; both 218 of 2653"
+  },
+  "agreement.PTO.therapist.Base.reflection (SR+CR).kappa": {
+   "value": 0.165,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.087, 0.256]; shares 0.180 / 0.044; both 67 of 2653"
+  },
+  "agreement.PTO.therapist.Base.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.345,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.217, 0.469]; shares 0.052 / 0.046; both 49 of 2653"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.SR.kappa": {
+   "value": 0.027,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.013, 0.099]; shares 0.060 / 0.005; both 1 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.CR.kappa": {
+   "value": 0.34,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.198, 0.472]; shares 0.046 / 0.040; both 14 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.AF.kappa": {
+   "value": 0.059,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.005, 0.117]; shares 0.190 / 0.038; both 12 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.PRA.kappa": {
+   "value": 0.166,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.109, 0.225]; shares 0.125 / 0.391; both 74 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.GI.kappa": {
+   "value": 0.389,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.306, 0.467]; shares 0.359 / 0.344; both 188 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.PERS.kappa": {
+   "value": 0.106,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.036, 0.189]; shares 0.175 / 0.074; both 22 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.reflection (SR+CR).kappa": {
+   "value": 0.367,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.258, 0.467]; shares 0.106 / 0.044; both 27 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA0 it 10.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.435,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.368, 0.503]; shares 0.315 / 0.429; both 211 of 886"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.SR.kappa": {
+   "value": -0.002,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.005, 0.000]; shares 0.057 / 0.001; both 0 of 1285"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.CR.kappa": {
+   "value": -0.002,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.073, 0.091]; shares 0.096 / 0.091; both 11 of 1285"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.AF.kappa": {
+   "value": 0.061,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.002, 0.148]; shares 0.105 / 0.041; both 11 of 1285"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.PRA.kappa": {
+   "value": 0.08,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.017, 0.154]; shares 0.044 / 0.143; both 17 of 1285"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.GI.kappa": {
+   "value": 0.208,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.122, 0.299]; shares 0.339 / 0.250; both 165 of 1285"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.PERS.kappa": {
+   "value": 0.223,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.104, 0.335]; shares 0.309 / 0.371; both 212 of 1285"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.reflection (SR+CR).kappa": {
+   "value": 0.014,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.062, 0.100]; shares 0.153 / 0.092; both 20 of 1285"
+  },
+  "agreement.PTO.therapist.PTO_LA5 it 10.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.312,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.174, 0.450]; shares 0.149 / 0.184; both 91 of 1285"
+  },
+  "agreement.PTO.therapist.all states.SR.kappa": {
+   "value": 0.064,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.034, 0.099]; shares 0.093 / 0.008; both 93 of 24066"
+  },
+  "agreement.PTO.therapist.all states.CR.kappa": {
+   "value": 0.116,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.087, 0.146]; shares 0.042 / 0.042; both 155 of 24066"
+  },
+  "agreement.PTO.therapist.all states.AF.kappa": {
+   "value": 0.138,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.114, 0.163]; shares 0.075 / 0.034; both 233 of 24066"
+  },
+  "agreement.PTO.therapist.all states.PRA.kappa": {
+   "value": 0.186,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.165, 0.208]; shares 0.054 / 0.115; both 504 of 24066"
+  },
+  "agreement.PTO.therapist.all states.GI.kappa": {
+   "value": 0.293,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.271, 0.314]; shares 0.390 / 0.295; both 4367 of 24066"
+  },
+  "agreement.PTO.therapist.all states.PERS.kappa": {
+   "value": 0.276,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.250, 0.300]; shares 0.246 / 0.215; both 2450 of 24066"
+  },
+  "agreement.PTO.therapist.all states.reflection (SR+CR).kappa": {
+   "value": 0.165,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.135, 0.195]; shares 0.135 / 0.050; both 500 of 24066"
+  },
+  "agreement.PTO.therapist.all states.praise or affirmation (AF+PRA).kappa": {
+   "value": 0.446,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.423, 0.469]; shares 0.129 / 0.149; both 1750 of 24066"
+  },
+  "agreement.GRPO.patient.Base.CT.kappa": {
+   "value": 0.747,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.690, 0.792]; shares 0.458 / 0.467; both 1088 of 2722"
+  },
+  "agreement.GRPO.patient.Base.ST.kappa": {
+   "value": 0.695,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.629, 0.752]; shares 0.474 / 0.443; both 1042 of 2722"
+  },
+  "agreement.GRPO.patient.Base.NEU.kappa": {
+   "value": 0.013,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.029, 0.059]; shares 0.068 / 0.090; both 19 of 2722"
+  },
+  "agreement.GRPO.patient.GRPO_LA0 it 10.CT.kappa": {
+   "value": 0.659,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.584, 0.719]; shares 0.491 / 0.503; both 492 of 1195"
+  },
+  "agreement.GRPO.patient.GRPO_LA0 it 10.ST.kappa": {
+   "value": 0.601,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.505, 0.682]; shares 0.435 / 0.428; both 399 of 1195"
+  },
+  "agreement.GRPO.patient.GRPO_LA0 it 10.NEU.kappa": {
+   "value": -0.038,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.080, 0.012]; shares 0.074 / 0.069; both 3 of 1195"
+  },
+  "agreement.GRPO.patient.GRPO_LA5 it 10.CT.kappa": {
+   "value": 0.77,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.721, 0.817]; shares 0.692 / 0.731; both 1015 of 1529"
+  },
+  "agreement.GRPO.patient.GRPO_LA5 it 10.ST.kappa": {
+   "value": 0.697,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.636, 0.758]; shares 0.255 / 0.237; both 290 of 1529"
+  },
+  "agreement.GRPO.patient.GRPO_LA5 it 10.NEU.kappa": {
+   "value": -0.042,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.052, -0.030]; shares 0.053 / 0.033; both 0 of 1529"
+  },
+  "agreement.GRPO.patient.all states.CT.kappa": {
+   "value": 0.711,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.693, 0.728]; shares 0.518 / 0.506; both 13525 of 30777"
+  },
+  "agreement.GRPO.patient.all states.ST.kappa": {
+   "value": 0.697,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.680, 0.712]; shares 0.393 / 0.360; both 9394 of 30777"
+  },
+  "agreement.GRPO.patient.all states.NEU.kappa": {
+   "value": 0.15,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.106, 0.191]; shares 0.089 / 0.135; both 829 of 30777"
+  },
+  "agreement.PTO.patient.Base.CT.kappa": {
+   "value": 0.7,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.644, 0.748]; shares 0.485 / 0.465; both 1123 of 2807"
+  },
+  "agreement.PTO.patient.Base.ST.kappa": {
+   "value": 0.698,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.635, 0.750]; shares 0.454 / 0.430; both 1032 of 2807"
+  },
+  "agreement.PTO.patient.Base.NEU.kappa": {
+   "value": 0.01,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.027, 0.050]; shares 0.061 / 0.105; both 20 of 2807"
+  },
+  "agreement.PTO.patient.PTO_LA0 it 10.CT.kappa": {
+   "value": 0.706,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.634, 0.765]; shares 0.522 / 0.523; both 438 of 975"
+  },
+  "agreement.PTO.patient.PTO_LA0 it 10.ST.kappa": {
+   "value": 0.662,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.604, 0.717]; shares 0.393 / 0.390; both 303 of 975"
+  },
+  "agreement.PTO.patient.PTO_LA0 it 10.NEU.kappa": {
+   "value": -0.055,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.091, -0.006]; shares 0.085 / 0.087; both 3 of 975"
+  },
+  "agreement.PTO.patient.PTO_LA5 it 10.CT.kappa": {
+   "value": 0.79,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.736, 0.838]; shares 0.634 / 0.656; both 820 of 1374"
+  },
+  "agreement.PTO.patient.PTO_LA5 it 10.ST.kappa": {
+   "value": 0.725,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.653, 0.788]; shares 0.311 / 0.292; both 335 of 1374"
+  },
+  "agreement.PTO.patient.PTO_LA5 it 10.NEU.kappa": {
+   "value": -0.042,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.067, 0.001]; shares 0.055 / 0.052; both 1 of 1374"
+  },
+  "agreement.PTO.patient.all states.CT.kappa": {
+   "value": 0.759,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.745, 0.772]; shares 0.525 / 0.523; both 12058 of 25979"
+  },
+  "agreement.PTO.patient.all states.ST.kappa": {
+   "value": 0.733,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [0.718, 0.747]; shares 0.406 / 0.397; both 8759 of 25979"
+  },
+  "agreement.PTO.patient.all states.NEU.kappa": {
+   "value": 0.027,
+   "source": "judge_agreement_codes",
+   "note": "one-vs-rest, 95% [-0.004, 0.061]; shares 0.069 / 0.080; both 192 of 25979"
   }
  }
 }

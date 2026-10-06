@@ -78,7 +78,7 @@ __all__ = [
     "instrument_frames_by_judge", "endpoints", "matched_endpoints",
     # WAI-SR
     "wai_conversation_frame", "wai_subscale_parity", "wai_subscales", "wai_kcontrast",
-    "wai_fig_data",
+    "wai_fig_data", "WAI_LONG_IDS", "wai_scores_long",
     # PCT / Q2 / heterogeneity
     "pct_kcontrast", "q2_items", "hetero_kcontrast", "hetero_ceiling",
     # ledger
@@ -98,6 +98,9 @@ WAI_SUBSCALES = {"Task": [1, 2, 10, 12], "Goal": [4, 6, 8, 11], "Bond": [3, 5, 7
 WAI_MEASURES = ["Task", "Goal", "Bond", "bond_excess", "WAI_total"]
 _WAI_TOTAL_ITEMS = "WAI_total_items"          # internal name of the item-derived total
 _WAI_INTERNAL = ["Task", "Goal", "Bond", "bond_excess", _WAI_TOTAL_ITEMS]
+#: Long-frame ``questionnaire`` ids of the per-conversation WAI-SR measures (:func:`wai_scores_long`).
+WAI_LONG_IDS = {"Task": "WAI_Task", "Goal": "WAI_Goal", "Bond": "WAI_Bond",
+                "bond_excess": "WAI_bond_excess", _WAI_TOTAL_ITEMS: "WAI_total"}
 
 from .constants import COOP_LABEL, COOP_ORDER  # noqa: E402,F401
 from .constants import k_of as _k_of_canonical, method_of as _method_of_canonical  # noqa: E402
@@ -324,6 +327,27 @@ def wai_subscale_parity(wai_conv: pd.DataFrame, wai_subscales_lake: pd.DataFrame
         return {"n_convs": 0, "max_abs_diff_items_vs_lake": float("nan")}
     maxdiff = max(float((m[s] - m[f"{s}_lake"]).abs().max()) for s in WAI_SUBSCALES)
     return {"n_convs": int(len(m)), "max_abs_diff_items_vs_lake": maxdiff}
+
+
+def wai_scores_long(wai_conv: pd.DataFrame) -> pd.DataFrame:
+    """The per-conversation WAI-SR measures in the ``scores_long`` shape, so every function written
+    for rubric frames (``shared_base.share_base`` / ``gains``, ``lookahead.endpoint_contrasts``,
+    ``lookahead.wide_by_persona``) runs on the subscales unchanged.
+
+    ``wai_conv`` = :func:`wai_conversation_frame` output (or the loader's ``wai_conv``). One row per
+    (conversation, measure): keys ``arm, model, iteration, file_index, persona_id``, ``questionnaire``
+    in :data:`WAI_LONG_IDS` (``WAI_Task`` / ``WAI_Goal`` / ``WAI_Bond`` = the WAI-SR standard map;
+    ``WAI_bond_excess`` = Bond − mean(Goal, Task); ``WAI_total`` = mean of the 12 items), ``score``,
+    ``is_base`` (iteration 0). ⚠ ``WAI_total`` is the ITEM-derived total: its means and dz equal the
+    lake's ``WAI-SR`` rubric, but Wilcoxon p can differ in the second decimal (ties fall
+    differently), so quote the WAI-SR total from the rubric tables, not from this frame.
+    """
+    conv = wai_conversation_frame(wai_conv)
+    keys = ["arm", "model", "iteration", "file_index", "persona_id"]
+    L = conv[keys + list(WAI_LONG_IDS)].melt(id_vars=keys, var_name="questionnaire", value_name="score")
+    L["questionnaire"] = L["questionnaire"].map(WAI_LONG_IDS)
+    L["is_base"] = L["iteration"].astype(int) == 0
+    return L
 
 
 def wai_subscales(items_by_judge: Dict[str, object],

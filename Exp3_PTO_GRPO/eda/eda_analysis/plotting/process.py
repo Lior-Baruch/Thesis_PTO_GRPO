@@ -5,6 +5,7 @@
 - :func:`ct_trajectory_fig` — change-talk share by patient turn bin, endpoint vs base, per grader.
 - :func:`transition_heatmap` — therapist code × next patient code, one panel per arm endpoint.
 - :func:`code_mix_fig` — the therapist code mix (stacked shares) by iteration per arm.
+- :func:`judge_confusion_fig` — row-normalised code × code confusion of two graders on the same utterances.
 
 Contract as everywhere in ``plotting``: tidy frames in, ``fig`` out, no disk.
 """
@@ -18,7 +19,7 @@ from ..constants import arm_label, k_of
 from ..plotting_style import arm_palette, grid
 from ._shared import K_STYLE
 
-__all__ = ["yield_fig", "ct_trajectory_fig", "transition_heatmap", "code_mix_fig"]
+__all__ = ["yield_fig", "ct_trajectory_fig", "transition_heatmap", "code_mix_fig", "judge_confusion_fig"]
 
 _ARMS = ("PTO_LA0", "PTO_LA5", "GRPO_LA0", "GRPO_LA5")
 _XLAB = "training iteration (policy that generated the conversations)"
@@ -134,4 +135,36 @@ def code_mix_fig(levels: pd.DataFrame, codes: Sequence[str], *, arms: Optional[S
     fig.legend(h[::-1], l[::-1], loc="center left", bbox_to_anchor=(1.0, 0.5), fontsize=7, frameon=False)
     fig.suptitle("Therapist code mix by iteration (MIPROC)", fontweight="bold", y=1.02)
     fig.tight_layout()
+    return fig
+
+
+def judge_confusion_fig(mats: Dict[str, pd.DataFrame], *, row_judge: str, col_judge: str, ncols: int = 3):
+    """One row-normalised code × code heatmap per scope: rows = ``row_judge``'s code, columns =
+    ``col_judge``'s code on the same utterances, n per row on the y labels (the frames are
+    ``JudgeAgreement.confusion(..., "row")`` with an ``n`` column). Cells under 0.005 are left blank."""
+    labs = [k for k, M in mats.items() if M is not None and len(M)]
+    if not labs:
+        return None
+    fig, axes = grid(len(labs), ncols=min(len(labs), ncols), panel=(4.9, 4.6))
+    im = None
+    nc = min(len(labs), ncols)
+    for i, (ax, lab) in enumerate(zip(axes, labs)):
+        M = mats[lab]
+        cols = [c for c in M.columns if c != "n"]
+        V = M[cols].to_numpy(float)
+        im = ax.imshow(np.nan_to_num(V), cmap="Blues", vmin=0, vmax=1, aspect="auto")
+        ax.set_xticks(range(len(cols))); ax.set_xticklabels(cols, fontsize=7, rotation=90)
+        ax.set_yticks(range(len(M))); ax.set_yticklabels([f"{code} ({int(n)})" for code, n in zip(M.index, M["n"])], fontsize=7)
+        for r in range(V.shape[0]):
+            for c in range(V.shape[1]):
+                v = V[r, c]
+                if np.isfinite(v) and v >= 0.005:
+                    ax.text(c, r, f"{v:.2f}"[1:] if v < 1 else "1", ha="center", va="center", fontsize=5.5,
+                            color="white" if v > 0.6 else "black")
+        ax.set_title(lab, fontsize=9)
+        ax.set_xlabel(f"{col_judge} code", fontsize=8)
+        if i % nc == 0:
+            ax.set_ylabel(f"{row_judge} code (n)", fontsize=8)
+    fig.tight_layout()
+    fig.colorbar(im, ax=axes[:len(labs)], shrink=0.6, label=f"P({col_judge} code | {row_judge} code)")
     return fig

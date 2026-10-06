@@ -967,6 +967,95 @@ def marker_leak_by_iter(cands_all: pd.DataFrame) -> pd.DataFrame:
     return pd.DataFrame(rows)
 
 
+def candidate_cap_flags(cands: pd.DataFrame, arms: Optional[List] = None) -> pd.DataFrame:
+    """``cands`` + ``n_tokens`` (each completion re-tokenized with its run's therapist tokenizer) and
+    ``capped`` (1.0 at ``>= max_tokens_per_response - behavior.CAP_SLACK`` tokens) — the training-side
+    twin of :func:`~eda_analysis.behavior.cap_hits`. ~50 s per 240k GRPO candidates (fast tokenizer,
+    batched); not cached, so call it once per notebook."""
+    from . import discover_arms
+    from .behavior import CAP_SLACK, _therapist_tokenizer
+    arms = discover_arms() if arms is None else arms
+    by_label = {a.label: a for a in arms}
+    out = cands.copy()
+    out["n_tokens"] = np.nan
+    out["capped"] = np.nan
+    for label, idx in out.groupby("arm").groups.items():
+        a = by_label.get(label)
+        if a is None:
+            continue
+        tok = _therapist_tokenizer(a.config.get("base_model_id", "meta-llama/Llama-3.2-1B"))
+        cap = int(a.config.get("max_tokens_per_response", 200))
+        texts = out.loc[idx, "completion"].astype(str).tolist()
+        n = np.empty(len(texts))
+        for i in range(0, len(texts), 20000):
+            n[i:i + 20000] = [len(x) for x in tok(texts[i:i + 20000], add_special_tokens=False)["input_ids"]]
+        out.loc[idx, "n_tokens"] = n
+        out.loc[idx, "capped"] = (n >= cap - CAP_SLACK).astype(float)
+    return out
+
+
+def reward_length_within_group(cands_all: pd.DataFrame, *, feature: str = "len_chars", clean: bool = False,
+                               n_boot: int = 1000, seed: int = BOOT_SEED) -> pd.DataFrame:
+    """Per (arm, train_iter): does the training reward favour longer completions WITHIN a gradient group?
+
+    Reward and ``feature`` (``len_chars``, or ``capped`` from :func:`candidate_cap_flags`) are each
+    centred within the group (:data:`_GROUP_KEYS`: the candidates that competed for one update — for
+    GRPO one prompt in one epoch), then ``r_within`` = their Pearson correlation pooled over the
+    groups (the same statistic as :func:`marker_leak_by_iter`'s ``r_within``; 0 = the update neither
+    favours nor penalises the feature), with a cluster-bootstrap 95 % CI that resamples
+    ``conversation_id`` (one conversation's slices recur across turns and epochs). Also
+    ``slope`` (reward change per 100 characters within a group; for ``capped``, capped minus
+    uncapped; unit in ``slope_unit``), ``rho_group_mean`` (mean per-group Spearman, groups with spread on both),
+    ``share_groups_rho_pos``, the pool mean and the within-group SDs. ``clean`` drops empty,
+    floored, exact-marker and malformed-marker candidates first (the degenerate cases whose
+    reward is pinned).
+
+    Needs the UNFILTERED frame (``load_weighted_candidates(..., drop_zero_weight=False)``). Training
+    oracle by construction. ``train_iter`` n samples from policy n − 1 and its update produces the
+    iteration-n policy that the eval set scores as iteration n (``policy_iteration`` = n − 1).
+    """
+    if cands_all.empty or feature not in cands_all.columns:
+        return pd.DataFrame()
+    d = cands_all[cands_all["score"].notna() & cands_all[feature].notna()].copy()
+    if clean:
+        bad = d["empty"].astype(bool) | d["floored"].astype(bool) | d["leak"].astype(bool)
+        bad |= d["completion"].astype(str).map(lambda t: bool(_RE_MALFORMED.search(t)))
+        d = d[~bad]
+    d = d[d.groupby(_GROUP_KEYS)["score"].transform("size") >= 2].copy()
+    g = d.groupby(_GROUP_KEYS)
+    d["_s"] = d["score"] - g["score"].transform("mean")
+    d["_f"] = d[feature].astype(float) - g[feature].transform("mean")
+    scale = 100.0 if feature == "len_chars" else 1.0
+
+    def _r(q):
+        return q[0] / np.sqrt(q[1] * q[2]) if q[1] > 0 and q[2] > 0 else np.nan
+
+    rows = []
+    for (arm, it), sub in d.groupby(["arm", "train_iter"]):
+        P = (sub.assign(_xy=sub["_s"] * sub["_f"], _xx=sub["_f"] ** 2, _yy=sub["_s"] ** 2)
+             .groupby("conversation_id")[["_xy", "_xx", "_yy"]].sum().to_numpy())
+        tot = P.sum(axis=0)
+        rng = np.random.default_rng(seed)
+        bs = np.array([_r(P[rng.integers(0, len(P), len(P))].sum(axis=0)) for _ in range(n_boot)])
+        gs = sub.groupby(_GROUP_KEYS)
+        rho = gs[["score", feature]].corr(method="spearman").xs("score", level=-1)[feature]
+        rho = rho[np.isfinite(rho)]
+        rows.append({"arm": arm, "method": sub["method"].iloc[0], "K": sub["K"].iloc[0],
+                     "train_iter": int(it), "policy_iteration": int(it) - 1, "feature": feature,
+                     "candidates": "clean" if clean else "all",
+                     "n_groups": int(gs.ngroups), "n_candidates": len(sub), "n_conversations": len(P),
+                     "r_within": float(_r(tot)), "r_ci_lo": float(np.nanpercentile(bs, 2.5)),
+                     "r_ci_hi": float(np.nanpercentile(bs, 97.5)),
+                     "slope": float(scale * tot[0] / tot[1]) if tot[1] > 0 else np.nan,
+                     "slope_unit": "reward / 100 chars" if scale == 100.0 else f"reward / unit {feature}",
+                     "rho_group_mean": float(rho.mean()) if len(rho) else np.nan,
+                     "share_groups_rho_pos": float((rho > 0).mean()) if len(rho) else np.nan,
+                     "feature_mean": float(sub[feature].mean()),
+                     "feature_sd_within": float(np.sqrt(tot[1] / len(sub))),
+                     "score_sd_within": float(np.sqrt(tot[2] / len(sub)))})
+    return pd.DataFrame(rows)
+
+
 # ── Per-iteration direction cosines, corrected for estimation noise ──────────
 def _half_cosine(fa: pd.DataFrame, fb: pd.DataFrame, rng, n_splits: int) -> dict:
     """Cosine between the update directions of two cells, with conversation split-halves.
