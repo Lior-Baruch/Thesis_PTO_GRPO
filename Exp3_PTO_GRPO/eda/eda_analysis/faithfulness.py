@@ -79,6 +79,7 @@ for the per-grader wide table), :func:`faithfulness_by_iter`, :func:`k_faithfuln
 in :mod:`eda_analysis.plotting.faithfulness`.
 """
 
+import os
 import re
 from typing import Dict, List, Optional, Sequence, Tuple
 
@@ -86,7 +87,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats as sps
 
-from .constants import BOOT_SEED, PRIMARY_JUDGE_TAG, judge_dirname
+from .constants import BOOT_SEED, DATA_DIR, PRIMARY_JUDGE_TAG, judge_dirname
 
 __all__ = [
     "METRIC", "METHODS", "ARMS", "COARSE", "COOP_LABEL", "COOP_ORDER", "CUTS", "SERIES",
@@ -97,6 +98,7 @@ __all__ = [
     "k_faithfulness_by_iter", "k_by_iter_display",
     "matched_policy", "matched_policy_display", "k_summary", "k_summary_display",
     "by_cooperation", "by_cooperation_display", "proxy_levels", "faithfulness_numbers",
+    "PARTIAL_DIR", "load_prefix_alone", "prefix_alone_curve",
 ]
 
 METRIC = "Q1Q2"
@@ -965,3 +967,76 @@ def faithfulness_numbers(fd: FaithfulnessData, *, curve: pd.DataFrame, by_iter: 
                          promoted_from="papers/2026_lookahead_pto_grpo/analysis/reward_faithfulness.py (2026-08-18)"),
          source="module constants")
     return L
+
+
+# ── The prefix scored ALONE, from two utterances (2026-10-06) ────────────────────────────────
+# The curves above start at MCL=12 because no shorter prefix was ever trained on. The paper's
+# Figure 9 also needs the part MCL cuts off, so tools/score_partial.py scored, with the training
+# oracle's own Q1/Q2 call, every prefix of the pooled Base conversations (model_iter_0 of both GRPO
+# runs) that ends on a patient turn, from 2 utterances up -- the prefix ALONE, no candidate and no
+# look-ahead (the statistic of the original Exp2 pilot). Those 5,444 scores live outside the score
+# lake proper, in data/eval_scores/_partial/, so no other reader picks them up.
+
+PARTIAL_DIR = os.path.join(DATA_DIR, "eval_scores", "_partial", f"judge={PRIMARY_JUDGE_TAG}", "rep=0")
+
+
+def load_prefix_alone(root: Optional[str] = None) -> pd.DataFrame:
+    """Every scored Base prefix: ``model, conversation_id, n_turns, Q1_Mean, Q2_Mean, proxy_score``
+    (proxy = mean of the two means, as the training reward). Empty frame when nothing is on disk."""
+    root = root or PARTIAL_DIR
+    rows = []
+    for q in ("Q1", "Q2"):
+        base = os.path.join(root, f"metric={q}", "oracle=none")
+        if not os.path.isdir(base):
+            continue
+        for model in sorted(os.listdir(base)):
+            mdir = os.path.join(base, model)
+            for fn in os.listdir(mdir):
+                m = re.fullmatch(r"(\d+)_t(\d+)\.csv", fn)
+                if not m:
+                    continue
+                v = pd.read_csv(os.path.join(mdir, fn))[f"{q}_Mean"].iloc[0]
+                rows.append((model, int(m.group(1)), int(m.group(2)), q, float(v)))
+    if not rows:
+        return pd.DataFrame(columns=["model", "conversation_id", "n_turns", "Q1_Mean", "Q2_Mean", "proxy_score"])
+    d = (pd.DataFrame(rows, columns=["model", "conversation_id", "n_turns", "q", "v"])
+         .pivot_table(index=["model", "conversation_id", "n_turns"], columns="q", values="v").reset_index())
+    d.columns.name = None
+    d = d.rename(columns={"Q1": "Q1_Mean", "Q2": "Q2_Mean"}).dropna(subset=["Q1_Mean", "Q2_Mean"])
+    d["proxy_score"] = (d["Q1_Mean"] + d["Q2_Mean"]) / 2
+    return d
+
+
+def prefix_alone_curve(prefix: pd.DataFrame, scores_by_judge: Dict[str, pd.DataFrame], *,
+                       min_pairs: int = _MIN_PAIRS) -> pd.DataFrame:
+    """Agreement by prefix length between the training oracle's score of the prefix ALONE and the
+    full-session Q1Q2 of the same Base conversation, under every grader in ``scores_by_judge``.
+
+    The same statistic and bootstrap as the curves above (:class:`AgreementBoot`): pairs are formed
+    within one Base draw (the GRPO_LA0 run's iteration-0 conversations, or the GRPO_LA5 run's) at
+    one ``n_turns``, ties on either side dropped, conversations resampled within each draw. Rows:
+    ``judge, sample`` (``pooled`` = both draws' pairs summed, else the draw's arm label), ``n_turns,
+    agreement, ci_lo, ci_hi, n_pairs, n_convs``. At the session cap (50 utterances) a prefix can be
+    the whole session, so the right end approaches the oracle's agreement with its own earlier
+    full-session score (a test-retest ceiling on the training oracle's side)."""
+    if prefix.empty:
+        return pd.DataFrame()
+    out = []
+    for j, sc in scores_by_judge.items():
+        ev = eval_frame(sc)
+        ev = ev[ev["eval_iter"] == 0][["arm", "model", "conversation_id", "eval_score"]]
+        df = prefix.merge(ev, on=["model", "conversation_id"], how="inner")
+        if df.empty:
+            continue
+        df = df.assign(eval_iter=0)[["arm", "eval_iter", "conversation_id", "n_turns", "proxy_score", "eval_score"]]
+        ab = AgreementBoot(df)
+        arms = sorted(df["arm"].unique())
+        for nt in sorted(df["n_turns"].unique()):
+            for sample, a in [("pooled", None)] + [(x, x) for x in arms]:
+                r = ab.agg(ab.keys(arm=a, nt_lo=int(nt), nt_hi=int(nt)))
+                if r["n_pairs"] < min_pairs:
+                    continue
+                out.append(dict(judge=j, sample=sample, n_turns=int(nt), agreement=r["agreement"],
+                                ci_lo=r["ci_lo"], ci_hi=r["ci_hi"], n_pairs=r["n_pairs"],
+                                n_convs=int(round(r["n_convs_mean"] * r["n_cells"]))))
+    return pd.DataFrame(out)

@@ -279,6 +279,16 @@ are the primary grader's columns of
 `arms/training/figures/<judge>/reward_reliability_curve.png` and its `_provenance.md` says which
 arms were drawn. Read both from the artifact, never from prose.
 
+**The part below MCL, on Exp3 data (2026-10-06).** `tools/score_partial.py` scored, with the
+training oracle's own Q1/Q2 call, every Base prefix (model_iter_0 of both GRPO runs, 192
+conversations) that ends on a patient turn from `n_turns=2` up — the prefix ALONE, no candidate, no
+look-ahead, the Exp2 pilot's statistic (5,444 calls; scores in `data/eval_scores/_partial/`, outside
+the lake). Table:
+[`lookahead/mechanism/tables/faithfulness_prefix_alone_grpo.md`](lookahead/mechanism/tables/faithfulness_prefix_alone_grpo.md)
+(`faithfulness.prefix_alone_curve`, same statistic and bootstrap). So the short-cut finding now has an
+Exp3 replication, milder than the 4-bit pilot's at the very start: read the values from that table,
+not from here.
+
 ## 6a · Does look-ahead make the reward more faithful? — the two cuts that sound contradictory
 
 **Module:** `eda_analysis/faithfulness.py` (`k_summary`, `matched_policy`). **Rendered by:**
