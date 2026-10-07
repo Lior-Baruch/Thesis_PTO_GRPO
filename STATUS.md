@@ -160,8 +160,8 @@ unambiguous. **"PTO beats GRPO" is a K=0 statement and must never be written wit
 | GRPO (K=0) | 3.753 | 2.257 |
 
 On the primary it also leads every other instrument (WAI-SR 3.729, CSQ-8 3.062, MI-SAT 3.832,
-MITI 4.536, PCT 0.685) and has the *lowest* MICI of any final state at **0.210**. On the held-out it
-leads WAI-SR 2.957, CSQ-8 2.935, MI-SAT 3.328, MITI 2.375 and PCT 0.725.
+MITI 4.536, PCT 0.732) and has the *lowest* MICI of any final state at **0.210**. On the held-out it
+leads WAI-SR 2.957, CSQ-8 2.935, MI-SAT 3.328, MITI 2.375 and PCT 0.738.
 
 ⚠ **"Still climbing" is a primary-grader statement.** On the primary the climb is real, not a
 last-point artefact: I10 − I7 = 4.517 − 4.270 = **+0.247** persona-paired (dz 0.398, Wilcoxon
@@ -471,8 +471,8 @@ RESOLVED" above; verified byte-identical on the complete data).
 - **State the look-ahead MI-consistency result at the CHANNEL level, not as a total**, and prefer
   the *share* of MI-inconsistent acts to any per-turn or per-session figure — the arms differ in
   both turn count and turn length, in method-dependent directions.
-- Report all 8 instruments flat. The "orthogonal axes" framing is retired — PCT correlates ρ≈0.79–0.94
-  with the rubrics.
+- Report all 8 instruments flat. The "orthogonal axes" framing is retired — PCT correlates ρ≈0.78–0.91
+  with the rubrics (primary; 0.66–0.90 held-out).
 - **Report the head-to-head both final-vs-final AND best-vs-best.** They disagree informatively:
   GRPO K=5's *final* is its *best* on the primary but not on the held-out judge, where its peak is I7.
 - **Gain-retention disjointness is metric-dependent AND iteration-dependent.** Name both. The

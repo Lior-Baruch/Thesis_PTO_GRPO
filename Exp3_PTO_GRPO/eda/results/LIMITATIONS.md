@@ -327,7 +327,8 @@ source note above; the reassurance is about the estimates, not the bounds.)
 
 ## 4 · PCT is not independent of the global-eval rubrics
 Empirically `PCT` (patient change-talk proportion) loads **with** the global-evaluation (halo)
-family (ρ≈0.79–0.94; high PC1 loading), so it does not isolate MI *technique*. The genuine second
+family (ρ≈0.78–0.91 under the primary grader, 0.66–0.90 held out, with PCT from the utterance coder
+since 2026-10-06; high PC1 loading), so it does not isolate MI *technique*. The genuine second
 factor is `MICI ↓` + the MITI ratios (`R:Q`/`%CR`/`%MICO`). Reported as a finding in
 `arms/validity.ipynb` §1 rather than hidden.
 

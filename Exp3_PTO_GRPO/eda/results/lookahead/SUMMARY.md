@@ -112,7 +112,7 @@ iterations of −0.218 (mean dz −0.304) primary and −0.301 (−0.386) held-o
 ([`reward/tables/k_summary.md`](reward/tables/k_summary.md)). The endpoint is the largest gap of the
 run. Instrument by instrument at iteration 10 (K5 − K0, primary / held-out, every p_holm < .001):
 Q1 +0.858 / +0.865, Q2 +0.671 / +0.367, WAI-SR +0.291 / +0.288, CSQ-8 +0.289 / +0.451,
-MI-SAT +0.352 / +0.503, MITI +0.615 / +0.276, PCT +0.111 / +0.113, and MICI (lower is better)
+MI-SAT +0.352 / +0.503, MITI +0.615 / +0.276, PCT +0.150 / +0.157, and MICI (lower is better)
 −0.627 (dz −1.862) / −0.422 (dz −1.567). *(Corrected 2026-08-25: this section previously reported the
 GRPO K effect as "leads at 4–5" with deltas around −0.1 to −0.3 — those were the only iterations that
 existed. The effect is roughly three times larger at the endpoint. The same paragraph's claim that
@@ -365,7 +365,8 @@ Resistant +0.099 (ns). On the primary all three strata are flat (largest |dz| 0.
 Three instrument-level reads, all at iteration 10, all on both graders:
 
 - **Change talk rises under K=5 for GRPO, everywhere but the ceiling**
-  ([`behaviour/tables/pct_kcontrast.md`](behaviour/tables/pct_kcontrast.md)): Δ = −0.111 (dz −0.516)
+  ([`behaviour/tables/pct_kcontrast.md`](behaviour/tables/pct_kcontrast.md) — the PCT CALL's
+  `PCT_ChangeProp`; the reported, coder-based PCT contrast is +0.150 / +0.157 in K=5's favour, above): Δ = −0.111 (dz −0.516)
   primary and −0.113 (dz −0.563) held-out overall, driven by Warms-up (−0.185, dz −1.058 primary) and
   Resistant (−0.146, dz −0.506); Cooperative is flat at ~0.88 either way. PTO shows a much smaller
   version (−0.051, dz −0.253, p_holm .030, held-out only).

@@ -53,13 +53,69 @@ QUESTIONNAIRES = {
     "CSQ-8":  ("CSQ8",   "CSQ8_Mean"),
     "MI-SAT": ("MI_SAT", "MI_Mean"),
     "MITI":   ("MITI",   "MITI_GlobalMean"),
-    # Added 2026-06-14 alongside the 5 global-eval rubrics (see EXTRA_METRICS below):
-    "PCT":    ("PCT",    "PCT_ChangeProp"),   # patient change-talk proportion CT/(CT+ST); higher = better
+    # Added 2026-06-14 alongside the 5 global-eval rubrics (see EXTRA_METRICS below).
+    # PCT = patient change-talk proportion CT/(CT+ST); higher = better. Since 2026-10-06 it is
+    # REPORTED FROM THE UTTERANCE CODER (see DERIVED_SCORES below), not from the PCT call.
+    "PCT":    ("MIPROC", "MIPROC_ChangeProp"),
     "MICI":   ("MICI",   "MICI_Rate"),        # MI-inconsistent behaviors per therapist turn; LOWER = better
     # Utterance-level MI process coder (one MITI/MISC code per utterance, both speakers); headline
     # column = % complex reflections CR/(SR+CR). Per-code counts/rates live in the same CSV.
     "MIPROC": ("MIPROC", "MIPROC_PctCR"),
 }
+
+
+def pct_from_coder(row) -> float:
+    """The reported PCT for one conversation: CT/(CT+ST) over the utterance coder's patient codes.
+
+    Reads the coder's stored per-conversation counts ``MIPROC_PT_CT`` / ``MIPROC_PT_ST`` (row =
+    the first row of a ``metric=MIPROC`` CSV, or any mapping with those keys). Undefined — NaN,
+    and dropped by every loader — when the coder found neither change nor sustain talk; do NOT
+    read the stored ``MIPROC_ChangeProp`` instead, which the writer sets to 0.0 on a zero
+    denominator (see ``scoring/pipeline.py::_build_miproc_row``).
+
+    Why the coder and not the PCT call (Lior, 2026-10-06): both are the same judge labelling the
+    same patient utterances into the same three MISC client categories (per-conversation Spearman
+    of the two ratios 0.92 / 0.96 under primary / held-out on the 22 GRPO states, n = 2,112 /
+    2,108; 0.93 / 0.96 on all 44 main-grid states, n = 4,224 / 4,195), so the paper reports one
+    of them. The PCT call (``metric=PCT``: 3 globals + CT/ST/NEU counts) stays in the lake and is
+    still read by ``behavior.load_pct_behavior`` and ``process.parity`` as the coder's same-judge
+    check.
+    """
+    try:
+        ct, st = float(row["MIPROC_PT_CT"]), float(row["MIPROC_PT_ST"])
+    except (KeyError, TypeError, ValueError):
+        return float("nan")
+    den = ct + st
+    return ct / den if den > 0 else float("nan")
+
+
+# Display name -> function(row) for instruments whose per-conversation score is DERIVED from the
+# stored columns of their QUESTIONNAIRES subdir rather than read from its value column. Every
+# score loader (``data.load_scores_long``, ``scoring.judge.load_judge_scores``,
+# ``reliability.load_primary_long``, ``tools/replicate_check.py``) goes through
+# :func:`reported_value`, so the reported PCT has exactly one definition.
+DERIVED_SCORES = {"PCT": pct_from_coder}
+# Folded into the score-frame cache key (``data.load_scores_long``): bump it whenever a function in
+# DERIVED_SCORES changes, or a cached frame built with the old definition is served unchanged.
+DERIVED_SCORES_VERSION = "pct=coder-ct-st-v1"
+# The lake subdirs the loaders read for the REPORTED value of each display name — differs from the
+# scoring map (``scoring.judge.JUDGE_METRIC_COLS``, which says which CALL a name scores) only for PCT.
+REPORTED_SUBDIR = {"PCT": "MIPROC"}
+
+
+def reported_value(name: str, row, value_col: str) -> float:
+    """The reported per-conversation score of display name ``name`` from one stored lake row:
+    the derived value for :data:`DERIVED_SCORES` names, else ``float(row[value_col])``. NaN when
+    undefined or missing; callers drop NaN."""
+    fn = DERIVED_SCORES.get(name)
+    if fn is not None:
+        return fn(row)
+    try:
+        return float(row[value_col])
+    except (KeyError, TypeError, ValueError):
+        return float("nan")
+
+
 # Left-to-right plot order: the global-eval rubrics (+ Q1/Q2 components) then the added metrics.
 QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "Q1", "Q2", "MIPROC"]
 
@@ -205,7 +261,8 @@ DISPLAY_NAMES = {
     # Original validated-instrument acronym KEPT up-front (Lior), descriptive gloss in parens.
     "WAI-SR": "WAI-SR (Working Alliance)", "CSQ-8": "CSQ-8 (Client Satisfaction)",
     "MI-SAT": "MI-SAT (MI Satisfaction)", "MITI": "MITI (MI Integrity)",
-    # Standalone questionnaires of their own (NOT MITI-derived).
+    # PCT is reported from the utterance coder (CT/(CT+ST), see DERIVED_SCORES); MICI is a
+    # standalone questionnaire of its own (NOT MITI-derived).
     "PCT": "PCT (Patient Change-Talk)", "MICI": "MICI (MI-Inconsistency)",
     # Utterance-level coder: its headline column is % complex reflections from its OWN coding pass
     # (not the MITI count rubric), hence the distinct "(MI process coder)" tag.
@@ -242,7 +299,8 @@ DISPLAY_NAMES = {
     "MICI_AdviseNoPermission": "Advise w/o permission / session (MICI)",
     "MICI_Confront": "Confront / session (MICI)", "MICI_Warn": "Warn / session (MICI)",
     "MICI_Direct": "Direct/order / session (MICI)", "MICI_Judge": "Judge/label / session (MICI)",
-    # PCT (PATIENT change-talk) detail — patient-perspective globals (1-5) + utterance proportions.
+    # The PCT CALL's detail (metric=PCT; no longer the reported PCT) — patient-perspective globals
+    # (1-5) + its own utterance proportions.
     "PCT_Importance": "Importance (PCT)", "PCT_Confidence": "Confidence (PCT)",
     "PCT_Readiness": "Readiness (PCT)", "PCT_GlobalMean": "PCT global mean",
     "PCT_ChangeProp": "Change-Talk proportion (PCT)", "PCT_ChangeTalk_prop": "% Change Talk (PCT)",

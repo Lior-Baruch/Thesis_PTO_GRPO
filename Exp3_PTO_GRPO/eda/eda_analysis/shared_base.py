@@ -292,8 +292,8 @@ def coop_strata(sc: Mapping[str, pd.DataFrame], metrics: Sequence[str] = ("Q1Q2"
     lower-is-better: MICI), ``het_H, het_p`` (Kruskal–Wallis across the three strata's persona
     deltas = the stratum × K interaction; on the ``All`` row only — the test a "the lead is
     concentrated in …" sentence needs), ``share_K0_ge, share_K5_ge`` (share of the stratum's
-    conversations at or above ``ceiling``; 1–5 rubrics only — the ceiling diagnostic, since a
-    stratum already at the top of the scale cannot show a K gap).
+    conversations at or above ``ceiling`` on the 1–5 rubrics, at 1.0 on PCT; NaN for MICI — the
+    ceiling diagnostic, since a stratum already at the top of the scale cannot show a K gap).
 
     Reproduces the GRPO rows of :func:`~eda_analysis.instruments.hetero_kcontrast` with every sign
     negated (``matched_final`` ↔ ``last``; ``own_best`` ↔ ``best_K0`` only while the K=5 run's own
@@ -325,16 +325,22 @@ def coop_strata(sc: Mapping[str, pd.DataFrame], metrics: Sequence[str] = ("Q1Q2"
                 rows = []
                 for c in COOP_ORDER + ["All"]:
                     d = D if c == "All" else D[D["coop"] == c]
+                    # means and ceiling shares on the PAIRED personas, as the test is (a persona
+                    # with an undefined PCT on either side drops out of all three).
+                    d = d.dropna(subset=["k0", "k5"])
                     r = paired_arrays(d["k5"].to_numpy(), d["k0"].to_numpy())
                     k0m, k5m = float(d["k0"].mean()), float(d["k5"].mean())
                     hi_better = m not in LOWER_BETTER
+                    # the top of the scale: ``ceiling`` on the 1-5 rubrics, 1.0 for PCT (a
+                    # conversation with change talk and no sustain talk); none for MICI.
+                    top = ceiling if m in FIVE_POINT else (1.0 if m == "PCT" else None)
                     rows.append({"judge": j, "metric": m, "anchor": anchor, "iter_K0": it0, "iter_K5": last5,
                                  "cooperation": c, "n": r["n"], "mean_K0": k0m, "mean_K5": k5m,
                                  "delta_K5_minus_K0": r["mean_delta"], "dz_K5_minus_K0": r["dz"],
                                  "ci_lo": r["ci_lo"], "ci_hi": r["ci_hi"], "p": r["p"],
                                  "better": "" if k0m == k5m else ("K5" if (k5m > k0m) == hi_better else "K0"),
-                                 "share_K0_ge": float((d["k0"] >= ceiling).mean()) if m in FIVE_POINT else np.nan,
-                                 "share_K5_ge": float((d["k5"] >= ceiling).mean()) if m in FIVE_POINT else np.nan})
+                                 "share_K0_ge": float((d["k0"] >= top).mean()) if top is not None else np.nan,
+                                 "share_K5_ge": float((d["k5"] >= top).mean()) if top is not None else np.nan})
                 t = pd.DataFrame(rows)
                 strata = t["cooperation"] != "All"
                 ph = np.full(len(t), np.nan)

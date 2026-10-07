@@ -106,10 +106,10 @@ Friedman across the 11 states is significant for every arm × rubric, with Q1+Q2
 
 | arm | Q1+Q2 | MITI | WAI-SR | CSQ-8 | MI-SAT | PCT | MICI ↓ |
 |---|---|---|---|---|---|---|---|
-| `GRPO_LA5` | **4.517** | 4.536 | 3.729 | 3.062 | 3.832 | 0.685 | **0.210** |
-| `PTO_LA5`  | 4.307 | 4.258 | 3.536 | 2.953 | 3.710 | 0.638 | 0.264 |
-| `PTO_LA0`  | 4.260 | 4.273 | 3.497 | 2.945 | 3.653 | 0.630 | 0.491 |
-| `GRPO_LA0` | 3.753 | 3.922 | 3.438 | 2.773 | 3.479 | 0.574 | **0.838** |
+| `GRPO_LA5` | **4.517** | 4.536 | 3.729 | 3.062 | 3.832 | 0.732 | **0.210** |
+| `PTO_LA5`  | 4.307 | 4.258 | 3.536 | 2.953 | 3.710 | 0.676 | 0.264 |
+| `PTO_LA0`  | 4.260 | 4.273 | 3.497 | 2.945 | 3.653 | 0.615 | 0.491 |
+| `GRPO_LA0` | 3.753 | 3.922 | 3.438 | 2.773 | 3.479 | 0.583 | **0.838** |
 
 **The PTO-vs-GRPO verdict is an interaction with K — the sign flips.** At the matched iteration-10
 endpoint on Q1+Q2 (sign + = PTO higher,
@@ -376,16 +376,16 @@ See [`validity/figures/gpt-4o-mini/factor_loadings.png`](validity/figures/gpt-4o
 and [`stats/tables/gpt-4o-mini/rubric_pca_pc1.md`](stats/tables/gpt-4o-mini/rubric_pca_pc1.md).
 
 - The five halo rubrics alone give **PC1 = 91.1%** (`POOLED_halo_only`). Adding PCT, MICI and the
-  three MITI ratios drops it to **54.8%** pooled — 91.1 - 54.8 = 36.3 percentage points — and
-  54.8–55.7% per arm. A second dimension exists. (Part of that drop is mechanical: more, less
+  three MITI ratios drops it to **54.5%** pooled — 91.1 - 54.5 = 36.6 percentage points — and
+  54.4–55.2% per arm. A second dimension exists. (Part of that drop is mechanical: more, less
   correlated columns. Read it as "a second dimension exists", not as an effect size.)
-- **The second dimension is not PCT.** Change-talk loads **0.402** on PC1, indistinguishable from
-  the five halo rubrics (0.386–0.418). It co-moves with the halo and does not isolate MI technique.
-  What sits off PC1 is MICI (0.033) and the ratios (−0.082 to 0.049).
+- **The second dimension is not PCT.** Change-talk loads **0.396** on PC1, indistinguishable from
+  the five halo rubrics (0.387–0.419). It co-moves with the halo and does not isolate MI technique.
+  What sits off PC1 is MICI (0.029) and the ratios (−0.080 to 0.049).
 - Consequently: **"every rubric went up" is not evidence of multi-skill improvement.** Report all
   eight instruments flat; do not describe them as orthogonal families.
-- PCT does rise, most under `GRPO_LA5` (+0.214, dz 0.859, large), then `PTO_LA5` (+0.156, dz 0.664),
-  `PTO_LA0` (+0.141, dz 0.620) and `GRPO_LA0` (+0.087, dz 0.363, small). The patient-side detail —
+- PCT does rise, most under `GRPO_LA5` (+0.257, dz 0.798, medium), then `PTO_LA5` (+0.178, dz 0.639),
+  `PTO_LA0` (+0.121, dz 0.504) and `GRPO_LA0` (+0.077, dz 0.278, small). The patient-side detail —
   Importance / Confidence / Readiness and the change/sustain/neutral proportions — is in
   [`questionnaires/tables/gpt-4o-mini/pct_patient_by_iter.md`](questionnaires/tables/gpt-4o-mini/pct_patient_by_iter.md),
   where `GRPO_LA5` also has the largest fall in sustain-talk share (0.446 → 0.276).

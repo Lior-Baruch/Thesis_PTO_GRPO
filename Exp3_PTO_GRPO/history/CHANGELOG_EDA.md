@@ -9,6 +9,55 @@ These are superseded by the current-state sections in the root
 
 ---
 
+**Landed (2026-10-06) — the reported `PCT` is rebuilt from the utterance coder.**
+
+Lior's decision (paper notes round 3): the PCT call and the utterance coder's patient side were the
+same judge sorting the same patient turns into the same three MISC client categories (per-conversation
+Spearman of the two CT/(CT+ST) ratios 0.92 / 0.96 under the primary / held-out judge, on the 2,112
+GRPO conversations), so the paper reports one. `PCT` is now CT/(CT+ST) over the coder's patient
+codes everywhere the EDA reports it:
+
+- `constants.pct_from_coder` + `DERIVED_SCORES` / `REPORTED_SUBDIR` / `reported_value` — the one
+  definition. Reads `MIPROC_PT_CT` / `MIPROC_PT_ST`; NaN (dropped) on a zero denominator, NOT the
+  stored `MIPROC_ChangeProp` (the writer sets 0.0 there). 4 of 2,112 GRPO conversations are undefined
+  under the held-out judge (one patient utterance each), none under the primary.
+- `QUESTIONNAIRES["PCT"]` → `("MIPROC", "MIPROC_ChangeProp")`, read through `reported_value` by
+  `data.load_scores_long` (cache key bumped with `pct="coder"`; `eval_input_roots` still watches
+  `metric=PCT`), `scoring.judge.load_judge_scores`, `reliability.load_primary_long` and
+  `tools/replicate_check.py` (which now also flags a draw that lacks any reported metric).
+  `JUDGE_METRIC_COLS` (the SCORING map) is unchanged: `PCT` still names the call there.
+- The PCT call stays in the lake. It is still read by `behavior.load_pct_behavior` (the
+  `arms/questionnaires` §7 detail, `lookahead/behaviour` `pct_kcontrast`) and `process.parity` (the
+  coder's same-judge check); captions now say "the PCT call" there.
+- `shared_base.coop_strata`: `share_K*_ge` now also covers PCT, at 1.0 (no sustain talk) — the
+  cooperative third sits at that ceiling under the coder.
+- `reliability.coverage_table`: a derived metric is as complete as its source call, so a PCT cell
+  with undefined conversations is not dropped from the multi-judge grid (without this, 17 held-out
+  PCT cells of the 44-state grid — mostly PTO states, whose short sessions more often have no change
+  or sustain talk — fell out of `measurement/validity`; 16 come back). The one that stays out is
+  `PTOExp3_LA5_I3`: its held-out coder row for conversation 38 never came back at the pinned length,
+  so that state's held-out PCT has 95 conversations.
+- Audit fixes the same day: `coop_strata` takes its means and ceiling shares on the paired personas;
+  `replicate_check.py` sorts each model's frame by conversation id (the Drive listing order differs
+  between metric folders, and the bootstrap resamples in frame order — this, not PCT, moved the
+  non-PCT CIs of the "method @K0, original" block in `replicate_draw.md`); the
+  `multijudge_sign_preservation_grpo` caption derives its metric count instead of a literal "8".
+- **The same re-render also caught up 9b9567f (2026-09-17)**, which added MIPROC to
+  `QUESTIONNAIRE_ORDER`, in families last rendered 2026-08-25/26: MIPROC rows, columns and figures now
+  appear in `arms/*`, `lookahead/reward`, `method/contrast`, `compute/cost` and
+  `measurement/validity`, and MIPROC joins every "Holm across rubrics" family built from that order
+  (`stats.compare_two_models`, `compute.iso_compute_contrast`; m 9 → 10), which moves non-PCT
+  `p_holm` values there (e.g. GRPO K contrast on Q1+Q2 at iteration 4, 0.0368 → 0.0442). No paper
+  number comes from those families (the paper's Holm families are `lookahead.RUBRICS`, without
+  MIPROC). Whether MIPROC belongs in those families is an open design question, not settled here.
+- Consequences visible in the results tree: Table-1-style PCT levels rise slightly (K=5 at
+  iteration 10 0.685 → 0.732 primary); the primary's PCT K-contrast clears Holm from iteration 6
+  instead of 4 (held-out 4–10 either way); the iteration-10 contrast is unchanged in size (dz 0.516
+  → 0.515 primary, 0.563 → 0.636 held-out). The two replicate draws needed a coder run
+  (`score_replicate.py`) before `replicate_draw.md` could carry PCT.
+
+---
+
 **Landed (2026-09-17) — two text-level families + the `MIPROC` utterance-level coder (pre-refactor evals for P1).**
 
 Lior's brief: before refactoring the GRPO-with-look-ahead paper toward MI and results, run the

@@ -34,9 +34,10 @@ whose point of view the oracle adopts.
 | **CSQ-8** | 4 | 8 | 1–4 | Patient | Client satisfaction with the "service" (quality, needs met, would-recommend) | `CSQ8_Mean` |
 | **MI-SAT** | 6 | 6 | 1–5 | Patient | Satisfaction with the MI intervention (helpful, enjoyable, worth the time) | `MI_Mean` |
 | **MITI** | 7 | 4 globals + 7 counts | globals 1–5 | MI coder (therapist) | MI Treatment Integrity: how technically MI-consistent the therapist is | `MITI_GlobalMean` (mean of 4 globals) + behavior counts (§3) |
-| **PCT** | 8 | 3 globals + 3 counts | globals 1–5 | MI coder (patient) | **Patient** change-talk: did the *client* express motivation? | `PCT_ChangeProp` = CT / (CT + ST) |
+| **PCT** | — (derived) | the utterance coder's patient codes | 0–1 | utterance coder (patient side) | **Patient** change-talk: did the *client* express motivation? **Since 2026-10-06 the reported PCT is computed from the utterance coder (MIPROC, id 10)**, not from its own call: CT / (CT + ST) over the coder's patient codes (`constants.pct_from_coder`, from `MIPROC_PT_CT` / `MIPROC_PT_ST`; undefined and dropped when the coder found neither — under the held-out judge 3 + 1 + 11 + 13 = 28 of the 44 main-grid states' 4,223 coded conversations (`GRPO_LA0` / `GRPO_LA5` / `PTO_LA0` / `PTO_LA5`), plus 1 of 96 in the replicate `PTOExp3_LA0_rep1_I10` (0 in `GRPOExp3_LA5_rep1_I10`); none of 4,224 + 192 under the primary. The held-out coder also has no row for `PTOExp3_LA5_I3` conversation 38, so that cell is 95 of 96). Both measured the same thing — one judge sorting the same patient turns into the same three MISC client categories; per-conversation Spearman of the two ratios 0.92 / 0.96 (primary / held-out) on the 22 GRPO states (n = 2,112 / 2,108), 0.93 / 0.96 on all 44 main-grid states (n = 4,224 / 4,195) — so one is reported | `PCT` in `scores_long` |
+| *PCT call* | 8 | 3 globals + 3 counts | globals 1–5 | MI coder (patient) | The former PCT instrument: its own call returns importance / confidence / readiness (1–5) and per-conversation change / sustain / neutral counts. Kept in the lake and read by `behavior.load_pct_behavior` (the `arms/questionnaires` §7 detail, `lookahead/behaviour` `pct_kcontrast`) and `process.parity` (the coder's same-judge check: CT ρ 0.88 / 0.92, ST 0.90 / 0.94; NEU only 0.17 / 0.51) | `PCT_ChangeProp` = CT / (CT + ST) |
 | **MICI** ↓ | 9 | 1 global + 6 counts | global 1–5 | MI coder (therapist) | **MI-INCONSISTENT** therapist moves (confront, unsolicited advice, over-praise/sycophancy). **Lower = better** | `MICI_Rate` = inconsistent behaviors / therapist turn |
-| **MIPROC** | 10 | one code per utterance | categorical | MI process coder (both speakers) | **Utterance-level MI process coding** (2026-09-17): the dominant function of EVERY therapist utterance (`OQ CQ SR CR AF PRA GI PERS SEEK CONF OTH`; `PRA` = non-specific praise, deliberately split from the MITI-defined `AF`) and the valence of EVERY patient utterance (`CT ST NEU`), in order — the positional version of the MITI/PCT counts, which is what makes sequential analysis (§3e) possible. Scored on the GRPO arms only so far | `MIPROC_ThCodes` / `MIPROC_PtCodes` (pipe-joined) + per-code counts/rates; the registry's numeric headline is `MIPROC_PctCR` |
+| **MIPROC** | 10 | one code per utterance | categorical | MI process coder (both speakers) | **Utterance-level MI process coding** (2026-09-17): the dominant function of EVERY therapist utterance (`OQ CQ SR CR AF PRA GI PERS SEEK CONF OTH`; `PRA` = non-specific praise, deliberately split from the MITI-defined `AF`) and the valence of EVERY patient utterance (`CT ST NEU`), in order — the positional version of the MITI/PCT counts, which is what makes sequential analysis (§3e) possible. Scored on all four arms under both graders: the 44 main-grid states (4 × 11 × 96 = 4,224 conversations per grader; 4,223 under the held-out judge, which has no row for `PTOExp3_LA5_I3` conversation 38) plus the replicates `GRPOExp3_LA5_rep1_I10` and `PTOExp3_LA0_rep1_I10` | `MIPROC_ThCodes` / `MIPROC_PtCodes` (pipe-joined) + per-code counts/rates; the registry's numeric headline is `MIPROC_PctCR` |
 
 **Instrument provenance** (what "validated" means per instrument — cite accordingly in the thesis):
 
@@ -53,7 +54,8 @@ whose point of view the oracle adopts.
 - **MI-SAT** is an adapted MI-intervention satisfaction survey (validated-style, not canonical).
 - **MITI 4.2** (Moyers et al.) is the official MI treatment-integrity coding system. **PCT** and
   **MICI** adapt the MISC 2.5 manual (Houck et al. 2010): PCT's change / sustain / neutral client
-  codes and its reported CT/(CT+ST) are MISC's "percentage change talk"; four of MICI's six
+  codes (now the utterance coder's patient codes) and its reported CT/(CT+ST) are MISC's
+  "percentage change talk"; four of MICI's six
   behaviour codes (confront, advise without permission, warn, direct) are MISC's MI-inconsistent
   codes, while over-praise, the severity global and the per-turn rate were added for Exp3. The
   utterance coder (MIPROC) condenses MITI 4.2.1's behaviour codes plus MISC 2.5's open/closed
@@ -71,8 +73,8 @@ whose point of view the oracle adopts.
 - **Added metrics** (`EXTRA_METRICS` — a membership list for plot order + the factor space, **no
   independence implied**) = `PCT, MICI↓, R:Q, %CR, %MICO` (§2). Added to test whether anything
   measures outside the halo. Adding them drops PC1 from ≈91% → ≈55%, but the split is **not** the
-  one intended: `PCT` loads WITH the 5 rubrics (ρ≈0.79–0.94); only `MICI↓` + the MITI ratios define
-  the second factor. Report all of them flat as evaluation metrics — do **not** call them
+  one intended: `PCT` loads WITH the 5 rubrics (ρ≈0.78–0.91 primary, 0.66–0.90 held-out); only
+  `MICI↓` + the MITI ratios define the second factor. Report all of them flat as evaluation metrics — do **not** call them
   "orthogonal axes" (see [LIMITATIONS.md](LIMITATIONS.md) §4).
 
 **MITI globals** (part of ID 7, each 1–5): `MITI1_CultivatingChangeTalk`, `MITI2_SofteningSustainTalk`,
@@ -504,8 +506,10 @@ graders a silent, model-dependent shrinkage rather than a nuisance offset.
 
 ⚠ **One reading rule that belongs with the definitions, not the results.** The sign-preservation
 ladder's thresholds are **absolute**, so read a ladder *down its own rubric*, never across rubrics:
-`PCT` is a genuine 0–1 proportion (`PCT_ChangeProp`) and never reaches |Δ|≥0.25 at all — 214 of its
-946 contrasts clear ≥0.10 and **none** clear ≥0.25, so its ladder stops at the ≥0.10 rung.
+`PCT` is a genuine 0–1 proportion (the utterance coder's CT / (CT + ST)) and barely reaches |Δ|≥0.25 —
+247 of its 903 contrasts (43 × 42 / 2: `PTOExp3_LA5_I3` is incomplete under the held-out coder and
+dropped) clear ≥0.10, only **4** clear ≥0.25 and **none** ≥0.50, so its ladder effectively stops at the
+≥0.10 rung.
 ⚠ **`MICI` is NOT on that scale and does reach the upper rungs:** `MICI_Rate` is an unbounded
 acts-per-therapist-turn rate (observed 0.00–1.71 per conversation), and on the completed grid it
 has **99 of 946** contrasts at |Δ|≥0.25 and **36** at ≥0.50, so read its ladder normally. Both

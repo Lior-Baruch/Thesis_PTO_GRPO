@@ -36,6 +36,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
+from .constants import DERIVED_SCORES, REPORTED_SUBDIR, reported_value
 from .scoring import judge as _judge
 from .scoring import registry as _registry
 
@@ -130,6 +131,7 @@ def load_primary_long(models: Sequence[str], metrics: Sequence[str],
             continue
         for name in metrics:
             subdir, col = _judge.JUDGE_METRIC_COLS[name]
+            subdir = REPORTED_SUBDIR.get(name, subdir)   # PCT: the utterance coder's rows
             ddir = _registry.eval_csv_dir(entry["root"], entry["oracle"], subdir, model)
             if not os.path.isdir(ddir):
                 continue
@@ -141,9 +143,12 @@ def load_primary_long(models: Sequence[str], metrics: Sequence[str],
                     df = pd.read_csv(os.path.join(ddir, fn))
                 except Exception:
                     continue
-                if len(df) and col in df.columns:
+                if not len(df) or (name not in DERIVED_SCORES and col not in df.columns):
+                    continue
+                value = reported_value(name, df.iloc[0], col)
+                if value == value:   # NaN (undefined) dropped, as in every score loader
                     rows.append({"metric": name, "model": model, "file_index": int(stem),
-                                 "value": float(df[col].iloc[0])})
+                                 "value": value})
     return pd.DataFrame(rows)
 
 
@@ -370,6 +375,18 @@ def coverage_table(judge_long: pd.DataFrame, n_expected: int = 96) -> pd.DataFra
         return pd.DataFrame()
     cov = (judge_long.groupby(["metric", "model"])["file_index"].nunique()
            .rename("n_scored").reset_index())
+    # A derived metric (PCT, read from the utterance coder) is as complete as the call it is read
+    # from: a conversation where it is undefined (no change or sustain talk) is a missing value,
+    # not an unscored conversation, and must not drop the whole cell from the grid.
+    for name in DERIVED_SCORES:
+        src = [k for k, (sub, _c) in _judge.JUDGE_METRIC_COLS.items()
+               if k != name and sub == REPORTED_SUBDIR.get(name)]
+        if not src:
+            continue
+        src_n = cov[cov.metric == src[0]].set_index("model")["n_scored"]
+        sel = cov.metric == name
+        cov.loc[sel, "n_scored"] = (cov.loc[sel, "model"].map(src_n)
+                                    .fillna(cov.loc[sel, "n_scored"]).astype(int))
     cov["n_expected"] = n_expected
     cov["pct"] = (100 * cov.n_scored / n_expected).round(1)
     cov["complete"] = cov.n_scored >= n_expected

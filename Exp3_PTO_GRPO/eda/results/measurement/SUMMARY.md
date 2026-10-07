@@ -112,27 +112,30 @@ and [`validity/figures/multijudge_arm_means_dumbbell.png`](validity/figures/mult
 **They disagree about level, not about order.** A two-way random-effects decomposition of the arm
 means the thesis reports
 ([`validity/tables/multijudge_variance_components.md`](validity/tables/multijudge_variance_components.md),
-`n_arms = 44` model states × 2 graders, every cell n = 96) puts only **1.1–7.0%** of arm-mean
+`n_arms = 44` model states × 2 graders, every cell n = 96 — except PCT: `n_arms = 43`, because the
+held-out coder scored 95 of `PTOExp3_LA5_I3`'s 96 conversations and incomplete cells are dropped, and
+a mean cell n of 95.4, because 26 of the remaining `43 × 96 = 4,128` conversations have no change or
+sustain talk under the held-out coder: `(4,128 − 26) / 43 = 95.4`) puts only **1.1–7.0%** of arm-mean
 variance in the **arm × judge** interaction — the only component that could invalidate a claim. The
 judge-level term is large (85.4% on Q1, 93.9% on MITI) and harmless: it cancels in every contrast.
-`dependability_k1`, the generalizability of an arm mean read off *one* grader, is **0.914–0.974** on
+`dependability_k1`, the generalizability of an arm mean read off *one* grader, is **0.914–0.982** on
 **six of the eight** rubrics — **MITI (0.624) and MICI (0.812) are the exceptions**, and both
 reappear in §4 and §6; averaging both graders lifts Q1 only 0.928 → 0.963 and Q2 only
 0.914 → 0.955, which is the quantitative reason the design bought **breadth** (all states × both
 graders) over **depth** (more reps of a few cells).
 *(Corrected 2026-08-25: this read "**seven** of the eight rubrics", which silently counted MICI's
 0.812 as inside a 0.914–0.974 band and contradicted §6 of this same file, where MICI is stated as
-0.812. Six. The eight values are WAI-SR 0.948, CSQ-8 0.945, MI-SAT 0.955, MITI 0.624, PCT 0.974,
+0.812. Six. The eight values are WAI-SR 0.948, CSQ-8 0.945, MI-SAT 0.955, MITI 0.624, PCT 0.982,
 MICI 0.812, Q1 0.928, Q2 0.914.)*
 
 **Rank agreement per conversation, read against its ceiling.** Per-`(metric, model)` Pearson r lives
 in [`validity/tables/second_judge_agreement.md`](validity/tables/second_judge_agreement.md) (the
-`.md` is a 60-row excerpt; all 352 rows are on sheet `second_judge_agreement` of
+`.md` is a 60-row excerpt; all 396 rows (9 metrics × 44 states; MIPROC joined in the 2026-10-06 re-render) are on sheet `second_judge_agreement` of
 [`validity/tables/validity.xlsx`](validity/tables/validity.xlsx)). Median of each rubric's 44 rows:
 
 | rubric | PCT | MI-SAT | WAI-SR | CSQ-8 | **Q1** | **Q2** | MITI | MICI |
 |---|---|---|---|---|---|---|---|---|
-| median r | 0.954 | 0.930 | 0.922 | 0.903 | **0.855** | **0.784** | 0.658 | 0.518 |
+| median r | 0.957 | 0.930 | 0.922 | 0.903 | **0.855** | **0.784** | 0.658 | 0.518 |
 
 ⚠ **Compare r to the attenuation ceiling, never to 1.0.** On the four anchor cells where both
 graders' ICCs are measured, `r_pct_of_ceiling` runs **85.8–90.8%** on Q1 and **83.2–88.2%** on Q2 —
@@ -150,6 +153,12 @@ steelman (PTO@10 − GRPO@8)" and "the regression claim (GRPO@8 − GRPO@10)". N
 table — it holds `PTO_LA0_I10 − GRPO_LA0_I10` and `PTO_LA0_I10 − PTO_LA0_Base` and nothing else, so
 16 rows is the whole table. Any other contrast must be read off
 [`validity/tables/multijudge_all_pairs_contrasts.md`](validity/tables/multijudge_all_pairs_contrasts.md).)*
+
+> ⚠ **2026-10-07:** the rendered ladder now also pools MIPROC as a ninth metric (7 × 946 + 2 × 903
+> = 8,428 contrasts, 86.9% pooled; PCT and MIPROC lose `PTOExp3_LA5_I3`, 43 × 42 / 2 = 903). Over the
+> eight instruments alone, with PCT from the utterance coder, it is 7,525 contrasts at 88.3 / 94.5 /
+> 97.2 / 99.4 / 95.9%. The figures in this paragraph are the earlier eight-instrument ladder with the
+> PCT call; whether MIPROC belongs in the pooled row is an open decision.
 
 **And so does the whole grid, wherever the gap is big enough to claim.** `all_pairs_contrasts`
 enumerates *every* unordered model-state pair × rubric — **44 × 43 / 2 = 946** pairs,
@@ -183,13 +192,14 @@ grid.)*
 **Per rubric, the ladder re-detects the same weak instrument that dependability does.**
 [`validity/tables/multijudge_sign_preservation_by_metric.md`](validity/tables/multijudge_sign_preservation_by_metric.md):
 pooled, MITI is the worst of the eight at **79.8%** (MICI 82.9%, Q1 87.4%, WAI-SR 89.1%, Q2 89.6%,
-CSQ-8 92.1%, MI-SAT 92.7%, PCT 93.9%). The sharper point is *where* MITI still fails: every other
+CSQ-8 92.1%, MI-SAT 92.7%, PCT 92.9%). The sharper point is *where* MITI still fails: every other
 rubric that has contrasts that large reaches **96.2–100%** by |Δ|≥0.25, MITI only **89.6%**, needing
 |Δ|≥0.50 to reach 97.9%. **A MITI difference large enough to report can still flip sign under a
 different grader** — an independent confirmation, from a completely different statistic, of the
 `dependability_k1 = 0.624` warning in §6.
 ⚠ Ladder thresholds are **absolute**, so read a ladder *down its own rubric*, never across rubrics:
-`PCT` is a 0–1 proportion with **zero** contrasts at |Δ|≥0.25, so its ladder stops at the ≥0.10 rung,
+`PCT` is a 0–1 proportion with only **4** of its 903 contrasts at |Δ|≥0.25 and none at ≥0.50, so its
+ladder effectively stops at the ≥0.10 rung,
 while `MICI_Rate` is an unbounded per-turn rate that does reach the upper rungs (99 contrasts at
 ≥0.25, 36 at ≥0.50). Only the pooled `all contrasts` row is cross-rubric comparable.
 *(Corrected 2026-08-25: MITI's pooled rate read 77.5%, and "MITI only 88.2%" was attached to the
@@ -229,7 +239,7 @@ minimum. The decline from I5 is monotonic apart from the final tick.
 **It is NOT confined to the rewarded rubrics — it splits the eight instruments into two groups of
 four, and "was it the reward?" is not what carves them.** At `GRPOExp3_LA5_I10` **all eight** rubrics
 sit below their own column median, but by magnitudes an order of magnitude apart. Four barely move:
-MI-SAT **0.906** (column median 0.930), WAI-SR **0.898** (0.922), PCT **0.928** (0.954), CSQ-8
+MI-SAT **0.906** (column median 0.930), WAI-SR **0.898** (0.922), PCT **0.930** (0.957), CSQ-8
 **0.851** (0.903) — drops of `0.930 - 0.906 = 0.024` to `0.903 - 0.851 = 0.052`. Four fall away:
 Q2 **0.590** (median 0.784), MICI **0.287** (0.518), Q1 **0.544** (0.855) and **MITI 0.333** (0.658)
 — drops of `0.784 - 0.590 = 0.194` to `0.658 - 0.333 = 0.325`.
@@ -242,7 +252,7 @@ Q1 across I5–I10, table above). MICI is the weakest read of the four — it is
 grid (r 0.198–0.675), its own base state already reads 0.514, and it is 4th-lowest rather than
 extremal — so treat MICI as consistent with the pattern, not as evidence for it. Grid-wide these
 four are also the four rubrics with the *lowest* median agreement to begin with (Q1 0.855, Q2 0.784,
-MITI 0.658, MICI 0.518, against 0.903–0.954 for the other four): the collapse lands on the already-weaker
+MITI 0.658, MICI 0.518, against 0.903–0.957 for the other four): the collapse lands on the already-weaker
 half of the instrument set. **No verified mechanism explains that exact membership** — it is not
 rewarded-vs-unrewarded (MITI and MICI were never rewarded), and it is not rater perspective either
 (Q1/Q2 are patient-perspective rubrics like WAI-SR/CSQ-8/MI-SAT, and PCT is an MI-coder rubric like

@@ -22,7 +22,8 @@ Claude Haiku 4.5), **paired on ``persona_id`` (never ``file_index``)**, K-contra
    gain over own base (:func:`wai_subscales`); persona-paired K0−K5 contrast on the *bond excess*
    = Bond − mean(Goal, Task) at every matched iteration (:func:`wai_kcontrast`); the endpoint
    gain-by-subscale figure data (:func:`wai_fig_data`).
-2. **PCT (patient change talk)** — the lake's ``PCT`` metric is ``PCT_ChangeProp`` = CT/(CT+ST);
+2. **The PCT call (patient change talk)** — the call's ``PCT_ChangeProp`` = CT/(CT+ST) (the REPORTED
+   ``PCT`` is the utterance coder's CT/(CT+ST) since 2026-10-06, ``constants.pct_from_coder``);
    the components (three 1-5 globals + utterance counts) come from
    :func:`behavior.load_pct_behavior`. Paired K0−K5 by matched iteration (:func:`pct_kcontrast`).
 3. **Q2 item profile** — per-item endpoint gain over own base for every arm + the per-item K0−K5
@@ -109,7 +110,7 @@ from .ledger import json_scalar, ledger_entry, round3  # noqa: E402,F401
 PCT_METRICS = ["PCT_ChangeProp", "PCT_GlobalMean", "PCT_Importance", "PCT_Confidence",
                "PCT_Readiness", "PCT_ChangeTalk", "PCT_SustainTalk", "PCT_Neutral",
                "PCT_BehaviorTotal"]
-PCT_LABEL = {"PCT_ChangeProp": "ChangeProp = CT/(CT+ST) [= lake 'PCT']",
+PCT_LABEL = {"PCT_ChangeProp": "ChangeProp = CT/(CT+ST) [the PCT call's; reported PCT = the coder's]",
              "PCT_GlobalMean": "GlobalMean (Importance/Confidence/Readiness, 1-5)",
              "PCT_Importance": "Importance (1-5)", "PCT_Confidence": "Confidence (1-5)",
              "PCT_Readiness": "Readiness (1-5)", "PCT_ChangeTalk": "change-talk utterances (count)",
@@ -470,8 +471,8 @@ def pct_kcontrast(pct_by_judge: Dict[str, object], *, methods: Sequence[str] = M
 
     ``pct_by_judge`` = ``{judge_label: behavior.load_pct_behavior frame}`` (persona attached; or
     the loader's nested dict). Columns: ``judge, method, metric, iteration, mean_K0, mean_K5, n,
-    mean_delta, dz, ci_lo, ci_hi, p, p_holm``. ``PCT_ChangeProp`` = CT/(CT+ST) is the score lake's
-    ``PCT`` metric (higher = more change talk); ``PCT_GlobalMean`` = mean of the three 1-5 patient
+    mean_delta, dz, ci_lo, ci_hi, p, p_holm``. ``PCT_ChangeProp`` = CT/(CT+ST) is the PCT call's
+    proportion (higher = more change talk; the reported ``PCT`` is the utterance coder's); ``PCT_GlobalMean`` = mean of the three 1-5 patient
     globals; the three utterance counts sum to ``PCT_BehaviorTotal``. Metrics absent / all-NaN in a
     frame are skipped. ``p_holm`` = Holm within (judge, method, metric) across iterations.
     Sign ``+ => K=0 higher``. Iteration 0 = two independent base draws.
@@ -838,7 +839,9 @@ def instruments_numbers(*, wai: pd.DataFrame, wai_k: pd.DataFrame, fig_wai: pd.D
     if cc:
         put("crosscheck.tracked_k_paired_by_method", cc,
             source="pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/7_stats/gpt-4o-mini/k_paired_by_method.md "
-                   "(commit abe5cb3) — now results/lookahead/reward/tables/k_paired_by_method.md")
+                   "(commit abe5cb3) — now results/lookahead/reward/tables/k_paired_by_method.md; the pct_* "
+                   "entries compare the PCT CALL's PCT_ChangeProp, while that table's PCT row is the "
+                   "utterance coder's CT/(CT+ST) since 2026-10-06")
 
     # ── Q2
     Q2L, Q2K = q2["q2items_long"], q2["q2items_kcontrast"]

@@ -30,7 +30,8 @@ from typing import Dict, List, Optional, Tuple
 import pandas as pd
 
 from .constants import (DATA_DIR, ITEM_QUESTIONNAIRES, PERSONA_COLS, QUESTIONNAIRES,
-                        active_judge, active_judge_rep, item_short_label, judge_partition_dir)
+                        active_judge, active_judge_rep, item_short_label, judge_partition_dir,
+                        reported_value, DERIVED_SCORES_VERSION)
 from . import score_archive          # parquet fold; imports only `constants`, so no cycle
 
 
@@ -79,7 +80,9 @@ def reset_cache() -> int:
 
 def eval_input_roots(arms) -> List[str]:
     """The per-model eval directories the score/behavior loaders read (for the cache signature)."""
-    subs = {sub for _disp, (sub, _mc) in QUESTIONNAIRES.items() if sub}
+    # + the PCT CALL's dir: the reported PCT is read from MIPROC (constants.DERIVED_SCORES), but
+    # behavior.load_pct_behavior / process.parity still read metric=PCT, so it stays watched.
+    subs = {sub for _disp, (sub, _mc) in QUESTIONNAIRES.items() if sub} | {"PCT"}
     return [a.eval_dir(k, sub) for a in arms for k in a.iters for sub in subs]
 
 
@@ -569,7 +572,10 @@ def load_scores_long(arms: Optional[List] = None, *, attach_persona: bool = True
                        lambda: _load_scores_long_impl(arms, attach_persona=attach_persona),
                        input_roots=eval_input_roots(arms),
                        params={"attach_persona": attach_persona,
-                               "judge": active_judge(), "judge_rep": active_judge_rep()})
+                               "judge": active_judge(), "judge_rep": active_judge_rep(),
+                               # the input roots alone do not change when a derived score's
+                               # definition does, so its version keys the frame.
+                               "derived": DERIVED_SCORES_VERSION})
 
 
 def _load_scores_long_impl(arms: List, *, attach_persona: bool = True) -> pd.DataFrame:
@@ -587,8 +593,11 @@ def _load_scores_long_impl(arms: List, *, attach_persona: bool = True) -> pd.Dat
                 for fi, row in iter_conv_rows(arm.eval_dir(k, sub)):
                     if meancol not in row.index:
                         continue
+                    score = reported_value(disp, row, meancol)
+                    if score != score:   # NaN: undefined (e.g. PCT with no change or sustain talk)
+                        continue
                     rows.append({**base_meta, "file_index": fi,
-                                 "questionnaire": disp, "score": float(row[meancol])})
+                                 "questionnaire": disp, "score": score})
     long = pd.DataFrame(rows)
     if long.empty:
         return long

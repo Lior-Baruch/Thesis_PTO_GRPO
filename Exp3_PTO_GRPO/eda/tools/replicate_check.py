@@ -51,7 +51,7 @@ if _p not in sys.path:
     sys.path.insert(0, _p)
 
 from eda_analysis import stats  # noqa: E402
-from eda_analysis.constants import LOWER_IS_BETTER  # noqa: E402
+from eda_analysis.constants import LOWER_IS_BETTER, REPORTED_SUBDIR, reported_value  # noqa: E402
 from eda_analysis.scoring import (  # noqa: E402
     EVAL_QUESTIONNAIRE_DIRS, eval_csv_dir, eval_scores_root,
 )
@@ -100,7 +100,9 @@ def load_model_scores(judge_tag: str, model: str) -> pd.DataFrame:
     root = eval_scores_root(judge_tag, 0)
     cols = {}
     for qname, subdir in EVAL_QUESTIONNAIRE_DIRS.items():
-        d = eval_csv_dir(root, MODELS[model], subdir, model)
+        # The REPORTED value: PCT is read from the utterance coder's metric=MIPROC rows
+        # (constants.reported_value); NaN (undefined) conversations are dropped.
+        d = eval_csv_dir(root, MODELS[model], REPORTED_SUBDIR.get(qname, subdir), model)
         if not os.path.isdir(d):
             continue
         vcol = JUDGE_METRIC_COLS[qname][1]
@@ -110,11 +112,15 @@ def load_model_scores(judge_tag: str, model: str) -> pd.DataFrame:
                 continue
             try:
                 row = pd.read_csv(os.path.join(d, fn))
-                vals[int(os.path.splitext(fn)[0])] = float(row[vcol].iloc[0])
+                v = reported_value(qname, row.iloc[0], vcol)
+                if v == v:
+                    vals[int(os.path.splitext(fn)[0])] = v
             except Exception:
                 pass
-        cols[qname] = pd.Series(vals)
-    df = pd.DataFrame(cols)
+        cols[qname] = pd.Series(vals, dtype=float)
+    # sort by conversation id: the column Series follow os.listdir order, which differs between
+    # metric folders on the Drive mount, and the bootstrap resamples rows in frame order.
+    df = pd.DataFrame(cols).sort_index()
     if {"Q1", "Q2"} <= set(df.columns):
         df["Q1Q2"] = df[["Q1", "Q2"]].mean(axis=1)
     return df
@@ -143,7 +149,9 @@ def main() -> int:
             f = load_model_scores(jtag, m)
             frames[(jlabel, m)] = f
             n_complete = f.dropna().shape[0] if not f.empty else 0
-            flag = "" if (f.shape[0] >= 96 and f.shape[1] >= 9) else "   <-- INCOMPLETE"
+            missing = [x for x in METRICS if x not in f.columns]
+            flag = "" if (f.shape[0] >= 96 and not missing) else (
+                "   <-- INCOMPLETE" + (f" (no {', '.join(missing)})" if missing else ""))
             if flag:
                 incomplete.append(f"{jlabel}/{m}")
             print(f"  [{jlabel:8s}] {m:24s} {f.shape[0]:3d} convs x {f.shape[1]} metrics"

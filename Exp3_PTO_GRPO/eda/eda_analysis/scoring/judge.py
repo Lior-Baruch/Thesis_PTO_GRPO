@@ -49,7 +49,8 @@ from typing import Dict, List, Optional
 import numpy as np
 import pandas as pd
 
-from ..constants import WORKSPACE_ROOT, EVAL_SCORES, judge_partition_dir
+from ..constants import (WORKSPACE_ROOT, EVAL_SCORES, judge_partition_dir, DERIVED_SCORES,
+                         REPORTED_SUBDIR, reported_value)
 from .registry import EVAL_MODEL, EVAL_TEMPERATURE, MAX_RETRIES, EVAL_QUESTIONNAIRE_DIRS
 from .conversations import reconstruct_conversation_text
 
@@ -377,7 +378,13 @@ def load_judge_scores(judge_tag: str, *, reps: Optional[List[int]] = None) -> pd
     rows = []
     if not os.path.isdir(root):
         return pd.DataFrame(columns=["judge", "rep", "metric", "oracle", "model", "file_index", "value"])
-    subdir_to_name = {v[0]: k for k, v in JUDGE_METRIC_COLS.items()}
+    # The REPORTED value of each name (constants.reported_value): PCT is read from the utterance
+    # coder's metric=MIPROC rows, so that subdir yields two names and the PCT call's own subdir
+    # yields none here (it is read by behavior.load_pct_behavior, the coder's check). NaN
+    # (undefined) values are dropped, as in data.load_scores_long.
+    subdir_to_names: Dict[str, List[str]] = {}
+    for name, (subdir, _col) in JUDGE_METRIC_COLS.items():
+        subdir_to_names.setdefault(REPORTED_SUBDIR.get(name, subdir), []).append(name)
     for rep_dir in sorted(os.listdir(root)):
         m = re.match(r"rep=(\d+)$", rep_dir)
         if not m:
@@ -387,10 +394,9 @@ def load_judge_scores(judge_tag: str, *, reps: Optional[List[int]] = None) -> pd
             continue
         for mdir in os.listdir(os.path.join(root, rep_dir)):
             mm = re.match(r"metric=(.+)$", mdir)
-            if not mm or mm.group(1) not in subdir_to_name:
+            if not mm or mm.group(1) not in subdir_to_names:
                 continue
-            name = subdir_to_name[mm.group(1)]
-            val_col = JUDGE_METRIC_COLS[name][1]
+            names = subdir_to_names[mm.group(1)]
             for odir in os.listdir(os.path.join(root, rep_dir, mdir)):
                 om = re.match(r"oracle=(.+)$", odir)
                 if not om:
@@ -407,11 +413,19 @@ def load_judge_scores(judge_tag: str, *, reps: Optional[List[int]] = None) -> pd
                             df = pd.read_csv(os.path.join(ddir, fn))
                         except Exception:
                             continue
-                        if len(df) and val_col in df.columns:
+                        if not len(df):
+                            continue
+                        row = df.iloc[0]
+                        for name in names:
+                            val_col = JUDGE_METRIC_COLS[name][1]
+                            if name not in DERIVED_SCORES and val_col not in df.columns:
+                                continue
+                            value = reported_value(name, row, val_col)
+                            if value != value:   # NaN: undefined for this conversation
+                                continue
                             rows.append({"judge": judge_tag, "rep": rep, "metric": name,
                                          "oracle": om.group(1), "model": model,
-                                         "file_index": int(stem),
-                                         "value": float(df[val_col].iloc[0])})
+                                         "file_index": int(stem), "value": value})
     return pd.DataFrame(rows)
 
 
