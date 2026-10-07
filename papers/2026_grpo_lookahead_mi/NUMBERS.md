@@ -1407,3 +1407,37 @@ families the paper does not read (`arms/*`, `lookahead/reward`, `method/contrast
 families — **reverted the same day (Lior: MIPROC out of every outcome correction, `OUTCOME_ORDER`)**.
 The 2026-09 rows above that cite `multijudge_sign_preservation_grpo` (1,640 of 1,848) are superseded
 there: now 1,633 of 8 × C(22,2) = 8 × 231 = 1,848 (88.4%) with PCT from the coder; not quoted in the paper.
+
+
+## 2026-10-07 — review round 4, steps 14–15 (EDA anchors; floats + text batch)
+
+Decision record: [`REVIEW_2026-10-07.md`](REVIEW_2026-10-07.md); plan rows 14–18 of the README.
+EDA `9b625c6` (`shared_base.anchor_contrasts` → `lookahead/shared_base/tables/anchor_contrasts.md`)
+and `ee33a38` (`levels_long` and `anchor_contrasts` saved at six decimals, so a two-decimal level
+such as the Base's Q1+Q2 3.01498 rounds from the table itself). Every cell of the new Tables 1–2 and
+Table 8 is printed by `render_process_tables.py` (`--endpoint`, `--anchors`), which asserts the
+anchor-'last' d_z against `k_contrast` / `k_process_paired` / `k_persistence` at iteration 10 and the
+anchor means against the level sheets.
+
+| Claim | Value | Source |
+|---|---|---|
+| Table 1 (two anchors) | levels: training oracle, Base / K=0 at 8 / K=0 at 10 / K=5 at 10, two decimals; d_z of K=5 at 10 against K=0 at 8 and at 10, both judges; stars = Holm across the nine rows per (judge, anchor); last column = `significant_iterations` (training oracle; MICI "8–10; 3 (K=0)") | `anchor_contrasts` (family instruments), `levels_long`, `significant_iterations` |
+| §4 "+0.43 (dz=0.74) against the best" | Q1+Q2 4.5172 − 4.0823 = 0.4349; dz 0.7432 | `anchor_contrasts`, best_K0, gpt-4o-mini |
+| §4 held-out vs K=0 at 8 | significant on 7 of 9 rows; Q2 (dz 0.182, p_holm .172) and WAI-SR (0.097, .578) not; MITI 0.289 at p_holm .048 | `anchor_contrasts`, best_K0, claude-haiku-4-5 |
+| §4 "A second draw ... |dz| ≤ 0.17" (moved to App A) | max \|dz\| 0.174 (MICI, training oracle); unchanged | `results/measurement/replicate_draw.md` |
+| Table 2 (process, two anchors) | three-decimal levels incl. K=0 at 8 (praise 0.222, CR 0.025, persuasion 0.191, MI-consistent 0.250, MI-inconsistent 0.412, reflects CT 0.009, praises ST 0.130, persuades ST 0.295, reflects ST 0.230, CT→CT 0.880, ST→CT 0.224, CT share 0.518); d_z vs 8 / vs 10 with stars Holm across the twelve rows; last column from the per-iteration tests (Holm across iterations) | `anchor_contrasts` (family process), `process_levels_gpt-4o-mini`, `persist_levels_gpt-4o-mini`, `k_process_paired`, `k_persistence` |
+| ⚠ Table 2 iteration-10 stars changed family | MI-inconsistent share −0.36 was * (iterations family), now ** (rows family); every d_z value unchanged | same |
+| §6 "reflects sustain talk ... 37%, against 26% under K=0 and 22% at the Base, significantly more only against K=0's best checkpoint" | 0.368 / 0.256 / 0.217; vs 8 dz +0.380 p_holm .009; vs 10 +0.265 p_holm .067 | `anchor_contrasts` |
+| §6 "88% at its best checkpoint" (CT → CT) | 0.880 (K=0 at 8) | `persist_levels_gpt-4o-mini` |
+| §6 "after sustain talk ... 33% ... 28% ... significant against K=0's best checkpoint (22%) but not against its last" | 0.326 / 0.276 / Base 0.281; K=0 at 8 0.224; vs 8 dz +0.431 p_holm .003; vs 10 +0.176 p_holm .133 | `anchor_contrasts`, `persist_levels` |
+| §6 "52% at its best checkpoint" (change-talk share) | 0.518 | `process_levels_gpt-4o-mini` |
+| Table 8 (held-out process, two anchors) | as Table 2 under the held-out judge; K=0 at 8 still the training oracle's choice | `anchor_contrasts`, `process_levels_claude-haiku-4-5` |
+| §5 turn length | 896 (K=0) / 849 (K=5) characters at iteration 10, Base 273 (was "850–900") | `length_by_state::th_chars_mean` |
+| §5 embedding sentence (Figure 4 moved to App C.7) | between-conversation share 0.39 (Base) → 0.19 (K=0) / 0.30 (K=5) at iteration 10 | `text_diversity::persona_var_share` |
+| §5 update direction | K=0 points to praise at training iterations 4–8 and 10 in all five encoders; K=5 at no iteration in more than three | App C.6 (existing), `lookahead/mechanism/tables/direction_encoders_categories_*` |
+| App B "levels off after iteration 6" | held-out K=5 Q1+Q2 2.903 (6), 2.912, 2.776, 2.858, 2.873 (10); training oracle 4.229 (6) → 4.517 (10) | `levels_long` |
+| Discussion / App C.4 gradient ratio | K=0/K=5 gradient norm 0.21/0.17, 0.21/0.19, 0.27/0.22, 0.30/0.22 at iterations 1–4 → "1.1–1.4 times"; median 0.39 / 0.20 | Table 11 (`trainer_diagnostics_by_iter`) |
+| App C.4 "K=0 complex reflection ≤ 0.03 at every iteration; K=5 0.10 at 7, 0.23 at 10" | K=0 max 0.027; K=5 0.098 / 0.230 | Table 4 (`process_levels_gpt-4o-mini`) |
+| Limitations ICC | ICC(2,1) 0.924–0.994 on Q1, Q2, MICI for GRPO K=0 iterations 8 and 10, 4 scorings each (rep 0 + 3) | `measurement/validity/tables/oracle_repeatability_icc.md` |
+| Abstract | 198 words (source count, same counter as the 200 of 2026-10-05) | — |
+| Removed from the paper | the four gain ratios (2.04 / 1.41 / 2.50 / 1.33) and "1.3 to 2.5 times" (Lior's pick); the cooperative-persona sentence of §4 (false for MICI; App A keeps the breakdown); the late-session rise/fall with old Figure 3d; Method's 86–89% sentence (App C.1 keeps the values) | — |
