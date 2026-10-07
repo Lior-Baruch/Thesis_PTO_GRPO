@@ -133,7 +133,7 @@ The trainer logged, at every optimizer step, the per-token KL estimate between t
 policy the iteration started from, the gradient norm and the entropy of the sampled completions
 (Table~\ref{tab:trainer}). In every iteration the $\Kz$ policy moved further from its starting
 policy (median over the iterations $0.016$ against $0.006$) and had the larger gradients (median
-$0.39$ against $0.20$, though only $1.1$--$1.4$ times as large at iterations 1--4), and in eight of
+$0.39$ against $0.20$, though only $1.1$--$1.3$ times as large at iterations 1--4), and in eight of
 the ten its completions had lower entropy. Both runs
 use the same $\beta$ and learning rate (Table~\ref{tab:config}), so the
 difference is in the updates themselves. The iterations are consecutive states of one run per $K$,

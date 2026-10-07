@@ -296,7 +296,7 @@ in Figure~\ref{fig:headline}.
 % \dnotedone{renamed: `each policy'}{[state -?]}
 Each policy is scored on one sample of 96 conversations, so we drew the final $\Kf$ policy again
 (96 fresh conversations from the same adapter, personas and decoding, scored by both judges): the
-two draws differ by at most $|\dz|\,0.17$ across the nine rows of Table~\ref{tab:endpoint} and both
+two draws differ by less than $|\dz|\,0.18$ across the nine rows of Table~\ref{tab:endpoint} and both
 judges, none significantly, and with the second draw the \QQ\ gap to the final $\Kz$ policy is
 $\dz\,0.92$ against $0.91$ (held out: $0.95$ against $1.03$).
 % \dnotedone{rephrased in plain words: same model, new conversations}{[evaluation noise, not training variance -?]}
@@ -315,9 +315,9 @@ conversations alone produces.
 (complex reflections, affirmations, persuasion and giving information) are each followed by change
 talk in at least $97\%$ of cases, pooled over turns, and $83\%$ of its complex reflections come
 right after change talk, so the change talk after them is mostly the patient continuing. Once the
-patient's previous utterance is held fixed, reflections do about as well as the policy's other
-replies ($0.99$ against $0.99$ after change talk, $0.16$ against $0.17$ after sustain talk, pooled
-over turns); \S\ref{sec:patient} therefore reads no code's next utterance as its effect.
+patient's previous utterance is held fixed, complex reflections are followed by change talk about as
+often as the policy's replies overall ($0.99$ against $0.99$ after change talk, $0.16$ against $0.17$
+after sustain talk, pooled over turns); \S\ref{sec:patient} therefore reads no code's next utterance as its effect.
 
 \textbf{The patient's side.} At iteration 10 the $\Kf$ policy's patients write longer utterances
 than the $\Kz$ policy's ($600$ vs.\ $440$ characters, $\dz\,1.24$), and a crude keyword cue for

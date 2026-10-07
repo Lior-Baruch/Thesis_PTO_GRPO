@@ -1436,7 +1436,7 @@ anchor means against the level sheets.
 | §5 embedding sentence (Figure 4 moved to App C.7) | between-conversation share 0.39 (Base) → 0.19 (K=0) / 0.30 (K=5) at iteration 10 | `text_diversity::persona_var_share` |
 | §5 update direction | K=0 points to praise at training iterations 4–8 and 10 in all five encoders; K=5 at no iteration in more than three | App C.6 (existing), `lookahead/mechanism/tables/direction_encoders_categories_*` |
 | App B "levels off after iteration 6" | held-out K=5 Q1+Q2 2.903 (6), 2.912, 2.776, 2.858, 2.873 (10); training oracle 4.229 (6) → 4.517 (10) | `levels_long` |
-| Discussion / App C.4 gradient ratio | K=0/K=5 gradient norm 0.21/0.17, 0.21/0.19, 0.27/0.22, 0.30/0.22 at iterations 1–4 → "1.1–1.4 times"; median 0.39 / 0.20 | Table 11 (`trainer_diagnostics_by_iter`) |
+| Discussion / App C.4 gradient ratio | K=0/K=5 gradient norm 0.21/0.17, 0.21/0.19, 0.27/0.22, 0.30/0.22 at iterations 1–4 → "1.1–1.3 times" (unrounded 0.207/0.172 = 1.21, 1.11, 1.26, 1.34; audit fix); median 0.39 / 0.20 | Table 11 (`trainer_diagnostics_by_iter`) |
 | App C.4 "K=0 complex reflection ≤ 0.03 at every iteration; K=5 0.10 at 7, 0.23 at 10" | K=0 max 0.027; K=5 0.098 / 0.230 | Table 4 (`process_levels_gpt-4o-mini`) |
 | Limitations ICC | ICC(2,1) 0.924–0.994 on Q1, Q2, MICI for GRPO K=0 iterations 8 and 10, 4 scorings each (rep 0 + 3) | `measurement/validity/tables/oracle_repeatability_icc.md` |
 | Abstract | 198 words (source count, same counter as the 200 of 2026-10-05) | — |
