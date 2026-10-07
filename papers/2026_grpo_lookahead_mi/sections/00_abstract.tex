@@ -1,3 +1,5 @@
+% 2026-10-07 (content pass): the abstract no longer ends on two concessions; the single-run fact
+% stays as "one per horizon", persuasion stays in the coding sentence.
 \begin{abstract}
 Reinforcement learning has improved language models most clearly on verifiable tasks. In
 non-verifiable, multi-turn dialogue, the LLM judge that supplies the reward commonly sees nothing
@@ -6,12 +8,13 @@ after the candidate turn, whose value often lies in what follows. In motivationa
 \textbf{\LAGRPO}, which extends look-ahead reward from preference-tree optimization to Group
 Relative Policy Optimization (GRPO): before the judge scores a candidate therapist turn, a patient
 simulator and the current policy continue the conversation for $K$ turns, and the judge scores the
-continuation. In two ten-iteration runs of a 1B-parameter therapist that
-differ only in the horizon, $K{=}5$ ends ahead of $K{=}0$ on all eight MI instruments, under the
-training oracle and a held-out judge from another model family. Utterance coding shows that
-turn-level reward taught non-specific praise, including in reply to sustain talk, while look-ahead
-taught complex reflections of change talk. Under look-ahead, the simulated patient's change talk is
-followed by more in $97\%$ of cases under the training oracle, against $80\%$ without look-ahead.
-The look-ahead policy meets sustain talk with persuasion more often than the untrained model. Each
-horizon is a single training run.
+continuation.
+In two ten-iteration runs of a 1B-parameter therapist, one per horizon and otherwise matched,
+$K{=}5$ ends ahead of $K{=}0$'s last and reward-selected best checkpoints on all eight MI
+instruments, under the training oracle and a held-out judge from another model family. Utterance
+coding shows that turn-level reward taught non-specific praise, including in reply to sustain talk,
+while look-ahead taught complex reflections of change talk, along with more persuasion in reply to
+sustain talk than the untrained model. Under look-ahead, the simulated patient's change talk is
+followed by change talk again in $97\%$ of cases under the training oracle, against $80\%$ without
+look-ahead.
 \end{abstract}
