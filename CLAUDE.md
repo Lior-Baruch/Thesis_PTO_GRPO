@@ -172,9 +172,13 @@ MITI) plus `PCT` (patient change-talk) and `MICI` (MI-inconsistent behaviour, lo
 A ninth, **`MIPROC`** (id 10), is a *process coder*, not an outcome instrument: one MITI/MISC-style
 code per therapist utterance (`OQ CQ SR CR AF PRA GI PERS SEEK CONF OTH`) and per patient utterance
 (`CT ST NEU`), in order, stored as pipe-joined strings beside per-code counts. It feeds
-`lookahead/process` (yields, responsiveness, within-session change talk) and is scored where the
-EDA needs it (GRPO arms first), never used as a reward. Definitions: `results/METRICS_REFERENCE.md`
-§1 + §3e.
+`lookahead/process` (yields, responsiveness, within-session change talk) and is scored on all four
+arms under both graders, never used as a reward. **The reported `PCT` is computed FROM `MIPROC`**:
+CT/(CT+ST) over its patient codes (`eda_analysis/constants.pct_from_coder`, NaN when the coder found
+neither); the separate PCT call (`metric=PCT`) stays in the lake only as the coder's same-judge check.
+`MIPROC`'s own headline (% complex reflections) is kept OUT of every outcome correction:
+`constants.OUTCOME_ORDER` (the 8 instruments + Q1+Q2) is the default metric set of every
+across-rubric analysis. Definitions: `results/METRICS_REFERENCE.md` §1 + §3e.
 
 **Shared infrastructure.** Both trainers import from
 [Exp3_PTO_GRPO/code/_shared/](Exp3_PTO_GRPO/code/_shared/) (runtime, model, convs, reward,

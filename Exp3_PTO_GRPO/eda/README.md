@@ -228,7 +228,8 @@ listed by hand.
    `eda_analysis/scoring/registry.py::EXPERIMENTS` registry is **auto-generated from
    `discover_arms()`** (2026-07-11) — a new run is scoreable as soon as its conversations land; no
    registry edit, and empty in-flight `model_iter_*` dirs (no `conversation_*.csv`) are skipped.
-   Resume-safe. Score **PCT** + **MICI** with `QUESTIONNAIRE_FILTER=["PCT","MICI"]`; the
+   Resume-safe. Score **PCT** + **MICI** with `QUESTIONNAIRE_FILTER=["PCT","MICI"]` (the PCT call
+   is now only the coder's check — the reported PCT needs **MIPROC** scored on the same states); the
    utterance-level **MIPROC** coder (2026-09-17; `questionnaires.py` id 10, one code per therapist
    and per patient utterance, arrays pinned to the transcript's utterance counts and stored as
    pipe-joined strings `MIPROC_ThCodes` / `MIPROC_PtCodes` beside per-code counts and rates) with
@@ -433,7 +434,11 @@ were **promoted** into eight new modules + their plotting twins (below); the pap
 against.
 
 - **`constants`** — the LEAF (imports nothing from the package): workspace-root resolution +
-  `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`WARMTH_RUBRICS` (the global-eval
+  `sys.path` bootstrap, `QUESTIONNAIRES`/`QUESTIONNAIRE_ORDER`/`OUTCOME_ORDER` (the order without
+  the MIPROC process coder: the default metric set of every across-rubric analysis and Holm family)/
+  `DERIVED_SCORES`+`REPORTED_SUBDIR`+`reported_value` (the reported PCT = the utterance coder's
+  CT/(CT+ST), `pct_from_coder`; every score loader reads through `reported_value`, and
+  `DERIVED_SCORES_VERSION` keys the score cache)/`WARMTH_RUBRICS` (the global-eval
   halo cluster — historical code name)/`EXTRA_METRICS`/`LOWER_IS_BETTER`,
   `MITI_THRESHOLDS` (official 4.2.1 fair/good), `Q1_ITEM_SHORT`/`Q2_ITEM_SHORT`/`Q2_ITEM_GROUPS`
   (item labels + face-content groups), `ITEM_QUESTIONNAIRES` (per-item column layout of every
