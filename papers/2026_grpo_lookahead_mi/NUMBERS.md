@@ -1314,7 +1314,7 @@ over the two Base draws) and the `train_iter_1` GRPO rows of `faithfulness_match
 
 | Claim | Value | Table |
 |---|---|---|
-| prefix alone, training oracle: 2 / 10 / 12 / 50 utterances | 0.735 [0.690, 0.774] / 0.803 / 0.846 / 0.976 → §3.2 "74% … 85% … 98%" | prefix_alone, judge gpt-4o-mini, pooled |
+| prefix alone, training oracle: 2 / 10 / 12 / 50 utterances | 0.735 [0.690, 0.774] / 0.803 / 0.846 / 0.976 → §3.2 "73% … 85% … 98%" (was 74%, rounded twice from 0.7346; corrected in the content pass) | prefix_alone, judge gpt-4o-mini, pooled |
 | prefix alone, held-out judge: 2 / 12 / 50 | 0.688 / 0.782 / 0.838 | judge claude-haiku-4-5 |
 | 2,722 prefixes, 192 conversations | 1,373 (LA0 Base) + 1,349 (LA5 Base); n_convs 192 at n_turns 2 | score_partial dry run; table |
 | iteration-1 training reward at 12 / 50, training oracle | K0 0.846 / 0.977, K5 0.831 / 0.963 | matched_policy_long, cut train_iter_1 |
@@ -1452,3 +1452,34 @@ sustain talk 17% vs 5%" left §6 (it stays in Appendix B and Table 8); the Discu
 sentence no longer gives the gradient ratio (Appendix C.4 keeps "1.1–1.3 at iterations 1–4, median
 0.39 vs 0.20"). Related work and the Introduction lost repeated sentences only; every citation key
 of the section survives (checked by script).
+
+## 2026-10-07 — content pass after step 16 (Lior: "errors + clarity", the rest on my judgement)
+
+A content review of the 8-page draft (six lenses; 33 suggestions, kept in the session record) and
+the edits applied from it. Numbers that are new to the body, or that moved into a new sentence:
+
+| Claim | Value | Source |
+|---|---|---|
+| §4 "the K=5 policy scores 4.52, against 3.75 at K=0's last checkpoint (dz=0.91) and 4.08 at its best (dz=0.74)" | Q1+Q2 4.5172 / 3.7548 / 4.0823; dz 0.910 / 0.743 (replaces "+0.76 / +0.43", which came from unrounded means and did not match Table 1's levels) | `levels_long`, `anchor_contrasts` (gpt-4o-mini) |
+| §4 "significantly on every row under the training oracle" | max p_holm over the nine rows: 7e-6 (vs 8), 2.5e-5 (vs 10) | `anchor_contrasts` (family instruments, gpt-4o-mini) |
+| §4 onset "K=5 leads significantly on Q1+Q2 at iteration 4 and from 6 on ... before that only MICI differs, at iteration 3, in K=0's favor" | Q1+Q2 significant at 4, 6–10 (5 is not; was "leads from iteration 4"); no instrument significant at 1–2; at 3 only MICI (K=0) | `significant_iterations` (Table 1's last column) |
+| §4 held-out "on all nine rows against K=0's last checkpoint and on seven against its best" | vs 10: max p_holm 1.3e-4; vs 8: Q2 and WAI-SR not significant (p_holm .172, .578) | `anchor_contrasts` (claude-haiku-4-5) |
+| §5 held-out praise "0.76 of the K=0 policy's turns ... against 0.20 of the K=5 policy's, itself above the Base's 0.04" | 0.7617 / 0.2028 at iteration 10; Base 0.04 | `k_process_paired` (th_PRA_rate, claude-haiku-4-5), `process_levels_claude-haiku-4-5` |
+| §5 "MICI agrees: 8.3 of the 9.9 MI-inconsistent acts per session ... (84%) fall under its over-praise code" | K=0 at 10: OverPraise 8.250 of BehaviorTotal 9.865 per conversation; share 0.836 | `lookahead/behaviour/tables/k_mici_composition.md` |
+| Figure 3 panel (b), the keyword marker | `lex_overpraise_marker_rate` ± SE by iteration, no tests | `marker_and_length` |
+| Figure 3 / Figure 8 captions, star direction | persuasion stars favor K=0 under both judges; praise, complex reflection, persistence stars favor K=5 | `k_process_paired`, `k_persistence` |
+| §6 held-out "persuades after 58% of the patient's sustain talk (Base 25%) ... change talk is followed by change talk in 94% of cases under K=5, against 73% under K=0 (Base 71%)" | per the held-out process/persistence levels at iteration 10 | `process_levels_claude-haiku-4-5`, `persist_levels_claude-haiku-4-5` |
+| App A "the share of sessions that reach any change talk at all does not differ (92% vs 86%)" | moved from §6 unchanged | `process_levels_gpt-4o-mini` (reached_ct) |
+| Method "A session ends ... at 50 utterances" | the scripted opener + 49 generated utterances (`_shared/convs.py`, `num_utterances=49`); was "after 49", which conflicted with "at fifty" two paragraphs later | Table 11 (unchanged) |
+| Method MICI "counts six MI-inconsistent codes: four of the MISC 2.5, judging or labeling, and an over-praise code of our own" | Confront, AdviseNoPermission, Warn, Direct + Judge + OverPraise | `code/questionnaires.py` (MICI schema) |
+| Discussion "under K=5 clearly above zero only at 6–7" | z above 2 only at iterations 6–7 | App C.5 (existing text) |
+| Discussion "the two runs' update directions diverge from training iteration 4 on" | noise-corrected cosine 0.92–0.96 at 1–3, 0.80 at 4–5, 0.57–0.74 at 6–8 (replaces "the two rewards prefer different candidates within a group": the rewards never scored the same candidates) | App C.6 (existing text) |
+| Abstract | 197 words (same source counter) | — |
+| Removed from the body | "+0.76 / +0.43"; "We did not test whether ... MITI ratings" (now one clause of the Limitations' "K in {0,5} only"); the Discussion's third mention of the held-out K=5 praise; "differ only in the horizon" / "differ in nothing else" (now "otherwise matched": the Method discloses the sub-batch field and the one-resume KL reference) | — |
+| Method "73% of them at two utterances" (audit fix) | 0.7346 → 73% (was 74%, rounded via 0.735) | `lookahead/mechanism/tables/faithfulness_prefix_alone_grpo.md` (gpt-4o-mini, pooled, n_turns 2) |
+| §4 onset, the other instruments (audit fix: "follow" implied a later onset) | first significant K=5 lead: CSQ-8, MI-SAT, Q1 at 4; WAI-SR 5; MITI, PCT 6; MICI 8; Q2 9 | `significant_iterations` (gpt-4o-mini) |
+
+Audit: two independent auditors checked 100 claims (54 in the Results sections, whole files; 46 in
+the changed lines elsewhere, cited papers against their abstracts); 3 flagged, each re-checked by a
+refuter: the 74% and the "follow" wording confirmed and fixed; the embedding sentence refuted, but
+reworded to the appendix's "relative to their variation within a session" anyway.
