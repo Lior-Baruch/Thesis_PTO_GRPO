@@ -26,9 +26,10 @@ oracle while $\Kf$ leads under the held-out judge (Appendix~\ref{app:repro-cost}
 \dnoteopen{kept as a reminder; whether to run an intermediate $K$ is Lior's call}{indeed this is a major limitation - in case you have time for more runs [kfir gave almog some server time.. ]}
 We trained with \Kz\ and \Kf\ only, so we do not know whether a shorter look-ahead would give
 most of the benefit, whether 5 is the best choice, or whether a longer one would do better. More
-runs at other values of $K$ are needed to find out. All runs also use one small pretrained model;
-whether the horizon changes what larger or instruction-tuned models learn in the same way is
-untested.
+runs at other values of $K$ are needed to find out. All runs also use one small pretrained model and
+one reward, \QQ; whether the horizon changes what is learned in the same way with a larger or
+instruction-tuned model, or under a reward built from another instrument such as the MITI ratings,
+is untested.
 
 % \dnotedone{cut the paragraph (One optimiser, one regime)}{[??One optimiser, one regime.] [regime ?]}
 %Evidence that would overturn the paper's reading: a second \emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a human MI coder disagreeing with \S\ref{sec:therapist}--\ref{sec:patient}.
@@ -53,7 +54,8 @@ regenerating the conversations with a patient from another model family would re
 The simulated
 patient is a known weak point in itself: given identical profiles, LLM-simulated MI patients
 are more uniformly positive than human patients
-\citep{hoang2026standardised}, which bears directly on a finding about praise. %No human MI coder has
+\citep{hoang2026standardised}, which bears most directly on the patient-side measures of
+\S\ref{sec:patient}. %No human MI coder has
 %rated any conversation in this experiment;
 The oracle is highly self-repeatable on Q1, Q2 and MICI (intraclass correlation ICC(2,1)
 $0.92$--$0.99$, \citealp{shrout1979icc}, when it re-scores the same conversations of the $\Kz$
