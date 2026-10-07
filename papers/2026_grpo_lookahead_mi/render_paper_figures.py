@@ -336,17 +336,22 @@ def _process_panels_v1(judge: str, name: str) -> Path:
 # Figure 3's four measures: (sheet, mean column, SE column, test sheet, tested metric, title).
 PROCESS_MEASURES = [
     ("process_levels", "th_PRA_rate", "th_PRA_rate_se", "k_process_paired", "th_PRA_rate",
-     "(a) praise"),
+     "praise"),
     ("process_levels", "th_CR_rate", "th_CR_rate_se", "k_process_paired", "th_CR_rate",
-     "(b) complex reflection"),
+     "complex reflection"),
     ("process_levels", "th_PERS_rate", "th_PERS_rate_se", "k_process_paired", "th_PERS_rate",
-     "(c) persuasion"),
+     "persuasion"),
     ("persist_levels", "ct_persist_mean", "ct_persist_sem", "k_persistence", "ct_persist",
-     "(d) persistence"),
+     "persistence"),
 ]
+#: Figure 3's second panel since 2026-10-07 (review round 4, F2): the keyword marker, which involves
+#: no model, beside the coder's praise share (``marker_and_length``; judge-free, so the held-out
+#: twin does not repeat it). No test exists for it, so it carries no stars; lower is better.
+MARKER_PANEL = ("marker_and_length", "lex_overpraise_marker_rate", "lex_overpraise_marker_rate_se",
+                None, None, "praise, marker")
 
 
-def _process_panels(judge: str, name: str) -> Path:
+def _process_panels(judge: str, name: str, marker: bool = False) -> Path:
     """Figure 3 since 2026-10-07 (review round 4; the stacked code mixes moved to ``codemix``):
     one row of four measures by iteration in Figure 2's style -- (a) non-specific praise,
     (b) complex reflection, (c) persuasion, each a share of therapist turns
@@ -357,17 +362,29 @@ def _process_panels(judge: str, name: str) -> Path:
     persona-paired K contrast has ``p_holm < .05`` (``k_process_paired`` / ``k_persistence``,
     GRPO, this judge). "lower = better" comes from the test sheet's ``lower_better`` flag. The key
     sits in panel (a)'s upper left, empty under both judges (praise stays below 0.2 there)."""
+    specs = list(PROCESS_MEASURES)
+    if marker:
+        specs.insert(1, MARKER_PANEL)
     x = pd.ExcelFile(SHARED_BASE_XLSX)
-    sheets = {s: x.parse(s if s.startswith("k_") else f"{s}_{judge}")
-              for s in {m[0] for m in PROCESS_MEASURES} | {m[3] for m in PROCESS_MEASURES}}
-    fig, axes = plt.subplots(1, 4, figsize=figsize(name, 0.22, default_frac=0.94))
+    wanted = {m[0] for m in specs} | {m[3] for m in specs if m[3]}
+    sheets = {s: x.parse(s if (s.startswith("k_") or s == "marker_and_length") else f"{s}_{judge}")
+              for s in wanted}
+    fig, axes = plt.subplots(1, len(specs), figsize=figsize(name, 0.22, default_frac=0.94))
     # One title row for every panel, raised by a note line so the bold titles align whether or not
     # a panel carries "lower = better" (title + note on one line is wider than the panel).
     note_pt = 2.0
-    for ax, (lv_sheet, col, se, test_sheet, metric, title) in zip(axes, PROCESS_MEASURES):
+    for ax, (lv_sheet, col, se, test_sheet, metric, title), letter in zip(axes, specs, "abcde"):
+        title = f"({letter}) {title}"
+        if marker and title.endswith(") praise"):
+            title += ", coder"          # beside (b), say which praise measure (a) is
         d = sheets[lv_sheet]
-        tests = sheets[test_sheet]
-        tests = tests[(tests.judge == judge) & (tests.method == "GRPO") & (tests.metric == metric)]
+        if test_sheet:
+            tests = sheets[test_sheet]
+            tests = tests[(tests.judge == judge) & (tests.method == "GRPO") & (tests.metric == metric)]
+            lower_better = bool(tests.lower_better.all())
+        else:                                   # the keyword marker: no test, praise is lower-better
+            tests = pd.DataFrame({"p_holm": [], "iteration": []})
+            lower_better = True
         for arm in ("GRPO_LA0", "GRPO_LA5"):
             s = d[d.arm == arm].sort_values("iteration")
             ax.fill_between(s.iteration, s[col] - s[se], s[col] + s[se], color=COL[arm], alpha=0.18,
@@ -380,29 +397,36 @@ def _process_panels(judge: str, name: str) -> Path:
         lo = float((dd[col] - dd[se]).min())
         hi = float((dd[col] + dd[se]).max())
         ax.set_ylim(lo - 0.08 * (hi - lo), hi + 0.24 * (hi - lo))
+        if not test_sheet:                     # the marker panel holds the key: room above the data
+            ax.set_ylim(lo - 0.08 * (hi - lo), hi + 0.75 * (hi - lo))
         star_y = hi + 0.12 * (hi - lo)
         for it in tests[tests.p_holm < 0.05].iteration:
             ax.text(int(it), star_y, **STAR_TEXT)
         ax.set_xticks(range(0, 11, 2))
         ax.set_xlim(-0.5, 10.5)
-        ax.set_title(title, fontsize=6.6, loc="left", fontweight="bold", pad=note_pt + 8.5)
-        if bool(tests.lower_better.all()):
+        ax.set_title(title, fontsize=6.6 if len(specs) < 5 else 6.3, loc="left", fontweight="bold",
+                     pad=note_pt + 8.5)
+        if lower_better:
             ax.annotate("lower = better", xy=(0, 1), xycoords="axes fraction",
                         xytext=(0, note_pt), textcoords="offset points", ha="left", va="bottom",
                         fontsize=5.8, color="#444444")
         ax.tick_params(labelsize=5.8, pad=1.5)
         ax.set_xlabel("iteration (0 = Base)", fontsize=6.2, labelpad=1.5)
     axes[0].set_ylabel("share of\ntherapist turns", fontsize=6.2, labelpad=2)
-    axes[3].set_ylabel("share CT → CT", fontsize=6.2, labelpad=2)
+    axes[-1].set_ylabel("share CT → CT", fontsize=6.2, labelpad=2)
     from matplotlib.lines import Line2D
     handles = [Line2D([], [], color=COL["GRPO_LA0"], ms=3, lw=1.2, label="$K{=}0$", **STY["GRPO_LA0"]),
                Line2D([], [], color=COL["GRPO_LA5"], ms=3, lw=1.2, label="$K{=}5$", **STY["GRPO_LA5"]),
                Line2D([], [], color="#555555", ls=":", lw=0.9, label="Base"),
                Line2D([], [], color="none", label="significant")]
-    axes[0].legend(handles=handles, loc="upper left", fontsize=5.8, frameon=False,
+    # With the marker panel, the key goes to (b)'s empty upper left ((a)'s praise peak at 8 reaches
+    # into it) and drops the star entry, which would run into (b)'s late rise; the caption says what
+    # the stars mean.
+    key = handles[:3] if marker else handles
+    axes[1 if marker else 0].legend(handles=key, loc="upper left", fontsize=5.8, frameon=False,
                    handlelength=1.6, labelspacing=0.15, handletextpad=0.4, borderaxespad=0.1,
                    handler_map={handles[-1]: _StarHandler()})
-    out = save_at_width(fig, name, default_frac=0.94, w_pad=0.5)
+    out = save_at_width(fig, name, default_frac=0.94, w_pad=0.5 if len(specs) < 5 else 1.4)
     # The numbers the caption and the text quote (Base, iteration 10) and the starred iterations.
     print(f"{name} ({JUDGE_TITLE[judge]}):")
     for lv_sheet, col, _, test_sheet, metric, title in PROCESS_MEASURES:
@@ -418,7 +442,7 @@ def _process_panels(judge: str, name: str) -> Path:
 
 def process() -> Path:
     """Figure 3 (body): the utterance-level process measures under the training oracle."""
-    return _process_panels(PRIMARY, "process_grpo.png")
+    return _process_panels(PRIMARY, "process_grpo.png", marker=True)
 
 
 def process_heldout() -> Path:
