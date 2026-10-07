@@ -11,37 +11,39 @@ best checkpoint as well as its last. It also became a different kind of therapis
 
 % \dnotedone{rephrased}{[paid for non-specific praise \textasciitilde] [stops at the reply \textasciitilde] [paying] [paid]}
 % \dnotedone{rephrased}{[their ?]}
-The difference is clearest in praise. Both rewards favored praising replies in the middle of
-training: among the eight candidates for a prompt, those with a keyword-marker phrase scored
-$0.22$--$0.33$ within-group standard deviations above the others under $\Kz$ and $0.16$--$0.21$
-under $\Kf$ (candidates from the models of iterations 4--7). In the last round only the $\Kz$
-reward, which scores a turn before the patient has answered it, still did ($0.16$ against $0.04$;
-Appendix~\ref{app:premium}), and the $\Kz$ policy ends up praising in $0.41$ of its turns. Look-ahead did not make the policy consistent with MI; it changed which MI-inconsistent
-habit the policy learned.
+% 2026-10-07 (content pass): opens on the Introduction's hypothesis; the K=5 premium scoped to the
+% iterations where it is clearly above zero; the "did not make ... changed which habit" sentence
+% became "its MI-inconsistent habit is a different one" below.
+The turn-level reward favored praise, as the Introduction hypothesized, and in the middle of
+training the look-ahead reward did too: among the eight candidates for a prompt, those with a
+keyword-marker phrase scored $0.22$--$0.33$ within-group standard deviations above the others under
+$\Kz$ and $0.16$--$0.21$ under $\Kf$ (models of iterations 4--7; under $\Kf$ clearly above zero
+only at 6--7). In the last round, on the iteration-9 model's candidates, only the $\Kz$ reward,
+which scores a turn before the patient has answered it, favored them again ($0.16$ against $0.04$;
+Appendix~\ref{app:premium}), and the $\Kz$ policy ended training praising in $0.41$ of its turns.
 % \dnotedone{rephrased}{[again after $97\%$ of their change talk ??]}
 % \dnotedone{rephrased, one idea per sentence}{- try to rephrase this - there is an interesting story here but need to tell it better}
-The $\Kf$ policy learned part of what MI prescribes, reflecting the patient's change talk, after
-which the patient kept expressing it; but it meets sustain talk with persuasion more often than the
-Base, and under the held-out judge its praise also rises above the Base's. We could not isolate how
-the horizon produces these differences inside the update (Appendix~\ref{app:mechanism}): the $\Kf$
-reward agrees only slightly better with the finished session's score, while the two rewards prefer
-different candidates within a group and the $\Kz$ updates are larger.
+The $\Kf$ policy learned part of what MI prescribes, reflecting the patient's change talk, and
+under it change talk persisted more often; its MI-inconsistent habit is a different one: it meets
+sustain talk with persuasion more often than the Base. Inside the update
+(Appendix~\ref{app:mechanism}), the $\Kf$ reward agrees only slightly better with the finished
+session's score, the two runs' update directions diverge from training iteration 4 on, and the
+$\Kz$ updates are larger; one run per horizon cannot separate these accounts.
 \label{sec:mechanism}
 
-\dnotedone{the reward choice, and what it leaves open}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
-Both runs optimized \QQ, which rates the session from the patient's side; Q1 also credits moves
-that MI uses sparingly: among its examples of good practice are a therapist who
+\dnotedone{the reward choice; what it leaves open is now in the Limitations}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
+Both runs optimized \QQ, which rates the session from the patient's side. Q1 also credits moves
+that MI uses sparingly: its examples of good practice include a therapist who
 ``suggests practical steps \ldots, provides uplifting messages, or encourages perseverance'' and
 one who ``provides advice or information that directly relates to'' the patient's challenges
 (Appendix~\ref{app:instruments}), so the reward partly credits both habits we document, the $\Kz$
-policy's praise and the $\Kf$ policy's persuasion. We did not test whether the horizon changes what
-is learned in the same way under a reward built from another instrument, such as the MITI ratings.
+policy's praise and the $\Kf$ policy's persuasion.
 
 \textbf{Conclusion.}
 % \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
 In this pair of runs, scoring each candidate turn with the five turns that follow it gave
-a policy ahead on every instrument and a different therapist, one that reflects change talk instead
-of praising, but persuades in reply to sustain talk.
+a policy ahead on every instrument and a different therapist, one that persuades in reply to
+sustain talk but reflects change talk instead of praising.
 % \dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
 % \dnotedone{cut}{coding the process as well as the outcome ??}
 % \dnotedone{cut}{headroom ??}
