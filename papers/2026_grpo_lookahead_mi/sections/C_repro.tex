@@ -2,6 +2,35 @@
 \section{Reproducibility details}
 \label{app:repro}
 
+\subsection{The training loop}
+
+Algorithm~\ref{alg:loop} states one run of \LAGRPO\ (\S\ref{sec:lagrpo}).
+
+\begin{algorithm}[h]
+\caption{\LAGRPO\ (one run)}
+\label{alg:loop}
+\small
+\begin{algorithmic}[1]
+\REQUIRE the Base $\pi_0$; simulator $P$; oracle $O$; horizon $K$; group size $G$; minimum
+  context length MCL; iterations $N$
+\FOR{$n = 0, \dots, N-1$}
+  \STATE $\mathcal{C} \gets$ 96 conversations of $\pi_n$ with $P$ \COMMENT{evaluation set of $\pi_n$}
+  \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$, $\geq$ MCL utterances, less a
+    validation split (5\% of conversations)
+  \STATE $\pi \gets \pi_n$
+  \FOR{each batch of 16 prompts $c \in \mathcal{D}$ (two epochs)}
+    \STATE $t_1, \dots, t_G \sim \pi(\cdot \mid c)$ for each $c$
+    \STATE $r_g \gets O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big)$ for all $g$
+      \COMMENT{Eq.~\ref{eq:reward}}
+    \STATE $A_g \gets (r_g - \operatorname{mean}_g r)/\operatorname{std}_g r$ within each group
+    \STATE one step on Eq.~\ref{eq:grpo} over the batch, KL to $\pi_n$
+  \ENDFOR
+  \STATE $\pi_{n+1} \gets \pi$
+\ENDFOR
+\STATE 96 conversations of $\pi_N$ with $P$ \COMMENT{evaluation set of $\pi_N$}
+\end{algorithmic}
+\end{algorithm}
+
 \subsection{Configuration}
 
 Both runs are launched from the same notebook with the same configuration block; the run identity
@@ -18,7 +47,8 @@ steps of its iteration 2 ran at 64 before a resume, and the file, rewritten on r
 final value. One resume also changed the KL reference: the $\Kf$ run's iteration 1 crashed at step
 54 and resumed from a checkpoint without the saved reference, so its steps 55--108 are regularized
 toward the step-54 policy rather than the Base; every other iteration's reference is the policy it
-started from.
+started from. No hyperparameter search was run: the configuration, with MCL set from the pilot
+described in \S\ref{sec:lagrpo}, is shared by both runs.
 
 % Two Setting/Value blocks side by side: as one column-wide list the table is taller than a page.
 \begin{table*}[t]
@@ -42,7 +72,7 @@ Iterations & 10 & Therapist / patient temperature & 0.9 / 0.7 (conversations and
 Epochs / iteration & 2 & Therapist top-$p$ / top-$k$ & 0.9 / 50 (the base model's generation defaults) \\
 Train batch $\times$ accumulation & $64 \times 2 = 128$ completions (16 prompts) & Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
 Trainer validation split & 0.05 of conversations & Training oracle call & temperature 0, max 256 tokens, strict JSON schema \\
-Group size $G$ & 8 & Evaluation judges & \texttt{gpt-4o-mini-2024-07-18} at temperature 0.1, seed 42; \texttt{claude-haiku-4-5-20251001} at the API's default temperature; both max 1{,}024 tokens, JSON schema \\
+Group size $G$ & 8 & Evaluation judges & \texttt{gpt-4o-mini-2024-07-18} at temperature 0.1, seed 42; \texttt{claude-haiku-4-5-20251001} at the API's default temperature (1.0); both max 1{,}024 tokens, JSON schema \\
 KL & $\beta{=}0.01$, per-token estimate to the iteration-start policy & Software & TRL 1.4.0 \citep{vonwerra2020trl}, transformers 5.8.1 \citep{wolf2020transformers}, PEFT 0.19.1 \citep{mangrulkar2022peft} \\
 Advantage & $(r_g - \text{mean})/(\text{std} + 10^{-4})$ within the group & Hardware & one NVIDIA A100 (Google Colab) \\
 GRPO loss variant & standard (\texttt{grpo}), clip $\epsilon{=}0.2$ & & \\
@@ -167,7 +197,9 @@ MITI~4.2.1 in four ways: non-specific praise is a code of its own (MITI~4.2.1 le
 the MISC~2.5 counts it as an affirmation); persuasion with and without permission are merged, as
 are seeking collaboration and emphasizing autonomy; structuring statements are coded as giving
 information; and warning and moralizing are coded as persuasion, where MITI~4.2.1 codes them as
-confront. The therapist codes are: open question (invites elaboration);
+confront. Our MI-consistent and MI-inconsistent groups (\S\ref{sec:setup}) differ from MITI~4.2.1's
+own ``MI-adherent'' count, which takes in only affirmation, seeking collaboration and emphasizing
+autonomy. The therapist codes are: open question (invites elaboration);
 closed question; simple reflection (repeats or rephrases, adding little or no meaning); complex
 reflection (adds substantial meaning or emphasis: an inferred feeling, a metaphor, a double-sided
 reflection); affirmation, in the MITI~4.2.1 sense of a comment on a specific client strength,
@@ -183,7 +215,7 @@ lengths are pinned to the utterance counts in the response schema, a response of
 is rejected and re-requested, and the scripted opener is pinned to open question and excluded
 from every rate and transition. Every one of the $2 \times 11 \times 96 = 2{,}112$ evaluation
 conversations is coded under both judges, as are the 96 of the final $\Kf$ policy's second draw
-(\S\ref{sec:reward}); three held-out rows that came back one code short on
+(Appendix~\ref{app:tables}); three held-out rows that came back one code short on
 the batch path were re-scored on the live path.
 
 All process quantities are recomputed from the stored code sequences. Alternation is strict and
@@ -220,7 +252,9 @@ you are the patient in this conversation. Your name is [James / Emma], and you a
 old [male / female]. [cooperation clause]. [problem clause]. [history clause].'' followed by an
 instruction to avoid repetition and the rule for ending the session (write ``SESSION ENDED'' if
 the therapist is wrapping up, or if the patient is satisfied and believes they gained enough
-knowledge). The three cooperation clauses are: high (``Your level of cooperation is very high'');
+knowledge). The three cooperation clauses are below; the low and low-then-high ones were rewritten
+for this study, relative to the prompts of \citet{baruch2025pto}, to make the patient more
+adversarial: high (``Your level of cooperation is very high'');
 low (``Your level of cooperation is very low, you should be very suspicious about the advices you
 get from the therapist. In general you don't believe in therapy and you should respond
 adverserially to the therapist. You should cooperate only if the therpist said something that
@@ -325,7 +359,7 @@ Every number in this paper is traceable to a tracked table in the analysis-resul
 code release, through a claims ledger released with it. Every figure is drawn by scripts in the
 paper folder from that tree's tracked tables (Figure~\ref{fig:schematic}, the schematic, from no
 data), at the width it is included at. The
-transcripts in Table~\ref{tab:excerpt} and Appendix~\ref{app:example} are reproduced verbatim
+transcripts in \S\ref{sec:therapist} and Appendix~\ref{app:example} are reproduced verbatim
 from the stored conversation files, and the selection scripts are released with the paper. The
 therapist model is openly licensed; the patient simulator and the judges are commercial APIs used
 within their terms of service.

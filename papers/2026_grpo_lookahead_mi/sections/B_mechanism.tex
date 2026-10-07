@@ -37,8 +37,8 @@ $[0.861, 0.884]$ under $\Kz$ on the training oracle, and $0.800$ against $0.747$
 judge; both differences have intervals excluding zero, and $\Kf$ is the more faithful run at 7 of
 10 iterations under both judges. By prefix length, pooled over the ten iterations, agreement at the
 shortest admitted prefix (12 utterances) is $0.860$ under $\Kz$ and $0.886$ under $\Kf$ on the
-training oracle, and it does not fall with length ($0.897$ and $0.936$ at 50 utterances); this is
-the $86$--$89\%$ figure quoted in \S\ref{sec:lagrpo}. Two qualifications travel with the difference between the runs. First, the
+training oracle, and it does not fall with length ($0.897$ and $0.936$ at 50 utterances). Two
+qualifications travel with the difference between the runs. First, the
 iteration-level Wilcoxon test, with the ten iterations rather than the conversations as the unit of
 observation, does \emph{not} clear $.05$ ($p = .084$ training oracle, $p = .193$ held out). The
 pooled interval resamples conversations within each iteration and so ignores the variation between
@@ -105,7 +105,7 @@ together. We offer the over-praise account as consistent with the timing, not as
 \cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
 Iteration & $\Kz$ & $\Kf$ & $\Kz$ & $\Kf$ & $\Kz$ & $\Kf$\\
 \midrule
-1 & $9.0$ & $0.8$ & $0.21$ & $0.17$ & $3.48$ & $3.28$\\
+1 & $9.0$ & $0.8^{\dagger}$ & $0.21$ & $0.17$ & $3.48$ & $3.28$\\
 2 & $30.1$ & $4.5$ & $0.21$ & $0.19$ & $3.21$ & $3.19$\\
 3 & $26.0$ & $11.3$ & $0.27$ & $0.22$ & $2.51$ & $3.03$\\
 4 & $10.7$ & $7.7$ & $0.30$ & $0.22$ & $2.25$ & $2.50$\\
@@ -123,19 +123,25 @@ median & $16.0$ & $5.9$ & $0.39$ & $0.20$ & $2.03$ & $2.24$\\
 the per-token KL estimate between the policy and the policy the iteration started from (the
 reference of Eq.~\ref{eq:grpo}), the gradient norm before clipping, and the entropy of the sampled
 completions. Every step of both runs is logged (1{,}128 and 1{,}070 steps). The last row is the
-median over the ten iterations.}
+median over the ten iterations. $^{\dagger}$After a resume at step 54, the $\Kf$ run's steps 55--108
+measure KL to the step-54 policy (Appendix~\ref{app:repro}), so this cell understates the distance
+from the Base.}
 \label{tab:trainer}
 \end{table}
 
 The trainer logged, at every optimizer step, the per-token KL estimate between the policy and the
 policy the iteration started from, the gradient norm and the entropy of the sampled completions
 (Table~\ref{tab:trainer}). In every iteration the $\Kz$ policy moved further from its starting
-policy (median over the iterations $0.016$ against $0.006$) and with gradients about twice as
-large ($0.39$ against $0.20$), and in eight of the ten its completions had lower entropy. Both runs
+policy (median over the iterations $0.016$ against $0.006$) and had the larger gradients (median
+$0.39$ against $0.20$, though only $1.1$--$1.4$ times as large at iterations 1--4), and in eight of
+the ten its completions had lower entropy. Both runs
 use the same $\beta$ and learning rate (Table~\ref{tab:config}), so the
 difference is in the updates themselves. The iterations are consecutive states of one run per $K$,
 so we read the ten-of-ten pattern descriptively rather than as a test; the logs do not say which
-property of the reward produces it.
+property of the reward produces it. The smaller $\Kf$ updates did not only slow the $\Kz$
+trajectory down: the $\Kz$ policy's share of complex reflections stays at or below $0.03$ at every
+iteration, while the $\Kf$ policy's reaches $0.10$ at iteration 7 and $0.23$ at iteration 10
+(Table~\ref{tab:process-all}).
 
 \subsection{How much the training reward favors praise}
 \label{app:premium}
@@ -210,8 +216,10 @@ agreement $0.35$--$0.69$ at iterations 8--10, against $0.06$--$0.40$ in the othe
 candidate sentences project on the direction than the other sentences of the pool, in standard
 deviations of the pool's projections. Line: the mean over the five encoders; band: their range
 (lowest to highest encoder; it is not a confidence interval). The direction is the
-advantage-weighted estimator of this subsection, over all candidates of each training iteration.
-The categories are regular expressions written before the analysis.}
+advantage-weighted estimator of this subsection, over all candidates of each training iteration;
+training iteration $n$ samples its candidates from the model of iteration $n{-}1$, so this x-axis is
+Figure~\ref{fig:premium}'s plus one. The pool holds 4{,}045 sentences; the categories are regular
+expressions written before the analysis.}
 \label{fig:directions}
 \end{figure*}
 
@@ -243,3 +251,32 @@ unwavering, courage}; the $\Kf$ reward favors \emph{yourself, cravings, small, b
 iterations 1--3, when it disfavors \emph{I} and \emph{me}, and \emph{healthy, quit, exercise,
 schedule} later. This open-vocabulary reading agrees with the keyword measure of
 Appendix~\ref{app:premium} without depending on its ten phrases.
+
+% 2026-10-07 (review round 4, Lior): Figure 4 and its paragraph moved here from the therapist section.
+\subsection{How much the therapist's turns depend on the patient}
+\label{app:embedding}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.48\textwidth]{figures/text_grpo_body.png}
+\caption{How much the therapist's turns depend on the patient, on sentence embeddings (no LLM
+judge; every therapist turn embedded with \texttt{all-MiniLM-L6-v2}, the scripted opener
+excluded; iteration 0 is the Base). Conversations with a therapist turn after the opener: 184 of
+the Base's 192 and 88--96 of each run's 96. \textbf{(a)} The share of embedding variance between
+conversations rather than within them, with a $95\%$ bootstrap band over conversations: lower
+means the therapist's turns differ less from one patient to another, relative to how much they
+vary within a session. \textbf{(b)} The mean cosine between therapist turns at the same position
+(first to eighth) in different conversations, no band: higher means more alike.}
+\label{fig:textspace-body}
+\end{figure}
+
+We embed every therapist turn with a sentence encoder (\texttt{all-MiniLM-L6-v2};
+\citealp{reimers2019sbert}) and measure two things (Figure~\ref{fig:textspace-body}). Panel (a) is
+the share of embedding variance that lies between conversations rather than within them: at
+iteration 10 it has fallen from $0.39$ at the Base to $0.30$ under $\Kf$ and to $0.19$ under $\Kz$,
+whose replies differ less from patient to patient, relative to their variation within a session,
+from iteration 3 on. Panel (b) is how alike the therapist's turns are across conversations at the
+same turn (its first turns, its second turns, and so on), and here the two runs do not separate: it
+rises under both, from $0.26$ at the Base to $0.49$ under $\Kf$ and $0.58$ under $\Kz$ at iteration
+10, with neither run consistently higher. Both policies' turns become more alike, but the $\Kz$
+policy's vary less with the patient.

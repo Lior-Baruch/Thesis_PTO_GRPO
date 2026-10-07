@@ -6,7 +6,8 @@ judge's version is Table~\ref{tab:scores-heldout} in Appendix~\ref{app:heldout},
 that judge's results). Table~\ref{tab:process-all}: the process measures of
 Table~\ref{tab:process} at every iteration (held-out: Table~\ref{tab:process-all-heldout}).
 Table~\ref{tab:codes}: every therapist code of the utterance coder at the Base and at iteration
-10, under both judges. Figure~\ref{fig:overpraise}: the praise of \S\ref{sec:therapist} by
+10, under both judges, and Figure~\ref{fig:codemix} the code mix at every iteration.
+Figure~\ref{fig:overpraise}: the praise of \S\ref{sec:therapist} by
 iteration, as the coder's share under each judge and as the keyword marker.
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
 iteration under both judges. Table~\ref{tab:coop}: the $\Kf - \Kz$ contrast within each third of
@@ -180,9 +181,21 @@ enters no test. Stars: Holm across iterations 1--10 within each code, $^{*}p<.05
 $^{**}p<.01$, $^{***}p<.001$. The two judges code the same turns differently: the held-out judge
 labels fewer turns as simple reflections, more of the Base's as closed questions, and more of the
 $\Kz$ policy's as praise and fewer as affirmation. Read each judge's columns
-on their own. Figure~\ref{fig:process}a--b draws the training oracle's mix at every iteration.}
+on their own. Figure~\ref{fig:codemix} draws each judge's mix at every iteration.}
 \label{tab:codes}
 \end{table*}
+
+% 2026-10-07 (review round 4): the stacked code mixes left the body's Figure 3 for this figure.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.94\textwidth]{figures/codemix_grpo.png}
+\caption{Each run's code mix by iteration under the training oracle \textbf{(a, b)} and the
+held-out judge \textbf{(c, d)}: the share of therapist turns whose dominant function is each code
+of the utterance coder (iteration 0 is the Base both runs start from; the scripted opener is
+excluded). Table~\ref{tab:codes} gives every code at the Base and at iteration 10; the two judges
+code the same turns differently, so read each judge's panels on their own. No test is marked.}
+\label{fig:codemix}
+\end{figure*}
 
 \begin{figure*}[t]
 \centering
@@ -242,15 +255,16 @@ MICI ($\downarrow$) & cooperative & $-0.88^{***}$ ($-2.62$) & $-0.49^{***}$ ($-1
 \bottomrule
 \end{tabular}
 \caption{\textbf{Where the lead comes from}: the persona-paired $\Kf - \Kz$ contrast within each third of
-the personas, grouped by the cooperation the simulator prompt sets (cooperative throughout;
-uncooperative at first and more open later; uncooperative throughout; 32 personas each), as
-$\Delta$ (\dz). ``Iteration 10'' compares the two final policies; ``vs.\ $\Kz$ at 8'' compares the
-final $\Kf$ policy with $\Kz$'s best checkpoint (chosen by the training oracle, used under both
-judges). Stars: Holm across the three thirds within each column and instrument ($^{*}p<.05$,
-$^{**}p<.01$, $^{***}p<.001$). Positive favors $\Kf$, except MICI, where lower is better.
-$^\dagger$Every conversation of both runs scores 4.5 or above, so \dz\ is not meaningful.
-$^\ddagger$At least 90\% of both runs' conversations have change talk and no sustain talk (PCT
-$=1$), so \dz\ rests on the few that do not and is not shown.}
+the personas, grouped by the cooperation the simulator prompt sets (cooperative: cooperative
+throughout; warms up: uncooperative at first and more open later; resistant: uncooperative
+throughout; Appendix~\ref{app:prompts}; 32 personas each), as $\Delta$ (\dz). ``Iteration 10''
+compares the two final policies; ``vs.\ $\Kz$ at 8'' compares the final $\Kf$ policy with $\Kz$'s
+best checkpoint (chosen by the training oracle, used under both judges). Stars: Holm across the
+three thirds within each column and instrument ($^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$).
+Positive favors $\Kf$, except MICI, where lower is better. $^\dagger$In this cell's third, every
+conversation of both policies compared scores 4.5 or above, so \dz\ is not meaningful.
+$^\ddagger$In the cooperative third, at least 90\% of each policy's conversations have change talk
+and no sustain talk (PCT $=1$), so \dz\ rests on the few that do not and is not shown.}
 \label{tab:coop}
 \end{table*}
 
@@ -278,9 +292,34 @@ across the rows under the training oracle and from $0.54$ to $1.26$ under the he
 iterations 1--7 alone, MICI favors $\Kz$ under the training oracle (\dz\ $0.38$), as at iteration 3
 in Figure~\ref{fig:headline}.
 
+\textbf{A second draw of the final policy.}
+% \dnotedone{renamed: `each policy'}{[state -?]}
+Each policy is scored on one sample of 96 conversations, so we drew the final $\Kf$ policy again
+(96 fresh conversations from the same adapter, personas and decoding, scored by both judges): the
+two draws differ by at most $|\dz|\,0.17$ across the nine rows of Table~\ref{tab:endpoint} and both
+judges, none significantly, and with the second draw the \QQ\ gap to the final $\Kz$ policy is
+$\dz\,0.92$ against $0.91$ (held out: $0.95$ against $1.03$).
+% \dnotedone{rephrased in plain words: same model, new conversations}{[evaluation noise, not training variance -?]}
+This measures how much the scores move when the same trained model holds a new set of
+conversations; it says nothing about how different a second training run would be (see
+Limitations).
+
 \textbf{The two Base draws.} The Base is two independent draws of 96 conversations from the same
 model. Compared with the persona-paired tests of Table~\ref{tab:endpoint}, they differ by at most
 \dz\ $0.13$ across its nine rows under the training oracle and $0.17$ under the held-out judge, and
 by at most $0.18$ and $0.24$ across the twelve process measures of Table~\ref{tab:process}; no row
 reaches $p < .05$ even before correction. This is the size of difference that sampling the
 conversations alone produces.
+
+\textbf{Change talk after each reply.} The $\Kf$ policy's four most common replies to change talk
+(complex reflections, affirmations, persuasion and giving information) are each followed by change
+talk in at least $97\%$ of cases, pooled over turns, and $83\%$ of its complex reflections come
+right after change talk, so the change talk after them is mostly the patient continuing. Once the
+patient's previous utterance is held fixed, reflections do about as well as the policy's other
+replies ($0.99$ against $0.99$ after change talk, $0.16$ against $0.17$ after sustain talk, pooled
+over turns); \S\ref{sec:patient} therefore reads no code's next utterance as its effect.
+
+\textbf{The patient's side.} At iteration 10 the $\Kf$ policy's patients write longer utterances
+than the $\Kz$ policy's ($600$ vs.\ $440$ characters, $\dz\,1.24$), and a crude keyword cue for
+disengagement (``I don't know'', ``waste of time'') is slightly more frequent in them
+($\dz\,0.31$).
