@@ -14,14 +14,12 @@ regularization fixed and vary the \emph{reward horizon}: how much of the convers
 observes when it ranks candidate therapist turns.
 
 \textbf{Delayed credit in multi-turn dialogue.}
-Assigning credit to a dialogue action for its downstream consequences is a long-standing problem
-in RL for dialogue \citep{levin2000stochastic, singh2002optimizing}. Neural approaches optimize
-simulated dialogues for long-term reward \citep{li2016deeprl}, learn estimates of future value
-\citep{zhou2024archer}, optimize preferences over whole trajectories \citep{shani2024multiturn}, or
-use model-generated interaction: imagined conversations \citep{hong2023imagined}, role-played social
-interaction \citep{wang2024sotopiapi}, simulated users \citep{qian2025userrl}, regression onto
-future rewards \citep{gao2024refuel} and critics with privileged training-time information
-\citep{zhou2025sweetrl}. GRPO variants credit a turn from later user turns \citep{zhao2026faca},
+Crediting a dialogue action for its downstream consequences is a long-standing problem in RL for
+dialogue \citep{levin2000stochastic, singh2002optimizing}. Neural approaches range from long-term
+reward in simulated dialogues and learned value estimates to trajectory-level preferences, imagined
+or role-played conversations, simulated users, regression onto future rewards and critics with
+privileged information \citep{li2016deeprl, zhou2024archer, shani2024multiturn, hong2023imagined,
+wang2024sotopiapi, qian2025userrl, gao2024refuel, zhou2025sweetrl}. GRPO variants credit a turn from later user turns \citep{zhao2026faca},
 from a tree of simulated future branches \citep{peng2026atgrpo} or from utterance-level social
 rewards \citep{yu2025sotopiarl}; for search and game agents, \citet{wei2025multiturn} report that
 training on turns as independent examples reached high per-turn reward but low task success.
@@ -45,12 +43,11 @@ teaches at the level of single utterances.
 
 \textbf{Reward models and LLM judges.}
 Optimizing an imperfect proxy can raise the proxy without improving the intended objective
-\citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling}, and LLM judges have
-systematic preferences: sycophancy-related effects \citep{sharma2024sycophancy,
-perez2023discovering}, a preference for their own generations \citep{panickssery2024selfpreference}
-and for length \citep{singhal2024long, dubois2024lengthcontrolled}. A judge with a short temporal
-scope adds one more opening: a behavior can look good in its own turn and harm what follows.
-Validating the user is one such behavior: \citet{cheng2026elephant} describe \emph{social
+\citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling}, and LLM judges
+favor sycophantic responses, their own generations and length \citep{sharma2024sycophancy,
+perez2023discovering, panickssery2024selfpreference, singhal2024long, dubois2024lengthcontrolled}.
+A judge that sees only one turn can also reward a behavior that harms what follows, such as
+validating the user: \citet{cheng2026elephant} describe \emph{social
 sycophancy}, the excessive preservation of a user's desired self-image, and find preferred responses
 in preference datasets more validating than rejected ones, and \citet{moore2025stigma} argue that
 sycophancy works against therapy, whose aims include confrontation as well as support. The
@@ -74,11 +71,10 @@ change talk and to reduce or respond productively to sustain talk \citep{moyers2
 process research estimates how often each therapist behavior is followed by change or sustain talk
 \citep{moyers2006therapist, apodaca2016which} and relates therapist skills to the patient's
 language \citep{magill2014technical, magill2018meta}; our analysis of the patient's next utterance
-applies this lag-one reading to simulated sessions. Computational work has produced coding schemes
-and expert-annotated corpora \citep{moyers2016miti, wu2022annomi}, detection of counselor
-reflections \citep{can2016sounds, min2022pair}, automatic measures of counseling quality
-\citep{perezrosas2019goodcounselor, yosef2024assessing} and simulated patients for training
-clinicians \citep{steenstra2025scaffolding, wang2024patientpsi}. Recent work trains an LLM
+applies this lag-one reading to simulated sessions. Computational work has produced coding schemes,
+annotated corpora, reflection detectors, automatic quality measures and simulated patients
+\citep{moyers2016miti, wu2022annomi, can2016sounds, min2022pair, perezrosas2019goodcounselor,
+yosef2024assessing, steenstra2025scaffolding, wang2024patientpsi}. Recent work trains an LLM
 counselor's reasoning with GRPO on single counselor turns from a dataset \citep{yang2026mithinker},
 or trains therapists and clinicians against simulated patients with one reward for the whole
 session \citep{huang2026therapygym, lievin2026residencyrl}, and LLM therapists have been found to
