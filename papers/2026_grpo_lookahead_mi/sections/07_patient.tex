@@ -1,15 +1,15 @@
-\section{What the therapist's turns do to the patient}
+% 2026-10-07 (content pass): title shortened to one line; was "What the therapist's turns do to the patient".
+\section{What the patient says next}
 \label{sec:patient}
 
-MI judges a therapist behavior by what the patient says next.
+MI judges a therapist behavior partly by what the patient says next.
 % \dnotedone{renamed: utterance coder, defined in §3.3}{[positional codes ?]}
 % \dnotedone{answered in §3.3: each judge also runs the utterance coder}{not clear, i thought the judges were for something else and here you have a MITI classifier - /}
 The codes are in transcript order, so each patient utterance can be followed through the
-therapist's reply to the next patient utterance (Appendix Table~\ref{tab:process} at the
-checkpoints of Table~\ref{tab:endpoint}; every iteration: Table~\ref{tab:process-all}).
+therapist's reply to the next patient utterance; the rates below are at iteration 10
+(Table~\ref{tab:process}; every iteration: Table~\ref{tab:process-all}).
 
 % 2026-10-07 (step 16, Lior): the process table (tab:process) moved to Appendix A.
-
 
 % \dnotedone{paragraph rewritten: one judge; K=0, K=5 and Base named}{very confusing. not clear when you are talking above 0 vs look ahead and base vs both..}
 \textbf{How the therapist replies.}
@@ -17,11 +17,11 @@ checkpoints of Table~\ref{tab:endpoint}; every iteration: Table~\ref{tab:process
 % \dnotedone{answered: reflection defined in §3.1, reply rates in Appendix D.3}{[reflects it?]}
 % \dnotedone{metaphor dropped: now change talk, defined in §3.1}{[own case for change -?]}
 When the patient expresses change talk, the $\Kf$ policy reflects it in $26\%$ of cases, against
-$0.3\%$ for the $\Kz$ policy (Base $14\%$; Appendix Figure~\ref{fig:responsiveness}). A reflection
-is also one of MI's answers to sustain talk \citep{miller2013mi}, and the $\Kf$ policy gives it
-somewhat more often ($37\%$, against $26\%$ under $\Kz$ and $22\%$ at the Base), significantly
-more than $\Kz$'s best checkpoint but not than its last. Each final policy also has its own MI-inconsistent answer
-to sustain talk.
+$0.3\%$ for the $\Kz$ policy (Base $14\%$; Figure~\ref{fig:responsiveness}). A reflection is also
+one of MI's answers to sustain talk \citep{miller2013mi}, and the $\Kf$ policy gives it somewhat
+more often ($37\%$, against $26\%$ under $\Kz$ and $22\%$ at the Base); the difference is
+significant against $\Kz$'s best checkpoint but not against its last. Each final policy also has
+its own MI-inconsistent answer to sustain talk.
 % \dnotedone{rephrased: praise regardless became praise in reply to sustain talk}{of what?}
 % \dnotedone{rephrased: the reply of Table 2, measured across conversations}{[This is Table \ref{tab:excerpt} as a rate -?]}
 % \dnotedone{renamed: K=0 / K=5 only in the results}{[turn-level policy - 0? use consistent names]}
@@ -34,28 +34,29 @@ $\Kf$ policy persuades: $39\%$ of its replies to sustain talk, against $24\%$ at
 \textbf{Whether change talk continues.} In the average conversation under the $\Kf$ policy, a
 patient who has just expressed change talk expresses it again in their next utterance in $97\%$ of
 cases, against $80\%$ under $\Kz$ ($88\%$ at its best checkpoint; Base $75\%$;
-Figure~\ref{fig:process}d).
+Figure~\ref{fig:process}e).
 % \dnotedone{cut: reading by therapist code retired; reason given here}{[the other way round: ?]}
 % \dnotedone{cut with the praise-yield paragraph}{[for the reason the next paragraph gives. \textasciitilde{}]}
-No single kind of reply accounts for it: with the patient's previous utterance held fixed, the
-$\Kf$ policy's complex reflections are followed by change talk about as often as its replies overall
-(Appendix~\ref{app:tables}). After sustain talk, the next patient utterance is change talk in $33\%$ of cases
-under $\Kf$, against $28\%$ under $\Kz$ and at the Base, a difference significant against $\Kz$'s
-best checkpoint ($22\%$) but not against its last.
+No single kind of reply explains the gap: with the patient's previous utterance held fixed, the
+$\Kf$ policy's complex reflections are followed by change talk about as often as its replies
+overall (Appendix~\ref{app:tables}). After sustain talk, the next patient utterance is change talk
+in $33\%$ of cases under $\Kf$, against $28\%$ under $\Kz$ and at the Base, a difference significant
+against $\Kz$'s best checkpoint ($22\%$) but not against its last.
 
 \textbf{The session as a whole.}
 % \dnotedone{rephrased: iteration 10, one judge, each run named}{[the endpoint ($0.68$ vs.\ $0.53$ under the training oracle, $0.72$ vs.\ $0.55$ held out; $\dz\,0.57$ / $0.70$) - not clear]}
 At iteration 10, $68\%$ of the patient's utterances are change talk under $\Kf$, against $53\%$
-under $\Kz$ ($52\%$ at its best checkpoint; Base $45\%$), while the share of sessions that reach any
-change talk at all does not differ ($92\%$ vs.\ $86\%$).
+under $\Kz$ ($52\%$ at its best checkpoint; Base $45\%$).
 % \dnotedone{rephrased: the difference between the runs}{between waht}
 % \dnotedone{cut: the praise-spiral clause dropped}{[at scale ?]}
-% 2026-10-07 (review round 4): the late-session rise/fall (old Figure 3d) left with that panel.
-The $\Kf$ policy's patients also write longer utterances and use a crude cue of disengagement
-slightly more often (Appendix~\ref{app:tables}); with a simulated patient we cannot tell engagement
-from verbosity.
+% 2026-10-07 (review round 4): the late-session rise/fall (old Figure 3d) left with that panel;
+% (content pass) the 92% vs 86% null moved to Appendix A, "crude" and "we cannot tell" dropped.
+The $\Kf$ policy's patients also write longer utterances and slightly more often use phrases such
+as ``I don't know'' that a keyword cue counts as disengagement (Appendix~\ref{app:tables}), so we
+do not read their length as engagement.
 % \dnotedone{rephrased: why neither is interpreted is now stated}{[rather than resolve. ?]}
 
 The held-out judge agrees on the direction of every contrast at iteration 10
-(Appendix Table~\ref{tab:process-heldout}), with the $\Kf$ policy persuading after $58\%$ of the
-patient's sustain talk (Base $25\%$).
+(Table~\ref{tab:process-heldout}): under it the $\Kf$ policy persuades after $58\%$ of the patient's
+sustain talk (Base $25\%$), and change talk is followed by change talk in $94\%$ of cases under
+$\Kf$, against $73\%$ under $\Kz$ (Base $71\%$).
