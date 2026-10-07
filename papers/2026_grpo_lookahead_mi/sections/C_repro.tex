@@ -81,14 +81,15 @@ WAI-SR & \citet{hatcher2006waisr} & 12 items, 1--5 & mean \\
 CSQ-8 & \citet{larsen1979csq} & 8 items, 1--4 & mean \\
 MI-SAT & unpublished survey, adapted & 6 items, 1--5 & mean \\
 MITI & \citet{moyers2016miti4,moyers2016miti} & 4 globals, 1--5 & mean of the globals \\
-PCT & \citet{houck2010misc}, adapted & 3 globals, 1--5; 3 utterance counts & CT / (CT + ST) \\
+PCT & \citet{houck2010misc}, adapted & the utterance coder's patient codes & CT / (CT + ST) \\
 MICI & \citet{houck2010misc}, adapted & 1 global, 1--5; 6 behavior counts & acts per therapist turn \\
 \midrule
 utterance coder & \begin{tabular}[t]{@{}l@{}}\citet{moyers2016miti},\\ \citet{houck2010misc}, adapted\end{tabular} & one code per therapist and per patient utterance & \S\ref{sec:therapist}--\ref{sec:patient} \\
 \bottomrule
 \end{tabular}
 \caption{The eight instruments and the utterance coder. \QQ\ is the mean of the Q1 and Q2 means. CT
-and ST are the patient's change-talk and sustain-talk utterance counts. WAI-SR: Working Alliance
+and ST are the conversation's counts of patient utterances that the utterance coder labels change
+talk and sustain talk. WAI-SR: Working Alliance
 Inventory, Short Revised; CSQ-8: Client Satisfaction Questionnaire; MI-SAT: MI intervention
 satisfaction; MITI: Motivational Interviewing Treatment Integrity; PCT: patient change talk; MICI:
 MI-inconsistent behavior, its acts the six behavior counts summed. The other seven are
@@ -98,9 +99,10 @@ described in \S\ref{app:coder}.}
 \label{tab:instruments}
 \end{table*}
 
-Table~\ref{tab:instruments} lists the eight instruments. Each is administered as one API call per
-conversation with a JSON-schema-constrained response, the fixed instructions and item texts first
-and the transcript last. The training reward calls the oracle at temperature 0; for evaluation the
+Table~\ref{tab:instruments} lists the eight instruments. PCT is computed from the utterance
+coder's patient codes (Appendix~\ref{app:coder}); each of the other seven is administered as one
+API call per conversation with a JSON-schema-constrained response, the fixed instructions and item
+texts first and the transcript last. The training reward calls the oracle at temperature 0; for evaluation the
 same model is called at temperature 0.1 with seed 42, and the held-out judge at the API's default
 temperature without extended thinking (Table~\ref{tab:config}). The held-out judge's API does not
 accept numeric bounds or array lengths in a schema, so these are restated in the field
@@ -119,18 +121,18 @@ patient's perspective with their item wording and response anchors. MI-SAT's six
 unpublished satisfaction survey written for an earlier intervention study and shared with us by a
 colleague; its documentation notes that it was not psychometrically validated. The items ask whether the intervention was helpful for the
 behavior the patient wants to change, enjoyable, interesting, easy to use and worth the time, and
-whether the patient is now more likely to change that behavior (1 = not at all, 5 = very much). The three coders are addressed
-as a certified MITI coder. The MITI coder returns four global ratings (cultivating change talk,
-softening sustain talk, partnership, empathy), whose mean is the MITI score. The PCT coder rates the patient's expressed importance,
-confidence and readiness to change and classifies every patient utterance as change talk, sustain
-talk or neutral. These are the three client categories of the MISC~2.5 \citep{houck2010misc}, with
-change talk defined as in \citet{miller2013mi} (desire, ability, reasons, need, commitment,
-activation, taking steps), and the reported score, CT/(CT+ST), is the MISC's percentage change
-talk, a proportion that a meta-analysis of human MI sessions relates to reduced risk behavior at
-follow-up \citep{magill2018meta}. Unlike the MISC, the coder labels each speaking turn rather than
-each thought unit and works from the transcript alone; its three ratings, modeled on the
-importance, confidence and readiness rulers \citep{miller2013mi}, are our addition and are not
-reported. The MICI coder rates overall severity and counts six MI-inconsistent behaviors
+whether the patient is now more likely to change that behavior (1 = not at all, 5 = very much). The MITI and MICI coders
+are addressed as a certified MITI coder. The MITI coder returns four global ratings (cultivating change talk,
+softening sustain talk, partnership, empathy), whose mean is the MITI score. PCT reads the
+utterance coder's patient codes (Appendix~\ref{app:coder}): change talk, sustain talk and neutral
+are the three client categories of the MISC~2.5 \citep{houck2010misc}, with change talk defined as
+in \citet{miller2013mi} (desire, ability, reasons, need, commitment, activation, taking steps), and
+the reported score, CT/(CT+ST), is the MISC's percentage change talk, a proportion that a
+meta-analysis of human MI sessions relates to reduced risk behavior at follow-up
+\citep{magill2018meta}. Unlike the MISC, the coder labels each speaking turn rather than each
+thought unit and works from the transcript alone. PCT is undefined for a conversation with neither
+change nor sustain talk; four of the held-out judge's conversations, each with a single patient
+utterance, are left out on that account, and none of the training oracle's. The MICI coder rates overall severity and counts six MI-inconsistent behaviors
 across the therapist's turns, any number per utterance: confront, advise without permission, warn,
 direct, judge/label, and over-praise, the last defined to the judge as ``effusive, generic, or
 excessive praise NOT tied to a specific client strength/effort (`you're amazing', `I'm so proud of
@@ -141,7 +143,7 @@ and labeling that the MISC and MITI~4.2.1 include in confront, and our confront 
 names warning, so one act can be counted twice. Over-praise, the severity rating and the per-turn
 rate are ours. Neither manual counts non-specific praise as MI-inconsistent in itself: MITI~4.2.1
 leaves it uncoded, and the MISC~2.5 codes brief praise as an affirmation and codes it as confront
-only when it overrides what the client has said (``cheerleading''). None of the three coders is
+only when it overrides what the client has said (``cheerleading''). None of the coders is
 given the target behavior; the judge infers it from the conversation. The MICI score reported in
 Table~\ref{tab:endpoint} divides these counts by the number of therapist utterances, which the
 prompt states; \S\ref{sec:therapist} uses the over-praise count.
@@ -180,7 +182,8 @@ numbered by role (``[THERAPIST \#k]'', ``[PATIENT \#k]'') so that the arrays ali
 lengths are pinned to the utterance counts in the response schema, a response of the wrong length
 is rejected and re-requested, and the scripted opener is pinned to open question and excluded
 from every rate and transition. Every one of the $2 \times 11 \times 96 = 2{,}112$ evaluation
-conversations is coded under both judges; three held-out rows that came back one code short on
+conversations is coded under both judges, as are the 96 of the final $\Kf$ policy's second draw
+(\S\ref{sec:reward}); three held-out rows that came back one code short on
 the batch path were re-scored on the live path.
 
 All process quantities are recomputed from the stored code sequences. Alternation is strict and
@@ -191,10 +194,12 @@ that are persuasion. Change-talk persistence is, within a conversation, the shar
 change-talk utterances whose next patient utterance is change talk again (and, after sustain talk,
 the share followed by change talk); every such rate is computed per conversation and averaged over
 the conversations in which its condition occurs. As a check of the
-coder against a session-level instrument of the same judge, the patient-side codes summed per
-conversation are compared with the PCT change-talk counts: across the 21 model states they agree
-closely (Spearman $\rho$ pooled within state: change talk $0.88$ / $0.92$, sustain talk $0.90$ /
-$0.94$ under the training oracle / the held-out judge).
+patient codes, each judge was also asked, in a separate call per conversation, to count the
+patient's change-talk, sustain-talk and neutral utterances (and to rate importance, confidence and
+readiness, which are not used). Summed per conversation, the coder's change-talk and sustain-talk
+codes agree closely with those counts across the 21 model states (Spearman $\rho$ pooled within
+state: change talk $0.88$ / $0.92$, sustain talk $0.90$ / $0.94$ under the training oracle / the
+held-out judge); the neutral counts agree less ($0.17$ / $0.51$), and PCT does not use them.
 
 The two judges' coders were also compared utterance by utterance. On the therapist codes they agree
 little beyond chance: Cohen's $\kappa$ is $0.08$ to $0.26$ across the 21 model states (median
