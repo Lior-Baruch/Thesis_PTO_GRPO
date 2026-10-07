@@ -19,7 +19,7 @@ dialogue \citep{levin2000stochastic, singh2002optimizing}. Neural approaches ran
 reward in simulated dialogues and learned value estimates to trajectory-level preferences, imagined
 or role-played conversations, simulated users, regression onto future rewards and critics with
 privileged information \citep{li2016deeprl, zhou2024archer, shani2024multiturn, hong2023imagined,
-wang2024sotopiapi, qian2025userrl, gao2024refuel, zhou2025sweetrl}. GRPO variants credit a turn from later user turns \citep{zhao2026faca},
+wang2024sotopiapi, qian2025userrl, gao2024refuel, zhou2025sweetrl}. GRPO methods credit a turn from later user turns \citep{zhao2026faca},
 from a tree of simulated future branches \citep{peng2026atgrpo} or from utterance-level social
 rewards \citep{yu2025sotopiarl}; for search and game agents, \citet{wei2025multiturn} report that
 training on turns as independent examples reached high per-turn reward but low task success.
@@ -27,32 +27,33 @@ training on turns as independent examples reached high per-turn reward but low t
 Simulating what follows a candidate action is a direct way to credit it. Simulated continuations
 guide dialogue planning at inference time \citep{yu2023promptmcts, chen2025broaden}, and Monte
 Carlo tree search, process-level evaluation and sampled future steps aid credit assignment in
-reasoning \citep{xie2024mctsdpo, lightman2024letsverify, li2026patr, kazemnejad2024vineppo}. In
+reasoning and agent tasks \citep{xie2024mctsdpo, lightman2024letsverify, li2026patr,
+kazemnejad2024vineppo}. In
 dialogue the future also depends on the interlocutor. CollabLLM \citep{wu2025collabllm} rewards an
 assistant's response by sampling the next few turns with a simulated user and scoring the extended
 conversation (PPO and DPO); in its ablation on a document-editing task, longer forward windows
 (zero to three turns) generally improved performance and efficiency. RLHS \citep{liang2025rlhs}
-shows evaluators simulated outcomes before they give feedback, which raised the user's true utility
-where feedback on predicted outcomes raised satisfaction while true utility fell. RLFF-ESC
+shows evaluators simulated outcomes before they give feedback; this raised the user's true utility,
+whereas feedback on predicted outcomes raised satisfaction while true utility fell. RLFF-ESC
 \citep{yang2025rlffesc} trains a reward model on simulated future turns of emotional-support
 conversations and optimizes the supporter against it with GRPO. A workshop paper introduced
 $K$-turn look-ahead for motivational interviewing \citep{baruch2025pto}. Here we isolate the same
 variable in GRPO, whether a candidate therapist turn is rewarded for how it appears now or for the
-interaction that follows it, in two runs that differ in nothing else, and ask what each horizon
+interaction that follows it, in two otherwise matched runs, and ask what each horizon
 teaches at the level of single utterances.
 
 \textbf{Reward models and LLM judges.}
 Optimizing an imperfect proxy can raise the proxy without improving the intended objective
-\citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling}, and LLM judges
-favor sycophantic responses, their own generations and length \citep{sharma2024sycophancy,
+\citep{amodei2016concrete, skalse2022defining, pan2022effects, gao2023scaling}, and reward models
+and LLM judges favor sycophantic responses, their own generations and length \citep{sharma2024sycophancy,
 perez2023discovering, panickssery2024selfpreference, singhal2024long, dubois2024lengthcontrolled}.
 A judge that sees only one turn can also reward a behavior that harms what follows, such as
 validating the user: \citet{cheng2026elephant} describe \emph{social
 sycophancy}, the excessive preservation of a user's desired self-image, and find preferred responses
 in preference datasets more validating than rejected ones, and \citet{moore2025stigma} argue that
-sycophancy works against therapy, whose aims include confrontation as well as support. The
-non-specific praise that turn-level reward teaches in our runs is an instance of this tendency; we
-therefore also evaluate with a held-out judge and with measures outside the rewarded rubric.
+sycophancy works against therapy, whose aims include confrontation as well as support. Turn-level
+reward could teach such validation, so we also evaluate with a held-out judge and with measures
+outside the rewarded rubric.
 
 \textbf{Judges that change during training.}
 % \dnotedone{merged here as one paragraph at about half the length, after the judges paragraph; his closing sentence kept; his original is commented out below}{i added a whole subsection need to merge}
@@ -71,13 +72,14 @@ change talk and to reduce or respond productively to sustain talk \citep{moyers2
 process research estimates how often each therapist behavior is followed by change or sustain talk
 \citep{moyers2006therapist, apodaca2016which} and relates therapist skills to the patient's
 language \citep{magill2014technical, magill2018meta}; our analysis of the patient's next utterance
-applies this lag-one reading to simulated sessions. Computational work has produced coding schemes,
+applies this lag-one reading to simulated sessions. Prior work has produced coding schemes,
 annotated corpora, reflection detectors, automatic quality measures and simulated patients
 \citep{moyers2016miti, wu2022annomi, can2016sounds, min2022pair, perezrosas2019goodcounselor,
 yosef2024assessing, steenstra2025scaffolding, wang2024patientpsi}. Recent work trains an LLM
 counselor's reasoning with GRPO on single counselor turns from a dataset \citep{yang2026mithinker},
 or trains therapists and clinicians against simulated patients with one reward for the whole
-session \citep{huang2026therapygym, lievin2026residencyrl}, and LLM therapists have been found to
+session \citep{huang2026therapygym, lievin2026residencyrl}; the look-ahead reward lies between the
+two, given per turn but after the $K$ turns that follow it. LLM therapists have also been found to
 advise where an MI counselor would be more likely to reflect \citep{chiu2024bolt}.
 
 % ===== The Related work section as it stood before the 2026-10-07 length cut (kept for Doron) =====
