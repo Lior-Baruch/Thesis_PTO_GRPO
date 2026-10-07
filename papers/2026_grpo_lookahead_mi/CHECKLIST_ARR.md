@@ -32,7 +32,7 @@ D.9 artifacts), E examples, F saturation. **Table 12 = configuration, Table 13 =
 | B3 | Use consistent with intended use? | **Yes.** | Ethics Statement: research artifact only, no clinical use; the base model is used within its license; the created artifacts are for research. |
 | B4 | Checks for PII / offensive content? | **N/A for data** (no human data: every conversation is between two language models, Ethics Statement ¶1). The persona prompts are synthetic (Appendix D.4) and none discloses a crisis (Ethics Statement ¶1). |
 | B5 | Documentation of artifacts? | **Yes.** | Appendix D.2 (instruments and their sources, Table 13), D.3 (the utterance coder), D.4 (persona and therapist prompts, verbatim), D.5 (the keyword marker). Language: English only — say so explicitly in the checklist. |
-| B6 | Relevant statistics? | **Yes.** | 96 personas per model state; 21 model states (the pooled Base of 192 conversations, two draws, + 10 iterations × 2 runs = 1 + 2 × 10 = 21); 8 instruments + the utterance coder; two judges; the trainer's 0.05 validation split (§3.2, Table 12); conversation lengths (§4, §6, Appendix D). |
+| B6 | Relevant statistics? | **Yes.** | 96 personas per model state; 21 model states (the pooled Base of 192 conversations, two draws, + 10 iterations × 2 runs = 1 + 2 × 10 = 21); 8 instruments (PCT computed from the utterance coder's patient codes since 2026-10-06; undefined for 4 held-out conversations) + the utterance coder; two judges; the trainer's 0.05 validation split (§3.2, Table 12); conversation lengths (§4, §6, Appendix D). |
 
 ## C. Computational experiments
 

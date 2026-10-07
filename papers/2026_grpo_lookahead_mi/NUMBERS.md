@@ -1366,3 +1366,43 @@ two-block `table*` — as a one-column list it was 88 pt taller than a page.
 | look-ahead patient call attempted three times | back-off 1 s then 2 s, on top of the SDK's own retries; after the last failure the rollout freezes and the oracle scores the transcript so far | `_shared/convs.py` `generate_patient_response_async`; freeze in `_shared/reward.py` |
 | Q1 anchors quoted in D.2 | motivation item: "suggests practical steps to achieve the patient's goal, provides uplifting messages, or encourages perseverance"; relevance item: "provides advice or information that directly relates to challenges or tasks that the patient faces regularly" | `code/questionnaires.py` `get_questionnaire_1` (lines 284, 292) |
 | D.8 call counts | read from the generation logs, scaled to the optimizer-step count in the six partial-log iterations (the earlier "exact counts" wording was wrong) | `compute/cost` tables |
+
+## 2026-10-06/07 — PCT rebuilt from the utterance coder (Lior: "rebuild pct from the coder")
+
+The PCT call and the utterance coder's patient side were the same judge sorting the same patient
+turns into change / sustain / neutral; per-conversation Spearman of the two CT/(CT+ST) ratios 0.92 /
+0.96 (training oracle / held-out). **PCT is now CT/(CT+ST) over the coder's patient codes** in the EDA
+(`constants.pct_from_coder`; EDA commit of the same date; `history/CHANGELOG_EDA.md`) and the paper.
+The PCT call stays only as the coder's check (App D.3). The coder was run on the two replicate draws
+for this (384 calls, ~$1, 2026-10-06; one held-out call re-scored). **Every PCT number above this
+block that predates it is the PCT call's and is superseded** (e.g. the "PCT contrast now quoted in §6"
+row: +0.111 / dz 0.516 → now +0.150 / 0.515; the 1185–1187 K=0 agreement list: PCT 0.949 → 0.888).
+Values below are unrounded EDA reads (scratch `pct/paper_pct_rows.py`, `pct/agreement_unrounded.py`);
+the `.md` tables round 4-dp values to 3 dp and can be off by one.
+
+| Claim | Value | Source |
+|---|---|---|
+| Table 1 PCT row | training oracle Base 0.491 / K=0 0.583 / K=5 0.732, Δ +0.1495, dz +0.515, p 2.05e-6; held-out 0.500 / 0.580 / 0.738, Δ +0.1572, dz +0.636, p 4.5e-8; every Table 1 row still p_holm < .001 (Holm across nine rows) | `lookahead/shared_base` `levels_long`, `k_contrast` (iteration 10) |
+| vs Base, PCT | K=0 +0.092 (p_holm .0002) / held-out +0.080 (.0005); K=5 +0.241 / +0.237 (< 1e-11) — "each run improves on every row but MICI" holds | `gains` |
+| Tables 4 / 9 PCT column | 21 cells each (3 dp, unrounded source); stars: training oracle iterations **6–10** (was 4–10; it 4 p .85, it 5 p_holm .47), held-out 4–10 (unchanged); bold K=5 it 9 (0.736 / 0.740) | `levels_long`, `k_contrast`, `significant_iterations` |
+| "six of the eight separate by iteration 6" (§4) | holds: PCT's first Holm-significant iteration is now 6 | `significant_iterations` |
+| vs K=0 at 8 (§4, App B) | PCT dz 0.558 (oracle) / 0.546 (held-out), inside "0.52–1.13"; held-out "all but Q2 and WAI-SR" holds | `coop_strata` All rows, anchor `best_K0` |
+| whole-run test (App A) | PCT dz 0.786 / 0.954, inside 0.66–1.04 / 0.54–1.26 | `k_trajectory` window 1-10 |
+| Base draws, max \|dz\| | training oracle 0.128 (MITI, unchanged); held-out **0.169 (PCT)**, was 0.147; min raw p .06 → "no row p < .05" holds | `base_draws_summary` |
+| Table 7 PCT block | cooperative Δ +0.03 / 0.00 / −0.01 / −0.01 with dz not shown (‡: ≥ 90% of both runs' cooperative conversations at PCT = 1: shares 0.938/0.969, 0.969/0.969, 1.000/0.906, 1.000/0.906); warms up +0.23*** (1.07), +0.28*** (1.16), +0.21*** (1.29), +0.22*** (1.01); resistant +0.19* (0.46), +0.18* (0.49), +0.27*** (0.78; p_holm 0.00098), +0.20* (0.58) | `coop_strata` (unrounded; `share_K*_ge` now covers PCT at 1.0) |
+| App F sign agreement | **1,477 of 8 × C(21,2) = 1,680 (87.9%)**; 373 of 377 at \|Δ\| ≥ 0.50 unchanged | `sign_preservation` |
+| Table 14 PCT row | r 0.930, median 0.950, −0.020, rank 5/21 (rows re-sorted: PCT last); MI-SAT r corrected 0.905 → **0.906** (0.90554, a double-rounding slip) | `agreement_by_state` (unrounded) |
+| Table 14 caption, K=0 it 10 | MICI r 0.204; **PCT r 0.888, its lowest of the 21**; the other six near their medians | same |
+| Second draw (§4) | max \|dz\| still 0.174 (MICI, training oracle); PCT −0.107 / −0.038; none significant; Q1+Q2 dz 0.92 vs 0.91 (held out 0.95 vs 1.03) unchanged | `results/measurement/replicate_draw.md` (rebuilt by `tools/replicate_check.py`) |
+| PCT undefined (App D.2, captions of Fig 7 / Table 9) | 4 of 2,112 GRPO conversations under the held-out judge (K=0 it 1 ×2, it 3; K=5 it 1; one patient utterance each), none under the training oracle; none in the K=5 second draw | `levels_long` n per state |
+| Coder check (App D.3) | CT ρ 0.881 / 0.915, ST 0.898 / 0.942 (unchanged); **neutral 0.171 / 0.512** (now stated; PCT does not use it) | `parity_pooled_<judge>` |
+| Figure 11 PNG re-drawn | `direction_categories_grpo.png` was rendered before its 0.94\textwidth include existed (1889 px → 1776 px wide); same data, same printed size, fonts now at their intended size | `render_paper_figures.py` |
+
+Audit of this block (2026-10-07, workflow `pct-rebuild-audit`: every changed paper number recomputed
+from the raw lake CSVs with independent scripts — no wrong number found). Two caption placements in
+Appendix B were tightened (PCT's 94/95-conversation cells named, outside the Base's parenthetical).
+⚠ The same EDA re-render also caught up MIPROC (added to `QUESTIONNAIRE_ORDER` on 2026-09-17) in
+families the paper does not read (`arms/*`, `lookahead/reward`, `method/contrast`, `compute/cost`,
+`measurement/validity`): their non-PCT `p_holm` values moved because MIPROC joined their Holm
+families. The 2026-09 rows above that cite `multijudge_sign_preservation_grpo` (1,640 of 1,848) are
+superseded there (now 9 metrics × C(22,2) = 9 × 231 = 2,079 contrasts) and are not quoted in the paper.
