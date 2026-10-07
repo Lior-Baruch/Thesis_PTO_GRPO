@@ -5,53 +5,11 @@ MI judges a therapist behavior by what the patient says next.
 % \dnotedone{renamed: utterance coder, defined in §3.3}{[positional codes ?]}
 % \dnotedone{answered in §3.3: each judge also runs the utterance coder}{not clear, i thought the judges were for something else and here you have a MITI classifier - /}
 The codes are in transcript order, so each patient utterance can be followed through the
-therapist's reply to the next patient utterance (Table~\ref{tab:process}; every iteration: Appendix
-Table~\ref{tab:process-all}).
+therapist's reply to the next patient utterance (Appendix Table~\ref{tab:process} at the
+checkpoints of Table~\ref{tab:endpoint}; every iteration: Table~\ref{tab:process-all}).
 
-% 2026-10-07 (review round 4): both checkpoints, as Table 1; rows by render_process_tables.py --anchors.
-\begin{table*}[t]
-\centering
-\footnotesize
-\setlength{\tabcolsep}{4pt}
-\renewcommand{\arraystretch}{0.92}
-\begin{tabular}{@{}lrrrrrrl@{}}
-\toprule
-& \multicolumn{4}{c}{training oracle} & \multicolumn{2}{c}{\dz, $\Kf$ at 10 $-$ $\Kz$ at} & $\Kf$ better at\\
-\cmidrule(lr){2-5}\cmidrule(lr){6-7}
-Per-conversation measure & Base & $\Kz$ at 8 & $\Kz$ at 10 & $\Kf$ at 10 & 8 & 10 & iterations\\
-\midrule
-\multicolumn{8}{@{}l}{\emph{Therapist turns (share by dominant function)}}\\
-non-specific praise ($\downarrow$) & $\mathbf{0.041}$ & $0.222$ & $0.407$ & $0.053$ & $-0.73^{***}$ & $-1.19^{***}$ & 8, 10\\
-complex reflection & $0.018$ & $0.025$ & $0.020$ & $\mathbf{0.230}$ & $+0.83^{***}$ & $+0.90^{***}$ & 4--10\\
-persuasion ($\downarrow$) & $0.203$ & $0.191$ & $\mathbf{0.055}$ & $0.279$ & $+0.28^{*}$ & $+0.79^{***}$ & 2, 6--10 ($\Kz$)\\
-MI-consistent share & $0.306$ & $0.250$ & $0.290$ & $\mathbf{0.438}$ & $+0.58^{***}$ & $+0.40^{**}$ & 6, 8--10\\
-MI-inconsistent share ($\downarrow$) & $\mathbf{0.248}$ & $0.412$ & $0.463$ & $0.332$ & $-0.25^{**}$ & $-0.36^{**}$ & 10; 2, 6, 9 ($\Kz$)\\
-\midrule
-\multicolumn{8}{@{}l}{\emph{The therapist's reply to the patient's \ldots}}\\
-change talk: reflects it & $0.137$ & $0.009$ & $0.003$ & $\mathbf{0.264}$ & $+0.97^{***}$ & $+0.99^{***}$ & 1, 6--10\\
-sustain talk: praises ($\downarrow$) & $0.019$ & $0.130$ & $0.315$ & $\mathbf{0.015}$ & $-0.49^{**}$ & $-1.10^{***}$ & 8--10\\
-sustain talk: persuades ($\downarrow$) & $0.242$ & $0.295$ & $\mathbf{0.073}$ & $0.393$ & $+0.24$ & $+0.90^{***}$ & 8--10 ($\Kz$)\\
-sustain talk: reflects it & $0.217$ & $0.230$ & $0.256$ & $\mathbf{0.368}$ & $+0.38^{**}$ & $+0.27$ & 9\\
-\midrule
-\multicolumn{8}{@{}l}{\emph{Next patient utterance is change talk, after \ldots}}\\
-change talk & $0.750$ & $0.880$ & $0.796$ & $\mathbf{0.968}$ & $+0.36^{**}$ & $+0.62^{***}$ & 5--10\\
-sustain talk & $0.281$ & $0.224$ & $0.276$ & $\mathbf{0.326}$ & $+0.43^{**}$ & $+0.18$ & 5--7, 9\\
-\midrule
-\multicolumn{8}{@{}l}{\emph{The session (share of all patient utterances)}}\\
-change-talk share & $0.448$ & $0.518$ & $0.528$ & $\mathbf{0.683}$ & $+0.63^{***}$ & $+0.56^{***}$ & 6--10\\
-\bottomrule
-\end{tabular}
-\caption{\textbf{The process at the checkpoints of Table~\ref{tab:endpoint}}, training oracle (every
-iteration: Table~\ref{tab:process-all}; held-out judge: Table~\ref{tab:process-heldout}). Levels:
-means over 96 conversations (Base: 192); bold: each row's best, the Base included. The reply and
-next-utterance rows average only the conversations with that patient utterance, and their \dz\ pair
-the personas with it under both policies (64--76). Reflects: a simple or complex reflection; the
-change-talk share is over all patient utterances (PCT: over change and sustain talk). \dz:
-persona-paired, positive = more under $\Kf$ ($\downarrow$: lower is better), Holm across the twelve
-rows per checkpoint ($^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$); last column as in
-Table~\ref{tab:endpoint}. No test involves the Base.}
-\label{tab:process}
-\end{table*}
+% 2026-10-07 (step 16, Lior): the process table (tab:process) moved to Appendix A.
+
 
 % \dnotedone{paragraph rewritten: one judge; K=0, K=5 and Base named}{very confusing. not clear when you are talking above 0 vs look ahead and base vs both..}
 \textbf{How the therapist replies.}
@@ -67,9 +25,8 @@ to sustain talk.
 % \dnotedone{rephrased: praise regardless became praise in reply to sustain talk}{of what?}
 % \dnotedone{rephrased: the reply of Table 2, measured across conversations}{[This is Table \ref{tab:excerpt} as a rate -?]}
 % \dnotedone{renamed: K=0 / K=5 only in the results}{[turn-level policy - 0? use consistent names]}
-The $\Kz$ policy praises: $32\%$ of its replies to sustain talk, against $2\%$ at the Base, the
-kind of reply quoted in \S\ref{sec:therapist}, measured across conversations. The $\Kf$ policy
-persuades: $39\%$ of its replies to sustain talk, against $24\%$ at the Base.
+The $\Kz$ policy praises: $32\%$ of its replies to sustain talk, against $2\%$ at the Base. The
+$\Kf$ policy persuades: $39\%$ of its replies to sustain talk, against $24\%$ at the Base.
 % \dnotedone{answered: praise premium measured, Appendix C.4}{[which the rubric rewards in the turn where it happens ??]}
 % 2026-10-07 (step 16): the praise-reward numbers moved to the Discussion, which states them once.
 
@@ -80,10 +37,9 @@ cases, against $80\%$ under $\Kz$ ($88\%$ at its best checkpoint; Base $75\%$;
 Figure~\ref{fig:process}d).
 % \dnotedone{cut: reading by therapist code retired; reason given here}{[the other way round: ?]}
 % \dnotedone{cut with the praise-yield paragraph}{[for the reason the next paragraph gives. \textasciitilde{}]}
-No single kind of reply accounts for it: once the patient's previous utterance is held fixed, the
+No single kind of reply accounts for it: with the patient's previous utterance held fixed, the
 $\Kf$ policy's complex reflections are followed by change talk about as often as its replies overall
-(Appendix~\ref{app:tables}), so we do not read the change talk that follows a therapist code as
-that code's effect. After sustain talk, the next patient utterance is change talk in $33\%$ of cases
+(Appendix~\ref{app:tables}). After sustain talk, the next patient utterance is change talk in $33\%$ of cases
 under $\Kf$, against $28\%$ under $\Kz$ and at the Base, a difference significant against $\Kz$'s
 best checkpoint ($22\%$) but not against its last.
 
@@ -101,6 +57,5 @@ from verbosity.
 % \dnotedone{rephrased: why neither is interpreted is now stated}{[rather than resolve. ?]}
 
 The held-out judge agrees on the direction of every contrast at iteration 10
-(Appendix Table~\ref{tab:process-heldout}); under it the $\Kf$ policy persuades after $58\%$ of the
-patient's sustain talk (Base $25\%$) and reflects sustain talk significantly more often than $\Kz$
-($17\%$ vs.\ $5\%$).
+(Appendix Table~\ref{tab:process-heldout}), with the $\Kf$ policy persuading after $58\%$ of the
+patient's sustain talk (Base $25\%$).
