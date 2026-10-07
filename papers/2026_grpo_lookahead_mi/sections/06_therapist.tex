@@ -1,34 +1,31 @@
 \section{What look-ahead teaches the therapist}
 \label{sec:therapist}
 
-A higher score is not by itself evidence of better therapy. This section and the next ask what the
-two final policies do differently, mostly with the utterance coder (\S\ref{sec:setup}).
+A higher score is not by itself evidence of better therapy, so this section and the next ask what
+the final policies do differently, mostly with the utterance coder (\S\ref{sec:setup}).
 % \dnotedone{rephrased in Table 2's caption: chosen as stark, not typical}{[A clear case, not a typical one -?]}
 % \dnotedone{rephrased: typical pair, chosen by a stated rule (Appendix E.2)}{[median-contrast -?]}
 % \dnotedone{renamed `utterance coder' (defined in §3.3); `both graders' dropped}{[process coder ?}
 % 2026-10-07 (review round 4, Lior): Table 2 moved to Appendix E.1; its two replies are quoted here.
-The clearest single case is each policy's first reply to the same reluctant patient, a
-61-year-old smoker sent to therapy (Appendix~\ref{app:example-clear}). The $\Kz$ policy answers
-``Great to hear that you're ready to try again. That's very courageous [\ldots] I'm so proud of you
-for taking this step'', praising a step she has not said she is taking; the $\Kf$ policy answers
-``You're right, it's just a habit. It's been a lifelong struggle for you'', agreeing that it is a
-habit and reflecting her failed attempts, then turns to advice and a question. Both judges' coders
-label the first reply non-specific praise and the second a complex reflection; the pair was chosen
-from the top of a ranking of such pairs, so it is an illustration, not a typical exchange (a pair
-drawn at random: Appendix~\ref{app:example-drawn}).
+In the clearest case, the first reply to a reluctant 61-year-old smoker sent to therapy, the $\Kz$
+policy answers ``Great to hear that you're ready to try again. That's very courageous [\ldots] I'm
+so proud of you for taking this step'', praising a step she has not taken, and the $\Kf$ policy
+``You're right, it's just a habit. It's been a lifelong struggle for you'', reflecting her failed
+attempts before turning to advice and a question; both judges' coders label them non-specific
+praise and complex reflection. The pair tops a ranking of such pairs, so it is an illustration
+(Appendix~\ref{app:example-clear}; one drawn at random: Appendix~\ref{app:example-drawn}).
 
 % 2026-10-07 (review round 4, Lior): redrawn in Figure 2's style; the stacked code mixes moved to
 % Appendix A (fig:codemix) and the late-session panel was dropped.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/process_grpo.png}
-\caption{Four behaviors by iteration under the training oracle (held-out judge: Appendix
+\caption{Four behaviors by iteration under the training oracle (held-out judge:
 Figure~\ref{fig:process-heldout}; every code: Figure~\ref{fig:codemix}): mean $\pm$ SE over
-conversations, iteration 0 is the Base both runs start from (dotted line), each panel on its own
-scale. \textbf{(a--c)} The share of therapist turns whose dominant function is non-specific praise,
-complex reflection or persuasion. \textbf{(d)} Change-talk persistence: the share of the patient's
-change-talk (CT) utterances whose next patient utterance is change talk again. A star marks an
-iteration at which the persona-paired $\Kf$ vs.\ $\Kz$ contrast is significant (Holm across
+conversations, iteration 0 (dotted) is the Base, each panel on its own scale. \textbf{(a--c)} The
+share of therapist turns coded non-specific praise, complex reflection or persuasion. \textbf{(d)}
+Change-talk persistence: the share of the patient's change-talk (CT) utterances whose next patient
+utterance is CT again. Stars: significant persona-paired $\Kf$ vs.\ $\Kz$ contrasts (Holm across
 iterations 1--10). Scripted opener excluded.}
 \label{fig:process}
 \end{figure*}
@@ -58,19 +55,17 @@ The $\Kf$ policy also persuades more: persuasion, arguing for change on the pati
 Base's turns to $0.28$ of its own (Figure~\ref{fig:process}c).
 % \dnotedone{rephrased: says what Chiu et al. report}{[the failure mode \citet{chiu2024bolt} report for LLM therapists -?]}
 It is the tendency \citet{chiu2024bolt} report in LLM therapists, which advise where an MI
-counselor would be more likely to reflect. The share of MI-inconsistent turns still ends lower
-under $\Kf$ ($0.33$ against $0.46$; Base $0.25$; Table~\ref{tab:process}), because of the $\Kz$
-policy's late praise; the $\Kf$ policy's own share rises with its persuasion. The held-out judge
-agrees on the direction of each change at iteration 10, but under it the $\Kf$ policy's praise
-also rises, from the Base's $0.04$ to $0.20$ (Appendix~\ref{app:heldout}).
+counselor would reflect. The MI-inconsistent share still ends lower under $\Kf$ ($0.33$ against
+$0.46$; Base $0.25$; Table~\ref{tab:process}) because of the $\Kz$ policy's late praise; the $\Kf$
+policy's own share rises with its persuasion. The held-out judge agrees on the direction of each
+change at iteration 10, but under it the $\Kf$ policy's praise also rises, from $0.04$ to $0.20$
+(Appendix~\ref{app:heldout}).
 
-\textbf{Corroboration without a judge.} Every code above comes from an LLM, so the praise finding
-could in principle be a judge artifact. A \textbf{keyword marker} of ten fixed praise phrases
-(``I'm so proud'', ``you got this'', \ldots; Appendix~\ref{app:marker}) involves no model. It
-matches almost none of the Base's turns and stays low under $\Kf$; under $\Kz$ it jumps at
-iteration 8, falls back at 9 and peaks at 10, the course of the coder's praise share (Appendix
-Figure~\ref{fig:overpraise}); its level is not comparable with the coder's, since it flags any turn
-that contains a phrase. MICI agrees: $8.3$ of the $9.9$ MI-inconsistent acts per session it counts
+\textbf{Corroboration without a judge.} The praise finding could in principle be a judge
+artifact, but a \textbf{keyword marker} of ten fixed praise phrases (``I'm so proud'', ``you got
+this'', \ldots; Appendix~\ref{app:marker}), which involves no model, follows the coder's praise
+share: almost none of the Base's turns, low under $\Kf$, and under $\Kz$ a jump at iteration 8, a
+fall at 9 and a peak at 10 (Appendix Figure~\ref{fig:overpraise}; its level is not comparable). MICI agrees: $8.3$ of the $9.9$ MI-inconsistent acts per session it counts
 for the $\Kz$ policy at iteration 10 ($84\%$) fall under its over-praise code, which we added to the
 MISC's codes (\S\ref{sec:setup}).
 % \dnotedone{renamed `keyword marker'; its ten praise phrases described}{[marker -?]}
