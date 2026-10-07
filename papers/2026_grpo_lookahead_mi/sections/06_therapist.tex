@@ -1,152 +1,91 @@
 \section{What look-ahead teaches the therapist}
 \label{sec:therapist}
 
-A higher score is not by itself evidence of better therapy. 
+A higher score is not by itself evidence of better therapy. This section and the next ask what the
+two final policies do differently, mostly with the utterance coder (\S\ref{sec:setup}).
 % \dnotedone{rephrased in Table 2's caption: chosen as stark, not typical}{[A clear case, not a typical one -?]}
 % \dnotedone{rephrased: typical pair, chosen by a stated rule (Appendix E.2)}{[median-contrast -?]}
 % \dnotedone{renamed `utterance coder' (defined in §3.3); `both graders' dropped}{[process coder ?}
-Table~\ref{tab:excerpt} illustrates
-the behavioral difference between the two runs' final policies; this section and the next quantify it, mostly
-with the utterance coder (\S\ref{sec:setup}).
+% 2026-10-07 (review round 4, Lior): Table 2 moved to Appendix E.1; its two replies are quoted here.
+The clearest single case is each policy's first reply to the same reluctant patient, a
+61-year-old smoker sent to therapy (Appendix~\ref{app:example-clear}). The $\Kz$ policy answers
+``Great to hear that you're ready to try again. That's very courageous [\ldots] I'm so proud of you
+for taking this step'', praising a step she has not said she is taking; the $\Kf$ policy answers
+``You're right, it's just a habit. It's been a lifelong struggle for you'', agreeing that it is a
+habit and reflecting her failed attempts, then turns to advice and a question. Both judges' coders
+label the first reply non-specific praise and the second a complex reflection; the pair was chosen
+from the top of a ranking of such pairs, so it is an illustration, not a typical exchange (a pair
+drawn at random: Appendix~\ref{app:example-drawn}).
 
-\begin{table}[tb]
-\centering
-\footnotesize
-\setlength{\tabcolsep}{0pt}
-\begin{tabular}{@{}p{\columnwidth}@{}}
-\toprule
-\textbf{Patient, utterance 1, in the $\Kz$ conversation}\\[1pt]
-Well, my name is Emma. I'm 61, and I've been smoking for years. Honestly, I'm here because
-someone thought it would be a good idea for me to talk to someone like you. I don't really believe
-in therapy or any of that stuff, but here I am. [\ldots] I've tried to stop before, but it never
-sticks. [\ldots]\\[2pt]
-\textbf{Therapist, the $\Kz$ policy, iteration 10}\\[1pt]
-Great to hear that you're ready to try again. That's very courageous, and I'm here to support you
-every step of the way. [\ldots] That's incredible courage and compassion for you! I'm so proud of
-you for taking this step [\ldots]\\
-\midrule
-\textbf{Patient, utterance 1, in the $\Kf$ conversation}\\[1pt]
-Well, my name is Emma. I'm 61, and I really don't see the point of being here. Someone insisted
-that I come to therapy, and honestly, I think it's a waste of time. I've been smoking for years;
-it's just a habit, right? I've tried to quit before, and it never sticks. [\ldots]\\[2pt]
-\textbf{Therapist, the $\Kf$ policy, iteration 10}\\[1pt]
-You're right, it's just a habit. It's been a lifelong struggle for you. You've tried quitting
-several times, and each time you give up. It's not really because you don't want to stop, it's
-more because it's just too hard. And that's understandable. [\ldots] I think that what you really
-need is support. [\ldots] What do you think you can do to make this a different experience for
-you?\\
-\bottomrule
-\end{tabular}
-\caption{The first reply of each run's final policy to the patient's answer to the scripted
-therapist opening (utterance~0); the patient is a 61-year-old woman who has smoked for many years,
-has tried to quit many times and was sent to therapy, and her answer, sampled anew in each
-conversation, is reluctant in both. The $\Kz$ reply praises her for a step she has not said she is
-taking and runs on to the 200-token cap; the $\Kf$ reply reflects her reluctance, then turns to
-advice and a question. Both judges' utterance coders label the $\Kz$ reply non-specific praise and
-the $\Kf$ reply a complex reflection; we chose the pair from the top of a ranking of the pairs coded
-that way, so it is not a typical exchange. Utterances 1--7 of both, in full, are in
-Appendix~\ref{app:example-clear}; a second pair, picked from eight personas drawn at random, is in
-Appendix~\ref{app:example-drawn}.}
-\label{tab:excerpt}
-\end{table}
-
+% 2026-10-07 (review round 4, Lior): redrawn in Figure 2's style; the stacked code mixes moved to
+% Appendix A (fig:codemix) and the late-session panel was dropped.
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/process_grpo.png}
-\caption{The process picture under the training oracle (held-out judge: Appendix
-Figure~\ref{fig:process-heldout}). \textbf{(a, b)} Each run's code mix by iteration: the share of
-therapist turns whose dominant function is each code; iteration 0 is the Base. \textbf{(c)}
-Change-talk persistence by iteration: within a conversation, the share of the patient's change-talk
-utterances whose next patient utterance is change talk again, mean $\pm$ SE over conversations; dotted:
-the Base. \textbf{(d)} The change-talk share of patient utterances by position in the session at
-iteration 10, against the Base (utterances pooled per bin; untested). Scripted opener excluded.}
+\caption{Four behaviors by iteration under the training oracle (held-out judge: Appendix
+Figure~\ref{fig:process-heldout}; every code: Figure~\ref{fig:codemix}): mean $\pm$ SE over
+conversations, iteration 0 is the Base both runs start from (dotted line), each panel on its own
+scale. \textbf{(a--c)} The share of therapist turns whose dominant function is non-specific praise,
+complex reflection or persuasion. \textbf{(d)} Change-talk persistence: the share of the patient's
+change-talk (CT) utterances whose next patient utterance is change talk again. A star marks an
+iteration at which the persona-paired $\Kf$ vs.\ $\Kz$ contrast is significant (Holm across
+iterations 1--10). Scripted opener excluded.}
 \label{fig:process}
 \end{figure*}
 
-\textbf{The two policies learn different behaviors.} Initially, the Base's turns are mostly
-information giving and persuasion, then simple reflections and open questions, with no other code
-above $0.05$ of turns (training oracle, Figure~\ref{fig:process}a--b, iteration 0; every code under both judges:
-Table~\ref{tab:codes}).
+\textbf{The two policies learn different behaviors.} The Base's turns are mostly giving
+information and persuasion, followed by simple reflections and open questions, with no other code
+above $0.05$ of turns (training oracle; every code under both judges: Table~\ref{tab:codes}).
 % \dnotedone{renamed: `turn-level reward' is now K=0}{k=0?}
 % \dnotedone{reworded: `the distribution of therapist behaviours shifts'}{[the mix -?]}
 % \dnotedone{renamed: `significantly', defined once in §3.3}{[clears Holm ?]}
-Under $\Kz$ the
-distribution of therapist behaviors shifts, late and unevenly, toward \textbf{non-specific
-praise}: from $0.04$ of the Base's turns to $0.22$ of the $\Kz$ policy's at iteration 8, $0.08$ at
-iteration 9 and $0.41$ at iteration 10 (Figure~\ref{fig:process}a; the values and tests at every
-iteration are in Table~\ref{tab:process-all}), significantly more than under
-$\Kf$ at iterations 8 and 10. The dip at iteration 9 follows the one late round of training in
-which the $\Kz$ reward barely favored praise and its preferred direction reversed
-(Appendices~\ref{app:premium} and~\ref{app:direction}); in every other round from the fourth on,
-that direction points toward praise sentences in each of five sentence encoders.
+Under $\Kz$ the distribution of therapist behaviors shifts, late and unevenly, toward
+\textbf{non-specific praise}: from $0.04$ of the Base's turns to $0.22$ of the $\Kz$ policy's at
+iteration 8, $0.08$ at iteration 9 and $0.41$ at iteration 10 (Figure~\ref{fig:process}a),
+significantly more than under $\Kf$ at iterations 8 and 10. The dip at iteration 9 follows the one
+late round of training, on candidates from the iteration-8 model, in which the $\Kz$ reward barely
+favored praise (Appendix~\ref{app:premium}).
 % \dnotedone{reworded: now `Under K=5 it' (the behaviour distribution)}{[the mix \textasciitilde{}]}
-Under $\Kf$ it moves instead toward \textbf{complex reflections}:
-from $0.02$ of the Base's turns to $0.23$ at iteration 10, significantly more than under $\Kz$ at
-every iteration from 4 on, and the share of MI-consistent turns at iteration 10 is $0.44$ against
-$\Kz$'s $0.29$ (Base $0.31$). Both policies lose open questions (from $0.09$ of the Base's turns to
-$0.00$ and $0.01$; the question marks that survive end long turns whose dominant function is
-something else), and both roughly triple the length of their turns, from $273$ characters at the
-Base to $850$--$900$, near the 200-token cap.
+Under $\Kf$ it moves instead toward \textbf{complex reflections}: from $0.02$ of the Base's turns to
+$0.23$ at iteration 10, significantly more than under $\Kz$ at every iteration from 4 on, and the
+share of MI-consistent turns at iteration 10 is $0.44$ against $\Kz$'s $0.29$ (Base $0.31$). Both
+policies lose open questions (from $0.09$ of the Base's turns to $0.00$ and $0.01$), and both
+roughly triple the length of their turns, from $273$ characters at the Base to $896$ under $\Kz$
+and $849$ under $\Kf$, near the 200-token cap.
 
-The $\Kf$ policy also carries a residue in the wrong direction: persuasion, the \emph{righting
-reflex} that MI warns against \citep{miller2013mi}, rises from $0.20$ of the Base's turns to $0.28$ of its own and is
-significantly higher than under $\Kz$ at six of the ten iterations (2 and 6--10). 
+The $\Kf$ policy also persuades more: persuasion, arguing for change on the patient's behalf (the
+\emph{righting reflex} that MI warns against; \citealp{miller2013mi}), rises from $0.20$ of the
+Base's turns to $0.28$ of its own (Figure~\ref{fig:process}c).
 % \dnotedone{rephrased: says what Chiu et al. report}{[the failure mode \citet{chiu2024bolt} report for LLM therapists -?]}
-It is the
-tendency \citet{chiu2024bolt} report in LLM therapists, which advise where an MI counselor would
-be more likely to reflect. The share of MI-inconsistent turns therefore ends lower under $\Kf$
-($0.33$ against $0.46$ at iteration 10; Base $0.25$), but that gap is the $\Kz$ policy's late
-praise rather than an MI gain of the $\Kf$ policy, whose own share rises with its persuasion: the
-difference is significant in $\Kz$'s favor at iterations 2, 6 and 9 and in $\Kf$'s only at
-iteration 10. The held-out judge agrees on the direction of each change at iteration 10, but under
-it the $\Kf$ policy's praise also rises, from the Base's $0.04$ to $0.20$ at iteration 10
-(Appendix Figure~\ref{fig:process-heldout}).
+It is the tendency \citet{chiu2024bolt} report in LLM therapists, which advise where an MI
+counselor would be more likely to reflect. The share of MI-inconsistent turns still ends lower
+under $\Kf$ ($0.33$ against $0.46$; Base $0.25$; Table~\ref{tab:process}), because of the $\Kz$
+policy's late praise; the $\Kf$ policy's own share rises with its persuasion. The held-out judge
+agrees on the direction of each change at iteration 10, but under it the $\Kf$ policy's praise
+also rises, from the Base's $0.04$ to $0.20$ (Appendix~\ref{app:heldout}).
 
-\textbf{Corroboration without a judge.} Every code above is produced by an LLM, so the praise
-finding could in principle be a judge artifact. A \textbf{keyword marker} involves no model: ten
-praise phrases (``I'm so proud'', ``you got this'', \ldots; Appendix~\ref{app:marker}) matched
-against each therapist turn, so it reads the same under both judges. It matches $0.002$ of the
-Base's turns and at most $0.064$ of the $\Kf$ policy's at any iteration; in the $\Kz$ policy's it
-climbs late and steeply, to $0.275$ at iteration 8, $0.094$ at 9 and $\mathbf{0.671}$ at iteration
-10, the same rise, dip and rise as the coder's praise share ($0.22$, $0.08$, $0.41$; Appendix
-Figure~\ref{fig:overpraise} draws the coder's share under both judges beside the keyword marker). MICI (Table~\ref{tab:endpoint} reports it per therapist turn) agrees: of the
-$9.9$ MI-inconsistent acts per session it counts for the $\Kz$ policy at iteration 10, $8.3$
-($84\%$) are over-praise. 
+\textbf{Corroboration without a judge.} Every code above comes from an LLM, so the praise finding
+could in principle be a judge artifact. A \textbf{keyword marker} of ten fixed praise phrases
+(``I'm so proud'', ``you got this'', \ldots; Appendix~\ref{app:marker}) involves no model. It
+matches almost none of the Base's turns and stays low under $\Kf$; under $\Kz$ it jumps at
+iteration 8, falls back at 9 and peaks at 10, the course of the coder's praise share (Appendix
+Figure~\ref{fig:overpraise}); its level is not comparable with the coder's, since it flags any turn
+that contains a phrase. MICI agrees: $8.3$ of the $9.9$ MI-inconsistent acts per session it counts
+for the $\Kz$ policy at iteration 10 ($84\%$) fall under its over-praise code, which we added to the
+MISC's codes (\S\ref{sec:setup}).
 % \dnotedone{renamed `keyword marker'; its ten praise phrases described}{[marker -?]}
 % \dnotedone{rephrased: the three agreeing measures are named}{[ readings -? carries the argument.?]}
-The keyword marker is deliberately crude, matching only fixed phrases, so
-the finding rests on the three measures agreeing: the coder's praise share, the keyword marker and
-MICI's over-praise count.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.48\textwidth]{figures/text_grpo_body.png}
-\caption{How much the therapist's turns depend on the patient, on sentence embeddings (no LLM
-judge; every therapist turn embedded with \texttt{all-MiniLM-L6-v2}, the scripted opener
-excluded; iteration 0 is the Base). Conversations with a therapist turn after the opener: 184 of
-the Base's 192 and 88--96 of each run's 96. \textbf{(a)} The share of embedding variance between
-conversations rather than within them, with a $95\%$ bootstrap band over conversations: lower
-means less of the variation follows the patient. \textbf{(b)} The mean cosine between therapist
-turns at the same position (first to eighth) in different conversations, no band: higher means
-more alike.}
-\label{fig:textspace-body}
-\end{figure}
+The praise finding thus rests on three measures, two from the same judge and one with no model.
 
 \textbf{In embedding space.}
 % \dnotedone{rephrased: the shared conclusion is now stated}{[same conclusion -?]}
 % \dnotedone{reworded: `no LLM judge'}{[coder ?]}
-Sentence embeddings, which involve no LLM judge, show the $\Kz$ policy's
-replies coming to depend less on the patient from iteration 3 on, long before its praise peaks.
-% \dnotedone{answered: encoder named and cited}{which one}
-% \dnotedone{rephrased: replies grow more alike from patient to patient}{[converges harder onto one script -?]}
 % \dnotedone{Figure 4 kept in the body; on Lior's read (30 Sep) its hard-to-read cosine panel is replaced by the turn-similarity panel, and both panels are explained here}{show diagram, explain}
-We embed every therapist turn with a sentence encoder
-(\texttt{all-MiniLM-L6-v2}; \citealp{reimers2019sbert}) and measure two things
-(Figure~\ref{fig:textspace-body}). Panel (a) is the share of embedding variance that lies between
-conversations rather than within them: at iteration 10 it has fallen from $0.39$ at the Base to
-$0.30$ under $\Kf$ and to $0.19$ under $\Kz$, whose replies become more alike from patient to
-patient. Panel (b) is how alike the therapist's turns are across conversations at the same
-turn (its first turns, its second turns, and so on), and here the two runs do not separate: it rises under both, from $0.26$ at the
-Base to $0.49$ under $\Kf$ and $0.58$ under $\Kz$ at iteration 10, with neither run consistently
-higher. Both policies' turns grow more alike overall; what separates them
-is how much of the remaining variation follows the patient.
+% 2026-10-07 (review round 4, Lior: "do we need fig4?"): Figure 4 moved to Appendix C; two sentences stay.
+Sentence embeddings, which involve no LLM judge, show the $\Kz$ policy's replies varying less with
+the patient from iteration 3 on: the share of their embedding variance that lies between
+conversations falls from $0.39$ at the Base to $0.19$ at iteration 10, against $0.30$ under $\Kf$
+(Appendix~\ref{app:embedding}). In the same kind of space, the direction in which each round of
+$\Kz$ training moved the policy points toward praise sentences at training iterations 4--8 and 10
+in each of five encoders, which the $\Kf$ direction does at no iteration in more than three
+(Appendix~\ref{app:direction}).

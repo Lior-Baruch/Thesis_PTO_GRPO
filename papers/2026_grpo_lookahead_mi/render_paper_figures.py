@@ -256,7 +256,8 @@ BINS = ["1-2", "3-5", "6-9", "10+"]
 JUDGE_TITLE = {PRIMARY: "training oracle", HELDOUT: "held-out judge"}
 
 
-def _process_panels(judge: str, name: str) -> Path:
+# Drew Figure 3 and its held-out twin until 2026-10-07; kept, not called (see main()).
+def _process_panels_v1(judge: str, name: str) -> Path:
     """Four panels from ``shared_base.xlsx``: (a, b) each run's code mix by iteration
     (``process_levels_<judge>``, stacked ``th_<CODE>_rate``), (c) change-talk persistence by
     iteration -- P(the patient's next utterance is change talk | the previous one was), mean +- SE
@@ -332,14 +333,131 @@ def _process_panels(judge: str, name: str) -> Path:
     return save_at_width(fig, name, w_pad=1.3)
 
 
+# Figure 3's four measures: (sheet, mean column, SE column, test sheet, tested metric, title).
+PROCESS_MEASURES = [
+    ("process_levels", "th_PRA_rate", "th_PRA_rate_se", "k_process_paired", "th_PRA_rate",
+     "(a) praise"),
+    ("process_levels", "th_CR_rate", "th_CR_rate_se", "k_process_paired", "th_CR_rate",
+     "(b) complex reflection"),
+    ("process_levels", "th_PERS_rate", "th_PERS_rate_se", "k_process_paired", "th_PERS_rate",
+     "(c) persuasion"),
+    ("persist_levels", "ct_persist_mean", "ct_persist_sem", "k_persistence", "ct_persist",
+     "(d) persistence"),
+]
+
+
+def _process_panels(judge: str, name: str) -> Path:
+    """Figure 3 since 2026-10-07 (review round 4; the stacked code mixes moved to ``codemix``):
+    one row of four measures by iteration in Figure 2's style -- (a) non-specific praise,
+    (b) complex reflection, (c) persuasion, each a share of therapist turns
+    (``process_levels_<judge>``: ``th_<CODE>_rate`` and its ``_se``), and (d) change-talk
+    persistence, the share of the patient's change-talk utterances whose next patient utterance is
+    change talk again (``persist_levels_<judge>``: ``ct_persist_mean`` / ``ct_persist_sem``); mean
+    +/- SE over conversations, the shared Base dotted, and a star over every iteration whose
+    persona-paired K contrast has ``p_holm < .05`` (``k_process_paired`` / ``k_persistence``,
+    GRPO, this judge). "lower = better" comes from the test sheet's ``lower_better`` flag. The key
+    sits in panel (a)'s upper left, empty under both judges (praise stays below 0.2 there)."""
+    x = pd.ExcelFile(SHARED_BASE_XLSX)
+    sheets = {s: x.parse(s if s.startswith("k_") else f"{s}_{judge}")
+              for s in {m[0] for m in PROCESS_MEASURES} | {m[3] for m in PROCESS_MEASURES}}
+    fig, axes = plt.subplots(1, 4, figsize=figsize(name, 0.22, default_frac=0.94))
+    # One title row for every panel, raised by a note line so the bold titles align whether or not
+    # a panel carries "lower = better" (title + note on one line is wider than the panel).
+    note_pt = 2.0
+    for ax, (lv_sheet, col, se, test_sheet, metric, title) in zip(axes, PROCESS_MEASURES):
+        d = sheets[lv_sheet]
+        tests = sheets[test_sheet]
+        tests = tests[(tests.judge == judge) & (tests.method == "GRPO") & (tests.metric == metric)]
+        for arm in ("GRPO_LA0", "GRPO_LA5"):
+            s = d[d.arm == arm].sort_values("iteration")
+            ax.fill_between(s.iteration, s[col] - s[se], s[col] + s[se], color=COL[arm], alpha=0.18,
+                            lw=0)
+            ax.plot(s.iteration, s[col], color=COL[arm], ms=2.4, lw=1.1, **STY[arm])
+        base = d[(d.iteration == 0) & d.arm.isin(COL)][col]
+        assert base.nunique() == 1, f"{col}: the two runs disagree at the shared Base"
+        ax.axhline(float(base.iloc[0]), color="#555555", ls=":", lw=0.8)
+        dd = d[d.arm.isin(COL)]
+        lo = float((dd[col] - dd[se]).min())
+        hi = float((dd[col] + dd[se]).max())
+        ax.set_ylim(lo - 0.08 * (hi - lo), hi + 0.24 * (hi - lo))
+        star_y = hi + 0.12 * (hi - lo)
+        for it in tests[tests.p_holm < 0.05].iteration:
+            ax.text(int(it), star_y, **STAR_TEXT)
+        ax.set_xticks(range(0, 11, 2))
+        ax.set_xlim(-0.5, 10.5)
+        ax.set_title(title, fontsize=6.6, loc="left", fontweight="bold", pad=note_pt + 8.5)
+        if bool(tests.lower_better.all()):
+            ax.annotate("lower = better", xy=(0, 1), xycoords="axes fraction",
+                        xytext=(0, note_pt), textcoords="offset points", ha="left", va="bottom",
+                        fontsize=5.8, color="#444444")
+        ax.tick_params(labelsize=5.8, pad=1.5)
+        ax.set_xlabel("iteration (0 = Base)", fontsize=6.2, labelpad=1.5)
+    axes[0].set_ylabel("share of\ntherapist turns", fontsize=6.2, labelpad=2)
+    axes[3].set_ylabel("share CT → CT", fontsize=6.2, labelpad=2)
+    from matplotlib.lines import Line2D
+    handles = [Line2D([], [], color=COL["GRPO_LA0"], ms=3, lw=1.2, label="$K{=}0$", **STY["GRPO_LA0"]),
+               Line2D([], [], color=COL["GRPO_LA5"], ms=3, lw=1.2, label="$K{=}5$", **STY["GRPO_LA5"]),
+               Line2D([], [], color="#555555", ls=":", lw=0.9, label="Base"),
+               Line2D([], [], color="none", label="significant")]
+    axes[0].legend(handles=handles, loc="upper left", fontsize=5.8, frameon=False,
+                   handlelength=1.6, labelspacing=0.15, handletextpad=0.4, borderaxespad=0.1,
+                   handler_map={handles[-1]: _StarHandler()})
+    out = save_at_width(fig, name, default_frac=0.94, w_pad=0.5)
+    # The numbers the caption and the text quote (Base, iteration 10) and the starred iterations.
+    print(f"{name} ({JUDGE_TITLE[judge]}):")
+    for lv_sheet, col, _, test_sheet, metric, title in PROCESS_MEASURES:
+        d = sheets[lv_sheet]
+        at = d[d.iteration.isin([0, 10])].pivot_table(index="arm", columns="iteration", values=col)
+        t = sheets[test_sheet]
+        stars = t[(t.judge == judge) & (t.method == "GRPO") & (t.metric == metric)
+                  & (t.p_holm < 0.05)].iteration.tolist()
+        print(f"  {title:24} Base {at.loc['GRPO_LA0', 0]:.3f}  it10 K=0 {at.loc['GRPO_LA0', 10]:.3f}"
+              f"  K=5 {at.loc['GRPO_LA5', 10]:.3f}  stars {stars}")
+    return out
+
+
 def process() -> Path:
-    """Figure 4 (body): the utterance-level process picture under the training oracle."""
+    """Figure 3 (body): the utterance-level process measures under the training oracle."""
     return _process_panels(PRIMARY, "process_grpo.png")
 
 
 def process_heldout() -> Path:
-    """Appendix twin of Figure 4 under the held-out judge."""
+    """Appendix twin of Figure 3 under the held-out judge."""
     return _process_panels(HELDOUT, "process_grpo_heldout.png")
+
+
+def codemix() -> Path:
+    """Appendix A (since 2026-10-07, when the stacked code mixes left the body's Figure 3): each
+    run's code mix by iteration, one row of four stacked panels -- K=0 and K=5 under the training
+    oracle, then under the held-out judge (``process_levels_<judge>``, stacked ``th_<CODE>_rate``;
+    each state's shares sum to 1) -- with one shared code legend above the row. No test is drawn."""
+    name = "codemix_grpo.png"
+    levels = {j: pd.read_excel(SHARED_BASE_XLSX, sheet_name=f"process_levels_{j}")
+              for j in (PRIMARY, HELDOUT)}
+    fig, axes = plt.subplots(1, 4, figsize=figsize(name, 0.24, default_frac=0.94), sharey=True)
+    cells = [(PRIMARY, "GRPO_LA0"), (PRIMARY, "GRPO_LA5"), (HELDOUT, "GRPO_LA0"), (HELDOUT, "GRPO_LA5")]
+    for ax, (judge, arm), letter in zip(axes, cells, "abcd"):
+        lv = levels[judge]
+        g = lv[lv.arm == arm].sort_values("iteration")
+        ax.stackplot(g.iteration, *[g[f"th_{c}_rate"].fillna(0).to_numpy() for c in CODES],
+                     labels=[CODE_LABEL[c] for c in CODES], colors=[CODE_COL[c] for c in CODES],
+                     lw=0.25, edgecolor="white")
+        ax.set_xlim(0, 10)
+        ax.set_ylim(0, 1)
+        ax.set_xticks(range(0, 11, 2))
+        ax.grid(False)
+        ax.set_title(f"({letter}) {LAB[arm]}, {JUDGE_TITLE[judge]}", fontsize=6.6, loc="left",
+                     fontweight="bold")
+        ax.tick_params(labelsize=5.8, pad=1.5)
+        ax.set_xlabel("iteration (0 = Base)", fontsize=6.2, labelpad=1.5)
+    axes[0].set_ylabel("share of\ntherapist turns", fontsize=6.2, labelpad=2)
+    hh, ll = axes[0].get_legend_handles_labels()
+    # Above the titles, close to them (tight_layout leaves its top pad free, and the legend is
+    # anchored inside it); six columns pair the related codes and fit the figure width.
+    fig.legend(hh, ll, loc="lower center", bbox_to_anchor=(0.5, 0.93), ncol=6, frameon=False,
+               fontsize=5.8, handlelength=1.0, columnspacing=1.0, handletextpad=0.4,
+               labelspacing=0.15)
+    return save_at_width(fig, name, default_frac=0.94, w_pad=0.6)
 
 
 def responsiveness() -> Path:
@@ -985,7 +1103,10 @@ def main(argv: list[str] | None = None) -> int:
     # the two panels that stay; the audit stays as text); both kept, not called.
     # overpraise() drew the single-panel keyword-marker figure until 2026-10-05, when praise()
     # put it beside the coder's praise share under both judges; kept, not called.
-    every = (levels_grid_primary, levels_grid_heldout, praise, process, process_heldout,
+    # _process_panels_v1() drew Figure 3 (code mixes, persistence, change talk by turn) and its
+    # held-out twin until 2026-10-07; the line panels replaced it and codemix() took the code
+    # mixes to Appendix A. Kept, not called.
+    every = (levels_grid_primary, levels_grid_heldout, praise, process, process_heldout, codemix,
              responsiveness, textspace_body, praise_premium, faithfulness, encoder_categories)
     names = argv if argv else [f.__name__ for f in every]
     by_name = {f.__name__: f for f in every}
