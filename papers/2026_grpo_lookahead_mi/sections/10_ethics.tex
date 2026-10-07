@@ -10,15 +10,19 @@ stating that it is a research artifact not for use with people. %A 1B-parameter 
 \textbf{The failure mode we document is safety-relevant.} The $K{=}0$ policy learned to praise its
 patient, including when the patient argued for the status quo, and its training reward scored
 praising replies above the others while it did so (Appendix~\ref{app:premium}). In
-a counseling setting that is not a neutral artifact of optimization: unearned praise for
-ambivalence or for a harmful plan is precisely the error MI trains counselors out of. We report it
-prominently, including what the look-ahead policy learned instead, persuasion when the patient
+a counseling setting, this is not a neutral artifact of optimization: praise that overrides what
+the patient has said is a habit MI training works against. We report it
+prominently, including what the $K{=}5$ policy learned instead, persuasion when the patient
 argues against change (\S\ref{sec:therapist}--\ref{sec:patient}), so that a reader evaluating this line of work sees the failure mode
 as clearly as the improvement.
 
-\textbf{Simulated patients encode a narrow population.} The 96 personas vary six attributes around
-two presenting problems (smoking and obesity). They are a coarse and culturally narrow caricature
-of help-seeking, authored by the researchers rather than derived from clinical data, and results on
+% 2026-10-07 (review round 4): attribution and counting fixed. Before: "The 96 personas vary six
+% attributes around two presenting problems (smoking and obesity). They are a coarse and culturally
+% narrow caricature of help-seeking, authored by the researchers rather than derived from clinical data, ..."
+\textbf{Simulated patients encode a narrow population.} The 96 personas combine six attributes, one
+of them the presenting problem (smoking or obesity). They are a coarse and culturally narrow
+caricature of patients, two thirds of them sent to therapy by someone else, adapted from
+\citet{yosef2024assessing} rather than derived from clinical data, and results on
 them should not be read as generalizing across presenting problems, demographics, or cultures;
 because all 96 personas serve for both training and evaluation, generalization cannot be measured
 even within this grid (see Limitations).

@@ -3,17 +3,19 @@
 
 \paragraph{One training run per $K$.}
 Every effect size reported here is computed across the 96 patient personas within a single
-training run. There are no training-seed replicates due to long training times and limited research budget. The $\Kz$
+training run, so a significant contrast shows that the two trained policies differ, not that a
+second run at each $K$ would reproduce the difference. There are no training-seed replicates due to long training times and a limited research budget. The $\Kz$
 run's decline over its last two iterations and its late praise spike are likewise events of one
 run, which is why \S\ref{sec:reward} reports the contrast against that run's best checkpoint as
 well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at which of the ten
-iterations each process contrast is significant rather than at iteration 10 alone. We regard this as the principal limitation.
+iterations each process contrast is significant rather than at iteration 10 alone; this guards
+against the choice of endpoint, not against variation between training runs. We regard this as the principal limitation.
 
 % \dnotedone{cut the paragraph (Evaluation draws); \S\ref{sec:reward}'s last paragraph already says it}{[a replicate bounds evaluation noise only, never the training variance above. ??] [what does para say? important? ]}
 
 \paragraph{Matched iterations are not matched cost.}
 % \dnotedone{rephrased in plain words; the call counts and the equal-GPU-hour numbers moved to Appendix~\ref{app:repro-cost}}{[is built into the lever \textasciitilde?] [disclose the asymmetry rather than equalise it ?] [Read at\textasciitilde] [i think you can remove all the details, just say in english it is slower..]}
-Both runs make about the same number of calls to the training oracle and of training steps, but the $\Kf$ run also simulates five more turns for every candidate, so it is
+Both runs take about the same number of training steps and make about the same number of training-oracle calls, but the $\Kf$ run also simulates five more turns for every candidate, so it is
 slower: about twice the time per training step, and $51.2$ against $27.9$ GPU-hours in total.
 Compared at equal GPU-hours rather than equal iterations, the result depends on the budget: the
 $\Kz$ run is ahead at about 13 GPU-hours, and at about 23 the two are level under the training
@@ -24,7 +26,9 @@ oracle while $\Kf$ leads under the held-out judge (Appendix~\ref{app:repro-cost}
 \dnoteopen{kept as a reminder; whether to run an intermediate $K$ is Lior's call}{indeed this is a major limitation - in case you have time for more runs [kfir gave almog some server time.. ]}
 We trained with \Kz\ and \Kf\ only, so we do not know whether a shorter look-ahead would give
 most of the benefit, whether 5 is the best choice, or whether a longer one would do better. More
-runs at other values of $K$ are needed to find out.
+runs at other values of $K$ are needed to find out. All runs also use one small pretrained model;
+whether the horizon changes what larger or instruction-tuned models learn in the same way is
+untested.
 
 % \dnotedone{cut the paragraph (One optimiser, one regime)}{[??One optimiser, one regime.] [regime ?]}
 %Evidence that would overturn the paper's reading: a second \emph{training} run reversing the ordering, an intermediate $K$ showing a threshold rather than a horizon, or a human MI coder disagreeing with \S\ref{sec:therapist}--\ref{sec:patient}.
@@ -48,11 +52,12 @@ generated against a \texttt{gpt-4o-mini} patient, the same model as the training
 regenerating the conversations with a patient from another model family would remove that link.
 The simulated
 patient is a known weak point in itself: given identical profiles, LLM-simulated MI patients
-express themselves more uniformly positively than human patients do
+are more uniformly positive than human patients
 \citep{hoang2026standardised}, which bears directly on a finding about praise. %No human MI coder has
 %rated any conversation in this experiment;
-The oracle is highly self-repeatable (ICC 0.92--0.99 when it
-re-scores the conversations of the $\Kz$ run's iterations 8 and 10), and the over-praise
+The oracle is highly self-repeatable on Q1, Q2 and MICI (intraclass correlation ICC(2,1)
+$0.92$--$0.99$, \citealp{shrout1979icc}, when it re-scores the same conversations of the $\Kz$
+run's iterations 8 and 10 three more times), and the over-praise
 finding is the most robust behavioral claim here precisely because the keyword marker, a plain
 search for ten praise phrases with no language model involved, finds the same rise.
 % \dnotedone{rephrased}{[the keyword marker corroborates it without a model in the loop -?]}
@@ -62,7 +67,8 @@ search for ten praise phrases with no language model involved, finds the same ri
 % \dnotedone{cut the circularity sentence, \S\ref{sec:setup} already says it; its pointer to Appendix~\ref{app:saturation} kept}{[headline metric ?]}
 % \dnotedone{cut}{[i think you already said this and we know this, so we used additional measurements so not sure this is required]}
 At the $\Kf$ run's late checkpoints the training oracle's scores crowd the top of its scale, so it
-tells those conversations apart less well; the held-out judge is the check there
+tells those conversations apart less well and agrees less with the held-out judge conversation by
+conversation; the held-out judge, whose spread does not shrink, is the check there
 (Appendix~\ref{app:saturation}).
 % \dnotedone{cut the MITI sentence (MITI's behaviour counts left the paper; MITI stays through its four global ratings)}{[in what context are you saying this?]}
 % \dnotedone{shortened}{[reprhase if important]}
