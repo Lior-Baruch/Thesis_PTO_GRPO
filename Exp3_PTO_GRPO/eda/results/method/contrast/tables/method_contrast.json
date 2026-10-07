@@ -409,7 +409,7 @@
    "note": "PTO_LA0 - GRPO_LA0 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K0.Q1Q2.p_holm": {
-   "value": 5.34764474142665e-10,
+   "value": 4.753461992379244e-10,
    "source": "tables/method_paired_by_K.md",
    "note": "PTO_LA0 - GRPO_LA0 at the last matched iteration (10); + => PTO higher"
   },
@@ -439,7 +439,7 @@
    "note": "PTO_LA0 at its best iteration (10) - GRPO_LA0 at its best (8), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K0.Q1Q2.p_holm": {
-   "value": 0.011534720168916506,
+   "value": 0.010381248152024855,
    "source": "tables/method_paired_best.md",
    "note": "PTO_LA0 at its best iteration (10) - GRPO_LA0 at its best (8), each selected under this grader; + => PTO higher"
   },
@@ -464,7 +464,7 @@
    "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.gpt-4o-mini.K5.Q1Q2.p_holm": {
-   "value": 0.0005163834554701656,
+   "value": 0.0004981819744775516,
    "source": "tables/method_paired_by_K.md",
    "note": "PTO_LA5 - GRPO_LA5 at the last matched iteration (10); + => PTO higher"
   },
@@ -494,7 +494,7 @@
    "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.gpt-4o-mini.K5.Q1Q2.p_holm": {
-   "value": 0.0005163834554701656,
+   "value": 0.0004981819744775516,
    "source": "tables/method_paired_best.md",
    "note": "PTO_LA5 at its best iteration (10) - GRPO_LA5 at its best (10), each selected under this grader; + => PTO higher"
   },
@@ -519,7 +519,7 @@
    "note": "PTO_LA0 - GRPO_LA0 at the last matched iteration (10); + => PTO higher"
   },
   "matched_last.claude-haiku-4-5.K0.Q1Q2.p_holm": {
-   "value": 4.195487113808249e-15,
+   "value": 3.775938402427424e-15,
    "source": "tables/method_paired_by_K.md",
    "note": "PTO_LA0 - GRPO_LA0 at the last matched iteration (10); + => PTO higher"
   },
@@ -549,7 +549,7 @@
    "note": "PTO_LA0 at its best iteration (9) - GRPO_LA0 at its best (3), each selected under this grader; + => PTO higher"
   },
   "best_vs_best.claude-haiku-4-5.K0.Q1Q2.p_holm": {
-   "value": 2.0001119994206486e-06,
+   "value": 1.7500979994930674e-06,
    "source": "tables/method_paired_best.md",
    "note": "PTO_LA0 at its best iteration (9) - GRPO_LA0 at its best (3), each selected under this grader; + => PTO higher"
   },

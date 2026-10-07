@@ -2654,7 +2654,7 @@
      }
     }
    },
-   "source": "pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/7_stats/gpt-4o-mini/k_paired_by_method.md (commit abe5cb3) — now results/lookahead/reward/tables/k_paired_by_method.md",
+   "source": "pre-reorg Exp3_PTO_GRPO/eda/results/L5/tables/7_stats/gpt-4o-mini/k_paired_by_method.md (commit abe5cb3) — now results/lookahead/reward/tables/k_paired_by_method.md; the pct_* entries compare the PCT CALL's PCT_ChangeProp, while that table's PCT row is the utterance coder's CT/(CT+ST) since 2026-10-06",
    "note": ""
   },
   "q2.item1.gain.primary.PTO_LA0": {

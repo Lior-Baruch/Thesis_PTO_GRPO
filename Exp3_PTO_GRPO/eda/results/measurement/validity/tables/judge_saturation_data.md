@@ -85,5 +85,3 @@
 | c       | cross_judge_pearson_r_median_over_judged_states | MI-SAT   | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.929 |    4224 |
 | c       | cross_judge_pearson_r                           | WAI-SR   | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.898 |      96 |
 | c       | cross_judge_pearson_r_median_over_judged_states | WAI-SR   | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.921 |    4224 |
-| c       | cross_judge_pearson_r                           | MIPROC   | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.193 |      96 |
-| c       | cross_judge_pearson_r_median_over_judged_states | MIPROC   | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.195 |    4223 |

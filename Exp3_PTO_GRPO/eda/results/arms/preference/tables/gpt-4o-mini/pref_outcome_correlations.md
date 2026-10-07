@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 720 rows.** The full table is too large to read as markdown, so it lives on sheet `pref_outcome_correlations` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="pref_outcome_correlations")`.
+> **Excerpt — first 60 of 648 rows.** The full table is too large to read as markdown, so it lives on sheet `pref_outcome_correlations` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="pref_outcome_correlations")`.
 
 | scope         | metric   | feature              |   n_iters |   spearman_rho |     p |   rho_partial_iter |   p_partial |   rho_feature_vs_iter |
 |:--------------|:---------|:---------------------|----------:|---------------:|------:|-------------------:|------------:|----------------------:|
@@ -63,4 +63,4 @@
 | PTO_LA0       | CSQ-8    | w_overpraise         |        10 |          0.200 | 0.580 |              0.291 |       0.415 |                 0.139 |
 | PTO_LA5       | CSQ-8    | w_overpraise         |        10 |         -0.024 | 0.947 |             -0.087 |       0.811 |                -0.134 |
 
-_... 660 further rows in the workbook._
+_... 588 further rows in the workbook._

@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 8,428 rows.** The full table is too large to read as markdown, so it lives on sheet `multijudge_all_pairs_contrasts` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="multijudge_all_pairs_contrasts")`.
+> **Excerpt — first 60 of 7,525 rows.** The full table is too large to read as markdown, so it lives on sheet `multijudge_all_pairs_contrasts` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="multijudge_all_pairs_contrasts")`.
 
 | metric   | model_a           | model_b           |   judge_n |   judge_delta |   judge_dz |   judge_ci_lo |   judge_ci_hi |   primary_n |   primary_delta |   primary_dz | same_sign   | contrast                      |
 |:---------|:------------------|:------------------|----------:|--------------:|-----------:|--------------:|--------------:|------------:|----------------:|-------------:|:------------|:------------------------------|
@@ -63,4 +63,4 @@
 | WAI-SR   | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I5   |        96 |        -0.433 |     -0.647 |        -0.565 |        -0.303 |          96 |          -0.488 |       -0.759 | True        | GRPO_LA0_I1 − GRPO_LA5_I5     |
 | WAI-SR   | GRPOExp3_LA0_I1   | GRPOExp3_LA5_I6   |        96 |        -0.583 |     -0.867 |        -0.721 |        -0.452 |          96 |          -0.567 |       -0.888 | True        | GRPO_LA0_I1 − GRPO_LA5_I6     |
 
-_... 8,368 further rows in the workbook._
+_... 7,465 further rows in the workbook._

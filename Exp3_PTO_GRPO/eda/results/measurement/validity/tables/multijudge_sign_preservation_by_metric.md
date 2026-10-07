@@ -40,8 +40,3 @@
 | Q2       | |Δ primary| ≥ 0.25  |           576 |           570 |          99.000 |
 | Q2       | |Δ primary| ≥ 0.50  |           390 |           388 |          99.500 |
 | Q2       | judge CI excludes 0 |           748 |           722 |          96.500 |
-| MIPROC   | all contrasts       |           903 |           679 |          75.200 |
-| MIPROC   | |Δ primary| ≥ 0.10  |           416 |           379 |          91.100 |
-| MIPROC   | |Δ primary| ≥ 0.25  |           133 |           132 |          99.200 |
-| MIPROC   | |Δ primary| ≥ 0.50  |            27 |            27 |         100.000 |
-| MIPROC   | judge CI excludes 0 |           311 |           302 |          97.100 |

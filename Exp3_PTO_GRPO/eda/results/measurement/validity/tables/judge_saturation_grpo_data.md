@@ -69,6 +69,3 @@
 | c       | cross_judge_pearson_r                         | PCT      | GRPO_LA5    | 10          | GRPOExp3_LA5_I10  | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.930 |      96 |
 | c       | cross_judge_pearson_r_median_over_grpo_states | PCT      | (GRPO arms) | <NA>        | 22 GRPO states    | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.951 |    2108 |
 | c       | rank_in_metric_among_grpo_states              | PCT      | GRPO_LA5    | 10          | GRPOExp3_LA5_I10  | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   4.000 |      22 |
-| c       | cross_judge_pearson_r                         | MIPROC   | GRPO_LA5    | 10          | GRPOExp3_LA5_I10  | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.193 |      96 |
-| c       | cross_judge_pearson_r_median_over_grpo_states | MIPROC   | (GRPO arms) | <NA>        | 22 GRPO states    | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.198 |    2112 |
-| c       | rank_in_metric_among_grpo_states              | MIPROC   | GRPO_LA5    | 10          | GRPOExp3_LA5_I10  | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |  11.000 |      22 |
