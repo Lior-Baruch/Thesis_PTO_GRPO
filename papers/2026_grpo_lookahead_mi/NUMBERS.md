@@ -1404,5 +1404,6 @@ Appendix B were tightened (PCT's 94/95-conversation cells named, outside the Bas
 ⚠ The same EDA re-render also caught up MIPROC (added to `QUESTIONNAIRE_ORDER` on 2026-09-17) in
 families the paper does not read (`arms/*`, `lookahead/reward`, `method/contrast`, `compute/cost`,
 `measurement/validity`): their non-PCT `p_holm` values moved because MIPROC joined their Holm
-families. The 2026-09 rows above that cite `multijudge_sign_preservation_grpo` (1,640 of 1,848) are
-superseded there (now 9 metrics × C(22,2) = 9 × 231 = 2,079 contrasts) and are not quoted in the paper.
+families — **reverted the same day (Lior: MIPROC out of every outcome correction, `OUTCOME_ORDER`)**.
+The 2026-09 rows above that cite `multijudge_sign_preservation_grpo` (1,640 of 1,848) are superseded
+there: now 1,633 of 8 × C(22,2) = 8 × 231 = 1,848 (88.4%) with PCT from the coder; not quoted in the paper.
