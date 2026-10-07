@@ -105,7 +105,7 @@ from typing import Dict, List, Optional, Sequence, Tuple
 import numpy as np
 import pandas as pd
 
-from .constants import (QUESTIONNAIRE_ORDER, LOWER_IS_BETTER, DISPLAY_NAMES,
+from .constants import (OUTCOME_ORDER, QUESTIONNAIRE_ORDER, LOWER_IS_BETTER, DISPLAY_NAMES,
                         PRIMARY_JUDGE_TAG, judge_dirname)
 # The persona pivot is THE pairing primitive (see the file_index gotcha in CLAUDE.md); one
 # definition so a fix to the pairing cannot land in one copy and not the other. (lookahead
@@ -517,7 +517,7 @@ def iso_compute_contrast(scores_long: pd.DataFrame, comp: pd.DataFrame,
         pairs = pairs[pairs.iter_a.isin(list(iters_a))]
 
     present = set(scores_long["questionnaire"].unique())
-    metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in present]
+    metrics = [m for m in (metrics or OUTCOME_ORDER) if m in present]
     name_a, name_b = _model_names(scores_long, arm_a), _model_names(scores_long, arm_b)
 
     blocks = []

@@ -292,7 +292,7 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
     always the primary oracle's there.
     """
     from . import (discover_arms, load_scores_long, add_derived_mitiprof_rows,
-                   QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, plotting, exports)
+                   QUESTIONNAIRE_ORDER, OUTCOME_ORDER, WARMTH_RUBRICS, plotting, exports)
     from .data import filter_arms, set_cache
     from .constants import set_active_judge, judge_dirname
 
@@ -341,7 +341,7 @@ def notebook_setup(cfg: Optional[EdaConfig] = None, **overrides) -> Setup:
         if cfg.metrics:
             metrics = [m for m in cfg.metrics if m in present]
         else:
-            base = WARMTH_RUBRICS if cfg.warmth_only else QUESTIONNAIRE_ORDER
+            base = WARMTH_RUBRICS if cfg.warmth_only else OUTCOME_ORDER
             metrics = [m for m in base if m in present]
 
     # Provenance banner (printed + exported) so every regenerated figure set is traceable.

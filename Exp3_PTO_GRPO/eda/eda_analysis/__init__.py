@@ -30,7 +30,7 @@ import sys
 # here so the public surface (``eda_analysis.QUESTIONNAIRES`` etc.) is unchanged.
 from .constants import (  # noqa: E402,F401
     WORKSPACE_ROOT, DATA_DIR,
-    QUESTIONNAIRES, QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, EXTRA_METRICS, LOWER_IS_BETTER,
+    QUESTIONNAIRES, QUESTIONNAIRE_ORDER, OUTCOME_ORDER, WARMTH_RUBRICS, EXTRA_METRICS, LOWER_IS_BETTER,
     MITI_THRESHOLDS, Q1_ITEM_SHORT, Q2_ITEM_SHORT, Q2_ITEM_GROUPS, ITEM_QUESTIONNAIRES,
     DISPLAY_NAMES, ARM_LABELS, PERSONA_COLS,
     display_label, short_label, arm_label, item_short_label,
@@ -199,7 +199,7 @@ for _alias, _mod in (("figures", plotting), ("plots", plotting)):
     sys.modules[f"{__name__}.{_alias}"] = _mod
 
 __all__ = [
-    "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "PERSONA_COLS",
+    "WORKSPACE_ROOT", "DATA_DIR", "QUESTIONNAIRES", "QUESTIONNAIRE_ORDER", "OUTCOME_ORDER", "PERSONA_COLS",
     "WARMTH_RUBRICS", "EXTRA_METRICS", "LOWER_IS_BETTER", "display_label", "short_label",
     "MITI_THRESHOLDS", "Q1_ITEM_SHORT", "Q2_ITEM_SHORT", "Q2_ITEM_GROUPS", "ITEM_QUESTIONNAIRES",
     "DISPLAY_NAMES", "ARM_LABELS", "arm_label", "item_short_label",

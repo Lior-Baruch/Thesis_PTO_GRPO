@@ -130,7 +130,7 @@ MICI 0.812, Q1 0.928, Q2 0.914.)*
 
 **Rank agreement per conversation, read against its ceiling.** Per-`(metric, model)` Pearson r lives
 in [`validity/tables/second_judge_agreement.md`](validity/tables/second_judge_agreement.md) (the
-`.md` is a 60-row excerpt; all 396 rows (9 metrics × 44 states; MIPROC joined in the 2026-10-06 re-render) are on sheet `second_judge_agreement` of
+`.md` is a 60-row excerpt; all 352 rows (8 instruments × 44 states) are on sheet `second_judge_agreement` of
 [`validity/tables/validity.xlsx`](validity/tables/validity.xlsx)). Median of each rubric's 44 rows:
 
 | rubric | PCT | MI-SAT | WAI-SR | CSQ-8 | **Q1** | **Q2** | MITI | MICI |
@@ -154,11 +154,10 @@ table — it holds `PTO_LA0_I10 − GRPO_LA0_I10` and `PTO_LA0_I10 − PTO_LA0_B
 16 rows is the whole table. Any other contrast must be read off
 [`validity/tables/multijudge_all_pairs_contrasts.md`](validity/tables/multijudge_all_pairs_contrasts.md).)*
 
-> ⚠ **2026-10-07:** the rendered ladder now also pools MIPROC as a ninth metric (7 × 946 + 2 × 903
-> = 8,428 contrasts, 86.9% pooled; PCT and MIPROC lose `PTOExp3_LA5_I3`, 43 × 42 / 2 = 903). Over the
-> eight instruments alone, with PCT from the utterance coder, it is 7,525 contrasts at 88.3 / 94.5 /
-> 97.2 / 99.4 / 95.9%. The figures in this paragraph are the earlier eight-instrument ladder with the
-> PCT call; whether MIPROC belongs in the pooled row is an open decision.
+> ⚠ **2026-10-07:** the ladder is on the eight outcome instruments (MIPROC excluded,
+> `OUTCOME_ORDER`), with PCT from the utterance coder: 7 × 946 + 903 = 7,525 contrasts (PCT loses
+> `PTOExp3_LA5_I3`, 43 × 42 / 2 = 903) at 88.3 / 94.6 / 97.2 / 99.3 / 95.9%. The figures in this
+> paragraph are the earlier ladder with the PCT call (8 × 946 = 7,568).
 
 **And so does the whole grid, wherever the gap is big enough to claim.** `all_pairs_contrasts`
 enumerates *every* unordered model-state pair × rubric — **44 × 43 / 2 = 946** pairs,

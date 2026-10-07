@@ -49,7 +49,12 @@ codes everywhere the EDA reports it:
   (`stats.compare_two_models`, `compute.iso_compute_contrast`; m 9 → 10), which moves non-PCT
   `p_holm` values there (e.g. GRPO K contrast on Q1+Q2 at iteration 4, 0.0368 → 0.0442). No paper
   number comes from those families (the paper's Holm families are `lookahead.RUBRICS`, without
-  MIPROC). Whether MIPROC belongs in those families is an open design question, not settled here.
+  MIPROC). **Settled 2026-10-07 (Lior: exclude it):** `constants.OUTCOME_ORDER` =
+  `QUESTIONNAIRE_ORDER` without MIPROC is now the default metric set of every across-rubric analysis
+  (`stats.compare_two_models` / `main_results` / `rubric_correlation`, `compute.iso_compute_contrast`,
+  the `EdaConfig` default `S.METRICS`) and of the `measurement/validity` judge-agreement grid, so the
+  process coder enters no outcome correction or pooled ladder; its own analyses stay in
+  `lookahead/process`. Those families were re-rendered the same day.
 - Consequences visible in the results tree: Table-1-style PCT levels rise slightly (K=5 at
   iteration 10 0.685 → 0.732 primary); the primary's PCT K-contrast clears Holm from iteration 6
   instead of 4 (held-out 4–10 either way); the iteration-10 contrast is unchanged in size (dz 0.516

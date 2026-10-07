@@ -19,7 +19,7 @@ import numpy as np
 import pandas as pd
 from scipy import stats
 
-from .constants import QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, EXTRA_METRICS, BOOT_SEED
+from .constants import OUTCOME_ORDER, QUESTIONNAIRE_ORDER, WARMTH_RUBRICS, EXTRA_METRICS, BOOT_SEED
 from .data import to_wide
 
 _BOOT_SEED = BOOT_SEED  # single source of truth in constants (shared with the figure-side bands)
@@ -121,7 +121,7 @@ def compare_two_models(scores_long: pd.DataFrame, model_a: str, model_b: str,
                        metrics: Optional[Sequence[str]] = None) -> pd.DataFrame:
     """Paired model_a − model_b across rubrics (e.g. PTO vs GRPO at a matched iter)."""
     wide = to_wide(scores_long)
-    metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in wide.columns]
+    metrics = [m for m in (metrics or OUTCOME_ORDER) if m in wide.columns]
     out = pd.DataFrame([paired_compare(wide, m, model_a, model_b) for m in metrics])
     if not out.empty:
         out["p_holm"] = holm(out["p"].to_numpy())
@@ -218,7 +218,7 @@ def k_means_by_iter(scores_long: pd.DataFrame, method: str = "PTO",
     if sub.empty:
         return pd.DataFrame()
     present = set(sub["questionnaire"].unique())
-    metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in present]
+    metrics = [m for m in (metrics or OUTCOME_ORDER) if m in present]
     agg = (sub.groupby(["questionnaire", "arm", "iteration"])["score"]
            .agg(["mean", "size"]))
     rows = []
@@ -297,7 +297,7 @@ def rubric_correlation(scores_long_or_wide, metrics: Optional[Sequence[str]] = N
                        method: str = "spearman") -> pd.DataFrame:
     """Correlation matrix among rubric scores (per-conversation, pooled)."""
     wide = scores_long_or_wide if "Q1Q2" in scores_long_or_wide.columns else to_wide(scores_long_or_wide)
-    metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in wide.columns]
+    metrics = [m for m in (metrics or OUTCOME_ORDER) if m in wide.columns]
     return wide[metrics].corr(method=method)
 
 
@@ -528,7 +528,7 @@ def main_results_table(scores_long: pd.DataFrame, target: str = "final",
     label, Wilcoxon ``p`` (Holm-corrected across rubrics within arm), bootstrap CI, trajectory Spearman
     ρ + OLS slope. Paired by persona throughout.
     """
-    metrics = [m for m in (metrics or QUESTIONNAIRE_ORDER) if m in set(scores_long["questionnaire"])]
+    metrics = [m for m in (metrics or OUTCOME_ORDER) if m in set(scores_long["questionnaire"])]
     # resolve the target model per arm
     target_model = {}
     if target == "best":

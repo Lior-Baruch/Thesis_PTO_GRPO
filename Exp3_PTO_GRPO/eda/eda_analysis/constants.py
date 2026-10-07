@@ -118,6 +118,13 @@ def reported_value(name: str, row, value_col: str) -> float:
 
 # Left-to-right plot order: the global-eval rubrics (+ Q1/Q2 components) then the added metrics.
 QUESTIONNAIRE_ORDER = ["Q1Q2", "WAI-SR", "CSQ-8", "MI-SAT", "MITI", "PCT", "MICI", "Q1", "Q2", "MIPROC"]
+# The OUTCOME instruments only: QUESTIONNAIRE_ORDER without the MIPROC process coder (Lior,
+# 2026-10-07). The default metric set of every "across rubrics" analysis — Holm families
+# (stats.compare_two_models, stats.main_results, compute.iso_compute_contrast, ...), and the
+# EdaConfig default S.METRICS — so a process coder never enters an outcome correction. MIPROC's own
+# analyses live in lookahead/process. (9b9567f, 2026-09-17, put MIPROC in QUESTIONNAIRE_ORDER for
+# plot order; families re-rendered on 2026-10-06 then pulled it into their Holm families.)
+OUTCOME_ORDER = [m for m in QUESTIONNAIRE_ORDER if m != "MIPROC"]
 
 # The 5 global-evaluation rubrics that share the dominant PC1 factor (the empirical halo /
 # redundancy set — NOT one official construct). "WARMTH_RUBRICS" is the historical code name,
