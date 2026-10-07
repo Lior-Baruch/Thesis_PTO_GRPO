@@ -2,18 +2,25 @@
 
 The EDA's hand-authored schematic (``eda/results/schematics/grpo_group_rollout.png``) is a
 portrait, three-column diagram sized for a slide; placed in one ACL column its box text prints at
-about 4 pt. This redraws the same content as a left-to-right pipeline for a ``figure*``. Nothing
-here reads data: it is a diagram of the method as ``sec:method`` states it (G = 8 completions per
-prompt, a K-turn rollout with the patient first, one oracle call per candidate, group-standardised
-advantages, the policy step of Eq. 2 with its KL penalty to pi_n).
+about 4 pt. This redraws the same content for the paper. Nothing here reads data: it is a diagram
+of the method as ``sec:method`` states it (G = 8 completions per prompt, a K-turn rollout with the
+patient first, one oracle call per candidate, group-standardised advantages, the policy step of
+Eq. 2 with its KL penalty to pi_n).
 
-SIZING (2026-10-01): the canvas is the include width read from ``sections/03_method.tex``
-(``0.82\\textwidth`` today) minus the save pad, the axes fill it, and the data units are isotropic,
-so the PNG is exactly as wide as the page prints it and every point size below is a print size
-(nothing under 5.8 pt; mathtext subscripts are smaller by construction). Until then the canvas
-was 6.3 in, the PNG came out 5.70 in and printed at 0.91 of its sizes (the smallest box text at
-5.0 pt). ``main()`` fails if a box text does not fit its box, two texts overlap, or the PNG width
-misses the include width.
+LAYOUT (2026-10-07): one column (``0.48\\textwidth`` in ``sections/03_method.tex``), drawn as a
+U. Top band: the prompt box at left feeds the G rows, each a completion t_g and its 5-node rollout
+chain inside the dashed box; the chain ends join a bus on the right that drops into the oracle.
+Bottom band, right to left: oracle -> group-relative advantage -> policy step. The K = 0 note sits
+between the bands, under the rollout it qualifies. The colour legend is gone (the labels and the
+caption name every role). Until 2026-10-07 this was a left-to-right ``figure*`` at
+``0.82\\textwidth``.
+
+SIZING: the canvas is the include width read from ``03_method.tex`` minus the save pad, the axes
+fill it, and the data units are isotropic. ``XMAX`` is that canvas in points at ``0.48\\textwidth``,
+so at that width 1 data unit = 1 pt and every point size below is a print size (nothing under
+``MIN_FS``; mathtext subscripts are smaller by construction). ``main()`` fails if a box text does
+not fit its box, two texts overlap, a text is under ``MIN_FS``, or the PNG width misses the include
+width.
 
     & ..\\..\\.venv\\Scripts\\python.exe render_schematic.py
 
@@ -40,7 +47,10 @@ TEX = HERE / "sections" / "03_method.tex"
 TEXTWIDTH_IN = 455.24411 / 72.27
 PAD_IN = 0.03                      # savefig pad around the axes, inside the include width
 DPI = 300
-XMAX, YMAX = 100.0, 33.2           # data extent; 1 unit = the same length on both axes
+MIN_FS = 6.5                       # smallest font size drawn, in pt
+# Data extent: XMAX is the canvas width in pt at 0.48\textwidth (3.024 in - 2 x 0.03 in pad), so
+# 1 data unit = 1 pt there; 1 unit = the same length on both axes.
+XMAX, YMAX = 213.4, 130.5
 
 
 def include_width_in() -> float:
@@ -64,6 +74,7 @@ ROLE = {
     "neutral": ("#EFF2F6", "#8A96A3"),
     "update": ("#FFF4E0", "#B8860B"),
 }
+BOX_PAD = 1.2                      # FancyBboxPatch pad, data units (pt); node sizes include it
 
 plt.rcParams.update({"font.family": "DejaVu Sans", "mathtext.fontset": "dejavusans"})
 
@@ -71,28 +82,31 @@ plt.rcParams.update({"font.family": "DejaVu Sans", "mathtext.fontset": "dejavusa
 BOXED = []                         # (text, patch) pairs that main() checks for fit
 
 
-def node(ax, x, y, w, h, text, role="neutral", fs=7.0, bold=False, lw=1.0):
+def node(ax, x, y, w, h, text, role="neutral", fs=7.0, lw=0.9, ls=1.05):
+    """A rounded box of OUTER size w x h (pad included) centred on (x, y), with centred text."""
     fill, edge = ROLE[role]
     patch = ax.add_patch(FancyBboxPatch(
-        (x - w / 2, y - h / 2), w, h,
-        boxstyle=f"round,pad=0.25,rounding_size={min(w, h) * 0.18:.3f}",
+        (x - w / 2 + BOX_PAD, y - h / 2 + BOX_PAD), w - 2 * BOX_PAD, h - 2 * BOX_PAD,
+        boxstyle=f"round,pad={BOX_PAD},rounding_size={min(min(w, h) * 0.16, 3.0):.3f}",
         facecolor=fill, edgecolor=edge, linewidth=lw, zorder=2))
     label = ax.text(x, y, text, ha="center", va="center", fontsize=fs, color="#22282F", zorder=3,
-                    fontweight="bold" if bold else "normal", linespacing=1.3)
+                    linespacing=ls)
     BOXED.append((label, patch))
     return (x, y, w, h)
 
 
-def arrow(ax, a, b, color=NAVY, lw=0.9, side="h", scale=7):
+def arrow_xy(ax, start, end, color=NAVY, lw=0.8, scale=5.5, shrink_a=0.8, shrink_b=0.8):
+    ax.add_patch(FancyArrowPatch(start, end, arrowstyle="-|>", mutation_scale=scale, color=color,
+                                 linewidth=lw, zorder=1.5, shrinkA=shrink_a, shrinkB=shrink_b))
+
+
+def arrow(ax, a, b, side="r", **kw):
+    """Box a -> box b: 'r' a's right edge to b's left edge, 'l' a's left edge to b's right edge."""
     (ax0, ay0, aw, ah), (bx0, by0, bw, bh) = a, b
-    if side == "h":
-        sx, sy = ax0 + aw / 2, ay0
-        ex, ey = bx0 - bw / 2, by0
+    if side == "r":
+        arrow_xy(ax, (ax0 + aw / 2, ay0), (bx0 - bw / 2, by0), **kw)
     else:
-        sx, sy = ax0, ay0 - ah / 2
-        ex, ey = bx0, by0 + bh / 2
-    ax.add_patch(FancyArrowPatch((sx, sy), (ex, ey), arrowstyle="-|>", mutation_scale=scale,
-                                 color=color, linewidth=lw, zorder=1.5, shrinkA=1.0, shrinkB=1.0))
+        arrow_xy(ax, (ax0 - aw / 2, ay0), (bx0 + bw / 2, by0), **kw)
 
 
 def _overlap(a, b) -> bool:
@@ -101,7 +115,7 @@ def _overlap(a, b) -> bool:
 
 def check_layout(fig, free, dashed) -> list[str]:
     """Every box text inside its box with >= 1 pt to spare, no two texts overlapping, no free
-    text (headers, note, legend) on a box, and nothing outside the canvas."""
+    text (headers, note) on a box, no text under MIN_FS, and nothing outside the canvas."""
     r = fig.canvas.get_renderer()
     pt = DPI / 72
     probs = []
@@ -120,6 +134,9 @@ def check_layout(fig, free, dashed) -> list[str]:
         for patch in [p for _, p in BOXED] + [dashed]:
             if _overlap(t.get_window_extent(r), patch.get_window_extent(r)):
                 probs.append(f"text {t.get_text()[:30]!r} sits on a box")
+    for t in texts:
+        if t.get_fontsize() < MIN_FS:
+            probs.append(f"text {t.get_text()[:30]!r} is {t.get_fontsize()} pt (< {MIN_FS})")
     canvas = fig.bbox
     for t in texts:
         e = t.get_window_extent(r)
@@ -137,67 +154,93 @@ def main() -> int:
     ax.axis("off")
     BOXED.clear()
     free = []
+    margin = 0.5                                     # canvas edge to the outermost boxes
+    x_left, x_right = margin, XMAX - margin
 
-    rows = (25.1, 18.5, 11.3)            # completion 1, completion 2, completion G
-    # -- prompt ------------------------------------------------------------------------------
-    prompt = node(ax, 8.4, 18.5, 16.0, 10.6,
-                  "prompt $c$\nprefix of $\\geq 12$\nutterances (MCL),\nending on a\npatient turn",
-                  role="source", fs=6.0)
-    # -- the group ---------------------------------------------------------------------------
-    # Centred over the prompt-to-completion arrows: over the completions it met the rollout's
-    # header once both print at 6.2 pt.
-    free.append(ax.text(18.5, 30.85, "$\\pi$ samples\n$G{=}8$ completions", ha="center",
-                        va="center", fontsize=6.2, color=NAVY, fontweight="bold", linespacing=1.2))
-    comps = [node(ax, 21.6, y, 5.4, 3.8, f"$t_{{{lab}}}$", role="data", fs=7.0)
+    # -- vertical bands (bottom up, pt) --------------------------------------------------------
+    bot_h = 33.0                                     # bottom band: oracle, advantage, policy step
+    bot_y = margin + bot_h / 2
+    note_y = margin + bot_h + 10.75                  # the K = 0 note, between the bands
+    node_h = 13.0
+    rows = (103.0, 86.0, 64.0)                       # completion 1, completion 2, completion G
+    dash_pad = 3.0
+    head_y = rows[0] + node_h / 2 + dash_pad + 9.5   # the two bold headers
+
+    # -- horizontal columns (pt) ---------------------------------------------------------------
+    prompt_w = 54.0
+    t_w = 17.0
+    t_x = x_left + prompt_w + 10.0 + t_w / 2
+    chain_w, chain_gap = 15.0, 9.0
+    xs = [t_x + t_w / 2 + 9.0 + chain_w / 2 + i * (chain_w + chain_gap) for i in range(5)]
+    bus_x = xs[-1] + chain_w / 2 + 6.5
+
+    # -- prompt --------------------------------------------------------------------------------
+    prompt_top, prompt_bot = rows[0] + node_h / 2, rows[-1] - node_h / 2
+    prompt = node(ax, x_left + prompt_w / 2, (prompt_top + prompt_bot) / 2, prompt_w,
+                  prompt_top - prompt_bot,
+                  "prompt $c$\nprefix of $\\geq 12$\nutterances\n(MCL), ending\non a patient\nturn",
+                  role="source", fs=7.0, ls=1.1)
+    # -- the group -----------------------------------------------------------------------------
+    free.append(ax.text((x_left + t_x + t_w / 2) / 2, head_y, "$\\pi$ samples\n$G{=}8$ completions",
+                        ha="center", va="center", fontsize=7.0, color=NAVY, fontweight="bold",
+                        linespacing=1.1))
+    comps = [node(ax, t_x, y, t_w, node_h, f"$t_{{{lab}}}$", role="data", fs=7.5)
              for y, lab in zip(rows, ("1", "2", "G"))]
-    free.append(ax.text(21.6, 14.9, "$\\vdots$", ha="center", va="center", fontsize=9, color=GREY))
-    for c in comps:
-        arrow(ax, prompt, c)
-    # -- the rollout -------------------------------------------------------------------------
-    dashed = ax.add_patch(FancyBboxPatch((27.0, 8.9), 28.4, 18.6,
-                                         boxstyle="round,pad=0.3,rounding_size=1.2",
-                                         facecolor="none", edgecolor="#B8BFC8", linewidth=0.8,
+    vdots_y = (rows[1] + rows[2]) / 2
+    free.append(ax.text(t_x, vdots_y, "$\\vdots$", ha="center", va="center", fontsize=8, color=GREY))
+    for y in rows:
+        arrow_xy(ax, (prompt[0] + prompt[2] / 2, y), (t_x - t_w / 2, y))
+    # -- the rollout ---------------------------------------------------------------------------
+    d_x0 = xs[0] - chain_w / 2 - dash_pad
+    d_x1 = xs[-1] + chain_w / 2 + dash_pad
+    d_y0 = rows[-1] - node_h / 2 - dash_pad
+    d_y1 = rows[0] + node_h / 2 + dash_pad
+    dashed = ax.add_patch(FancyBboxPatch((d_x0 + 0.6, d_y0 + 0.6), d_x1 - d_x0 - 1.2, d_y1 - d_y0 - 1.2,
+                                         boxstyle="round,pad=0.6,rounding_size=3.0",
+                                         facecolor="none", edgecolor="#B8BFC8", linewidth=0.7,
                                          linestyle=(0, (3, 2)), zorder=0.5))
-    free.append(ax.text(41.2, 30.85, "look-ahead rollout $\\tau_K$:\n$K{=}5$ turns, patient first",
-                        ha="center", va="center", fontsize=6.2, color=NAVY, fontweight="bold",
-                        linespacing=1.2))
-    xs = (30.0, 35.6, 41.2, 46.8, 52.4)
+    free.append(ax.text((d_x0 + d_x1) / 2, head_y, "look-ahead rollout $\\tau_K$:\n$K{=}5$ turns, patient first",
+                        ha="center", va="center", fontsize=7.0, color=NAVY, fontweight="bold",
+                        linespacing=1.1))
     chains = []
     for y, c in zip(rows, comps):
         chain = []
         for i, x in enumerate(xs):
             is_p = i % 2 == 0
-            chain.append(node(ax, x, y, 4.0, 3.6, "$P$" if is_p else "$\\pi$",
-                              role="api" if is_p else "policy", fs=6.6))
+            chain.append(node(ax, x, y, chain_w, node_h, "$P$" if is_p else "$\\pi$",
+                              role="api" if is_p else "policy", fs=7.0))
         arrow(ax, c, chain[0])
         for a, b in zip(chain, chain[1:]):
-            arrow(ax, a, b, scale=5)
+            arrow(ax, a, b)
         chains.append(chain)
-    free.append(ax.text(41.2, 14.9, "$\\vdots$", ha="center", va="center", fontsize=9, color=GREY))
-    free.append(ax.text(38.0, 6.25, "$K = 0$: the rollout is skipped and the oracle scores "
-                                     "$c \\oplus t_g$ alone (standard GRPO)",
-                        ha="center", va="center", fontsize=6.2, color=NAVY, fontstyle="italic"))
-    # -- the oracle --------------------------------------------------------------------------
-    oracle = node(ax, 65.55, 18.5, 15.0, 7.3,
+    free.append(ax.text(xs[2], vdots_y, "$\\vdots$", ha="center", va="center", fontsize=8, color=GREY))
+    free.append(ax.text((x_left + bus_x) / 2 - 3.0, note_y,
+                        "$K = 0$: the rollout is skipped and the oracle scores\n"
+                        "$c \\oplus t_g$ alone (standard GRPO)",
+                        ha="center", va="center", fontsize=6.5, color=NAVY, fontstyle="italic",
+                        linespacing=1.1))
+    # -- bottom band, right to left: oracle -> advantage -> policy step ------------------------
+    oracle_w, adv_w, upd_w = 61.5, 61.0, 70.0
+    oracle = node(ax, x_right - oracle_w / 2, bot_y, oracle_w, bot_h,
                   "oracle $O$ scores\n$c \\oplus t_g \\oplus \\tau_K(c \\oplus t_g)$\non Q1+Q2 $\\rightarrow r_g$",
-                  role="oracle", fs=6.0)
-    for chain in chains:
-        arrow(ax, chain[-1], oracle)
-    # -- the update (2026-10-01: "within the group", and the step said in words, as Eq. 2 is a
-    # per-token clipped surrogate rather than the sum the box used to print) ------------------
-    adv = node(ax, 87.725, 28.4, 23.75, 6.9,
-               "group-relative advantage\n$A_g = (r_g - \\bar r)\\,/\\,\\sigma_r$\nwithin the group",
-               role="neutral", fs=6.0)
-    upd = node(ax, 87.725, 16.95, 23.75, 9.0,
+                  role="oracle", fs=6.5, ls=1.1)
+    upd = node(ax, x_left + upd_w / 2, bot_y, upd_w, bot_h,
                "policy step (Eq. 2):\nevery completion\nweighted by its $A_g$,\nKL penalty to $\\pi_n$",
-               role="update", fs=6.0)
-    arrow(ax, oracle, adv)
-    arrow(ax, adv, upd, side="v")
-    # -- legend (two lines since 2026-10-01: on one it was wider than the figure) ------------
-    free.append(ax.text(0.4, 0.25, "green: transcripts produced    purple: patient simulator $P$ (API)    "
-                                   "blue: the policy $\\pi$ being trained\n"
-                                   "orange: oracle $O$    yellow: the update",
-                        ha="left", va="bottom", fontsize=6.0, color=GREY))
+               role="update", fs=6.5)
+    adv_x = ((x_left + upd_w) + (x_right - oracle_w)) / 2
+    adv = node(ax, adv_x, bot_y, adv_w, bot_h,
+               "group-relative\nadvantage\n$A_g = (r_g - \\bar r)\\,/\\,\\sigma_r$\nwithin the group",
+               role="neutral", fs=6.5)
+    arrow(ax, oracle, adv, side="l")
+    arrow(ax, adv, upd, side="l")
+    # -- the bus: every chain end joins one line that drops into the oracle ------------------
+    for chain in chains:
+        end = chain[-1]
+        ax.plot([end[0] + end[2] / 2 + 0.8, bus_x], [end[1], end[1]], color=NAVY, lw=0.8,
+                solid_capstyle="butt", zorder=1.5)
+    ax.plot([bus_x, bus_x], [rows[0], rows[-1]], color=NAVY, lw=0.8, solid_capstyle="projecting",
+            zorder=1.5)
+    arrow_xy(ax, (bus_x, rows[-1]), (bus_x, bot_y + bot_h / 2), shrink_a=0.0)
 
     fig.canvas.draw()
     probs = check_layout(fig, free, dashed)
@@ -211,10 +254,11 @@ def main() -> int:
     OUT.parent.mkdir(exist_ok=True)
     fig.savefig(OUT, dpi=DPI, bbox_inches="tight", pad_inches=PAD_IN, facecolor="white")
     plt.close(fig)
-    got = plt.imread(OUT).shape[1] / DPI
+    h_px, w_px = plt.imread(OUT).shape[:2]
+    got = w_px / DPI
     if abs(got - include_width_in()) > 0.01 * include_width_in():
         raise SystemExit(f"{OUT.name} is {got:.3f} in wide; the .tex includes it at {include_width_in():.3f} in")
-    print(f"wrote {OUT} ({got:.3f} in wide; included at {include_width_in():.3f} in)")
+    print(f"wrote {OUT} ({got:.3f} x {h_px / DPI:.3f} in; included at {include_width_in():.3f} in wide)")
     return 0
 
 
