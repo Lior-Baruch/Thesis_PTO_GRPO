@@ -7,8 +7,8 @@ training oracle's scores crowd the top of its scale, so its readings of individu
 there discriminate less; the held-out judge keeps its range and is the check on them.
 
 At the level of model states the two judges agree about the ordering that \S\ref{sec:reward}
-reports: across the 21 model states, the held-out judge preserves the sign of $1{,}484$ of
-$8 \times \binom{21}{2} = 1{,}680$ pairwise state $\times$ instrument contrasts ($88.3\%$), and
+reports: across the 21 model states, the held-out judge preserves the sign of $1{,}477$ of
+$8 \times \binom{21}{2} = 1{,}680$ pairwise state $\times$ instrument contrasts ($87.9\%$), and
 $373$ of the $377$ ($98.9\%$) that the training oracle scores at $|\Delta| \geq 0.50$. At the level
 of individual conversations they stop agreeing at the winning checkpoint.
 
@@ -26,9 +26,9 @@ Q2 (rewarded)   & $0.590$ & $0.752$ & $-0.162$ & $1/21$\\
 MICI (coding)   & $0.287$ & $0.411$ & $-0.123$ & $4/21$\\
 \midrule
 CSQ-8           & $0.851$ & $0.888$ & $-0.037$ & $4/21$\\
-PCT             & $0.928$ & $0.956$ & $-0.027$ & $3/21$\\
-MI-SAT          & $0.905$ & $0.930$ & $-0.025$ & $4/21$\\
+MI-SAT          & $0.906$ & $0.930$ & $-0.025$ & $4/21$\\
 WAI-SR          & $0.898$ & $0.920$ & $-0.023$ & $3/21$\\
+PCT             & $0.930$ & $0.950$ & $-0.020$ & $5/21$\\
 \bottomrule
 \end{tabular}
 \caption{Per-conversation agreement between the two judges (Pearson $r$ of their scores on each instrument's reported quantity, Table~\ref{tab:instruments})
@@ -40,12 +40,13 @@ than the median state. Rank $1/21$ = this instrument's worst-agreeing state in t
 its own median and rank, along its row, never against another instrument's $r$: their baseline
 agreement differs by more than the effect. Rows are sorted by $r$ minus median; the rule separates
 the four that fall well below their median from the four that barely move. Rewarded: the two rubrics
-of the training reward. Coding: the two coders that rate the therapist's behavior (PCT, the third
-coder, rates the patient's talk). The
+of the training reward. Coding: the two coders that rate the therapist's behavior (PCT, computed
+from the utterance coder's patient codes, rates the patient's talk). The
 disagreement is not confined to the rewarded rubric. No test or interval is attached to $r$;
 the evidence is this state's rank among the 21 and its distance below the median. At the $\Kz$
-policy's iteration 10, MICI's $r$ is lower still ($0.204$), while the other seven sit near their
-medians, so MICI's low agreement is not specific to $\Kf$.}
+policy's iteration 10, MICI's $r$ is lower still ($0.204$) and PCT's is its lowest of the 21
+($0.888$), while the other six sit near their medians, so MICI's low agreement is not specific to
+$\Kf$.}
 \label{tab:agreement}
 \end{table}
 
