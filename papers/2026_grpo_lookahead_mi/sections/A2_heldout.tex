@@ -13,7 +13,7 @@ table (Table~\ref{tab:scores-heldout}) for \S\ref{sec:reward}, the process figur
 \S\ref{sec:patient}.
 
 \textbf{Where it agrees and where it differs.} Across the 21 model states it preserves the sign of
-$88.3\%$ of the pairwise state $\times$ instrument contrasts the training oracle makes
+$87.9\%$ of the pairwise state $\times$ instrument contrasts the training oracle makes
 (Appendix~\ref{app:saturation}), and it agrees on the direction of every contrast at iteration 10
 in the body. On \QQ\ it separates the runs at 7 of the 10 iterations (4--10) where the training
 oracle does at 6. Against $\Kz$'s best checkpoint (iteration 8, chosen by the training oracle)
@@ -81,7 +81,9 @@ units: the two judges code the same turns differently (Table~\ref{tab:codes}).}
 \centering
 \includegraphics[width=0.94\textwidth]{figures/levels_grid_grpo_claude-haiku-4-5.png}
 \caption{Figure~\ref{fig:headline} under the held-out judge: every instrument by iteration, mean
-$\pm$ SE over the 96 personas (the Base: over its 192 conversations, two per persona), from the Base (dotted line); a star marks a significant $\Kf$ vs.\
+$\pm$ SE over the 96 personas (the Base: over its 192 conversations, two per persona), from the Base (dotted line);
+PCT at $\Kz$'s iterations 1 and 3 and $\Kf$'s iteration 1 leaves out the four conversations with
+neither change nor sustain talk (Appendix~\ref{app:instruments}); a star marks a significant $\Kf$ vs.\
 $\Kz$ contrast, which at iteration 3 favors $\Kz$ on MITI and MICI. Levels are in this judge's own
 units and are not comparable to Figure~\ref{fig:headline}'s.}
 \label{fig:grid-heldout}
@@ -96,35 +98,37 @@ units and are not comparable to Figure~\ref{fig:headline}'s.}
 \toprule
 Iteration & \QQ & Q1 & Q2 & WAI-SR & CSQ-8 & MI-SAT & MITI & PCT & MICI ($\downarrow$)\\
 \midrule
-Base & $1.848$ & $1.688$ & $2.008$ & $2.194$ & $2.089$ & $2.480$ & $1.859$ & $0.516$ & $0.355$\\
+Base & $1.848$ & $1.688$ & $2.008$ & $2.194$ & $2.089$ & $2.480$ & $1.859$ & $0.500$ & $0.355$\\
 \midrule
 \multicolumn{10}{@{}l}{\emph{$K{=}0$}}\\
-1 & $2.074$ & $1.960$ & $2.188$ & $2.377$ & $2.237$ & $2.628$ & $1.979$ & $0.539$ & $0.373$\\
-2 & $2.107$ & $1.971$ & $2.243$ & $2.446$ & $2.293$ & $2.675$ & $2.073$ & $0.553$ & $\mathbf{0.309}$\\
-3 & $2.637$ & $2.577$ & $2.696$ & $2.858$ & $2.699$ & $2.981$ & $2.383$\rlap{$^{*}$} & $0.601$ & $0.407$\rlap{$^{*}$}\\
-4 & $2.550$ & $2.446$ & $2.655$ & $2.780$ & $2.559$ & $2.894$ & $2.281$ & $0.586$ & $0.508$\\
-5 & $2.487$ & $2.360$ & $2.613$ & $2.701$ & $2.599$ & $2.868$ & $2.086$ & $0.555$ & $0.629$\\
-6 & $2.371$ & $2.179$ & $2.562$ & $2.701$ & $2.497$ & $2.707$ & $2.141$ & $0.554$ & $0.612$\\
-7 & $2.565$ & $2.390$ & $2.741$ & $2.808$ & $2.624$ & $2.887$ & $2.190$ & $0.583$ & $0.655$\\
-8 & $2.617$ & $2.325$ & $2.909$ & $2.895$ & $2.681$ & $2.917$ & $2.219$ & $0.596$ & $0.898$\\
-9 & $2.002$ & $1.694$ & $2.311$ & $2.337$ & $2.120$ & $2.378$ & $1.979$ & $0.463$ & $0.696$\\
-10 & $2.257$ & $1.867$ & $2.648$ & $2.669$ & $2.484$ & $2.825$ & $2.099$ & $0.612$ & $1.050$\\
+1 & $2.074$ & $1.960$ & $2.188$ & $2.377$ & $2.237$ & $2.628$ & $1.979$ & $0.520$ & $0.373$\\
+2 & $2.107$ & $1.971$ & $2.243$ & $2.446$ & $2.293$ & $2.675$ & $2.073$ & $0.546$ & $\mathbf{0.309}$\\
+3 & $2.637$ & $2.577$ & $2.696$ & $2.858$ & $2.699$ & $2.981$ & $2.383$\rlap{$^{*}$} & $0.602$ & $0.407$\rlap{$^{*}$}\\
+4 & $2.550$ & $2.446$ & $2.655$ & $2.780$ & $2.559$ & $2.894$ & $2.281$ & $0.575$ & $0.508$\\
+5 & $2.487$ & $2.360$ & $2.613$ & $2.701$ & $2.599$ & $2.868$ & $2.086$ & $0.551$ & $0.629$\\
+6 & $2.371$ & $2.179$ & $2.562$ & $2.701$ & $2.497$ & $2.707$ & $2.141$ & $0.561$ & $0.612$\\
+7 & $2.565$ & $2.390$ & $2.741$ & $2.808$ & $2.624$ & $2.887$ & $2.190$ & $0.575$ & $0.655$\\
+8 & $2.617$ & $2.325$ & $2.909$ & $2.895$ & $2.681$ & $2.917$ & $2.219$ & $0.599$ & $0.898$\\
+9 & $2.002$ & $1.694$ & $2.311$ & $2.337$ & $2.120$ & $2.378$ & $1.979$ & $0.457$ & $0.696$\\
+10 & $2.257$ & $1.867$ & $2.648$ & $2.669$ & $2.484$ & $2.825$ & $2.099$ & $0.580$ & $1.050$\\
 \midrule
 \multicolumn{10}{@{}l}{\emph{$K{=}5$}}\\
-1 & $2.046$ & $1.875$ & $2.218$ & $2.308$ & $2.250$ & $2.622$ & $2.013$ & $0.522$ & $0.362$\\
-2 & $2.142$ & $1.971$ & $2.312$ & $2.438$ & $2.318$ & $2.701$ & $2.102$ & $0.560$ & $0.370$\\
-3 & $2.586$ & $2.523$ & $2.649$ & $2.772$ & $2.681$ & $3.036$ & $2.250$ & $0.623$ & $0.518$\\
-4 & $2.784$\rlap{$^{*}$} & $2.815$\rlap{$^{*}$} & $2.752$ & $2.852$ & $2.802$\rlap{$^{*}$} & $3.149$\rlap{$^{*}$} & $2.279$ & $0.651$\rlap{$^{*}$} & $0.562$\\
-5 & $2.798$\rlap{$^{*}$} & $2.810$\rlap{$^{*}$} & $2.785$ & $2.810$ & $2.736$ & $3.097$\rlap{$^{*}$} & $2.185$ & $0.622$\rlap{$^{*}$} & $0.647$\\
-6 & $2.903$\rlap{$^{*}$} & $\mathbf{2.898}$\rlap{$^{*}$} & $2.909$\rlap{$^{*}$} & $2.960$\rlap{$^{*}$} & $2.875$\rlap{$^{*}$} & $3.233$\rlap{$^{*}$} & $2.344$\rlap{$^{*}$} & $0.677$\rlap{$^{*}$} & $0.575$\\
-7 & $\mathbf{2.912}$\rlap{$^{*}$} & $2.869$\rlap{$^{*}$} & $2.955$ & $2.888$ & $2.792$\rlap{$^{*}$} & $3.205$\rlap{$^{*}$} & $2.383$\rlap{$^{*}$} & $0.668$\rlap{$^{*}$} & $0.580$\\
-8 & $2.776$\rlap{$^{*}$} & $2.688$\rlap{$^{*}$} & $2.864$ & $2.878$ & $2.819$ & $3.240$\rlap{$^{*}$} & $2.378$ & $0.700$\rlap{$^{*}$} & $0.560$\rlap{$^{*}$}\\
-9 & $2.858$\rlap{$^{*}$} & $2.721$\rlap{$^{*}$} & $2.996$\rlap{$^{*}$} & $\mathbf{3.014}$\rlap{$^{*}$} & $2.906$\rlap{$^{*}$} & $\mathbf{3.394}$\rlap{$^{*}$} & $\mathbf{2.398}$\rlap{$^{*}$} & $\mathbf{0.754}$\rlap{$^{*}$} & $0.568$\rlap{$^{*}$}\\
-10 & $2.873$\rlap{$^{*}$} & $2.731$\rlap{$^{*}$} & $\mathbf{3.015}$\rlap{$^{*}$} & $2.957$\rlap{$^{*}$} & $\mathbf{2.935}$\rlap{$^{*}$} & $3.328$\rlap{$^{*}$} & $2.375$\rlap{$^{*}$} & $0.725$\rlap{$^{*}$} & $0.628$\rlap{$^{*}$}\\
+1 & $2.046$ & $1.875$ & $2.218$ & $2.308$ & $2.250$ & $2.622$ & $2.013$ & $0.519$ & $0.362$\\
+2 & $2.142$ & $1.971$ & $2.312$ & $2.438$ & $2.318$ & $2.701$ & $2.102$ & $0.558$ & $0.370$\\
+3 & $2.586$ & $2.523$ & $2.649$ & $2.772$ & $2.681$ & $3.036$ & $2.250$ & $0.611$ & $0.518$\\
+4 & $2.784$\rlap{$^{*}$} & $2.815$\rlap{$^{*}$} & $2.752$ & $2.852$ & $2.802$\rlap{$^{*}$} & $3.149$\rlap{$^{*}$} & $2.279$ & $0.638$\rlap{$^{*}$} & $0.562$\\
+5 & $2.798$\rlap{$^{*}$} & $2.810$\rlap{$^{*}$} & $2.785$ & $2.810$ & $2.736$ & $3.097$\rlap{$^{*}$} & $2.185$ & $0.615$\rlap{$^{*}$} & $0.647$\\
+6 & $2.903$\rlap{$^{*}$} & $\mathbf{2.898}$\rlap{$^{*}$} & $2.909$\rlap{$^{*}$} & $2.960$\rlap{$^{*}$} & $2.875$\rlap{$^{*}$} & $3.233$\rlap{$^{*}$} & $2.344$\rlap{$^{*}$} & $0.671$\rlap{$^{*}$} & $0.575$\\
+7 & $\mathbf{2.912}$\rlap{$^{*}$} & $2.869$\rlap{$^{*}$} & $2.955$ & $2.888$ & $2.792$\rlap{$^{*}$} & $3.205$\rlap{$^{*}$} & $2.383$\rlap{$^{*}$} & $0.676$\rlap{$^{*}$} & $0.580$\\
+8 & $2.776$\rlap{$^{*}$} & $2.688$\rlap{$^{*}$} & $2.864$ & $2.878$ & $2.819$ & $3.240$\rlap{$^{*}$} & $2.378$ & $0.699$\rlap{$^{*}$} & $0.560$\rlap{$^{*}$}\\
+9 & $2.858$\rlap{$^{*}$} & $2.721$\rlap{$^{*}$} & $2.996$\rlap{$^{*}$} & $\mathbf{3.014}$\rlap{$^{*}$} & $2.906$\rlap{$^{*}$} & $\mathbf{3.394}$\rlap{$^{*}$} & $\mathbf{2.398}$\rlap{$^{*}$} & $\mathbf{0.740}$\rlap{$^{*}$} & $0.568$\rlap{$^{*}$}\\
+10 & $2.873$\rlap{$^{*}$} & $2.731$\rlap{$^{*}$} & $\mathbf{3.015}$\rlap{$^{*}$} & $2.957$\rlap{$^{*}$} & $\mathbf{2.935}$\rlap{$^{*}$} & $3.328$\rlap{$^{*}$} & $2.375$\rlap{$^{*}$} & $0.738$\rlap{$^{*}$} & $0.628$\rlap{$^{*}$}\\
 \bottomrule
 \end{tabular}
 \caption{Table~\ref{tab:scores} under the held-out judge: every instrument at every iteration, the
-mean over the 96 personas (the Base: over its 192 conversations, two per persona), bold on the best
+mean over the 96 personas (the Base: over its 192 conversations, two per persona; PCT at $\Kz$'s
+iterations 1 and 3 and $\Kf$'s iteration 1: over 94, 95 and 95, Appendix~\ref{app:instruments}),
+bold on the best
 value in each column (the lowest for MICI) over all 21 model states, the Base included (a level, not
 a test), a star on the better run where the $\Kf$ vs.\ $\Kz$ contrast is significant (Holm across
 iterations 1--10 within instrument; one star for any Holm $p<.05$). The two stars on $\Kz$ cells
