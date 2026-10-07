@@ -1441,3 +1441,14 @@ anchor means against the level sheets.
 | Limitations ICC | ICC(2,1) 0.924–0.994 on Q1, Q2, MICI for GRPO K=0 iterations 8 and 10, 4 scorings each (rep 0 + 3) | `measurement/validity/tables/oracle_repeatability_icc.md` |
 | Abstract | 198 words (source count, same counter as the 200 of 2026-10-05) | — |
 | Removed from the paper | the four gain ratios (2.04 / 1.41 / 2.50 / 1.33) and "1.3 to 2.5 times" (Lior's pick); the cooperative-persona sentence of §4 (false for MICI; App A keeps the breakdown); the late-session rise/fall with old Figure 3d; Method's 86–89% sentence (App C.1 keeps the values) | — |
+
+## 2026-10-07 — review round 4, step 16 (length pass)
+
+No number changed and none was added. Moved or removed from the body only: the process table
+(`tab:process`) is now Appendix Table 3 (same cells, same script); the praise-reward numbers
+(0.22–0.33 / 0.16–0.21 within-group SD at iterations 4–7; 0.16 vs 0.04 in the last round) are
+stated once, in the Discussion (they had been in §6 and the Discussion); the held-out "reflects
+sustain talk 17% vs 5%" left §6 (it stays in Appendix B and Table 8); the Discussion's mechanism
+sentence no longer gives the gradient ratio (Appendix C.4 keeps "1.1–1.3 at iterations 1–4, median
+0.39 vs 0.20"). Related work and the Introduction lost repeated sentences only; every citation key
+of the section survives (checked by script).
