@@ -1,32 +1,32 @@
 | group                 | subset                             |   n_contrasts |   n_same_sign |   pct_same_sign |
 |:----------------------|:-----------------------------------|--------------:|--------------:|----------------:|
-| all cross-K contrasts | all contrasts                      |           198 |           158 |            79.8 |
-| all cross-K contrasts | |Δ primary| ≥ 0.10                 |            76 |            74 |            97.4 |
-| all cross-K contrasts | |Δ primary| ≥ 0.25                 |            24 |            24 |           100.0 |
+| all cross-K contrasts | all contrasts                      |           198 |           160 |            80.8 |
+| all cross-K contrasts | |Δ primary| ≥ 0.10                 |            78 |            76 |            97.4 |
+| all cross-K contrasts | |Δ primary| ≥ 0.25                 |            25 |            25 |           100.0 |
 | all cross-K contrasts | |Δ primary| ≥ 0.50                 |            11 |            11 |           100.0 |
-| all cross-K contrasts | judge CI excludes 0                |            90 |            87 |            96.7 |
-| all cross-K contrasts | primary p_holm < 0.05              |            57 |            56 |            98.2 |
-| all cross-K contrasts | judge p_holm < 0.05                |            69 |            67 |            97.1 |
-| all cross-K contrasts | both graders p_holm < 0.05         |            49 |            49 |           100.0 |
-| all cross-K contrasts | iteration >= 1 (base row excluded) |           180 |           145 |            80.6 |
-| method=PTO            | all contrasts                      |            99 |            70 |            70.7 |
+| all cross-K contrasts | judge CI excludes 0                |            88 |            85 |            96.6 |
+| all cross-K contrasts | primary p_holm < 0.05              |            56 |            55 |            98.2 |
+| all cross-K contrasts | judge p_holm < 0.05                |            67 |            65 |            97.0 |
+| all cross-K contrasts | both graders p_holm < 0.05         |            48 |            48 |           100.0 |
+| all cross-K contrasts | iteration >= 1 (base row excluded) |           180 |           147 |            81.7 |
+| method=PTO            | all contrasts                      |            99 |            73 |            73.7 |
 | method=PTO            | |Δ primary| ≥ 0.10                 |            23 |            22 |            95.7 |
 | method=PTO            | |Δ primary| ≥ 0.25                 |             2 |             2 |           100.0 |
 | method=PTO            | |Δ primary| ≥ 0.50                 |             0 |             0 |           nan   |
-| method=PTO            | judge CI excludes 0                |            34 |            31 |            91.2 |
-| method=PTO            | primary p_holm < 0.05              |             8 |             8 |           100.0 |
-| method=PTO            | judge p_holm < 0.05                |            23 |            21 |            91.3 |
-| method=PTO            | both graders p_holm < 0.05         |             7 |             7 |           100.0 |
-| method=PTO            | iteration >= 1 (base row excluded) |            90 |            65 |            72.2 |
-| method=GRPO           | all contrasts                      |            99 |            88 |            88.9 |
-| method=GRPO           | |Δ primary| ≥ 0.10                 |            53 |            52 |            98.1 |
-| method=GRPO           | |Δ primary| ≥ 0.25                 |            22 |            22 |           100.0 |
+| method=PTO            | judge CI excludes 0                |            32 |            29 |            90.6 |
+| method=PTO            | primary p_holm < 0.05              |             9 |             9 |           100.0 |
+| method=PTO            | judge p_holm < 0.05                |            22 |            20 |            90.9 |
+| method=PTO            | both graders p_holm < 0.05         |             8 |             8 |           100.0 |
+| method=PTO            | iteration >= 1 (base row excluded) |            90 |            68 |            75.6 |
+| method=GRPO           | all contrasts                      |            99 |            87 |            87.9 |
+| method=GRPO           | |Δ primary| ≥ 0.10                 |            55 |            54 |            98.2 |
+| method=GRPO           | |Δ primary| ≥ 0.25                 |            23 |            23 |           100.0 |
 | method=GRPO           | |Δ primary| ≥ 0.50                 |            11 |            11 |           100.0 |
 | method=GRPO           | judge CI excludes 0                |            56 |            56 |           100.0 |
-| method=GRPO           | primary p_holm < 0.05              |            49 |            48 |            98.0 |
-| method=GRPO           | judge p_holm < 0.05                |            46 |            46 |           100.0 |
-| method=GRPO           | both graders p_holm < 0.05         |            42 |            42 |           100.0 |
-| method=GRPO           | iteration >= 1 (base row excluded) |            90 |            80 |            88.9 |
+| method=GRPO           | primary p_holm < 0.05              |            47 |            46 |            97.9 |
+| method=GRPO           | judge p_holm < 0.05                |            45 |            45 |           100.0 |
+| method=GRPO           | both graders p_holm < 0.05         |            40 |            40 |           100.0 |
+| method=GRPO           | iteration >= 1 (base row excluded) |            90 |            79 |            87.8 |
 | metric=Q1Q2           | all contrasts                      |            22 |            19 |            86.4 |
 | metric=Q1Q2           | |Δ primary| ≥ 0.10                 |            12 |            12 |           100.0 |
 | metric=Q1Q2           | |Δ primary| ≥ 0.25                 |             4 |             4 |           100.0 |
@@ -90,15 +90,15 @@
 | metric=MITI           | judge p_holm < 0.05                |            13 |            13 |           100.0 |
 | metric=MITI           | both graders p_holm < 0.05         |             5 |             5 |           100.0 |
 | metric=MITI           | iteration >= 1 (base row excluded) |            20 |            18 |            90.0 |
-| metric=PCT            | all contrasts                      |            22 |            18 |            81.8 |
-| metric=PCT            | |Δ primary| ≥ 0.10                 |             2 |             2 |           100.0 |
-| metric=PCT            | |Δ primary| ≥ 0.25                 |             0 |             0 |           nan   |
+| metric=PCT            | all contrasts                      |            22 |            20 |            90.9 |
+| metric=PCT            | |Δ primary| ≥ 0.10                 |             4 |             4 |           100.0 |
+| metric=PCT            | |Δ primary| ≥ 0.25                 |             1 |             1 |           100.0 |
 | metric=PCT            | |Δ primary| ≥ 0.50                 |             0 |             0 |           nan   |
-| metric=PCT            | judge CI excludes 0                |            10 |            10 |           100.0 |
-| metric=PCT            | primary p_holm < 0.05              |             7 |             7 |           100.0 |
-| metric=PCT            | judge p_holm < 0.05                |             9 |             9 |           100.0 |
-| metric=PCT            | both graders p_holm < 0.05         |             7 |             7 |           100.0 |
-| metric=PCT            | iteration >= 1 (base row excluded) |            20 |            17 |            85.0 |
+| metric=PCT            | judge CI excludes 0                |             8 |             8 |           100.0 |
+| metric=PCT            | primary p_holm < 0.05              |             6 |             6 |           100.0 |
+| metric=PCT            | judge p_holm < 0.05                |             7 |             7 |           100.0 |
+| metric=PCT            | both graders p_holm < 0.05         |             6 |             6 |           100.0 |
+| metric=PCT            | iteration >= 1 (base row excluded) |            20 |            19 |            95.0 |
 | metric=MICI           | all contrasts                      |            22 |            18 |            81.8 |
 | metric=MICI           | |Δ primary| ≥ 0.10                 |             6 |             6 |           100.0 |
 | metric=MICI           | |Δ primary| ≥ 0.25                 |             2 |             2 |           100.0 |

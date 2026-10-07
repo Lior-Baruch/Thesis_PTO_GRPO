@@ -1,4 +1,4 @@
-> **Excerpt — first 60 of 352 rows.** The full table is too large to read as markdown, so it lives on sheet `second_judge_agreement` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="second_judge_agreement")`.
+> **Excerpt — first 60 of 396 rows.** The full table is too large to read as markdown, so it lives on sheet `second_judge_agreement` of the `.xlsx` workbook in this folder. Load it with `pandas.read_excel(..., sheet_name="second_judge_agreement")`.
 
 | metric   | model             |   n |   pearson_r |   spearman_rho |   bias_judge_minus_primary |   icc_primary |   icc_judge | ceiling_basis                 |   ceiling |   r_pct_of_ceiling |
 |:---------|:------------------|----:|------------:|---------------:|---------------------------:|--------------:|------------:|:------------------------------|----------:|-------------------:|
@@ -63,4 +63,4 @@
 | MI-SAT   | GRPOExp3_LA5_I2   |  96 |       0.952 |          0.942 |                     -0.443 |           nan |         nan | no ICC measured for this cell |       nan |                nan |
 | MI-SAT   | GRPOExp3_LA5_I3   |  96 |       0.937 |          0.936 |                     -0.453 |           nan |         nan | no ICC measured for this cell |       nan |                nan |
 
-_... 292 further rows in the workbook._
+_... 336 further rows in the workbook._

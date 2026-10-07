@@ -1777,18 +1777,18 @@
   "kcontrast.GRPO.PCT.iter0": {
    "value": {
     "primary_n": 96,
-    "primary_delta": 0.016421943202865094,
-    "primary_dz": 0.07141605396288182,
-    "primary_ci_lo": -0.028580695411708698,
-    "primary_ci_hi": 0.0610330111405868,
-    "primary_p": 0.3209295212958708,
-    "primary_p_holm": 0.9573744584654621,
-    "judge_delta": 0.019184836697950423,
-    "judge_dz": 0.08797454454846312,
-    "judge_ci_lo": -0.024010364276662588,
-    "judge_ci_hi": 0.0629819041153449,
-    "judge_p": 0.40305585711431235,
-    "judge_p_holm": 1.0,
+    "primary_delta": 0.030793480979670662,
+    "primary_dz": 0.10610877636854764,
+    "primary_ci_lo": -0.024898949405219174,
+    "primary_ci_hi": 0.08986541250738542,
+    "primary_p": 0.2882616851318276,
+    "primary_p_holm": 1.0,
+    "judge_delta": 0.04583937353240927,
+    "judge_dz": 0.16864901864395063,
+    "judge_ci_lo": -0.007031000803518131,
+    "judge_ci_hi": 0.10020171542704012,
+    "judge_p": 0.05998347556719329,
+    "judge_p_holm": 0.23993390226877315,
     "same_sign": true,
     "judge_ci_excl0": false,
     "favours_primary": "K0",
@@ -1800,22 +1800,22 @@
   "kcontrast.GRPO.PCT.iter1": {
    "value": {
     "primary_n": 96,
-    "primary_delta": 0.0037398527000088414,
-    "primary_dz": 0.01787688324422572,
-    "primary_ci_lo": -0.037544838194075454,
-    "primary_ci_hi": 0.04720027383513331,
-    "primary_p": 0.735249483670841,
-    "primary_p_holm": 0.9573744584654621,
-    "judge_delta": 0.017050498874779146,
-    "judge_dz": 0.08161255945400382,
-    "judge_ci_lo": -0.02297759175217473,
-    "judge_ci_hi": 0.05975375758303092,
-    "judge_p": 0.79746771968048,
+    "primary_delta": 0.0010174891592730471,
+    "primary_dz": 0.0034099395076993707,
+    "primary_ci_lo": -0.06070637510962799,
+    "primary_ci_hi": 0.0595160801744581,
+    "primary_p": 0.9900317631590686,
+    "primary_p_holm": 1.0,
+    "judge_delta": -0.002902446553928822,
+    "judge_dz": -0.011514371280445974,
+    "judge_ci_lo": -0.05295369439275305,
+    "judge_ci_hi": 0.046884570283220406,
+    "judge_p": 0.7928442925781791,
     "judge_p_holm": 1.0,
-    "same_sign": true,
+    "same_sign": false,
     "judge_ci_excl0": false,
     "favours_primary": "K0",
-    "favours_judge": "K0"
+    "favours_judge": "K5"
    },
    "source": "cross_k_pairs row method=GRPO metric=PCT iteration=1",
    "note": "+ => K=0 higher; MICI lower-better"
@@ -1823,17 +1823,17 @@
   "kcontrast.GRPO.PCT.iter2": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.0116310844602737,
-    "primary_dz": -0.04835535427360004,
-    "primary_ci_lo": -0.05777610074337322,
-    "primary_ci_hi": 0.03593588685016438,
-    "primary_p": 0.31912481948848737,
-    "primary_p_holm": 0.9573744584654621,
-    "judge_delta": -0.00774697223300249,
-    "judge_dz": -0.03443679587148055,
-    "judge_ci_lo": -0.049439011428099276,
-    "judge_ci_hi": 0.03551284569920097,
-    "judge_p": 0.4655113624543473,
+    "primary_delta": -0.0015922862352185027,
+    "primary_dz": -0.0051188389283025135,
+    "primary_ci_lo": -0.06253840355291937,
+    "primary_ci_hi": 0.05919946862168794,
+    "primary_p": 0.7270087285861426,
+    "primary_p_holm": 1.0,
+    "judge_delta": -0.012076017607833384,
+    "judge_dz": -0.042874731838819756,
+    "judge_ci_lo": -0.06605307915836728,
+    "judge_ci_hi": 0.04407874575868191,
+    "judge_p": 0.4979085254150786,
     "judge_p_holm": 1.0,
     "same_sign": true,
     "judge_ci_excl0": false,
@@ -1846,18 +1846,18 @@
   "kcontrast.GRPO.PCT.iter3": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.035879670014374386,
-    "primary_dz": -0.20071128210407635,
-    "primary_ci_lo": -0.07271036632225943,
-    "primary_ci_hi": -0.0010726631380172829,
-    "primary_p": 0.01764274358856231,
-    "primary_p_holm": 0.07057097435424924,
-    "judge_delta": -0.021991864299669858,
-    "judge_dz": -0.12369975979158968,
-    "judge_ci_lo": -0.05792973816526732,
-    "judge_ci_hi": 0.012282358243601198,
-    "judge_p": 0.24675525513125174,
-    "judge_p_holm": 0.987021020525007,
+    "primary_delta": -0.007234099111454746,
+    "primary_dz": -0.030662803752901785,
+    "primary_ci_lo": -0.05390041026061815,
+    "primary_ci_hi": 0.03988775176274383,
+    "primary_p": 0.8839935223088191,
+    "primary_p_holm": 1.0,
+    "judge_delta": -0.014762771856150573,
+    "judge_dz": -0.06852577388176932,
+    "judge_ci_lo": -0.059381931285470584,
+    "judge_ci_hi": 0.029240623393028707,
+    "judge_p": 0.6341240624966311,
+    "judge_p_holm": 1.0,
     "same_sign": true,
     "judge_ci_excl0": false,
     "favours_primary": "K5",
@@ -1869,18 +1869,18 @@
   "kcontrast.GRPO.PCT.iter4": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.06198632222943621,
-    "primary_dz": -0.321200033449908,
-    "primary_ci_lo": -0.09910052149098715,
-    "primary_ci_hi": -0.02435851681419367,
-    "primary_p": 0.002230042228047965,
-    "primary_p_holm": 0.015610295596335755,
-    "judge_delta": -0.06519875017464699,
-    "judge_dz": -0.3665120992061885,
-    "judge_ci_lo": -0.10073840740209447,
-    "judge_ci_hi": -0.028141260914994214,
-    "judge_p": 0.00037233677983515464,
-    "judge_p_holm": 0.002234020679010928,
+    "primary_delta": -0.019510705891243724,
+    "primary_dz": -0.07598690435976779,
+    "primary_ci_lo": -0.07034665165135202,
+    "primary_ci_hi": 0.03187656736407376,
+    "primary_p": 0.8473632790854616,
+    "primary_p_holm": 1.0,
+    "judge_delta": -0.062361204355163825,
+    "judge_dz": -0.2982063400607586,
+    "judge_ci_lo": -0.10273440439763505,
+    "judge_ci_hi": -0.02079729125041627,
+    "judge_p": 0.0055604984321753525,
+    "judge_p_holm": 0.033362990593052116,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -1892,18 +1892,18 @@
   "kcontrast.GRPO.PCT.iter5": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.05593113725369917,
-    "primary_dz": -0.3093732097154723,
-    "primary_ci_lo": -0.09191388723890419,
-    "primary_ci_hi": -0.022003168720165146,
-    "primary_p": 0.0033783495791212675,
-    "primary_p_holm": 0.020270097474727605,
-    "judge_delta": -0.06744086563770194,
-    "judge_dz": -0.3729990632089324,
-    "judge_ci_lo": -0.10374336914684366,
-    "judge_ci_hi": -0.03270807477986876,
-    "judge_p": 0.0005574574664504758,
-    "judge_p_holm": 0.002787287332252379,
+    "primary_delta": -0.034698744376348616,
+    "primary_dz": -0.15541876118550305,
+    "primary_ci_lo": -0.08055250991017629,
+    "primary_ci_hi": 0.009824615277513014,
+    "primary_p": 0.09314440642370184,
+    "primary_p_holm": 0.5588664385422111,
+    "judge_delta": -0.06385692951627549,
+    "judge_dz": -0.29762520735386616,
+    "judge_ci_lo": -0.10750008530932002,
+    "judge_ci_hi": -0.0242504057551102,
+    "judge_p": 0.010355476333110894,
+    "judge_p_holm": 0.05177738166555447,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -1915,18 +1915,18 @@
   "kcontrast.GRPO.PCT.iter6": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.09551724871039381,
-    "primary_dz": -0.45474919720678825,
-    "primary_ci_lo": -0.13689454014931296,
-    "primary_ci_hi": -0.05563942003711406,
-    "primary_p": 8.366831181790742e-05,
-    "primary_p_holm": 0.0007530148063611667,
-    "judge_delta": -0.12338422818903662,
-    "judge_dz": -0.5431774267729212,
-    "judge_ci_lo": -0.16662419411956828,
-    "judge_ci_hi": -0.07993691789913736,
-    "judge_p": 2.1849852386275738e-06,
-    "judge_p_holm": 1.9664867147648165e-05,
+    "primary_delta": -0.12272770496116085,
+    "primary_dz": -0.42565548047565127,
+    "primary_ci_lo": -0.180654222370856,
+    "primary_ci_hi": -0.06730650072308478,
+    "primary_p": 0.0002099939140949165,
+    "primary_p_holm": 0.0018899452268542484,
+    "judge_delta": -0.11022233631887313,
+    "judge_dz": -0.43081650512480135,
+    "judge_ci_lo": -0.16131820820421763,
+    "judge_ci_hi": -0.05985002204477696,
+    "judge_p": 8.034905770325598e-05,
+    "judge_p_holm": 0.0006427924616260478,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -1938,18 +1938,18 @@
   "kcontrast.GRPO.PCT.iter7": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.07050810974654612,
-    "primary_dz": -0.3762457078948004,
-    "primary_ci_lo": -0.10719742350093793,
-    "primary_ci_hi": -0.032851039319795126,
-    "primary_p": 0.00020860589429408613,
-    "primary_p_holm": 0.001668847154352689,
-    "judge_delta": -0.08468486349678302,
-    "judge_dz": -0.43763126044080003,
-    "judge_ci_lo": -0.1234792802506679,
-    "judge_ci_hi": -0.047084730961986454,
-    "judge_p": 3.852088992531227e-05,
-    "judge_p_holm": 0.0003081671194024982,
+    "primary_delta": -0.08492860647820306,
+    "primary_dz": -0.3276407371722362,
+    "primary_ci_lo": -0.13611130825178736,
+    "primary_ci_hi": -0.03371070809350222,
+    "primary_p": 0.00047446137511331576,
+    "primary_p_holm": 0.0033212296257932104,
+    "judge_delta": -0.1004372892659506,
+    "judge_dz": -0.4207408841902594,
+    "judge_ci_lo": -0.14869090962921414,
+    "judge_ci_hi": -0.054692172390416904,
+    "judge_p": 1.2832388142401236e-05,
+    "judge_p_holm": 0.00011549149328161112,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -1961,18 +1961,18 @@
   "kcontrast.GRPO.PCT.iter8": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.055510842845527875,
-    "primary_dz": -0.25904974519078694,
-    "primary_ci_lo": -0.09673729776843155,
-    "primary_ci_hi": -0.01277193726013649,
-    "primary_p": 0.005328426876661392,
-    "primary_p_holm": 0.02664213438330696,
-    "judge_delta": -0.10359720441200115,
-    "judge_dz": -0.4540697335885744,
-    "judge_ci_lo": -0.1490165731133218,
-    "judge_ci_hi": -0.05908506636954828,
-    "judge_p": 5.036528267991708e-05,
-    "judge_p_holm": 0.00035255697875941956,
+    "primary_delta": -0.10071540023479846,
+    "primary_dz": -0.3557927118072223,
+    "primary_ci_lo": -0.15610827891350457,
+    "primary_ci_hi": -0.04567646738124929,
+    "primary_p": 0.00027898317667424973,
+    "primary_p_holm": 0.002231865413393998,
+    "judge_delta": -0.09942101801976322,
+    "judge_dz": -0.34152400412452183,
+    "judge_ci_lo": -0.1579991800460256,
+    "judge_ci_hi": -0.04106044532443877,
+    "judge_p": 0.0012725979806348113,
+    "judge_p_holm": 0.008908185864443679,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -1984,18 +1984,18 @@
   "kcontrast.GRPO.PCT.iter9": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.24900698060075585,
-    "primary_dz": -0.934904716104272,
-    "primary_ci_lo": -0.30269287115239474,
-    "primary_ci_hi": -0.19835307559702933,
-    "primary_p": 2.387187035174395e-11,
-    "primary_p_holm": 2.6259057386918346e-10,
-    "judge_delta": -0.2909147288571989,
-    "judge_dz": -1.0451433880075174,
-    "judge_ci_lo": -0.34669558264570344,
-    "judge_ci_hi": -0.23743834226673072,
-    "judge_p": 3.633452787227257e-13,
-    "judge_p_holm": 3.996798065949983e-12,
+    "primary_delta": -0.26544574796143816,
+    "primary_dz": -0.7408051344993585,
+    "primary_ci_lo": -0.3380562944300051,
+    "primary_ci_hi": -0.19492367907144992,
+    "primary_p": 3.6311491171607402e-09,
+    "primary_p_holm": 3.994264028876814e-08,
+    "judge_delta": -0.28351524308965165,
+    "judge_dz": -0.8427747078791746,
+    "judge_ci_lo": -0.35217556425163626,
+    "judge_ci_hi": -0.21617805271352863,
+    "judge_p": 1.968599963046453e-10,
+    "judge_p_holm": 2.1654599593510982e-09,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -2007,18 +2007,18 @@
   "kcontrast.GRPO.PCT.iter10": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.11094691350151371,
-    "primary_dz": -0.5162193658619101,
-    "primary_ci_lo": -0.1529022431325116,
-    "primary_ci_hi": -0.0724859734091898,
-    "primary_p": 1.9335308619473465e-06,
-    "primary_p_holm": 1.9335308619473466e-05,
-    "judge_delta": -0.11272903205468997,
-    "judge_dz": -0.5629694283363904,
-    "judge_ci_lo": -0.15246141333158195,
-    "judge_ci_hi": -0.07535618275030284,
-    "judge_p": 5.104343425059778e-07,
-    "judge_p_holm": 5.1043434250597775e-06,
+    "primary_delta": -0.14951631285410857,
+    "primary_dz": -0.5149386736803846,
+    "primary_ci_lo": -0.20720186530521115,
+    "primary_ci_hi": -0.0947121432773707,
+    "primary_p": 2.0547062197217773e-06,
+    "primary_p_holm": 2.0547062197217772e-05,
+    "judge_delta": -0.1571935096881464,
+    "judge_dz": -0.635827310781476,
+    "judge_ci_lo": -0.20731393871445003,
+    "judge_ci_hi": -0.11061666166617809,
+    "judge_p": 4.4895837901228515e-08,
+    "judge_p_holm": 4.4895837901228517e-07,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -4054,22 +4054,22 @@
   "kcontrast.PTO.PCT.iter0": {
    "value": {
     "primary_n": 96,
-    "primary_delta": 0.007368635319013485,
-    "primary_dz": 0.037965986158153935,
-    "primary_ci_lo": -0.032348468879701525,
-    "primary_ci_hi": 0.04922882355084809,
-    "primary_p": 0.8922643965120693,
+    "primary_delta": -0.004133545306776898,
+    "primary_dz": -0.019441112750934325,
+    "primary_ci_lo": -0.04491294559521535,
+    "primary_ci_hi": 0.04003314841132631,
+    "primary_p": 0.760367259464929,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.003287313053674187,
-    "judge_dz": -0.017287046729418654,
-    "judge_ci_lo": -0.04016203177236086,
-    "judge_ci_hi": 0.03570467692039141,
-    "judge_p": 0.8259308256740822,
+    "judge_delta": 0.0020610294517150367,
+    "judge_dz": 0.00924311036727963,
+    "judge_ci_lo": -0.04683460071171345,
+    "judge_ci_hi": 0.04977570531609515,
+    "judge_p": 0.642499350355514,
     "judge_p_holm": 1.0,
     "same_sign": false,
     "judge_ci_excl0": false,
-    "favours_primary": "K0",
-    "favours_judge": "K5"
+    "favours_primary": "K5",
+    "favours_judge": "K0"
    },
    "source": "cross_k_pairs row method=PTO metric=PCT iteration=0",
    "note": "+ => K=0 higher; MICI lower-better"
@@ -4077,17 +4077,17 @@
   "kcontrast.PTO.PCT.iter1": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.027365959646601812,
-    "primary_dz": -0.11422101691940711,
-    "primary_ci_lo": -0.07514260582595247,
-    "primary_ci_hi": 0.02190658897161575,
-    "primary_p": 0.18214358556466437,
+    "primary_delta": -0.020044034617517758,
+    "primary_dz": -0.06993634481606276,
+    "primary_ci_lo": -0.0763996738685327,
+    "primary_ci_hi": 0.03823122803635241,
+    "primary_p": 0.610668805371894,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.03008293155387734,
-    "judge_dz": -0.14350281788499625,
-    "judge_ci_lo": -0.07321418741948428,
-    "judge_ci_hi": 0.012541654414591114,
-    "judge_p": 0.23699613711860013,
+    "judge_delta": -0.03786230727207434,
+    "judge_dz": -0.14452237049518765,
+    "judge_ci_lo": -0.09398463649579256,
+    "judge_ci_hi": 0.014093983921282261,
+    "judge_p": 0.18274170471580653,
     "judge_p_holm": 1.0,
     "same_sign": true,
     "judge_ci_excl0": false,
@@ -4100,22 +4100,22 @@
   "kcontrast.PTO.PCT.iter2": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.0034806309747103456,
-    "primary_dz": -0.015344943107876539,
-    "primary_ci_lo": -0.04821093876966422,
-    "primary_ci_hi": 0.04275630065082583,
-    "primary_p": 0.6376052509636516,
+    "primary_delta": 0.019973112760279185,
+    "primary_dz": 0.07142428568507096,
+    "primary_ci_lo": -0.03788329412555155,
+    "primary_ci_hi": 0.07746190836324228,
+    "primary_p": 0.599563378073052,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.01494358718817975,
-    "judge_dz": -0.06697887745326286,
-    "judge_ci_lo": -0.05954796629695963,
-    "judge_ci_hi": 0.031124735793750885,
-    "judge_p": 0.37099661315957055,
+    "judge_delta": 0.009370932166406524,
+    "judge_dz": 0.03488768530872764,
+    "judge_ci_lo": -0.045682091674648484,
+    "judge_ci_hi": 0.06290519778599654,
+    "judge_p": 0.9120721947286768,
     "judge_p_holm": 1.0,
     "same_sign": true,
     "judge_ci_excl0": false,
-    "favours_primary": "K5",
-    "favours_judge": "K5"
+    "favours_primary": "K0",
+    "favours_judge": "K0"
    },
    "source": "cross_k_pairs row method=PTO metric=PCT iteration=2",
    "note": "+ => K=0 higher; MICI lower-better"
@@ -4123,21 +4123,21 @@
   "kcontrast.PTO.PCT.iter3": {
    "value": {
     "primary_n": 96,
-    "primary_delta": 0.0021329664122583017,
-    "primary_dz": 0.009607508926497619,
-    "primary_ci_lo": -0.042421599820561276,
-    "primary_ci_hi": 0.046265314331586496,
-    "primary_p": 0.8643080142489131,
+    "primary_delta": -0.0059592413430939,
+    "primary_dz": -0.02176476327603758,
+    "primary_ci_lo": -0.06057055084636476,
+    "primary_ci_hi": 0.04823434551492429,
+    "primary_p": 0.5932705914264838,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.009925130504584758,
-    "judge_dz": -0.04296722558181825,
-    "judge_ci_lo": -0.05699554015073222,
-    "judge_ci_hi": 0.03822477445286783,
-    "judge_p": 0.6166632111549522,
+    "judge_delta": -0.0017328611559380776,
+    "judge_dz": -0.00680061724225333,
+    "judge_ci_lo": -0.0528080446919434,
+    "judge_ci_hi": 0.052884920731044636,
+    "judge_p": 0.6257051721049932,
     "judge_p_holm": 1.0,
-    "same_sign": false,
+    "same_sign": true,
     "judge_ci_excl0": false,
-    "favours_primary": "K0",
+    "favours_primary": "K5",
     "favours_judge": "K5"
    },
    "source": "cross_k_pairs row method=PTO metric=PCT iteration=3",
@@ -4146,20 +4146,20 @@
   "kcontrast.PTO.PCT.iter4": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.01858161142937232,
-    "primary_dz": -0.09664617558932308,
-    "primary_ci_lo": -0.057221613399189505,
-    "primary_ci_hi": 0.019833462533252265,
-    "primary_p": 0.10513639133463765,
+    "primary_delta": -0.014709068867276985,
+    "primary_dz": -0.06345402319554223,
+    "primary_ci_lo": -0.05979171166139677,
+    "primary_ci_hi": 0.03178187138519218,
+    "primary_p": 0.4386941477641001,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.04663433736527777,
-    "judge_dz": -0.27892944346444853,
-    "judge_ci_lo": -0.07899729843125498,
-    "judge_ci_hi": -0.015122595728753829,
-    "judge_p": 0.0041228109402039245,
-    "judge_p_holm": 0.04122810940203925,
+    "judge_delta": -0.01576558650199873,
+    "judge_dz": -0.0767338644807111,
+    "judge_ci_lo": -0.060671508157672874,
+    "judge_ci_hi": 0.024517319559205303,
+    "judge_p": 0.4117321025927735,
+    "judge_p_holm": 1.0,
     "same_sign": true,
-    "judge_ci_excl0": true,
+    "judge_ci_excl0": false,
     "favours_primary": "K5",
     "favours_judge": "K5"
    },
@@ -4169,20 +4169,20 @@
   "kcontrast.PTO.PCT.iter5": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.020040130993615648,
-    "primary_dz": -0.10549099004056421,
-    "primary_ci_lo": -0.05896133481791252,
-    "primary_ci_hi": 0.016596783690158205,
-    "primary_p": 0.7151680306708604,
+    "primary_delta": -0.02882407618790166,
+    "primary_dz": -0.11747761492494163,
+    "primary_ci_lo": -0.07720374359347368,
+    "primary_ci_hi": 0.018672905283544053,
+    "primary_p": 0.6126890760182544,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.046540662283706846,
-    "judge_dz": -0.22361868901532206,
-    "judge_ci_lo": -0.0884018146163526,
-    "judge_ci_hi": -0.006683221763602499,
-    "judge_p": 0.04981991613023073,
-    "judge_p_holm": 0.44837924517207656,
+    "judge_delta": -0.024576802567584054,
+    "judge_dz": -0.10100124938685633,
+    "judge_ci_lo": -0.0753245172610645,
+    "judge_ci_hi": 0.02375971548625378,
+    "judge_p": 0.6686169273680718,
+    "judge_p_holm": 1.0,
     "same_sign": true,
-    "judge_ci_excl0": true,
+    "judge_ci_excl0": false,
     "favours_primary": "K5",
     "favours_judge": "K5"
    },
@@ -4192,22 +4192,22 @@
   "kcontrast.PTO.PCT.iter6": {
    "value": {
     "primary_n": 96,
-    "primary_delta": 0.0061858319129233785,
-    "primary_dz": 0.03676768670880912,
-    "primary_ci_lo": -0.02485837711126434,
-    "primary_ci_hi": 0.04054641931142331,
-    "primary_p": 0.962091363719499,
+    "primary_delta": 0.01795073678596023,
+    "primary_dz": 0.07260819926857796,
+    "primary_ci_lo": -0.02961427169724626,
+    "primary_ci_hi": 0.0642124044956972,
+    "primary_p": 0.5015081670375793,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.0028263368361085097,
-    "judge_dz": -0.017556067515695085,
-    "judge_ci_lo": -0.03487421340556016,
-    "judge_ci_hi": 0.02786420774411775,
-    "judge_p": 0.9223971464320886,
+    "judge_delta": 0.00833288004758359,
+    "judge_dz": 0.041601245827810385,
+    "judge_ci_lo": -0.03183569210294784,
+    "judge_ci_hi": 0.04922566225355475,
+    "judge_p": 0.6039344476991214,
     "judge_p_holm": 1.0,
-    "same_sign": false,
+    "same_sign": true,
     "judge_ci_excl0": false,
     "favours_primary": "K0",
-    "favours_judge": "K5"
+    "favours_judge": "K0"
    },
    "source": "cross_k_pairs row method=PTO metric=PCT iteration=6",
    "note": "+ => K=0 higher; MICI lower-better"
@@ -4215,17 +4215,17 @@
   "kcontrast.PTO.PCT.iter7": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.020037680078514565,
-    "primary_dz": -0.07961107757935917,
-    "primary_ci_lo": -0.07081807789031355,
-    "primary_ci_hi": 0.03030552871111064,
-    "primary_p": 0.21411251948631005,
+    "primary_delta": -0.004810296530739639,
+    "primary_dz": -0.01912473874274128,
+    "primary_ci_lo": -0.05537913716865922,
+    "primary_ci_hi": 0.04354780169167378,
+    "primary_p": 0.7930218917720896,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.030782542065920553,
-    "judge_dz": -0.13138415409299306,
-    "judge_ci_lo": -0.07820470305685816,
-    "judge_ci_hi": 0.014371435464278439,
-    "judge_p": 0.19068202194363593,
+    "judge_delta": -0.0188306090418757,
+    "judge_dz": -0.0701755464509805,
+    "judge_ci_lo": -0.07273557682240885,
+    "judge_ci_hi": 0.03534116075235843,
+    "judge_p": 0.3788985750003142,
     "judge_p_holm": 1.0,
     "same_sign": true,
     "judge_ci_excl0": false,
@@ -4238,17 +4238,17 @@
   "kcontrast.PTO.PCT.iter8": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.01480512930867958,
-    "primary_dz": -0.08496130999021627,
-    "primary_ci_lo": -0.051609442867382616,
-    "primary_ci_hi": 0.016600600152816326,
-    "primary_p": 0.5225092021027675,
+    "primary_delta": -0.012154495626299536,
+    "primary_dz": -0.05374566432267474,
+    "primary_ci_lo": -0.05752643956478644,
+    "primary_ci_hi": 0.0317572612294211,
+    "primary_p": 0.5692905230226141,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.02512857186207612,
-    "judge_dz": -0.13740492211170116,
-    "judge_ci_lo": -0.062215162977788736,
-    "judge_ci_hi": 0.009469322145647592,
-    "judge_p": 0.2813473505182984,
+    "judge_delta": -0.028670617186988837,
+    "judge_dz": -0.1580408482546369,
+    "judge_ci_lo": -0.06690442877340902,
+    "judge_ci_hi": 0.004885119898295924,
+    "judge_p": 0.23464022382618743,
     "judge_p_holm": 1.0,
     "same_sign": true,
     "judge_ci_excl0": false,
@@ -4261,21 +4261,21 @@
   "kcontrast.PTO.PCT.iter9": {
    "value": {
     "primary_n": 96,
-    "primary_delta": 0.01773071499933712,
-    "primary_dz": 0.0835815082814269,
-    "primary_ci_lo": -0.0231958252885163,
-    "primary_ci_hi": 0.0613736582573998,
-    "primary_p": 0.9342371845459214,
+    "primary_delta": -0.006594885279337677,
+    "primary_dz": -0.030504504316560557,
+    "primary_ci_lo": -0.04889213692054491,
+    "primary_ci_hi": 0.0353681309709632,
+    "primary_p": 0.6083164761632893,
     "primary_p_holm": 1.0,
-    "judge_delta": -0.02212923749527558,
-    "judge_dz": -0.10162828743746341,
-    "judge_ci_lo": -0.06529363940840373,
-    "judge_ci_hi": 0.018123821561212443,
-    "judge_p": 0.13787508918885985,
+    "judge_delta": -0.016211723259430922,
+    "judge_dz": -0.08090857266398199,
+    "judge_ci_lo": -0.054183997518439005,
+    "judge_ci_hi": 0.021531639210773473,
+    "judge_p": 0.3053781740874427,
     "judge_p_holm": 1.0,
-    "same_sign": false,
+    "same_sign": true,
     "judge_ci_excl0": false,
-    "favours_primary": "K0",
+    "favours_primary": "K5",
     "favours_judge": "K5"
    },
    "source": "cross_k_pairs row method=PTO metric=PCT iteration=9",
@@ -4284,18 +4284,18 @@
   "kcontrast.PTO.PCT.iter10": {
    "value": {
     "primary_n": 96,
-    "primary_delta": -0.007653542203058877,
-    "primary_dz": -0.04353172037239663,
-    "primary_ci_lo": -0.042553332760741545,
-    "primary_ci_hi": 0.03013176673910656,
-    "primary_p": 0.2679143352247111,
-    "primary_p_holm": 1.0,
-    "judge_delta": -0.05134661039960375,
-    "judge_dz": -0.2528897685169886,
-    "judge_ci_lo": -0.08973307472296863,
-    "judge_ci_hi": -0.007950840549637904,
-    "judge_p": 0.0027654866763637377,
-    "judge_p_holm": 0.030420353440001116,
+    "primary_delta": -0.06116497797080228,
+    "primary_dz": -0.2961761893748623,
+    "primary_ci_lo": -0.09990408040567678,
+    "primary_ci_hi": -0.020584081407024345,
+    "primary_p": 0.001140056544204435,
+    "primary_p_holm": 0.012540621986248784,
+    "judge_delta": -0.06627546487453609,
+    "judge_dz": -0.31215085580274843,
+    "judge_ci_lo": -0.10603250694009328,
+    "judge_ci_hi": -0.024029156952725107,
+    "judge_p": 0.0015945538353522573,
+    "judge_p_holm": 0.01754009218887483,
     "same_sign": true,
     "judge_ci_excl0": true,
     "favours_primary": "K5",
@@ -4560,16 +4560,16 @@
   "ladder.all cross-K contrasts.all contrasts": {
    "value": {
     "n_contrasts": 198,
-    "n_same_sign": 158,
-    "pct_same_sign": 79.8
+    "n_same_sign": 160,
+    "pct_same_sign": 80.8
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=all contrasts",
    "note": ""
   },
   "ladder.all cross-K contrasts.|Δ primary| ≥ 0.10": {
    "value": {
-    "n_contrasts": 76,
-    "n_same_sign": 74,
+    "n_contrasts": 78,
+    "n_same_sign": 76,
     "pct_same_sign": 97.4
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=|Δ primary| ≥ 0.10",
@@ -4577,8 +4577,8 @@
   },
   "ladder.all cross-K contrasts.|Δ primary| ≥ 0.25": {
    "value": {
-    "n_contrasts": 24,
-    "n_same_sign": 24,
+    "n_contrasts": 25,
+    "n_same_sign": 25,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=|Δ primary| ≥ 0.25",
@@ -4595,17 +4595,17 @@
   },
   "ladder.all cross-K contrasts.judge CI excludes 0": {
    "value": {
-    "n_contrasts": 90,
-    "n_same_sign": 87,
-    "pct_same_sign": 96.7
+    "n_contrasts": 88,
+    "n_same_sign": 85,
+    "pct_same_sign": 96.6
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=judge CI excludes 0",
    "note": ""
   },
   "ladder.all cross-K contrasts.primary p_holm < 0.05": {
    "value": {
-    "n_contrasts": 57,
-    "n_same_sign": 56,
+    "n_contrasts": 56,
+    "n_same_sign": 55,
     "pct_same_sign": 98.2
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=primary p_holm < 0.05",
@@ -4613,17 +4613,17 @@
   },
   "ladder.all cross-K contrasts.judge p_holm < 0.05": {
    "value": {
-    "n_contrasts": 69,
-    "n_same_sign": 67,
-    "pct_same_sign": 97.1
+    "n_contrasts": 67,
+    "n_same_sign": 65,
+    "pct_same_sign": 97.0
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=judge p_holm < 0.05",
    "note": ""
   },
   "ladder.all cross-K contrasts.both graders p_holm < 0.05": {
    "value": {
-    "n_contrasts": 49,
-    "n_same_sign": 49,
+    "n_contrasts": 48,
+    "n_same_sign": 48,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=both graders p_holm < 0.05",
@@ -4632,8 +4632,8 @@
   "ladder.all cross-K contrasts.iteration >= 1 (base row excluded)": {
    "value": {
     "n_contrasts": 180,
-    "n_same_sign": 145,
-    "pct_same_sign": 80.6
+    "n_same_sign": 147,
+    "pct_same_sign": 81.7
    },
    "source": "sign_ladder row group=all cross-K contrasts subset=iteration >= 1 (base row excluded)",
    "note": ""
@@ -4641,8 +4641,8 @@
   "ladder.method=PTO.all contrasts": {
    "value": {
     "n_contrasts": 99,
-    "n_same_sign": 70,
-    "pct_same_sign": 70.7
+    "n_same_sign": 73,
+    "pct_same_sign": 73.7
    },
    "source": "sign_ladder row group=method=PTO subset=all contrasts",
    "note": ""
@@ -4676,17 +4676,17 @@
   },
   "ladder.method=PTO.judge CI excludes 0": {
    "value": {
-    "n_contrasts": 34,
-    "n_same_sign": 31,
-    "pct_same_sign": 91.2
+    "n_contrasts": 32,
+    "n_same_sign": 29,
+    "pct_same_sign": 90.6
    },
    "source": "sign_ladder row group=method=PTO subset=judge CI excludes 0",
    "note": ""
   },
   "ladder.method=PTO.primary p_holm < 0.05": {
    "value": {
-    "n_contrasts": 8,
-    "n_same_sign": 8,
+    "n_contrasts": 9,
+    "n_same_sign": 9,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=method=PTO subset=primary p_holm < 0.05",
@@ -4694,17 +4694,17 @@
   },
   "ladder.method=PTO.judge p_holm < 0.05": {
    "value": {
-    "n_contrasts": 23,
-    "n_same_sign": 21,
-    "pct_same_sign": 91.3
+    "n_contrasts": 22,
+    "n_same_sign": 20,
+    "pct_same_sign": 90.9
    },
    "source": "sign_ladder row group=method=PTO subset=judge p_holm < 0.05",
    "note": ""
   },
   "ladder.method=PTO.both graders p_holm < 0.05": {
    "value": {
-    "n_contrasts": 7,
-    "n_same_sign": 7,
+    "n_contrasts": 8,
+    "n_same_sign": 8,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=method=PTO subset=both graders p_holm < 0.05",
@@ -4713,8 +4713,8 @@
   "ladder.method=PTO.iteration >= 1 (base row excluded)": {
    "value": {
     "n_contrasts": 90,
-    "n_same_sign": 65,
-    "pct_same_sign": 72.2
+    "n_same_sign": 68,
+    "pct_same_sign": 75.6
    },
    "source": "sign_ladder row group=method=PTO subset=iteration >= 1 (base row excluded)",
    "note": ""
@@ -4722,25 +4722,25 @@
   "ladder.method=GRPO.all contrasts": {
    "value": {
     "n_contrasts": 99,
-    "n_same_sign": 88,
-    "pct_same_sign": 88.9
+    "n_same_sign": 87,
+    "pct_same_sign": 87.9
    },
    "source": "sign_ladder row group=method=GRPO subset=all contrasts",
    "note": ""
   },
   "ladder.method=GRPO.|Δ primary| ≥ 0.10": {
    "value": {
-    "n_contrasts": 53,
-    "n_same_sign": 52,
-    "pct_same_sign": 98.1
+    "n_contrasts": 55,
+    "n_same_sign": 54,
+    "pct_same_sign": 98.2
    },
    "source": "sign_ladder row group=method=GRPO subset=|Δ primary| ≥ 0.10",
    "note": ""
   },
   "ladder.method=GRPO.|Δ primary| ≥ 0.25": {
    "value": {
-    "n_contrasts": 22,
-    "n_same_sign": 22,
+    "n_contrasts": 23,
+    "n_same_sign": 23,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=method=GRPO subset=|Δ primary| ≥ 0.25",
@@ -4766,17 +4766,17 @@
   },
   "ladder.method=GRPO.primary p_holm < 0.05": {
    "value": {
-    "n_contrasts": 49,
-    "n_same_sign": 48,
-    "pct_same_sign": 98.0
+    "n_contrasts": 47,
+    "n_same_sign": 46,
+    "pct_same_sign": 97.9
    },
    "source": "sign_ladder row group=method=GRPO subset=primary p_holm < 0.05",
    "note": ""
   },
   "ladder.method=GRPO.judge p_holm < 0.05": {
    "value": {
-    "n_contrasts": 46,
-    "n_same_sign": 46,
+    "n_contrasts": 45,
+    "n_same_sign": 45,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=method=GRPO subset=judge p_holm < 0.05",
@@ -4784,8 +4784,8 @@
   },
   "ladder.method=GRPO.both graders p_holm < 0.05": {
    "value": {
-    "n_contrasts": 42,
-    "n_same_sign": 42,
+    "n_contrasts": 40,
+    "n_same_sign": 40,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=method=GRPO subset=both graders p_holm < 0.05",
@@ -4794,8 +4794,8 @@
   "ladder.method=GRPO.iteration >= 1 (base row excluded)": {
    "value": {
     "n_contrasts": 90,
-    "n_same_sign": 80,
-    "pct_same_sign": 88.9
+    "n_same_sign": 79,
+    "pct_same_sign": 87.8
    },
    "source": "sign_ladder row group=method=GRPO subset=iteration >= 1 (base row excluded)",
    "note": ""
@@ -5370,16 +5370,16 @@
   "ladder.metric=PCT.all contrasts": {
    "value": {
     "n_contrasts": 22,
-    "n_same_sign": 18,
-    "pct_same_sign": 81.8
+    "n_same_sign": 20,
+    "pct_same_sign": 90.9
    },
    "source": "sign_ladder row group=metric=PCT subset=all contrasts",
    "note": ""
   },
   "ladder.metric=PCT.|Δ primary| ≥ 0.10": {
    "value": {
-    "n_contrasts": 2,
-    "n_same_sign": 2,
+    "n_contrasts": 4,
+    "n_same_sign": 4,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=metric=PCT subset=|Δ primary| ≥ 0.10",
@@ -5387,9 +5387,9 @@
   },
   "ladder.metric=PCT.|Δ primary| ≥ 0.25": {
    "value": {
-    "n_contrasts": 0,
-    "n_same_sign": 0,
-    "pct_same_sign": null
+    "n_contrasts": 1,
+    "n_same_sign": 1,
+    "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=metric=PCT subset=|Δ primary| ≥ 0.25",
    "note": ""
@@ -5405,8 +5405,8 @@
   },
   "ladder.metric=PCT.judge CI excludes 0": {
    "value": {
-    "n_contrasts": 10,
-    "n_same_sign": 10,
+    "n_contrasts": 8,
+    "n_same_sign": 8,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=metric=PCT subset=judge CI excludes 0",
@@ -5414,8 +5414,8 @@
   },
   "ladder.metric=PCT.primary p_holm < 0.05": {
    "value": {
-    "n_contrasts": 7,
-    "n_same_sign": 7,
+    "n_contrasts": 6,
+    "n_same_sign": 6,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=metric=PCT subset=primary p_holm < 0.05",
@@ -5423,8 +5423,8 @@
   },
   "ladder.metric=PCT.judge p_holm < 0.05": {
    "value": {
-    "n_contrasts": 9,
-    "n_same_sign": 9,
+    "n_contrasts": 7,
+    "n_same_sign": 7,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=metric=PCT subset=judge p_holm < 0.05",
@@ -5432,8 +5432,8 @@
   },
   "ladder.metric=PCT.both graders p_holm < 0.05": {
    "value": {
-    "n_contrasts": 7,
-    "n_same_sign": 7,
+    "n_contrasts": 6,
+    "n_same_sign": 6,
     "pct_same_sign": 100.0
    },
    "source": "sign_ladder row group=metric=PCT subset=both graders p_holm < 0.05",
@@ -5442,8 +5442,8 @@
   "ladder.metric=PCT.iteration >= 1 (base row excluded)": {
    "value": {
     "n_contrasts": 20,
-    "n_same_sign": 17,
-    "pct_same_sign": 85.0
+    "n_same_sign": 19,
+    "pct_same_sign": 95.0
    },
    "source": "sign_ladder row group=metric=PCT subset=iteration >= 1 (base row excluded)",
    "note": ""
@@ -6610,13 +6610,13 @@
   "retention.GRPO_LA0.PCT.iter0.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.002,
-    "delta_judge": 0.006,
+    "n": 95,
+    "delta_primary": 0.006,
+    "delta_judge": 0.019,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
-    "same_sign": false
+    "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=0 ref_kind=eda_view_PTO_LA0_base",
    "note": ""
@@ -6624,13 +6624,13 @@
   "retention.GRPO_LA0.PCT.iter1.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.008,
-    "delta_judge": 0.019,
+    "n": 93,
+    "delta_primary": 0.009,
+    "delta_judge": 0.007,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
-    "same_sign": false
+    "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=1 ref_kind=eda_view_PTO_LA0_base",
    "note": ""
@@ -6638,12 +6638,12 @@
   "retention.GRPO_LA0.PCT.iter2.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.014,
-    "delta_judge": 0.033,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 95,
+    "delta_primary": 0.068,
+    "delta_judge": 0.043,
+    "retention": 0.636,
+    "retention_ci_lo": 0.106,
+    "retention_ci_hi": 1.148,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=2 ref_kind=eda_view_PTO_LA0_base",
@@ -6652,12 +6652,12 @@
   "retention.GRPO_LA0.PCT.iter3.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.055,
-    "delta_judge": 0.081,
-    "retention": 1.472,
-    "retention_ci_lo": 1.027,
-    "retention_ci_hi": 1.774,
+    "n": 94,
+    "delta_primary": 0.107,
+    "delta_judge": 0.098,
+    "retention": 0.914,
+    "retention_ci_lo": 0.641,
+    "retention_ci_hi": 1.256,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=3 ref_kind=eda_view_PTO_LA0_base",
@@ -6666,12 +6666,12 @@
   "retention.GRPO_LA0.PCT.iter4.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.063,
-    "delta_judge": 0.066,
-    "retention": 1.042,
-    "retention_ci_lo": 0.706,
-    "retention_ci_hi": 1.378,
+    "n": 95,
+    "delta_primary": 0.106,
+    "delta_judge": 0.074,
+    "retention": 0.701,
+    "retention_ci_lo": 0.34,
+    "retention_ci_hi": 1.039,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=4 ref_kind=eda_view_PTO_LA0_base",
@@ -6680,12 +6680,12 @@
   "retention.GRPO_LA0.PCT.iter5.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.033,
-    "delta_judge": 0.035,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 95,
+    "delta_primary": 0.084,
+    "delta_judge": 0.05,
+    "retention": 0.598,
+    "retention_ci_lo": 0.177,
+    "retention_ci_hi": 1.034,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=5 ref_kind=eda_view_PTO_LA0_base",
@@ -6694,12 +6694,12 @@
   "retention.GRPO_LA0.PCT.iter6.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.041,
-    "delta_judge": 0.034,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 95,
+    "delta_primary": 0.053,
+    "delta_judge": 0.063,
+    "retention": 1.195,
+    "retention_ci_lo": 0.487,
+    "retention_ci_hi": 1.671,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=6 ref_kind=eda_view_PTO_LA0_base",
@@ -6708,12 +6708,12 @@
   "retention.GRPO_LA0.PCT.iter7.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.062,
-    "delta_judge": 0.063,
-    "retention": 1.027,
-    "retention_ci_lo": 0.694,
-    "retention_ci_hi": 1.356,
+    "n": 95,
+    "delta_primary": 0.082,
+    "delta_judge": 0.072,
+    "retention": 0.88,
+    "retention_ci_lo": 0.489,
+    "retention_ci_hi": 1.362,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=7 ref_kind=eda_view_PTO_LA0_base",
@@ -6722,12 +6722,12 @@
   "retention.GRPO_LA0.PCT.iter8.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.083,
-    "delta_judge": 0.076,
-    "retention": 0.919,
-    "retention_ci_lo": 0.631,
-    "retention_ci_hi": 1.268,
+    "n": 95,
+    "delta_primary": 0.077,
+    "delta_judge": 0.095,
+    "retention": 1.23,
+    "retention_ci_lo": 0.652,
+    "retention_ci_hi": 1.971,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=8 ref_kind=eda_view_PTO_LA0_base",
@@ -6736,9 +6736,9 @@
   "retention.GRPO_LA0.PCT.iter9.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.039,
-    "delta_judge": -0.056,
+    "n": 95,
+    "delta_primary": -0.023,
+    "delta_judge": -0.041,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -6750,12 +6750,12 @@
   "retention.GRPO_LA0.PCT.iter10.eda_view_PTO_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.085,
-    "delta_judge": 0.093,
-    "retention": 1.085,
-    "retention_ci_lo": 0.823,
-    "retention_ci_hi": 1.442,
+    "n": 95,
+    "delta_primary": 0.082,
+    "delta_judge": 0.079,
+    "retention": 0.968,
+    "retention_ci_lo": 0.497,
+    "retention_ci_hi": 1.525,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=10 ref_kind=eda_view_PTO_LA0_base",
@@ -6838,8 +6838,8 @@
     "delta_primary": 0.064,
     "delta_judge": 0.265,
     "retention": 4.125,
-    "retention_ci_lo": 2.372,
-    "retention_ci_hi": 5.269,
+    "retention_ci_lo": 2.407,
+    "retention_ci_hi": 5.335,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=5 ref_kind=eda_view_PTO_LA0_base",
@@ -6866,8 +6866,8 @@
     "delta_primary": 0.057,
     "delta_judge": 0.291,
     "retention": 5.122,
-    "retention_ci_lo": 2.411,
-    "retention_ci_hi": 6.085,
+    "retention_ci_lo": 2.391,
+    "retention_ci_hi": 6.108,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=7 ref_kind=eda_view_PTO_LA0_base",
@@ -6880,8 +6880,8 @@
     "delta_primary": 0.322,
     "delta_judge": 0.534,
     "retention": 1.659,
-    "retention_ci_lo": 1.368,
-    "retention_ci_hi": 2.04,
+    "retention_ci_lo": 1.38,
+    "retention_ci_hi": 2.044,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=8 ref_kind=eda_view_PTO_LA0_base",
@@ -6894,8 +6894,8 @@
     "delta_primary": 0.137,
     "delta_judge": 0.331,
     "retention": 2.421,
-    "retention_ci_lo": 1.752,
-    "retention_ci_hi": 3.792,
+    "retention_ci_lo": 1.714,
+    "retention_ci_hi": 3.975,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=9 ref_kind=eda_view_PTO_LA0_base",
@@ -6908,7 +6908,7 @@
     "delta_primary": 0.625,
     "delta_judge": 0.686,
     "retention": 1.098,
-    "retention_ci_lo": 0.962,
+    "retention_ci_lo": 0.966,
     "retention_ci_hi": 1.252,
     "same_sign": true
    },
@@ -7898,9 +7898,9 @@
   "retention.GRPO_LA0.PCT.iter1.method_LA0_base": {
    "value": {
     "reference": "GRPOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.007,
-    "delta_judge": 0.013,
+    "n": 94,
+    "delta_primary": 0.0,
+    "delta_judge": -0.014,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -7913,11 +7913,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.016,
-    "delta_judge": 0.027,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "delta_primary": 0.06,
+    "delta_judge": 0.023,
+    "retention": 0.382,
+    "retention_ci_lo": -0.004,
+    "retention_ci_hi": 0.813,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=2 ref_kind=method_LA0_base",
@@ -7926,12 +7926,12 @@
   "retention.GRPO_LA0.PCT.iter3.method_LA0_base": {
    "value": {
     "reference": "GRPOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.056,
-    "delta_judge": 0.075,
-    "retention": 1.326,
-    "retention_ci_lo": 0.925,
-    "retention_ci_hi": 1.608,
+    "n": 95,
+    "delta_primary": 0.097,
+    "delta_judge": 0.081,
+    "retention": 0.833,
+    "retention_ci_lo": 0.51,
+    "retention_ci_hi": 1.122,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=3 ref_kind=method_LA0_base",
@@ -7941,11 +7941,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.065,
-    "delta_judge": 0.06,
-    "retention": 0.925,
-    "retention_ci_lo": 0.627,
-    "retention_ci_hi": 1.268,
+    "delta_primary": 0.099,
+    "delta_judge": 0.052,
+    "retention": 0.529,
+    "retention_ci_lo": 0.172,
+    "retention_ci_hi": 0.804,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=4 ref_kind=method_LA0_base",
@@ -7955,11 +7955,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.035,
-    "delta_judge": 0.029,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "delta_primary": 0.074,
+    "delta_judge": 0.028,
+    "retention": 0.383,
+    "retention_ci_lo": -0.085,
+    "retention_ci_hi": 0.789,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=5 ref_kind=method_LA0_base",
@@ -7969,8 +7969,8 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.042,
-    "delta_judge": 0.028,
+    "delta_primary": 0.041,
+    "delta_judge": 0.038,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -7983,11 +7983,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.063,
-    "delta_judge": 0.058,
-    "retention": 0.908,
-    "retention_ci_lo": 0.576,
-    "retention_ci_hi": 1.249,
+    "delta_primary": 0.074,
+    "delta_judge": 0.052,
+    "retention": 0.705,
+    "retention_ci_lo": 0.272,
+    "retention_ci_hi": 1.117,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=7 ref_kind=method_LA0_base",
@@ -7997,11 +7997,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.085,
-    "delta_judge": 0.07,
-    "retention": 0.832,
-    "retention_ci_lo": 0.57,
-    "retention_ci_hi": 1.116,
+    "delta_primary": 0.071,
+    "delta_judge": 0.076,
+    "retention": 1.073,
+    "retention_ci_lo": 0.62,
+    "retention_ci_hi": 1.601,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=8 ref_kind=method_LA0_base",
@@ -8011,8 +8011,8 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": -0.037,
-    "delta_judge": -0.062,
+    "delta_primary": -0.035,
+    "delta_judge": -0.066,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -8025,11 +8025,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.087,
-    "delta_judge": 0.087,
-    "retention": 0.997,
-    "retention_ci_lo": 0.755,
-    "retention_ci_hi": 1.299,
+    "delta_primary": 0.077,
+    "delta_judge": 0.057,
+    "retention": 0.748,
+    "retention_ci_lo": 0.337,
+    "retention_ci_hi": 1.175,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=10 ref_kind=method_LA0_base",
@@ -8098,8 +8098,8 @@
     "delta_primary": 0.066,
     "delta_judge": 0.245,
     "retention": 3.713,
-    "retention_ci_lo": 2.183,
-    "retention_ci_hi": 5.057,
+    "retention_ci_lo": 2.113,
+    "retention_ci_hi": 5.127,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=5 ref_kind=method_LA0_base",
@@ -8126,8 +8126,8 @@
     "delta_primary": 0.059,
     "delta_judge": 0.271,
     "retention": 4.626,
-    "retention_ci_lo": 2.278,
-    "retention_ci_hi": 5.846,
+    "retention_ci_lo": 2.334,
+    "retention_ci_hi": 5.741,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=7 ref_kind=method_LA0_base",
@@ -8140,8 +8140,8 @@
     "delta_primary": 0.324,
     "delta_judge": 0.515,
     "retention": 1.589,
-    "retention_ci_lo": 1.297,
-    "retention_ci_hi": 2.0,
+    "retention_ci_lo": 1.293,
+    "retention_ci_hi": 1.978,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=8 ref_kind=method_LA0_base",
@@ -8154,8 +8154,8 @@
     "delta_primary": 0.139,
     "delta_judge": 0.312,
     "retention": 2.247,
-    "retention_ci_lo": 1.557,
-    "retention_ci_hi": 3.748,
+    "retention_ci_lo": 1.552,
+    "retention_ci_hi": 3.981,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=9 ref_kind=method_LA0_base",
@@ -8169,7 +8169,7 @@
     "delta_judge": 0.666,
     "retention": 1.063,
     "retention_ci_lo": 0.944,
-    "retention_ci_hi": 1.21,
+    "retention_ci_hi": 1.208,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=10 ref_kind=method_LA0_base",
@@ -9257,8 +9257,8 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.016,
-    "delta_judge": 0.019,
+    "delta_primary": 0.031,
+    "delta_judge": 0.046,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -9270,9 +9270,9 @@
   "retention.GRPO_LA0.PCT.iter1.method_LA5_base": {
    "value": {
     "reference": "GRPOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.01,
-    "delta_judge": 0.032,
+    "n": 94,
+    "delta_primary": 0.033,
+    "delta_judge": 0.036,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -9285,11 +9285,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.032,
-    "delta_judge": 0.046,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "delta_primary": 0.091,
+    "delta_judge": 0.069,
+    "retention": 0.756,
+    "retention_ci_lo": 0.423,
+    "retention_ci_hi": 1.121,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=2 ref_kind=method_LA5_base",
@@ -9298,12 +9298,12 @@
   "retention.GRPO_LA0.PCT.iter3.method_LA5_base": {
    "value": {
     "reference": "GRPOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.073,
-    "delta_judge": 0.094,
-    "retention": 1.29,
-    "retention_ci_lo": 0.964,
-    "retention_ci_hi": 1.678,
+    "n": 95,
+    "delta_primary": 0.128,
+    "delta_judge": 0.126,
+    "retention": 0.987,
+    "retention_ci_lo": 0.75,
+    "retention_ci_hi": 1.314,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=3 ref_kind=method_LA5_base",
@@ -9313,11 +9313,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.081,
-    "delta_judge": 0.079,
-    "retention": 0.974,
-    "retention_ci_lo": 0.696,
-    "retention_ci_hi": 1.269,
+    "delta_primary": 0.13,
+    "delta_judge": 0.098,
+    "retention": 0.757,
+    "retention_ci_lo": 0.548,
+    "retention_ci_hi": 0.991,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=4 ref_kind=method_LA5_base",
@@ -9327,11 +9327,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.052,
-    "delta_judge": 0.048,
-    "retention": 0.937,
-    "retention_ci_lo": 0.556,
-    "retention_ci_hi": 1.273,
+    "delta_primary": 0.105,
+    "delta_judge": 0.074,
+    "retention": 0.708,
+    "retention_ci_lo": 0.378,
+    "retention_ci_hi": 1.103,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=5 ref_kind=method_LA5_base",
@@ -9341,11 +9341,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.059,
-    "delta_judge": 0.048,
-    "retention": 0.808,
-    "retention_ci_lo": 0.443,
-    "retention_ci_hi": 1.157,
+    "delta_primary": 0.072,
+    "delta_judge": 0.084,
+    "retention": 1.164,
+    "retention_ci_lo": 0.737,
+    "retention_ci_hi": 1.653,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=6 ref_kind=method_LA5_base",
@@ -9355,11 +9355,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.08,
-    "delta_judge": 0.077,
-    "retention": 0.962,
-    "retention_ci_lo": 0.67,
-    "retention_ci_hi": 1.297,
+    "delta_primary": 0.105,
+    "delta_judge": 0.098,
+    "retention": 0.935,
+    "retention_ci_lo": 0.613,
+    "retention_ci_hi": 1.334,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=7 ref_kind=method_LA5_base",
@@ -9369,11 +9369,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.101,
-    "delta_judge": 0.089,
-    "retention": 0.887,
-    "retention_ci_lo": 0.618,
-    "retention_ci_hi": 1.178,
+    "delta_primary": 0.102,
+    "delta_judge": 0.122,
+    "retention": 1.199,
+    "retention_ci_lo": 0.822,
+    "retention_ci_hi": 1.77,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=8 ref_kind=method_LA5_base",
@@ -9383,8 +9383,8 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": -0.021,
-    "delta_judge": -0.043,
+    "delta_primary": -0.005,
+    "delta_judge": -0.021,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -9397,11 +9397,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.103,
-    "delta_judge": 0.106,
-    "retention": 1.024,
-    "retention_ci_lo": 0.793,
-    "retention_ci_hi": 1.326,
+    "delta_primary": 0.107,
+    "delta_judge": 0.103,
+    "retention": 0.96,
+    "retention_ci_lo": 0.667,
+    "retention_ci_hi": 1.389,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=10 ref_kind=method_LA5_base",
@@ -9484,8 +9484,8 @@
     "delta_primary": 0.068,
     "delta_judge": 0.302,
     "retention": 4.427,
-    "retention_ci_lo": 2.56,
-    "retention_ci_hi": 6.058,
+    "retention_ci_lo": 2.576,
+    "retention_ci_hi": 5.94,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=5 ref_kind=method_LA5_base",
@@ -9512,8 +9512,8 @@
     "delta_primary": 0.061,
     "delta_judge": 0.328,
     "retention": 5.392,
-    "retention_ci_lo": 2.782,
-    "retention_ci_hi": 6.817,
+    "retention_ci_lo": 2.775,
+    "retention_ci_hi": 6.837,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=7 ref_kind=method_LA5_base",
@@ -9526,8 +9526,8 @@
     "delta_primary": 0.326,
     "delta_judge": 0.572,
     "retention": 1.753,
-    "retention_ci_lo": 1.458,
-    "retention_ci_hi": 2.112,
+    "retention_ci_lo": 1.459,
+    "retention_ci_hi": 2.12,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=8 ref_kind=method_LA5_base",
@@ -9540,8 +9540,8 @@
     "delta_primary": 0.141,
     "delta_judge": 0.369,
     "retention": 2.617,
-    "retention_ci_lo": 1.939,
-    "retention_ci_hi": 3.998,
+    "retention_ci_lo": 1.957,
+    "retention_ci_hi": 3.973,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=9 ref_kind=method_LA5_base",
@@ -9554,7 +9554,7 @@
     "delta_primary": 0.629,
     "delta_judge": 0.723,
     "retention": 1.151,
-    "retention_ci_lo": 1.04,
+    "retention_ci_lo": 1.039,
     "retention_ci_hi": 1.28,
     "same_sign": true
    },
@@ -10544,9 +10544,9 @@
   "retention.GRPO_LA0.PCT.iter1.own_base": {
    "value": {
     "reference": "GRPOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.007,
-    "delta_judge": 0.013,
+    "n": 94,
+    "delta_primary": 0.0,
+    "delta_judge": -0.014,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -10559,11 +10559,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.016,
-    "delta_judge": 0.027,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "delta_primary": 0.06,
+    "delta_judge": 0.023,
+    "retention": 0.382,
+    "retention_ci_lo": -0.004,
+    "retention_ci_hi": 0.813,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=2 ref_kind=own_base",
@@ -10572,12 +10572,12 @@
   "retention.GRPO_LA0.PCT.iter3.own_base": {
    "value": {
     "reference": "GRPOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.056,
-    "delta_judge": 0.075,
-    "retention": 1.326,
-    "retention_ci_lo": 0.925,
-    "retention_ci_hi": 1.608,
+    "n": 95,
+    "delta_primary": 0.097,
+    "delta_judge": 0.081,
+    "retention": 0.833,
+    "retention_ci_lo": 0.51,
+    "retention_ci_hi": 1.122,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=3 ref_kind=own_base",
@@ -10587,11 +10587,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.065,
-    "delta_judge": 0.06,
-    "retention": 0.925,
-    "retention_ci_lo": 0.627,
-    "retention_ci_hi": 1.268,
+    "delta_primary": 0.099,
+    "delta_judge": 0.052,
+    "retention": 0.529,
+    "retention_ci_lo": 0.172,
+    "retention_ci_hi": 0.804,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=4 ref_kind=own_base",
@@ -10601,11 +10601,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.035,
-    "delta_judge": 0.029,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "delta_primary": 0.074,
+    "delta_judge": 0.028,
+    "retention": 0.383,
+    "retention_ci_lo": -0.085,
+    "retention_ci_hi": 0.789,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=5 ref_kind=own_base",
@@ -10615,8 +10615,8 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.042,
-    "delta_judge": 0.028,
+    "delta_primary": 0.041,
+    "delta_judge": 0.038,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -10629,11 +10629,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.063,
-    "delta_judge": 0.058,
-    "retention": 0.908,
-    "retention_ci_lo": 0.576,
-    "retention_ci_hi": 1.249,
+    "delta_primary": 0.074,
+    "delta_judge": 0.052,
+    "retention": 0.705,
+    "retention_ci_lo": 0.272,
+    "retention_ci_hi": 1.117,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=7 ref_kind=own_base",
@@ -10643,11 +10643,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.085,
-    "delta_judge": 0.07,
-    "retention": 0.832,
-    "retention_ci_lo": 0.57,
-    "retention_ci_hi": 1.116,
+    "delta_primary": 0.071,
+    "delta_judge": 0.076,
+    "retention": 1.073,
+    "retention_ci_lo": 0.62,
+    "retention_ci_hi": 1.601,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=8 ref_kind=own_base",
@@ -10657,8 +10657,8 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": -0.037,
-    "delta_judge": -0.062,
+    "delta_primary": -0.035,
+    "delta_judge": -0.066,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -10671,11 +10671,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.087,
-    "delta_judge": 0.087,
-    "retention": 0.997,
-    "retention_ci_lo": 0.755,
-    "retention_ci_hi": 1.299,
+    "delta_primary": 0.077,
+    "delta_judge": 0.057,
+    "retention": 0.748,
+    "retention_ci_lo": 0.337,
+    "retention_ci_hi": 1.175,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=PCT iteration=10 ref_kind=own_base",
@@ -10744,8 +10744,8 @@
     "delta_primary": 0.066,
     "delta_judge": 0.245,
     "retention": 3.713,
-    "retention_ci_lo": 2.183,
-    "retention_ci_hi": 5.057,
+    "retention_ci_lo": 2.113,
+    "retention_ci_hi": 5.127,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=5 ref_kind=own_base",
@@ -10772,8 +10772,8 @@
     "delta_primary": 0.059,
     "delta_judge": 0.271,
     "retention": 4.626,
-    "retention_ci_lo": 2.278,
-    "retention_ci_hi": 5.846,
+    "retention_ci_lo": 2.334,
+    "retention_ci_hi": 5.741,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=7 ref_kind=own_base",
@@ -10786,8 +10786,8 @@
     "delta_primary": 0.324,
     "delta_judge": 0.515,
     "retention": 1.589,
-    "retention_ci_lo": 1.297,
-    "retention_ci_hi": 2.0,
+    "retention_ci_lo": 1.293,
+    "retention_ci_hi": 1.978,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=8 ref_kind=own_base",
@@ -10800,8 +10800,8 @@
     "delta_primary": 0.139,
     "delta_judge": 0.312,
     "retention": 2.247,
-    "retention_ci_lo": 1.557,
-    "retention_ci_hi": 3.748,
+    "retention_ci_lo": 1.552,
+    "retention_ci_hi": 3.981,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=9 ref_kind=own_base",
@@ -10815,7 +10815,7 @@
     "delta_judge": 0.666,
     "retention": 1.063,
     "retention_ci_lo": 0.944,
-    "retention_ci_hi": 1.21,
+    "retention_ci_hi": 1.208,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA0 metric=MICI iteration=10 ref_kind=own_base",
@@ -11902,9 +11902,9 @@
   "retention.GRPO_LA5.PCT.iter0.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": -0.011,
-    "delta_judge": -0.017,
+    "n": 94,
+    "delta_primary": -0.024,
+    "delta_judge": -0.022,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -11916,9 +11916,9 @@
   "retention.GRPO_LA5.PCT.iter1.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": -0.005,
-    "delta_judge": -0.001,
+    "n": 93,
+    "delta_primary": 0.009,
+    "delta_judge": 0.016,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -11930,12 +11930,12 @@
   "retention.GRPO_LA5.PCT.iter2.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.033,
-    "delta_judge": 0.037,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 94,
+    "delta_primary": 0.072,
+    "delta_judge": 0.061,
+    "retention": 0.841,
+    "retention_ci_lo": 0.421,
+    "retention_ci_hi": 1.253,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=2 ref_kind=eda_view_PTO_LA5_base",
@@ -11944,12 +11944,12 @@
   "retention.GRPO_LA5.PCT.iter3.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.098,
-    "delta_judge": 0.099,
-    "retention": 1.014,
-    "retention_ci_lo": 0.743,
-    "retention_ci_hi": 1.325,
+    "n": 94,
+    "delta_primary": 0.104,
+    "delta_judge": 0.114,
+    "retention": 1.09,
+    "retention_ci_lo": 0.826,
+    "retention_ci_hi": 1.485,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=3 ref_kind=eda_view_PTO_LA5_base",
@@ -11958,12 +11958,12 @@
   "retention.GRPO_LA5.PCT.iter4.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.132,
-    "delta_judge": 0.128,
-    "retention": 0.964,
-    "retention_ci_lo": 0.776,
-    "retention_ci_hi": 1.171,
+    "n": 94,
+    "delta_primary": 0.123,
+    "delta_judge": 0.136,
+    "retention": 1.109,
+    "retention_ci_lo": 0.895,
+    "retention_ci_hi": 1.498,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=4 ref_kind=eda_view_PTO_LA5_base",
@@ -11972,12 +11972,12 @@
   "retention.GRPO_LA5.PCT.iter5.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.097,
-    "delta_judge": 0.099,
-    "retention": 1.025,
-    "retention_ci_lo": 0.757,
-    "retention_ci_hi": 1.394,
+    "n": 94,
+    "delta_primary": 0.117,
+    "delta_judge": 0.116,
+    "retention": 0.992,
+    "retention_ci_lo": 0.789,
+    "retention_ci_hi": 1.307,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=5 ref_kind=eda_view_PTO_LA5_base",
@@ -11986,12 +11986,12 @@
   "retention.GRPO_LA5.PCT.iter6.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.144,
-    "delta_judge": 0.154,
-    "retention": 1.074,
-    "retention_ci_lo": 0.885,
-    "retention_ci_hi": 1.296,
+    "n": 94,
+    "delta_primary": 0.176,
+    "delta_judge": 0.176,
+    "retention": 0.998,
+    "retention_ci_lo": 0.833,
+    "retention_ci_hi": 1.226,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=6 ref_kind=eda_view_PTO_LA5_base",
@@ -12000,12 +12000,12 @@
   "retention.GRPO_LA5.PCT.iter7.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.14,
-    "delta_judge": 0.145,
-    "retention": 1.037,
-    "retention_ci_lo": 0.833,
-    "retention_ci_hi": 1.276,
+    "n": 94,
+    "delta_primary": 0.171,
+    "delta_judge": 0.179,
+    "retention": 1.046,
+    "retention_ci_lo": 0.851,
+    "retention_ci_hi": 1.294,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=7 ref_kind=eda_view_PTO_LA5_base",
@@ -12014,12 +12014,12 @@
   "retention.GRPO_LA5.PCT.iter8.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.146,
-    "delta_judge": 0.176,
-    "retention": 1.211,
-    "retention_ci_lo": 1.039,
-    "retention_ci_hi": 1.454,
+    "n": 94,
+    "delta_primary": 0.184,
+    "delta_judge": 0.197,
+    "retention": 1.067,
+    "retention_ci_lo": 0.909,
+    "retention_ci_hi": 1.262,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=8 ref_kind=eda_view_PTO_LA5_base",
@@ -12028,12 +12028,12 @@
   "retention.GRPO_LA5.PCT.iter9.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.218,
-    "delta_judge": 0.231,
-    "retention": 1.063,
-    "retention_ci_lo": 0.927,
-    "retention_ci_hi": 1.217,
+    "n": 94,
+    "delta_primary": 0.234,
+    "delta_judge": 0.236,
+    "retention": 1.005,
+    "retention_ci_lo": 0.892,
+    "retention_ci_hi": 1.139,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=9 ref_kind=eda_view_PTO_LA5_base",
@@ -12042,12 +12042,12 @@
   "retention.GRPO_LA5.PCT.iter10.eda_view_PTO_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.204,
-    "delta_judge": 0.202,
-    "retention": 0.992,
-    "retention_ci_lo": 0.849,
-    "retention_ci_hi": 1.134,
+    "n": 94,
+    "delta_primary": 0.232,
+    "delta_judge": 0.239,
+    "retention": 1.03,
+    "retention_ci_lo": 0.889,
+    "retention_ci_hi": 1.202,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=10 ref_kind=eda_view_PTO_LA5_base",
@@ -12075,7 +12075,7 @@
     "delta_judge": -0.009,
     "retention": -0.171,
     "retention_ci_lo": -1.133,
-    "retention_ci_hi": 1.209,
+    "retention_ci_hi": 1.28,
     "same_sign": false
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=1 ref_kind=eda_view_PTO_LA5_base",
@@ -12088,8 +12088,8 @@
     "delta_primary": 0.05,
     "delta_judge": -0.0,
     "retention": -0.003,
-    "retention_ci_lo": -1.025,
-    "retention_ci_hi": 1.392,
+    "retention_ci_lo": -1.109,
+    "retention_ci_hi": 1.32,
     "same_sign": false
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=2 ref_kind=eda_view_PTO_LA5_base",
@@ -12102,8 +12102,8 @@
     "delta_primary": 0.13,
     "delta_judge": 0.148,
     "retention": 1.134,
-    "retention_ci_lo": 0.53,
-    "retention_ci_hi": 1.84,
+    "retention_ci_lo": 0.509,
+    "retention_ci_hi": 1.872,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=3 ref_kind=eda_view_PTO_LA5_base",
@@ -12116,8 +12116,8 @@
     "delta_primary": 0.127,
     "delta_judge": 0.192,
     "retention": 1.504,
-    "retention_ci_lo": 0.928,
-    "retention_ci_hi": 2.403,
+    "retention_ci_lo": 0.908,
+    "retention_ci_hi": 2.447,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=4 ref_kind=eda_view_PTO_LA5_base",
@@ -12130,8 +12130,8 @@
     "delta_primary": 0.163,
     "delta_judge": 0.276,
     "retention": 1.698,
-    "retention_ci_lo": 1.208,
-    "retention_ci_hi": 2.528,
+    "retention_ci_lo": 1.19,
+    "retention_ci_hi": 2.532,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=5 ref_kind=eda_view_PTO_LA5_base",
@@ -12144,8 +12144,8 @@
     "delta_primary": 0.104,
     "delta_judge": 0.205,
     "retention": 1.974,
-    "retention_ci_lo": 1.267,
-    "retention_ci_hi": 3.105,
+    "retention_ci_lo": 1.27,
+    "retention_ci_hi": 3.115,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=6 ref_kind=eda_view_PTO_LA5_base",
@@ -12158,8 +12158,8 @@
     "delta_primary": 0.07,
     "delta_judge": 0.209,
     "retention": 2.975,
-    "retention_ci_lo": 1.794,
-    "retention_ci_hi": 4.289,
+    "retention_ci_lo": 1.729,
+    "retention_ci_hi": 4.274,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=7 ref_kind=eda_view_PTO_LA5_base",
@@ -13289,8 +13289,8 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": -0.016,
-    "delta_judge": -0.019,
+    "delta_primary": -0.031,
+    "delta_judge": -0.046,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -13302,9 +13302,9 @@
   "retention.GRPO_LA5.PCT.iter1.method_LA0_base": {
    "value": {
     "reference": "GRPOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.01,
-    "delta_judge": -0.004,
+    "n": 95,
+    "delta_primary": -0.001,
+    "delta_judge": -0.01,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -13317,11 +13317,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.028,
+    "delta_primary": 0.062,
     "delta_judge": 0.035,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "retention": 0.567,
+    "retention_ci_lo": 0.183,
+    "retention_ci_hi": 0.988,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=2 ref_kind=method_LA0_base",
@@ -13331,11 +13331,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.092,
-    "delta_judge": 0.097,
-    "retention": 1.049,
-    "retention_ci_lo": 0.818,
-    "retention_ci_hi": 1.388,
+    "delta_primary": 0.095,
+    "delta_judge": 0.088,
+    "retention": 0.917,
+    "retention_ci_lo": 0.634,
+    "retention_ci_hi": 1.19,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=3 ref_kind=method_LA0_base",
@@ -13345,11 +13345,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.127,
-    "delta_judge": 0.125,
-    "retention": 0.987,
-    "retention_ci_lo": 0.809,
-    "retention_ci_hi": 1.22,
+    "delta_primary": 0.118,
+    "delta_judge": 0.115,
+    "retention": 0.969,
+    "retention_ci_lo": 0.741,
+    "retention_ci_hi": 1.261,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=4 ref_kind=method_LA0_base",
@@ -13359,11 +13359,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.091,
-    "delta_judge": 0.097,
-    "retention": 1.061,
-    "retention_ci_lo": 0.819,
-    "retention_ci_hi": 1.391,
+    "delta_primary": 0.109,
+    "delta_judge": 0.092,
+    "retention": 0.849,
+    "retention_ci_lo": 0.6,
+    "retention_ci_hi": 1.038,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=5 ref_kind=method_LA0_base",
@@ -13373,11 +13373,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.138,
-    "delta_judge": 0.152,
-    "retention": 1.1,
-    "retention_ci_lo": 0.934,
-    "retention_ci_hi": 1.353,
+    "delta_primary": 0.164,
+    "delta_judge": 0.148,
+    "retention": 0.904,
+    "retention_ci_lo": 0.726,
+    "retention_ci_hi": 1.088,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=6 ref_kind=method_LA0_base",
@@ -13387,11 +13387,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.134,
-    "delta_judge": 0.142,
-    "retention": 1.062,
-    "retention_ci_lo": 0.871,
-    "retention_ci_hi": 1.331,
+    "delta_primary": 0.159,
+    "delta_judge": 0.153,
+    "retention": 0.96,
+    "retention_ci_lo": 0.763,
+    "retention_ci_hi": 1.191,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=7 ref_kind=method_LA0_base",
@@ -13401,11 +13401,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.14,
-    "delta_judge": 0.174,
-    "retention": 1.242,
-    "retention_ci_lo": 1.075,
-    "retention_ci_hi": 1.492,
+    "delta_primary": 0.172,
+    "delta_judge": 0.176,
+    "retention": 1.023,
+    "retention_ci_lo": 0.862,
+    "retention_ci_hi": 1.187,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=8 ref_kind=method_LA0_base",
@@ -13415,11 +13415,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.212,
-    "delta_judge": 0.229,
-    "retention": 1.079,
-    "retention_ci_lo": 0.967,
-    "retention_ci_hi": 1.206,
+    "delta_primary": 0.23,
+    "delta_judge": 0.217,
+    "retention": 0.944,
+    "retention_ci_lo": 0.84,
+    "retention_ci_hi": 1.047,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=9 ref_kind=method_LA0_base",
@@ -13429,11 +13429,11 @@
    "value": {
     "reference": "GRPOExp3_LA0_Base",
     "n": 96,
-    "delta_primary": 0.198,
-    "delta_judge": 0.199,
-    "retention": 1.008,
-    "retention_ci_lo": 0.877,
-    "retention_ci_hi": 1.15,
+    "delta_primary": 0.226,
+    "delta_judge": 0.214,
+    "retention": 0.949,
+    "retention_ci_lo": 0.803,
+    "retention_ci_hi": 1.098,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=10 ref_kind=method_LA0_base",
@@ -13488,8 +13488,8 @@
     "delta_primary": 0.097,
     "delta_judge": 0.134,
     "retention": 1.392,
-    "retention_ci_lo": 0.661,
-    "retention_ci_hi": 2.466,
+    "retention_ci_lo": 0.675,
+    "retention_ci_hi": 2.45,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=3 ref_kind=method_LA0_base",
@@ -13502,8 +13502,8 @@
     "delta_primary": 0.094,
     "delta_judge": 0.178,
     "retention": 1.903,
-    "retention_ci_lo": 1.135,
-    "retention_ci_hi": 3.281,
+    "retention_ci_lo": 1.099,
+    "retention_ci_hi": 3.18,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=4 ref_kind=method_LA0_base",
@@ -13516,8 +13516,8 @@
     "delta_primary": 0.129,
     "delta_judge": 0.263,
     "retention": 2.039,
-    "retention_ci_lo": 1.349,
-    "retention_ci_hi": 3.45,
+    "retention_ci_lo": 1.391,
+    "retention_ci_hi": 3.454,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=5 ref_kind=method_LA0_base",
@@ -13530,8 +13530,8 @@
     "delta_primary": 0.07,
     "delta_judge": 0.191,
     "retention": 2.736,
-    "retention_ci_lo": 1.499,
-    "retention_ci_hi": 3.993,
+    "retention_ci_lo": 1.527,
+    "retention_ci_hi": 4.018,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=6 ref_kind=method_LA0_base",
@@ -14576,9 +14576,9 @@
   "retention.GRPO_LA5.PCT.iter1.method_LA5_base": {
    "value": {
     "reference": "GRPOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.006,
-    "delta_judge": 0.015,
+    "n": 95,
+    "delta_primary": 0.03,
+    "delta_judge": 0.039,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -14591,11 +14591,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.044,
-    "delta_judge": 0.054,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "delta_primary": 0.093,
+    "delta_judge": 0.081,
+    "retention": 0.874,
+    "retention_ci_lo": 0.519,
+    "retention_ci_hi": 1.279,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=2 ref_kind=method_LA5_base",
@@ -14605,11 +14605,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.109,
-    "delta_judge": 0.116,
-    "retention": 1.067,
-    "retention_ci_lo": 0.829,
-    "retention_ci_hi": 1.356,
+    "delta_primary": 0.126,
+    "delta_judge": 0.133,
+    "retention": 1.056,
+    "retention_ci_lo": 0.864,
+    "retention_ci_hi": 1.334,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=3 ref_kind=method_LA5_base",
@@ -14619,11 +14619,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.143,
-    "delta_judge": 0.144,
-    "retention": 1.008,
-    "retention_ci_lo": 0.832,
-    "retention_ci_hi": 1.217,
+    "delta_primary": 0.149,
+    "delta_judge": 0.16,
+    "retention": 1.076,
+    "retention_ci_lo": 0.883,
+    "retention_ci_hi": 1.352,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=4 ref_kind=method_LA5_base",
@@ -14633,11 +14633,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.107,
-    "delta_judge": 0.116,
-    "retention": 1.077,
-    "retention_ci_lo": 0.852,
-    "retention_ci_hi": 1.4,
+    "delta_primary": 0.139,
+    "delta_judge": 0.138,
+    "retention": 0.99,
+    "retention_ci_lo": 0.796,
+    "retention_ci_hi": 1.199,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=5 ref_kind=method_LA5_base",
@@ -14647,11 +14647,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.154,
-    "delta_judge": 0.171,
-    "retention": 1.107,
-    "retention_ci_lo": 0.918,
-    "retention_ci_hi": 1.326,
+    "delta_primary": 0.195,
+    "delta_judge": 0.194,
+    "retention": 0.996,
+    "retention_ci_lo": 0.861,
+    "retention_ci_hi": 1.165,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=6 ref_kind=method_LA5_base",
@@ -14661,11 +14661,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.15,
-    "delta_judge": 0.161,
-    "retention": 1.074,
-    "retention_ci_lo": 0.886,
-    "retention_ci_hi": 1.302,
+    "delta_primary": 0.19,
+    "delta_judge": 0.199,
+    "retention": 1.046,
+    "retention_ci_lo": 0.862,
+    "retention_ci_hi": 1.292,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=7 ref_kind=method_LA5_base",
@@ -14675,11 +14675,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.156,
-    "delta_judge": 0.193,
-    "retention": 1.234,
-    "retention_ci_lo": 1.075,
-    "retention_ci_hi": 1.437,
+    "delta_primary": 0.203,
+    "delta_judge": 0.221,
+    "retention": 1.093,
+    "retention_ci_lo": 0.933,
+    "retention_ci_hi": 1.274,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=8 ref_kind=method_LA5_base",
@@ -14689,11 +14689,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.228,
-    "delta_judge": 0.248,
-    "retention": 1.086,
-    "retention_ci_lo": 0.967,
-    "retention_ci_hi": 1.208,
+    "delta_primary": 0.261,
+    "delta_judge": 0.263,
+    "retention": 1.008,
+    "retention_ci_lo": 0.894,
+    "retention_ci_hi": 1.134,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=9 ref_kind=method_LA5_base",
@@ -14703,11 +14703,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.214,
-    "delta_judge": 0.219,
-    "retention": 1.02,
-    "retention_ci_lo": 0.896,
-    "retention_ci_hi": 1.151,
+    "delta_primary": 0.257,
+    "delta_judge": 0.26,
+    "retention": 1.013,
+    "retention_ci_lo": 0.9,
+    "retention_ci_hi": 1.149,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=10 ref_kind=method_LA5_base",
@@ -14748,8 +14748,8 @@
     "delta_primary": 0.099,
     "delta_judge": 0.192,
     "retention": 1.939,
-    "retention_ci_lo": 1.267,
-    "retention_ci_hi": 3.061,
+    "retention_ci_lo": 1.296,
+    "retention_ci_hi": 2.947,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=3 ref_kind=method_LA5_base",
@@ -14762,8 +14762,8 @@
     "delta_primary": 0.096,
     "delta_judge": 0.236,
     "retention": 2.454,
-    "retention_ci_lo": 1.56,
-    "retention_ci_hi": 3.978,
+    "retention_ci_lo": 1.548,
+    "retention_ci_hi": 3.977,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=4 ref_kind=method_LA5_base",
@@ -14776,8 +14776,8 @@
     "delta_primary": 0.131,
     "delta_judge": 0.32,
     "retention": 2.44,
-    "retention_ci_lo": 1.748,
-    "retention_ci_hi": 3.813,
+    "retention_ci_lo": 1.738,
+    "retention_ci_hi": 3.946,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=5 ref_kind=method_LA5_base",
@@ -14790,8 +14790,8 @@
     "delta_primary": 0.072,
     "delta_judge": 0.249,
     "retention": 3.441,
-    "retention_ci_lo": 2.018,
-    "retention_ci_hi": 4.969,
+    "retention_ci_lo": 2.072,
+    "retention_ci_hi": 5.007,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=6 ref_kind=method_LA5_base",
@@ -15836,9 +15836,9 @@
   "retention.GRPO_LA5.PCT.iter1.own_base": {
    "value": {
     "reference": "GRPOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.006,
-    "delta_judge": 0.015,
+    "n": 95,
+    "delta_primary": 0.03,
+    "delta_judge": 0.039,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -15851,11 +15851,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.044,
-    "delta_judge": 0.054,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "delta_primary": 0.093,
+    "delta_judge": 0.081,
+    "retention": 0.874,
+    "retention_ci_lo": 0.519,
+    "retention_ci_hi": 1.279,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=2 ref_kind=own_base",
@@ -15865,11 +15865,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.109,
-    "delta_judge": 0.116,
-    "retention": 1.067,
-    "retention_ci_lo": 0.829,
-    "retention_ci_hi": 1.356,
+    "delta_primary": 0.126,
+    "delta_judge": 0.133,
+    "retention": 1.056,
+    "retention_ci_lo": 0.864,
+    "retention_ci_hi": 1.334,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=3 ref_kind=own_base",
@@ -15879,11 +15879,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.143,
-    "delta_judge": 0.144,
-    "retention": 1.008,
-    "retention_ci_lo": 0.832,
-    "retention_ci_hi": 1.217,
+    "delta_primary": 0.149,
+    "delta_judge": 0.16,
+    "retention": 1.076,
+    "retention_ci_lo": 0.883,
+    "retention_ci_hi": 1.352,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=4 ref_kind=own_base",
@@ -15893,11 +15893,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.107,
-    "delta_judge": 0.116,
-    "retention": 1.077,
-    "retention_ci_lo": 0.852,
-    "retention_ci_hi": 1.4,
+    "delta_primary": 0.139,
+    "delta_judge": 0.138,
+    "retention": 0.99,
+    "retention_ci_lo": 0.796,
+    "retention_ci_hi": 1.199,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=5 ref_kind=own_base",
@@ -15907,11 +15907,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.154,
-    "delta_judge": 0.171,
-    "retention": 1.107,
-    "retention_ci_lo": 0.918,
-    "retention_ci_hi": 1.326,
+    "delta_primary": 0.195,
+    "delta_judge": 0.194,
+    "retention": 0.996,
+    "retention_ci_lo": 0.861,
+    "retention_ci_hi": 1.165,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=6 ref_kind=own_base",
@@ -15921,11 +15921,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.15,
-    "delta_judge": 0.161,
-    "retention": 1.074,
-    "retention_ci_lo": 0.886,
-    "retention_ci_hi": 1.302,
+    "delta_primary": 0.19,
+    "delta_judge": 0.199,
+    "retention": 1.046,
+    "retention_ci_lo": 0.862,
+    "retention_ci_hi": 1.292,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=7 ref_kind=own_base",
@@ -15935,11 +15935,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.156,
-    "delta_judge": 0.193,
-    "retention": 1.234,
-    "retention_ci_lo": 1.075,
-    "retention_ci_hi": 1.437,
+    "delta_primary": 0.203,
+    "delta_judge": 0.221,
+    "retention": 1.093,
+    "retention_ci_lo": 0.933,
+    "retention_ci_hi": 1.274,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=8 ref_kind=own_base",
@@ -15949,11 +15949,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.228,
-    "delta_judge": 0.248,
-    "retention": 1.086,
-    "retention_ci_lo": 0.967,
-    "retention_ci_hi": 1.208,
+    "delta_primary": 0.261,
+    "delta_judge": 0.263,
+    "retention": 1.008,
+    "retention_ci_lo": 0.894,
+    "retention_ci_hi": 1.134,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=9 ref_kind=own_base",
@@ -15963,11 +15963,11 @@
    "value": {
     "reference": "GRPOExp3_LA5_Base",
     "n": 96,
-    "delta_primary": 0.214,
-    "delta_judge": 0.219,
-    "retention": 1.02,
-    "retention_ci_lo": 0.896,
-    "retention_ci_hi": 1.151,
+    "delta_primary": 0.257,
+    "delta_judge": 0.26,
+    "retention": 1.013,
+    "retention_ci_lo": 0.9,
+    "retention_ci_hi": 1.149,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=PCT iteration=10 ref_kind=own_base",
@@ -16008,8 +16008,8 @@
     "delta_primary": 0.099,
     "delta_judge": 0.192,
     "retention": 1.939,
-    "retention_ci_lo": 1.267,
-    "retention_ci_hi": 3.061,
+    "retention_ci_lo": 1.296,
+    "retention_ci_hi": 2.947,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=3 ref_kind=own_base",
@@ -16022,8 +16022,8 @@
     "delta_primary": 0.096,
     "delta_judge": 0.236,
     "retention": 2.454,
-    "retention_ci_lo": 1.56,
-    "retention_ci_hi": 3.978,
+    "retention_ci_lo": 1.548,
+    "retention_ci_hi": 3.977,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=4 ref_kind=own_base",
@@ -16036,8 +16036,8 @@
     "delta_primary": 0.131,
     "delta_judge": 0.32,
     "retention": 2.44,
-    "retention_ci_lo": 1.748,
-    "retention_ci_hi": 3.813,
+    "retention_ci_lo": 1.738,
+    "retention_ci_hi": 3.946,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=5 ref_kind=own_base",
@@ -16050,8 +16050,8 @@
     "delta_primary": 0.072,
     "delta_judge": 0.249,
     "retention": 3.441,
-    "retention_ci_lo": 2.018,
-    "retention_ci_hi": 4.969,
+    "retention_ci_lo": 2.072,
+    "retention_ci_hi": 5.007,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=GRPO_LA5 metric=MICI iteration=6 ref_kind=own_base",
@@ -17096,13 +17096,13 @@
   "retention.PTO_LA0.PCT.iter1.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.029,
-    "delta_judge": -0.007,
+    "n": 94,
+    "delta_primary": 0.005,
+    "delta_judge": -0.008,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
-    "same_sign": true
+    "same_sign": false
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=1 ref_kind=method_LA0_base",
    "note": ""
@@ -17110,9 +17110,9 @@
   "retention.PTO_LA0.PCT.iter2.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.002,
-    "delta_judge": 0.023,
+    "n": 94,
+    "delta_primary": 0.03,
+    "delta_judge": 0.02,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -17124,12 +17124,12 @@
   "retention.PTO_LA0.PCT.iter3.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.045,
-    "delta_judge": 0.052,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 92,
+    "delta_primary": 0.072,
+    "delta_judge": 0.059,
+    "retention": 0.811,
+    "retention_ci_lo": 0.349,
+    "retention_ci_hi": 1.213,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=3 ref_kind=method_LA0_base",
@@ -17138,12 +17138,12 @@
   "retention.PTO_LA0.PCT.iter4.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.049,
-    "delta_judge": 0.056,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 94,
+    "delta_primary": 0.074,
+    "delta_judge": 0.07,
+    "retention": 0.952,
+    "retention_ci_lo": 0.449,
+    "retention_ci_hi": 1.475,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=4 ref_kind=method_LA0_base",
@@ -17152,12 +17152,12 @@
   "retention.PTO_LA0.PCT.iter5.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.066,
-    "delta_judge": 0.063,
-    "retention": 0.96,
-    "retention_ci_lo": 0.635,
-    "retention_ci_hi": 1.306,
+    "n": 95,
+    "delta_primary": 0.091,
+    "delta_judge": 0.08,
+    "retention": 0.876,
+    "retention_ci_lo": 0.489,
+    "retention_ci_hi": 1.287,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=5 ref_kind=method_LA0_base",
@@ -17166,12 +17166,12 @@
   "retention.PTO_LA0.PCT.iter6.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.08,
-    "delta_judge": 0.093,
-    "retention": 1.153,
-    "retention_ci_lo": 0.887,
-    "retention_ci_hi": 1.512,
+    "n": 93,
+    "delta_primary": 0.098,
+    "delta_judge": 0.105,
+    "retention": 1.076,
+    "retention_ci_lo": 0.741,
+    "retention_ci_hi": 1.542,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=6 ref_kind=method_LA0_base",
@@ -17180,12 +17180,12 @@
   "retention.PTO_LA0.PCT.iter7.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.056,
-    "delta_judge": 0.062,
-    "retention": 1.104,
-    "retention_ci_lo": 0.744,
-    "retention_ci_hi": 1.446,
+    "n": 95,
+    "delta_primary": 0.069,
+    "delta_judge": 0.073,
+    "retention": 1.064,
+    "retention_ci_lo": 0.59,
+    "retention_ci_hi": 1.563,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=7 ref_kind=method_LA0_base",
@@ -17194,12 +17194,12 @@
   "retention.PTO_LA0.PCT.iter8.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.084,
-    "delta_judge": 0.085,
-    "retention": 1.017,
-    "retention_ci_lo": 0.746,
-    "retention_ci_hi": 1.36,
+    "n": 95,
+    "delta_primary": 0.105,
+    "delta_judge": 0.083,
+    "retention": 0.795,
+    "retention_ci_lo": 0.486,
+    "retention_ci_hi": 1.155,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=8 ref_kind=method_LA0_base",
@@ -17208,12 +17208,12 @@
   "retention.PTO_LA0.PCT.iter9.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.123,
-    "delta_judge": 0.118,
-    "retention": 0.96,
-    "retention_ci_lo": 0.757,
-    "retention_ci_hi": 1.265,
+    "n": 93,
+    "delta_primary": 0.131,
+    "delta_judge": 0.122,
+    "retention": 0.931,
+    "retention_ci_lo": 0.652,
+    "retention_ci_hi": 1.232,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=9 ref_kind=method_LA0_base",
@@ -17222,12 +17222,12 @@
   "retention.PTO_LA0.PCT.iter10.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.141,
-    "delta_judge": 0.113,
-    "retention": 0.802,
-    "retention_ci_lo": 0.642,
-    "retention_ci_hi": 0.978,
+    "n": 95,
+    "delta_primary": 0.117,
+    "delta_judge": 0.111,
+    "retention": 0.945,
+    "retention_ci_lo": 0.638,
+    "retention_ci_hi": 1.286,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=10 ref_kind=method_LA0_base",
@@ -17296,8 +17296,8 @@
     "delta_primary": 0.076,
     "delta_judge": 0.139,
     "retention": 1.832,
-    "retention_ci_lo": 0.938,
-    "retention_ci_hi": 2.956,
+    "retention_ci_lo": 0.941,
+    "retention_ci_hi": 2.905,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=5 ref_kind=method_LA0_base",
@@ -17310,8 +17310,8 @@
     "delta_primary": 0.105,
     "delta_judge": 0.217,
     "retention": 2.072,
-    "retention_ci_lo": 1.278,
-    "retention_ci_hi": 3.522,
+    "retention_ci_lo": 1.301,
+    "retention_ci_hi": 3.452,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=6 ref_kind=method_LA0_base",
@@ -17324,8 +17324,8 @@
     "delta_primary": 0.128,
     "delta_judge": 0.254,
     "retention": 1.988,
-    "retention_ci_lo": 1.379,
-    "retention_ci_hi": 3.272,
+    "retention_ci_lo": 1.373,
+    "retention_ci_hi": 3.26,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=7 ref_kind=method_LA0_base",
@@ -17338,8 +17338,8 @@
     "delta_primary": 0.136,
     "delta_judge": 0.307,
     "retention": 2.263,
-    "retention_ci_lo": 1.581,
-    "retention_ci_hi": 3.706,
+    "retention_ci_lo": 1.582,
+    "retention_ci_hi": 3.802,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=8 ref_kind=method_LA0_base",
@@ -17352,8 +17352,8 @@
     "delta_primary": 0.258,
     "delta_judge": 0.382,
     "retention": 1.483,
-    "retention_ci_lo": 1.197,
-    "retention_ci_hi": 1.881,
+    "retention_ci_lo": 1.191,
+    "retention_ci_hi": 1.862,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=9 ref_kind=method_LA0_base",
@@ -17366,8 +17366,8 @@
     "delta_primary": 0.278,
     "delta_judge": 0.461,
     "retention": 1.657,
-    "retention_ci_lo": 1.303,
-    "retention_ci_hi": 2.151,
+    "retention_ci_lo": 1.305,
+    "retention_ci_hi": 2.168,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=10 ref_kind=method_LA0_base",
@@ -18454,9 +18454,9 @@
   "retention.PTO_LA0.PCT.iter0.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.007,
-    "delta_judge": -0.003,
+    "n": 93,
+    "delta_primary": -0.003,
+    "delta_judge": 0.002,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -18468,13 +18468,13 @@
   "retention.PTO_LA0.PCT.iter1.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": -0.022,
-    "delta_judge": -0.01,
+    "n": 93,
+    "delta_primary": 0.002,
+    "delta_judge": -0.006,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
-    "same_sign": true
+    "same_sign": false
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=1 ref_kind=method_LA5_base",
    "note": ""
@@ -18482,9 +18482,9 @@
   "retention.PTO_LA0.PCT.iter2.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.01,
-    "delta_judge": 0.02,
+    "n": 93,
+    "delta_primary": 0.035,
+    "delta_judge": 0.025,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -18496,12 +18496,12 @@
   "retention.PTO_LA0.PCT.iter3.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.052,
-    "delta_judge": 0.049,
-    "retention": 0.935,
-    "retention_ci_lo": 0.522,
-    "retention_ci_hi": 1.276,
+    "n": 92,
+    "delta_primary": 0.064,
+    "delta_judge": 0.06,
+    "retention": 0.937,
+    "retention_ci_lo": 0.458,
+    "retention_ci_hi": 1.381,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=3 ref_kind=method_LA5_base",
@@ -18510,12 +18510,12 @@
   "retention.PTO_LA0.PCT.iter4.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.056,
-    "delta_judge": 0.053,
-    "retention": 0.946,
-    "retention_ci_lo": 0.561,
-    "retention_ci_hi": 1.299,
+    "n": 93,
+    "delta_primary": 0.077,
+    "delta_judge": 0.078,
+    "retention": 1.013,
+    "retention_ci_lo": 0.653,
+    "retention_ci_hi": 1.474,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=4 ref_kind=method_LA5_base",
@@ -18524,12 +18524,12 @@
   "retention.PTO_LA0.PCT.iter5.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.073,
-    "delta_judge": 0.06,
-    "retention": 0.818,
-    "retention_ci_lo": 0.426,
-    "retention_ci_hi": 1.195,
+    "n": 94,
+    "delta_primary": 0.079,
+    "delta_judge": 0.071,
+    "retention": 0.899,
+    "retention_ci_lo": 0.538,
+    "retention_ci_hi": 1.329,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=5 ref_kind=method_LA5_base",
@@ -18538,12 +18538,12 @@
   "retention.PTO_LA0.PCT.iter6.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.088,
-    "delta_judge": 0.089,
-    "retention": 1.018,
-    "retention_ci_lo": 0.743,
-    "retention_ci_hi": 1.402,
+    "n": 93,
+    "delta_primary": 0.089,
+    "delta_judge": 0.1,
+    "retention": 1.132,
+    "retention_ci_lo": 0.857,
+    "retention_ci_hi": 1.551,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=6 ref_kind=method_LA5_base",
@@ -18552,12 +18552,12 @@
   "retention.PTO_LA0.PCT.iter7.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.064,
-    "delta_judge": 0.059,
-    "retention": 0.925,
-    "retention_ci_lo": 0.548,
-    "retention_ci_hi": 1.299,
+    "n": 94,
+    "delta_primary": 0.065,
+    "delta_judge": 0.07,
+    "retention": 1.073,
+    "retention_ci_lo": 0.649,
+    "retention_ci_hi": 1.617,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=7 ref_kind=method_LA5_base",
@@ -18566,12 +18566,12 @@
   "retention.PTO_LA0.PCT.iter8.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.091,
-    "delta_judge": 0.082,
-    "retention": 0.899,
-    "retention_ci_lo": 0.593,
-    "retention_ci_hi": 1.223,
+    "n": 94,
+    "delta_primary": 0.108,
+    "delta_judge": 0.09,
+    "retention": 0.829,
+    "retention_ci_lo": 0.568,
+    "retention_ci_hi": 1.161,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=8 ref_kind=method_LA5_base",
@@ -18580,12 +18580,12 @@
   "retention.PTO_LA0.PCT.iter9.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
+    "n": 92,
     "delta_primary": 0.13,
-    "delta_judge": 0.115,
-    "retention": 0.88,
-    "retention_ci_lo": 0.684,
-    "retention_ci_hi": 1.158,
+    "delta_judge": 0.124,
+    "retention": 0.951,
+    "retention_ci_lo": 0.722,
+    "retention_ci_hi": 1.211,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=9 ref_kind=method_LA5_base",
@@ -18594,12 +18594,12 @@
   "retention.PTO_LA0.PCT.iter10.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.149,
+    "n": 94,
+    "delta_primary": 0.112,
     "delta_judge": 0.11,
-    "retention": 0.74,
-    "retention_ci_lo": 0.563,
-    "retention_ci_hi": 0.904,
+    "retention": 0.983,
+    "retention_ci_lo": 0.716,
+    "retention_ci_hi": 1.353,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=10 ref_kind=method_LA5_base",
@@ -18654,8 +18654,8 @@
     "delta_primary": 0.075,
     "delta_judge": 0.047,
     "retention": 0.63,
-    "retention_ci_lo": -0.427,
-    "retention_ci_hi": 1.617,
+    "retention_ci_lo": -0.334,
+    "retention_ci_hi": 1.645,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=3 ref_kind=method_LA5_base",
@@ -18682,8 +18682,8 @@
     "delta_primary": 0.111,
     "delta_judge": 0.133,
     "retention": 1.191,
-    "retention_ci_lo": 0.647,
-    "retention_ci_hi": 1.99,
+    "retention_ci_lo": 0.66,
+    "retention_ci_hi": 2.073,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=5 ref_kind=method_LA5_base",
@@ -18696,8 +18696,8 @@
     "delta_primary": 0.141,
     "delta_judge": 0.211,
     "retention": 1.503,
-    "retention_ci_lo": 0.956,
-    "retention_ci_hi": 2.274,
+    "retention_ci_lo": 0.966,
+    "retention_ci_hi": 2.292,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=6 ref_kind=method_LA5_base",
@@ -18710,8 +18710,8 @@
     "delta_primary": 0.163,
     "delta_judge": 0.248,
     "retention": 1.517,
-    "retention_ci_lo": 1.049,
-    "retention_ci_hi": 2.206,
+    "retention_ci_lo": 1.024,
+    "retention_ci_hi": 2.2,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=7 ref_kind=method_LA5_base",
@@ -18724,8 +18724,8 @@
     "delta_primary": 0.171,
     "delta_judge": 0.301,
     "retention": 1.756,
-    "retention_ci_lo": 1.315,
-    "retention_ci_hi": 2.425,
+    "retention_ci_lo": 1.301,
+    "retention_ci_hi": 2.398,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=8 ref_kind=method_LA5_base",
@@ -18738,8 +18738,8 @@
     "delta_primary": 0.293,
     "delta_judge": 0.376,
     "retention": 1.282,
-    "retention_ci_lo": 1.009,
-    "retention_ci_hi": 1.586,
+    "retention_ci_lo": 1.028,
+    "retention_ci_hi": 1.583,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=9 ref_kind=method_LA5_base",
@@ -18753,7 +18753,7 @@
     "delta_judge": 0.455,
     "retention": 1.45,
     "retention_ci_lo": 1.166,
-    "retention_ci_hi": 1.815,
+    "retention_ci_hi": 1.813,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=10 ref_kind=method_LA5_base",
@@ -19742,13 +19742,13 @@
   "retention.PTO_LA0.PCT.iter1.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.029,
-    "delta_judge": -0.007,
+    "n": 94,
+    "delta_primary": 0.005,
+    "delta_judge": -0.008,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
-    "same_sign": true
+    "same_sign": false
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=1 ref_kind=own_base",
    "note": ""
@@ -19756,9 +19756,9 @@
   "retention.PTO_LA0.PCT.iter2.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.002,
-    "delta_judge": 0.023,
+    "n": 94,
+    "delta_primary": 0.03,
+    "delta_judge": 0.02,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -19770,12 +19770,12 @@
   "retention.PTO_LA0.PCT.iter3.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.045,
-    "delta_judge": 0.052,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 92,
+    "delta_primary": 0.072,
+    "delta_judge": 0.059,
+    "retention": 0.811,
+    "retention_ci_lo": 0.349,
+    "retention_ci_hi": 1.213,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=3 ref_kind=own_base",
@@ -19784,12 +19784,12 @@
   "retention.PTO_LA0.PCT.iter4.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.049,
-    "delta_judge": 0.056,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 94,
+    "delta_primary": 0.074,
+    "delta_judge": 0.07,
+    "retention": 0.952,
+    "retention_ci_lo": 0.449,
+    "retention_ci_hi": 1.475,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=4 ref_kind=own_base",
@@ -19798,12 +19798,12 @@
   "retention.PTO_LA0.PCT.iter5.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.066,
-    "delta_judge": 0.063,
-    "retention": 0.96,
-    "retention_ci_lo": 0.635,
-    "retention_ci_hi": 1.306,
+    "n": 95,
+    "delta_primary": 0.091,
+    "delta_judge": 0.08,
+    "retention": 0.876,
+    "retention_ci_lo": 0.489,
+    "retention_ci_hi": 1.287,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=5 ref_kind=own_base",
@@ -19812,12 +19812,12 @@
   "retention.PTO_LA0.PCT.iter6.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.08,
-    "delta_judge": 0.093,
-    "retention": 1.153,
-    "retention_ci_lo": 0.887,
-    "retention_ci_hi": 1.512,
+    "n": 93,
+    "delta_primary": 0.098,
+    "delta_judge": 0.105,
+    "retention": 1.076,
+    "retention_ci_lo": 0.741,
+    "retention_ci_hi": 1.542,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=6 ref_kind=own_base",
@@ -19826,12 +19826,12 @@
   "retention.PTO_LA0.PCT.iter7.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.056,
-    "delta_judge": 0.062,
-    "retention": 1.104,
-    "retention_ci_lo": 0.744,
-    "retention_ci_hi": 1.446,
+    "n": 95,
+    "delta_primary": 0.069,
+    "delta_judge": 0.073,
+    "retention": 1.064,
+    "retention_ci_lo": 0.59,
+    "retention_ci_hi": 1.563,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=7 ref_kind=own_base",
@@ -19840,12 +19840,12 @@
   "retention.PTO_LA0.PCT.iter8.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.084,
-    "delta_judge": 0.085,
-    "retention": 1.017,
-    "retention_ci_lo": 0.746,
-    "retention_ci_hi": 1.36,
+    "n": 95,
+    "delta_primary": 0.105,
+    "delta_judge": 0.083,
+    "retention": 0.795,
+    "retention_ci_lo": 0.486,
+    "retention_ci_hi": 1.155,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=8 ref_kind=own_base",
@@ -19854,12 +19854,12 @@
   "retention.PTO_LA0.PCT.iter9.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.123,
-    "delta_judge": 0.118,
-    "retention": 0.96,
-    "retention_ci_lo": 0.757,
-    "retention_ci_hi": 1.265,
+    "n": 93,
+    "delta_primary": 0.131,
+    "delta_judge": 0.122,
+    "retention": 0.931,
+    "retention_ci_lo": 0.652,
+    "retention_ci_hi": 1.232,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=9 ref_kind=own_base",
@@ -19868,12 +19868,12 @@
   "retention.PTO_LA0.PCT.iter10.own_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.141,
-    "delta_judge": 0.113,
-    "retention": 0.802,
-    "retention_ci_lo": 0.642,
-    "retention_ci_hi": 0.978,
+    "n": 95,
+    "delta_primary": 0.117,
+    "delta_judge": 0.111,
+    "retention": 0.945,
+    "retention_ci_lo": 0.638,
+    "retention_ci_hi": 1.286,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=PCT iteration=10 ref_kind=own_base",
@@ -19942,8 +19942,8 @@
     "delta_primary": 0.076,
     "delta_judge": 0.139,
     "retention": 1.832,
-    "retention_ci_lo": 0.938,
-    "retention_ci_hi": 2.956,
+    "retention_ci_lo": 0.941,
+    "retention_ci_hi": 2.905,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=5 ref_kind=own_base",
@@ -19956,8 +19956,8 @@
     "delta_primary": 0.105,
     "delta_judge": 0.217,
     "retention": 2.072,
-    "retention_ci_lo": 1.278,
-    "retention_ci_hi": 3.522,
+    "retention_ci_lo": 1.301,
+    "retention_ci_hi": 3.452,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=6 ref_kind=own_base",
@@ -19970,8 +19970,8 @@
     "delta_primary": 0.128,
     "delta_judge": 0.254,
     "retention": 1.988,
-    "retention_ci_lo": 1.379,
-    "retention_ci_hi": 3.272,
+    "retention_ci_lo": 1.373,
+    "retention_ci_hi": 3.26,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=7 ref_kind=own_base",
@@ -19984,8 +19984,8 @@
     "delta_primary": 0.136,
     "delta_judge": 0.307,
     "retention": 2.263,
-    "retention_ci_lo": 1.581,
-    "retention_ci_hi": 3.706,
+    "retention_ci_lo": 1.582,
+    "retention_ci_hi": 3.802,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=8 ref_kind=own_base",
@@ -19998,8 +19998,8 @@
     "delta_primary": 0.258,
     "delta_judge": 0.382,
     "retention": 1.483,
-    "retention_ci_lo": 1.197,
-    "retention_ci_hi": 1.881,
+    "retention_ci_lo": 1.191,
+    "retention_ci_hi": 1.862,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=9 ref_kind=own_base",
@@ -20012,8 +20012,8 @@
     "delta_primary": 0.278,
     "delta_judge": 0.461,
     "retention": 1.657,
-    "retention_ci_lo": 1.303,
-    "retention_ci_hi": 2.151,
+    "retention_ci_lo": 1.305,
+    "retention_ci_hi": 2.168,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA0 metric=MICI iteration=10 ref_kind=own_base",
@@ -21100,9 +21100,9 @@
   "retention.PTO_LA5.PCT.iter0.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.007,
-    "delta_judge": 0.003,
+    "n": 93,
+    "delta_primary": 0.003,
+    "delta_judge": -0.002,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -21114,13 +21114,13 @@
   "retention.PTO_LA5.PCT.iter1.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": -0.002,
-    "delta_judge": 0.023,
+    "n": 93,
+    "delta_primary": 0.019,
+    "delta_judge": 0.022,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
-    "same_sign": false
+    "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=1 ref_kind=method_LA0_base",
    "note": ""
@@ -21128,9 +21128,9 @@
   "retention.PTO_LA5.PCT.iter2.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.006,
-    "delta_judge": 0.038,
+    "n": 95,
+    "delta_primary": 0.013,
+    "delta_judge": 0.01,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -21142,12 +21142,12 @@
   "retention.PTO_LA5.PCT.iter3.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.043,
-    "delta_judge": 0.062,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 92,
+    "delta_primary": 0.078,
+    "delta_judge": 0.064,
+    "retention": 0.817,
+    "retention_ci_lo": 0.375,
+    "retention_ci_hi": 1.252,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=3 ref_kind=method_LA0_base",
@@ -21156,12 +21156,12 @@
   "retention.PTO_LA5.PCT.iter4.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.067,
-    "delta_judge": 0.103,
-    "retention": 1.529,
-    "retention_ci_lo": 1.12,
-    "retention_ci_hi": 1.967,
+    "n": 92,
+    "delta_primary": 0.093,
+    "delta_judge": 0.088,
+    "retention": 0.943,
+    "retention_ci_lo": 0.539,
+    "retention_ci_hi": 1.342,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=4 ref_kind=method_LA0_base",
@@ -21170,12 +21170,12 @@
   "retention.PTO_LA5.PCT.iter5.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.086,
-    "delta_judge": 0.11,
-    "retention": 1.277,
-    "retention_ci_lo": 0.975,
-    "retention_ci_hi": 1.696,
+    "n": 95,
+    "delta_primary": 0.112,
+    "delta_judge": 0.096,
+    "retention": 0.861,
+    "retention_ci_lo": 0.562,
+    "retention_ci_hi": 1.166,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=5 ref_kind=method_LA0_base",
@@ -21184,12 +21184,12 @@
   "retention.PTO_LA5.PCT.iter6.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.074,
-    "delta_judge": 0.095,
-    "retention": 1.287,
-    "retention_ci_lo": 0.956,
-    "retention_ci_hi": 1.707,
+    "n": 93,
+    "delta_primary": 0.071,
+    "delta_judge": 0.086,
+    "retention": 1.211,
+    "retention_ci_lo": 0.76,
+    "retention_ci_hi": 1.661,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=6 ref_kind=method_LA0_base",
@@ -21198,12 +21198,12 @@
   "retention.PTO_LA5.PCT.iter7.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.076,
-    "delta_judge": 0.093,
-    "retention": 1.218,
-    "retention_ci_lo": 0.91,
-    "retention_ci_hi": 1.607,
+    "n": 94,
+    "delta_primary": 0.075,
+    "delta_judge": 0.089,
+    "retention": 1.178,
+    "retention_ci_lo": 0.77,
+    "retention_ci_hi": 1.645,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=7 ref_kind=method_LA0_base",
@@ -21212,12 +21212,12 @@
   "retention.PTO_LA5.PCT.iter8.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.099,
-    "delta_judge": 0.11,
-    "retention": 1.119,
-    "retention_ci_lo": 0.892,
-    "retention_ci_hi": 1.442,
+    "n": 95,
+    "delta_primary": 0.117,
+    "delta_judge": 0.112,
+    "retention": 0.957,
+    "retention_ci_lo": 0.682,
+    "retention_ci_hi": 1.351,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=8 ref_kind=method_LA0_base",
@@ -21226,12 +21226,12 @@
   "retention.PTO_LA5.PCT.iter9.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.105,
-    "delta_judge": 0.14,
-    "retention": 1.332,
-    "retention_ci_lo": 1.06,
-    "retention_ci_hi": 1.796,
+    "n": 94,
+    "delta_primary": 0.135,
+    "delta_judge": 0.137,
+    "retention": 1.018,
+    "retention_ci_lo": 0.761,
+    "retention_ci_hi": 1.324,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=9 ref_kind=method_LA0_base",
@@ -21240,12 +21240,12 @@
   "retention.PTO_LA5.PCT.iter10.method_LA0_base": {
    "value": {
     "reference": "PTOExp3_LA0_Base",
-    "n": 96,
-    "delta_primary": 0.149,
-    "delta_judge": 0.165,
-    "retention": 1.105,
-    "retention_ci_lo": 0.938,
-    "retention_ci_hi": 1.332,
+    "n": 95,
+    "delta_primary": 0.178,
+    "delta_judge": 0.177,
+    "retention": 0.997,
+    "retention_ci_lo": 0.791,
+    "retention_ci_hi": 1.233,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=10 ref_kind=method_LA0_base",
@@ -21314,8 +21314,8 @@
     "delta_primary": 0.113,
     "delta_judge": 0.202,
     "retention": 1.793,
-    "retention_ci_lo": 1.109,
-    "retention_ci_hi": 2.92,
+    "retention_ci_lo": 1.152,
+    "retention_ci_hi": 2.955,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=4 ref_kind=method_LA0_base",
@@ -21328,8 +21328,8 @@
     "delta_primary": 0.112,
     "delta_judge": 0.257,
     "retention": 2.298,
-    "retention_ci_lo": 1.487,
-    "retention_ci_hi": 3.783,
+    "retention_ci_lo": 1.5,
+    "retention_ci_hi": 3.861,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=5 ref_kind=method_LA0_base",
@@ -21342,8 +21342,8 @@
     "delta_primary": 0.107,
     "delta_judge": 0.269,
     "retention": 2.508,
-    "retention_ci_lo": 1.667,
-    "retention_ci_hi": 4.097,
+    "retention_ci_lo": 1.684,
+    "retention_ci_hi": 4.157,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=6 ref_kind=method_LA0_base",
@@ -21370,8 +21370,8 @@
     "delta_primary": 0.077,
     "delta_judge": 0.236,
     "retention": 3.063,
-    "retention_ci_lo": 1.99,
-    "retention_ci_hi": 4.494,
+    "retention_ci_lo": 1.841,
+    "retention_ci_hi": 4.438,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=8 ref_kind=method_LA0_base",
@@ -21384,8 +21384,8 @@
     "delta_primary": 0.056,
     "delta_judge": 0.247,
     "retention": 4.397,
-    "retention_ci_lo": 2.307,
-    "retention_ci_hi": 5.369,
+    "retention_ci_lo": 2.291,
+    "retention_ci_hi": 5.29,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=9 ref_kind=method_LA0_base",
@@ -21398,8 +21398,8 @@
     "delta_primary": 0.051,
     "delta_judge": 0.217,
     "retention": 4.288,
-    "retention_ci_lo": 2.065,
-    "retention_ci_hi": 5.096,
+    "retention_ci_lo": 2.11,
+    "retention_ci_hi": 5.019,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=10 ref_kind=method_LA0_base",
@@ -22388,9 +22388,9 @@
   "retention.PTO_LA5.PCT.iter1.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.005,
-    "delta_judge": 0.02,
+    "n": 92,
+    "delta_primary": 0.022,
+    "delta_judge": 0.031,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -22402,9 +22402,9 @@
   "retention.PTO_LA5.PCT.iter2.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.013,
-    "delta_judge": 0.035,
+    "n": 94,
+    "delta_primary": 0.007,
+    "delta_judge": 0.008,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -22416,12 +22416,12 @@
   "retention.PTO_LA5.PCT.iter3.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.05,
-    "delta_judge": 0.059,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 91,
+    "delta_primary": 0.074,
+    "delta_judge": 0.07,
+    "retention": 0.954,
+    "retention_ci_lo": 0.626,
+    "retention_ci_hi": 1.328,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=3 ref_kind=method_LA5_base",
@@ -22430,12 +22430,12 @@
   "retention.PTO_LA5.PCT.iter4.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.075,
-    "delta_judge": 0.1,
-    "retention": 1.334,
-    "retention_ci_lo": 0.921,
-    "retention_ci_hi": 1.833,
+    "n": 91,
+    "delta_primary": 0.092,
+    "delta_judge": 0.094,
+    "retention": 1.029,
+    "retention_ci_lo": 0.703,
+    "retention_ci_hi": 1.423,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=4 ref_kind=method_LA5_base",
@@ -22444,12 +22444,12 @@
   "retention.PTO_LA5.PCT.iter5.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.093,
-    "delta_judge": 0.107,
-    "retention": 1.141,
-    "retention_ci_lo": 0.863,
-    "retention_ci_hi": 1.531,
+    "n": 94,
+    "delta_primary": 0.107,
+    "delta_judge": 0.097,
+    "retention": 0.901,
+    "retention_ci_lo": 0.685,
+    "retention_ci_hi": 1.207,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=5 ref_kind=method_LA5_base",
@@ -22458,12 +22458,12 @@
   "retention.PTO_LA5.PCT.iter6.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.081,
-    "delta_judge": 0.092,
-    "retention": 1.13,
-    "retention_ci_lo": 0.791,
-    "retention_ci_hi": 1.547,
+    "n": 93,
+    "delta_primary": 0.075,
+    "delta_judge": 0.093,
+    "retention": 1.249,
+    "retention_ci_lo": 0.891,
+    "retention_ci_hi": 1.682,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=6 ref_kind=method_LA5_base",
@@ -22472,12 +22472,12 @@
   "retention.PTO_LA5.PCT.iter7.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.084,
-    "delta_judge": 0.09,
-    "retention": 1.071,
-    "retention_ci_lo": 0.721,
-    "retention_ci_hi": 1.468,
+    "n": 93,
+    "delta_primary": 0.079,
+    "delta_judge": 0.095,
+    "retention": 1.202,
+    "retention_ci_lo": 0.856,
+    "retention_ci_hi": 1.61,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=7 ref_kind=method_LA5_base",
@@ -22486,12 +22486,12 @@
   "retention.PTO_LA5.PCT.iter8.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.106,
-    "delta_judge": 0.107,
-    "retention": 1.01,
-    "retention_ci_lo": 0.773,
-    "retention_ci_hi": 1.289,
+    "n": 94,
+    "delta_primary": 0.119,
+    "delta_judge": 0.117,
+    "retention": 0.986,
+    "retention_ci_lo": 0.757,
+    "retention_ci_hi": 1.297,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=8 ref_kind=method_LA5_base",
@@ -22500,12 +22500,12 @@
   "retention.PTO_LA5.PCT.iter9.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.113,
-    "delta_judge": 0.137,
-    "retention": 1.216,
-    "retention_ci_lo": 0.923,
-    "retention_ci_hi": 1.657,
+    "n": 93,
+    "delta_primary": 0.14,
+    "delta_judge": 0.144,
+    "retention": 1.026,
+    "retention_ci_lo": 0.827,
+    "retention_ci_hi": 1.281,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=9 ref_kind=method_LA5_base",
@@ -22514,12 +22514,12 @@
   "retention.PTO_LA5.PCT.iter10.method_LA5_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.156,
-    "delta_judge": 0.161,
-    "retention": 1.032,
-    "retention_ci_lo": 0.851,
-    "retention_ci_hi": 1.22,
+    "n": 94,
+    "delta_primary": 0.176,
+    "delta_judge": 0.178,
+    "retention": 1.012,
+    "retention_ci_lo": 0.848,
+    "retention_ci_hi": 1.209,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=10 ref_kind=method_LA5_base",
@@ -22547,7 +22547,7 @@
     "delta_judge": 0.038,
     "retention": 0.709,
     "retention_ci_lo": -0.367,
-    "retention_ci_hi": 1.81,
+    "retention_ci_hi": 1.802,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=2 ref_kind=method_LA5_base",
@@ -22560,8 +22560,8 @@
     "delta_primary": 0.07,
     "delta_judge": 0.127,
     "retention": 1.8,
-    "retention_ci_lo": 0.693,
-    "retention_ci_hi": 3.157,
+    "retention_ci_lo": 0.704,
+    "retention_ci_hi": 3.037,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=3 ref_kind=method_LA5_base",
@@ -22574,8 +22574,8 @@
     "delta_primary": 0.148,
     "delta_judge": 0.196,
     "retention": 1.32,
-    "retention_ci_lo": 0.804,
-    "retention_ci_hi": 2.08,
+    "retention_ci_lo": 0.823,
+    "retention_ci_hi": 2.1,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=4 ref_kind=method_LA5_base",
@@ -22588,8 +22588,8 @@
     "delta_primary": 0.148,
     "delta_judge": 0.251,
     "retention": 1.701,
-    "retention_ci_lo": 1.213,
-    "retention_ci_hi": 2.434,
+    "retention_ci_lo": 1.168,
+    "retention_ci_hi": 2.405,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=5 ref_kind=method_LA5_base",
@@ -22602,8 +22602,8 @@
     "delta_primary": 0.143,
     "delta_judge": 0.263,
     "retention": 1.839,
-    "retention_ci_lo": 1.261,
-    "retention_ci_hi": 2.793,
+    "retention_ci_lo": 1.224,
+    "retention_ci_hi": 2.735,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=6 ref_kind=method_LA5_base",
@@ -22616,8 +22616,8 @@
     "delta_primary": 0.085,
     "delta_judge": 0.211,
     "retention": 2.466,
-    "retention_ci_lo": 1.652,
-    "retention_ci_hi": 3.706,
+    "retention_ci_lo": 1.63,
+    "retention_ci_hi": 3.731,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=7 ref_kind=method_LA5_base",
@@ -22630,8 +22630,8 @@
     "delta_primary": 0.113,
     "delta_judge": 0.23,
     "retention": 2.039,
-    "retention_ci_lo": 1.368,
-    "retention_ci_hi": 3.257,
+    "retention_ci_lo": 1.35,
+    "retention_ci_hi": 3.333,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=8 ref_kind=method_LA5_base",
@@ -22644,8 +22644,8 @@
     "delta_primary": 0.092,
     "delta_judge": 0.241,
     "retention": 2.622,
-    "retention_ci_lo": 1.645,
-    "retention_ci_hi": 4.17,
+    "retention_ci_lo": 1.646,
+    "retention_ci_hi": 4.227,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=9 ref_kind=method_LA5_base",
@@ -22658,8 +22658,8 @@
     "delta_primary": 0.086,
     "delta_judge": 0.21,
     "retention": 2.442,
-    "retention_ci_lo": 1.496,
-    "retention_ci_hi": 3.843,
+    "retention_ci_lo": 1.445,
+    "retention_ci_hi": 3.932,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=10 ref_kind=method_LA5_base",
@@ -23648,9 +23648,9 @@
   "retention.PTO_LA5.PCT.iter1.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.005,
-    "delta_judge": 0.02,
+    "n": 92,
+    "delta_primary": 0.022,
+    "delta_judge": 0.031,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -23662,9 +23662,9 @@
   "retention.PTO_LA5.PCT.iter2.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.013,
-    "delta_judge": 0.035,
+    "n": 94,
+    "delta_primary": 0.007,
+    "delta_judge": 0.008,
     "retention": null,
     "retention_ci_lo": null,
     "retention_ci_hi": null,
@@ -23676,12 +23676,12 @@
   "retention.PTO_LA5.PCT.iter3.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.05,
-    "delta_judge": 0.059,
-    "retention": null,
-    "retention_ci_lo": null,
-    "retention_ci_hi": null,
+    "n": 91,
+    "delta_primary": 0.074,
+    "delta_judge": 0.07,
+    "retention": 0.954,
+    "retention_ci_lo": 0.626,
+    "retention_ci_hi": 1.328,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=3 ref_kind=own_base",
@@ -23690,12 +23690,12 @@
   "retention.PTO_LA5.PCT.iter4.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.075,
-    "delta_judge": 0.1,
-    "retention": 1.334,
-    "retention_ci_lo": 0.921,
-    "retention_ci_hi": 1.833,
+    "n": 91,
+    "delta_primary": 0.092,
+    "delta_judge": 0.094,
+    "retention": 1.029,
+    "retention_ci_lo": 0.703,
+    "retention_ci_hi": 1.423,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=4 ref_kind=own_base",
@@ -23704,12 +23704,12 @@
   "retention.PTO_LA5.PCT.iter5.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.093,
-    "delta_judge": 0.107,
-    "retention": 1.141,
-    "retention_ci_lo": 0.863,
-    "retention_ci_hi": 1.531,
+    "n": 94,
+    "delta_primary": 0.107,
+    "delta_judge": 0.097,
+    "retention": 0.901,
+    "retention_ci_lo": 0.685,
+    "retention_ci_hi": 1.207,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=5 ref_kind=own_base",
@@ -23718,12 +23718,12 @@
   "retention.PTO_LA5.PCT.iter6.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.081,
-    "delta_judge": 0.092,
-    "retention": 1.13,
-    "retention_ci_lo": 0.791,
-    "retention_ci_hi": 1.547,
+    "n": 93,
+    "delta_primary": 0.075,
+    "delta_judge": 0.093,
+    "retention": 1.249,
+    "retention_ci_lo": 0.891,
+    "retention_ci_hi": 1.682,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=6 ref_kind=own_base",
@@ -23732,12 +23732,12 @@
   "retention.PTO_LA5.PCT.iter7.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.084,
-    "delta_judge": 0.09,
-    "retention": 1.071,
-    "retention_ci_lo": 0.721,
-    "retention_ci_hi": 1.468,
+    "n": 93,
+    "delta_primary": 0.079,
+    "delta_judge": 0.095,
+    "retention": 1.202,
+    "retention_ci_lo": 0.856,
+    "retention_ci_hi": 1.61,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=7 ref_kind=own_base",
@@ -23746,12 +23746,12 @@
   "retention.PTO_LA5.PCT.iter8.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.106,
-    "delta_judge": 0.107,
-    "retention": 1.01,
-    "retention_ci_lo": 0.773,
-    "retention_ci_hi": 1.289,
+    "n": 94,
+    "delta_primary": 0.119,
+    "delta_judge": 0.117,
+    "retention": 0.986,
+    "retention_ci_lo": 0.757,
+    "retention_ci_hi": 1.297,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=8 ref_kind=own_base",
@@ -23760,12 +23760,12 @@
   "retention.PTO_LA5.PCT.iter9.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.113,
-    "delta_judge": 0.137,
-    "retention": 1.216,
-    "retention_ci_lo": 0.923,
-    "retention_ci_hi": 1.657,
+    "n": 93,
+    "delta_primary": 0.14,
+    "delta_judge": 0.144,
+    "retention": 1.026,
+    "retention_ci_lo": 0.827,
+    "retention_ci_hi": 1.281,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=9 ref_kind=own_base",
@@ -23774,12 +23774,12 @@
   "retention.PTO_LA5.PCT.iter10.own_base": {
    "value": {
     "reference": "PTOExp3_LA5_Base",
-    "n": 96,
-    "delta_primary": 0.156,
-    "delta_judge": 0.161,
-    "retention": 1.032,
-    "retention_ci_lo": 0.851,
-    "retention_ci_hi": 1.22,
+    "n": 94,
+    "delta_primary": 0.176,
+    "delta_judge": 0.178,
+    "retention": 1.012,
+    "retention_ci_lo": 0.848,
+    "retention_ci_hi": 1.209,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=PCT iteration=10 ref_kind=own_base",
@@ -23807,7 +23807,7 @@
     "delta_judge": 0.038,
     "retention": 0.709,
     "retention_ci_lo": -0.367,
-    "retention_ci_hi": 1.81,
+    "retention_ci_hi": 1.802,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=2 ref_kind=own_base",
@@ -23820,8 +23820,8 @@
     "delta_primary": 0.07,
     "delta_judge": 0.127,
     "retention": 1.8,
-    "retention_ci_lo": 0.693,
-    "retention_ci_hi": 3.157,
+    "retention_ci_lo": 0.704,
+    "retention_ci_hi": 3.037,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=3 ref_kind=own_base",
@@ -23834,8 +23834,8 @@
     "delta_primary": 0.148,
     "delta_judge": 0.196,
     "retention": 1.32,
-    "retention_ci_lo": 0.804,
-    "retention_ci_hi": 2.08,
+    "retention_ci_lo": 0.823,
+    "retention_ci_hi": 2.1,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=4 ref_kind=own_base",
@@ -23848,8 +23848,8 @@
     "delta_primary": 0.148,
     "delta_judge": 0.251,
     "retention": 1.701,
-    "retention_ci_lo": 1.213,
-    "retention_ci_hi": 2.434,
+    "retention_ci_lo": 1.168,
+    "retention_ci_hi": 2.405,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=5 ref_kind=own_base",
@@ -23862,8 +23862,8 @@
     "delta_primary": 0.143,
     "delta_judge": 0.263,
     "retention": 1.839,
-    "retention_ci_lo": 1.261,
-    "retention_ci_hi": 2.793,
+    "retention_ci_lo": 1.224,
+    "retention_ci_hi": 2.735,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=6 ref_kind=own_base",
@@ -23876,8 +23876,8 @@
     "delta_primary": 0.085,
     "delta_judge": 0.211,
     "retention": 2.466,
-    "retention_ci_lo": 1.652,
-    "retention_ci_hi": 3.706,
+    "retention_ci_lo": 1.63,
+    "retention_ci_hi": 3.731,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=7 ref_kind=own_base",
@@ -23890,8 +23890,8 @@
     "delta_primary": 0.113,
     "delta_judge": 0.23,
     "retention": 2.039,
-    "retention_ci_lo": 1.368,
-    "retention_ci_hi": 3.257,
+    "retention_ci_lo": 1.35,
+    "retention_ci_hi": 3.333,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=8 ref_kind=own_base",
@@ -23904,8 +23904,8 @@
     "delta_primary": 0.092,
     "delta_judge": 0.241,
     "retention": 2.622,
-    "retention_ci_lo": 1.645,
-    "retention_ci_hi": 4.17,
+    "retention_ci_lo": 1.646,
+    "retention_ci_hi": 4.227,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=9 ref_kind=own_base",
@@ -23918,8 +23918,8 @@
     "delta_primary": 0.086,
     "delta_judge": 0.21,
     "retention": 2.442,
-    "retention_ci_lo": 1.496,
-    "retention_ci_hi": 3.843,
+    "retention_ci_lo": 1.445,
+    "retention_ci_hi": 3.932,
     "same_sign": true
    },
    "source": "retention_by_k['retention'] row arm=PTO_LA5 metric=MICI iteration=10 ref_kind=own_base",
@@ -23998,13 +23998,13 @@
     "K0_delta_primary": 0.076,
     "K0_delta_judge": 0.139,
     "K0_retention": 1.832,
-    "K0_ci_lo": 0.938,
-    "K0_ci_hi": 2.956,
+    "K0_ci_lo": 0.941,
+    "K0_ci_hi": 2.905,
     "K5_delta_primary": 0.148,
     "K5_delta_judge": 0.251,
     "K5_retention": 1.701,
-    "K5_ci_lo": 1.213,
-    "K5_ci_hi": 2.434,
+    "K5_ci_lo": 1.168,
+    "K5_ci_hi": 2.405,
     "cis_disjoint": false
    },
    "source": "retention_by_k['retention_summary'] row method=PTO metric=MICI iteration=5",
@@ -24083,13 +24083,13 @@
     "K0_delta_primary": 0.278,
     "K0_delta_judge": 0.461,
     "K0_retention": 1.657,
-    "K0_ci_lo": 1.303,
-    "K0_ci_hi": 2.151,
+    "K0_ci_lo": 1.305,
+    "K0_ci_hi": 2.168,
     "K5_delta_primary": 0.086,
     "K5_delta_judge": 0.21,
     "K5_retention": 2.442,
-    "K5_ci_lo": 1.496,
-    "K5_ci_hi": 3.843,
+    "K5_ci_lo": 1.445,
+    "K5_ci_hi": 3.932,
     "cis_disjoint": false
    },
    "source": "retention_by_k['retention_summary'] row method=PTO metric=MICI iteration=10",
@@ -24168,13 +24168,13 @@
     "K0_delta_primary": 0.066,
     "K0_delta_judge": 0.245,
     "K0_retention": 3.713,
-    "K0_ci_lo": 2.183,
-    "K0_ci_hi": 5.057,
+    "K0_ci_lo": 2.113,
+    "K0_ci_hi": 5.127,
     "K5_delta_primary": 0.131,
     "K5_delta_judge": 0.32,
     "K5_retention": 2.44,
-    "K5_ci_lo": 1.748,
-    "K5_ci_hi": 3.813,
+    "K5_ci_lo": 1.738,
+    "K5_ci_hi": 3.946,
     "cis_disjoint": false
    },
    "source": "retention_by_k['retention_summary'] row method=GRPO metric=MICI iteration=5",
@@ -24254,7 +24254,7 @@
     "K0_delta_judge": 0.666,
     "K0_retention": 1.063,
     "K0_ci_lo": 0.944,
-    "K0_ci_hi": 1.21,
+    "K0_ci_hi": 1.208,
     "K5_delta_primary": 0.001,
     "K5_delta_judge": 0.301,
     "K5_retention": null,

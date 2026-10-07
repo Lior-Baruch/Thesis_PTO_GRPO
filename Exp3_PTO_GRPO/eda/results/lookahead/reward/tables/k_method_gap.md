@@ -40,8 +40,8 @@
 | claude-haiku-4-5 |   0 |           2 | WAI-SR   | PTO_LA0_I2 − GRPO_LA0_I2     |  96 |   0.015 |  0.019 |  -0.135 |   0.162 | 0.767 |    1.000 |            1.000 | PTO       |
 | claude-haiku-4-5 |   0 |           3 | WAI-SR   | PTO_LA0_I3 − GRPO_LA0_I3     |  96 |  -0.255 | -0.457 |  -0.366 |  -0.151 | 0.000 |    0.000 |            0.000 | GRPO      |
 | claude-haiku-4-5 |   0 |           4 | WAI-SR   | PTO_LA0_I4 − GRPO_LA0_I4     |  96 |  -0.023 | -0.036 |  -0.154 |   0.103 | 0.712 |    1.000 |            1.000 | GRPO      |
-| claude-haiku-4-5 |   0 |           5 | WAI-SR   | PTO_LA0_I5 − GRPO_LA0_I5     |  96 |   0.090 |  0.157 |  -0.025 |   0.201 | 0.108 |    0.755 |            0.233 | PTO       |
-| claude-haiku-4-5 |   0 |           6 | WAI-SR   | PTO_LA0_I6 − GRPO_LA0_I6     |  96 |   0.148 |  0.216 |   0.017 |   0.280 | 0.081 |    0.648 |            0.162 | PTO       |
+| claude-haiku-4-5 |   0 |           5 | WAI-SR   | PTO_LA0_I5 − GRPO_LA0_I5     |  96 |   0.090 |  0.157 |  -0.025 |   0.201 | 0.108 |    0.755 |            0.311 | PTO       |
+| claude-haiku-4-5 |   0 |           6 | WAI-SR   | PTO_LA0_I6 − GRPO_LA0_I6     |  96 |   0.148 |  0.216 |   0.017 |   0.280 | 0.081 |    0.648 |            0.243 | PTO       |
 | claude-haiku-4-5 |   0 |           7 | WAI-SR   | PTO_LA0_I7 − GRPO_LA0_I7     |  96 |   0.058 |  0.099 |  -0.061 |   0.180 | 0.222 |    1.000 |            0.666 | PTO       |
 | claude-haiku-4-5 |   0 |           8 | WAI-SR   | PTO_LA0_I8 − GRPO_LA0_I8     |  96 |  -0.012 | -0.022 |  -0.120 |   0.096 | 0.797 |    1.000 |            1.000 | GRPO      |
 | claude-haiku-4-5 |   0 |           9 | WAI-SR   | PTO_LA0_I9 − GRPO_LA0_I9     |  96 |   0.608 |  0.875 |   0.473 |   0.744 | 0.000 |    0.000 |            0.000 | PTO       |
@@ -51,7 +51,7 @@
 | claude-haiku-4-5 |   0 |           2 | CSQ-8    | PTO_LA0_I2 − GRPO_LA0_I2     |  96 |   0.083 |  0.101 |  -0.074 |   0.240 | 0.383 |    1.000 |            1.000 | PTO       |
 | claude-haiku-4-5 |   0 |           3 | CSQ-8    | PTO_LA0_I3 − GRPO_LA0_I3     |  96 |  -0.158 | -0.265 |  -0.276 |  -0.040 | 0.015 |    0.123 |            0.092 | GRPO      |
 | claude-haiku-4-5 |   0 |           4 | CSQ-8    | PTO_LA0_I4 − GRPO_LA0_I4     |  96 |   0.105 |  0.150 |  -0.031 |   0.250 | 0.152 |    0.625 |            1.000 | PTO       |
-| claude-haiku-4-5 |   0 |           5 | CSQ-8    | PTO_LA0_I5 − GRPO_LA0_I5     |  96 |   0.111 |  0.185 |  -0.009 |   0.232 | 0.078 |    0.485 |            0.233 | PTO       |
+| claude-haiku-4-5 |   0 |           5 | CSQ-8    | PTO_LA0_I5 − GRPO_LA0_I5     |  96 |   0.111 |  0.185 |  -0.009 |   0.232 | 0.078 |    0.485 |            0.311 | PTO       |
 | claude-haiku-4-5 |   0 |           6 | CSQ-8    | PTO_LA0_I6 − GRPO_LA0_I6     |  96 |   0.229 |  0.328 |   0.094 |   0.372 | 0.001 |    0.011 |            0.005 | PTO       |
 | claude-haiku-4-5 |   0 |           7 | CSQ-8    | PTO_LA0_I7 − GRPO_LA0_I7     |  96 |   0.108 |  0.159 |  -0.029 |   0.247 | 0.069 |    0.485 |            0.347 | PTO       |
 | claude-haiku-4-5 |   0 |           8 | CSQ-8    | PTO_LA0_I8 − GRPO_LA0_I8     |  96 |   0.090 |  0.163 |  -0.020 |   0.193 | 0.125 |    0.625 |            0.375 | PTO       |

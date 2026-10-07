@@ -94,12 +94,12 @@
    "note": "sign preserved under the held-out judge"
   },
   "contrast.PTO_LA0_I10_minus_GRPO_LA0_I10.PCT.primary_delta": {
-   "value": 0.056,
+   "value": 0.032,
    "source": "tables/second_judge_contrasts.md",
    "note": "gpt-4o-mini, file_index-paired, n=96"
   },
   "contrast.PTO_LA0_I10_minus_GRPO_LA0_I10.PCT.judge_delta": {
-   "value": 0.021,
+   "value": 0.033,
    "source": "tables/second_judge_contrasts.md",
    "note": "Claude Haiku 4.5, file_index-paired, n=96"
   },
@@ -149,6 +149,21 @@
    "note": "Claude Haiku 4.5, file_index-paired, n=96"
   },
   "contrast.PTO_LA0_I10_minus_GRPO_LA0_I10.Q2.same_sign": {
+   "value": true,
+   "source": "tables/second_judge_contrasts.md",
+   "note": "sign preserved under the held-out judge"
+  },
+  "contrast.PTO_LA0_I10_minus_GRPO_LA0_I10.MIPROC.primary_delta": {
+   "value": 0.107,
+   "source": "tables/second_judge_contrasts.md",
+   "note": "gpt-4o-mini, file_index-paired, n=96"
+  },
+  "contrast.PTO_LA0_I10_minus_GRPO_LA0_I10.MIPROC.judge_delta": {
+   "value": 0.089,
+   "source": "tables/second_judge_contrasts.md",
+   "note": "Claude Haiku 4.5, file_index-paired, n=96"
+  },
+  "contrast.PTO_LA0_I10_minus_GRPO_LA0_I10.MIPROC.same_sign": {
    "value": true,
    "source": "tables/second_judge_contrasts.md",
    "note": "sign preserved under the held-out judge"
@@ -214,14 +229,14 @@
    "note": "sign preserved under the held-out judge"
   },
   "contrast.PTO_LA0_I10_minus_PTO_LA0_Base.PCT.primary_delta": {
-   "value": 0.141,
+   "value": 0.121,
    "source": "tables/second_judge_contrasts.md",
    "note": "gpt-4o-mini, file_index-paired, n=96"
   },
   "contrast.PTO_LA0_I10_minus_PTO_LA0_Base.PCT.judge_delta": {
-   "value": 0.113,
+   "value": 0.111,
    "source": "tables/second_judge_contrasts.md",
-   "note": "Claude Haiku 4.5, file_index-paired, n=96"
+   "note": "Claude Haiku 4.5, file_index-paired, n=95"
   },
   "contrast.PTO_LA0_I10_minus_PTO_LA0_Base.PCT.same_sign": {
    "value": true,
@@ -273,40 +288,55 @@
    "source": "tables/second_judge_contrasts.md",
    "note": "sign preserved under the held-out judge"
   },
-  "contrast.n_same_sign": {
-   "value": 16,
+  "contrast.PTO_LA0_I10_minus_PTO_LA0_Base.MIPROC.primary_delta": {
+   "value": 0.153,
    "source": "tables/second_judge_contrasts.md",
-   "note": "of 16 hand-picked K=0 endpoint contrasts"
+   "note": "gpt-4o-mini, file_index-paired, n=96"
+  },
+  "contrast.PTO_LA0_I10_minus_PTO_LA0_Base.MIPROC.judge_delta": {
+   "value": 0.057,
+   "source": "tables/second_judge_contrasts.md",
+   "note": "Claude Haiku 4.5, file_index-paired, n=96"
+  },
+  "contrast.PTO_LA0_I10_minus_PTO_LA0_Base.MIPROC.same_sign": {
+   "value": true,
+   "source": "tables/second_judge_contrasts.md",
+   "note": "sign preserved under the held-out judge"
+  },
+  "contrast.n_same_sign": {
+   "value": 18,
+   "source": "tables/second_judge_contrasts.md",
+   "note": "of 18 hand-picked K=0 endpoint contrasts"
   },
   "contrast.n_total": {
-   "value": 16,
+   "value": 18,
    "source": "tables/second_judge_contrasts.md",
    "note": "rows in second_judge_contrasts"
   },
   "sign_preservation.all_contrasts.pct_same_sign": {
-   "value": 88.4,
+   "value": 86.9,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "6693/7568 persona-paired contrasts, all four arms"
+   "note": "7323/8428 persona-paired contrasts, all four arms"
   },
   "sign_preservation.abs_primary_ge_0p10.pct_same_sign": {
-   "value": 94.5,
+   "value": 94.3,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "4793/5071 persona-paired contrasts, all four arms"
+   "note": "5205/5520 persona-paired contrasts, all four arms"
   },
   "sign_preservation.abs_primary_ge_0p25.pct_same_sign": {
-   "value": 97.2,
+   "value": 97.3,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "3146/3236 persona-paired contrasts, all four arms"
+   "note": "3282/3373 persona-paired contrasts, all four arms"
   },
   "sign_preservation.abs_primary_ge_0p50.pct_same_sign": {
-   "value": 99.3,
+   "value": 99.4,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "1681/1692 persona-paired contrasts, all four arms"
+   "note": "1708/1719 persona-paired contrasts, all four arms"
   },
   "sign_preservation.judge_CI_excludes_0.pct_same_sign": {
    "value": 96.0,
    "source": "tables/multijudge_sign_preservation.md",
-   "note": "5144/5361 persona-paired contrasts, all four arms"
+   "note": "5386/5611 persona-paired contrasts, all four arms"
   },
   "variance.WAI-SR.pct_arm_x_judge": {
    "value": 1.4,
@@ -349,12 +379,12 @@
    "note": "generalizability of an arm mean read off ONE judge"
   },
   "variance.PCT.pct_arm_x_judge": {
-   "value": 2.1,
+   "value": 1.8,
    "source": "tables/multijudge_variance_components.md",
    "note": "share of arm-mean variance in the arm x judge interaction"
   },
   "variance.PCT.dependability_k1": {
-   "value": 0.974,
+   "value": 0.982,
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
@@ -388,13 +418,23 @@
    "source": "tables/multijudge_variance_components.md",
    "note": "generalizability of an arm mean read off ONE judge"
   },
+  "variance.MIPROC.pct_arm_x_judge": {
+   "value": 10.2,
+   "source": "tables/multijudge_variance_components.md",
+   "note": "share of arm-mean variance in the arm x judge interaction"
+  },
+  "variance.MIPROC.dependability_k1": {
+   "value": 0.863,
+   "source": "tables/multijudge_variance_components.md",
+   "note": "generalizability of an arm mean read off ONE judge"
+  },
   "multijudge.n_states": {
    "value": 44,
    "source": "tables/multijudge_coverage.md",
    "note": "model states with complete second-judge coverage"
   },
   "multijudge.n_pairs_contrasts": {
-   "value": 7568,
+   "value": 8428,
    "source": "tables/multijudge_all_pairs_contrasts.md",
    "note": "C(n_states,2) x n_metrics"
   },

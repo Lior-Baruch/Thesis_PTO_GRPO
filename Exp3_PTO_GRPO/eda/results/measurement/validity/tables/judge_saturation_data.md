@@ -79,9 +79,11 @@
 | c       | cross_judge_pearson_r_median_over_judged_states | Q2       | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.784 |    4224 |
 | c       | cross_judge_pearson_r                           | CSQ-8    | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.851 |      96 |
 | c       | cross_judge_pearson_r_median_over_judged_states | CSQ-8    | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.903 |    4224 |
-| c       | cross_judge_pearson_r                           | PCT      | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.928 |      96 |
-| c       | cross_judge_pearson_r_median_over_judged_states | PCT      | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.954 |    4224 |
+| c       | cross_judge_pearson_r                           | PCT      | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.930 |      96 |
+| c       | cross_judge_pearson_r_median_over_judged_states | PCT      | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.957 |    4195 |
 | c       | cross_judge_pearson_r                           | MI-SAT   | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.906 |      96 |
 | c       | cross_judge_pearson_r_median_over_judged_states | MI-SAT   | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.929 |    4224 |
 | c       | cross_judge_pearson_r                           | WAI-SR   | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.898 |      96 |
 | c       | cross_judge_pearson_r_median_over_judged_states | WAI-SR   | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.921 |    4224 |
+| c       | cross_judge_pearson_r                           | MIPROC   | GRPO_LA5   | 10          | GRPOExp3_LA5_I10      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.193 |      96 |
+| c       | cross_judge_pearson_r_median_over_judged_states | MIPROC   | (all arms) | <NA>        | 44 judged states      | cross-judge (Claude Haiku 4.5 vs gpt-4o-mini) |   0.195 |    4223 |

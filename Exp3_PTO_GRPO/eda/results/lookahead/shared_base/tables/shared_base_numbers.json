@@ -39,7 +39,7 @@
    "note": "shared Base, n = 192 conversations"
   },
   "levels.gpt-4o-mini.PCT.base": {
-   "value": 0.479,
+   "value": 0.491,
    "source": "levels_long",
    "note": "shared Base, n = 192 conversations"
   },
@@ -84,7 +84,7 @@
    "note": "shared Base, n = 192 conversations"
   },
   "levels.claude-haiku-4-5.PCT.base": {
-   "value": 0.516,
+   "value": 0.5,
    "source": "levels_long",
    "note": "shared Base, n = 192 conversations"
   },
@@ -164,12 +164,12 @@
    "note": "iteration 10"
   },
   "levels.gpt-4o-mini.PCT.GRPO_LA0.final": {
-   "value": 0.574,
+   "value": 0.583,
    "source": "levels_long",
    "note": "iteration 10"
   },
   "levels.gpt-4o-mini.PCT.GRPO_LA5.final": {
-   "value": 0.685,
+   "value": 0.732,
    "source": "levels_long",
    "note": "iteration 10"
   },
@@ -254,12 +254,12 @@
    "note": "iteration 10"
   },
   "levels.claude-haiku-4-5.PCT.GRPO_LA0.final": {
-   "value": 0.612,
+   "value": 0.58,
    "source": "levels_long",
    "note": "iteration 10"
   },
   "levels.claude-haiku-4-5.PCT.GRPO_LA5.final": {
-   "value": 0.725,
+   "value": 0.738,
    "source": "levels_long",
    "note": "iteration 10"
   },
@@ -484,32 +484,32 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.gpt-4o-mini.PCT.last.GRPO_LA0": {
-   "value": 0.095,
+   "value": 0.092,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.496; p_holm 0.0000"
+   "note": "iteration 10 vs Base; dz 0.369; p_holm 0.0002"
   },
   "gains.gpt-4o-mini.PCT.last.GRPO_LA5": {
-   "value": 0.206,
+   "value": 0.241,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.964; p_holm 0.0000"
+   "note": "iteration 10 vs Base; dz 0.906; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.PCT.last.ratio": {
-   "value": 2.165,
+   "value": 2.626,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.gpt-4o-mini.PCT.best_K0.GRPO_LA0": {
-   "value": 0.093,
+   "value": 0.086,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 0.423; p_holm 0.0001"
+   "note": "iteration 8 vs Base; dz 0.338; p_holm 0.0010"
   },
   "gains.gpt-4o-mini.PCT.best_K0.GRPO_LA5": {
-   "value": 0.206,
+   "value": 0.241,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.964; p_holm 0.0000"
+   "note": "iteration 10 vs Base; dz 0.906; p_holm 0.0000"
   },
   "gains.gpt-4o-mini.PCT.best_K0.ratio": {
-   "value": 2.223,
+   "value": 2.795,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
@@ -754,32 +754,32 @@
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.PCT.last.GRPO_LA0": {
-   "value": 0.096,
+   "value": 0.08,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.558; p_holm 0.0000"
+   "note": "iteration 10 vs Base; dz 0.412; p_holm 0.0005"
   },
   "gains.claude-haiku-4-5.PCT.last.GRPO_LA5": {
-   "value": 0.209,
+   "value": 0.237,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.962; p_holm 0.0000"
+   "note": "iteration 10 vs Base; dz 0.901; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.PCT.last.ratio": {
-   "value": 2.17,
+   "value": 2.96,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
   "gains.claude-haiku-4-5.PCT.best_K0.GRPO_LA0": {
-   "value": 0.08,
+   "value": 0.099,
    "source": "gains",
-   "note": "iteration 8 vs Base; dz 0.397; p_holm 0.0001"
+   "note": "iteration 8 vs Base; dz 0.437; p_holm 0.0001"
   },
   "gains.claude-haiku-4-5.PCT.best_K0.GRPO_LA5": {
-   "value": 0.209,
+   "value": 0.237,
    "source": "gains",
-   "note": "iteration 10 vs Base; dz 0.962; p_holm 0.0000"
+   "note": "iteration 10 vs Base; dz 0.901; p_holm 0.0000"
   },
   "gains.claude-haiku-4-5.PCT.best_K0.ratio": {
-   "value": 2.617,
+   "value": 2.395,
    "source": "gains",
    "note": "K=5 gain / K=0 gain"
   },
@@ -849,9 +849,9 @@
    "note": "4 of 10 iterations (Holm across iterations 1..N)"
   },
   "sig.gpt-4o-mini.PCT.K5_better": {
-   "value": "4, 5, 6, 7, 8, 9, 10",
+   "value": "6, 7, 8, 9, 10",
    "source": "significant_iterations",
-   "note": "7 of 10 iterations (Holm across iterations 1..N)"
+   "note": "5 of 10 iterations (Holm across iterations 1..N)"
   },
   "sig.gpt-4o-mini.MICI.K5_better": {
    "value": "8, 9, 10",
@@ -2149,9 +2149,9 @@
    "note": "median over 21 states 0.666; rank 1/21"
   },
   "agreement.PCT.GRPO_LA5_it10": {
-   "value": 0.928,
+   "value": 0.93,
    "source": "agreement_summary",
-   "note": "median over 21 states 0.956; rank 3/21"
+   "note": "median over 21 states 0.950; rank 5/21"
   },
   "agreement.MICI.GRPO_LA5_it10": {
    "value": 0.287,
@@ -2164,9 +2164,9 @@
    "note": "21 states"
   },
   "sign.all": {
-   "value": "1484 of 1680",
+   "value": "1477 of 1680",
    "source": "sign_preservation",
-   "note": "88.3% same sign"
+   "note": "87.9% same sign"
   },
   "offset.Q1Q2.min": {
    "value": 1.167,
@@ -2214,9 +2214,9 @@
    "note": "K5 - K0 = +0.180 (persona mean over iterations 1-10); p_holm 4.1e-10; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.281"
   },
   "traj.gpt-4o-mini.1-10.PCT.dz": {
-   "value": 0.849,
+   "value": 0.786,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.074 (persona mean over iterations 1-10); p_holm 7.9e-10; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.340"
+   "note": "K5 - K0 = +0.079 (persona mean over iterations 1-10); p_holm 1.0e-09; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.263"
   },
   "traj.gpt-4o-mini.1-10.MICI.dz": {
    "value": -0.873,
@@ -2259,9 +2259,9 @@
    "note": "K5 - K0 = +0.259 (persona mean over iterations 4-10); p_holm 2.3e-12; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.417"
   },
   "traj.gpt-4o-mini.4-10.PCT.dz": {
-   "value": 0.882,
+   "value": 0.901,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.100 (persona mean over iterations 4-10); p_holm 5.1e-10; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.453"
+   "note": "K5 - K0 = +0.111 (persona mean over iterations 4-10); p_holm 3.8e-11; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.371"
   },
   "traj.gpt-4o-mini.4-10.MICI.dz": {
    "value": -1.248,
@@ -2276,7 +2276,7 @@
   "traj.gpt-4o-mini.1-7.Q1.dz": {
    "value": 0.461,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.128 (persona mean over iterations 1-7); p_holm 2.1e-04; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.187"
+   "note": "K5 - K0 = +0.128 (persona mean over iterations 1-7); p_holm 2.5e-04; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.187"
   },
   "traj.gpt-4o-mini.1-7.Q2.dz": {
    "value": 0.159,
@@ -2291,12 +2291,12 @@
   "traj.gpt-4o-mini.1-7.CSQ-8.dz": {
    "value": 0.508,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.116 (persona mean over iterations 1-7); p_holm 7.0e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.206"
+   "note": "K5 - K0 = +0.116 (persona mean over iterations 1-7); p_holm 8.2e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.206"
   },
   "traj.gpt-4o-mini.1-7.MI-SAT.dz": {
    "value": 0.547,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.169 (persona mean over iterations 1-7); p_holm 3.2e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.227"
+   "note": "K5 - K0 = +0.169 (persona mean over iterations 1-7); p_holm 3.7e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.227"
   },
   "traj.gpt-4o-mini.1-7.MITI.dz": {
    "value": 0.314,
@@ -2304,14 +2304,14 @@
    "note": "K5 - K0 = +0.074 (persona mean over iterations 1-7); p_holm 1.6e-02; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.136"
   },
   "traj.gpt-4o-mini.1-7.PCT.dz": {
-   "value": 0.573,
+   "value": 0.403,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.047 (persona mean over iterations 1-7); p_holm 2.2e-05; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.242"
+   "note": "K5 - K0 = +0.039 (persona mean over iterations 1-7); p_holm 5.2e-03; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.145"
   },
   "traj.gpt-4o-mini.1-7.MICI.dz": {
    "value": 0.378,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.037 (persona mean over iterations 1-7); p_holm 2.2e-03; n 96; K5 ahead at 1 of 7; mean per-iteration dz +0.150"
+   "note": "K5 - K0 = +0.037 (persona mean over iterations 1-7); p_holm 2.7e-03; n 96; K5 ahead at 1 of 7; mean per-iteration dz +0.150"
   },
   "traj.claude-haiku-4-5.1-10.Q1Q2.dz": {
    "value": 1.128,
@@ -2349,9 +2349,9 @@
    "note": "K5 - K0 = +0.128 (persona mean over iterations 1-10); p_holm 1.9e-07; n 96; K5 ahead at 8 of 10; mean per-iteration dz +0.227"
   },
   "traj.claude-haiku-4-5.1-10.PCT.dz": {
-   "value": 0.93,
+   "value": 0.954,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.086 (persona mean over iterations 1-10); p_holm 1.8e-11; n 96; K5 ahead at 9 of 10; mean per-iteration dz +0.386"
+   "note": "K5 - K0 = +0.091 (persona mean over iterations 1-10); p_holm 3.8e-12; n 96; K5 ahead at 10 of 10; mean per-iteration dz +0.339"
   },
   "traj.claude-haiku-4-5.1-10.MICI.dz": {
    "value": -0.543,
@@ -2394,9 +2394,9 @@
    "note": "K5 - K0 = +0.192 (persona mean over iterations 4-10); p_holm 2.3e-10; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.351"
   },
   "traj.claude-haiku-4-5.4-10.PCT.dz": {
-   "value": 1.006,
+   "value": 0.994,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.121 (persona mean over iterations 4-10); p_holm 1.0e-11; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.540"
+   "note": "K5 - K0 = +0.125 (persona mean over iterations 4-10); p_holm 4.0e-12; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.467"
   },
   "traj.claude-haiku-4-5.4-10.MICI.dz": {
    "value": -0.796,
@@ -2439,9 +2439,9 @@
    "note": "K5 - K0 = +0.060 (persona mean over iterations 1-7); p_holm 1.3e-02; n 96; K5 ahead at 5 of 7; mean per-iteration dz +0.116"
   },
   "traj.claude-haiku-4-5.1-7.PCT.dz": {
-   "value": 0.633,
+   "value": 0.6,
    "source": "k_trajectory",
-   "note": "K5 - K0 = +0.050 (persona mean over iterations 1-7); p_holm 1.1e-06; n 96; K5 ahead at 6 of 7; mean per-iteration dz +0.257"
+   "note": "K5 - K0 = +0.053 (persona mean over iterations 1-7); p_holm 4.6e-07; n 96; K5 ahead at 7 of 7; mean per-iteration dz +0.224"
   },
   "traj.claude-haiku-4-5.1-7.MICI.dz": {
    "value": 0.125,
@@ -2814,9 +2814,9 @@
    "note": "MITI (dz -0.128); 0 of 9 Holm-significant, 0 at raw p < .05; Base draw 2 - draw 1"
   },
   "floor.claude-haiku-4-5.instruments.max_abs_dz": {
-   "value": 0.147,
+   "value": 0.169,
    "source": "base_draws_summary",
-   "note": "MICI (dz -0.147); 0 of 9 Holm-significant, 0 at raw p < .05; Base draw 2 - draw 1"
+   "note": "PCT (dz -0.169); 0 of 9 Holm-significant, 0 at raw p < .05; Base draw 2 - draw 1"
   },
   "floor.gpt-4o-mini.process.max_abs_dz": {
    "value": 0.18,

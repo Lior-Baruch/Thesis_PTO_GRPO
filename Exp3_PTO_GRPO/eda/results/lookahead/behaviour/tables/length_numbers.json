@@ -325,14 +325,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter1": {
    "value": {
-    "raw": 0.027,
-    "adj": 0.027,
+    "raw": 0.02,
+    "adj": 0.018,
     "adj_ci": [
-     -0.022,
-     0.075
+     -0.036,
+     0.072
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.973,
+    "share_remaining": 0.893,
     "origin_mahalanobis": 0.054,
     "n": 96
    },
@@ -341,14 +341,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter1": {
    "value": {
-    "raw": 0.027,
-    "adj": 0.027,
+    "raw": 0.02,
+    "adj": 0.021,
     "adj_ci": [
-     -0.021,
-     0.076
+     -0.037,
+     0.079
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.004,
+    "share_remaining": 1.049,
     "origin_mahalanobis": 0.02,
     "n": 96
    },
@@ -357,14 +357,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter2": {
    "value": {
-    "raw": 0.003,
-    "adj": 0.005,
+    "raw": -0.02,
+    "adj": -0.012,
     "adj_ci": [
-     -0.039,
-     0.048
+     -0.063,
+     0.039
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.325,
+    "share_remaining": 0.624,
     "origin_mahalanobis": 0.235,
     "n": 96
    },
@@ -373,14 +373,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter2": {
    "value": {
-    "raw": 0.003,
-    "adj": 0.002,
+    "raw": -0.02,
+    "adj": -0.015,
     "adj_ci": [
-     -0.045,
-     0.049
+     -0.073,
+     0.043
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.553,
+    "share_remaining": 0.76,
     "origin_mahalanobis": 0.23,
     "n": 96
    },
@@ -389,14 +389,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter3": {
    "value": {
-    "raw": -0.002,
-    "adj": -0.011,
+    "raw": 0.006,
+    "adj": -0.004,
     "adj_ci": [
      -0.056,
-     0.034
+     0.048
     ],
     "p_holm": 1.0,
-    "share_remaining": 5.27,
+    "share_remaining": -0.648,
     "origin_mahalanobis": 0.29,
     "n": 96
    },
@@ -405,14 +405,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter3": {
    "value": {
-    "raw": -0.002,
-    "adj": -0.003,
+    "raw": 0.006,
+    "adj": 0.009,
     "adj_ci": [
-     -0.05,
-     0.043
+     -0.049,
+     0.067
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.579,
+    "share_remaining": 1.489,
     "origin_mahalanobis": 0.267,
     "n": 96
    },
@@ -421,14 +421,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter4": {
    "value": {
-    "raw": 0.019,
-    "adj": 0.013,
+    "raw": 0.015,
+    "adj": 0.005,
     "adj_ci": [
-     -0.027,
-     0.054
+     -0.041,
+     0.05
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.721,
+    "share_remaining": 0.324,
     "origin_mahalanobis": 0.412,
     "n": 96
    },
@@ -437,14 +437,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter4": {
    "value": {
-    "raw": 0.019,
-    "adj": 0.015,
+    "raw": 0.015,
+    "adj": 0.012,
     "adj_ci": [
-     -0.027,
-     0.056
+     -0.038,
+     0.062
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.788,
+    "share_remaining": 0.814,
     "origin_mahalanobis": 0.339,
     "n": 96
    },
@@ -453,14 +453,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter5": {
    "value": {
-    "raw": 0.02,
-    "adj": 0.013,
+    "raw": 0.029,
+    "adj": 0.025,
     "adj_ci": [
-     -0.027,
-     0.054
+     -0.025,
+     0.075
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.665,
+    "share_remaining": 0.867,
     "origin_mahalanobis": 0.393,
     "n": 96
    },
@@ -469,14 +469,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter5": {
    "value": {
-    "raw": 0.02,
-    "adj": 0.011,
+    "raw": 0.029,
+    "adj": 0.031,
     "adj_ci": [
-     -0.03,
-     0.052
+     -0.022,
+     0.084
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.546,
+    "share_remaining": 1.091,
     "origin_mahalanobis": 0.349,
     "n": 96
    },
@@ -485,14 +485,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter6": {
    "value": {
-    "raw": -0.006,
-    "adj": -0.025,
+    "raw": -0.018,
+    "adj": -0.036,
     "adj_ci": [
-     -0.06,
-     0.01
+     -0.089,
+     0.016
     ],
     "p_holm": 1.0,
-    "share_remaining": 4.041,
+    "share_remaining": 2.02,
     "origin_mahalanobis": 0.379,
     "n": 96
    },
@@ -501,14 +501,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter6": {
    "value": {
-    "raw": -0.006,
-    "adj": -0.012,
+    "raw": -0.018,
+    "adj": -0.017,
     "adj_ci": [
-     -0.046,
-     0.023
+     -0.069,
+     0.035
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.864,
+    "share_remaining": 0.938,
     "origin_mahalanobis": 0.236,
     "n": 96
    },
@@ -517,14 +517,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter7": {
    "value": {
-    "raw": 0.02,
-    "adj": -0.02,
+    "raw": 0.005,
+    "adj": -0.029,
     "adj_ci": [
-     -0.071,
-     0.03
+     -0.079,
+     0.022
     ],
     "p_holm": 1.0,
-    "share_remaining": -1.016,
+    "share_remaining": -6.002,
     "origin_mahalanobis": 0.56,
     "n": 96
    },
@@ -533,14 +533,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter7": {
    "value": {
-    "raw": 0.02,
-    "adj": -0.017,
+    "raw": 0.005,
+    "adj": -0.026,
     "adj_ci": [
-     -0.073,
-     0.039
+     -0.083,
+     0.031
     ],
     "p_holm": 1.0,
-    "share_remaining": -0.86,
+    "share_remaining": -5.34,
     "origin_mahalanobis": 0.545,
     "n": 96
    },
@@ -549,14 +549,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter8": {
    "value": {
-    "raw": 0.015,
-    "adj": -0.005,
+    "raw": 0.012,
+    "adj": -0.01,
     "adj_ci": [
-     -0.045,
-     0.034
+     -0.062,
+     0.042
     ],
     "p_holm": 1.0,
-    "share_remaining": -0.37,
+    "share_remaining": -0.8,
     "origin_mahalanobis": 0.578,
     "n": 96
    },
@@ -565,14 +565,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter8": {
    "value": {
-    "raw": 0.015,
+    "raw": 0.012,
     "adj": 0.013,
     "adj_ci": [
-     -0.025,
-     0.052
+     -0.037,
+     0.063
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.893,
+    "share_remaining": 1.094,
     "origin_mahalanobis": 0.428,
     "n": 96
    },
@@ -581,14 +581,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter9": {
    "value": {
-    "raw": -0.018,
-    "adj": -0.063,
+    "raw": 0.007,
+    "adj": -0.042,
     "adj_ci": [
-     -0.117,
-     -0.009
+     -0.097,
+     0.012
     ],
-    "p_holm": 0.2207759443464533,
-    "share_remaining": 3.561,
+    "p_holm": 1.0,
+    "share_remaining": -6.443,
     "origin_mahalanobis": 0.801,
     "n": 96
    },
@@ -597,14 +597,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter9": {
    "value": {
-    "raw": -0.018,
-    "adj": -0.06,
+    "raw": 0.007,
+    "adj": -0.038,
     "adj_ci": [
-     -0.111,
-     -0.008
+     -0.09,
+     0.014
     ],
-    "p_holm": 0.23304502391117415,
-    "share_remaining": 3.37,
+    "p_holm": 1.0,
+    "share_remaining": -5.779,
     "origin_mahalanobis": 0.725,
     "n": 96
    },
@@ -613,14 +613,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.length3.iter10": {
    "value": {
-    "raw": 0.008,
-    "adj": -0.032,
+    "raw": 0.061,
+    "adj": 0.032,
     "adj_ci": [
-     -0.074,
-     0.011
+     -0.019,
+     0.083
     ],
     "p_holm": 1.0,
-    "share_remaining": -4.133,
+    "share_remaining": 0.525,
     "origin_mahalanobis": 0.732,
     "n": 96
    },
@@ -629,14 +629,14 @@
   },
   "length_adj.PTO.gpt-4o-mini.PCT.therapist.iter10": {
    "value": {
-    "raw": 0.008,
-    "adj": -0.019,
+    "raw": 0.061,
+    "adj": 0.033,
     "adj_ci": [
-     -0.058,
-     0.021
+     -0.014,
+     0.08
     ],
     "p_holm": 1.0,
-    "share_remaining": -2.423,
+    "share_remaining": 0.542,
     "origin_mahalanobis": 0.555,
     "n": 96
    },
@@ -965,142 +965,142 @@
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter1": {
    "value": {
-    "raw": 0.03,
-    "adj": 0.029,
+    "raw": 0.038,
+    "adj": 0.037,
     "adj_ci": [
-     -0.014,
-     0.072
+     -0.017,
+     0.09
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.966,
-    "origin_mahalanobis": 0.054,
-    "n": 96
+    "share_remaining": 0.967,
+    "origin_mahalanobis": 0.049,
+    "n": 94
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=length3, iteration=1",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter1": {
    "value": {
-    "raw": 0.03,
-    "adj": 0.03,
+    "raw": 0.038,
+    "adj": 0.038,
     "adj_ci": [
-     -0.012,
-     0.073
+     -0.015,
+     0.092
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.004,
+    "share_remaining": 1.012,
     "origin_mahalanobis": 0.02,
-    "n": 96
+    "n": 94
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=therapist, iteration=1",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter2": {
    "value": {
-    "raw": 0.015,
-    "adj": 0.015,
+    "raw": -0.009,
+    "adj": -0.006,
     "adj_ci": [
-     -0.028,
-     0.057
+     -0.057,
+     0.046
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.984,
-    "origin_mahalanobis": 0.235,
-    "n": 96
+    "share_remaining": 0.614,
+    "origin_mahalanobis": 0.217,
+    "n": 95
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=length3, iteration=2",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter2": {
    "value": {
-    "raw": 0.015,
-    "adj": 0.013,
+    "raw": -0.009,
+    "adj": -0.008,
     "adj_ci": [
-     -0.033,
-     0.06
+     -0.064,
+     0.048
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.902,
-    "origin_mahalanobis": 0.23,
-    "n": 96
+    "share_remaining": 0.869,
+    "origin_mahalanobis": 0.209,
+    "n": 95
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=therapist, iteration=2",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter3": {
    "value": {
-    "raw": 0.01,
-    "adj": -0.002,
+    "raw": 0.002,
+    "adj": -0.003,
     "adj_ci": [
-     -0.048,
-     0.044
+     -0.056,
+     0.049
     ],
     "p_holm": 1.0,
-    "share_remaining": -0.204,
-    "origin_mahalanobis": 0.29,
-    "n": 96
+    "share_remaining": -1.96,
+    "origin_mahalanobis": 0.263,
+    "n": 91
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=length3, iteration=3",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter3": {
    "value": {
-    "raw": 0.01,
-    "adj": 0.007,
+    "raw": 0.002,
+    "adj": 0.002,
     "adj_ci": [
-     -0.041,
-     0.056
+     -0.053,
+     0.057
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.743,
-    "origin_mahalanobis": 0.267,
-    "n": 96
+    "share_remaining": 1.393,
+    "origin_mahalanobis": 0.251,
+    "n": 91
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=therapist, iteration=3",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter4": {
    "value": {
-    "raw": 0.047,
-    "adj": 0.035,
+    "raw": 0.016,
+    "adj": 0.002,
     "adj_ci": [
-     -0.0,
-     0.07
+     -0.039,
+     0.044
     ],
-    "p_holm": 0.5146094153426981,
-    "share_remaining": 0.752,
-    "origin_mahalanobis": 0.412,
-    "n": 96
+    "p_holm": 1.0,
+    "share_remaining": 0.154,
+    "origin_mahalanobis": 0.426,
+    "n": 93
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=length3, iteration=4",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter4": {
    "value": {
-    "raw": 0.047,
-    "adj": 0.041,
+    "raw": 0.016,
+    "adj": 0.012,
     "adj_ci": [
-     0.005,
-     0.076
+     -0.033,
+     0.057
     ],
-    "p_holm": 0.2665668710596584,
-    "share_remaining": 0.87,
-    "origin_mahalanobis": 0.339,
-    "n": 96
+    "p_holm": 1.0,
+    "share_remaining": 0.736,
+    "origin_mahalanobis": 0.352,
+    "n": 93
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=therapist, iteration=4",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter5": {
    "value": {
-    "raw": 0.047,
-    "adj": 0.033,
+    "raw": 0.025,
+    "adj": 0.021,
     "adj_ci": [
-     -0.01,
-     0.076
+     -0.029,
+     0.07
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.706,
+    "share_remaining": 0.839,
     "origin_mahalanobis": 0.393,
     "n": 96
    },
@@ -1109,14 +1109,14 @@
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter5": {
    "value": {
-    "raw": 0.047,
-    "adj": 0.037,
+    "raw": 0.025,
+    "adj": 0.029,
     "adj_ci": [
-     -0.008,
+     -0.024,
      0.081
     ],
-    "p_holm": 0.9555096410185758,
-    "share_remaining": 0.786,
+    "p_holm": 1.0,
+    "share_remaining": 1.161,
     "origin_mahalanobis": 0.349,
     "n": 96
    },
@@ -1125,78 +1125,78 @@
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter6": {
    "value": {
-    "raw": 0.003,
-    "adj": -0.004,
+    "raw": -0.008,
+    "adj": -0.029,
     "adj_ci": [
-     -0.039,
-     0.031
+     -0.073,
+     0.014
     ],
     "p_holm": 1.0,
-    "share_remaining": -1.404,
-    "origin_mahalanobis": 0.379,
-    "n": 96
+    "share_remaining": 3.504,
+    "origin_mahalanobis": 0.435,
+    "n": 92
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=length3, iteration=6",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter6": {
    "value": {
-    "raw": 0.003,
-    "adj": 0.004,
+    "raw": -0.008,
+    "adj": -0.005,
     "adj_ci": [
-     -0.029,
+     -0.048,
      0.038
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.537,
-    "origin_mahalanobis": 0.236,
-    "n": 96
+    "share_remaining": 0.628,
+    "origin_mahalanobis": 0.241,
+    "n": 92
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=therapist, iteration=6",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter7": {
    "value": {
-    "raw": 0.031,
-    "adj": -0.004,
+    "raw": 0.019,
+    "adj": -0.017,
     "adj_ci": [
-     -0.053,
-     0.044
+     -0.073,
+     0.039
     ],
     "p_holm": 1.0,
-    "share_remaining": -0.14,
-    "origin_mahalanobis": 0.56,
-    "n": 96
+    "share_remaining": -0.91,
+    "origin_mahalanobis": 0.61,
+    "n": 95
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=length3, iteration=7",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter7": {
    "value": {
-    "raw": 0.031,
-    "adj": -0.001,
+    "raw": 0.019,
+    "adj": -0.005,
     "adj_ci": [
-     -0.054,
-     0.052
+     -0.068,
+     0.058
     ],
     "p_holm": 1.0,
-    "share_remaining": -0.036,
-    "origin_mahalanobis": 0.545,
-    "n": 96
+    "share_remaining": -0.254,
+    "origin_mahalanobis": 0.589,
+    "n": 95
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=therapist, iteration=7",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter8": {
    "value": {
-    "raw": 0.025,
-    "adj": 0.004,
+    "raw": 0.029,
+    "adj": 0.01,
     "adj_ci": [
-     -0.038,
-     0.046
+     -0.033,
+     0.052
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.172,
+    "share_remaining": 0.332,
     "origin_mahalanobis": 0.578,
     "n": 96
    },
@@ -1205,14 +1205,14 @@
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter8": {
    "value": {
-    "raw": 0.025,
-    "adj": 0.023,
+    "raw": 0.029,
+    "adj": 0.024,
     "adj_ci": [
-     -0.018,
-     0.063
+     -0.016,
+     0.064
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.901,
+    "share_remaining": 0.838,
     "origin_mahalanobis": 0.428,
     "n": 96
    },
@@ -1221,46 +1221,46 @@
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter9": {
    "value": {
-    "raw": 0.022,
-    "adj": -0.023,
+    "raw": 0.016,
+    "adj": -0.017,
     "adj_ci": [
-     -0.078,
-     0.033
+     -0.069,
+     0.036
     ],
     "p_holm": 1.0,
-    "share_remaining": -1.022,
-    "origin_mahalanobis": 0.801,
-    "n": 96
+    "share_remaining": -1.021,
+    "origin_mahalanobis": 0.798,
+    "n": 94
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=length3, iteration=9",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter9": {
    "value": {
-    "raw": 0.022,
-    "adj": -0.016,
+    "raw": 0.016,
+    "adj": -0.014,
     "adj_ci": [
-     -0.069,
-     0.037
+     -0.064,
+     0.036
     ],
     "p_holm": 1.0,
-    "share_remaining": -0.732,
-    "origin_mahalanobis": 0.725,
-    "n": 96
+    "share_remaining": -0.849,
+    "origin_mahalanobis": 0.724,
+    "n": 94
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=PTO, metric=PCT, spec=therapist, iteration=9",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.length3.iter10": {
    "value": {
-    "raw": 0.051,
-    "adj": -0.003,
+    "raw": 0.066,
+    "adj": 0.019,
     "adj_ci": [
-     -0.051,
-     0.045
+     -0.032,
+     0.07
     ],
     "p_holm": 1.0,
-    "share_remaining": -0.056,
+    "share_remaining": 0.285,
     "origin_mahalanobis": 0.732,
     "n": 96
    },
@@ -1269,14 +1269,14 @@
   },
   "length_adj.PTO.claude-haiku-4-5.PCT.therapist.iter10": {
    "value": {
-    "raw": 0.051,
-    "adj": 0.012,
+    "raw": 0.066,
+    "adj": 0.032,
     "adj_ci": [
-     -0.032,
-     0.056
+     -0.015,
+     0.079
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.231,
+    "share_remaining": 0.484,
     "origin_mahalanobis": 0.555,
     "n": 96
    },
@@ -1605,14 +1605,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter1": {
    "value": {
-    "raw": -0.004,
+    "raw": -0.001,
     "adj": -0.01,
     "adj_ci": [
-     -0.054,
-     0.034
+     -0.072,
+     0.052
     ],
     "p_holm": 1.0,
-    "share_remaining": 2.653,
+    "share_remaining": 9.56,
     "origin_mahalanobis": 0.248,
     "n": 96
    },
@@ -1621,14 +1621,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter1": {
    "value": {
-    "raw": -0.004,
-    "adj": -0.005,
+    "raw": -0.001,
+    "adj": -0.001,
     "adj_ci": [
-     -0.047,
-     0.038
+     -0.062,
+     0.06
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.209,
+    "share_remaining": 1.291,
     "origin_mahalanobis": 0.042,
     "n": 96
    },
@@ -1637,14 +1637,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter2": {
    "value": {
-    "raw": 0.012,
-    "adj": 0.014,
+    "raw": 0.002,
+    "adj": 0.009,
     "adj_ci": [
-     -0.034,
-     0.063
+     -0.053,
+     0.071
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.223,
+    "share_remaining": 5.523,
     "origin_mahalanobis": 0.268,
     "n": 96
    },
@@ -1653,14 +1653,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter2": {
    "value": {
-    "raw": 0.012,
-    "adj": 0.014,
+    "raw": 0.002,
+    "adj": 0.01,
     "adj_ci": [
-     -0.037,
-     0.064
+     -0.055,
+     0.075
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.164,
+    "share_remaining": 6.407,
     "origin_mahalanobis": 0.248,
     "n": 96
    },
@@ -1669,14 +1669,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter3": {
    "value": {
-    "raw": 0.036,
-    "adj": 0.02,
+    "raw": 0.007,
+    "adj": -0.01,
     "adj_ci": [
-     -0.022,
-     0.061
+     -0.065,
+     0.045
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.55,
+    "share_remaining": -1.358,
     "origin_mahalanobis": 0.587,
     "n": 96
    },
@@ -1685,14 +1685,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter3": {
    "value": {
-    "raw": 0.036,
-    "adj": 0.024,
+    "raw": 0.007,
+    "adj": 0.001,
     "adj_ci": [
-     -0.015,
-     0.063
+     -0.051,
+     0.053
     ],
-    "p_holm": 0.6622389410981873,
-    "share_remaining": 0.675,
+    "p_holm": 1.0,
+    "share_remaining": 0.099,
     "origin_mahalanobis": 0.419,
     "n": 96
    },
@@ -1701,14 +1701,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter4": {
    "value": {
-    "raw": 0.062,
-    "adj": 0.058,
+    "raw": 0.02,
+    "adj": 0.014,
     "adj_ci": [
-     0.01,
-     0.105
+     -0.048,
+     0.076
     ],
-    "p_holm": 0.14950158710638398,
-    "share_remaining": 0.928,
+    "p_holm": 1.0,
+    "share_remaining": 0.711,
     "origin_mahalanobis": 0.685,
     "n": 96
    },
@@ -1717,14 +1717,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter4": {
    "value": {
-    "raw": 0.062,
-    "adj": 0.052,
+    "raw": 0.02,
+    "adj": 0.025,
     "adj_ci": [
-     0.009,
-     0.094
+     -0.032,
+     0.082
     ],
-    "p_holm": 0.13821290002507652,
-    "share_remaining": 0.833,
+    "p_holm": 1.0,
+    "share_remaining": 1.281,
     "origin_mahalanobis": 0.418,
     "n": 96
    },
@@ -1733,14 +1733,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter5": {
    "value": {
-    "raw": 0.056,
-    "adj": 0.028,
+    "raw": 0.035,
+    "adj": 0.063,
     "adj_ci": [
-     -0.021,
-     0.077
+     0.002,
+     0.123
     ],
-    "p_holm": 1.0,
-    "share_remaining": 0.501,
+    "p_holm": 0.3799761257284094,
+    "share_remaining": 1.811,
     "origin_mahalanobis": 0.889,
     "n": 96
    },
@@ -1749,14 +1749,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter5": {
    "value": {
-    "raw": 0.056,
-    "adj": 0.037,
+    "raw": 0.035,
+    "adj": 0.052,
     "adj_ci": [
-     -0.01,
-     0.084
+     -0.007,
+     0.11
     ],
-    "p_holm": 0.6231304388159238,
-    "share_remaining": 0.659,
+    "p_holm": 0.49603324462378273,
+    "share_remaining": 1.49,
     "origin_mahalanobis": 0.815,
     "n": 96
    },
@@ -1765,14 +1765,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter6": {
    "value": {
-    "raw": 0.096,
-    "adj": 0.072,
+    "raw": 0.123,
+    "adj": 0.067,
     "adj_ci": [
-     0.006,
-     0.137
+     -0.022,
+     0.156
     ],
-    "p_holm": 0.22228154245481882,
-    "share_remaining": 0.753,
+    "p_holm": 0.8196895408609911,
+    "share_remaining": 0.547,
     "origin_mahalanobis": 1.148,
     "n": 96
    },
@@ -1781,14 +1781,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter6": {
    "value": {
-    "raw": 0.096,
-    "adj": 0.073,
+    "raw": 0.123,
+    "adj": 0.108,
     "adj_ci": [
-     0.017,
-     0.129
+     0.031,
+     0.186
     ],
-    "p_holm": 0.09753482825510223,
-    "share_remaining": 0.765,
+    "p_holm": 0.05043389431727747,
+    "share_remaining": 0.884,
     "origin_mahalanobis": 0.849,
     "n": 96
    },
@@ -1797,14 +1797,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter7": {
    "value": {
-    "raw": 0.071,
-    "adj": 0.059,
+    "raw": 0.085,
+    "adj": 0.063,
     "adj_ci": [
-     0.005,
-     0.113
+     -0.011,
+     0.138
     ],
-    "p_holm": 0.22228154245481882,
-    "share_remaining": 0.836,
+    "p_holm": 0.6776218512008099,
+    "share_remaining": 0.745,
     "origin_mahalanobis": 1.061,
     "n": 96
    },
@@ -1813,14 +1813,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter7": {
    "value": {
-    "raw": 0.071,
-    "adj": 0.047,
+    "raw": 0.085,
+    "adj": 0.061,
     "adj_ci": [
-     0.004,
-     0.091
+     -0.0,
+     0.122
     ],
-    "p_holm": 0.2034891891550584,
-    "share_remaining": 0.669,
+    "p_holm": 0.3523015264732392,
+    "share_remaining": 0.715,
     "origin_mahalanobis": 0.597,
     "n": 96
    },
@@ -1829,14 +1829,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter8": {
    "value": {
-    "raw": 0.056,
-    "adj": 0.026,
+    "raw": 0.101,
+    "adj": 0.068,
     "adj_ci": [
-     -0.042,
-     0.095
+     -0.023,
+     0.16
     ],
-    "p_holm": 1.0,
-    "share_remaining": 0.473,
+    "p_holm": 0.8196895408609911,
+    "share_remaining": 0.676,
     "origin_mahalanobis": 1.271,
     "n": 96
    },
@@ -1845,14 +1845,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter8": {
    "value": {
-    "raw": 0.056,
-    "adj": 0.051,
+    "raw": 0.101,
+    "adj": 0.094,
     "adj_ci": [
-     0.008,
-     0.093
+     0.038,
+     0.151
     ],
-    "p_holm": 0.14358238679733465,
-    "share_remaining": 0.913,
+    "p_holm": 0.011498616448392918,
+    "share_remaining": 0.937,
     "origin_mahalanobis": 0.098,
     "n": 96
    },
@@ -1861,14 +1861,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter9": {
    "value": {
-    "raw": 0.249,
-    "adj": 0.179,
+    "raw": 0.265,
+    "adj": 0.135,
     "adj_ci": [
-     0.079,
-     0.279
+     -0.019,
+     0.289
     ],
-    "p_holm": 0.005720366379826296,
-    "share_remaining": 0.719,
+    "p_holm": 0.6776218512008099,
+    "share_remaining": 0.508,
     "origin_mahalanobis": 2.161,
     "n": 96
    },
@@ -1877,14 +1877,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter9": {
    "value": {
-    "raw": 0.249,
-    "adj": 0.088,
+    "raw": 0.265,
+    "adj": 0.075,
     "adj_ci": [
-     -0.028,
-     0.204
+     -0.083,
+     0.233
     ],
-    "p_holm": 0.6231304388159238,
-    "share_remaining": 0.352,
+    "p_holm": 1.0,
+    "share_remaining": 0.282,
     "origin_mahalanobis": 1.997,
     "n": 96
    },
@@ -1893,14 +1893,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.length3.iter10": {
    "value": {
-    "raw": 0.111,
-    "adj": 0.155,
+    "raw": 0.15,
+    "adj": 0.221,
     "adj_ci": [
-     0.054,
-     0.255
+     0.08,
+     0.363
     ],
-    "p_holm": 0.027203394452737364,
-    "share_remaining": 1.393,
+    "p_holm": 0.02573414503951201,
+    "share_remaining": 1.481,
     "origin_mahalanobis": 2.182,
     "n": 96
    },
@@ -1909,14 +1909,14 @@
   },
   "length_adj.GRPO.gpt-4o-mini.PCT.therapist.iter10": {
    "value": {
-    "raw": 0.111,
-    "adj": 0.116,
+    "raw": 0.15,
+    "adj": 0.163,
     "adj_ci": [
-     0.066,
-     0.165
+     0.097,
+     0.23
     ],
-    "p_holm": 0.0001046080037332633,
-    "share_remaining": 1.044,
+    "p_holm": 4.417370294959687e-05,
+    "share_remaining": 1.091,
     "origin_mahalanobis": 0.519,
     "n": 96
    },
@@ -2245,46 +2245,46 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter1": {
    "value": {
-    "raw": -0.017,
-    "adj": -0.026,
+    "raw": 0.003,
+    "adj": -0.008,
     "adj_ci": [
-     -0.069,
-     0.018
+     -0.06,
+     0.045
     ],
-    "p_holm": 0.7216760528479685,
-    "share_remaining": 1.513,
-    "origin_mahalanobis": 0.248,
-    "n": 96
+    "p_holm": 1.0,
+    "share_remaining": -2.587,
+    "origin_mahalanobis": 0.25,
+    "n": 94
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=GRPO, metric=PCT, spec=length3, iteration=1",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter1": {
    "value": {
-    "raw": -0.017,
-    "adj": -0.017,
+    "raw": 0.003,
+    "adj": 0.003,
     "adj_ci": [
-     -0.06,
-     0.025
+     -0.048,
+     0.055
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.006,
-    "origin_mahalanobis": 0.042,
-    "n": 96
+    "share_remaining": 1.2,
+    "origin_mahalanobis": 0.037,
+    "n": 94
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=GRPO, metric=PCT, spec=therapist, iteration=1",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter2": {
    "value": {
-    "raw": 0.008,
-    "adj": 0.006,
+    "raw": 0.012,
+    "adj": 0.011,
     "adj_ci": [
-     -0.04,
-     0.052
+     -0.046,
+     0.068
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.76,
+    "share_remaining": 0.939,
     "origin_mahalanobis": 0.268,
     "n": 96
    },
@@ -2293,14 +2293,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter2": {
    "value": {
-    "raw": 0.008,
-    "adj": 0.008,
+    "raw": 0.012,
+    "adj": 0.013,
     "adj_ci": [
-     -0.039,
-     0.055
+     -0.046,
+     0.072
     ],
     "p_holm": 1.0,
-    "share_remaining": 1.006,
+    "share_remaining": 1.065,
     "origin_mahalanobis": 0.248,
     "n": 96
    },
@@ -2309,46 +2309,46 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter3": {
    "value": {
-    "raw": 0.022,
-    "adj": 0.001,
+    "raw": 0.015,
+    "adj": -0.004,
     "adj_ci": [
-     -0.04,
-     0.041
+     -0.054,
+     0.046
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.036,
+    "share_remaining": -0.268,
     "origin_mahalanobis": 0.587,
-    "n": 96
+    "n": 95
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=GRPO, metric=PCT, spec=length3, iteration=3",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter3": {
    "value": {
-    "raw": 0.022,
-    "adj": 0.012,
+    "raw": 0.015,
+    "adj": 0.005,
     "adj_ci": [
-     -0.027,
-     0.051
+     -0.043,
+     0.053
     ],
     "p_holm": 1.0,
-    "share_remaining": 0.535,
-    "origin_mahalanobis": 0.419,
-    "n": 96
+    "share_remaining": 0.336,
+    "origin_mahalanobis": 0.422,
+    "n": 95
    },
    "source": "tables/length_adjusted_k.md :: judge=claude-haiku-4-5, method=GRPO, metric=PCT, spec=therapist, iteration=3",
    "note": "K5 - K0; adj = OLS intercept on persona length differences (post-treatment covariates)"
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter4": {
    "value": {
-    "raw": 0.065,
-    "adj": 0.055,
+    "raw": 0.062,
+    "adj": 0.059,
     "adj_ci": [
-     0.011,
-     0.098
+     0.008,
+     0.111
     ],
-    "p_holm": 0.11063321133622767,
-    "share_remaining": 0.842,
+    "p_holm": 0.18198068124897052,
+    "share_remaining": 0.952,
     "origin_mahalanobis": 0.685,
     "n": 96
    },
@@ -2357,14 +2357,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter4": {
    "value": {
-    "raw": 0.065,
-    "adj": 0.052,
+    "raw": 0.062,
+    "adj": 0.06,
     "adj_ci": [
-     0.013,
-     0.09
+     0.014,
+     0.106
     ],
-    "p_holm": 0.06613668757687421,
-    "share_remaining": 0.791,
+    "p_holm": 0.08189876423981768,
+    "share_remaining": 0.959,
     "origin_mahalanobis": 0.418,
     "n": 96
    },
@@ -2373,14 +2373,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter5": {
    "value": {
-    "raw": 0.067,
-    "adj": 0.041,
+    "raw": 0.064,
+    "adj": 0.051,
     "adj_ci": [
      -0.008,
-     0.091
+     0.109
     ],
-    "p_holm": 0.4940908991303445,
-    "share_remaining": 0.613,
+    "p_holm": 0.5379412293451059,
+    "share_remaining": 0.791,
     "origin_mahalanobis": 0.889,
     "n": 96
    },
@@ -2389,14 +2389,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter5": {
    "value": {
-    "raw": 0.067,
-    "adj": 0.044,
+    "raw": 0.064,
+    "adj": 0.046,
     "adj_ci": [
-     -0.003,
-     0.091
+     -0.01,
+     0.102
     ],
-    "p_holm": 0.27000092816488036,
-    "share_remaining": 0.649,
+    "p_holm": 0.5427444124614227,
+    "share_remaining": 0.718,
     "origin_mahalanobis": 0.815,
     "n": 96
    },
@@ -2405,14 +2405,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter6": {
    "value": {
-    "raw": 0.123,
-    "adj": 0.086,
+    "raw": 0.11,
+    "adj": 0.093,
     "adj_ci": [
-     0.016,
-     0.157
+     0.013,
+     0.173
     ],
-    "p_holm": 0.1209645985729054,
-    "share_remaining": 0.699,
+    "p_holm": 0.18198068124897052,
+    "share_remaining": 0.847,
     "origin_mahalanobis": 1.148,
     "n": 96
    },
@@ -2421,14 +2421,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter6": {
    "value": {
-    "raw": 0.123,
-    "adj": 0.11,
+    "raw": 0.11,
+    "adj": 0.111,
     "adj_ci": [
-     0.05,
-     0.171
+     0.042,
+     0.179
     ],
-    "p_holm": 0.003956543999405077,
-    "share_remaining": 0.894,
+    "p_holm": 0.016592160959022398,
+    "share_remaining": 1.003,
     "origin_mahalanobis": 0.849,
     "n": 96
    },
@@ -2437,14 +2437,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter7": {
    "value": {
-    "raw": 0.085,
-    "adj": 0.061,
+    "raw": 0.1,
+    "adj": 0.052,
     "adj_ci": [
-     0.005,
-     0.116
+     -0.013,
+     0.117
     ],
-    "p_holm": 0.19104228963146097,
-    "share_remaining": 0.715,
+    "p_holm": 0.5885095122179099,
+    "share_remaining": 0.516,
     "origin_mahalanobis": 1.061,
     "n": 96
    },
@@ -2453,14 +2453,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter7": {
    "value": {
-    "raw": 0.085,
-    "adj": 0.058,
+    "raw": 0.1,
+    "adj": 0.06,
     "adj_ci": [
-     0.014,
-     0.103
+     0.005,
+     0.114
     ],
-    "p_holm": 0.06619481731601798,
-    "share_remaining": 0.69,
+    "p_holm": 0.1891266739994787,
+    "share_remaining": 0.595,
     "origin_mahalanobis": 0.597,
     "n": 96
    },
@@ -2469,14 +2469,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter8": {
    "value": {
-    "raw": 0.104,
-    "adj": 0.057,
+    "raw": 0.099,
+    "adj": 0.027,
     "adj_ci": [
-     -0.017,
-     0.13
+     -0.065,
+     0.12
     ],
-    "p_holm": 0.5110604357899964,
-    "share_remaining": 0.545,
+    "p_holm": 1.0,
+    "share_remaining": 0.275,
     "origin_mahalanobis": 1.271,
     "n": 96
    },
@@ -2485,14 +2485,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter8": {
    "value": {
-    "raw": 0.104,
-    "adj": 0.099,
+    "raw": 0.099,
+    "adj": 0.093,
     "adj_ci": [
-     0.053,
-     0.144
+     0.035,
+     0.151
     ],
-    "p_holm": 0.00037563290136137674,
-    "share_remaining": 0.951,
+    "p_holm": 0.016592160959022398,
+    "share_remaining": 0.932,
     "origin_mahalanobis": 0.098,
     "n": 96
    },
@@ -2501,14 +2501,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter9": {
    "value": {
-    "raw": 0.291,
-    "adj": 0.205,
+    "raw": 0.284,
+    "adj": 0.191,
     "adj_ci": [
-     0.09,
-     0.321
+     0.049,
+     0.332
     ],
-    "p_holm": 0.0057367920332939675,
-    "share_remaining": 0.706,
+    "p_holm": 0.08083276793869558,
+    "share_remaining": 0.672,
     "origin_mahalanobis": 2.161,
     "n": 96
    },
@@ -2517,14 +2517,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter9": {
    "value": {
-    "raw": 0.291,
-    "adj": 0.131,
+    "raw": 0.284,
+    "adj": 0.107,
     "adj_ci": [
-     0.009,
-     0.252
+     -0.042,
+     0.255
     ],
-    "p_holm": 0.17989142250104853,
-    "share_remaining": 0.449,
+    "p_holm": 0.624507618572313,
+    "share_remaining": 0.377,
     "origin_mahalanobis": 1.997,
     "n": 96
    },
@@ -2533,14 +2533,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.length3.iter10": {
    "value": {
-    "raw": 0.113,
-    "adj": 0.187,
+    "raw": 0.157,
+    "adj": 0.243,
     "adj_ci": [
-     0.093,
-     0.282
+     0.126,
+     0.36
     ],
-    "p_holm": 0.001568428286735487,
-    "share_remaining": 1.663,
+    "p_holm": 0.0007940890110615573,
+    "share_remaining": 1.548,
     "origin_mahalanobis": 2.182,
     "n": 96
    },
@@ -2549,14 +2549,14 @@
   },
   "length_adj.GRPO.claude-haiku-4-5.PCT.therapist.iter10": {
    "value": {
-    "raw": 0.113,
-    "adj": 0.122,
+    "raw": 0.157,
+    "adj": 0.163,
     "adj_ci": [
-     0.076,
-     0.168
+     0.106,
+     0.219
     ],
-    "p_holm": 8.380172743963112e-06,
-    "share_remaining": 1.081,
+    "p_holm": 1.423883400943463e-06,
+    "share_remaining": 1.035,
     "origin_mahalanobis": 0.519,
     "n": 96
    },
@@ -2985,420 +2985,420 @@
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter1": {
    "value": {
-    "raw": 0.027,
-    "explained": 0.001,
-    "adj": 0.027,
+    "raw": 0.02,
+    "explained": 0.0,
+    "adj": 0.02,
     "adj_ci": [
-     -0.021,
-     0.074
+     -0.037,
+     0.078
     ],
-    "share_remaining": 0.979
+    "share_remaining": 0.985
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter2": {
    "value": {
-    "raw": 0.003,
-    "explained": 0.008,
-    "adj": -0.005,
+    "raw": -0.02,
+    "explained": 0.004,
+    "adj": -0.024,
     "adj_ci": [
-     -0.053,
-     0.04
+     -0.083,
+     0.031
     ],
-    "share_remaining": -1.335
+    "share_remaining": 1.221
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter3": {
    "value": {
-    "raw": -0.002,
-    "explained": 0.01,
-    "adj": -0.012,
+    "raw": 0.006,
+    "explained": 0.005,
+    "adj": 0.001,
     "adj_ci": [
-     -0.056,
-     0.031
+     -0.052,
+     0.053
     ],
-    "share_remaining": 5.682
+    "share_remaining": 0.09
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter4": {
    "value": {
-    "raw": 0.019,
-    "explained": 0.013,
-    "adj": 0.006,
+    "raw": 0.015,
+    "explained": 0.007,
+    "adj": 0.008,
     "adj_ci": [
-     -0.033,
-     0.046
+     -0.037,
+     0.056
     ],
-    "share_remaining": 0.306
+    "share_remaining": 0.524
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter5": {
    "value": {
-    "raw": 0.02,
-    "explained": 0.015,
-    "adj": 0.005,
+    "raw": 0.029,
+    "explained": 0.008,
+    "adj": 0.021,
     "adj_ci": [
-     -0.033,
-     0.044
+     -0.029,
+     0.072
     ],
-    "share_remaining": 0.258
+    "share_remaining": 0.72
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter6": {
    "value": {
-    "raw": -0.006,
-    "explained": 0.009,
-    "adj": -0.016,
+    "raw": -0.018,
+    "explained": 0.005,
+    "adj": -0.023,
     "adj_ci": [
-     -0.05,
-     0.017
+     -0.073,
+     0.028
     ],
-    "share_remaining": 2.531
+    "share_remaining": 1.287
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter7": {
    "value": {
-    "raw": 0.02,
-    "explained": 0.021,
-    "adj": -0.001,
+    "raw": 0.005,
+    "explained": 0.011,
+    "adj": -0.006,
     "adj_ci": [
-     -0.051,
-     0.054
+     -0.06,
+     0.046
     ],
-    "share_remaining": -0.036
+    "share_remaining": -1.344
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter8": {
    "value": {
-    "raw": 0.015,
-    "explained": 0.013,
-    "adj": 0.002,
+    "raw": 0.012,
+    "explained": 0.007,
+    "adj": 0.005,
     "adj_ci": [
-     -0.034,
-     0.037
+     -0.042,
+     0.053
     ],
-    "share_remaining": 0.118
+    "share_remaining": 0.417
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter9": {
    "value": {
-    "raw": -0.018,
-    "explained": 0.023,
-    "adj": -0.041,
+    "raw": 0.007,
+    "explained": 0.013,
+    "adj": -0.006,
     "adj_ci": [
-     -0.088,
-     0.005
+     -0.053,
+     0.043
     ],
-    "share_remaining": 2.32
+    "share_remaining": -0.926
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th.iter10": {
    "value": {
-    "raw": 0.008,
-    "explained": 0.018,
-    "adj": -0.011,
+    "raw": 0.061,
+    "explained": 0.01,
+    "adj": 0.051,
     "adj_ci": [
-     -0.045,
-     0.024
+     0.009,
+     0.093
     ],
-    "share_remaining": -1.379
+    "share_remaining": 0.838
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter1": {
    "value": {
-    "raw": 0.027,
+    "raw": 0.02,
     "explained": 0.0,
-    "adj": 0.027,
+    "adj": 0.02,
     "adj_ci": [
-     -0.022,
-     0.074
+     -0.038,
+     0.08
     ],
-    "share_remaining": 0.984
+    "share_remaining": 0.997
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter2": {
    "value": {
-    "raw": 0.003,
-    "explained": 0.009,
-    "adj": -0.005,
+    "raw": -0.02,
+    "explained": 0.005,
+    "adj": -0.025,
     "adj_ci": [
-     -0.055,
-     0.041
+     -0.085,
+     0.032
     ],
-    "share_remaining": -1.455
+    "share_remaining": 1.262
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter3": {
    "value": {
-    "raw": -0.002,
-    "explained": 0.01,
-    "adj": -0.012,
+    "raw": 0.006,
+    "explained": 0.005,
+    "adj": 0.001,
     "adj_ci": [
-     -0.055,
-     0.034
+     -0.053,
+     0.056
     ],
-    "share_remaining": 5.498
+    "share_remaining": 0.219
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter4": {
    "value": {
-    "raw": 0.019,
-    "explained": 0.013,
-    "adj": 0.005,
+    "raw": 0.015,
+    "explained": 0.008,
+    "adj": 0.007,
     "adj_ci": [
-     -0.033,
-     0.046
+     -0.039,
+     0.056
     ],
-    "share_remaining": 0.282
+    "share_remaining": 0.465
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter5": {
    "value": {
-    "raw": 0.02,
-    "explained": 0.015,
-    "adj": 0.005,
+    "raw": 0.029,
+    "explained": 0.008,
+    "adj": 0.021,
     "adj_ci": [
-     -0.033,
-     0.044
+     -0.03,
+     0.072
     ],
-    "share_remaining": 0.259
+    "share_remaining": 0.721
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter6": {
    "value": {
-    "raw": -0.006,
-    "explained": 0.008,
-    "adj": -0.015,
+    "raw": -0.018,
+    "explained": 0.003,
+    "adj": -0.021,
     "adj_ci": [
-     -0.051,
-     0.018
+     -0.073,
+     0.031
     ],
-    "share_remaining": 2.366
+    "share_remaining": 1.175
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter7": {
    "value": {
-    "raw": 0.02,
-    "explained": 0.021,
-    "adj": -0.001,
+    "raw": 0.005,
+    "explained": 0.011,
+    "adj": -0.007,
     "adj_ci": [
-     -0.051,
-     0.055
+     -0.061,
+     0.046
     ],
-    "share_remaining": -0.038
+    "share_remaining": -1.353
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter8": {
    "value": {
-    "raw": 0.015,
-    "explained": 0.012,
-    "adj": 0.003,
+    "raw": 0.012,
+    "explained": 0.004,
+    "adj": 0.008,
     "adj_ci": [
-     -0.033,
-     0.039
+     -0.041,
+     0.059
     ],
-    "share_remaining": 0.214
+    "share_remaining": 0.643
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter9": {
    "value": {
-    "raw": -0.018,
-    "explained": 0.021,
-    "adj": -0.039,
+    "raw": 0.007,
+    "explained": 0.008,
+    "adj": -0.001,
     "adj_ci": [
-     -0.089,
-     0.011
+     -0.052,
+     0.053
     ],
-    "share_remaining": 2.185
+    "share_remaining": -0.221
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+len.iter10": {
    "value": {
-    "raw": 0.008,
-    "explained": 0.016,
-    "adj": -0.008,
+    "raw": 0.061,
+    "explained": 0.005,
+    "adj": 0.056,
     "adj_ci": [
-     -0.047,
-     0.032
+     0.01,
+     0.104
     ],
-    "share_remaining": -1.06
+    "share_remaining": 0.916
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter1": {
    "value": {
-    "raw": 0.027,
-    "explained": 0.007,
-    "adj": 0.021,
+    "raw": 0.02,
+    "explained": 0.009,
+    "adj": 0.011,
     "adj_ci": [
-     -0.035,
-     0.076
+     -0.059,
+     0.077
     ],
-    "share_remaining": 0.759
+    "share_remaining": 0.552
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter2": {
    "value": {
-    "raw": 0.003,
-    "explained": 0.01,
-    "adj": -0.006,
+    "raw": -0.02,
+    "explained": 0.007,
+    "adj": -0.027,
     "adj_ci": [
-     -0.062,
-     0.047
+     -0.093,
+     0.038
     ],
-    "share_remaining": -1.757
+    "share_remaining": 1.338
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter3": {
    "value": {
-    "raw": -0.002,
-    "explained": 0.016,
-    "adj": -0.018,
+    "raw": 0.006,
+    "explained": 0.014,
+    "adj": -0.008,
     "adj_ci": [
-     -0.065,
-     0.026
+     -0.068,
+     0.054
     ],
-    "share_remaining": 8.395
+    "share_remaining": -1.286
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter4": {
    "value": {
-    "raw": 0.019,
-    "explained": 0.043,
-    "adj": -0.025,
+    "raw": 0.015,
+    "explained": 0.051,
+    "adj": -0.037,
     "adj_ci": [
-     -0.07,
-     0.022
+     -0.091,
+     0.02
     ],
-    "share_remaining": -1.326
+    "share_remaining": -2.484
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter5": {
    "value": {
-    "raw": 0.02,
-    "explained": 0.035,
-    "adj": -0.015,
+    "raw": 0.029,
+    "explained": 0.038,
+    "adj": -0.009,
     "adj_ci": [
-     -0.063,
-     0.034
+     -0.067,
+     0.05
     ],
-    "share_remaining": -0.761
+    "share_remaining": -0.308
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter6": {
    "value": {
-    "raw": -0.006,
-    "explained": 0.017,
-    "adj": -0.023,
+    "raw": -0.018,
+    "explained": 0.015,
+    "adj": -0.033,
     "adj_ci": [
-     -0.068,
-     0.019
+     -0.097,
+     0.028
     ],
-    "share_remaining": 3.705
+    "share_remaining": 1.845
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter7": {
    "value": {
-    "raw": 0.02,
-    "explained": 0.039,
-    "adj": -0.018,
+    "raw": 0.005,
+    "explained": 0.037,
+    "adj": -0.032,
     "adj_ci": [
-     -0.076,
-     0.039
+     -0.098,
+     0.032
     ],
-    "share_remaining": -0.922
+    "share_remaining": -6.701
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter8": {
    "value": {
-    "raw": 0.015,
-    "explained": 0.04,
-    "adj": -0.025,
+    "raw": 0.012,
+    "explained": 0.045,
+    "adj": -0.033,
     "adj_ci": [
-     -0.067,
-     0.016
+     -0.092,
+     0.025
     ],
-    "share_remaining": -1.694
+    "share_remaining": -2.729
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter9": {
    "value": {
-    "raw": -0.018,
-    "explained": 0.069,
-    "adj": -0.086,
+    "raw": 0.007,
+    "explained": 0.077,
+    "adj": -0.071,
     "adj_ci": [
-     -0.141,
-     -0.033
+     -0.131,
+     -0.008
     ],
-    "share_remaining": 4.876
+    "share_remaining": -10.72
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.gpt-4o-mini.PCT.pooled.th+pt+len.iter10": {
    "value": {
-    "raw": 0.008,
-    "explained": 0.079,
-    "adj": -0.072,
+    "raw": 0.061,
+    "explained": 0.098,
+    "adj": -0.036,
     "adj_ci": [
-     -0.117,
-     -0.024
+     -0.097,
+     0.027
     ],
-    "share_remaining": -9.384
+    "share_remaining": -0.595
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
@@ -3825,420 +3825,420 @@
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter1": {
    "value": {
-    "raw": 0.03,
+    "raw": 0.038,
     "explained": 0.0,
-    "adj": 0.03,
+    "adj": 0.038,
     "adj_ci": [
-     -0.014,
-     0.073
+     -0.013,
+     0.09
     ],
-    "share_remaining": 0.985
+    "share_remaining": 0.998
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter2": {
    "value": {
-    "raw": 0.015,
-    "explained": 0.007,
-    "adj": 0.008,
+    "raw": -0.009,
+    "explained": 0.001,
+    "adj": -0.01,
     "adj_ci": [
-     -0.039,
-     0.054
+     -0.066,
+     0.044
     ],
-    "share_remaining": 0.565
+    "share_remaining": 1.087
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter3": {
    "value": {
-    "raw": 0.01,
-    "explained": 0.008,
-    "adj": 0.002,
+    "raw": 0.002,
+    "explained": 0.001,
+    "adj": 0.001,
     "adj_ci": [
-     -0.044,
-     0.046
+     -0.05,
+     0.052
     ],
-    "share_remaining": 0.194
+    "share_remaining": 0.378
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter4": {
    "value": {
-    "raw": 0.047,
-    "explained": 0.01,
-    "adj": 0.036,
+    "raw": 0.016,
+    "explained": 0.002,
+    "adj": 0.014,
     "adj_ci": [
-     0.004,
-     0.072
+     -0.027,
+     0.059
     ],
-    "share_remaining": 0.779
+    "share_remaining": 0.902
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter5": {
    "value": {
-    "raw": 0.047,
-    "explained": 0.012,
-    "adj": 0.035,
+    "raw": 0.025,
+    "explained": 0.002,
+    "adj": 0.023,
     "adj_ci": [
-     -0.009,
-     0.077
+     -0.026,
+     0.071
     ],
-    "share_remaining": 0.744
+    "share_remaining": 0.931
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter6": {
    "value": {
-    "raw": 0.003,
-    "explained": 0.008,
-    "adj": -0.005,
+    "raw": -0.008,
+    "explained": 0.001,
+    "adj": -0.009,
     "adj_ci": [
-     -0.04,
-     0.029
+     -0.052,
+     0.032
     ],
-    "share_remaining": -1.683
+    "share_remaining": 1.126
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter7": {
    "value": {
-    "raw": 0.031,
-    "explained": 0.017,
-    "adj": 0.014,
+    "raw": 0.019,
+    "explained": 0.002,
+    "adj": 0.016,
     "adj_ci": [
-     -0.034,
-     0.06
+     -0.041,
+     0.073
     ],
-    "share_remaining": 0.46
+    "share_remaining": 0.868
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter8": {
    "value": {
-    "raw": 0.025,
-    "explained": 0.01,
-    "adj": 0.015,
+    "raw": 0.029,
+    "explained": 0.001,
+    "adj": 0.027,
     "adj_ci": [
-     -0.022,
-     0.054
+     -0.008,
+     0.067
     ],
-    "share_remaining": 0.584
+    "share_remaining": 0.948
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter9": {
    "value": {
-    "raw": 0.022,
-    "explained": 0.019,
-    "adj": 0.003,
+    "raw": 0.016,
+    "explained": 0.003,
+    "adj": 0.014,
     "adj_ci": [
-     -0.046,
-     0.054
+     -0.037,
+     0.061
     ],
-    "share_remaining": 0.153
+    "share_remaining": 0.84
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th.iter10": {
    "value": {
-    "raw": 0.051,
-    "explained": 0.015,
-    "adj": 0.037,
+    "raw": 0.066,
+    "explained": 0.002,
+    "adj": 0.064,
     "adj_ci": [
-     -0.002,
-     0.077
+     0.021,
+     0.108
     ],
-    "share_remaining": 0.716
+    "share_remaining": 0.969
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter1": {
    "value": {
-    "raw": 0.03,
-    "explained": -0.0,
-    "adj": 0.03,
+    "raw": 0.038,
+    "explained": -0.001,
+    "adj": 0.039,
     "adj_ci": [
-     -0.014,
-     0.076
+     -0.015,
+     0.095
     ],
-    "share_remaining": 1.012
+    "share_remaining": 1.035
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter2": {
    "value": {
-    "raw": 0.015,
-    "explained": 0.009,
-    "adj": 0.006,
+    "raw": -0.009,
+    "explained": 0.004,
+    "adj": -0.013,
     "adj_ci": [
-     -0.045,
-     0.055
+     -0.072,
+     0.045
     ],
-    "share_remaining": 0.391
+    "share_remaining": 1.437
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter3": {
    "value": {
-    "raw": 0.01,
-    "explained": 0.006,
-    "adj": 0.004,
+    "raw": 0.002,
+    "explained": -0.0,
+    "adj": 0.002,
     "adj_ci": [
-     -0.044,
-     0.053
+     -0.053,
+     0.059
     ],
-    "share_remaining": 0.44
+    "share_remaining": 1.274
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter4": {
    "value": {
-    "raw": 0.047,
-    "explained": 0.013,
-    "adj": 0.034,
+    "raw": 0.016,
+    "explained": 0.004,
+    "adj": 0.012,
     "adj_ci": [
-     -0.001,
-     0.073
+     -0.032,
+     0.06
     ],
-    "share_remaining": 0.719
+    "share_remaining": 0.756
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter5": {
    "value": {
-    "raw": 0.047,
-    "explained": 0.012,
-    "adj": 0.035,
+    "raw": 0.025,
+    "explained": 0.001,
+    "adj": 0.024,
     "adj_ci": [
-     -0.01,
-     0.079
+     -0.029,
+     0.077
     ],
-    "share_remaining": 0.747
+    "share_remaining": 0.958
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter6": {
    "value": {
-    "raw": 0.003,
-    "explained": 0.001,
-    "adj": 0.002,
+    "raw": -0.008,
+    "explained": -0.007,
+    "adj": -0.001,
     "adj_ci": [
-     -0.036,
-     0.037
+     -0.049,
+     0.045
     ],
-    "share_remaining": 0.563
+    "share_remaining": 0.152
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter7": {
    "value": {
-    "raw": 0.031,
-    "explained": 0.017,
-    "adj": 0.014,
+    "raw": 0.019,
+    "explained": 0.001,
+    "adj": 0.017,
     "adj_ci": [
-     -0.038,
-     0.063
+     -0.044,
+     0.078
     ],
-    "share_remaining": 0.455
+    "share_remaining": 0.928
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter8": {
    "value": {
-    "raw": 0.025,
-    "explained": 0.002,
-    "adj": 0.023,
+    "raw": 0.029,
+    "explained": -0.01,
+    "adj": 0.039,
     "adj_ci": [
-     -0.015,
-     0.064
+     -0.001,
+     0.082
     ],
-    "share_remaining": 0.932
+    "share_remaining": 1.343
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter9": {
    "value": {
-    "raw": 0.022,
-    "explained": 0.004,
-    "adj": 0.018,
+    "raw": 0.016,
+    "explained": -0.017,
+    "adj": 0.033,
     "adj_ci": [
-     -0.037,
-     0.072
+     -0.025,
+     0.089
     ],
-    "share_remaining": 0.822
+    "share_remaining": 2.021
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+len.iter10": {
    "value": {
-    "raw": 0.051,
-    "explained": -0.001,
-    "adj": 0.052,
+    "raw": 0.066,
+    "explained": -0.017,
+    "adj": 0.084,
     "adj_ci": [
-     0.007,
-     0.098
+     0.036,
+     0.134
     ],
-    "share_remaining": 1.011
+    "share_remaining": 1.263
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter1": {
    "value": {
-    "raw": 0.03,
-    "explained": 0.008,
-    "adj": 0.022,
+    "raw": 0.038,
+    "explained": 0.005,
+    "adj": 0.033,
     "adj_ci": [
-     -0.032,
-     0.077
+     -0.033,
+     0.097
     ],
-    "share_remaining": 0.742
+    "share_remaining": 0.872
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter2": {
    "value": {
-    "raw": 0.015,
-    "explained": 0.01,
-    "adj": 0.004,
+    "raw": -0.009,
+    "explained": 0.008,
+    "adj": -0.018,
     "adj_ci": [
-     -0.051,
-     0.06
+     -0.085,
+     0.048
     ],
-    "share_remaining": 0.298
+    "share_remaining": 1.899
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter3": {
    "value": {
-    "raw": 0.01,
-    "explained": 0.014,
-    "adj": -0.004,
+    "raw": 0.002,
+    "explained": 0.007,
+    "adj": -0.005,
     "adj_ci": [
-     -0.056,
-     0.046
+     -0.068,
+     0.058
     ],
-    "share_remaining": -0.381
+    "share_remaining": -3.151
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter4": {
    "value": {
-    "raw": 0.047,
-    "explained": 0.053,
-    "adj": -0.006,
+    "raw": 0.016,
+    "explained": 0.048,
+    "adj": -0.032,
     "adj_ci": [
-     -0.049,
-     0.038
+     -0.088,
+     0.023
     ],
-    "share_remaining": -0.127
+    "share_remaining": -2.046
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter5": {
    "value": {
-    "raw": 0.047,
-    "explained": 0.039,
-    "adj": 0.008,
+    "raw": 0.025,
+    "explained": 0.031,
+    "adj": -0.007,
     "adj_ci": [
-     -0.044,
-     0.059
+     -0.062,
+     0.05
     ],
-    "share_remaining": 0.167
+    "share_remaining": -0.271
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter6": {
    "value": {
-    "raw": 0.003,
-    "explained": 0.012,
-    "adj": -0.009,
+    "raw": -0.008,
+    "explained": 0.006,
+    "adj": -0.014,
     "adj_ci": [
-     -0.059,
-     0.038
+     -0.073,
+     0.039
     ],
-    "share_remaining": -3.306
+    "share_remaining": 1.723
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter7": {
    "value": {
-    "raw": 0.031,
-    "explained": 0.04,
-    "adj": -0.009,
+    "raw": 0.019,
+    "explained": 0.027,
+    "adj": -0.008,
     "adj_ci": [
-     -0.074,
-     0.049
+     -0.083,
+     0.06
     ],
-    "share_remaining": -0.305
+    "share_remaining": -0.442
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter8": {
    "value": {
-    "raw": 0.025,
-    "explained": 0.039,
-    "adj": -0.014,
+    "raw": 0.029,
+    "explained": 0.032,
+    "adj": -0.003,
     "adj_ci": [
-     -0.06,
-     0.032
+     -0.051,
+     0.048
     ],
-    "share_remaining": -0.552
+    "share_remaining": -0.112
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter9": {
    "value": {
-    "raw": 0.022,
-    "explained": 0.067,
-    "adj": -0.045,
+    "raw": 0.016,
+    "explained": 0.057,
+    "adj": -0.041,
     "adj_ci": [
-     -0.104,
-     0.016
+     -0.103,
+     0.018
     ],
-    "share_remaining": -2.025
+    "share_remaining": -2.546
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.PTO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter10": {
    "value": {
-    "raw": 0.051,
-    "explained": 0.084,
-    "adj": -0.032,
+    "raw": 0.066,
+    "explained": 0.077,
+    "adj": -0.011,
     "adj_ci": [
-     -0.085,
-     0.023
+     -0.067,
+     0.047
     ],
-    "share_remaining": -0.627
+    "share_remaining": -0.159
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
@@ -4665,420 +4665,420 @@
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter1": {
    "value": {
-    "raw": -0.004,
-    "explained": 0.002,
-    "adj": -0.005,
+    "raw": -0.001,
+    "explained": 0.001,
+    "adj": -0.002,
     "adj_ci": [
-     -0.047,
-     0.036
+     -0.062,
+     0.058
     ],
-    "share_remaining": 1.412
+    "share_remaining": 2.153
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter2": {
    "value": {
-    "raw": 0.012,
-    "explained": 0.008,
-    "adj": 0.003,
+    "raw": 0.002,
+    "explained": 0.006,
+    "adj": -0.005,
     "adj_ci": [
-     -0.048,
-     0.054
+     -0.07,
+     0.06
     ],
-    "share_remaining": 0.294
+    "share_remaining": -2.928
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter3": {
    "value": {
-    "raw": 0.036,
-    "explained": 0.015,
-    "adj": 0.021,
+    "raw": 0.007,
+    "explained": 0.012,
+    "adj": -0.004,
     "adj_ci": [
-     -0.015,
-     0.059
+     -0.051,
+     0.044
     ],
-    "share_remaining": 0.578
+    "share_remaining": -0.594
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter4": {
    "value": {
-    "raw": 0.062,
-    "explained": 0.017,
-    "adj": 0.045,
+    "raw": 0.02,
+    "explained": 0.013,
+    "adj": 0.007,
     "adj_ci": [
-     0.008,
-     0.084
+     -0.046,
+     0.061
     ],
-    "share_remaining": 0.73
+    "share_remaining": 0.346
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter5": {
    "value": {
-    "raw": 0.056,
-    "explained": 0.038,
-    "adj": 0.018,
+    "raw": 0.035,
+    "explained": 0.029,
+    "adj": 0.005,
     "adj_ci": [
-     -0.022,
-     0.055
+     -0.045,
+     0.056
     ],
-    "share_remaining": 0.314
+    "share_remaining": 0.157
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter6": {
    "value": {
-    "raw": 0.096,
-    "explained": 0.047,
-    "adj": 0.049,
+    "raw": 0.123,
+    "explained": 0.036,
+    "adj": 0.087,
     "adj_ci": [
-     0.004,
-     0.095
+     0.026,
+     0.152
     ],
-    "share_remaining": 0.509
+    "share_remaining": 0.709
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter7": {
    "value": {
-    "raw": 0.071,
-    "explained": 0.026,
-    "adj": 0.044,
+    "raw": 0.085,
+    "explained": 0.02,
+    "adj": 0.065,
     "adj_ci": [
-     0.008,
-     0.083
+     0.014,
+     0.121
     ],
-    "share_remaining": 0.628
+    "share_remaining": 0.765
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter8": {
    "value": {
-    "raw": 0.056,
-    "explained": 0.003,
-    "adj": 0.052,
+    "raw": 0.101,
+    "explained": 0.002,
+    "adj": 0.098,
     "adj_ci": [
-     0.012,
-     0.093
+     0.044,
+     0.154
     ],
-    "share_remaining": 0.942
+    "share_remaining": 0.976
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter9": {
    "value": {
-    "raw": 0.249,
-    "explained": 0.096,
-    "adj": 0.153,
+    "raw": 0.265,
+    "explained": 0.073,
+    "adj": 0.192,
     "adj_ci": [
-     0.087,
-     0.219
+     0.101,
+     0.288
     ],
-    "share_remaining": 0.614
+    "share_remaining": 0.724
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th.iter10": {
    "value": {
-    "raw": 0.111,
-    "explained": -0.009,
-    "adj": 0.12,
+    "raw": 0.15,
+    "explained": -0.007,
+    "adj": 0.156,
     "adj_ci": [
-     0.076,
-     0.162
+     0.097,
+     0.213
     ],
-    "share_remaining": 1.078
+    "share_remaining": 1.044
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter1": {
    "value": {
-    "raw": -0.004,
-    "explained": -0.006,
-    "adj": 0.002,
+    "raw": -0.001,
+    "explained": -0.009,
+    "adj": 0.008,
     "adj_ci": [
-     -0.042,
-     0.045
+     -0.055,
+     0.069
     ],
-    "share_remaining": -0.597
+    "share_remaining": -7.522
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter2": {
    "value": {
-    "raw": 0.012,
-    "explained": 0.009,
-    "adj": 0.002,
+    "raw": 0.002,
+    "explained": 0.008,
+    "adj": -0.006,
     "adj_ci": [
-     -0.054,
-     0.058
+     -0.076,
+     0.065
     ],
-    "share_remaining": 0.201
+    "share_remaining": -3.818
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter3": {
    "value": {
-    "raw": 0.036,
-    "explained": 0.005,
-    "adj": 0.031,
+    "raw": 0.007,
+    "explained": -0.002,
+    "adj": 0.009,
     "adj_ci": [
-     -0.007,
-     0.071
+     -0.04,
+     0.063
     ],
-    "share_remaining": 0.866
+    "share_remaining": 1.277
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter4": {
    "value": {
-    "raw": 0.062,
-    "explained": 0.024,
-    "adj": 0.038,
+    "raw": 0.02,
+    "explained": 0.022,
+    "adj": -0.003,
     "adj_ci": [
-     -0.001,
-     0.08
+     -0.061,
+     0.056
     ],
-    "share_remaining": 0.612
+    "share_remaining": -0.144
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter5": {
    "value": {
-    "raw": 0.056,
-    "explained": 0.047,
-    "adj": 0.009,
+    "raw": 0.035,
+    "explained": 0.041,
+    "adj": -0.006,
     "adj_ci": [
-     -0.032,
+     -0.059,
      0.047
     ],
-    "share_remaining": 0.158
+    "share_remaining": -0.172
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter6": {
    "value": {
-    "raw": 0.096,
-    "explained": 0.039,
-    "adj": 0.057,
+    "raw": 0.123,
+    "explained": 0.025,
+    "adj": 0.098,
     "adj_ci": [
-     0.011,
-     0.103
+     0.034,
+     0.163
     ],
-    "share_remaining": 0.596
+    "share_remaining": 0.798
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter7": {
    "value": {
-    "raw": 0.071,
-    "explained": 0.013,
-    "adj": 0.057,
+    "raw": 0.085,
+    "explained": 0.003,
+    "adj": 0.082,
     "adj_ci": [
-     0.019,
-     0.096
+     0.027,
+     0.138
     ],
-    "share_remaining": 0.809
+    "share_remaining": 0.962
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter8": {
    "value": {
-    "raw": 0.056,
-    "explained": -0.023,
-    "adj": 0.079,
+    "raw": 0.101,
+    "explained": -0.032,
+    "adj": 0.133,
     "adj_ci": [
-     0.035,
-     0.123
+     0.076,
+     0.192
     ],
-    "share_remaining": 1.42
+    "share_remaining": 1.321
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter9": {
    "value": {
-    "raw": 0.249,
-    "explained": 0.071,
-    "adj": 0.178,
+    "raw": 0.265,
+    "explained": 0.04,
+    "adj": 0.225,
     "adj_ci": [
-     0.112,
-     0.244
+     0.131,
+     0.32
     ],
-    "share_remaining": 0.715
+    "share_remaining": 0.848
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+len.iter10": {
    "value": {
-    "raw": 0.111,
-    "explained": -0.025,
-    "adj": 0.136,
+    "raw": 0.15,
+    "explained": -0.028,
+    "adj": 0.178,
     "adj_ci": [
-     0.09,
-     0.179
+     0.118,
+     0.235
     ],
-    "share_remaining": 1.225
+    "share_remaining": 1.188
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter1": {
    "value": {
-    "raw": -0.004,
-    "explained": 0.02,
-    "adj": -0.024,
+    "raw": -0.001,
+    "explained": 0.029,
+    "adj": -0.03,
     "adj_ci": [
-     -0.072,
-     0.024
+     -0.099,
+     0.042
     ],
-    "share_remaining": 6.418
+    "share_remaining": 29.277
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter2": {
    "value": {
-    "raw": 0.012,
-    "explained": 0.012,
-    "adj": -0.0,
+    "raw": 0.002,
+    "explained": 0.011,
+    "adj": -0.01,
     "adj_ci": [
-     -0.057,
-     0.058
+     -0.079,
+     0.063
     ],
-    "share_remaining": -0.023
+    "share_remaining": -6.154
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter3": {
    "value": {
-    "raw": 0.036,
-    "explained": 0.027,
-    "adj": 0.009,
+    "raw": 0.007,
+    "explained": 0.029,
+    "adj": -0.022,
     "adj_ci": [
-     -0.033,
-     0.053
+     -0.082,
+     0.035
     ],
-    "share_remaining": 0.253
+    "share_remaining": -3.065
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter4": {
    "value": {
-    "raw": 0.062,
-    "explained": 0.091,
-    "adj": -0.029,
+    "raw": 0.02,
+    "explained": 0.119,
+    "adj": -0.099,
     "adj_ci": [
-     -0.073,
-     0.019
+     -0.161,
+     -0.034
     ],
-    "share_remaining": -0.475
+    "share_remaining": -5.074
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter5": {
    "value": {
-    "raw": 0.056,
-    "explained": 0.074,
-    "adj": -0.018,
+    "raw": 0.035,
+    "explained": 0.079,
+    "adj": -0.044,
     "adj_ci": [
-     -0.059,
-     0.02
+     -0.106,
+     0.013
     ],
-    "share_remaining": -0.318
+    "share_remaining": -1.267
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter6": {
    "value": {
-    "raw": 0.096,
-    "explained": 0.118,
-    "adj": -0.023,
+    "raw": 0.123,
+    "explained": 0.139,
+    "adj": -0.016,
     "adj_ci": [
-     -0.074,
-     0.024
+     -0.086,
+     0.049
     ],
-    "share_remaining": -0.24
+    "share_remaining": -0.131
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter7": {
    "value": {
-    "raw": 0.071,
-    "explained": 0.129,
-    "adj": -0.058,
+    "raw": 0.085,
+    "explained": 0.168,
+    "adj": -0.083,
     "adj_ci": [
-     -0.107,
-     -0.013
+     -0.154,
+     -0.018
     ],
-    "share_remaining": -0.829
+    "share_remaining": -0.979
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter8": {
    "value": {
-    "raw": 0.056,
-    "explained": 0.138,
-    "adj": -0.083,
+    "raw": 0.101,
+    "explained": 0.198,
+    "adj": -0.098,
     "adj_ci": [
-     -0.137,
-     -0.032
+     -0.167,
+     -0.029
     ],
-    "share_remaining": -1.49
+    "share_remaining": -0.968
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter9": {
    "value": {
-    "raw": 0.249,
-    "explained": 0.223,
-    "adj": 0.027,
+    "raw": 0.265,
+    "explained": 0.256,
+    "adj": 0.009,
     "adj_ci": [
-     -0.047,
-     0.099
+     -0.097,
+     0.112
     ],
-    "share_remaining": 0.106
+    "share_remaining": 0.034
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.gpt-4o-mini.PCT.pooled.th+pt+len.iter10": {
    "value": {
-    "raw": 0.111,
-    "explained": 0.17,
-    "adj": -0.06,
+    "raw": 0.15,
+    "explained": 0.251,
+    "adj": -0.101,
     "adj_ci": [
-     -0.121,
-     -0.002
+     -0.184,
+     -0.028
     ],
-    "share_remaining": -0.536
+    "share_remaining": -0.678
    },
    "source": "tables/length_decomposition.md :: judge=gpt-4o-mini, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
@@ -5505,420 +5505,420 @@
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter1": {
    "value": {
-    "raw": -0.017,
-    "explained": 0.002,
-    "adj": -0.019,
+    "raw": 0.003,
+    "explained": 0.001,
+    "adj": 0.002,
     "adj_ci": [
-     -0.062,
-     0.024
+     -0.05,
+     0.054
     ],
-    "share_remaining": 1.1
+    "share_remaining": 0.539
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter2": {
    "value": {
-    "raw": 0.008,
-    "explained": 0.009,
-    "adj": -0.001,
+    "raw": 0.012,
+    "explained": 0.008,
+    "adj": 0.004,
     "adj_ci": [
-     -0.05,
-     0.046
+     -0.054,
+     0.062
     ],
-    "share_remaining": -0.177
+    "share_remaining": 0.336
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter3": {
    "value": {
-    "raw": 0.022,
-    "explained": 0.017,
-    "adj": 0.005,
+    "raw": 0.015,
+    "explained": 0.015,
+    "adj": -0.0,
     "adj_ci": [
-     -0.031,
-     0.042
+     -0.044,
+     0.046
     ],
-    "share_remaining": 0.236
+    "share_remaining": -0.012
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter4": {
    "value": {
-    "raw": 0.065,
-    "explained": 0.019,
-    "adj": 0.047,
+    "raw": 0.062,
+    "explained": 0.016,
+    "adj": 0.046,
     "adj_ci": [
-     0.011,
-     0.084
+     0.001,
+     0.091
     ],
-    "share_remaining": 0.715
+    "share_remaining": 0.738
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter5": {
    "value": {
-    "raw": 0.067,
-    "explained": 0.043,
-    "adj": 0.025,
+    "raw": 0.064,
+    "explained": 0.038,
+    "adj": 0.026,
     "adj_ci": [
-     -0.015,
-     0.066
+     -0.022,
+     0.075
     ],
-    "share_remaining": 0.367
+    "share_remaining": 0.413
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter6": {
    "value": {
-    "raw": 0.123,
-    "explained": 0.052,
-    "adj": 0.071,
+    "raw": 0.11,
+    "explained": 0.046,
+    "adj": 0.064,
     "adj_ci": [
-     0.018,
-     0.123
+     0.004,
+     0.126
     ],
-    "share_remaining": 0.578
+    "share_remaining": 0.584
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter7": {
    "value": {
-    "raw": 0.085,
-    "explained": 0.029,
-    "adj": 0.056,
+    "raw": 0.1,
+    "explained": 0.026,
+    "adj": 0.075,
     "adj_ci": [
-     0.017,
-     0.096
+     0.026,
+     0.121
     ],
-    "share_remaining": 0.656
+    "share_remaining": 0.745
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter8": {
    "value": {
-    "raw": 0.104,
-    "explained": 0.004,
-    "adj": 0.1,
+    "raw": 0.099,
+    "explained": 0.003,
+    "adj": 0.096,
     "adj_ci": [
-     0.057,
-     0.145
+     0.042,
+     0.15
     ],
-    "share_remaining": 0.965
+    "share_remaining": 0.968
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter9": {
    "value": {
-    "raw": 0.291,
-    "explained": 0.107,
-    "adj": 0.184,
+    "raw": 0.284,
+    "explained": 0.094,
+    "adj": 0.189,
     "adj_ci": [
-     0.111,
-     0.257
+     0.108,
+     0.271
     ],
-    "share_remaining": 0.632
+    "share_remaining": 0.668
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th.iter10": {
    "value": {
-    "raw": 0.113,
-    "explained": -0.01,
-    "adj": 0.122,
+    "raw": 0.157,
+    "explained": -0.008,
+    "adj": 0.166,
     "adj_ci": [
-     0.082,
-     0.162
+     0.115,
+     0.217
     ],
-    "share_remaining": 1.085
+    "share_remaining": 1.054
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter1": {
    "value": {
-    "raw": -0.017,
-    "explained": -0.01,
-    "adj": -0.007,
+    "raw": 0.003,
+    "explained": -0.009,
+    "adj": 0.012,
     "adj_ci": [
-     -0.057,
-     0.04
+     -0.046,
+     0.067
     ],
-    "share_remaining": 0.435
+    "share_remaining": 4.078
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter2": {
    "value": {
-    "raw": 0.008,
-    "explained": 0.011,
-    "adj": -0.003,
+    "raw": 0.012,
+    "explained": 0.01,
+    "adj": 0.002,
     "adj_ci": [
-     -0.06,
-     0.051
+     -0.064,
+     0.069
     ],
-    "share_remaining": -0.388
+    "share_remaining": 0.204
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter3": {
    "value": {
-    "raw": 0.022,
-    "explained": 0.001,
-    "adj": 0.021,
+    "raw": 0.015,
+    "explained": -0.001,
+    "adj": 0.016,
     "adj_ci": [
-     -0.02,
-     0.063
+     -0.033,
+     0.068
     ],
-    "share_remaining": 0.944
+    "share_remaining": 1.065
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter4": {
    "value": {
-    "raw": 0.065,
-    "explained": 0.03,
-    "adj": 0.036,
+    "raw": 0.062,
+    "explained": 0.027,
+    "adj": 0.035,
     "adj_ci": [
-     -0.004,
-     0.077
+     -0.014,
+     0.086
     ],
-    "share_remaining": 0.546
+    "share_remaining": 0.562
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter5": {
    "value": {
-    "raw": 0.067,
-    "explained": 0.056,
-    "adj": 0.012,
+    "raw": 0.064,
+    "explained": 0.051,
+    "adj": 0.013,
     "adj_ci": [
-     -0.032,
-     0.054
+     -0.039,
+     0.066
     ],
-    "share_remaining": 0.173
+    "share_remaining": 0.209
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter6": {
    "value": {
-    "raw": 0.123,
-    "explained": 0.04,
-    "adj": 0.084,
+    "raw": 0.11,
+    "explained": 0.033,
+    "adj": 0.077,
     "adj_ci": [
-     0.028,
-     0.137
+     0.013,
+     0.141
     ],
-    "share_remaining": 0.679
+    "share_remaining": 0.701
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter7": {
    "value": {
-    "raw": 0.085,
-    "explained": 0.01,
-    "adj": 0.075,
+    "raw": 0.1,
+    "explained": 0.006,
+    "adj": 0.094,
     "adj_ci": [
-     0.032,
-     0.118
+     0.039,
+     0.145
     ],
-    "share_remaining": 0.883
+    "share_remaining": 0.939
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter8": {
    "value": {
-    "raw": 0.104,
-    "explained": -0.036,
-    "adj": 0.14,
+    "raw": 0.099,
+    "explained": -0.037,
+    "adj": 0.136,
     "adj_ci": [
-     0.093,
-     0.188
+     0.075,
+     0.199
     ],
-    "share_remaining": 1.352
+    "share_remaining": 1.373
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter9": {
    "value": {
-    "raw": 0.291,
-    "explained": 0.069,
-    "adj": 0.222,
+    "raw": 0.284,
+    "explained": 0.055,
+    "adj": 0.228,
     "adj_ci": [
      0.146,
-     0.298
+     0.311
     ],
-    "share_remaining": 0.763
+    "share_remaining": 0.805
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+len.iter10": {
    "value": {
-    "raw": 0.113,
-    "explained": -0.034,
-    "adj": 0.147,
+    "raw": 0.157,
+    "explained": -0.033,
+    "adj": 0.19,
     "adj_ci": [
-     0.104,
-     0.189
+     0.139,
+     0.244
     ],
-    "share_remaining": 1.304
+    "share_remaining": 1.211
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter1": {
    "value": {
-    "raw": -0.017,
-    "explained": 0.025,
-    "adj": -0.042,
+    "raw": 0.003,
+    "explained": 0.032,
+    "adj": -0.029,
     "adj_ci": [
-     -0.095,
-     0.011
+     -0.089,
+     0.032
     ],
-    "share_remaining": 2.461
+    "share_remaining": -10.118
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=1",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter2": {
    "value": {
-    "raw": 0.008,
-    "explained": 0.014,
-    "adj": -0.006,
+    "raw": 0.012,
+    "explained": 0.013,
+    "adj": -0.001,
     "adj_ci": [
-     -0.063,
-     0.051
+     -0.07,
+     0.066
     ],
-    "share_remaining": -0.831
+    "share_remaining": -0.114
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=2",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter3": {
    "value": {
-    "raw": 0.022,
-    "explained": 0.03,
-    "adj": -0.008,
+    "raw": 0.015,
+    "explained": 0.031,
+    "adj": -0.016,
     "adj_ci": [
-     -0.054,
-     0.039
+     -0.072,
+     0.041
     ],
-    "share_remaining": -0.373
+    "share_remaining": -1.082
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=3",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter4": {
    "value": {
-    "raw": 0.065,
-    "explained": 0.118,
-    "adj": -0.053,
+    "raw": 0.062,
+    "explained": 0.127,
+    "adj": -0.065,
     "adj_ci": [
-     -0.101,
-     -0.003
+     -0.122,
+     -0.008
     ],
-    "share_remaining": -0.815
+    "share_remaining": -1.034
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=4",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter5": {
    "value": {
-    "raw": 0.067,
-    "explained": 0.091,
-    "adj": -0.023,
+    "raw": 0.064,
+    "explained": 0.09,
+    "adj": -0.026,
     "adj_ci": [
-     -0.072,
-     0.02
+     -0.084,
+     0.029
     ],
-    "share_remaining": -0.347
+    "share_remaining": -0.406
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=5",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter6": {
    "value": {
-    "raw": 0.123,
-    "explained": 0.145,
-    "adj": -0.021,
+    "raw": 0.11,
+    "explained": 0.151,
+    "adj": -0.04,
     "adj_ci": [
-     -0.081,
-     0.035
+     -0.109,
+     0.023
     ],
-    "share_remaining": -0.173
+    "share_remaining": -0.367
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=6",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter7": {
    "value": {
-    "raw": 0.085,
-    "explained": 0.162,
-    "adj": -0.077,
+    "raw": 0.1,
+    "explained": 0.177,
+    "adj": -0.076,
     "adj_ci": [
-     -0.136,
-     -0.023
+     -0.144,
+     -0.017
     ],
-    "share_remaining": -0.913
+    "share_remaining": -0.758
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=7",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter8": {
    "value": {
-    "raw": 0.104,
-    "explained": 0.176,
-    "adj": -0.073,
+    "raw": 0.099,
+    "explained": 0.201,
+    "adj": -0.102,
     "adj_ci": [
-     -0.131,
-     -0.016
+     -0.172,
+     -0.033
     ],
-    "share_remaining": -0.701
+    "share_remaining": -1.025
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=8",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter9": {
    "value": {
-    "raw": 0.291,
-    "explained": 0.268,
-    "adj": 0.023,
+    "raw": 0.284,
+    "explained": 0.279,
+    "adj": 0.005,
     "adj_ci": [
-     -0.062,
-     0.103
+     -0.089,
+     0.097
     ],
-    "share_remaining": 0.078
+    "share_remaining": 0.017
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=9",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"
   },
   "length_dec.GRPO.claude-haiku-4-5.PCT.pooled.th+pt+len.iter10": {
    "value": {
-    "raw": 0.113,
-    "explained": 0.223,
-    "adj": -0.11,
+    "raw": 0.157,
+    "explained": 0.255,
+    "adj": -0.098,
     "adj_ci": [
-     -0.177,
-     -0.052
+     -0.169,
+     -0.03
     ],
-    "share_remaining": -0.979
+    "share_remaining": -0.624
    },
    "source": "tables/length_decomposition.md :: judge=claude-haiku-4-5, metric=PCT, slope=pooled, covariates=th+pt+len, iteration=10",
    "note": "K5 - K0; within-state slope (state fixed effects); persona bootstrap CI"

@@ -34,7 +34,7 @@
    "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
   },
   "final.PTO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.63,
+   "value": 0.615,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
   },
@@ -42,6 +42,11 @@
    "value": 0.491,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "final.PTO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.228,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on gpt-4o-mini; higher = better"
   },
   "final.PTO_K0.Reflection:Question (MITI)": {
    "value": 0.75,
@@ -89,7 +94,7 @@
    "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
   },
   "final.PTO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.638,
+   "value": 0.676,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
   },
@@ -97,6 +102,11 @@
    "value": 0.264,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "final.PTO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.338,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on gpt-4o-mini; higher = better"
   },
   "final.PTO_K5.Reflection:Question (MITI)": {
    "value": 0.951,
@@ -144,7 +154,7 @@
    "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
   },
   "final.GRPO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.574,
+   "value": 0.583,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
   },
@@ -152,6 +162,11 @@
    "value": 0.838,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "final.GRPO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.122,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
   },
   "final.GRPO_K0.Reflection:Question (MITI)": {
    "value": 1.435,
@@ -199,7 +214,7 @@
    "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
   },
   "final.GRPO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.685,
+   "value": 0.732,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
   },
@@ -207,6 +222,11 @@
    "value": 0.21,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "final.GRPO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.595,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
   },
   "final.GRPO_K5.Reflection:Question (MITI)": {
    "value": 1.114,
@@ -254,7 +274,7 @@
    "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
   },
   "best.PTO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.63,
+   "value": 0.615,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
   },
@@ -262,6 +282,11 @@
    "value": 0.491,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "best.PTO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.228,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on gpt-4o-mini; higher = better"
   },
   "best.PTO_K0.Reflection:Question (MITI)": {
    "value": 0.75,
@@ -309,7 +334,7 @@
    "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
   },
   "best.PTO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.638,
+   "value": 0.676,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
   },
@@ -317,6 +342,11 @@
    "value": 0.264,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "best.PTO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.338,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on gpt-4o-mini; higher = better"
   },
   "best.PTO_K5.Reflection:Question (MITI)": {
    "value": 0.951,
@@ -364,7 +394,7 @@
    "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
   },
   "best.GRPO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.572,
+   "value": 0.577,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
   },
@@ -372,6 +402,11 @@
    "value": 0.535,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=0) on gpt-4o-mini; lower = better"
+  },
+  "best.GRPO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.111,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on gpt-4o-mini; higher = better"
   },
   "best.GRPO_K0.Reflection:Question (MITI)": {
    "value": 1.043,
@@ -419,7 +454,7 @@
    "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
   },
   "best.GRPO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.685,
+   "value": 0.732,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
   },
@@ -427,6 +462,11 @@
    "value": 0.21,
    "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=5) on gpt-4o-mini; lower = better"
+  },
+  "best.GRPO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.595,
+   "source": "tables/gpt-4o-mini/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on gpt-4o-mini; higher = better"
   },
   "best.GRPO_K5.Reflection:Question (MITI)": {
    "value": 1.114,

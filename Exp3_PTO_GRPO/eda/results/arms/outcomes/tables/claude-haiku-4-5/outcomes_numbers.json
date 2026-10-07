@@ -34,7 +34,7 @@
    "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
   },
   "final.PTO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.633,
+   "value": 0.613,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
   },
@@ -42,6 +42,11 @@
    "value": 0.825,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "final.PTO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.266,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
   },
   "final.PTO_K0.Reflection:Question (MITI)": {
    "value": 1.227,
@@ -89,7 +94,7 @@
    "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
   },
   "final.PTO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.685,
+   "value": 0.68,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
   },
@@ -97,6 +102,11 @@
    "value": 0.581,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of PTO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "final.PTO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.443,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
   },
   "final.PTO_K5.Reflection:Question (MITI)": {
    "value": 1.175,
@@ -144,7 +154,7 @@
    "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
   },
   "final.GRPO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.612,
+   "value": 0.58,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
   },
@@ -152,6 +162,11 @@
    "value": 1.05,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "final.GRPO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.177,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
   },
   "final.GRPO_K0.Reflection:Question (MITI)": {
    "value": 1.47,
@@ -199,7 +214,7 @@
    "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
   },
   "final.GRPO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.725,
+   "value": 0.738,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
   },
@@ -207,6 +222,11 @@
    "value": 0.628,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "final.GRPO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.802,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "final iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
   },
   "final.GRPO_K5.Reflection:Question (MITI)": {
    "value": 1.56,
@@ -254,7 +274,7 @@
    "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
   },
   "best.PTO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.638,
+   "value": 0.635,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
   },
@@ -262,6 +282,11 @@
    "value": 0.747,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "best.PTO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.208,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=0) on claude-haiku-4-5; higher = better"
   },
   "best.PTO_K0.Reflection:Question (MITI)": {
    "value": 0.905,
@@ -309,7 +334,7 @@
    "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
   },
   "best.PTO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.613,
+   "value": 0.597,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
   },
@@ -317,6 +342,11 @@
    "value": 0.581,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of PTO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "best.PTO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.266,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of PTO (K=5) on claude-haiku-4-5; higher = better"
   },
   "best.PTO_K5.Reflection:Question (MITI)": {
    "value": 0.827,
@@ -364,7 +394,7 @@
    "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
   },
   "best.GRPO_K0.PCT (Patient Change-Talk)": {
-   "value": 0.601,
+   "value": 0.602,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
   },
@@ -372,6 +402,11 @@
    "value": 0.407,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; lower = better"
+  },
+  "best.GRPO_K0.MIPROC %CR (MI process coder)": {
+   "value": 0.285,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=0) on claude-haiku-4-5; higher = better"
   },
   "best.GRPO_K0.Reflection:Question (MITI)": {
    "value": 0.423,
@@ -419,7 +454,7 @@
    "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
   },
   "best.GRPO_K5.PCT (Patient Change-Talk)": {
-   "value": 0.668,
+   "value": 0.676,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
   },
@@ -427,6 +462,11 @@
    "value": 0.58,
    "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
    "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; lower = better"
+  },
+  "best.GRPO_K5.MIPROC %CR (MI process coder)": {
+   "value": 0.625,
+   "source": "tables/claude-haiku-4-5/leaderboard_scorecard.md",
+   "note": "best iteration of GRPO (K=5) on claude-haiku-4-5; higher = better"
   },
   "best.GRPO_K5.Reflection:Question (MITI)": {
    "value": 0.929,

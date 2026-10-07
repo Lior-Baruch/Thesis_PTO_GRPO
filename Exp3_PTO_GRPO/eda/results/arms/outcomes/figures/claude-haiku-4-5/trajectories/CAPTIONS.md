@@ -1,6 +1,7 @@
 - **trajectory_CSQ-8** — CSQ-8 (Client Satisfaction) across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
 - **trajectory_MI-SAT** — MI-SAT (MI Satisfaction) across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
 - **trajectory_MICI** — MICI (MI-Inconsistency) ↓ across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; lower = better; no peak flag on a lower-is-better metric. 
+- **trajectory_MIPROC** — MIPROC %CR (MI process coder) across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
 - **trajectory_MITI** — MITI (MI Integrity) across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
 - **trajectory_PCT** — PCT (Patient Change-Talk) across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
 - **trajectory_Q1** — Q1 across iterations per arm on claude-haiku-4-5 (mean +/- 95% CI, N=96 personas), all four arms; dotted vline flags a peak that precedes the final iteration (regression). 
