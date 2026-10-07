@@ -148,17 +148,17 @@ the training reward at the minimum prefix agrees in $86$--$89\%$ of pairs.
 \subsection{Evaluation design}
 \label{sec:setup}
 
-\textbf{Instruments.} Evaluation uses eight instruments, each administered by an LLM judge shown
+\textbf{Instruments.} Evaluation uses eight instruments, each scored by an LLM judge from
 the full transcript (Table~\ref{tab:instruments}; items and prompts in
 Appendix~\ref{app:instruments}). Q1 and Q2 are the
 LLM-evaluator questionnaires of \citet{yosef2024assessing}, 5 and 17 patient-perspective Likert
 items on session satisfaction and on alliance and relational communication, shown there to
 separate levels of therapist expertise. WAI-SR \citep{hatcher2006waisr} and
 CSQ-8 \citep{larsen1979csq} are published patient-report instruments, and MI-SAT is a six-item
-intervention-satisfaction survey adapted for this task. The other three are coders: a
-MITI~4.2.1-style coder \citep{moyers2016miti4,moyers2016miti} whose four global ratings are averaged; a patient
-change-talk coder (PCT; the share of change talk among change and sustain talk, the patient-side
-outcome MI aims at); and an MI-inconsistent-behavior coder that counts acts (MICI; acts per therapist turn,
+intervention-satisfaction survey adapted for this task. The other three code behavior: a
+MITI~4.2.1-style coder \citep{moyers2016miti4,moyers2016miti} whose four global ratings are averaged; patient
+change talk (PCT; the share of change talk among change and sustain talk in the utterance coder's
+patient codes below, the patient-side outcome MI aims at); and an MI-inconsistent-behavior coder that counts acts (MICI; acts per therapist turn,
 lower is better). PCT and MICI adapt the client codes and the MI-inconsistent codes of the MISC~2.5
 \citep{houck2010misc} (Appendix~\ref{app:instruments}). \QQ\ is thus both the optimization target and a reported outcome; the six
 instruments outside the reward and a held-out judge (below) are the checks on it.
@@ -181,8 +181,8 @@ Because the codes are in transcript order, we can
 read, for every therapist utterance, what the patient said in reply, and follow how a session
 develops.
 
-\textbf{Judges.} Two LLMs score the conversations, and each does two jobs: it fills in the eight
-instruments for a whole conversation, and it runs the utterance coder. The \textbf{training
+\textbf{Judges.} Two LLMs score the conversations, and each does two jobs: it fills in the
+instruments for a whole conversation, and it runs the utterance coder, which also gives PCT. The \textbf{training
 oracle} (\primaryjudge, which also plays the patient and gave the training reward) is the main
 judge: the results in the body are its readings. The \textbf{held-out judge} (\heldoutjudge, a
 different model family that never touched training) re-scores everything as a check; the body
