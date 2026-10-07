@@ -22,10 +22,10 @@ over longer interaction trajectories \citep{shani2024multiturn}. More recent wor
 model-generated interaction directly, through imagined conversations
 \citep{hong2023imagined}, role-played social interaction \citep{wang2024sotopiapi},
 simulated users \citep{qian2025userrl}, regression onto future rewards
-\citep{gao2024refuel}, or training-time critics with access to subsequent interaction
-\citep{zhou2025sweetrl}. Related GRPO methods assign credit using later user turns
-\citep{zhao2026faca} or aggregate rewards over future branches of a dialogue
-\citep{peng2026atgrpo}, and Sotopia-RL \citep{yu2025sotopiarl} refines episode-level
+\citep{gao2024refuel}, or training-time critics with access to privileged information the policy
+does not see, such as the reference solution \citep{zhou2025sweetrl}. Related GRPO methods assign
+credit using later user turns \citep{zhao2026faca} or aggregate a user simulator's turn rewards
+over a tree of future branches \citep{peng2026atgrpo}, and Sotopia-RL \citep{yu2025sotopiarl} refines episode-level
 feedback on social interactions into utterance-level rewards. For search and game agents,
 \citet{wei2025multiturn} add to each turn's advantage the discounted advantages of later turns and
 of the final outcome, and report that training on turns as independent examples reached high
@@ -43,12 +43,19 @@ the future trajectory is jointly produced by the policy and another agent, so th
 consequences of a candidate action include how the interlocutor responds. CollabLLM
 \citep{wu2025collabllm} uses this in training: it rewards an assistant's response by sampling the
 next few turns with a simulated user and scoring the extended conversation, and trains with PPO and
-DPO. RLHS \citep{liang2025rlhs} shows evaluators simulated outcomes before they give feedback and
-reports less sycophancy than with feedback on predicted outcomes. A preliminary
-workshop paper introduced $K$-turn look-ahead for motivational interviewing
+DPO; in its ablation on a document-editing task, longer forward windows (zero to three turns)
+generally improved performance and efficiency. RLHS \citep{liang2025rlhs} shows evaluators simulated outcomes before they give
+feedback, and reports that this raised the user's true utility where feedback on predicted outcomes
+raised satisfaction while true utility fell. RLFF-ESC \citep{yang2025rlffesc} simulates future turns
+of emotional-support conversations, trains a reward model on how they turn out, and optimizes the
+supporter against it with GRPO.
+% 2026-10-07 (review round 4): "A preliminary workshop paper" -> "A workshop paper"; the closing
+% sentence gains what is new here. Before: "... or for the interaction that follows it."
+A workshop paper introduced $K$-turn look-ahead for motivational interviewing
 \citep{baruch2025pto}. Here we isolate the same underlying variable in GRPO:
 whether a candidate therapist turn is rewarded for how it appears now or for the interaction
-that follows it.
+that follows it, in two runs that differ in nothing else, and we ask what each horizon teaches at
+the level of single utterances.
 
 \textbf{Reward models and LLM judges.}
 Optimizing a learned or otherwise imperfect proxy can produce behavior that scores well
@@ -95,7 +102,11 @@ simulated interaction the reward can observe while holding the judge fixed.
 % J-Zero \citep{chu2026jzero} updates a task-generating Challenger, a responding Solver, and a Judge in the same loop. It reports continued gains across ten iterations, including on general open-ended instruction following and creative-writing benchmarks. These results suggest that an adaptive judge can remain useful as the generator improves. They do not, however, test psychological role-play or whether rewards assigned to individual responses improve the course of a full conversation. Our study addresses the latter question by changing how far into the simulated interaction the reward can observe while holding the judge fixed.
 
 \textbf{Motivational interviewing.}
-Motivational interviewing (MI) \citep{miller1991mi} is particularly useful for studying
+% 2026-10-07 (review round 4): MI is already expanded in the Introduction; MIThinker described as it
+% is (GRPO on dataset turns) and TherapyGym added. Before: "Motivational interviewing (MI)
+% \citep{miller1991mi} ..."; "Recent work also trains LLM counselors or clinicians through
+% reinforcement learning against simulated patients \citep{yang2026mithinker, lievin2026residencyrl}."
+MI \citep{miller1991mi} is particularly useful for studying
 temporal credit because therapist behavior is evaluated partly through what it elicits from
 the patient. MI aims to cultivate \emph{change talk}, the patient's own language in favor
 of change, while reducing or productively responding to \emph{sustain talk}
@@ -110,9 +121,10 @@ expert-annotated counseling corpora \citep{wu2022annomi}, detection and scoring 
 reflections \citep{can2016sounds, min2022pair}, automatic measures of
 counseling quality \citep{perezrosas2019goodcounselor, yosef2024assessing}, and simulated
 patients for training counselors and clinicians
-\citep{steenstra2025scaffolding, wang2024patientpsi}. Recent work also trains LLM
-counselors or clinicians through reinforcement learning against simulated patients
-\citep{yang2026mithinker, lievin2026residencyrl}. Studies of LLM therapists suggest that
+\citep{steenstra2025scaffolding, wang2024patientpsi}. Recent work trains an LLM counselor's
+reasoning with GRPO on single counselor turns drawn from a dataset \citep{yang2026mithinker}, or
+trains therapists and clinicians against simulated patients with one reward for the whole session
+\citep{huang2026therapygym, lievin2026residencyrl}. Studies of LLM therapists suggest that
 their behavior can differ systematically from expert counseling practice, for example by
 advising in contexts where an MI counselor would be more likely to reflect
 \citep{chiu2024bolt}. These properties make MI a useful test case for reward horizon:
