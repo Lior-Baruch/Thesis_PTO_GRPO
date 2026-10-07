@@ -57,7 +57,8 @@ __all__ = [
     "significant_iterations", "score_table", "gains", "coop_strata", "process_tables", "text_tables",
     "marker_and_length", "cap_hits_by_state", "marker_leaks_by_state", "sd_tables", "sd_trend", "agreement_by_state", "agreement_summary",
     "state_pair_contrasts", "judge_offset", "shared_base_numbers",
-    "PROCESS_TABLE3", "process_measures_long", "k_trajectory", "base_draws", "base_draws_summary",
+    "PROCESS_TABLE3", "process_measures_long", "k_trajectory", "anchor_contrasts", "base_draws",
+    "base_draws_summary",
     "robustness_numbers",
 ]
 
@@ -689,6 +690,61 @@ def k_trajectory(sc: Mapping[str, pd.DataFrame], metrics: Sequence[str] = RUBRIC
     if not rows:
         return pd.DataFrame(columns=cols)
     out = holm_within(pd.DataFrame(rows), ["judge", "window"], "p", "p_holm")
+    out["sig"] = out["p_holm"].map(stars)
+    out["better"] = [_better_delta(m, d) for m, d in zip(out["metric"], out["delta_K5_minus_K0"])]
+    return out[cols]
+
+
+def anchor_contrasts(sc: Mapping[str, pd.DataFrame], metrics: Sequence[str] = RUBRICS, *,
+                     method: str = "GRPO", anchor_metric: str = "Q1Q2",
+                     select_judge: Optional[str] = None, best_k0: Optional[int] = None) -> pd.DataFrame:
+    """The final K=5 policy against the K=0 run at TWO anchors, one row per (judge, anchor, metric):
+    the paper's endpoint tables (Lior, 2026-10-07: "a table of the best iterations, 8 and 10").
+
+    Anchors as :func:`gains`: ``last`` = both runs at their last iteration; ``best_K0`` = the K=0
+    run at its best trained iteration on ``anchor_metric`` under ``select_judge`` (default the
+    mapping's first key, the training oracle), read at that SAME iteration under every judge, the
+    K=5 run still at its last. ``best_k0`` overrides the selection — pass it for frames without
+    ``anchor_metric`` (the process measures of :func:`process_measures_long`), so they are read at
+    the same checkpoint as the instruments.
+
+    Persona-paired, in the paper's sign (``delta_K5_minus_K0``, ``dz_K5_minus_K0``, CI = 95%
+    percentile bootstrap over the persona deltas, ``BOOT_SEED``); ``mean_K0`` / ``mean_K5`` over the
+    paired personas (a conditional process measure pairs only the personas with that patient code
+    under both runs). ``p`` = Wilcoxon; ``p_holm`` = Holm across ``metrics`` within (judge, anchor)
+    — the family of the paper's endpoint table rows, NOT the iterations family of
+    :func:`k_contrast` (whose iteration-10 row has the same dz but a different p_holm).
+    ``better`` reads the sign through lower-is-better. Works on raw or :func:`share_base` frames
+    (no Base is read)."""
+    a0, a5 = f"{method}_LA0", f"{method}_LA5"
+    sel = select_judge if select_judge is not None else next(iter(sc))
+    best0 = int(best_k0) if best_k0 is not None else best_iteration(sc[sel], a0, anchor_metric)
+    if best0 < 1:
+        raise ValueError(f"no best_K0 iteration on {anchor_metric!r} under {sel!r}: pass best_k0")
+    rows = []
+    for j, f in sc.items():
+        last0 = int(f.loc[f["arm"] == a0, "iteration"].max())
+        last5 = int(f.loc[f["arm"] == a5, "iteration"].max())
+        for anchor, it0 in (("last", last0), ("best_K0", best0)):
+            c0, c5 = model_name(method, 0, it0), model_name(method, 5, last5)
+            for m in metrics:
+                W = wide_by_persona(f, m)
+                if W.empty or c0 not in W.columns or c5 not in W.columns:
+                    continue
+                P = W[[c0, c5]].dropna()
+                r = paired_arrays(P[c5].to_numpy(), P[c0].to_numpy())
+                rows.append({"judge": j, "method": method, "anchor": anchor, "iter_K0": it0,
+                             "iter_K5": last5, "metric": m, "n": r["n"],
+                             "mean_K0": float(P[c0].mean()), "mean_K5": float(P[c5].mean()),
+                             "delta_K5_minus_K0": r["mean_delta"], "dz_K5_minus_K0": r["dz"],
+                             "ci_lo_K5_minus_K0": r["ci_lo"], "ci_hi_K5_minus_K0": r["ci_hi"],
+                             "p": r["p"]})
+    cols = ["judge", "method", "anchor", "iter_K0", "iter_K5", "metric", "n", "mean_K0", "mean_K5",
+            "delta_K5_minus_K0", "dz_K5_minus_K0", "ci_lo_K5_minus_K0", "ci_hi_K5_minus_K0", "p",
+            "p_holm", "sig", "better"]
+    if not rows:
+        return pd.DataFrame(columns=cols)
+    out = holm_within(pd.DataFrame(rows), ["judge", "anchor"], "p", "p_holm")
     out["sig"] = out["p_holm"].map(stars)
     out["better"] = [_better_delta(m, d) for m, d in zip(out["metric"], out["delta_K5_minus_K0"])]
     return out[cols]
