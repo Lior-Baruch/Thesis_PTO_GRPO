@@ -12,23 +12,23 @@ a simulated patient who is ambivalent about a health behavior.
 % clauses were rewritten for this study; Appendix D.4 quotes them).
 The patient is simulated by
 \texttt{gpt-4o-mini} conditioned on one of \textbf{96} persona system prompts, the exhaustive
-enumeration of $2\ \text{gender} \times 3\ \text{cooperation} \times 2\ \text{problem} \times
-2\ \text{duration} \times 2\ \text{prior attempts} \times 2\ \text{age}$ of
+enumeration of 2~gender~$\times$ 3~cooperation~$\times$ 2~problem~$\times$
+2~duration~$\times$ 2~prior~attempts~$\times$ 2~age of
 \citet{yosef2024assessing}, as used in \citet{baruch2025pto} but with the two uncooperative clauses
 rewritten here to make the patient more adversarial (Appendix~\ref{app:prompts}). A session ends
-when the patient closes it or at 50 utterances (the untrained therapist's sessions average
+when either speaker closes it or at 50 utterances (the untrained therapist's sessions average
 28.5). The therapist is the
 pretrained, not instruction-tuned, \texttt{Llama-3.2-1B} under a fixed counselor system prompt,
 trained with LoRA adapters, responses capped at 200 tokens (all setting parameters in
-Table~\ref{tab:config}). The oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
+Table~\ref{tab:config}). The training oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
 output; the \emph{training} reward is the mean of two of the evaluation instruments, Q1 and Q2,
 written \QQ\ (\S\ref{sec:setup}).
 
 % 2026-10-07 (review round 4, Lior): "Why MI" reduced to the term definitions (the motivation is
 % the Introduction's); the Q1+Q2 justification moved into the Instruments paragraph.
-\textbf{MI terms.} MI's target outcome is \emph{change talk}, the patient's own statements in favor
+\textbf{MI terms.} MI's in-session target is \emph{change talk}, the patient's own statements in favor
 of change (``I guess it would feel like a relief not to be chained to it''), as against
-\emph{sustain talk}, statements in favor of the status quo (``I like my routine'')
+\emph{sustain talk}, statements in favor of the status quo (``I like my routine''; both from our simulated patients)
 \citep{miller2013mi, moyers2016miti}. The therapist's tools are open
 questions, \emph{affirmations} (comments on a specific strength or effort of the patient) and
 \emph{reflections}, which restate what the patient said (\emph{simple}) or add meaning to it, such
@@ -37,11 +37,11 @@ as an inferred feeling (\emph{complex}).
 \subsection{GRPO with look-ahead}
 \label{sec:lagrpo}
 
-A \emph{turn} is one utterance by either speaker, a \emph{prefix} $c$ a transcript ending on a
+A \emph{turn} is one utterance by either speaker, a \emph{prefix} $c$ is a transcript ending on a
 patient turn, $\oplus$ appends turns, $\pi_n$ is the policy after $n$ iterations ($\pi_0$, the
-untrained model, is the \emph{Base}) and $\pi$ the policy being updated ($\pi = \pi_n$ at the start
-of an iteration). The patient simulator $P$ and the oracle $O$ are fixed LLMs, $O$ returning a
-scalar MI score. Figure~\ref{fig:schematic} shows one group; Algorithm~\ref{alg:loop}
+untrained model, is the \emph{Base}) and $\pi$ is the policy being updated ($\pi = \pi_n$ at the start
+of an iteration). The patient simulator $P$ and the oracle $O$ are fixed LLMs, $O$ scoring a
+transcript on \QQ. Figure~\ref{fig:schematic} shows one group; Algorithm~\ref{alg:loop}
 (Appendix~\ref{app:repro}) states the whole loop.
 
 % 2026-10-07 (review round 4, Lior): Figure 1 at column width; Algorithm 1 moved to Appendix D.
@@ -55,9 +55,9 @@ no rollout turn, carries a gradient.}
 \label{fig:schematic}
 \end{figure}
 
-\textbf{The iterative loop.} Each iteration starts from $\pi_n$, which has 96 conversations with
+\textbf{The iterative loop.} Iteration $n{+}1$ starts from $\pi_n$, which has 96 conversations with
 $P$, one per persona; each is sliced after every patient turn whose prefix has at least MCL
-utterances (the \emph{minimum context length}, 12; see below) to form the training prompts, with $5\%$
+utterances (the \emph{minimum conversation length}, 12; see below) to form the training prompts, with $5\%$
 of conversations held out for validation. For each prompt GRPO samples $G{=}8$ completions; the
 policy takes one optimizer step per batch of 16 prompts (128 completions), and after two epochs it
 is saved as $\pi_{n+1}$. The conversations that start an iteration are the evaluation set of
@@ -69,8 +69,8 @@ $\pi_n$, and the Base pools the two runs' iteration-0 conversations (192).
 The two runs differ in one design choice: whether a candidate turn is
 rolled forward by a simulated $K$-turn look-ahead before it is scored, and hence which transcript
 the oracle rewards. Let $\tau_K(x)$ be the $K$-turn rollout of a transcript $x$: $P$ replies, then
-$\pi$, then $P$, and so on for $K$ turns, stopping early if the patient closes the session;
-$\tau_0(x)$ is empty. Then
+$\pi$, then $P$, and so on for $K$ turns, stopping early if either speaker closes the session
+(Appendix~\ref{app:rollouts}); $\tau_0(x)$ is empty. Then
 \begin{equation}
 \label{eq:reward}
 r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
@@ -84,21 +84,22 @@ distribution of continuations, so $r_g$ is a one-sample Monte Carlo estimate of 
 downstream value, with sampling noise from $P$ and $\pi$ added to the oracle's own; GRPO trains on
 all $G$ candidates, so that variance enters every advantage.
 
-\textbf{The update.} The step maximizes the GRPO objective of \citet{shao2024deepseekmath}: the
-per-token surrogate
+\textbf{The update.} The step maximizes the per-token GRPO surrogate of
+\citet{shao2024deepseekmath},
 \begin{equation}
 \label{eq:grpo}
 \ell_{g,i} = \min(\rho_{g,i} A_g,\,\bar{\rho}_{g,i} A_g) - \beta\,\mathrm{KL}_{g,i},
 \end{equation}
-averaged over tokens and the group ($\rho_{g,i}$: the token's probability ratio between $\pi$ and
+averaged over tokens and the group ($A_g$: $r_g$ standardized within its group; $\rho_{g,i}$: the
+token's probability ratio between $\pi$ and
 the sampling policy; $\bar{\rho}_{g,i}$: its clip to $[1{-}\epsilon, 1{+}\epsilon]$; KL to $\pi_n$).
 With one update per sampled batch, $\rho_{g,i}{=}1$ and the step is the advantage-weighted policy
 gradient with the KL penalty.
 
-\textbf{Minimum context length.} Training prompts are partial conversations, and the oracle ranks
-very short prefixes poorly against the finished sessions: on the Base's conversations, a prefix's
+\textbf{Minimum conversation length.} Training prompts are partial conversations, and the oracle's
+scores of very short prefixes order sessions poorly: on the Base's conversations, a prefix's
 score orders conversation pairs as the full-session score does in $73\%$ of them at two utterances,
-$85\%$ at twelve and $98\%$ at fifty (Appendix~\ref{app:faithfulness}).
+$85\%$ at twelve and $98\%$ at the session cap (Appendix~\ref{app:faithfulness}).
 % \dnotedone{done: cites Appendix C.1 and its new figure}{ref specific subsection and related figure}
 Both runs discard prefixes shorter than MCL${=}12$, a threshold set beforehand in a pilot on an
 earlier configuration.
@@ -112,18 +113,18 @@ Appendix~\ref{app:instruments}).
 \dnotedone{done here, and now also in the intro (the paragraph presenting the method) and in the Discussion (before the Conclusion)}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
 Q1 and Q2 are the LLM-evaluator questionnaires of \citet{yosef2024assessing}, 5 and 17
 patient-perspective Likert items on session satisfaction and on alliance and relational
-communication, built and validated there for LLM evaluation of simulated MI sessions and shown to
-separate levels of therapist expertise; this is why their mean, \QQ, is the training reward, as
+communication, adapted and validated there for LLM evaluation of simulated MI sessions and shown to
+separate three prompted levels of skill; this is why their mean, \QQ, is the training reward, as
 for PTO \citep{baruch2025pto}. The Working Alliance Inventory, Short Revised (WAI-SR;
 \citealp{hatcher2006waisr}) and the Client Satisfaction Questionnaire (CSQ-8;
 \citealp{larsen1979csq}) are published patient-report instruments, and MI-SAT is a six-item
 intervention-satisfaction survey adapted for this task. The other three code behavior: a
-Motivational Interviewing Treatment Integrity (MITI~4.2.1) coder \citep{moyers2016miti4,moyers2016miti}
+Motivational Interviewing Treatment Integrity (MITI~4.2.1) coder \citep{moyers2016miti,moyers2016miti4}
 whose four global ratings are averaged; patient change talk (PCT), the share of change talk among
-the change and sustain talk in the utterance coder's patient codes (next paragraph), the
-patient-side outcome MI aims at; and an MI-inconsistent-behavior coder (MICI; acts per therapist
+the change and sustain talk in the utterance coder's patient codes (next paragraph), MI's
+in-session target; and an MI-inconsistent-behavior coder (MICI; acts per therapist
 turn, lower is better) that counts six MI-inconsistent codes: four of the Motivational Interviewing
-Skill Code (MISC) 2.5 \citep{houck2010misc}, judging or labeling, and an over-praise code of our own. \QQ\ is thus both the
+Skill Code (MISC) 2.5 \citep{houck2010misc}, one for judging or labeling the patient, and an over-praise code of our own. \QQ\ is thus both the
 optimization target and a reported outcome; the six instruments outside the reward are not
 optimized directly, and the held-out judge checks the training oracle.
 
@@ -145,9 +146,9 @@ persuasion and confront as MI-inconsistent (our grouping; Appendix~\ref{app:code
 
 \textbf{Judges.} Two LLMs each fill in the instruments and run the utterance coder (which also
 gives PCT). The \textbf{training oracle} (\primaryjudge, which also plays the patient and gave the
-training reward) is the main judge, whose readings the body reports; the \textbf{held-out judge}
-(\heldoutjudge, another model family, never used in training) re-scores everything as a check,
-reported in Table~\ref{tab:endpoint}, one sentence per results section and
+training reward) is the main judge, as we ask what each horizon made of its reward; the
+\textbf{held-out judge} (\heldoutjudge, another model family, never used in training) re-scores
+everything as a check, reported in Table~\ref{tab:endpoint}, in each results section and
 Appendix~\ref{app:heldout}.
 
 \textbf{The two runs.} The runs are a controlled pair: their tracked run configurations differ in
@@ -159,9 +160,9 @@ iteration (Appendix~\ref{app:repro}); the horizon enters only through $r_g$. We 
 produces, ``the \Kf\ run'' the training.
 
 \textbf{Evaluation and statistics.} Every policy is scored on all eight instruments and coded
-utterance by utterance for all 96 personas by both judges. All contrasts are
+utterance by utterance for all 96 personas by both judges. Tested policy contrasts are
 \textbf{persona-paired}, with Wilcoxon signed-rank tests, Cohen's \dz\ (the mean persona-paired
-difference divided by its standard deviation), bootstrap intervals and Holm correction for
+difference divided by its standard deviation) and Holm correction for
 multiple comparisons within each family of tests. We call a contrast \emph{significant} when its
 Holm-corrected $p$ is below .05. Holm runs across the ten iterations for a contrast repeated at
 every iteration, and across an endpoint table's rows, per judge and checkpoint. The two judges'
