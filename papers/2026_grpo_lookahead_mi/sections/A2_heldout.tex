@@ -4,8 +4,9 @@
 
 The held-out judge (\heldoutjudge) scores every conversation on the same eight instruments and
 runs the same utterance coder as the training oracle (\S\ref{sec:setup}); it took no part in
-training. Its levels sit $1.2$--$1.8$ points below the training oracle's on \QQ, so on the
-instruments only its contrasts are set beside the body's, never its levels. This appendix collects its version of each
+training. Its repeatability is in Appendix~\ref{app:stats}. Its levels sit $1.2$--$1.8$ points
+below the training oracle's on \QQ, so on the instruments they are compared only with each other,
+never with the training oracle's. This appendix collects its version of each
 results section: the all-instrument grid (Figure~\ref{fig:grid-heldout}) and the complete score
 table (Table~\ref{tab:scores-heldout}) for \S\ref{sec:reward}, the process figure
 (Figure~\ref{fig:process-heldout}) for \S\ref{sec:therapist}, and the process table
@@ -15,15 +16,15 @@ table (Table~\ref{tab:scores-heldout}) for \S\ref{sec:reward}, the process figur
 \textbf{Where it agrees and where it differs.} Across the 21 model states it preserves the sign of
 $87.9\%$ of the pairwise state $\times$ instrument contrasts the training oracle makes
 (Appendix~\ref{app:saturation}), and it agrees on the direction of every contrast at iteration 10
-in the body. On \QQ\ it separates the runs at 7 of the 10 iterations (4--10) where the training
-oracle does at 6. Against $\Kz$'s best checkpoint (iteration 8, chosen by the training oracle)
-the final $\Kf$ policy leads significantly on \QQ\ ($\dz\,0.38$) and on six of the other eight
-rows, all but Q2 ($\dz\,0.18$) and WAI-SR ($\dz\,0.10$; Table~\ref{tab:endpoint}). We do not select
+in the body. On \QQ\ it separates the runs at iterations 4--10, the training oracle at 4 and
+6--10. Against $\Kz$'s best checkpoint (iteration 8, chosen by the training oracle)
+the final $\Kf$ policy leads significantly on \QQ\ ($\dz{=}0.38$) and on six of the other eight
+rows, all but Q2 ($\dz{=}0.18$) and WAI-SR ($\dz{=}0.10$; Table~\ref{tab:endpoint}). We do not select
 checkpoints on this judge: on its own \QQ\ the $\Kz$ run peaks at iteration 3 ($2.64$, against
-$2.62$ at iteration 8). On the same scale the $\Kf$ run levels off from iteration 6 (between $2.78$ and $2.91$ from
-there, $2.87$ at 10) while the training oracle's \QQ\ rises from $4.23$ to $4.52$
-(Appendix~\ref{app:saturation}). Among the eight instruments, the one place it favors $\Kz$ is MITI
-and MICI at iteration 3. On the process,
+$2.62$ at iteration 8). On the same scale the $\Kf$ run levels off from iteration 6 ($2.90$ at 6,
+$2.87$ at 10, lowest $2.78$ at 8) while the training oracle's \QQ\ rises from $4.23$ to $4.52$
+(Table~\ref{tab:scores}; Appendix~\ref{app:saturation}). Among the eight instruments, the held-out judge
+favors $\Kz$ significantly only on MITI and MICI, both at iteration 3. On the process,
 under it the $\Kf$ policy's non-specific praise rises from the Base's $0.04$ to $0.20$ at
 iteration 10, so on its reading the $\Kf$ policy's MI-inconsistent share at
 iteration 10 is $0.47$, lower than $\Kz$'s $0.80$ but more than double the Base's $0.21$; along the
@@ -95,15 +96,14 @@ are MITI and MICI at iteration 3. Levels are in this judge's own units.}
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.94\textwidth]{figures/process_grpo_heldout.png}
-\caption{Figure~\ref{fig:process} under the held-out judge, without the keyword-marker panel, which
-involves no judge: \textbf{(a--c)} the share of therapist turns whose dominant function is
-non-specific praise, complex reflection or persuasion, \textbf{(d)} change-talk persistence, by
+\caption{Figure~\ref{fig:process} under the held-out judge, without its keyword-marker panel (b),
+which involves no judge: \textbf{(a, c, d)} the share of therapist turns whose dominant function is
+non-specific praise, complex reflection or persuasion, \textbf{(e)} change-talk persistence, by
 iteration (mean $\pm$ SE over conversations; dotted: the Base; stars: significant $\Kf$ vs.\ $\Kz$
-contrasts, Holm across iterations 1--10, favoring $\Kf$ except in (c), where $\Kz$ persuades
-less). Under it the
-$\Kf$ policy's non-specific praise rises from the Base's $0.04$ to $0.20$ at iteration 10, and it
-agrees on the direction of every $\Kf - \Kz$ difference in coded behavior that the body quotes at
-iteration 10 (Tables~\ref{tab:codes} and~\ref{tab:process-heldout}). It differs in two places: it
+contrasts, Holm across iterations 1--10, favoring $\Kf$ except in (d), where $\Kz$ persuades
+less). The held-out judge agrees on the direction of every $\Kf - \Kz$ difference in coded
+behavior that the body quotes at iteration 10 (Tables~\ref{tab:codes}
+and~\ref{tab:process-heldout}) and differs in two places: it
 reads affirmation the other way at iteration 10 ($\Kf$ $0.07$, $\Kz$ $0.01$, significant, where
 the training oracle has $\Kz$ $0.20$ and $\Kf$ $0.15$, not significant; Table~\ref{tab:codes}),
 and at the Base its code mix differs from the training oracle's (Figure~\ref{fig:codemix}).}
@@ -118,9 +118,9 @@ and at the Base its code mix differs from the training oracle's (Figure~\ref{fig
 \renewcommand{\arraystretch}{0.92}
 \begin{tabular}{@{}lrrrrrrl@{}}
 \toprule
-& \multicolumn{4}{c}{held-out judge} & \multicolumn{2}{c}{\dz, $\Kf$ at 10 $-$ $\Kz$ at} & $\Kf$ better at\\
+& \multicolumn{4}{c}{held-out judge} & \multicolumn{2}{c}{\dz, $\Kf$ at 10 $-$ $\Kz$} & $\Kf$ better at\\
 \cmidrule(lr){2-5}\cmidrule(lr){6-7}
-Per-conversation measure & Base & $\Kz$ at 8 & $\Kz$ at 10 & $\Kf$ at 10 & 8 & 10 & iterations\\
+Per-conversation measure & Base & $\Kz$ at 8 & $\Kz$ at 10 & $\Kf$ at 10 & best (8) & last (10) & iterations\\
 \midrule
 \multicolumn{8}{@{}l}{\emph{Therapist turns (share by dominant function)}}\\
 non-specific praise ($\downarrow$) & $\mathbf{0.038}$ & $0.500$ & $0.762$ & $0.203$ & $-0.95^{***}$ & $-2.19^{***}$ & 5, 6, 8--10\\
@@ -133,11 +133,11 @@ MI-inconsistent share ($\downarrow$) & $\mathbf{0.214}$ & $0.642$ & $0.795$ & $0
 change talk: reflects it & $0.030$ & $0.004$ & $0.006$ & $\mathbf{0.258}$ & $+0.95^{***}$ & $+0.99^{***}$ & 6--10\\
 sustain talk: praises ($\downarrow$) & $\mathbf{0.011}$ & $0.358$ & $0.723$ & $\mathbf{0.011}$ & $-1.14^{***}$ & $-3.10^{***}$ & 5--10\\
 sustain talk: persuades ($\downarrow$) & $0.253$ & $0.287$ & $\mathbf{0.056}$ & $0.580$ & $+0.65^{***}$ & $+1.61^{***}$ & 3--6, 8--10 ($\Kz$)\\
-sustain talk: reflects it & $0.081$ & $0.086$ & $0.050$ & $\mathbf{0.171}$ & $+0.31^{*}$ & $+0.49^{***}$ & 8--10\\
+sustain talk: reflects it & $0.081$ & $0.086$ & $0.050$ & $\mathbf{0.171}$ & $+0.31^{*\phantom{**}}$ & $+0.49^{***}$ & 8--10\\
 \midrule
 \multicolumn{8}{@{}l}{\emph{Next patient utterance is change talk, after \ldots}}\\
 change talk & $0.715$ & $0.802$ & $0.734$ & $\mathbf{0.935}$ & $+0.49^{***}$ & $+0.65^{***}$ & 3--10\\
-sustain talk & $0.182$ & $0.187$ & $0.193$ & $\mathbf{0.238}$ & $+0.07$ & $+0.04$ & 9\\
+sustain talk & $0.182$ & $0.187$ & $0.193$ & $\mathbf{0.238}$ & $+0.07^{\phantom{***}}$ & $+0.04^{\phantom{***}}$ & 9\\
 \midrule
 \multicolumn{8}{@{}l}{\emph{The session (share of all patient utterances)}}\\
 change-talk share & $0.463$ & $0.569$ & $0.545$ & $\mathbf{0.721}$ & $+0.62^{***}$ & $+0.70^{***}$ & 4--10\\
