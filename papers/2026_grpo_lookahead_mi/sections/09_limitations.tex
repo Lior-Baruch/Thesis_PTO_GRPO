@@ -1,13 +1,14 @@
 \section*{Limitations}
 \label{sec:limitations}
 
-\paragraph{One training run per $K$.}
+\paragraph{\boldmath One training run per $K$.}
 Every effect size reported here is computed across the 96 patient personas within a single
 training run, so a significant contrast shows that the two trained policies differ, not that a
 second run at each $K$ would reproduce the difference. There are no training-seed replicates due to long training times and a limited research budget. The $\Kz$
-run's decline over its last two iterations and its late praise spike are likewise events of one
+run's decline on \QQ\ over its last two iterations and its late praise spike are likewise events of one
 run, which is why \S\ref{sec:reward} reports the contrast against that run's best checkpoint as
-well as its last, and why \S\ref{sec:therapist}--\ref{sec:patient} report at which of the ten
+well as its last, and why Figure~\ref{fig:process} and Tables~\ref{tab:process}
+and~\ref{tab:process-all} mark at which of the ten
 iterations each process contrast is significant rather than at iteration 10 alone; this guards
 against the choice of endpoint, not against variation between training runs. We regard this as the principal limitation.
 
@@ -18,13 +19,14 @@ against the choice of endpoint, not against variation between training runs. We 
 Both runs take about the same number of training steps and make about the same number of training-oracle calls, but the $\Kf$ run also simulates five more turns for every candidate, so it is
 slower: about twice the time per training step, and $51.2$ against $27.9$ GPU-hours in total.
 Compared at equal GPU-hours rather than equal iterations, the result depends on the budget: the
-$\Kz$ run is ahead at about 13 GPU-hours, and at about 23 the two are level under the training
+$\Kz$ run is ahead at about 13 GPU-hours under both judges, and at about 23 the two are level under the training
 oracle while $\Kf$ leads under the held-out judge (Appendix~\ref{app:repro-cost}).
 
-\paragraph{$K \in \{0, 5\}$ only.}
+\paragraph{\boldmath $K \in \{0, 5\}$ only.}
 % \dnotedone{rephrased}{rephrase - need more runs to explore further.}
 \dnoteopen{kept as a reminder; whether to run an intermediate $K$ is Lior's call}{indeed this is a major limitation - in case you have time for more runs [kfir gave almog some server time.. ]}
-We trained with \Kz\ and \Kf\ only, so we do not know whether a shorter look-ahead would give
+We trained with \Kz\ and \Kf\ only, the two depths that \citet{baruch2025pto} compared for PTO,
+so we do not know whether a shorter look-ahead would give
 most of the benefit, whether 5 is the best choice, or whether a longer one would do better. More
 runs at other values of $K$ are needed to find out. All runs also use one small pretrained model and
 one reward, \QQ; whether the horizon changes what is learned in the same way with a larger or
@@ -57,10 +59,8 @@ are more uniformly positive than human patients
 \citep{hoang2026standardised}, which bears most directly on the patient-side measures of
 \S\ref{sec:patient}. %No human MI coder has
 %rated any conversation in this experiment;
-The oracle is highly self-repeatable on Q1, Q2 and MICI (intraclass correlation ICC(2,1)
-$0.92$--$0.99$, \citealp{shrout1979icc}, when it re-scores the same conversations of the $\Kz$
-run's iterations 8 and 10 three more times), and the over-praise
-finding is the most robust behavioral claim here precisely because the keyword marker, a plain
+The training oracle is highly self-repeatable on Q1, Q2 and MICI (Appendix~\ref{app:stats}). The
+praise finding is the most robust behavioral claim here because the keyword marker, a plain
 search for ten praise phrases with no language model involved, finds the same rise.
 % \dnotedone{rephrased}{[the keyword marker corroborates it without a model in the loop -?]}
 % \dnotedone{cut the cap sentences (Lior); \S\ref{sec:method} states the cap and Appendix~\ref{app:example} explains the mid-sentence endings}{[many ? oops..!]}
@@ -78,6 +78,6 @@ The utterance coder of \S\ref{sec:therapist}--\ref{sec:patient} gives each utter
 its dominant function, so a long turn that reflects, informs and asks is coded once. Its
 change-talk and sustain-talk codes agree closely with a separate count of them by the same judge
 (Appendix~\ref{app:coder}). Its hardest therapist-side call, praise against affirmation, is where
-the two judges differ on the $\Kf$ policy (\S\ref{sec:therapist}). The two judges agree on the
-direction of the $K$ differences in the codes that the body reports, but rarely on the code of an
+the two judges differ on the $\Kz$ and $\Kf$ policies (Table~\ref{tab:codes}). The two judges agree on the
+direction of the $K$ differences in the codes that the body reports, but little beyond chance on the code of an
 individual therapist utterance ($\kappa$ $0.08$--$0.26$), and no human coder has checked the codes.
