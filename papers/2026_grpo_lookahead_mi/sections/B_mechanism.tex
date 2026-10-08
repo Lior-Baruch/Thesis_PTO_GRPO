@@ -3,7 +3,16 @@
 \section{The mechanism analysis in full}
 \label{app:mechanism}
 
-This appendix expands the mechanism paragraph of \S\ref{sec:discussion}.
+This appendix expands what \S\ref{sec:discussion} says about the training rewards and the updates:
+how faithfully each reward ranks conversations, overall and at a matched policy; the spread of
+rewards within a group; the size of the updates; how much each reward favors praise; and where the
+updates point. The last subsection is an embedding check of \S\ref{sec:therapist}. Training
+iteration $n$ starts from the model of iteration $n{-}1$ and produces the model of iteration $n$;
+the rewards, Table~\ref{tab:trainer} and the update directions count training iterations, while
+Appendix~\ref{app:premium} and every rate of the policy's behavior count models, as the body's
+figures do. The analyses of training candidates read the per-candidate generation logs, which are
+partial in six training iterations after a crash and resume (iterations 2, 6 and 8 of the $\Kz$
+run and 1, 2 and 7 of the $\Kf$ run, with $50$--$74\%$ of their gradient groups logged).
 
 \subsection{The faithfulness statistic}
 \label{app:faithfulness}
@@ -16,12 +25,12 @@ pairs, compared within one Base draw at one prefix length, that a score of the p
 way the full-session score does (pairs tied on either score dropped; chance is $0.5$, below the
 axis). The full-session score is the \QQ\ of the whole conversation by \textbf{(a)} the training
 oracle and \textbf{(b)} the held-out judge, so (b) also reflects how far the two judges disagree.
-Grey triangles: the training oracle's \QQ\ of the prefix alone, at every patient turn from two
+Gray triangles: the training oracle's \QQ\ of the prefix alone, at every patient turn from two
 utterances. Circles and squares: the training reward at the first training iteration, whose
 prompts are prefixes of these conversations (the oracle's \QQ\ for the best of eight candidates,
 with the five simulated turns under $\Kf$; Eq.~\ref{eq:reward}); it starts at MCL${=}12$, since
 shorter prefixes (shaded) are never trained on. Fewer sessions reach the longer prefixes, and at
-50 utterances, the session cap, a prefix can be the whole session. Bands: $95\%$
+50 utterances, the session cap, the prefix is the whole session. Bands: $95\%$
 conversation-level cluster-bootstrap intervals. The training reward pooled over the ten iterations
 is described in the text.}
 \label{fig:faithfulness}
@@ -31,7 +40,19 @@ The training reward scores a \emph{partial} conversation; the evaluation scores 
 The gap between them is measurable as pairwise rank agreement: among pairs of conversations
 compared within one (run, iteration, prefix-length) cell, how often does the training reward at
 that prefix order them the way their full-session scores do? Chance is $0.5$; intervals are
-$95\%$ conversation-level cluster bootstraps.
+$95\%$ conversation-level cluster bootstraps. We call this agreement \emph{faithfulness}.
+
+To see what MCL removes, we scored, with the training oracle, every prefix of the Base's 192
+conversations that ends on a patient turn, from two utterances on (2{,}722 prefixes; the prefix
+alone, with no candidate and no look-ahead). Its agreement with the training oracle's full-session
+score rises from $0.735$ $[0.690, 0.774]$ at two utterances to $0.803$ at ten and $0.846$ at
+twelve, and reaches $0.976$ at fifty, where the prefix is the whole session; with the held-out
+judge's full-session score it rises from $0.688$ to $0.782$ at twelve and $0.838$ at fifty
+(Figure~\ref{fig:faithfulness}). From twelve utterances on, the first iteration's training reward,
+whose prompts are prefixes of the same conversations, follows the prefix alone closely ($0.846$
+under $\Kz$ and $0.831$ under $\Kf$ at twelve, $0.977$ and $0.963$ at fifty, training oracle): in
+the first iteration, choosing the best of eight candidates and adding the five simulated turns barely change
+how well the training oracle's reward ranks conversations.
 
 Pooled over the ten iterations, agreement is $0.909$ $[0.900, 0.917]$ under $\Kf$ against $0.873$
 $[0.861, 0.884]$ under $\Kz$ on the training oracle, and $0.800$ against $0.747$ on the held-out
@@ -49,19 +70,7 @@ the two runs are \emph{different policies} generating \emph{different conversati
 comparison measures a joint property of the scoring rule and of the trajectory the scoring rule put
 the policy on; it cannot separate them.
 
-To see what MCL removes, we also scored, with the training oracle, every prefix of the Base's 192
-conversations that ends on a patient turn, from two utterances on (2{,}722 prefixes; the prefix
-alone, with no candidate and no look-ahead). Its agreement with the training oracle's full-session
-score rises from $0.735$ $[0.690, 0.774]$ at two utterances to $0.803$ at ten and $0.846$ at
-twelve, and reaches $0.976$ at fifty, where a prefix can be the whole session; with the held-out
-judge's full-session score it rises from $0.688$ to $0.782$ at twelve and $0.838$ at fifty
-(Figure~\ref{fig:faithfulness}). From twelve utterances on, the first iteration's training reward,
-whose prompts are prefixes of the same conversations, follows the prefix alone closely ($0.846$
-under $\Kz$ and $0.831$ under $\Kf$ at twelve, $0.977$ and $0.963$ at fifty, training oracle): at
-the Base, choosing the best of eight candidates and adding the five simulated turns barely change
-how well the training oracle's reward ranks conversations.
-
-\subsection{At a matched policy, the effect disappears}
+\subsection{At a matched policy, nothing is detectable}
 
 There is exactly one cut in this design where the scoring rule is close to the only difference: the
 first iteration, where both runs start from the same Base policy and differ only in whether five
@@ -72,8 +81,9 @@ points in opposite directions on the two judges: 17 of 20 bins favor $\Kz$ under
 oracle, 17 of 20 favor $\Kf$ under the held-out judge. An effect whose sign depends on the judge
 is not distinguishable from zero. The matched-policy cut is also the weakest-powered one (a single
 model state per run, and only approximately matched, since the policy drifts within the iteration
-under $K$-specific rewards), so this is an absence of evidence rather than evidence of absence; we
-report it alongside the pooled estimate.
+under $K$-specific rewards, and the $\Kf$ run's log of that iteration holds only its second epoch,
+steps 55--108, after the resume of Appendix~\ref{app:repro}), so this is an absence of evidence
+rather than evidence of absence; we report it alongside the pooled estimate.
 
 \subsection{Dispersion, and the iteration-10 inversion}
 
@@ -85,13 +95,13 @@ absorbs.
 One iteration inverts the \emph{level} of this. At training iteration 10 the margin ratio drops to
 $0.679$: $\Kf$'s within-group margins are smaller than $\Kz$'s there. Both sides move. $\Kz$'s mean
 margin jumps from $0.248$ to $0.339$ while $\Kf$'s falls from $0.268$ to $0.230$. The $\Kz$ jump
-coincides with the iteration in which its over-praise rate jumps (the keyword marker goes
+coincides with the iteration in which its praise rate jumps (the keyword marker goes
 from $0.094$ to $0.671$ between iterations 9 and 10), which is what a group containing both
-over-praising and non-over-praising candidates would do under a judge that rewards praise: the
+praising and non-praising candidates would do under a judge that rewards praise: the
 pool splits and the best--worst gap widens. The $\Kf$ decline is the mirror image, a converging policy
 whose eight samples the oracle scores increasingly alike. This does not break the rescaling result:
 at that same iteration the ratio of ratios is $0.964$, so margin and standard deviation still move
-together. We offer the over-praise account as consistent with the timing, not as demonstrated.
+together. We offer the praise account as consistent with the timing, not as demonstrated.
 
 \subsection{The size of the updates}
 \label{app:trainer}
@@ -139,8 +149,8 @@ the ten its completions had lower entropy. Both runs
 use the same $\beta$ and learning rate (Table~\ref{tab:config}), so the
 difference is in the updates themselves. The iterations are consecutive states of one run per $K$,
 so we read the ten-of-ten pattern descriptively rather than as a test; the logs do not say which
-property of the reward produces it. The smaller $\Kf$ updates did not only slow the $\Kz$
-trajectory down: the $\Kz$ policy's share of complex reflections stays at or below $0.03$ at every
+property of the reward produces it. The $\Kf$ run is not a slowed-down $\Kz$ run: the $\Kz$
+policy's share of complex reflections stays at or below $0.03$ at every
 iteration, while the $\Kf$ policy's reaches $0.10$ at iteration 7 and $0.23$ at iteration 10
 (Table~\ref{tab:process-all}).
 
@@ -165,10 +175,11 @@ The keyword marker (Appendix~\ref{app:marker}) lets us ask whether the training 
 praise, separately from how often the policy praises (Figure~\ref{fig:premium}). Within each
 group of eight candidates we z-score the rewards, and in the groups that hold both a praising reply
 and a non-praising one we take the praising replies' mean z minus the others'. Early in training
-such groups are rare (about $2\%$ of groups, panel b) and the difference is noisy, negative under
-$\Kz$ at iterations 0--1 and under $\Kf$ at iteration 2. From iteration 4 both rewards favor praise: $0.22$--$0.33$
-within-group SD under $\Kz$ over iterations 4--7 ($z \geq 2.8$ at each; here $z$ is the difference over its standard error across groups,
-uncorrected) and $0.16$--$0.21$ under
+such groups are rare (about $2\%$ of groups, 16--44 per iteration; panel b), so the bands are wide;
+the difference is negative under $\Kz$ at iterations 0--1 ($z = -2.1$ and $-2.7$; here $z$ is the
+difference over its standard error across groups, uncorrected) and under $\Kf$ at iteration 2
+($z = -3.0$). From iteration 4 both rewards favor praise: $0.22$--$0.33$ within-group SD under
+$\Kz$ over iterations 4--7 ($z \geq 2.8$ at each) and $0.16$--$0.21$ under
 $\Kf$ ($z$ above 2 only at iterations 6--7). Both dip at iteration 8; at iteration 9 the $\Kz$
 reward still scores praising replies $0.16$ higher ($z = 5.7$) and the $\Kf$ reward $0.04$ ($z = 1.1$). The share of groups
 holding both kinds rises under both runs, and faster under $\Kz$: from iteration 7 on it is about
@@ -183,10 +194,8 @@ with $w_g$ the standardized group-relative advantage that scales each completion
 is an embedding-space proxy, not the gradient: it measures the semantic direction of what the
 update prefers. Pooled over the ten training iterations, the two runs' directions have a cosine of
 $0.804$, or $0.851$ once divided by the attenuation ceiling ($0.945$) that two noisy estimates can
-reach at all. The pooled value averages over a change along the run. Per training iteration
-(training iteration $n$ samples its candidates from the model of iteration $n{-}1$, the index of
-Figure~\ref{fig:premium}, and produces the model of iteration $n$), over
-every gradient group and corrected for estimation noise with 50 random splits of the
+reach at all. The pooled value averages over a change along the run. Per training iteration, over
+every logged gradient group and corrected for estimation noise with 50 random splits of the
 conversations into halves, the two directions are nearly the same at training iterations 1--3
 ($0.92$--$0.96$), less alike at 4 and 5 ($0.80$; iteration 4 produced the first model at which
 $\Kf$ leads, \S\ref{sec:reward}) and further apart at 6--8 ($0.57$--$0.74$). From iteration 2 on
@@ -204,7 +213,7 @@ these estimates in four more: gte-base-en-v1.5 \citep{li2023gte}, mxbai-embed-la
 \citep{lee2024mxbai}, Qwen3-Embedding-0.6B \citep{zhang2025qwen3embedding}, and the Base therapist
 itself, whose layer-8 hidden states (of 16) we average over the reply's tokens. The pattern holds in
 all five. The two runs' directions agree at training iterations 1--3 (noise-corrected cosine
-$0.80$--$0.97$), are furthest apart before iteration 9 at iteration 6 ($0.43$--$0.77$), and the
+$0.80$--$0.97$), are furthest apart before iteration 9 at iteration 6 or 7 ($0.43$--$0.77$), and the
 $\Kz$ direction reverses at iteration 9 ($-0.73$ to $-0.37$ against iteration 8). The late $\Kf$
 direction is hard to measure in every encoder, least so in the Base's own hidden states (split-half
 agreement $0.35$--$0.69$ at iterations 8--10, against $0.06$--$0.40$ in the other four).
@@ -217,7 +226,8 @@ agreement $0.35$--$0.69$ at iterations 8--10, against $0.06$--$0.40$ in the othe
 candidate sentences project on the direction than the other sentences of the pool, in standard
 deviations of the pool's projections. Line: the mean over the five encoders; band: their range
 (lowest to highest encoder; it is not a confidence interval). The direction is the
-advantage-weighted estimator of this subsection, over all candidates of each training iteration;
+advantage-weighted estimator of Appendix~\ref{app:direction}, over all logged candidates of each
+training iteration;
 training iteration $n$ samples its candidates from the model of iteration $n{-}1$, so this x-axis is
 Figure~\ref{fig:premium}'s plus one. The pool holds 4{,}045 sentences; the categories are regular
 expressions written before the analysis.}
@@ -227,7 +237,7 @@ expressions written before the analysis.}
 \textbf{What the direction points to.} A direction is read by projecting sentences onto it. We took
 the 4{,}045 sentences of four to ten words that occur at least three times among the candidates and
 contain no chat marker, grouped them with regular expressions written before the analysis (praise,
-question, advice and four other categories; the code is released with the paper), and scored each
+question, advice and four other categories; the code is in the supplementary archive), and scored each
 category by the mean projection of its sentences minus that of the other sentences, in standard
 deviations of the pool (Figure~\ref{fig:directions}). The $\Kz$ direction points toward praise
 sentences at training iterations 4--8 and 10 in every encoder (the lowest encoder at $0.57$ to
@@ -235,7 +245,9 @@ $1.15$ SD, each with a $95\%$ conversation-bootstrap interval above zero), and n
 The $\Kf$ direction points toward advice through iteration 5 and toward questions at iteration 6
 (each in at least four encoders). It leans toward praise less and later: its mean is $-0.26$ to
 $0.40$ SD through iteration 6 and $0.59$ to $0.88$ from iteration 7, and at no iteration is the
-interval above zero in more than three of the five encoders.
+interval above zero in more than three of the five encoders. The paired difference between the two
+directions' praise lean ($\Kz$ minus $\Kf$; the same bootstrap draws for both runs) has its interval
+above zero in at least four encoders at training iterations 3--6 and in at most two at 7--10.
 
 The sentences that most separate the two directions are similar across encoders. At training
 iterations 3 and 5, at least three of the five put ``I'm thrilled to support you on your weight loss
