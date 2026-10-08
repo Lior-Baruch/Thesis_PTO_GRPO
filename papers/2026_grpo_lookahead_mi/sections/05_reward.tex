@@ -29,23 +29,23 @@ Instrument & Base & $\Kz$ at 8 & $\Kz$ at 10 & $\Kf$ at 10 & best (8) & last (10
 \midrule
 Q1+Q2 (reward) & $3.01$ & $4.08$ & $3.75$ & $4.52$ & $+0.74^{***}$ & $+0.91^{***}$ & $+0.38^{***}$ & $+1.03^{***}$ & 4, 6--10\\
 \quad Q1 & $2.97$ & $3.94$ & $3.61$ & $4.46$ & $+0.75^{***}$ & $+0.90^{***}$ & $+0.46^{***}$ & $+1.15^{***}$ & 4, 6--10\\
-\quad Q2 & $3.06$ & $4.23$ & $3.90$ & $4.57$ & $+0.66^{***}$ & $+0.86^{***}$ & $+0.18$ & $+0.61^{***}$ & 9, 10\\
-WAI-SR & $2.87$ & $3.37$ & $3.44$ & $3.73$ & $+0.69^{***}$ & $+0.51^{***}$ & $+0.10$ & $+0.44^{***}$ & 5--10\\
-CSQ-8 & $2.36$ & $2.75$ & $2.77$ & $3.06$ & $+0.54^{***}$ & $+0.48^{***}$ & $+0.45^{***}$ & $+0.68^{***}$ & 4--10\\
+\quad Q2 & $3.06$ & $4.23$ & $3.90$ & $4.57$ & $+0.66^{***}$ & $+0.86^{***}$ & $+0.18^{\phantom{***}}$ & $+0.61^{***}$ & 9, 10\\
+WAI-SR & $2.87$ & $3.37$ & $3.44$ & $3.73$ & $+0.69^{***}$ & $+0.51^{***}$ & $+0.10^{\phantom{***}}$ & $+0.44^{***}$ & 5--10\\
+CSQ-8 (1--4) & $2.36$ & $2.75$ & $2.77$ & $3.06$ & $+0.54^{***}$ & $+0.48^{***}$ & $+0.45^{***}$ & $+0.68^{***}$ & 4--10\\
 MI-SAT & $2.84$ & $3.44$ & $3.48$ & $3.83$ & $+0.59^{***}$ & $+0.53^{***}$ & $+0.75^{***}$ & $+0.83^{***}$ & 4--10\\
-MITI & $3.17$ & $4.23$ & $3.92$ & $4.54$ & $+0.52^{***}$ & $+0.74^{***}$ & $+0.29^{*}$ & $+0.50^{***}$ & 6, 7, 9, 10\\
+MITI & $3.17$ & $4.23$ & $3.92$ & $4.54$ & $+0.52^{***}$ & $+0.74^{***}$ & $+0.29^{*\phantom{**}}$ & $+0.50^{***}$ & 6, 7, 9, 10\\
 PCT (share) & $0.49$ & $0.58$ & $0.58$ & $0.73$ & $+0.56^{***}$ & $+0.51^{***}$ & $+0.55^{***}$ & $+0.64^{***}$ & 6--10\\
 MICI (per turn, $\downarrow$) & $0.21$ & $0.54$ & $0.84$ & $0.21$ & $-1.13^{***}$ & $-1.86^{***}$ & $-0.80^{***}$ & $-1.57^{***}$ & 8--10; 3 ($\Kz$)\\
 \bottomrule
 \end{tabular}
 \caption{\textbf{Every instrument at iterations 8 and 10.} Levels: means over the 96 personas under
 the training oracle (Base: 192 conversations; held-out levels: Table~\ref{tab:scores-heldout}).
-$\Kz$ at 8 is that run's best checkpoint, chosen on these \QQ\ scores, which favors $\Kz$. \dz:
+$\Kz$ at 8 is that run's best checkpoint, chosen on these \QQ\ scores, which favors $\Kz$ on \QQ;
+$\Kf$'s best is its last. \dz:
 persona-paired, the final $\Kf$ policy minus each $\Kz$ checkpoint ($n{=}96$; positive favors $\Kf$,
 as do negative values of MICI, MI-inconsistent acts per therapist turn), Holm across the nine rows
-per judge and checkpoint ($^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$). Last column: the iterations at
-which $\Kf$ is significantly better under the training oracle (Holm across iterations);
-($\Kz$): $\Kz$ better.}
+per judge and checkpoint ($^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$). Last column: $\Kf$ significantly better
+under the training oracle (Holm across iterations); ($\Kz$): $\Kz$ better.}
 \label{tab:endpoint}
 \end{table*}
 
@@ -57,17 +57,19 @@ checkpoint ($\dz{=}0.91$) and $4.08$ at its best ($\dz{=}0.74$).
 % \dnotedone{cut}{[, and MI-inconsistent behaviour shows the largest standardised effect of all - ??]}
 Against the Base, both runs improve significantly on every instrument except MICI, which neither
 improves: the $\Kf$ policy ends level with the Base ($0.21$ MI-inconsistent acts per therapist turn
-against $0.21$) and the $\Kz$ policy above it ($0.84$).
+against $0.21$) and the $\Kz$ policy above it ($0.84$; Appendix~\ref{app:vsbase}).
 
-\textbf{Onset, and the $\Kz$ decline.} $\Kf$ leads significantly on \QQ\ at iteration 4 and from
+\textbf{\boldmath Onset, and the $\Kz$ decline.} $\Kf$ leads significantly on \QQ\ at iteration 4 and from
 6 on; on the other instruments its first significant lead comes between iteration 4 (CSQ-8,
 MI-SAT) and 9 (Q2) (Figure~\ref{fig:headline}; Table~\ref{tab:endpoint}, last column). Before that
-only MICI differs, at iteration 3, in $\Kz$'s favor. $\Kz$ peaks at iteration 8 and then falls, hence the two checkpoints of
+only MICI differs, at iteration 3, in $\Kz$'s favor.
+% 2026-10-08 (review round 5, M7): the peak holds for Q1+Q2 only; was "$\Kz$ peaks at iteration 8 and then falls".
+$\Kz$'s \QQ\ peaks at 8 and then falls, hence the two checkpoints of
 Table~\ref{tab:endpoint}. Averaged over all ten iterations, so that no endpoint is chosen, every
 instrument favors $\Kf$ under both judges, though over iterations 1--7 MICI favors $\Kz$ under the
-training oracle (Appendix~\ref{app:tables}). The held-out judge agrees
+training oracle (Appendix~\ref{app:wholerun}). The held-out judge agrees
 (Appendix~\ref{app:heldout}): $\Kf$ leads significantly on \QQ\ at every iteration from 4, on all
 nine rows against $\Kz$'s last checkpoint and on seven against its best, all but Q2 and WAI-SR; on MICI both
-policies end above its Base ($0.63$ and $1.05$ against $0.36$). A second draw of 96 conversations
-from the final $\Kf$ policy changes no row significantly ($|\dz| < 0.18$ under both judges;
-Appendix~\ref{app:tables}).
+policies end above the Base of $0.36$ ($\Kz$ $1.05$, $\Kf$ $0.63$). A second draw of 96 conversations
+from the final $\Kf$ policy differs from the first on no row significantly ($|\dz| < 0.18$;
+Appendix~\ref{app:seconddraw}).
