@@ -36,7 +36,16 @@ Usage
     python generate_eval_convs.py --method grpo --iter 10 \
         --experiment GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8 \
         --conv-dir <...>/conversations/replicate/<EXP>/model_iter_10_rep1_TT0.9_TP0.7 \
-        --batch-size 6                                                # a REPLICATE draw (GRPO arm)
+        --batch-size 4                                                # a REPLICATE draw (GRPO arm)
+
+HELD-OUT PERSONAS (added 2026-10-08): ``--personas alcohol`` simulates the 48 personas of
+``system_prompts_builder.generate_heldout_permutations`` (a problem the training grid never had),
+unshuffled, with one patient seed (``HELDOUT_SEED``) for every state; ``--iter 0`` is the untrained
+Base (no adapter). Both need ``--conv-dir`` under ``conversations/heldout_<set>/``:
+
+    python generate_eval_convs.py --method grpo --iter 0 --personas alcohol \
+        --experiment GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8 --batch-size 4 \
+        --conv-dir <...>/conversations/heldout_alcohol/GRPO_Iterative_Q1Q2_Llama32-1B_LA0_MCL12_G8/model_iter_0_TT0.9_TP0.7
 
 ``--method`` (added 2026-08-26) selects the trainer whose config/machinery to use: ``pto``
 (default — the original behaviour) or ``grpo``. Both trainers expose the same
@@ -49,12 +58,18 @@ For a REPLICATE draw (a second independent conversation sample of an already-sco
 ``conversations/full/`` (``model_iter_10`` globs into ``model_iter_10_rep1_*`` and the two draws
 would collide on one discovery key; see STATUS.md § replicate isolation).
 
-⚠ ``--batch-size`` is a SAFETY setting on the local GPU, not a throughput knob: an over-budget
-VRAM request REBOOTS the machine instead of raising ``OutOfMemoryError`` (no traceback, nothing to
-catch). Budget ≈ 2.6 GB weights + ≈1.1 GB per concurrent conversation, so batch 4 ≈ 7.1 GB of the
-12 GB card and batch 6 ≈ 8.0 GB, while **batch 32 ≈ 38 GB has already rebooted this machine**.
-The default is the run's stored ``conversation_batch_size`` (64 ≈ 73 GB — an A100 value), so
-ALWAYS pass ``--batch-size`` explicitly when running locally. See CLAUDE.md § Gotchas.
+⚠ ``--batch-size`` is a SAFETY setting on the local GPU, not only a throughput knob. Uncapped, an
+over-budget VRAM request crashes the machine (the Windows driver spills it into system memory; no
+traceback): batch 32 did in July, and batch 6 did on 2026-10-08 (bugcheck 0x20001) once a trained
+policy's contexts reached the 2,048-token input cap. Measured under a cap at that context: 2.30 GB
+of weights + ≈1.29 GB per concurrent conversation, so batch 4 ≈ 7.5 GB and batch 6 ≈ 10.0 GB
+(over budget on the 12 GB card beside the desktop). The script therefore caps PyTorch's allocator at
+(free VRAM − ``--vram-margin-gb``) before the model loads (``_shared.cap_cuda_memory``): an overrun
+then raises ``OutOfMemoryError``, the therapist step retries in halving chunks and the conversation
+batch halves. Use ``--batch-size 4`` locally, run one GPU job at a time, and set the NVIDIA driver's
+'CUDA - Sysmem Fallback Policy' to 'Prefer No Sysmem Fallback' (memory outside the allocator is
+not capped). A local run without ``--batch-size`` is refused: the stored value is an A100's (64).
+See CLAUDE.md § Gotchas.
 
 Runs on Colab (mounts Drive, uses Colab Secrets) or locally (walks up for the
 key files) with no edits. Generation is resume-safe per conversation CSV, so an
@@ -91,6 +106,11 @@ METHODS = {
         "default_experiment": "GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8",
     },
 }
+
+# Patient-API seed for every held-out-persona pass (--personas != grid), whatever the state: the
+# held-out states are compared persona by persona, so they share one seed (as the K=0 and K=5
+# conversations of one iteration share theirs). The date the held-out set was added.
+HELDOUT_SEED = 20261008
 
 
 # ╔══════════════════════════════════════════════════════════════════════════════╗
@@ -316,7 +336,36 @@ def main() -> int:
                     help="SMOKE: cap conversation length in utterances (requires --conv-dir)")
     ap.add_argument("--conv-dir", default=None,
                     help="write conversations HERE instead of the canonical model_iter_<N> dir")
+    # ── Held-out personas (2026-10-08): patients the training grid never had. Requires --conv-dir
+    #    (they must never land in conversations/full/). The therapist prompt and opening line stay
+    #    the run's own; the persona list is NOT shuffled (file index = held-out persona id), and every
+    #    state is drawn with the same patient-API seed, HELDOUT_SEED.
+    ap.add_argument("--vram-margin-gb", type=float, default=1.5,
+                    help="VRAM left unclaimed below what is free at start (the hard cap's margin)")
+    ap.add_argument("--personas", default="grid",
+                    help="'grid' (the 96 training personas, default) or a held-out set: 'alcohol'")
     args = ap.parse_args()
+
+    if args.personas != "grid":
+        if not args.conv_dir:
+            raise SystemExit("--personas other than 'grid' requires --conv-dir (held-out conversations "
+                             "must never land in the auto-discovered conversations/full/ tree).")
+        if args.verify_seeds:
+            raise SystemExit("--verify-seeds checks the training grid's shuffle; it does not apply "
+                             "to a held-out persona set.")
+    if args.iter == 0 and not args.conv_dir:
+        raise SystemExit("--iter 0 (the untrained Base) is only generated into a custom --conv-dir; "
+                         "the canonical model_iter_0/ is written by training.")
+    if args.conv_dir:
+        parts = os.path.normcase(os.path.abspath(args.conv_dir)).split(os.sep)
+        if any(parts[i:i + 2] == ["conversations", "full"] for i in range(len(parts) - 1)):
+            raise SystemExit("--conv-dir must not be under conversations/full/ (the auto-discovered "
+                             "eval tree); use conversations/replicate/ or conversations/heldout_<set>/.")
+        if args.personas != "grid" and f"heldout_{args.personas}" not in parts:
+            raise SystemExit(f"--personas {args.personas} must write under conversations/"
+                             f"heldout_{args.personas}/ (score_heldout.py reads it from there).")
+        if args.personas == "grid" and any(p.startswith("heldout_") for p in parts):
+            raise SystemExit("A grid (training-persona) pass must not write under a heldout_<set>/ dir.")
 
     scaled = {"num_conversations_per_iter": args.num_convs,
               "num_utterances_for_data": args.num_utterances}
@@ -333,7 +382,7 @@ def main() -> int:
     from _shared import (
         detect_runtime, init_openai_client, authenticate,
         setup_tokenizer, load_base_model, sync_pad_token, patch_generate,
-        setup_permutations,
+        setup_permutations, cap_cuda_memory,
     )
     import importlib
     spec = METHODS[args.method]
@@ -350,9 +399,12 @@ def main() -> int:
         cfg.conv_outdir,
         f"model_iter_{args.iter}_TT{cfg.temperature_therapist_gen}_TP{cfg.temperature_patient}",
     )
-    seed = seeds_for(cfg, args.iter)
+    heldout = args.personas != "grid"
+    seed = HELDOUT_SEED if heldout else seeds_for(cfg, args.iter)
 
-    if not os.path.isdir(adapter_dir):
+    if args.iter == 0:
+        adapter_dir = None  # the untrained Base: no adapter
+    elif not os.path.isdir(adapter_dir):
         raise SystemExit(f"No adapter at {adapter_dir} — iteration {args.iter} never finished training.")
 
     existing = (sorted(f for f in os.listdir(conv_dir) if f.startswith("conversation_"))
@@ -372,9 +424,13 @@ def main() -> int:
         print("  ** Full-scale pass to a CUSTOM dir (outside conversations/full/ — not auto-discovered). **")
     print("=" * 70)
     print(f"  Experiment:   {cfg.experiment_name}  [{cfg.mode_tag}]")
-    print(f"  Adapter:      {adapter_dir}")
+    print(f"  Adapter:      {adapter_dir or '(none: the untrained Base)'}")
     print(f"  Output:       {conv_dir}")
-    print(f"  Seeds:        shuffle = patient_api = {cfg.seed} + {args.iter} + 1 = {seed}")
+    if heldout:
+        print(f"  Personas:     HELD-OUT set {args.personas!r} (no shuffle; file index = held-out persona id)")
+        print(f"  Seeds:        patient_api = HELDOUT_SEED = {seed} (the same for every state)")
+    else:
+        print(f"  Seeds:        shuffle = patient_api = {cfg.seed} + {args.iter} + 1 = {seed}")
     print(f"  Convs:        {cfg.num_conversations_per_iter} x {cfg.num_utterances_for_data} utts "
           f"(TT {cfg.temperature_therapist_gen} / TP {cfg.temperature_patient}, "
           f"max {cfg.max_tokens_per_response} tok)")
@@ -393,20 +449,37 @@ def main() -> int:
         raise SystemExit("Seed verification did not pass — refusing to generate. "
                          "Investigate before spending; a wrong shuffle silently breaks persona pairing.")
 
-    shuffled = list(all_permutations)
-    random.Random(seed).shuffle(shuffled)
-    active_permutations = shuffled[: cfg.num_conversations_per_iter]
+    if heldout:
+        from system_prompts_builder import generate_heldout_permutations
+        active_permutations = generate_heldout_permutations(args.personas)[: cfg.num_conversations_per_iter]
+    else:
+        shuffled = list(all_permutations)
+        random.Random(seed).shuffle(shuffled)
+        active_permutations = shuffled[: cfg.num_conversations_per_iter]
+    n_target = len(active_permutations)
+    print(f"  Active personas: {n_target}")
 
     if args.dry_run:
+        if heldout:
+            print("\n  first held-out patient prompt:\n    " + active_permutations[0]["patient_system_prompt"])
         print("\n  [dry-run] stopping before model load — nothing generated, nothing spent.")
         return 0
 
-    if len(existing) >= cfg.num_conversations_per_iter:
+    if len(existing) >= n_target:
         print(f"\n  ✓ Already complete ({len(existing)} convs) — nothing to do.")
         return 0
 
     client = init_openai_client(rt)
     authenticate(rt, hf=True, wandb_enabled=False)  # HF token: Llama-3.2-1B is gated
+
+    if not rt.in_colab and args.batch_size is None:
+        raise SystemExit(f"Local run: pass --batch-size explicitly (4 on the 12 GB card); the stored "
+                         f"conversation_batch_size {cfg.conversation_batch_size} is an A100 value.")
+
+    # Hard VRAM cap BEFORE the model loads (2026-10-08): past it the allocator raises a catchable
+    # OutOfMemoryError (generation then halves its batch) instead of the driver spilling into
+    # system memory, which has crashed this machine. See _shared.model.cap_cuda_memory.
+    cap_cuda_memory(margin_gb=args.vram_margin_gb)
 
     tokenizer = setup_tokenizer(cfg.base_model_id)
     # for_training=True matches the notebook's load; run_generation_only flips
@@ -414,10 +487,15 @@ def main() -> int:
     base_policy = load_base_model(cfg.base_model_id, None, for_training=True)
     sync_pad_token(base_policy, tokenizer)
 
-    from peft import PeftModel
-    policy = PeftModel.from_pretrained(base_policy, adapter_dir, is_trainable=False)
-    patch_generate(policy, tokenizer)  # re-patch: PeftModel wrapping drops the stop_strings binding
-    print(f"\n✓ Loaded adapter iteration_{args.iter} onto {cfg.base_model_id} (bf16)")
+    if adapter_dir is None:
+        policy = base_policy
+        patch_generate(policy, tokenizer)  # stop_strings binding, as for the adapter path
+        print(f"\n✓ Loaded the untrained Base {cfg.base_model_id} (bf16, no adapter)")
+    else:
+        from peft import PeftModel
+        policy = PeftModel.from_pretrained(base_policy, adapter_dir, is_trainable=False)
+        patch_generate(policy, tokenizer)  # re-patch: PeftModel wrapping drops the stop_strings binding
+        print(f"\n✓ Loaded adapter iteration_{args.iter} onto {cfg.base_model_id} (bf16)")
 
     _states, gen_time, avg_len = run_generation_only(
         policy=policy, tokenizer=tokenizer, client=client,

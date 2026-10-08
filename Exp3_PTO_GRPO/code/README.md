@@ -57,13 +57,19 @@ metadata, so the flag just selects trainer module / config class / `data/` subdi
 collide on one discovery key. Config is rebuilt from the run's own `run_metadata.json` and seeds
 are **derived** (`seed+N+1`) — `--verify-seeds` proves that against decoy offsets before you spend
 anything. A replicate is scored by `eda/tools/score_replicate.py` (manual `Experiment` entries,
-`_rep1_` infixed lake names) and analysed by `eda/tools/replicate_check.py`. Run it from
-`code/tools/`:
+`_rep1_` infixed lake names) and analysed by `eda/tools/replicate_check.py`.
+**Held-out personas** (added 2026-10-08): `--personas alcohol` simulates the 48 personas of
+`system_prompts_builder.generate_heldout_permutations` (a problem the training grid never had;
+its own `PatientPersonality.HeldOutProblem` enum, so the 96-persona training grid is untouched),
+unshuffled, with one patient seed (`HELDOUT_SEED`) for every state, and `--iter 0` is the
+untrained Base (no adapter); both require `--conv-dir` under `conversations/heldout_<set>/`.
+Scored by `eda/tools/score_heldout.py` (`_alc_` infixed lake names), analysed by
+`eda/tools/heldout_check.py`. Run it from `code/tools/`:
 
 ```powershell
 # from code/tools/
 & ..\..\..\.venv\Scripts\python.exe generate_eval_convs.py --iter 5 --verify-seeds --dry-run   # free
-& ..\..\..\.venv\Scripts\python.exe generate_eval_convs.py --iter 5 --batch-size 6            # the real pass (local card)
+& ..\..\..\.venv\Scripts\python.exe generate_eval_convs.py --iter 5 --batch-size 4            # the real pass (local card)
 ```
 
 ## `roles.py` — read this before adding any model
@@ -113,9 +119,12 @@ on the local GPU (~3 GB peak).
 segfaults (exit 139). The trainer modules already do this; it only bites if you run something
 locally that imports torch first.
 
-⚠ **An over-budget VRAM request REBOOTS this machine** rather than raising `OutOfMemoryError`.
-Batch size is a safety setting, not a throughput knob — see CLAUDE.md § "Exp3 · Gotchas" for the
-arithmetic (weights 2.6 GB + ≈1.1 GB per concurrent conversation).
+⚠ **An uncapped over-budget VRAM request crashes this machine** rather than raising
+`OutOfMemoryError` (the driver spills it into system memory). Batch size is a safety setting, not
+only a throughput knob — see CLAUDE.md § "Exp3 · Gotchas": weights 2.30 GB + ≈1.29 GB per
+concurrent conversation at the 2,048-token input cap (measured 2026-10-08), so use `--batch-size 4`.
+`generate_eval_convs.py` caps the allocator first (`_shared.cap_cuda_memory`), so an overrun raises
+and generation halves its batch; any new local GPU script should call it before its model loads.
 
-Local **training** stays Colab-only. Local *generation* is fine (~50 min per 96 convs at
-`--batch-size 6`).
+Local **training** stays Colab-only. Local *generation* is fine (about an hour per 96 convs at
+`--batch-size 4`).

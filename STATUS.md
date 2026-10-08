@@ -443,7 +443,7 @@ cross-judge agreement in the experiment) and **PTO K=0 @10** (the arm it beats b
 held-out). No code change needed — therapist decoding is unseeded, and
 `code/tools/generate_eval_convs.py --conv-dir` keeps the replicate out of the primary partition.
 At 2 adapters: 2 × 96 × 8 = **1,536 scoring calls per grader**, plus ~0.4 A100-hours (or ~1.7 free
-local hours at `--batch-size 6`).
+local hours at `--batch-size 4`; batch 6 crashed the PC on 2026-10-08, see CLAUDE.md § Gotchas).
 
 **Isolation for the replicate:** write it to `conversations/replicate/<EXP_NAME>/` via `--conv-dir`
 (`discover_arms` only scans `conversations/full`), and name its lake folder with the draw marker as

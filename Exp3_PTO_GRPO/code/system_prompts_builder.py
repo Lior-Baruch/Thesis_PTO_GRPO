@@ -17,6 +17,12 @@ class PatientPersonality:
         Smoking = 0
         Obesity = 1
 
+    # Problems used ONLY for held-out evaluation personas (2026-10-08). Deliberately a separate
+    # enum: generate_all_permutations iterates Problem, so a new member there would change the
+    # 96-persona training grid and break persona-order replay for every conversation on disk.
+    class HeldOutProblem(Enum):
+        Alcohol = 0
+
     class ProblemTime(Enum):
         FewMonths = 0
         ManyYears = 1
@@ -65,12 +71,18 @@ class PatientPersonality:
         elif problem is PatientPersonality.Problem.Obesity:
             problem_txt = f"You have been struggling with obesity for {problem_time_txt}. Your weight is " \
                           "negatively impacting your health. You have high blood pressure and experience joint pain"
+        elif problem is PatientPersonality.HeldOutProblem.Alcohol:
+            # Mirrors the smoking sentences, so only the problem changes (Lior, 2026-10-08).
+            problem_txt = f"You have been drinking alcohol heavily for {problem_time_txt}, and it has become a " \
+                          "daily habit. You are increasingly concerned about the impact of drinking on your health"
 
         if tried_to_solve is PatientPersonality.TriedToSolve.Never:
             if problem is PatientPersonality.Problem.Smoking:
                 tried_to_solve_txt = f'You never tried to quit smoking'
             elif problem is PatientPersonality.Problem.Obesity:
                 tried_to_solve_txt = f'You never tried to lose weight'
+            elif problem is PatientPersonality.HeldOutProblem.Alcohol:
+                tried_to_solve_txt = 'You never tried to cut down on your drinking'
         elif tried_to_solve is PatientPersonality.TriedToSolve.ManyTimes:
             if problem is PatientPersonality.Problem.Smoking:
                 tried_to_solve_txt = 'You tried many times to quit smoking before, but you had difficulty ' \
@@ -81,6 +93,10 @@ class PatientPersonality:
                                      'but you have been unsuccessful in maintaining long-term weight ' \
                                      'loss. You have tried various diets and exercise programs, ' \
                                      'but you struggled to stick with them'
+            elif problem is PatientPersonality.HeldOutProblem.Alcohol:
+                tried_to_solve_txt = 'You tried many times to stop drinking before, but you had difficulty ' \
+                                     'maintaining abstinence. You have experienced withdrawal symptoms like ' \
+                                     'irritability, anxiety, and cravings. You always end up relapsing'
 
         if cooperation_level is PatientPersonality.CooperationLevel.Low:
             # cooperation_level_txt = "Your level of cooperation is very low"
@@ -258,6 +274,48 @@ def generate_all_permutations(only_expert_therapist: bool = False) -> List[Dict[
 @lru_cache(maxsize=2)
 def _cached_permutations(only_expert_therapist: bool) -> tuple:
     return tuple(generate_all_permutations(only_expert_therapist=only_expert_therapist))
+
+
+HELDOUT_PERSONA_SETS = {"alcohol": PatientPersonality.HeldOutProblem.Alcohol}
+
+
+def generate_heldout_permutations(problem: str = "alcohol") -> List[Dict[str, str]]:
+    """Held-out EVALUATION personas: one problem the training grid never had (2026-10-08).
+
+    Same factors and loop order as :func:`generate_all_permutations` with the problem fixed, the
+    expert therapist only: 2 gender x 3 cooperation x 2 duration x 2 prior attempts x 2 ages = 48.
+    The list index is the held-out persona id (no shuffle). Only ``patient_system_prompt`` and
+    ``args`` are meant to be used: the caller keeps the training runs' own therapist prompt and
+    opening line (``_shared.setup_permutations``), so the therapist side is unchanged.
+    """
+    held = HELDOUT_PERSONA_SETS[problem]
+    good = CounselorPersonality.PersonalityLevel.Good
+    permutations = []
+    for gender in PatientPersonality.Gender:
+        for cooperation_level in PatientPersonality.CooperationLevel:
+            for problem_time in PatientPersonality.ProblemTime:
+                for tried_to_solve in PatientPersonality.TriedToSolve:
+                    for age in PatientPersonality.Age:
+                        age_value = 27 if age is PatientPersonality.Age.Young else 61
+                        kwargs = {
+                            'gender': gender,
+                            'age_value': age_value,
+                            'problem': held,
+                            'problem_time': problem_time,
+                            'tried_to_solve': tried_to_solve,
+                            'cooperation_level': cooperation_level
+                        }
+                        result = PatientPersonality.build_system_prompt(**kwargs)
+                        kwargs.pop('age_value')
+                        permutations.append({
+                            'patient_system_prompt': result['system_prompt'],
+                            'args': {
+                                'counselor_level': good.name,
+                                'patient': {arg: kwargs[arg].name for arg in kwargs} | {
+                                    'age_value': result['age']}
+                            }
+                        })
+    return permutations
 
 
 def get_permutation_characteristics(

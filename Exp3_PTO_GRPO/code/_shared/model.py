@@ -207,6 +207,42 @@ def validate_hf_checkpoint(checkpoint_path: str) -> Tuple[bool, List[str]]:
 # ╚══════════════════════════════════════════════════════════════════════════════╝
 
 
+def cap_cuda_memory(margin_gb: float = 1.5, max_gb: Optional[float] = None) -> Optional[float]:
+    """Hard-cap this process's PyTorch CUDA memory below what is free now. Call BEFORE loading a model.
+
+    Why (2026-10-08): on the local Windows card an allocation past physical VRAM does not raise
+    ``OutOfMemoryError``. The driver's default CUDA sysmem-fallback spills it into shared system
+    memory, and with VBS/HVCI on, that has crashed the machine twice (bugcheck 0x20001
+    HYPERVISOR_ERROR on 2026-10-08, held-out generation at batch 6 when a trained policy's contexts
+    reached the 2,048-token cap). ``torch.cuda.set_per_process_memory_fraction`` makes the caching
+    allocator itself refuse anything past the cap with a catchable ``OutOfMemoryError``, so the
+    request never reaches the driver. The callers' OOM paths then back off (``generate_all_conversations``
+    halves its batch). Memory outside the caching allocator (the CUDA context, cuBLAS workspaces)
+    is not capped, which is what ``margin_gb`` leaves room for.
+
+    The cap is ``free - margin_gb`` (optionally ``min``-ed with ``max_gb``), measured after the CUDA
+    context exists, so it accounts for every other process on the card at this moment. Returns the
+    cap in GB, or ``None`` without CUDA. Harmless on a large card (Colab A100): the cap sits far
+    above what generation uses.
+    """
+    import torch
+
+    if not torch.cuda.is_available():
+        return None
+    torch.cuda.init()
+    free, total = torch.cuda.mem_get_info()
+    cap = free - margin_gb * 2**30
+    if max_gb is not None:
+        cap = min(cap, max_gb * 2**30)
+    if cap <= 0:
+        raise RuntimeError(f"Only {free / 2**30:.1f} GB of VRAM free; refusing to start "
+                           f"(margin {margin_gb} GB). Close other GPU programs first.")
+    torch.cuda.set_per_process_memory_fraction(cap / total)
+    print(f"  CUDA memory cap: {cap / 2**30:.1f} GB for this process "
+          f"({free / 2**30:.1f} GB free of {total / 2**30:.1f} GB, margin {margin_gb} GB)")
+    return cap / 2**30
+
+
 def load_base_model(
     model_id: str,
     quantization_config=None,

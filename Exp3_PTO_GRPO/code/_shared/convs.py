@@ -520,6 +520,8 @@ async def conversation_loop_batch(
               due to speaker desync (valid partial data is kept).
     """
     desynced_indices: List[int] = []
+    therapist_sub_batch: Optional[int] = None   # set (sticky) once a therapist step hits OOM
+    oom_failed = False
     for turn_num in range(num_utterances):
         active_states = [s for s in batch_states if s.is_active]
         if not active_states:
@@ -569,20 +571,26 @@ async def conversation_loop_batch(
             role_Therapist = "assistant"
 
             batch_therapist_messages = [s.messages_Therapist_assist for s in active_states]
-            responses, error_type = generate_therapist_responses_batch(
+            responses, therapist_sub_batch, error_type = _therapist_step_oom_safe(
                 therapist_model, therapist_tokenizer, batch_therapist_messages,
                 max_tokens_per_response, temperature_therapist,
                 max_input_tokens=therapist_max_input_tokens,
                 stop_strings=stop_strings,
+                sub_batch=therapist_sub_batch,
             )
 
-            if responses is None:
+            if responses is None:  # a non-OOM failure: abort the batch, as before
                 for state in active_states:
                     state.is_active = False
                     state.failed = True
                 return batch_states, (error_type or "therapist_generation_failed"), desynced_indices
 
             for state, response_content in zip(active_states, responses):
+                if response_content is None:  # OOM even on its own: this conversation fails alone
+                    state.is_active = False
+                    state.failed = True
+                    oom_failed = True
+                    continue
                 _process_session_response(state, response_content, speaker_role, role_Patient, role_Therapist)
 
         if verbose_detailed:
@@ -597,7 +605,70 @@ async def conversation_loop_batch(
                 s.messages_Patient_assist = []
                 s.messages_Therapist_assist = []
 
-    return batch_states, None, desynced_indices
+    # A conversation that OOMed even at therapist sub-batch 1 failed alone; report "oom" so the
+    # caller's pass-level backoff sees it (the other conversations of the batch are complete).
+    return batch_states, ("oom" if oom_failed else None), desynced_indices
+
+
+def _therapist_step_oom_safe(
+    therapist_model,
+    therapist_tokenizer,
+    batch_messages: List[list],
+    max_tokens: int,
+    temperature: float,
+    max_input_tokens: int,
+    stop_strings: Optional[List[str]],
+    sub_batch: Optional[int],
+) -> Tuple[Optional[List[Optional[str]]], Optional[int], Optional[str]]:
+    """One therapist step for every active conversation, surviving CUDA OOM (2026-10-08).
+
+    With ``sub_batch`` None (no OOM yet in this batch) this is exactly one
+    :func:`generate_therapist_responses_batch` call over all inputs, as before. On ``"oom"`` it
+    retries the SAME step in chunks, halving the chunk size until it fits, and returns that size
+    so the caller reuses it (sticky) for the rest of the batch. No in-flight conversation is
+    discarded: before this, an OOM marked the whole batch's active conversations failed while the
+    ones that had already ended were kept, so a redraw under-sampled long sessions. Mirrors
+    ``reward._therapist_generate_chunked`` (not imported: reward imports convs).
+
+    Returns ``(responses, sub_batch, error_type)``: ``responses`` order-aligned, ``None`` for an
+    input that OOMs even alone; ``responses`` is ``None`` only on a non-OOM failure (the caller
+    aborts the batch, the pre-existing behavior).
+    """
+    n = len(batch_messages)
+    if sub_batch is None or sub_batch >= n:
+        resp, error_type = generate_therapist_responses_batch(
+            therapist_model, therapist_tokenizer, batch_messages, max_tokens, temperature,
+            max_input_tokens=max_input_tokens, stop_strings=stop_strings,
+        )
+        if error_type is None:
+            return resp, sub_batch, None
+        if error_type != "oom":
+            return None, sub_batch, error_type
+        if n == 1:
+            return [None], 1, "oom"
+        sub_batch = max(1, n // 2)
+        print(f"  CUDA OOM at therapist batch {n}: retrying this step in chunks of {sub_batch}")
+
+    responses: List[Optional[str]] = [None] * n
+    i = 0
+    while i < n:
+        chunk = batch_messages[i:i + sub_batch]
+        resp, error_type = generate_therapist_responses_batch(
+            therapist_model, therapist_tokenizer, chunk, max_tokens, temperature,
+            max_input_tokens=max_input_tokens, stop_strings=stop_strings,
+        )
+        if error_type is None:
+            responses[i:i + len(chunk)] = resp
+            i += len(chunk)
+        elif error_type == "oom":
+            if sub_batch == 1:
+                i += 1                      # this one fails alone (stays None)
+            else:
+                sub_batch = max(1, sub_batch // 2)
+                print(f"  CUDA OOM: therapist chunk size halved to {sub_batch}")
+        else:
+            return None, sub_batch, error_type
+    return responses, sub_batch, None
 
 
 async def synthesize_conversations_batch(
@@ -873,11 +944,14 @@ def _run_one_pass(
     verbose: bool,
     detailed: bool,
     synthesis_kwargs: dict,
-) -> bool:
+) -> Tuple[bool, bool]:
     """Run one full pass over remaining indices.
 
-    Mutates ``completed`` and ``counters`` in place. Returns ``True`` if any
-    new conversations were added (used for the retry-without-progress check).
+    Mutates ``completed`` and ``counters`` in place. Returns ``(progress_made, hit_oom)``:
+    ``progress_made`` is ``True`` if any new conversations were added (used for the
+    retry-without-progress check); ``hit_oom`` is ``True`` if a batch hit CUDA OOM, in which case
+    the pass stops right after saving that batch's finished conversations, so the caller can
+    halve the batch size before the next batch allocates at the size that just failed.
     """
     num_batches = (len(remaining) + batch_size - 1) // batch_size
     progress_made = False
@@ -903,12 +977,17 @@ def _run_one_pass(
         final_states = batch_result["final_states"]
         counters.desynced.extend(batch_result["desynced_indices"])
         batch_elapsed = time.time() - batch_time_start
+        # A therapist-generation OOM comes back as error_type "oom" WITH final_states (the batch's
+        # still-active conversations marked failed, the ones that had already ended intact).
+        hit_oom = batch_result["error_type"] == "oom"
 
         if final_states is None:
             if verbose:
                 print(f"    Batch {batch_num}/{num_batches} FAILED ({batch_result['error_type']}) — {batch_elapsed:.1f}s")
             gc.collect()
             torch.cuda.empty_cache()
+            if hit_oom and batch_size > 1:
+                return progress_made, True
             time.sleep(batch_cooldown_seconds)
             continue
 
@@ -929,13 +1008,25 @@ def _run_one_pass(
         # this. Cost is one re-allocation per batch (negligible next to the batch's own generation);
         # `empty_cache` frees only UNUSED cached blocks, so results are bit-identical.
         del final_states, batch_result
+        # The batch's PEAK, read before the cache is emptied (the old "vram" field was read after
+        # empty_cache, so it never showed how close a batch came to the card): peak reserved, the
+        # process cap if one is set (cap_cuda_memory), and device-wide free memory.
+        peak_txt = ""
+        if torch.cuda.is_available():
+            peak = torch.cuda.max_memory_reserved() / 1024**3
+            frac = torch.cuda.get_per_process_memory_fraction()
+            cap_txt = (f" / cap {frac * torch.cuda.get_device_properties(0).total_memory / 1024**3:.1f}G"
+                       if frac < 1.0 else "")
+            free_dev = torch.cuda.mem_get_info()[0] / 1024**3
+            peak_txt = f", peak {peak:.1f}G{cap_txt}, device free {free_dev:.1f}G"
+            torch.cuda.reset_peak_memory_stats()
         gc.collect()
         torch.cuda.empty_cache()
 
         if verbose:
             total_elapsed = time.time() - start_time
             reserved = (
-                f", vram {torch.cuda.memory_reserved() / 1024**3:.1f}G"
+                f", vram {torch.cuda.memory_reserved() / 1024**3:.1f}G{peak_txt}"
                 if torch.cuda.is_available() else ""
             )
             print(
@@ -946,7 +1037,13 @@ def _run_one_pass(
                 f"batch {batch_elapsed:.1f}s, total {total_elapsed:.1f}s{reserved}"
             )
 
-    return progress_made
+        if hit_oom and batch_size > 1:
+            if verbose:
+                print(f"    Batch {batch_num}/{num_batches} hit CUDA OOM — ending this pass so the "
+                      f"batch size can be halved")
+            return progress_made, True
+
+    return progress_made, False
 
 
 def _summarize(
@@ -1056,7 +1153,7 @@ def generate_all_conversations(
                 f"[{elapsed:.1f}s elapsed]"
             )
 
-        progress = _run_one_pass(
+        progress, hit_oom = _run_one_pass(
             remaining, permutations, completed, counters,
             therapist_model=therapist_model,
             therapist_tokenizer=therapist_tokenizer,
@@ -1072,6 +1169,16 @@ def generate_all_conversations(
             detailed=detailed,
             synthesis_kwargs=synthesis_kwargs,
         )
+
+        # OOM backoff (2026-10-08): halve the batch, sticky for the rest of this call, and do not
+        # count the pass as a retry -- the configuration changed. Only an OOM at batch size 1 counts
+        # toward the retry limit. Without this, a pass that hit OOM retried at the same size.
+        if hit_oom and batch_size > 1:
+            batch_size = max(1, batch_size // 2)
+            print(f"  CUDA OOM: conversation batch size halved to {batch_size} for the rest of this run")
+            gc.collect()
+            torch.cuda.empty_cache()
+            continue
 
         if progress:
             retries_without_progress = 0

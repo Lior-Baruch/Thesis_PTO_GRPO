@@ -533,8 +533,9 @@ EDA has no Colab branches — host-agnostic by design. Dual-host plumbing in
 the trainers is only there to keep them importable + smoke-testable locally.
 
 **Local GPU generation is viable — training is not.** [code/tools/generate_eval_convs.{py,ipynb}](Exp3_PTO_GRPO/code/tools/generate_eval_convs.py) (moved from `code/PTO_Exp3/` on 2026-08-18; run it from `code/tools/`) runs a
-96-conv generate-only pass on the 12 GB local card in ~50 min at `--batch-size 6` (~16 batches),
-and is API-bound there (mean GPU util 28% at batch 4 — patient calls dominate, which is why big
+96-conv generate-only pass on the 12 GB local card in about an hour at `--batch-size 4` (batch 6
+crashed the PC on 2026-10-08 once a trained policy's contexts reached the 2,048-token cap — see
+§ Gotchas), and is API-bound there (mean GPU util 28% at batch 4 — patient calls dominate, which is why big
 batches on an A100 win: they amortize the API wait across all 96 conversations). Respect the VRAM
 ceiling in § Gotchas. Local *training* remains Colab-only for unrelated reasons (see the
 `project-local-training-blackwell-crash` memory).
@@ -604,17 +605,29 @@ without which a new cross-top notebook races under `render_results.py`).
 - **"The conv dir exists" ≠ "the convs exist", AND "the dir reads as empty" ≠ "the run died".** `data/` is a Google Drive Desktop symlink, and the mount can wedge on a single folder — a populated `model_iter_N/` read as 0 files with an intermittent `WinError 1450` while all 96 convs were present in Drive the whole time; a Drive restart fixed it. **Before concluding an arm is unfinished, check the cloud** (the Drive MCP connector lists the folder directly). The alternative was a needless ~50-min regeneration.
 - **Per-generation EDA.** `iteration_N/eda/generations.jsonl` (one row per branch, candidates nested — see "Training internals") is separate from `pref_pairs/pairs.csv` (the PTO DPO audit trail). Off-switch: `SAVE_EDA_GENERATIONS=False`. The continuous live-TB run lives at `runs/.../tb_live/` (sibling of `iteration_N/`).
 - **PTO `branch_id` is trunk DEPTH, not a unique id.** Unlike GRPO's, it repeats across conversations, so any per-branch aggregation must key on `(conversation_id, branch_id)` — pooling on `branch_id` alone mixes unrelated conversations.
-- **Local GPU: an over-budget VRAM request REBOOTS the PC — it does not raise `OutOfMemoryError`.**
-  On the RTX 5070 Ti (12,227 MiB, sm_120, driver 610.62) exceeding VRAM is a hard GPU/driver fault
-  that takes the OS down with no Python traceback — so you cannot catch it, and `--batch-size` is a
-  safety setting, not just a throughput knob. **Measured 2026-07-30** for conv generation: weights
-  2.6 GB + **≈1.1 GB per concurrent conversation** ⇒ batch 4 = 7.1 GB (58%), batch 6 ≈ 8.0 GB/batch,
-  **batch 32 ≈ 38 GB → rebooted the machine**. Do that arithmetic before raising the batch. Full
-  batch (96) means Colab. **Do NOT reason "inference-only, so it's safe"** — the crash is about the
-  memory request, not the backward pass. Watch the `vram <N>G` field on each batch line
-  (`torch.cuda.memory_reserved()`): flat across batches = healthy, climbing = the inter-batch
-  `empty_cache()` in [_shared/convs.py](Exp3_PTO_GRPO/code/_shared/convs.py) has regressed. A
-  **single-batch** smoke test cannot detect that class of leak — it needs ≥2 batches.
+- **Local GPU: an UNCAPPED over-budget VRAM request crashes the PC — it does not raise `OutOfMemoryError`.**
+  On the RTX 5070 Ti (12,227 MiB, sm_120) the Windows driver's default CUDA *sysmem fallback* spills
+  an allocation past VRAM into system memory instead of failing, and with VBS/HVCI on the machine
+  goes down with no Python traceback (2026-10-08: bugcheck **0x20001 HYPERVISOR_ERROR**). It has
+  happened twice: batch 32 (July), and **batch 6 on 2026-10-08** — the untrained Base ran fine, but
+  the first trained checkpoint's long turns pushed its contexts to the 2,048-token input cap.
+  **Measured 2026-10-08 under a cap, at that context:** weights 2.30 GB + **≈1.29 GB per concurrent
+  conversation** ⇒ batch 4 ≈ 7.5 GB, batch 6 ≈ 10.0 GB (over budget beside the desktop). (The older
+  "2.6 + 1.1 GB/conv, batch 6 ≈ 8.0 GB" was measured on shorter contexts — it understates a trained
+  policy.) **Guards since 2026-10-08:** `generate_eval_convs.py` calls `_shared.cap_cuda_memory`
+  (allocator cap = free VRAM − `--vram-margin-gb`, default 1.5) before the model loads, so an overrun
+  raises; the therapist step then retries in halving chunks and the conversation batch halves
+  ([_shared/convs.py](Exp3_PTO_GRPO/code/_shared/convs.py)); a local run without `--batch-size` is
+  refused. The cap does not see memory outside PyTorch's allocator (CUDA context, lazily loaded
+  kernels, other processes), so also set NVIDIA Control Panel → Manage 3D Settings → Global →
+  **"CUDA – Sysmem Fallback Policy" = "Prefer No Sysmem Fallback"** (a per-program entry must target
+  the Store `python3.13.exe`, not `.venv\Scripts\python.exe`, which is only a launcher). Use
+  **`--batch-size 4` locally, one GPU job at a time**, and call `cap_cuda_memory` in any new local GPU
+  script before its model loads. **Do NOT reason "inference-only, so it's safe"** — the crash is about
+  the memory request, not the backward pass. Each batch line prints `vram <N>G` (reserved after the
+  inter-batch `empty_cache()`; flat across batches = healthy, climbing = that release has regressed)
+  and, since 2026-10-08, `peak <N>G / cap <N>G, device free <N>G` (the batch's high-water mark — the
+  number to watch). A **single-batch** smoke test cannot detect the leak class — it needs ≥2 batches.
 - **Editing `_shared/` does NOT affect an already-running Jupyter kernel.** Python caches imported
   modules, so a live kernel keeps the old code. Symptom of exactly this: the batch lines lack the
   `vram` field that ships with the current `convs.py`. **Restart the kernel** — per-CSV conversation
