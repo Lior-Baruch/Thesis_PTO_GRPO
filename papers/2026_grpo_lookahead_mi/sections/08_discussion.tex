@@ -19,17 +19,16 @@ training the look-ahead reward did too: among the eight candidates for a prompt,
 keyword-marker phrase scored $0.22$--$0.33$ within-group standard deviations above the others under
 $\Kz$ and $0.16$--$0.21$ under $\Kf$ (models of iterations 4--7; under $\Kf$ clearly above zero
 only at 6--7). In the last round, on the iteration-9 model's candidates, only the $\Kz$ reward,
-which scores a turn before the patient has answered it, favored them again ($0.16$ against $0.04$;
-Appendix~\ref{app:premium}), and the $\Kz$ policy ended training praising in $0.41$ of its turns.
+which scores a turn before the patient has answered it, clearly favored them again
+(Appendix~\ref{app:premium}), and the $\Kz$ policy ended training praising in $0.41$ of its turns.
 % \dnotedone{rephrased}{[again after $97\%$ of their change talk ??]}
 % \dnotedone{rephrased, one idea per sentence}{- try to rephrase this - there is an interesting story here but need to tell it better}
 The $\Kf$ policy learned part of what MI prescribes, reflecting the patient's change talk, and
 under it change talk persisted more often; its MI-inconsistent habit is a different one: it meets
-sustain talk with persuasion more often than the Base. Inside the update
-(Appendix~\ref{app:mechanism}), the $\Kf$ reward agrees only slightly better with the finished
+sustain talk with persuasion more often than the Base. Why the two policies differ stays open
+(Appendix~\ref{app:mechanism}): the $\Kf$ reward agrees only slightly better with the finished
 session's score, the two runs' update directions diverge from training iteration 4 on, and the
-$\Kz$ updates are larger; one run per horizon cannot separate these accounts.
-\label{sec:mechanism}
+$\Kz$ updates are larger; one run per horizon cannot tell which matters.
 
 \dnotedone{the reward choice; what it leaves open is now in the Limitations}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
 Both runs optimized \QQ, which rates the session from the patient's side. Q1 also credits moves
@@ -43,7 +42,7 @@ policy's praise and the $\Kf$ policy's persuasion.
 % \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
 In this pair of runs, scoring each candidate turn with the five turns that follow it gave
 a policy ahead on every instrument and a different therapist, one that persuades in reply to
-sustain talk but reflects change talk instead of praising.
+sustain talk but reflects change talk and praises far less.
 % \dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
 % \dnotedone{cut}{coding the process as well as the outcome ??}
 % \dnotedone{cut}{headroom ??}
