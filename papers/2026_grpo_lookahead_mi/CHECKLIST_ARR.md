@@ -16,6 +16,13 @@ D Reproducibility (D.1 configuration, D.2 instruments, D.3 utterance coder, D.4 
 prompts, D.5 keyword marker, D.6 anti-degeneracy, D.7 evaluation and statistics, D.8 cost accounting,
 D.9 artifacts), E examples, F saturation. **Table 12 = configuration, Table 13 = instruments.**
 
+⚠ **Stale since review round 4 (steps 14–16)** (read off `main.aux`, 2026-10-08): Table 11 =
+configuration, Table 12 = instruments; Appendix D is now D.1 training loop, D.2 configuration,
+D.3 instruments, D.4 utterance coder, D.5 patient and therapist prompts, D.6 keyword marker, D.7
+anti-degeneracy, D.8 evaluation and statistics, D.9 cost accounting, D.10 artifacts (every D.n
+pointer in the tables below is now D.n+1); Appendix C runs to C.7. Re-point the rows below in
+README row 18, against the final build.
+
 ## A. For every submission
 
 | # | Question | Answer | Where |
@@ -64,6 +71,42 @@ Limitations "Simulation only, in sample, without human validation").
    the claims ledger and the selection scripts — decide what goes in the archive (the two trainer
    notebooks + `_shared/`, the EDA package, the results tables, `NUMBERS.md`, the paper's scripts)
    and strip names/paths/keys from it.
+   **Revised by review round 5 (2026-10-08, M1 + A3): the archive is GRPO-only.** Shipping the PTO
+   trainer, or tables with PTO rows, would amount to an unreported PTO-vs-GRPO comparison that ties
+   the paper to Baruch et al., and the Hub handle identifies the authors.
+   - **Contents:** `code/GRPO_Exp3/`, `code/_shared/` (PTO/DPO code paths and docstrings cut,
+     e.g. `tb_plots.py` and `eda_recorder.py`), `code/system_prompts_builder.py`,
+     `code/questionnaires.py`, and the paper's scripts: `render_process_tables.py`,
+     `render_paper_figures.py`, `render_schematic.py`, `select_example_*.py` (not `build.py`,
+     `overleaf.py`, `make_overleaf_zip.py`, `sync_figures.py`), with their
+     `HERE.parent.parent / "Exp3_PTO_GRPO"` roots and `_shared/runtime.py`'s default
+     `experiment_name` replaced by a neutral relative root. **Not** `code/PTO_Exp3/`. The cited
+     EDA tables filtered by script to rows whose arm is Base, GRPO_LA0 or GRPO_LA5 (model Base or
+     `GRPOExp3_*`), dropping every `PTO_LA*`/`PTOExp3_*` row and every `PTO_*` column (most tables
+     carry PTO rows or columns, e.g. `compute/cost/tables/step_multiplier.md`); `NUMBERS.md` only
+     after its lookups are re-checked against the filtered copy.
+   - **In the archived copies:** `HUB_ENTITY = "<HF_USER>"` (it is `"LBK95"` in
+     `train_GRPO_Iterative.ipynb`, the handle that also hosts the cited PTO paper's adapters); a
+     relative root instead of `MyDrive/Thesis_PTO_GRPO` paths; **all saved notebook outputs
+     cleared**; no `run_metadata.json`.
+   - **Archived notebook cell 1:** `NUM_ITERATIONS = 10` (the tracked notebook says 6) with
+     `# Both reported runs used 10 iterations` and `# LOOKAHEAD_K: 0 for the K=0 run, 5 for the K=5
+     run`; replace the comments that argue for 6 and quote the superseded 2.4–3.0× cost with the
+     measured median 1.92× per step (`compute/cost/tables/step_multiplier.md`,
+     `GRPO_step_ratio_K5_over_K0`, iterations 3–10: (1.911 + 1.930) / 2 = 1.92).
+   - **`questionnaires.py`:** replace `CSQ8_ITEMS` (fee-licensed instrument) with placeholders, and
+     `MI_SAT_ITEMS` (unpublished) too unless its author agrees. Check whether the lab holds a CSQ-8
+     permission before wording anything about it.
+   - **Strip-grep, case-insensitive, over the built zip as well as the PDF:**
+     `lior|doron|kfir|butman|moshe|almog|baruc|reichman|runi\.ac|C:/Users|My Drive|MyDrive|Thesis_PTO|LBK95|HUB_ENTITY|current_adapter_repo|PTO_|PTOExp3`,
+     plus `\bPTO\b|\bDPO` over the zip only (the PDF cites PTO)
+     (round 4's B9 list, extended in round 5; `butman|moshe|runi\.ac` added for the fourth author
+     and the e-mail domain; `PTO_` also catches `Exp3_PTO_GRPO`, `PTO_LA*` and `PTO_*` columns).
+     Inspect every hit rather than expecting zero: `HUB_ENTITY`/`current_adapter_repo` must carry
+     placeholders, and `baruc` in the PDF must be the Baruch et al. citation only.
+   - If the adapter repos `GRPO_Iterative_Q1Q2_Llama32-1B_LA{0,5}_MCL12_G8_full` are public,
+     consider making them private until the decision. Fallback if the archive is not ready:
+     Artifacts says "will be released upon publication" and no archive is uploaded.
 3. **Preprint option.** Decide whether to select the binding "no non-anonymous preprint" option
    in the form; there is otherwise no anonymity period.
 4. **Fill the checklist** in the form from the tables above; state "English only" (B5) and "no
@@ -72,3 +115,22 @@ Limitations "Simulation only, in sample, without human validation").
 6. **Optional but strong:** a human MI coder on a sample of endpoint conversations (the paper's
    most-repeated caveat); a second training seed per arm is the principal limitation but is out of
    budget before 2026-10-12 (≈79 GPU-h plus the oracle bill).
+7. **Designated service contributor — MUST, form due by Oct 14** (added by review round 5, A1;
+   rules checked 2026-10-08 against https://aclrollingreview.org/cfp and the ACL sustainable
+   reviewing policy 2026). A submission is guaranteed review only if it names one qualified
+   designated service contributor, who must complete a registration form within 48 hours of the
+   submission deadline (Oct 12 → by Oct 14). Without one the paper goes into a lottery, and a paper
+   not drawn is desk-rejected. A contributor serves at most two submissions per cycle (five reviews,
+   or eight meta-reviews, each) and must confirm the paper is ready for a top-tier venue.
+   Qualification is by publication record: a PhD holder or senior academic (postdoc/faculty) with at
+   least 2 publications in major ACL events, Findings of the ACL or major ML venues; a doctoral
+   student, or an industry researcher with at least a Master's, needs those 2 plus at least 3
+   publications in total. A non-author can be nominated but must vouch for the work. Action: name a
+   co-author who qualifies (Kfir Bar or Doron Friedman — confirm their record against the criteria)
+   and is not already the contributor for two other October submissions; make sure they file the
+   form from their console by Oct 14.
+8. **Complete OpenReview profiles for all four authors — MUST, by Oct 19** (one week after the
+   deadline; review round 5, A1): ORCID, affiliation history, e-mails, conflicts of interest and,
+   for those with publications, DBLP / ACL Anthology links. The designated contributor's profile
+   must show the record that qualifies them. Re-read https://aclrollingreview.org/cfp on submission
+   day in case the rules changed.
