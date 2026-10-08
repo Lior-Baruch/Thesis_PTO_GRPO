@@ -1,4 +1,4 @@
-\clearpage
+% 2026-10-08 (review round 5, P2): the leading \clearpage was removed (it left a mostly empty page).
 \section{Two matched-persona examples}
 \label{app:example}
 
@@ -18,7 +18,7 @@ paired by position within each persona, 28 pairs have the $K{=}0$ reply labeled 
 praise and the $K{=}5$ reply labeled a complex reflection by both judges' utterance coders. These
 were ranked by simple lexical features (praise words in the $K{=}0$ turn; no praise words, and
 questions or reflection phrases, in the $K{=}5$ turn; signs of reluctance in the preceding patient turn;
-earlier replies preferred; the script is alongside the paper), and this pair is the top of that
+earlier replies preferred; the script is in the supplementary archive), and this pair is the top of that
 list. It is an illustration, not a typical exchange. The $K{=}5$ replies are not MI-consistent
 throughout either: the second opens by agreeing that she has already failed, and the third suggests
 eating more healthily and drinking water instead of soda to a patient who came about smoking, which
@@ -31,7 +31,7 @@ held-out judge $2.24$ vs.\ $3.75$. Utterances 1--7 of each follow.
 
 \small
 
-\subsubsection*{The $K{=}0$ policy at iteration 10}
+\subsubsection*{\boldmath The $K{=}0$ policy at iteration 10}
 
 \noindent\textbf{Patient:} Well, my name is Emma. I'm 61, and I've been smoking for years. Honestly,
 I'm here because someone thought it would be a good idea for me to talk to someone like you. I don't
@@ -97,7 +97,7 @@ to just go through the motions of therapy without any real change. If I'm going 
 this, I need something practical. What can I actually start doing that might help me quit smoking
 for good?
 
-\subsubsection*{The $K{=}5$ policy at iteration 10}
+\subsubsection*{\boldmath The $K{=}5$ policy at iteration 10}
 
 \noindent\textbf{Patient:} Well, my name is Emma. I'm 61, and I really don't see the point of being
 here. Someone insisted that I come to therapy, and honestly, I think it's a waste of time. I've been
@@ -153,13 +153,13 @@ round of empty promises?
 
 \normalsize
 
-\subsection{An example drawn at random}
+\subsection{An example from a random draw of eight personas}
 \label{app:example-drawn}
 
 The second persona was chosen partly at random. We drew eight of the 96 personas with a fixed seed
 (NumPy's \texttt{default\_rng(20261006)}, eight without replacement: personas 93, 34, 51, 89, 73,
 65, 29 and 21), read utterances 1--8 of both runs' iteration-10 conversations for each, and picked
-the one that shows the difference most clearly (the script is alongside the paper). He is a
+the one that shows the difference most clearly (the script is in the supplementary archive). He is a
 61-year-old man who has smoked for many years and never tried to quit, and whose simulator prompt
 makes him cooperative throughout; his first utterance happens to be identical in the two
 conversations. The $K{=}0$ conversation ran to 20 utterances (10 therapist turns) and the $K{=}5$
@@ -169,14 +169,15 @@ median over the 96 personas ($0.53$ and $0.64$). Utterances 1--4 of each follow.
 replies praise at length and run to the 200-token cap; the training oracle's coder labels the
 second an affirmation and the held-out judge's coder labels it non-specific praise. The $K{=}5$
 policy first asks what keeps him smoking (persuasion under the training oracle's coder, a closed
-question under the held-out judge's), then reflects his answer (a complex reflection under both).
+question under the held-out judge's; by the MISC~2.5 definition it is an open question, one that
+asks for reasons not to change), then reflects his answer (a complex reflection under both).
 Persuasion, not complex reflection, is the $K{=}5$ policy's most frequent code at iteration 10
 under both judges (Table~\ref{tab:codes}), so the second reply shows the behavior the tables
 report rather than the policy's usual turn.
 
 \small
 
-\subsubsection*{The $K{=}0$ policy at iteration 10}
+\subsubsection*{\boldmath The $K{=}0$ policy at iteration 10}
 
 \noindent\textbf{Patient:} Hello, David. I'm James, and I'm 61 years old. I've been smoking for many
 years, and it's become a daily habit for me. Recently, I've been increasingly concerned about how
@@ -215,7 +216,7 @@ on every step of the way. I'm thrilled to be your partner on this journey, and I
 what you can achieve. You are strong, beautiful, and deserving of all the love and support you
 deserve
 
-\subsubsection*{The $K{=}5$ policy at iteration 10}
+\subsubsection*{\boldmath The $K{=}5$ policy at iteration 10}
 
 \noindent\textbf{Patient:} Hello, David. I'm James, and I'm 61 years old. I've been smoking for many
 years, and it's become a daily habit for me. Recently, I've been increasingly concerned about how
