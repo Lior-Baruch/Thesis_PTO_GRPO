@@ -13,10 +13,16 @@ Figure~\ref{fig:overpraise}: the praise of \S\ref{sec:therapist} by
 iteration, as the coder's share under each judge and as the keyword marker.
 Figure~\ref{fig:responsiveness}: the therapist's four replies of Table~\ref{tab:process} by
 iteration under both judges. Table~\ref{tab:coop}: the $\Kf - \Kz$ contrast within each third of
-the personas by cooperation, followed by a test over the whole run and a comparison of the two Base
-draws.
+the personas by cooperation (Appendix~\ref{app:cooperation}). The subsections audit the look-ahead
+rollouts (Appendix~\ref{app:rollouts}) and then give further checks: each final policy
+against the Base, the contrast by cooperation, a test over the whole run, a second draw of the
+final $\Kf$ policy, the two Base draws, change talk after each reply and the patient's side
+(Appendices~\ref{app:vsbase}--\ref{app:patientside}).
 
-\textbf{The look-ahead rollouts.} In most cases the five-turn look-ahead ran as specified: of the
+\subsection{The look-ahead rollouts}
+\label{app:rollouts}
+
+In most cases the five-turn look-ahead ran as specified: of the
 $121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ had a rollout that ran all
 five turns, and most of the rest ended because the simulated patient closed the session ($16\%$
 of all candidates). Candidates whose rollout ended early scored at or slightly below their
@@ -73,8 +79,9 @@ MI-inconsistent acts per therapist turn, lower is better. Bold: each column's be
 21 model states, the Base included (a level, not a test). A star marks the better run at an
 iteration where the persona-paired $\Kf$ vs.\ $\Kz$ contrast on that instrument is significant
 (Holm across iterations 1--10 within instrument; one star for any Holm $p<.05$); the only star on a
-$\Kz$ cell is MICI at iteration 3. Table~\ref{tab:endpoint} gives the Base and iteration-10 rows to
-two decimals; Figure~\ref{fig:headline} draws the columns; the held-out judge's version is
+$\Kz$ cell is MICI at iteration 3. Table~\ref{tab:endpoint} gives the Base, $\Kz$ at 8 and both
+runs at 10 to two decimals, rounded from the unrounded means (the Base's \QQ\ is $3.01498$);
+Figure~\ref{fig:headline} draws the columns; the held-out judge's version is
 Table~\ref{tab:scores-heldout}.}
 \label{tab:scores}
 \end{table*}
@@ -87,26 +94,26 @@ Table~\ref{tab:scores-heldout}.}
 \renewcommand{\arraystretch}{0.92}
 \begin{tabular}{@{}lrrrrrrl@{}}
 \toprule
-& \multicolumn{4}{c}{training oracle} & \multicolumn{2}{c}{\dz, $\Kf$ at 10 $-$ $\Kz$ at} & $\Kf$ better at\\
+& \multicolumn{4}{c}{training oracle} & \multicolumn{2}{c}{\dz, $\Kf$ at 10 $-$ $\Kz$} & $\Kf$ better at\\
 \cmidrule(lr){2-5}\cmidrule(lr){6-7}
-Per-conversation measure & Base & $\Kz$ at 8 & $\Kz$ at 10 & $\Kf$ at 10 & 8 & 10 & iterations\\
+Per-conversation measure & Base & $\Kz$ at 8 & $\Kz$ at 10 & $\Kf$ at 10 & best (8) & last (10) & iterations\\
 \midrule
 \multicolumn{8}{@{}l}{\emph{Therapist turns (share by dominant function)}}\\
 non-specific praise ($\downarrow$) & $\mathbf{0.041}$ & $0.222$ & $0.407$ & $0.053$ & $-0.73^{***}$ & $-1.19^{***}$ & 8, 10\\
 complex reflection & $0.018$ & $0.025$ & $0.020$ & $\mathbf{0.230}$ & $+0.83^{***}$ & $+0.90^{***}$ & 4--10\\
-persuasion ($\downarrow$) & $0.203$ & $0.191$ & $\mathbf{0.055}$ & $0.279$ & $+0.28^{*}$ & $+0.79^{***}$ & 2, 6--10 ($\Kz$)\\
-MI-consistent share & $0.306$ & $0.250$ & $0.290$ & $\mathbf{0.438}$ & $+0.58^{***}$ & $+0.40^{**}$ & 6, 8--10\\
-MI-inconsistent share ($\downarrow$) & $\mathbf{0.248}$ & $0.412$ & $0.463$ & $0.332$ & $-0.25^{**}$ & $-0.36^{**}$ & 10; 2, 6, 9 ($\Kz$)\\
+persuasion ($\downarrow$) & $0.203$ & $0.191$ & $\mathbf{0.055}$ & $0.279$ & $+0.28^{*\phantom{**}}$ & $+0.79^{***}$ & 2, 6--10 ($\Kz$)\\
+MI-consistent share & $0.306$ & $0.250$ & $0.290$ & $\mathbf{0.438}$ & $+0.58^{***}$ & $+0.40^{**\phantom{*}}$ & 6, 8--10\\
+MI-inconsistent share ($\downarrow$) & $\mathbf{0.248}$ & $0.412$ & $0.463$ & $0.332$ & $-0.25^{**\phantom{*}}$ & $-0.36^{**\phantom{*}}$ & 10; 2, 6, 9 ($\Kz$)\\
 \midrule
 \multicolumn{8}{@{}l}{\emph{The therapist's reply to the patient's \ldots}}\\
 change talk: reflects it & $0.137$ & $0.009$ & $0.003$ & $\mathbf{0.264}$ & $+0.97^{***}$ & $+0.99^{***}$ & 1, 6--10\\
-sustain talk: praises ($\downarrow$) & $0.019$ & $0.130$ & $0.315$ & $\mathbf{0.015}$ & $-0.49^{**}$ & $-1.10^{***}$ & 8--10\\
-sustain talk: persuades ($\downarrow$) & $0.242$ & $0.295$ & $\mathbf{0.073}$ & $0.393$ & $+0.24$ & $+0.90^{***}$ & 8--10 ($\Kz$)\\
-sustain talk: reflects it & $0.217$ & $0.230$ & $0.256$ & $\mathbf{0.368}$ & $+0.38^{**}$ & $+0.27$ & 9\\
+sustain talk: praises ($\downarrow$) & $0.019$ & $0.130$ & $0.315$ & $\mathbf{0.015}$ & $-0.49^{**\phantom{*}}$ & $-1.10^{***}$ & 8--10\\
+sustain talk: persuades ($\downarrow$) & $0.242$ & $0.295$ & $\mathbf{0.073}$ & $0.393$ & $+0.24^{\phantom{***}}$ & $+0.90^{***}$ & 8--10 ($\Kz$)\\
+sustain talk: reflects it & $0.217$ & $0.230$ & $0.256$ & $\mathbf{0.368}$ & $+0.38^{**\phantom{*}}$ & $+0.27^{\phantom{***}}$ & 9\\
 \midrule
 \multicolumn{8}{@{}l}{\emph{Next patient utterance is change talk, after \ldots}}\\
-change talk & $0.750$ & $0.880$ & $0.796$ & $\mathbf{0.968}$ & $+0.36^{**}$ & $+0.62^{***}$ & 5--10\\
-sustain talk & $0.281$ & $0.224$ & $0.276$ & $\mathbf{0.326}$ & $+0.43^{**}$ & $+0.18$ & 5--7, 9\\
+change talk & $0.750$ & $0.880$ & $0.796$ & $\mathbf{0.968}$ & $+0.36^{**\phantom{*}}$ & $+0.62^{***}$ & 5--10\\
+sustain talk & $0.281$ & $0.224$ & $0.276$ & $\mathbf{0.326}$ & $+0.43^{**\phantom{*}}$ & $+0.18^{\phantom{***}}$ & 5--7, 9\\
 \midrule
 \multicolumn{8}{@{}l}{\emph{The session (share of all patient utterances)}}\\
 change-talk share & $0.448$ & $0.518$ & $0.528$ & $\mathbf{0.683}$ & $+0.63^{***}$ & $+0.56^{***}$ & 6--10\\
@@ -114,7 +121,8 @@ change-talk share & $0.448$ & $0.518$ & $0.528$ & $\mathbf{0.683}$ & $+0.63^{***
 \end{tabular}
 \caption{\textbf{The process at the checkpoints of Table~\ref{tab:endpoint}}, training oracle (every
 iteration: Table~\ref{tab:process-all}; held-out judge: Table~\ref{tab:process-heldout}). Levels:
-means over 96 conversations (Base: 192); bold: each row's best, the Base included. The reply and
+means over 96 conversations (Base: 192; its therapist-turn rows, which exclude the scripted opener,
+are over the 184 with a later therapist turn); bold: each row's best, the Base included. The reply and
 next-utterance rows average only the conversations with that patient utterance, and their \dz\ pair
 the personas with it under both policies (64--76). Reflects: a simple or complex reflection; the
 change-talk share is over all patient utterances (PCT: over change and sustain talk). \dz:
@@ -182,7 +190,9 @@ therapist turn after the opener (the Base: 184) and the reply and next-utterance
 in which that patient utterance occurs. Bold: each column's best value over all 21 model states,
 the Base included (a level, not a test). A star marks the better of the two runs at an iteration
 where the persona-paired $\Kf$ vs.\ $\Kz$ contrast at that iteration is significant (Holm across
-iterations 1--10 within measure; one star for any Holm $p<.05$); no star involves the Base. The
+iterations 1--10 within measure, not pooled across measures; one star for any Holm $p<.05$), so a
+lone star, such as $\Kf$'s at iteration 1 on reflecting change talk (not significant under the
+held-out judge), is weaker evidence than a run of them; no star involves the Base. The
 iteration-10 rows are Table~\ref{tab:process}, which marks the test on \dz\ and bolds each row's
 best of the Base, $\Kz$ and $\Kf$; the held-out judge's version is Table~\ref{tab:process-all-heldout}.}
 \label{tab:process-all}
@@ -292,7 +302,7 @@ Instrument & Personas & iteration 10 & vs.\ $\Kz$ at 8 & iteration 10 & vs.\ $\K
  & warms up & $+0.96^{***}$ ($+1.28$) & $+0.61^{***}$ ($+1.18$) & $+0.81^{***}$ ($+1.24$) & $+0.52^{**}$ ($+0.74$)\\
  & resistant & $+1.13^{***}$ ($+1.36$) & $+0.68^{***}$ ($+0.95$) & $+0.35^{***}$ ($+0.85$) & $+0.26^{**}$ ($+0.68$)\\
 \addlinespace
-PCT & cooperative & $+0.03$ ($\ddagger$) & $0.00$ ($\ddagger$) & $-0.01$ ($\ddagger$) & $-0.01$ ($\ddagger$)\\
+PCT & cooperative & $+0.03$ ($\ddagger$) & $+0.00$ ($\ddagger$) & $-0.01$ ($\ddagger$) & $-0.01$ ($\ddagger$)\\
  & warms up & $+0.23^{***}$ ($+1.07$) & $+0.28^{***}$ ($+1.16$) & $+0.21^{***}$ ($+1.29$) & $+0.22^{***}$ ($+1.01$)\\
  & resistant & $+0.19^{*}$ ($+0.46$) & $+0.18^{*}$ ($+0.49$) & $+0.27^{***}$ ($+0.78$) & $+0.20^{*}$ ($+0.58$)\\
 \addlinespace
@@ -315,59 +325,96 @@ and no sustain talk (PCT $=1$), so \dz\ rests on the few that do not and is not 
 \label{tab:coop}
 \end{table*}
 
-\textbf{Where the lead comes from.} The 96 personas fall into three thirds by the cooperation the
+\subsection{Against the Base}
+\label{app:vsbase}
+
+Each final policy is tested against the Base, persona-paired with the mean of each persona's two
+Base conversations (Appendix~\ref{app:stats}), with Holm across the nine rows of
+Table~\ref{tab:endpoint} per run and judge. Every row improves significantly for both runs under
+both judges except MICI (lower is better), which rises significantly for $\Kz$ under both judges and for $\Kf$
+under the held-out judge, and is unchanged for $\Kf$ under the training oracle ($+0.00$, 95\%
+interval $-0.04$ to $0.04$). $\Kz$ at iteration 8 likewise improves significantly on every row
+under both judges except MICI, which rises significantly.
+
+\subsection{Where the lead comes from}
+\label{app:cooperation}
+
+The 96 personas fall into three thirds by the cooperation the
 simulator prompt sets (Table~\ref{tab:coop}). At iteration 10 the gap on \QQ\ under the training
-oracle is concentrated in the two less cooperative thirds ($+0.96$ and $+1.13$); with cooperative
-personas it is $+0.20$, not significant, as both runs score near the top of the scale there ($91\%$
-and $100\%$ of conversations at 4.5 or above). Against $\Kz$'s iteration-8 checkpoint the
+oracle is concentrated in the two less cooperative thirds ($+0.96$ and $+1.13$; a Kruskal--Wallis
+test across the three thirds' persona differences gives $p<.001$). With cooperative personas it is
+$+0.20$, not significant, as both runs score near the top of the scale there ($91\%$ and $100\%$ of
+conversations at 4.5 or above); the held-out judge, which scores none of these conversations 4.5
+or above, finds a significant gap in all three thirds ($+0.69$, $+0.81$ and $+0.35$). Against
+$\Kz$'s iteration-8 checkpoint the
 cooperative third is level under both judges, so the best-checkpoint lead comes entirely from the
 other two. PCT follows the same pattern, its cooperative third also at the top of the scale. MICI
 runs the other way: its gap is largest with
 cooperative patients, whom the $\Kz$ policy praises most ($0.94$ over-praise acts per therapist turn
-at iteration 10, against $0.48$ with uncooperative ones; at most $0.08$ under $\Kf$). On WAI-SR, the
+at iteration 10, against $0.67$ with patients who warm up and $0.48$ with resistant ones; at most
+$0.08$ under $\Kf$). On WAI-SR, the
 $\Kf$ policy's gain over the Base is largest on the task and goal items ($+0.96$ and $+0.85$ under
 the training oracle, against $+0.76$ on the bond) and the $\Kz$ policy's on the bond ($+0.63$,
-against $+0.57$ and $+0.49$). At iteration 10 the $\Kf$ lead lies on task and goal (\dz\ $0.51$ and
-$0.57$; held out $0.68$ and $0.53$) and is small or absent on the bond (\dz\ $0.26$; held out
+against $+0.57$ and $+0.49$). At iteration 10 the $\Kf$ lead lies on task and goal ($\dz{=}0.51$ and
+$0.57$; held out $0.68$ and $0.53$) and is small or absent on the bond ($\dz{=}0.26$; held out
 $-0.06$).
 
-\textbf{A test over the whole run.} To check that the iteration-10 contrast does not depend on the
+\subsection{A test over the whole run}
+\label{app:wholerun}
+
+To check that the iteration-10 contrast does not depend on the
 endpoint, we averaged each persona's $\Kf - \Kz$ difference over iterations 1--10 and tested the 96
 averages (Wilcoxon, Holm across the nine rows of Table~\ref{tab:endpoint}). Every row favors $\Kf$
-under both judges at $p < .001$ (\QQ: \dz\ $0.92$, held out $1.13$; $|\dz|$ from $0.66$ to $1.04$
-across the rows under the training oracle and from $0.54$ to $1.26$ under the held-out judge). Over
-iterations 1--7 alone, MICI favors $\Kz$ under the training oracle (\dz\ $0.38$), as at iteration 3
-in Figure~\ref{fig:headline}.
+under both judges at $p < .001$ (\QQ: by $0.22$ points averaged over the run, against $0.76$ at
+iteration 10, held out $0.30$ against $0.62$; $\dz{=}0.92$, held out $1.13$; $|\dz|$ from $0.66$
+to $1.04$ across the rows under the training oracle and from $0.54$ to $1.26$ under the held-out
+judge). Each persona's average spans ten conversations and so varies less than a single
+conversation, which makes these \dz\ larger than Table~\ref{tab:endpoint}'s for the same gap. Over
+iterations 1--7 alone, MICI favors $\Kz$ under the training oracle ($0.24$ MI-inconsistent acts per
+therapist turn against $0.28$; $\dz{=}0.38$), as at iteration 3 in Figure~\ref{fig:headline}.
 
-\textbf{A second draw of the final policy.}
+\subsection{A second draw of the final policy}
+\label{app:seconddraw}
+
 % \dnotedone{renamed: `each policy'}{[state -?]}
-Each policy is scored on one sample of 96 conversations, so we drew the final $\Kf$ policy again
-(96 fresh conversations from the same adapter, personas and decoding, scored by both judges): the
-two draws differ by less than $|\dz|\,0.18$ across the nine rows of Table~\ref{tab:endpoint} and both
-judges, none significantly, and with the second draw the \QQ\ gap to the final $\Kz$ policy is
-$\dz\,0.92$ against $0.91$ (held out: $0.95$ against $1.03$).
+Each trained policy is scored on one sample of 96 conversations, so we drew the final $\Kf$ policy
+again (96 fresh conversations from the same adapter, personas, decoding and seeds, scored by both
+judges): the two draws differ by $|\dz| < 0.18$ across the nine rows of Table~\ref{tab:endpoint}
+and both judges, none significantly, and with the second draw the \QQ\ gap to the final $\Kz$
+policy is $\dz{=}0.92$ against $0.91$ (held out: $0.95$ against $1.03$).
 % \dnotedone{rephrased in plain words: same model, new conversations}{[evaluation noise, not training variance -?]}
 This measures how much the scores move when the same trained model holds a new set of
 conversations; it says nothing about how different a second training run would be (see
 Limitations).
 
-\textbf{The two Base draws.} The Base is two independent draws of 96 conversations from the same
-model. Compared with the persona-paired tests of Table~\ref{tab:endpoint}, they differ by at most
-\dz\ $0.13$ across its nine rows under the training oracle and $0.17$ under the held-out judge, and
+\subsection{The two Base draws}
+\label{app:basedraws}
+
+The Base is two draws of 96 conversations from the same model with the same seeds. Tested against
+each other as in Table~\ref{tab:endpoint} (persona-paired), they differ by at most $|\dz|{=}0.13$
+across its nine rows under the training oracle and $0.17$ under the held-out judge, and
 by at most $0.18$ and $0.24$ across the twelve process measures of Table~\ref{tab:process}; no row
 reaches $p < .05$ even before correction. This is the size of difference that sampling the
 conversations alone produces.
 
-\textbf{Change talk after each reply.} The $\Kf$ policy's four most common replies to change talk
+\subsection{Change talk after each reply}
+\label{app:reply}
+
+At iteration 10, under the training oracle, the $\Kf$ policy's four most common replies to change talk
 (complex reflections, affirmations, persuasion and giving information) are each followed by change
 talk in at least $97\%$ of cases, pooled over turns, and $83\%$ of its complex reflections come
 right after change talk, so the change talk after them is mostly the patient continuing. Once the
 patient's previous utterance is held fixed, complex reflections are followed by change talk about as
 often as the policy's replies overall ($0.99$ against $0.99$ after change talk, $0.16$ against $0.17$
-after sustain talk, pooled over turns); \S\ref{sec:patient} therefore reads no code's next utterance as its effect.
+after sustain talk, pooled over turns, so each session counts by how many such utterances it has;
+averaged over conversations, as in Table~\ref{tab:process}, the policy's overall rates are $0.97$
+and $0.33$); \S\ref{sec:patient} therefore reads no code's next utterance as its effect.
 
-\textbf{The patient's side.} At iteration 10 the $\Kf$ policy's patients write longer utterances
-than the $\Kz$ policy's ($600$ vs.\ $440$ characters, $\dz\,1.24$), and a keyword cue for disengagement
-(phrases such as ``I don't know'' and ``waste of time'') is slightly more frequent in them
-($\dz\,0.31$). The share of sessions that reach any change talk at all does not differ ($92\%$
-vs.\ $86\%$).
+\subsection{The patient's side}
+\label{app:patientside}
+
+At iteration 10 the $\Kf$ policy's patients write longer utterances
+than the $\Kz$ policy's ($600$ vs.\ $440$ characters, $\dz{=}1.24$), and a keyword cue for disengagement
+(phrases such as ``I don't know'' and ``waste of time''; Appendix~\ref{app:marker}) is slightly
+more frequent in them ($\dz{=}0.31$). The share of sessions that reach any change talk at all is
+$92\%$ against $86\%$ under the training oracle ($\dz{=}0.13$, not significant).
