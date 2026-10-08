@@ -1,4 +1,3 @@
-\clearpage
 \section{Reproducibility details}
 \label{app:repro}
 
@@ -12,7 +11,7 @@ Algorithm~\ref{alg:loop} states one run of \LAGRPO\ (\S\ref{sec:lagrpo}).
 \small
 \begin{algorithmic}[1]
 \REQUIRE the Base $\pi_0$; simulator $P$; oracle $O$; horizon $K$; group size $G$; minimum
-  context length MCL; iterations $N$
+  conversation length MCL; iterations $N$
 \FOR{$n = 0, \dots, N-1$}
   \STATE $\mathcal{C} \gets$ 96 conversations of $\pi_n$ with $P$ \COMMENT{evaluation set of $\pi_n$}
   \STATE $\mathcal{D} \gets$ patient-ending prefixes of $\mathcal{C}$, $\geq$ MCL utterances, less a
@@ -47,8 +46,8 @@ steps of its iteration 2 ran at 64 before a resume, and the file, rewritten on r
 final value. One resume also changed the KL reference: the $\Kf$ run's iteration 1 crashed at step
 54 and resumed from a checkpoint without the saved reference, so its steps 55--108 are regularized
 toward the step-54 policy rather than the Base; every other iteration's reference is the policy it
-started from. No hyperparameter search was run: the configuration, with MCL set from the pilot
-described in \S\ref{sec:lagrpo}, is shared by both runs.
+started from. No hyperparameter search was run: the configuration, with MCL set beforehand in a
+pilot (\S\ref{sec:lagrpo}), is shared by both runs.
 
 % Two Setting/Value blocks side by side: as one column-wide list the table is taller than a page.
 \begin{table*}[t]
@@ -63,15 +62,15 @@ Therapist model & \texttt{Llama-3.2-1B} (base; \citealp{grattafiori2024llama3}),
 LoRA \citep{hu2022lora} & $r{=}16$, $\alpha{=}16$, dropout 0.05, all attention and MLP projections & Candidates at the token cap & kept in the loss \\
 Precision & bf16, gradient checkpointing & Reward for an empty candidate & 0 (the oracle's range is 1--5) \\
 Optimizer & AdamW (fused), $\beta{=}(0.9, 0.999)$, $\epsilon{=}10^{-8}$, no weight decay & Conversations / iteration & 96 \\
-Learning rate & $1\mathrm{e}{-}5$, cosine to 0 within each iteration & Patient personas & the same 96 (\S\ref{app:prompts}) \\
-Warm-up & $\lceil 1\%\rceil$ of the iteration's steps (1--2) & Min.\ context length (MCL) & 12 utterances \\
+Learning rate & $1\mathrm{e}{-}5$, cosine to 0 within each iteration & Patient personas & the same 96 (Appendix~\ref{app:prompts}) \\
+Warm-up & $\lceil 1\%\rceil$ of the iteration's steps (1--2) & Min.\ conversation length (MCL) & 12 utterances \\
 Optimizer state & reset at every iteration & Session cap & 49 utterances after the scripted opener \\
 Gradient clipping & max norm 1.0 & Max tokens / response & 200 (therapist and patient) \\
-Seed & 42 & Therapist context & 2{,}048 tokens \\
+Seed & 42 & Therapist context & 2{,}048 tokens (a training prompt drops its oldest turns and keeps the system prompt; conversations and look-ahead rollouts keep the last 2{,}048 tokens) \\
 Iterations & 10 & Therapist / patient temperature & 0.9 / 0.7 (conversations and look-ahead) \\
-Epochs / iteration & 2 & Therapist top-$p$ / top-$k$ & 0.9 / 50 (the base model's generation defaults) \\
+Epochs / iteration & 2 & Therapist top-$p$ / top-$k$ & 0.9 / 50 (the pretrained model's generation defaults) \\
 Train batch $\times$ accumulation & $64 \times 2 = 128$ completions (16 prompts) & Patient + oracle & \texttt{gpt-4o-mini-2024-07-18} \\
-Trainer validation split & 0.05 of conversations & Training oracle call & temperature 0, max 256 tokens, strict JSON schema \\
+Trainer validation split & 0.05 of conversations, logged at each epoch end, never used to choose a checkpoint & Training oracle call & temperature 0, max 256 tokens, strict JSON schema \\
 Group size $G$ & 8 & Evaluation judges & \texttt{gpt-4o-mini-2024-07-18} at temperature 0.1, seed 42; \texttt{claude-haiku-4-5-20251001} at the API's default temperature (1.0); both max 1{,}024 tokens, JSON schema \\
 KL & $\beta{=}0.01$, per-token estimate to the iteration-start policy & Software & TRL 1.4.0 \citep{vonwerra2020trl}, transformers 5.8.1 \citep{wolf2020transformers}, PEFT 0.19.1 \citep{mangrulkar2022peft} \\
 Advantage & $(r_g - \text{mean})/(\text{std} + 10^{-4})$ within the group & Hardware & one NVIDIA A100 (Google Colab) \\
@@ -87,9 +86,9 @@ the two look-ahead settings (the only substantive configuration fields that diff
 optimizer-step counts, which are not set but follow from how many training prompts each run's own
 conversations yield (one step per 16 prompts, two epochs per iteration). Source: each run's
 \texttt{run\_metadata.json}, each checkpoint's saved trainer arguments and adapter configuration,
-the code (oracle and judge calls), and the training notebook's configuration block (the look-ahead
+the code (oracle and judge calls, context truncation), and the training notebook's configuration block (the look-ahead
 rollout temperatures, used by the $\Kf$ run only); the step counts are read
-from the per-step training artifacts (\S\ref{app:repro-cost}). $^{\dagger}$64 in iteration 1 and
+from the per-step training artifacts (Appendix~\ref{app:repro-cost}). $^{\dagger}$64 in iteration 1 and
 the first 30 steps of iteration 2.}
 \label{tab:config}
 \end{table*}
@@ -110,7 +109,7 @@ Q2 & \citet{yosef2024assessing} & 17 items, 1--5 & mean \\
 WAI-SR & \citet{hatcher2006waisr} & 12 items, 1--5 & mean \\
 CSQ-8 & \citet{larsen1979csq} & 8 items, 1--4 & mean \\
 MI-SAT & unpublished survey, adapted & 6 items, 1--5 & mean \\
-MITI & \citet{moyers2016miti4,moyers2016miti} & 4 globals, 1--5 & mean of the globals \\
+MITI & \citet{moyers2016miti,moyers2016miti4} & 4 globals, 1--5 & mean of the globals \\
 PCT & \citet{houck2010misc}, adapted & the utterance coder's patient codes & CT / (CT + ST) \\
 MICI & \citet{houck2010misc}, adapted & 1 global, 1--5; 6 behavior counts & acts per therapist turn \\
 \midrule
@@ -125,14 +124,16 @@ satisfaction; MITI: Motivational Interviewing Treatment Integrity; PCT: patient 
 MI-inconsistent behavior, its acts the six behavior counts summed. The other seven are
 higher-is-better; MICI is lower-is-better;
 \S\ref{sec:therapist} uses its over-praise count. The utterance coder is
-described in \S\ref{app:coder}.}
+described in Appendix~\ref{app:coder}.}
 \label{tab:instruments}
 \end{table*}
 
 Table~\ref{tab:instruments} lists the eight instruments. PCT is computed from the utterance
 coder's patient codes (Appendix~\ref{app:coder}); each of the other seven is administered as one
 API call per conversation with a JSON-schema-constrained response, the fixed instructions and item
-texts first and the transcript last. The training reward calls the oracle at temperature 0; for evaluation the
+texts first and the transcript last. In training and evaluation alike, the judge sees only the
+speaker-labeled transcript, never the patient's persona prompt or the therapist's system prompt.
+The training reward calls the oracle at temperature 0; for evaluation the
 same model is called at temperature 0.1 with seed 42, and the held-out judge at the API's default
 temperature without extended thinking (Table~\ref{tab:config}). The held-out judge's API does not
 accept numeric bounds or array lengths in a schema, so these are restated in the field
@@ -142,7 +143,7 @@ every item carrying a one-paragraph explanation with an example of a good and of
 response (Q1: overall satisfaction with the chat and with its content, motivation facilitated,
 whether anything was learned, and its relevance to everyday life; Q2: seventeen relational items
 such as ``the therapist seemed to understand me'', ``the therapist did not judge me'', and ``the
-therapist made me feel like he cared about me''). Two of Q1's good examples credit moves that MI
+therapist made me feel like he cared about me'', none of them a WAI-SR item). Two of Q1's good examples credit moves that MI
 holds back: for motivation, a therapist who ``suggests practical steps to achieve the patient's
 goal, provides uplifting messages, or encourages perseverance'', and for relevance, one who
 ``provides advice or information that directly relates to challenges or tasks that the patient
@@ -153,10 +154,12 @@ colleague; its documentation notes that it was not psychometrically validated. T
 behavior the patient wants to change, enjoyable, interesting, easy to use and worth the time, and
 whether the patient is now more likely to change that behavior (1 = not at all, 5 = very much). The MITI and MICI coders
 are addressed as a certified MITI coder. The MITI coder returns four global ratings (cultivating change talk,
-softening sustain talk, partnership, empathy), whose mean is the MITI score. PCT reads the
+softening sustain talk, partnership, empathy), whose mean is the MITI score. MITI~4.2.1 summarizes
+the same ratings as a technical global (the first two) and a relational global (the last two), so
+the MITI score is the mean of those two summary scores. PCT reads the
 utterance coder's patient codes (Appendix~\ref{app:coder}): change talk, sustain talk and neutral
 are the three client categories of the MISC~2.5 \citep{houck2010misc}, with change talk defined as
-in \citet{miller2013mi} (desire, ability, reasons, need, commitment, activation, taking steps), and
+desire, ability, reasons, need, commitment, activation and taking steps \citep{miller2013mi}, and
 the reported score, CT/(CT+ST), is the MISC's percentage change talk, a proportion that a
 meta-analysis of human MI sessions relates to reduced risk behavior at follow-up
 \citep{magill2018meta}. Unlike the MISC, the coder labels each speaking turn rather than each
@@ -187,7 +190,7 @@ the same rubric-first layout. The judge is addressed as an MI process coder trai
 dominant function (the function that occupies most of the utterance; a turn that praises at
 length and ends in one question is coded as praise), and exactly one code to every patient
 utterance, in transcript order. The codebook adapts MITI~4.2.1
-\citep{moyers2016miti4,moyers2016miti} with three elements of the MISC~2.5 \citep{houck2010misc}:
+\citep{moyers2016miti,moyers2016miti4} with three elements of the MISC~2.5 \citep{houck2010misc}:
 the split of open and closed questions, which MITI~4 does not make, the direct code (merged here
 with confront), and the coding of every utterance of both speakers in order; the patient codes are
 the MISC's three client categories. Where both manuals divide a turn into units that can each
@@ -215,7 +218,7 @@ lengths are pinned to the utterance counts in the response schema, a response of
 is rejected and re-requested, and the scripted opener is pinned to open question and excluded
 from every rate and transition. Every one of the $2 \times 11 \times 96 = 2{,}112$ evaluation
 conversations is coded under both judges, as are the 96 of the final $\Kf$ policy's second draw
-(Appendix~\ref{app:tables}); three held-out rows that came back one code short on
+(Appendix~\ref{app:seconddraw}); three held-out rows that came back one code short on
 the batch path were re-scored on the live path.
 
 All process quantities are recomputed from the stored code sequences. Alternation is strict and
@@ -253,7 +256,7 @@ old [male / female]. [cooperation clause]. [problem clause]. [history clause].''
 instruction to avoid repetition and the rule for ending the session (write ``SESSION ENDED'' if
 the therapist is wrapping up, or if the patient is satisfied and believes they gained enough
 knowledge). The three cooperation clauses are below; the low and low-then-high ones were rewritten
-for this study, relative to the prompts of \citet{baruch2025pto}, to make the patient more
+for this study, relative to the prompts of \citet{yosef2024assessing}, to make the patient more
 adversarial: high (``Your level of cooperation is very high'');
 low (``Your level of cooperation is very low, you should be very suspicious about the advices you
 get from the therapist. In general you don't believe in therapy and you should respond
@@ -270,12 +273,15 @@ with obesity for [a few months / many years]. Your weight is negatively impactin
 have high blood pressure and experience joint pain''), and the history clause states either that
 the patient has never tried to change or that they have tried many times and relapsed. The
 therapist's system prompt, applied through the chat template in both runs and inside the
-look-ahead rollout, is ``You are a motivational interviewing counselor named David. You partner
+look-ahead rollout (in conversations and rollouts, until the context passes 2{,}048 tokens;
+Table~\ref{tab:config}), is ``You are a motivational interviewing counselor named David. You partner
 with the patient to understand his problems. You are empathetic towards him and help the patient
 explore their ambivalence regarding behavioral change. You are non-judgmental while encouraging
 the patient to change,'' followed by the same anti-repetition instruction and its own
 session-ending rule. Every conversation opens with the same scripted therapist line, omitted from
-Appendix~\ref{app:example}.
+Appendix~\ref{app:example}: ``Hello, welcome to your first motivational session with me. My name
+is David and I\textasciigrave{}m a professional motivational counselor. Can you start by telling
+me a little bit about yourself and why are you here?''
 
 \subsection{The keyword marker}
 \label{app:marker}
@@ -283,32 +289,43 @@ Appendix~\ref{app:example}.
 The keyword marker of \S\ref{sec:therapist} is one case-insensitive regular expression matched against
 each therapist utterance; a turn counts if it contains any of ten patterns: ``I'm so proud'',
 ``proud of you'', ``inspiration to me'', ``you got this'', ``beautiful'', ``beacon'',
-``shining'', ``warrior'', ``hero of your'', and ``you are a light'' or ``you are a beacon''. It
-exists as a direction check on the oracle's over-praise count and is deliberately crude
+``shining'', ``warrior'', ``hero of your'' and ``you are a light''. It
+exists as a direction check on the judges' praise codes and is deliberately crude
 (``beautiful'' matches any use of the word); it is reported as the share of therapist turns
 matched, never as a count of acts, and its absolute level is not a measurement. Its agreement with
 the coded praise share (Figure~\ref{fig:overpraise}) is what \S\ref{sec:therapist} relies on.
+The disengagement cue of Appendix~\ref{app:patientside} is a second expression of the same kind,
+matched against each patient utterance: ``I don't know'', ``not sure'', ``I guess'', ``whatever'',
+``I suppose'', ``don't (really) want'', ``don't (really) care'', ``don't (really) see the point'',
+``told to be'', ``told to come'', ``leave me'', ``waste of time'', ``not interested'', ``doesn't
+matter'' and ``I'm fine''. As with the marker, only its direction between the runs is read.
 
 \subsection{Anti-degeneracy}
 
-The base 1B model will occasionally continue past its own turn and write the patient's reply. All
+The pretrained 1B model will occasionally continue past its own turn and write the patient's reply. All
 decode sites stop at the chat-template markers and truncate any completion at the first such
 marker. A therapist turn that is empty after this truncation ends the conversation, or the
-look-ahead rollout, and a sampled candidate that is empty after it receives a training reward of 0,
+look-ahead rollout (Appendix~\ref{app:rollouts}), and a sampled candidate that is empty after it receives a training reward of 0,
 one point below the lowest score the oracle can give, whatever the oracle returns for it (29 of
 the $130{,}688$ logged $\Kz$ candidates and 28 of the $121{,}088$ logged $\Kf$ ones). This applies identically in both runs, including
 inside the $K{=}5$ rollout. The stop strings match only the exact markers, and late in training
 the $\Kz$ policy also wrote malformed variants such as \texttt{<|im\_end>}, which pass them:
-they appear in up to $58\%$ of its training candidates and in $56\%$ of its therapist turns at
-iteration 7, falling to $4\%$ at iteration 10, while under $\Kf$ they stay below $2.5\%$ of
-candidates and $1.5\%$ of turns. The training reward neither favored nor penalized them (within
-each group, their correlation with the reward is $+0.05$).
+they appear in up to $58\%$ of its training candidates (training iteration 7; $32\%$ in the last)
+and in $56\%$ of its therapist turns at iteration 7, falling to $4\%$ of turns at iteration 10,
+while under $\Kf$ they stay below $2.5\%$ of candidates and $1.5\%$ of turns. In the $\Kz$ run the
+training reward barely favored them (within each group, their correlation with the reward is
+$+0.05$, positive in nine of the ten training iterations and $+0.11$ in the last).
 
 \subsection{Evaluation and statistics}
+\label{app:stats}
 
 Model states are scored offline into a score archive keyed by judge, replicate, instrument and
 model, one record per conversation; an interrupted scoring run resumes by skipping completed work.
-The reported draw is replicate 0 for each judge. The Base was drawn twice, once at the start of
+The reported draw is replicate 0 for each judge. Replicates 1--3 (training oracle) and 1--2
+(held-out judge) re-score Q1, Q2 and MICI on the conversations of the $\Kz$ run's iterations 8 and
+10, only to measure repeatability (intraclass correlation ICC(2,1); \citealp{shrout1979icc}):
+$0.92$--$0.99$ for the training oracle on all three, and for the held-out judge $0.96$--$0.98$ on
+Q1, $0.94$--$0.96$ on Q2 and $0.75$ and $0.52$ on MICI (iterations 8 and 10). The Base was drawn twice, once at the start of
 each run, with identical settings; the paper pools the two draws into one Base of 192
 conversations, and a persona-paired contrast against the Base uses the mean of that persona's two
 conversations.
@@ -349,17 +366,21 @@ within the budget (chosen on \QQ\ by the training oracle, as in \S\ref{sec:rewar
 both judges), the result depends on the budget. At about 13 GPU-hours the $\Kz$ run is ahead
 ($\dz\,-0.74$ under the training oracle, $-0.49$ under the held-out judge, $\Kf$ minus $\Kz$); at
 about 23 GPU-hours the two are level under the training oracle ($\dz\,0.07$, not significant) and
-$\Kf$ leads under the held-out judge ($\dz\,0.27$, significant); beyond the $\Kz$ run's total of $27.9$ GPU-hours the comparison is the
-best-checkpoint comparison of \S\ref{sec:reward}. Because the GPU-hours are reconstructed from
+$\Kf$ leads under the held-out judge ($\dz\,0.27$, significant); beyond the $\Kz$ run's total of
+$27.9$ GPU-hours the $\Kz$ run stays at iteration 8 while the $\Kf$ run's best checkpoint moves from
+iteration 6 to 10: $\Kf$ leads significantly under the held-out judge at every budget ($\dz\,0.34$
+to $0.49$) and under the training oracle from about 35 GPU-hours ($\dz\,0.31$ to $0.74$; $0.24$,
+not significant, at about 30.5), reaching the best-checkpoint comparison of \S\ref{sec:reward}
+only at $51.2$. Because the GPU-hours are reconstructed from
 timestamps, this reading is coarser than the iteration-matched one.
 
 \subsection{Artifacts}
 
-Every number in this paper is traceable to a tracked table in the analysis-results tree of the
-code release, through a claims ledger released with it. Every figure is drawn by scripts in the
-paper folder from that tree's tracked tables (Figure~\ref{fig:schematic}, the schematic, from no
-data), at the width it is included at. The
+The supplementary archive (code, analysis tables, claims ledger and selection scripts) accompanies
+the paper. Every reported result is traceable to one of its tracked analysis tables through the
+claims ledger; Table~\ref{tab:config} gives the sources of the configuration. Every figure is drawn by scripts from those tables (Figure~\ref{fig:schematic},
+the schematic, from no data), at the width it is included at. The
 transcripts in \S\ref{sec:therapist} and Appendix~\ref{app:example} are reproduced verbatim
-from the stored conversation files, and the selection scripts are released with the paper. The
+from the stored conversation files. The
 therapist model is openly licensed; the patient simulator and the judges are commercial APIs used
 within their terms of service.
