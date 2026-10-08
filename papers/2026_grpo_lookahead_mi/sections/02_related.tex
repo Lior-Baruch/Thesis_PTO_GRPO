@@ -18,10 +18,16 @@ Crediting a dialogue action for its downstream consequences is a long-standing p
 dialogue \citep{levin2000stochastic, singh2002optimizing}. Neural approaches range from long-term
 reward in simulated dialogues and learned value estimates to trajectory-level preferences, imagined
 or role-played conversations, simulated users, regression onto future rewards and critics with
+% 2026-10-08 (review round 5): Doron's "from later user turns" -> "from the next user turn" (FACA
+% uses the single next user turn); "for search and game agents" -> "for search agents" (Wei et al.'s
+% turn-decomposed baseline is in their search-agent section only, v3). Before:
+% GRPO methods credit a turn from later user turns \citep{zhao2026faca},
+% from a tree of simulated future branches \citep{peng2026atgrpo} or from utterance-level social
+% rewards \citep{yu2025sotopiarl}; for search and game agents, \citet{wei2025multiturn} report that
 privileged information \citep{li2016deeprl, zhou2024archer, shani2024multiturn, hong2023imagined,
-wang2024sotopiapi, qian2025userrl, gao2024refuel, zhou2025sweetrl}. GRPO methods credit a turn from later user turns \citep{zhao2026faca},
+wang2024sotopiapi, qian2025userrl, gao2024refuel, zhou2025sweetrl}. GRPO methods credit a turn from the next user turn \citep{zhao2026faca},
 from a tree of simulated future branches \citep{peng2026atgrpo} or from utterance-level social
-rewards \citep{yu2025sotopiarl}; for search and game agents, \citet{wei2025multiturn} report that
+rewards \citep{yu2025sotopiarl}; for search agents, \citet{wei2025multiturn} report that
 training on turns as independent examples reached high per-turn reward but low task success.
 
 Simulating what follows a candidate action is a direct way to credit it. Simulated continuations
@@ -32,9 +38,9 @@ kazemnejad2024vineppo}. In
 dialogue the future also depends on the interlocutor. CollabLLM \citep{wu2025collabllm} rewards an
 assistant's response by sampling the next few turns with a simulated user and scoring the extended
 conversation (PPO and DPO); in its ablation on a document-editing task, longer forward windows
-(zero to three turns) generally improved performance and efficiency. RLHS \citep{liang2025rlhs}
-shows evaluators simulated outcomes before they give feedback; this raised the user's true utility,
-whereas feedback on predicted outcomes raised satisfaction while true utility fell. RLFF-ESC
+(zero to three turns) generally improved performance and efficiency. In RLHS \citep{liang2025rlhs},
+evaluators see simulated outcomes before giving feedback; this raised the user's true utility,
+whereas feedback on outcomes they had to predict raised satisfaction while true utility fell. RLFF-ESC
 \citep{yang2025rlffesc} trains a reward model on simulated future turns of emotional-support
 conversations and optimizes the supporter against it with GRPO. A workshop paper introduced
 $K$-turn look-ahead for motivational interviewing \citep{baruch2025pto}. Here we isolate the same
@@ -51,16 +57,22 @@ A judge that sees only one turn can also reward a behavior that harms what follo
 validating the user: \citet{cheng2026elephant} describe \emph{social
 sycophancy}, the excessive preservation of a user's desired self-image, and find preferred responses
 in preference datasets more validating than rejected ones, and \citet{moore2025stigma} argue that
-sycophancy works against therapy, whose aims include confrontation as well as support. Turn-level
+sycophancy works against therapy, whose aims include challenge as well as support. Turn-level
 reward could teach such validation, so we also evaluate with a held-out judge and with measures
 outside the rewarded rubric.
 
 \textbf{Judges that change during training.}
 % \dnotedone{merged here as one paragraph at about half the length, after the judges paragraph; his closing sentence kept; his original is commented out below}{i added a whole subsection need to merge}
 % \dnotedone{yes, it is cited in §1; the name now appears once}{already cited?}
+% 2026-10-08 (review round 5): J-Zero trains a Judge in the loop rather than changing criteria, so
+% "the evaluation criteria" -> "the judge or its criteria"; keys reordered so they print 2026a,b.
+% Before (merged from Doron's subsection):
+% \citep{yuan2024selfrewarding} and its own judgments \citep{wu2025metarewarding}, or letting the
+% evaluation criteria evolve with the policy \citep{wang2026serpo, wang2026dynamicrubric,
+% chu2026jzero}. These methods
 Another line of work improves the judge itself, training the model to judge its own responses
 \citep{yuan2024selfrewarding} and its own judgments \citep{wu2025metarewarding}, or letting the
-evaluation criteria evolve with the policy \citep{wang2026serpo, wang2026dynamicrubric,
+judge or its criteria evolve with the policy \citep{wang2026dynamicrubric, wang2026serpo,
 chu2026jzero}. These methods score a response to a prompt or a given history; none tests whether
 rewards for individual responses improve the course of a full conversation, the question we
 address by changing how far into the simulated interaction the reward observes while holding the
