@@ -58,7 +58,8 @@ COLS = [
     ("st_ct", "persist", "st_to_ct_mean", "st_to_ct", "sustain talk", False),
     ("ct_prop", "proc", "ct_prop", "ct_prop", "change-talk share", False),
 ]
-JUDGES = {"gpt-4o-mini": ("07_patient.tex", "tab:process"),
+# Table 3 moved from 07_patient.tex to A_tables.tex in the length pass (step 16).
+JUDGES = {"gpt-4o-mini": ("A_tables.tex", "tab:process"),
           "claude-haiku-4-5": ("A2_heldout.tex", "tab:process-heldout")}
 ARMS = {"GRPO_LA0": "K0", "GRPO_LA5": "K5"}
 
@@ -237,7 +238,7 @@ def codes() -> list[str]:
 # table's rows per judge and anchor); levels: ``levels_long`` / the process level sheets;
 # iterations: ``significant_iterations`` (instruments) or the paired sheets (process).
 INSTR = [("Q1Q2", r"Q1+Q2 (reward)"), ("Q1", r"\quad Q1"), ("Q2", r"\quad Q2"), ("WAI-SR", "WAI-SR"),
-         ("CSQ-8", "CSQ-8"), ("MI-SAT", "MI-SAT"), ("MITI", "MITI"), ("PCT", "PCT (share)"),
+         ("CSQ-8", "CSQ-8 (1--4)"), ("MI-SAT", "MI-SAT"), ("MITI", "MITI"), ("PCT", "PCT (share)"),
          ("MICI", r"MICI (per turn, $\downarrow$)")]
 PRIMARY, HELDOUT = "gpt-4o-mini", "claude-haiku-4-5"
 #: cross-sheet tolerance: most sheets are saved at four decimals (levels_long and anchor_contrasts at six)
@@ -257,9 +258,12 @@ def anchors() -> tuple[pd.DataFrame, int]:
 
 
 def dz_anchor(r) -> str:
-    """K=5 − K=0 dz with Holm stars (anchor_contrasts is already in the paper's sign)."""
+    """K=5 − K=0 dz with Holm stars (anchor_contrasts is already in the paper's sign). The missing
+    stars are padded with \\phantom (review round 5, P5) so every cell is three stars wide and the
+    numbers line up in the column instead of shifting right as the stars thin out."""
     s = "".join("*" for t in (0.05, 0.01, 0.001) if r.p_holm < t)
-    return f"${r.dz_K5_minus_K0:+.2f}" + (f"^{{{s}}}" if s else "") + "$"
+    pad = "*" * (3 - len(s))
+    return f"${r.dz_K5_minus_K0:+.2f}^{{{s}" + (f"\\phantom{{{pad}}}" if pad else "") + "}$"
 
 
 def runs(its: list[int]) -> str:

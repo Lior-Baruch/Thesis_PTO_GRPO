@@ -373,7 +373,10 @@ def _process_panels(judge: str, name: str, marker: bool = False) -> Path:
     # One title row for every panel, raised by a note line so the bold titles align whether or not
     # a panel carries "lower = better" (title + note on one line is wider than the panel).
     note_pt = 2.0
-    for ax, (lv_sheet, col, se, test_sheet, metric, title), letter in zip(axes, specs, "abcde"):
+    # Without the marker panel (the held-out twin) the letters skip (b), so each measure keeps the
+    # letter it has in Figure 3 and the twin's caption can say "(a, c, d) ... (e)" (round 5, P6).
+    for ax, (lv_sheet, col, se, test_sheet, metric, title), letter in zip(
+            axes, specs, "abcde" if marker else "acde"):
         title = f"({letter}) {title}"
         if marker and title.endswith(") praise"):
             title += ", coder"          # beside (b), say which praise measure (a) is
@@ -971,8 +974,8 @@ class _StarHandler:
 
 
 GRID_METRICS = [("Q1Q2", "Q1+Q2 (reward)"), ("Q1", "Q1"), ("Q2", "Q2"), ("WAI-SR", "WAI-SR"),
-                ("CSQ-8", "CSQ-8"), ("MI-SAT", "MI-SAT"), ("MITI", "MITI"), ("PCT", "PCT"),
-                ("MICI", "MICI (lower = better)")]
+                ("CSQ-8", "CSQ-8"), ("MI-SAT", "MI-SAT"), ("MITI", "MITI"), ("PCT", "PCT (share)"),
+                ("MICI", "MICI (per turn, lower = better)")]   # units since round 5, P6
 
 
 def _levels_grid(judge: str) -> Path:
