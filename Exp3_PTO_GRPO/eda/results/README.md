@@ -41,7 +41,10 @@ sign flips between K=0 (PTO wins) and K=5 (GRPO wins) on both graders. Steelman:
 [`lookahead/reward/tables/k_table1.md`](lookahead/reward/tables/k_table1.md) (**sign: + = K=0
 higher**); endpoint pairs with both graders:
 [`k_endpoints.md`](lookahead/reward/tables/k_endpoints.md) (sign as named in its `pair` column);
-difference-in-differences: [`k_did.md`](lookahead/reward/tables/k_did.md). Figures:
+difference-in-differences: [`k_did.md`](lookahead/reward/tables/k_did.md). Personas outside
+the training grid (2026-10-08; GRPO only; 48 alcohol personas, Base / K=0 at 8 and 10 / K=5 at 10,
+both graders, sign **K5 − K0**): [`heldout_personas.md`](lookahead/heldout_personas.md) (+ tidy
+`.csv`; written by `tools/heldout_check.py`, not by a render). Figures:
 [`k_headline_q1q2.png`](lookahead/reward/figures/k_headline_q1q2.png) (four arms, level curves +
 a paired-delta strip), [`k_headline_q1q2_grpo.png`](lookahead/reward/figures/k_headline_q1q2_grpo.png)
 (GRPO only — since 2026-08-26 **levels-only** with a Holm-star row; its backing table
