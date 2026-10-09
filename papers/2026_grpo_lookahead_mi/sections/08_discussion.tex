@@ -6,8 +6,8 @@
 % 2026-10-07 (review round 4): the claims are scoped to this pair of runs.
 We asked whether a small therapist model learns motivational interviewing better when the judge
 that rewards each of its turns also sees how the conversation continues. In this pair of runs it
-did: the model trained with a five-turn look-ahead finished ahead on every instrument, under both judges, against the other run's
-best checkpoint as well as its last. It also became a different therapist.
+did: the five-turn look-ahead model finished ahead on every instrument on the training personas, under both judges, against the other run's
+best and last checkpoints. It also became a different therapist.
 
 % \dnotedone{rephrased}{[paid for non-specific praise \textasciitilde] [stops at the reply \textasciitilde] [paying] [paid]}
 % \dnotedone{rephrased}{[their ?]}
@@ -40,8 +40,8 @@ policy's praise and the $\Kf$ policy's persuasion.
 
 \textbf{Conclusion.}
 % \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
-In this pair of runs, scoring each candidate turn with the five turns that follow it gave
-a policy ahead on every instrument and a different therapist, one that persuades in reply to
+Scoring each candidate turn with the five turns after it gave
+a policy ahead on every instrument on the training personas and a different therapist, one that persuades after
 sustain talk but reflects change talk and praises far less.
 % \dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
 % \dnotedone{cut}{coding the process as well as the outcome ??}
