@@ -6,8 +6,8 @@
 % 2026-10-07 (review round 4): the claims are scoped to this pair of runs.
 We asked whether a small therapist model learns motivational interviewing better when the judge
 that rewards each of its turns also sees how the conversation continues. In this pair of runs it
-did: the model trained with a five-turn look-ahead finished training ahead on every instrument, under both judges, against the other run's
-best checkpoint as well as its last. It also became a different kind of therapist.
+did: the model trained with a five-turn look-ahead finished ahead on every instrument, under both judges, against the other run's
+best checkpoint as well as its last. It also became a different therapist.
 
 % \dnotedone{rephrased}{[paid for non-specific praise \textasciitilde] [stops at the reply \textasciitilde] [paying] [paid]}
 % \dnotedone{rephrased}{[their ?]}
@@ -25,9 +25,9 @@ which scores a turn before the patient has answered it, clearly favored them aga
 % \dnotedone{rephrased, one idea per sentence}{- try to rephrase this - there is an interesting story here but need to tell it better}
 The $\Kf$ policy learned part of what MI prescribes, reflecting the patient's change talk, and
 under it change talk persisted more often; its MI-inconsistent habit is a different one: it meets
-sustain talk with persuasion more often than the Base. Why the two policies differ stays open
+sustain talk with persuasion more often than the Base. Why the policies differ stays open
 (Appendix~\ref{app:mechanism}): the $\Kf$ reward agrees only slightly better with the finished
-session's score, the two runs' update directions diverge from training iteration 4 on, and the
+session's score, the runs' update directions diverge from training iteration 4 on, and the
 $\Kz$ updates are larger; one run per horizon cannot tell which matters.
 
 \dnotedone{the reward choice; what it leaves open is now in the Limitations}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
