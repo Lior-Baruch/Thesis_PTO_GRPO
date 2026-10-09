@@ -1624,3 +1624,50 @@ Numberless changes, by group (each in its file, Doron's replaced sentences kept 
   each adds one); page 8 absorbs it: the Conclusion still ends on page 8 and the Limitations open
   page 9, and a padding test (two one-line paragraphs appended to §6) still kept the Conclusion on
   page 8, by squeezing the column glue around the §6/§7 headings rather than by empty lines.
+
+## 2026-10-08/09 — patients with an unseen problem (alcohol; Lior: "appendix + 1 body sentence", behavior first, scores mixed)
+
+Source for every number: `Exp3_PTO_GRPO/eda/results/lookahead/heldout_personas.csv` (tidy; `kind` =
+level / contrast, `grader`, `measure`, `state`) and its report `heldout_personas.md`, both written by
+`eda/tools/heldout_check.py` from the score lake after `eda/tools/score_heldout.py` (4 states × 48
+conversations × 9 calls, both graders, 0 errors). Conversations: `code/tools/generate_eval_convs.py
+--personas alcohol` (48 personas of `system_prompts_builder.generate_heldout_permutations`, unshuffled,
+patient seed `HELDOUT_SEED` = 20261008 for all four states), under
+`data/grpo_Exp3/conversations/heldout_alcohol/`. Lake model names `GRPOExp3_LA{0,5}_alc_{Base,I8,I10}`.
+Table rows (Table `tab:unseen`, Appendix A.9) are printed by `render_process_tables.py --heldout` from
+the CSV (n = 48 asserted on the instrument rows); levels = training oracle, two decimals; d_z = K=5 at 10
+minus each K=0 checkpoint, Holm across the 9 instrument rows and across the 10 process rows per
+(grader, anchor).
+
+| Claim (where) | Value | CSV cell |
+|---|---|---|
+| "48 new personas", factors 2×3×2×2×2 (body §6 last paragraph; App A.9) | 48 = 2 gender × 3 cooperation × 2 duration × 2 prior attempts × 2 ages | `generate_heldout_permutations` (asserted 48 in `cmp_builder` check, session scratch) |
+| Persona sentence "You have been drinking alcohol heavily for many years, and it has become a daily habit" (App A.9) | verbatim from `system_prompts_builder.py` (ManyYears variant) | code |
+| Training oracle: K=5 leads on all nine rows vs both K=0 checkpoints, all Holm-significant (body; App A.9) | p_holm max 0.0260 (MI-SAT/MITI vs best); 9/9 both anchors | contrast, training oracle, both anchors |
+| Q1+Q2 d_z 0.63 vs best, 0.80 vs last (App A.9) | +0.628 / +0.797 | contrast Q1Q2 |
+| Held-out judge significant K=5 leads: MI-SAT, PCT, MICI vs best; + CSQ-8 vs last ("three or four"; body; App A.9) | p_holm .0009 / .0033 / .0001; CSQ-8 last .0093, MI-SAT .0002, PCT .0385, MICI .0000 | contrast, held-out judge |
+| Held-out judge favors K=0's best checkpoint on Q2 (body; App A.9) | d_z −0.541, p_holm .0051 | contrast Q2, held-out, best |
+| Q1+Q2 not significant under the held-out judge (App A.9) | −0.336 (p_holm .1295) / +0.158 (.8844) | contrast Q1Q2, held-out |
+| Praise, complex reflection, reflection of change talk: significant vs both checkpoints under both judges (body "gaps ... hold under both judges"; App A.9) | th_PRA_rate, th_CR_rate, refl_after_ct: every p_holm ≤ .0004 | contrast, process |
+| K=0 praise 0.23 / 0.48 (training oracle), 0.56 / 0.78 (held-out) (App A.9) | 0.2311 / 0.4785; 0.5570 / 0.7756 | level th_PRA_rate |
+| K=5 praise 0.05, the Base's level; held-out 0.11, Base 0.04 (App A.9) | 0.0522 (Base 0.0471); 0.1143 (Base 0.0371) | level th_PRA_rate |
+| K=5 complex reflection 0.25, K=0 at most 0.04 (App A.9) | 0.2520; 0.0434 / 0.0120 | level th_CR_rate (oracle) |
+| K=5 reflects change talk in 33% of cases, K=0 at most 3% (App A.9) | 0.3316; 0.0321 / 0.0096 | level refl_after_ct (oracle) |
+| Persuasion after sustain talk 44% (Base 23%); held-out 65% (Base 32%) (App A.9) | 0.4381 (0.2273); 0.6550 (0.3244) | level pers_after_st |
+| Persistence 96% vs 88% and 83%; held-out 92% vs 75% and 70%; oracle vs last n.s. (App A.9) | 0.9565 / 0.8786 / 0.8286; 0.9234 / 0.7532 / 0.6954; oracle last d_z +0.360, p_holm .0826 | level / contrast ct_persist |
+| Caption: Base therapist-turn rows over 47; reply / next-utterance d_z n 32–38 | n 47 (Base th_* rows); 32 (after sustain talk), 37–38 (after change talk) | level / contrast n |
+| App D coder coverage: "4 × 48 = 192" conversations coded under both judges | 192 | score_heldout coverage (MIPROC 48 per state, both graders) |
+
+**Body cost and cuts (Lior's pick + my own prose).** The new paragraph (end of §6) cost ~7 lines; paid
+for by Lior's cut of the patients'-length sentence (§6; the detail stays in App A.7, comment left in
+`07_patient.tex`) and word-level trims of our own prose: Method "(the untrained model averages 28.5)";
+Discussion "finished ahead", "a different therapist", "the runs' update directions", "Why the
+policies differ"; the new paragraph's own wording. Build: 37 pages, the Conclusion ends on page 8 and
+the Limitations open page 9.
+**Text elsewhere:** Limitations "the main results are in-sample ... The check on 48 new personas with
+an unseen problem (App A.9) covers one problem, not a new patient population" and "computed across
+patient personas (the 96, or the 48 of App A.9)"; Ethics "cannot be measured within this grid, and the
+one check outside it covers a single new problem"; App A roadmap lists A.9. An independent two-agent
+audit (numbers 276 checked; claims) found no wrong value; its wording fixes are applied (nine rows not
+instruments, "held-out judge" not "held out", scoped behavior claim, the persistence n.s. cell, the
+Base comparison under both judges, caption n's). ⚠ 65% not 66% for the held-out persuasion (0.65497).
