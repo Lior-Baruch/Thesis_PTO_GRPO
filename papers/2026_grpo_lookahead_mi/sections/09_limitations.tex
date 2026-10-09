@@ -2,8 +2,8 @@
 \label{sec:limitations}
 
 \paragraph{\boldmath One training run per $K$.}
-Every effect size reported here is computed across the 96 patient personas within a single
-training run, so a significant contrast shows that the two trained policies differ, not that a
+Every effect size reported here is computed across patient personas (the 96, or the 48 of
+Appendix~\ref{app:unseen}) within a single training run, so a significant contrast shows that the two trained policies differ, not that a
 second run at each $K$ would reproduce the difference. There are no training-seed replicates due to long training times and a limited research budget. The $\Kz$
 run's decline on \QQ\ over its last two iterations and its late praise spike are likewise events of one
 run, which is why \S\ref{sec:reward} reports the contrast against that run's best checkpoint as
@@ -41,10 +41,13 @@ is untested.
 % \dnotedone{cut the paragraph (the patient's replies are inside the reward); it was correct}{[is this correct? explain in simple terms]}
 
 \paragraph{Simulation only, in sample, without human validation.}
-Every conversation is between two language models, and every number is in-sample with respect to
-the patient distribution: the 96 personas are the exhaustive enumeration of the persona grid, and
+% 2026-10-08: the held-out personas now exist (Appendix unseen); was "every number is in-sample ...,
+% so generalization to unseen patients is unmeasurable without authoring new personas."
+Every conversation is between two language models, and the main results are in-sample with respect
+to the patient distribution: the 96 personas are the exhaustive enumeration of the persona grid, and
 the self-training loop uses the same 96 for training rollouts and for evaluation at every
-iteration, so generalization to unseen patients is unmeasurable without authoring new personas.
+iteration. The check on 48 new personas with an unseen problem (Appendix~\ref{app:unseen}) covers
+one problem, not a new patient population.
 % Lior, 2026-09-29: evaluating the trained models on newly authored personas seems easy and cheap
 % (new persona prompts + generate-only passes + scoring); a candidate follow-up that would turn
 % this sentence into a measurement.
