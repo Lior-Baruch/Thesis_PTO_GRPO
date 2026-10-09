@@ -16,8 +16,8 @@ iteration under both judges. Table~\ref{tab:coop}: the $\Kf - \Kz$ contrast with
 the personas by cooperation (Appendix~\ref{app:cooperation}). The subsections audit the look-ahead
 rollouts (Appendix~\ref{app:rollouts}) and then give further checks: each final policy
 against the Base, the contrast by cooperation, a test over the whole run, a second draw of the
-final $\Kf$ policy, the two Base draws, change talk after each reply and the patient's side
-(Appendices~\ref{app:vsbase}--\ref{app:patientside}).
+final $\Kf$ policy, the two Base draws, change talk after each reply, the patient's side and
+patients with an unseen problem (Appendices~\ref{app:vsbase}--\ref{app:unseen}).
 
 \subsection{The look-ahead rollouts}
 \label{app:rollouts}
@@ -418,3 +418,87 @@ than the $\Kz$ policy's ($600$ vs.\ $440$ characters, $\dz{=}1.24$), and a keywo
 (phrases such as ``I don't know'' and ``waste of time''; Appendix~\ref{app:marker}) is slightly
 more frequent in them ($\dz{=}0.31$). The share of sessions that reach any change talk at all is
 $92\%$ against $86\%$ under the training oracle ($\dz{=}0.13$, not significant).
+
+% 2026-10-08 (Lior: held-out personas, "appendix + 1 body sentence"). Numbers: EDA
+% results/lookahead/heldout_personas.{md,csv} (tools/score_heldout.py, tools/heldout_check.py);
+% table rows by render_process_tables.py --heldout.
+\subsection{Patients with an unseen problem}
+\label{app:unseen}
+
+The 96 personas serve both as training prompts and as the evaluation set (Limitations). As a check
+outside that set we wrote 48 new personas with a problem the training grid never had, alcohol: the
+smoking persona's sentences rewritten for drinking (``You have been drinking alcohol heavily
+for many years, and it has become a daily habit''), every other factor as in training
+(2~gender~$\times$ 3~cooperation~$\times$ 2~duration~$\times$ 2~prior~attempts~$\times$ 2~ages).
+The Base, $\Kz$ at iterations 8 and 10 and $\Kf$ at 10 each held one conversation with each of
+them, with the same patient seed for all four, and both judges scored and coded them as in the body
+(Table~\ref{tab:unseen}).
+
+Under the training oracle the $\Kf$ policy leads on all nine rows against both $\Kz$
+checkpoints, significantly on every row (\QQ: $\dz{=}0.63$ against the best checkpoint, $0.80$
+against the last), as on the training personas. Under the held-out judge its lead is significant
+only on MI-SAT, PCT and MICI, and on CSQ-8 against the last checkpoint; on Q2 the held-out judge
+prefers $\Kz$'s best checkpoint ($\dz{=}-0.54$), and on \QQ\ neither difference is significant. The
+differences in praise, complex reflection and reflection of change talk carry over under both
+judges, significantly against both checkpoints. The $\Kz$ policy praises ($0.23$ and $0.48$ of its
+turns at iterations 8 and 10; held-out judge $0.56$ and $0.78$) and the $\Kf$ policy far less ($0.05$,
+the Base's level; held-out judge $0.11$, above the Base's $0.04$); the $\Kf$ policy uses complex reflections ($0.25$ of its turns, against at most
+$0.04$) and answers change talk with a reflection in $33\%$ of cases (at most $3\%$ under $\Kz$), and it still
+meets sustain talk with persuasion ($44\%$ of cases, Base $23\%$; held-out judge $65\%$, Base
+$32\%$). In the average conversation,
+change talk is followed by change talk in $96\%$ of cases under the $\Kf$ policy, against $88\%$ and
+$83\%$ under the $\Kz$ checkpoints (held-out judge $92\%$, against $75\%$ and $70\%$; under the
+training oracle the difference from the last checkpoint is not significant). These are 48 conversations per policy with one new
+problem: they test transfer to that problem, not to the patient population.
+
+\begin{table*}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3.4pt}
+\renewcommand{\arraystretch}{0.92}
+\begin{tabular}{@{}lrrrrrrrr@{}}
+\toprule
+& \multicolumn{4}{c}{training oracle} & \multicolumn{4}{c}{\dz, $\Kf$ at 10 $-$ $\Kz$ at 8 or 10} \\
+\cmidrule(lr){2-5}\cmidrule(lr){6-9}
+& & & & & \multicolumn{2}{c}{training oracle} & \multicolumn{2}{c}{held-out judge} \\
+\cmidrule(lr){6-7}\cmidrule(lr){8-9}
+Measure & Base & $\Kz$ at 8 & $\Kz$ at 10 & $\Kf$ at 10 & best (8) & last (10) & best (8) & last (10)\\
+\midrule
+Q1+Q2 (reward) & $2.99$ & $4.00$ & $3.76$ & $4.36$ & $+0.63^{***}$ & $+0.80^{***}$ & $-0.34^{\phantom{***}}$ & $+0.16^{\phantom{***}}$\\
+\quad Q1 & $2.94$ & $3.85$ & $3.59$ & $4.30$ & $+0.68^{***}$ & $+0.86^{***}$ & $-0.09^{\phantom{***}}$ & $+0.30^{\phantom{***}}$\\
+\quad Q2 & $3.03$ & $4.16$ & $3.94$ & $4.43$ & $+0.53^{**\phantom{*}}$ & $+0.67^{***}$ & $-0.54^{**\phantom{*}}$ & $-0.08^{\phantom{***}}$\\
+WAI-SR & $2.85$ & $3.29$ & $3.33$ & $3.57$ & $+0.60^{**\phantom{*}}$ & $+0.47^{*\phantom{**}}$ & $-0.27^{\phantom{***}}$ & $+0.13^{\phantom{***}}$\\
+CSQ-8 (1--4) & $2.41$ & $2.75$ & $2.73$ & $2.97$ & $+0.47^{**\phantom{*}}$ & $+0.44^{*\phantom{**}}$ & $+0.04^{\phantom{***}}$ & $+0.54^{**\phantom{*}}$\\
+MI-SAT & $2.91$ & $3.38$ & $3.37$ & $3.65$ & $+0.41^{*\phantom{**}}$ & $+0.37^{*\phantom{**}}$ & $+0.66^{***}$ & $+0.73^{***}$\\
+MITI & $3.09$ & $4.21$ & $3.96$ & $4.40$ & $+0.32^{*\phantom{**}}$ & $+0.65^{***}$ & $-0.06^{\phantom{***}}$ & $+0.30^{\phantom{***}}$\\
+PCT (share) & $0.56$ & $0.57$ & $0.59$ & $0.70$ & $+0.56^{**\phantom{*}}$ & $+0.40^{*\phantom{**}}$ & $+0.56^{**\phantom{*}}$ & $+0.41^{*\phantom{**}}$\\
+MICI (per turn, $\downarrow$) & $0.28$ & $0.61$ & $0.83$ & $0.31$ & $-0.94^{***}$ & $-1.48^{***}$ & $-0.75^{***}$ & $-1.11^{***}$\\
+\midrule
+\multicolumn{9}{@{}l}{\emph{Therapist turns (share by dominant function)}}\\
+non-specific praise ($\downarrow$) & $0.05$ & $0.23$ & $0.48$ & $0.05$ & $-0.84^{***}$ & $-1.41^{***}$ & $-2.00^{***}$ & $-3.13^{***}$\\
+complex reflection & $0.02$ & $0.04$ & $0.01$ & $0.25$ & $+0.92^{***}$ & $+1.05^{***}$ & $+0.92^{***}$ & $+0.97^{***}$\\
+persuasion ($\downarrow$) & $0.19$ & $0.17$ & $0.02$ & $0.27$ & $+0.35^{\phantom{***}}$ & $+1.02^{***}$ & $+0.78^{***}$ & $+1.19^{***}$\\
+MI-consistent share & $0.27$ & $0.33$ & $0.26$ & $0.48$ & $+0.42^{\phantom{***}}$ & $+0.71^{***}$ & $+0.97^{***}$ & $+1.18^{***}$\\
+MI-inconsistent share ($\downarrow$) & $0.25$ & $0.40$ & $0.50$ & $0.32$ & $-0.26^{\phantom{***}}$ & $-0.54^{**\phantom{*}}$ & $-0.70^{***}$ & $-1.13^{***}$\\
+\midrule
+\multicolumn{9}{@{}l}{\emph{The therapist's reply to the patient's \ldots}}\\
+change talk: reflects it & $0.15$ & $0.03$ & $0.01$ & $0.33$ & $+0.90^{***}$ & $+1.08^{***}$ & $+0.79^{***}$ & $+1.10^{***}$\\
+sustain talk: praises ($\downarrow$) & $0.01$ & $0.13$ & $0.37$ & $0.00$ & $-0.74^{**\phantom{*}}$ & $-1.35^{***}$ & $-1.68^{***}$ & $-3.37^{***}$\\
+sustain talk: persuades ($\downarrow$) & $0.23$ & $0.29$ & $0.03$ & $0.44$ & $+0.38^{\phantom{***}}$ & $+1.33^{***}$ & $+0.94^{***}$ & $+2.25^{***}$\\
+\midrule
+\multicolumn{9}{@{}l}{\emph{Next patient utterance is change talk, after \ldots}}\\
+change talk & $0.81$ & $0.88$ & $0.83$ & $0.96$ & $+0.42^{*\phantom{**}}$ & $+0.36^{\phantom{***}}$ & $+0.56^{**\phantom{*}}$ & $+0.63^{***}$\\
+sustain talk & $0.27$ & $0.21$ & $0.23$ & $0.26$ & $+0.27^{\phantom{***}}$ & $+0.11^{\phantom{***}}$ & $+0.15^{\phantom{***}}$ & $+0.00^{\phantom{***}}$\\
+\bottomrule
+\end{tabular}
+\caption{\textbf{Patients with an unseen problem}: 48 personas with alcohol as the problem, which
+the training grid never had (Appendix~\ref{app:unseen}). Levels: means over the 48 conversations
+under the training oracle (Base: 47 on the therapist-turn rows; fewer on the reply and
+next-utterance rows); the instrument rows are as in Table~\ref{tab:endpoint}, the process rows as in
+Table~\ref{tab:process}. \dz: persona-paired, $\Kf$ at 10 minus each $\Kz$ checkpoint (instrument
+and therapist-turn rows $n{=}48$; reply and next-utterance rows 32--38, the personas with that
+patient utterance under both policies); positive means more under $\Kf$ ($\downarrow$: lower is better). Holm across the
+nine instrument rows, and separately across the ten process rows, per judge and checkpoint
+($^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$). No test involves the Base.}
+\label{tab:unseen}
+\end{table*}

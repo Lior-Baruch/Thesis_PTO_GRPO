@@ -363,8 +363,63 @@ def anchor_rows(judge: str) -> list[str]:
     return out
 
 
+HELDOUT_CSV = (HERE.parent.parent / "Exp3_PTO_GRPO" / "eda" / "results" / "lookahead"
+               / "heldout_personas.csv")
+HELDOUT_PROC = [("Therapist turns (share by dominant function)",
+                 [("th_PRA_rate", f"non-specific praise {DN}"), ("th_CR_rate", "complex reflection"),
+                  ("th_PERS_rate", f"persuasion {DN}"), ("mi_adherent_rate", "MI-consistent share"),
+                  ("mi_incons_rate", f"MI-inconsistent share {DN}")]),
+                (r"The therapist's reply to the patient's \ldots",
+                 [("refl_after_ct", "change talk: reflects it"), ("pra_after_st", f"sustain talk: praises {DN}"),
+                  ("pers_after_st", f"sustain talk: persuades {DN}")]),
+                (r"Next patient utterance is change talk, after \ldots",
+                 [("ct_persist", "change talk"), ("st_to_ct", "sustain talk")])]
+
+
+def heldout_rows() -> list[str]:
+    """The held-out-persona table (Appendix A, review round 5 follow-up, 2026-10-08): 48 personas
+    with a problem absent from training (alcohol). Levels under the training oracle (two decimals,
+    no bold, as Table 1), d_z of K=5 at 10 against K=0 at 8 and at 10 under both judges (stars: Holm
+    across the nine instrument rows, and across the ten process rows, per judge and checkpoint).
+    Read from the EDA's tidy heldout_personas.csv (tools/heldout_check.py); n = 48 on every
+    instrument row is asserted."""
+    t = pd.read_csv(HELDOUT_CSV)
+    G = {PRIMARY: "training oracle", HELDOUT: "held-out judge"}
+    states = ["Base", "K=0 at 8", "K=0 at 10", "K=5 at 10"]
+    anchors_ = ["K=5 at 10 - K=0 at 8 (best)", "K=5 at 10 - K=0 at 10 (last)"]
+
+    def lvl(m):
+        r = t[(t.kind == "level") & (t.grader == G[PRIMARY]) & (t.measure == m)].set_index("state")
+        return [f"${float(r.loc[s, 'value']):.2f}$" for s in states]
+
+    def dz(m, j, anc, n_req=None):
+        r = t[(t.kind == "contrast") & (t.grader == G[j]) & (t.measure == m) & (t.state == anc)]
+        assert len(r) == 1, (m, j, anc)
+        r = r.iloc[0]
+        if n_req is not None:
+            assert int(r.n) == n_req, (m, j, anc, r.n)
+        s = "".join("*" for c in (0.05, 0.01, 0.001) if r.p_holm < c)
+        pad = "*" * (3 - len(s))
+        return f"${r.dz:+.2f}^{{{s}" + (f"\\phantom{{{pad}}}" if pad else "") + "}$"
+
+    out = []
+    for m, lab in INSTR:
+        cells = lvl(m) + [dz(m, j, a, 48) for j in (PRIMARY, HELDOUT) for a in anchors_]
+        out.append(f"{lab} & " + " & ".join(cells) + r"\\")
+    for gname, rows in HELDOUT_PROC:
+        out.append(r"\midrule")
+        out.append(rf"\multicolumn{{9}}{{@{{}}l}}{{\emph{{{gname}}}}}\\")
+        for m, lab in rows:
+            cells = lvl(m) + [dz(m, j, a) for j in (PRIMARY, HELDOUT) for a in anchors_]
+            out.append(f"{lab} & " + " & ".join(cells) + r"\\")
+    return out
+
+
 def main(argv: list[str] | None = None) -> int:
     argv = sys.argv[1:] if argv is None else argv
+    if "--heldout" in argv:
+        print("\n".join(heldout_rows()))
+        return 0
     if "--codes" in argv:
         print("\n".join(codes()))
         return 0
