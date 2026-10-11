@@ -12,7 +12,7 @@ Figure~\ref{fig:process-heldout}; every code: Figure~\ref{fig:codemix}): mean $\
 conversations; iteration 0 (dotted) is the Base. \textbf{(a, c, d)} Share of therapist turns coded
 non-specific praise, complex reflection or persuasion (scripted opening turn excluded).
 \textbf{(b)} Share of turns with one of the keyword marker's ten praise phrases (no model; opening
-turn included; untested). \textbf{(e)} Change-talk (CT) persistence: share of CT utterances whose
+turn included; no test). \textbf{(e)} Change-talk (CT) persistence: share of CT utterances whose
 next patient utterance is CT. Stars: significant persona-paired $\Kf$ vs.\ $\Kz$ contrasts (Holm
 across iterations), favoring $\Kf$ except in (d), where $\Kz$ persuades less.}
 \label{fig:process}
@@ -49,26 +49,25 @@ late round, on the iteration-8 model's candidates, in which the $\Kz$ reward bar
 (Appendix~\ref{app:premium}).
 % \dnotedone{reworded: now `Under K=5 it' (the behaviour distribution)}{[the mix \textasciitilde{}]}
 Under $\Kf$ the shift is instead toward \textbf{complex reflections} (Figure~\ref{fig:process}c): from $0.02$ of the Base's
-turns to $0.23$ at iteration 10, significantly more than under $\Kz$ at every iteration from 4 on,
+turns to $0.23$ at iteration 10, significantly more than under $\Kz$ (never above $0.03$) from iteration 4 on,
 and the share of MI-consistent turns at iteration 10 is $0.44$ against $\Kz$'s $0.29$ (Base
 $0.31$). Both policies lose open-question turns ($0.09$ of the Base's turns; $\Kz$ $0.00$, $\Kf$ $0.01$)
 and roughly triple their turn length ($273$ characters at the Base; $\Kz$ $896$, $\Kf$ $849$), near
-the 200-token cap.
+the 200-token cap. In sentence-embedding space the $\Kz$ policy's replies vary less from patient to
+patient than the $\Kf$ policy's, relative to their variation within a session, from iteration 3 on
+(Appendix~\ref{app:embedding}).
 
 The $\Kf$ policy also persuades more: persuasion, arguing for change on the patient's behalf (the
 \emph{righting reflex} that MI warns against; \citealp{miller2013mi}), rises from $0.20$ of the
 Base's turns to $0.28$ of its own (Figure~\ref{fig:process}d).
 % \dnotedone{rephrased: says what Chiu et al. report}{[the failure mode \citet{chiu2024bolt} report for LLM therapists -?]}
 It is the tendency \citet{chiu2024bolt} report in LLM therapists, which advise where an MI
-counselor would reflect. The coder's MI-inconsistent share still ends lower under $\Kf$ ($0.33$ against
-$0.46$; Base $0.25$; Table~\ref{tab:process}) because of the $\Kz$ policy's late praise; the $\Kf$
-policy's own share rises above the Base's with its persuasion, though its MICI under the training
-oracle does not (\S\ref{sec:reward}). The held-out judge agrees on the
+counselor would reflect. The coder's MI-inconsistent share rises from the Base's $0.25$ under both policies, to $0.33$ under $\Kf$ with its persuasion and to $0.46$ under $\Kz$ with its late praise (Table~\ref{tab:process}); the $\Kf$ policy's MICI under the training oracle does not (\S\ref{sec:reward}). The held-out judge agrees on the
 direction of each coded change at iteration 10 and codes $0.76$ of the $\Kz$ policy's turns as praise
 against $0.20$ of the $\Kf$ policy's, itself above the Base's $0.04$ (Appendix~\ref{app:heldout}).
 
 % 2026-10-07 (content pass): "Corroboration without a judge" and "In embedding space" merged.
-\textbf{Corroboration.} The praise finding could in principle be a judge artifact, but a
+\textbf{Corroboration.} A
 \textbf{keyword marker} of ten fixed praise phrases (``I'm so proud'', ``you got this'', \ldots;
 Appendix~\ref{app:marker}), which involves no model, follows the coder's praise share over
 iterations (Figure~\ref{fig:process}b; only its trend is read): almost none of the Base's turns,
@@ -83,9 +82,10 @@ fall under its over-praise code, which we added to the MISC's codes (\S\ref{sec:
 % 2026-10-08 (review round 5, M5): was "So do sentence embeddings: from iteration 3 on ... the $\Kf$
 % direction at no iteration in more than three of the five"; the variance drop precedes the praise,
 % and the K=5 clause now states the paired contrast.
-In sentence-embedding space the $\Kz$ policy's replies vary less from patient to patient than the
-$\Kf$ policy's, relative to their variation within a session, from iteration 3 on, long before the $\Kz$
-praise peaks (Appendix~\ref{app:embedding}); and the embedding direction each round of $\Kz$
+% 2026-10-11: the variance clause moved to "The two policies learn different behaviors" (it is not
+% about praise); was "In sentence-embedding space ... from iteration 3 on, long before the $\Kz$
+% praise peaks (Appendix~\ref{app:embedding}); and the embedding direction each round ...".
+The embedding direction that each round of $\Kz$
 training favored points toward praise sentences at training iterations 4--8 and 10 in all five
 encoders, further than the $\Kf$ direction in at least four of the five at 3--6
 (Appendix~\ref{app:direction}). The praise finding thus rests on two judges' coders, MICI and a
