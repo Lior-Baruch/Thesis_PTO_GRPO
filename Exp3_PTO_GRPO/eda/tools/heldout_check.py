@@ -44,6 +44,7 @@ from eda_analysis.scoring.judge import JUDGE_METRIC_COLS  # noqa: E402
 
 RESULTS = os.path.join(_p, "results")
 OUT_MD = os.path.join(RESULTS, "lookahead", "heldout_personas.md")
+OUT_CSV = os.path.join(RESULTS, "lookahead", "heldout_personas.csv")   # tidy; the paper table reads it
 N = 48
 
 JUDGES = [("training oracle", ""), ("held-out judge", "anthropic_claude-haiku-4-5")]
@@ -171,15 +172,20 @@ def main() -> int:
         "## Levels (means over conversations)",
         "",
     ]
+    tidy = []
     for jl, _ in JUDGES:
         L += [f"### {jl}", "", "| measure | " + " | ".join(s for s, _ in STATES) + " |",
               "|---|" + "---:|" * len(STATES)]
         for met in METRICS:
             L.append(f"| {met}{' (lower)' if met in LOWER_IS_BETTER else ''} | "
                      + " | ".join(f"{inst[(jl, m)][met].mean():.3f}" for _, m in STATES) + " |")
+            tidy += [{"kind": "level", "grader": jl, "measure": met, "state": s_, "n": int(inst[(jl, m)][met].notna().sum()),
+                      "value": inst[(jl, m)][met].mean()} for s_, m in STATES]
         for col, lab, low in PROCESS:
             L.append(f"| {lab}{' (lower)' if low else ''} | "
                      + " | ".join(f"{proc[(jl, m)][col].mean():.3f}" for _, m in STATES) + " |")
+            tidy += [{"kind": "level", "grader": jl, "measure": col, "state": s_, "n": int(proc[(jl, m)][col].notna().sum()),
+                      "value": proc[(jl, m)][col].mean()} for s_, m in STATES]
         L.append("")
 
     for title, frames, cols, labels in (
@@ -196,12 +202,17 @@ def main() -> int:
                         L.append(f"| {labels[c]} | {jl} | - | - | - | - | - | - |"); continue
                     L.append(f"| {labels[c]} | {jl} | {r['n']} | {r['mean_delta']:+.3f} | {r['dz']:+.3f} | "
                              f"[{r['ci_lo']:+.3f}, {r['ci_hi']:+.3f}] | {r['p']:.2e} | {h:.4f} |")
+                    tidy.append({"kind": "contrast", "grader": jl, "measure": c, "state": clab, "n": r["n"],
+                                 "value": r["mean_delta"], "dz": r["dz"], "ci_lo": r["ci_lo"], "ci_hi": r["ci_hi"],
+                                 "p": r["p"], "p_holm": h})
             L.append("")
 
     os.makedirs(os.path.dirname(OUT_MD), exist_ok=True)
     with open(OUT_MD, "w", encoding="utf-8") as f:
         f.write("\n".join(L) + "\n")
     print(f"wrote {OUT_MD}")
+    pd.DataFrame(tidy).to_csv(OUT_CSV, index=False, float_format="%.6f")
+    print(f"wrote {OUT_CSV}")
 
     for jl, _ in JUDGES:
         for clab, a, b in CONTRASTS[:2]:
