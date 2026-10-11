@@ -1337,7 +1337,7 @@ can be off by one in the 3rd decimal (e.g. 0.21751 → "0.217"); quote from the 
 | WAI-SR gains over the Base, training oracle | K5 Task +0.958, Goal +0.849, Bond +0.760; K0 Task +0.573, Goal +0.490, Bond +0.633 | `wai_subscale_gains` |
 | WAI-SR K contrast at 10 (dz) | Task 0.509 / 0.681, Goal 0.573 / 0.531, Bond 0.264 / −0.057 (training oracle / held out) | `wai_subscale_k` |
 | trajectory test 1-10 | Q1+Q2 dz 0.921 / 1.128; |dz| 0.661-1.044 (oracle), 0.543-1.256 (held out); all p_holm < .001 | `shared_base/tables/k_trajectory` window 1-10 |
-| MICI over 1-7 favors K0, training oracle | dz +0.378, p_holm .002 | same, window 1-7 |
+| MICI over 1-7 favors K0, training oracle | dz +0.378, p_holm .003 (AUDIT-FIX 2026-10-11: was .002; k_trajectory.md says 0.003) | same, window 1-7 |
 | Base draw 1 vs 2 | max |dz| 0.128 (oracle) / 0.147 (held out) on 9 instruments; 0.180 / 0.240 on 12 process measures; no raw p < .05 | `base_draws_summary` |
 | trainer logs (Table 11, `tab:trainer`) | KL ×10³, grad norm, entropy per iteration; medians KL 0.0160 / 0.0059, grad 0.387 / 0.196; K0 KL and grad norm higher 10/10; K5 entropy higher 8/10 | `mechanism/tables/trainer_diagnostics_table_grpo`, `_k_contrast` |
 | therapist kappa between judges | 21 states 0.078-0.260, median 0.201; Base 0.188; K0 it10 0.078; K5 it10 0.152 | `process/tables/judge_agreement_overall` (positions = policy turns, opener excluded) |
@@ -1672,3 +1672,36 @@ audit (numbers 276 checked; claims) found no wrong value; its wording fixes are 
 instruments, "held-out judge" not "held out", scoped behavior claim, the persistence n.s. cell, the
 Base comparison under both judges, caption n's). ⚠ 65% not 66% for the held-out persuasion (0.65497).
 **Scope (Lior, 2026-10-09).** Discussion opening "the five-turn look-ahead model finished ahead on every instrument on the training personas, under both judges, against the other run's best and last checkpoints" and Conclusion "Scoring each candidate turn with the five turns after it gave a policy ahead on every instrument on the training personas ..." (the alcohol personas do not support "under both judges"); paid for by dropping the Conclusion's "In this pair of runs," (Lior's pick; the Discussion opening keeps it) and own-prose trims ("persuades after sustain talk"). Abstract and bullet 1 unchanged. Conclusion ends on page 8.
+
+## 2026-10-11 — strengthening pass (Lior: no "training personas"; minimize what weakens, emphasize what strengthens)
+
+A five-lens review (weakening body text, underplayed strengths, first impression, Limitations and captions, the
+"training personas" request) with every proposal verified against the EDA tables gave 42 edits; Lior applied the
+36 recommended ones ("Apply all 36"; "'on the 96 personas'" for the Discussion opening; "In this pair of runs,"
+restored in the Conclusion). Full list with old -> new text: session scratch `strong/STRENGTHEN.md`. Body
+-10 lines (the Conclusion ends on p.8 at line 666; the Limitations open on p.8). An independent two-agent audit
+(60 numbers, 36 sentences) found two wording slips and the abstract's bare "94%/73%" (fixed: "94% and 73%",
+"simulated" and "the" dropped; abstract 199 words by the plain-text counter).
+
+| Claim (where) | Value | Source |
+|---|---|---|
+| Abstract: held-out persistence "94% and 73%" | 0.935 / 0.734 (K=5 / K=0, it 10) | lookahead/shared_base/tables/persist_levels_claude-haiku-4-5.md, ct_persist_mean; k_persistence d_z -0.650, p_holm < .001 |
+| Abstract/contribution 2: utterance coding "by both judges" | praise 0.41 / 0.76 vs Base 0.04 / 0.04; CR 0.23 / 0.24 vs 0.02 / 0.03; persuasion after ST 0.39 / 0.58 vs 0.24 / 0.25 | process_levels_{gpt-4o-mini,claude-haiku-4-5}.md |
+| §4 first sentence: significant on every row against the last checkpoint under the held-out judge | all 9 held-out "last" cells *** | lookahead/shared_base/tables/anchor_contrasts.md |
+| §4: the ten-iteration average favors K=5 significantly on every instrument under both judges | 18 rows, p_holm < .001; window 1-7 MICI favors K=0, p_holm .003 | k_trajectory.md (windows 1-10, 1-7) |
+| §4: second draw "matches the first" | max abs d_z 0.174, every p_holm >= .87 (18 rows) | results/measurement/replicate_draw.md |
+| §5: K=0 complex reflection "never above 0.03" | max 0.027 (iterations 0-10) | Table process-all (process_levels_gpt-4o-mini.md, th_CR_rate, GRPO_LA0) |
+| §6: persistence gap "significant from iteration 5 on" | p_holm .021, .037, .003, .015, <.001, <.001 at 5-10; 1.000 at 1-4 | k_persistence.md (training oracle) |
+| §6: reflecting sustain talk, significant against the best (training oracle) and both checkpoints (held-out) | d_z +0.38 (p .009) / +0.27 (.067); held-out +0.31 (.039) / +0.49 (.001) | anchor_contrasts.md, refl_after_st |
+| §6 new-problem sentence: praise, CR, reflecting change talk and PCT hold under both judges; other instruments significant under the training oracle, mixed under the held-out judge | see the 2026-10-08/09 block; PCT held-out +0.56 / +0.41 (p_holm .0033 / .0385) | lookahead/heldout_personas.csv |
+| App A.1: rollouts complete or patient-closed "for at least 97%" | 0.818 + 0.156 = 0.974 (residual 0.025) | lookahead/mechanism/tables/tail_audit_by_iter.md |
+| App A.9: tests against the Base (K=5 raises PCT and the MI behaviors; K=0 does not) | K=5-Base 8 non-MICI rows p_holm <= .0018 (oracle) / <= .0059 (held-out); K=0 PCT gains 0.01-0.04 n.s. | heldout_personas.csv, contrast rows "... - Base" |
+| App B: significant cells 47 (training oracle) / 48 (held-out) / 42 in both, none in opposite directions | 47 / 48 / 42 | k_contrast.md (Holm across iterations, per judge and row) |
+| Limitations: the judges agree well on the patient codes | kappa 0.711 (change talk) / 0.696 (sustain talk) | lookahead/process/tables/process.xlsx judge_agreement_codes (already D.4) |
+| Limitations + D.9: from ~23 GPU-h to K=0's own total the runs are level (training oracle) / K=5 leads (held-out) | 23.21 and 27.08 h rows: d_z 0.074 (p .814); held-out 0.266 (p .035); 30.53 h: 0.241 (p .063) | compute/cost/tables/budget_sweep_crossjudge.md; compute_by_iteration.md |
+
+**Removed from the body:** the half-significant "after sustain talk, the next patient utterance is change
+talk in 33% ..." sentence (the numbers stay in Table 3 / App A); the long Q1 rubric quotes in the Discussion
+(the point stays; quotes in App D.3); "training personas" everywhere.
+**Settled kept:** abstract and bullet 1 "all eight ... under the training oracle and a held-out judge" (M4);
+no gain ratios; MICI never claimed reduced vs the Base.

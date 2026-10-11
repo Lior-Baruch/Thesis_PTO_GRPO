@@ -27,7 +27,7 @@ README row 18, against the final build.
 
 | # | Question | Answer | Where |
 |---|---|---|---|
-| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after the Discussion (five paragraphs since 2026-09-29): one training run per K; matched iterations vs matched cost (plain words; the iso-compute numbers in D.8); K ∈ {0, 5} only; simulation only / in-sample / same-model patient / no human validation; instruments and the utterance coder (incl. the judges' low per-utterance agreement, κ 0.08–0.26, since 2026-10-06). (The 200-token cap was cut from the Limitations 2026-09-29; §3.1 and Table 12 state it, Appendix E explains the mid-sentence endings.) |
+| A1 | Limitations? | **Yes.** | Unnumbered "Limitations" section after the Discussion (five paragraphs since 2026-09-29): one training run per K; matched iterations vs matched cost (plain words; the iso-compute numbers in D.8); K ∈ {0, 5} only; simulation only / the 96 personas serve training and evaluation (a 48-persona new-problem check in App A.9) / same-model patient / no human validation; instruments and the utterance coder (incl. the judges' low per-utterance agreement, κ 0.08–0.26, since 2026-10-06). (The 200-token cap was cut from the Limitations 2026-09-29; §3.1 and Table 12 state it, Appendix E explains the mid-sentence endings.) |
 | A2 | Potential risks? | **Yes.** | "Ethics Statement": no clinical claim, no persona discloses a crisis (so crisis handling is untested), released adapters get a research-only model card; the over-praise failure mode is safety-relevant; the simulated population is narrow; judges inherit their models' biases. (The compute paragraph was cut; compute is in D.8.) |
 
 ## B. Scientific artifacts used or created
@@ -53,7 +53,7 @@ README row 18, against the final build.
 ## D. Human annotators / human participants
 
 **No** (D1–D5 N/A). No human subjects, no annotators, no human-coded sample (Ethics Statement ¶1;
-Limitations "Simulation only, in sample, without human validation").
+Limitations "Simulation only, without human validation").
 
 ## E. AI assistants
 
