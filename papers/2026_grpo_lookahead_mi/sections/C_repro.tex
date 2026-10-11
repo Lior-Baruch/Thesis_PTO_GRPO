@@ -237,10 +237,10 @@ state: change talk $0.88$ / $0.92$, sustain talk $0.90$ / $0.94$ under the train
 held-out judge); the neutral counts agree less ($0.17$ / $0.51$), and PCT does not use them.
 
 The two judges' coders were also compared utterance by utterance. On the therapist codes they agree
-little beyond chance: Cohen's $\kappa$ is $0.08$ to $0.26$ across the 21 model states (median
+weakly: Cohen's $\kappa$ is $0.08$ to $0.26$ across the 21 model states (median
 $0.20$; $0.19$ at the Base, and $0.08$ and $0.15$ for the $\Kz$ and $\Kf$ policies at iteration 10),
 and over all states $0.24$ for non-specific praise, $0.27$ for complex reflection and $0.25$ for
-persuasion. Praise and affirmation counted as one code reach $0.41$, so much of the disagreement is
+persuasion. Praise and affirmation counted as one code reach $0.41$, so much of the disagreement on praise is
 over which of the two a praising turn is. On the patient codes they agree well ($\kappa$ $0.41$ to
 $0.74$, median $0.60$; change talk $0.71$, sustain talk $0.70$). The body therefore compares code
 shares within one judge and reports whether the other judge's shares move in the same direction; it
@@ -290,9 +290,9 @@ The keyword marker of \S\ref{sec:therapist} is one case-insensitive regular expr
 each therapist utterance; a turn counts if it contains any of ten patterns: ``I'm so proud'',
 ``proud of you'', ``inspiration to me'', ``you got this'', ``beautiful'', ``beacon'',
 ``shining'', ``warrior'', ``hero of your'' and ``you are a light''. It
-exists as a direction check on the judges' praise codes and is deliberately crude
+is a direction check on the judges' praise codes and deliberately simple
 (``beautiful'' matches any use of the word); it is reported as the share of therapist turns
-matched, never as a count of acts, and its absolute level is not a measurement. Its agreement with
+matched, never as a count of acts, and only its course over iterations is read, not its level. Its agreement with
 the coded praise share (Figure~\ref{fig:overpraise}) is what \S\ref{sec:therapist} relies on.
 The disengagement cue of Appendix~\ref{app:patientside} is a second expression of the same kind,
 matched against each patient utterance: ``I don't know'', ``not sure'', ``I guess'', ``whatever'',
@@ -364,11 +364,12 @@ over the settled iterations 3--10.
 Compared at equal GPU-hours rather than equal iterations, with each run at its best checkpoint
 within the budget (chosen on \QQ\ by the training oracle, as in \S\ref{sec:reward}, and scored by
 both judges), the result depends on the budget. At about 13 GPU-hours the $\Kz$ run is ahead
-($\dz\,-0.74$ under the training oracle, $-0.49$ under the held-out judge, $\Kf$ minus $\Kz$); at
-about 23 GPU-hours the two are level under the training oracle ($\dz\,0.07$, not significant) and
-$\Kf$ leads under the held-out judge ($\dz\,0.27$, significant); beyond the $\Kz$ run's total of
-$27.9$ GPU-hours the $\Kz$ run stays at iteration 8 while the $\Kf$ run's best checkpoint moves from
-iteration 6 to 10: $\Kf$ leads significantly under the held-out judge at every budget ($\dz\,0.34$
+($\dz\,-0.74$ under the training oracle, $-0.49$ under the held-out judge, $\Kf$ minus $\Kz$); from
+about 23 GPU-hours, through the $\Kz$ run's total of $27.9$, to just under 30.5 the comparison is one
+pair, the $\Kf$ run's iteration 4 against the $\Kz$ run's iteration 8, and the two are level under
+the training oracle ($\dz\,0.07$, not significant) while $\Kf$ leads under the held-out judge
+($\dz\,0.27$, significant); from about 30.5 GPU-hours the $\Kz$ run stays at iteration 8 while the
+$\Kf$ run's best checkpoint moves from iteration 6 to 10: $\Kf$ leads significantly under the held-out judge at every budget ($\dz\,0.34$
 to $0.49$) and under the training oracle from about 35 GPU-hours ($\dz\,0.31$ to $0.74$; $0.24$,
 not significant, at about 30.5), reaching the best-checkpoint comparison of \S\ref{sec:reward}
 only at $51.2$. Because the GPU-hours are reconstructed from
