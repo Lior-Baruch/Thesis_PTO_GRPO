@@ -2,15 +2,15 @@
 \label{sec:limitations}
 
 \paragraph{\boldmath One training run per $K$.}
-Every effect size reported here is computed across patient personas (the 96, or the 48 of
-Appendix~\ref{app:unseen}) within a single training run, so a significant contrast shows that the two trained policies differ, not that a
-second run at each $K$ would reproduce the difference. There are no training-seed replicates due to long training times and a limited research budget. The $\Kz$
-run's decline on \QQ\ over its last two iterations and its late praise spike are likewise events of one
-run, which is why \S\ref{sec:reward} reports the contrast against that run's best checkpoint as
-well as its last, and why Figure~\ref{fig:process} and Tables~\ref{tab:process}
-and~\ref{tab:process-all} mark at which of the ten
-iterations each process contrast is significant rather than at iteration 10 alone; this guards
-against the choice of endpoint, not against variation between training runs. We regard this as the principal limitation.
+Every effect size reported here is computed across patient personas within a single training run,
+so a significant contrast shows that the two trained policies differ, not that a second run at each
+$K$ would reproduce the difference. There are no training-seed replicates due to long training times and a limited research budget. The $\Kz$
+run's decline on \QQ\ over its last two iterations and its late praise spike are likewise events of
+one run. Comparing against that run's best checkpoint as well as its last (\S\ref{sec:reward}),
+averaging over all ten iterations (Appendix~\ref{app:wholerun}) and marking each iteration at which
+a process contrast is significant (Figure~\ref{fig:process}; Tables~\ref{tab:process}
+and~\ref{tab:process-all}) guard against the choice of endpoint, not against variation between
+training runs. We regard this as the principal limitation.
 
 % \dnotedone{cut the paragraph (Evaluation draws); \S\ref{sec:reward}'s last paragraph already says it}{[a replicate bounds evaluation noise only, never the training variance above. ??] [what does para say? important? ]}
 
@@ -19,8 +19,9 @@ against the choice of endpoint, not against variation between training runs. We 
 Both runs take about the same number of training steps and make about the same number of training-oracle calls, but the $\Kf$ run also simulates five more turns for every candidate, so it is
 slower: about twice the time per training step, and $51.2$ against $27.9$ GPU-hours in total.
 Compared at equal GPU-hours rather than equal iterations, the result depends on the budget: the
-$\Kz$ run is ahead at about 13 GPU-hours under both judges, and at about 23 the two are level under the training
-oracle while $\Kf$ leads under the held-out judge (Appendix~\ref{app:repro-cost}).
+$\Kz$ run is ahead at about 13 GPU-hours under both judges, and from about 23 GPU-hours up to the
+$\Kz$ run's total of $27.9$ the two are level under the training oracle while $\Kf$ leads under the
+held-out judge (Appendix~\ref{app:repro-cost}).
 
 \paragraph{\boldmath $K \in \{0, 5\}$ only.}
 % \dnotedone{rephrased}{rephrase - need more runs to explore further.}
@@ -40,31 +41,35 @@ is untested.
 
 % \dnotedone{cut the paragraph (the patient's replies are inside the reward); it was correct}{[is this correct? explain in simple terms]}
 
-\paragraph{Simulation only, in sample, without human validation.}
+\paragraph{Simulation only, without human validation.}
 % 2026-10-08: the held-out personas now exist (Appendix unseen); was "every number is in-sample ...,
 % so generalization to unseen patients is unmeasurable without authoring new personas."
-Every conversation is between two language models, and the main results are in-sample with respect
-to the patient distribution: the 96 personas are the exhaustive enumeration of the persona grid, and
-the self-training loop uses the same 96 for training rollouts and for evaluation at every
-iteration. The check on 48 new personas with an unseen problem (Appendix~\ref{app:unseen}) covers
-one problem, not a new patient population.
+% 2026-10-11 (Lior: no "training personas" framing): heading was "Simulation only, in sample, without
+% human validation"; the first sentences were "Every conversation is between two language models, and
+% the main results are in-sample with respect to the patient distribution: the 96 personas are the
+% exhaustive enumeration of the persona grid, and the self-training loop uses the same 96 for training
+% rollouts and for evaluation at every iteration. The check on 48 new personas with an unseen problem
+% (Appendix~\ref{app:unseen}) covers one problem, not a new patient population."
+Every conversation is between two language models. Each policy is evaluated on new conversations
+that it was never trained on, but with the same 96 personas (the full grid) that supply the
+training prompts; Appendix~\ref{app:unseen} adds 48 personas with a problem outside the grid
+(alcohol), which tests one new problem, not a new patient population.
 % Lior, 2026-09-29: evaluating the trained models on newly authored personas seems easy and cheap
 % (new persona prompts + generate-only passes + scoring); a candidate follow-up that would turn
 % this sentence into a measurement.
 % \dnotedone{rephrased: the extra measurements first, then the one gap they cannot close}{[but this is why we used additional measurements..]}
 The held-out judge, the keyword marker and the sentence embeddings test the findings without
-relying on the training oracle, but none of them changes the patient: every conversation was
-generated against a \texttt{gpt-4o-mini} patient, the same model as the training oracle, and only
-regenerating the conversations with a patient from another model family would remove that link.
-The simulated
-patient is a known weak point in itself: given identical profiles, LLM-simulated MI patients
-are more uniformly positive than human patients
+relying on the training oracle, though every conversation was generated against a
+\texttt{gpt-4o-mini} patient, the same model as the training oracle. Given identical profiles,
+LLM-simulated MI patients are more uniformly positive than human patients
 \citep{hoang2026standardised}, which bears most directly on the patient-side measures of
 \S\ref{sec:patient}. %No human MI coder has
 %rated any conversation in this experiment;
-The training oracle is highly self-repeatable on Q1, Q2 and MICI (Appendix~\ref{app:stats}). The
-praise finding is the most robust behavioral claim here because the keyword marker, a plain
-search for ten praise phrases with no language model involved, finds the same rise.
+The training oracle is highly self-repeatable on Q1, Q2 and MICI, and the held-out judge on Q1 and
+Q2 (Appendix~\ref{app:stats}). The keyword marker, a plain search for ten praise phrases with no
+language model involved, finds the same rise in the $\Kz$ policy's praise as both judges' coders,
+and the gaps in praise, complex reflection and reflecting change talk hold under both judges and on
+the 48 new personas (Appendix~\ref{app:unseen}).
 % \dnotedone{rephrased}{[the keyword marker corroborates it without a model in the loop -?]}
 % \dnotedone{cut the cap sentences (Lior); \S\ref{sec:method} states the cap and Appendix~\ref{app:example} explains the mid-sentence endings}{[many ? oops..!]}
 
@@ -74,13 +79,16 @@ search for ten praise phrases with no language model involved, finds the same ri
 At the $\Kf$ run's late checkpoints the training oracle's scores crowd the top of its scale, so it
 tells those conversations apart less well and agrees less with the held-out judge conversation by
 conversation; the held-out judge, whose spread does not shrink, is the check there
-(Appendix~\ref{app:saturation}).
+(Appendix~\ref{app:saturation}). On the nine rows of Table~\ref{tab:endpoint}, no $\Kf$ vs.\ $\Kz$
+contrast at any iteration is significant in opposite directions under the two judges
+(Appendix~\ref{app:heldout}).
 % \dnotedone{cut the MITI sentence (MITI's behaviour counts left the paper; MITI stays through its four global ratings)}{[in what context are you saying this?]}
 % \dnotedone{shortened}{[reprhase if important]}
 The utterance coder of \S\ref{sec:therapist}--\ref{sec:patient} gives each utterance one code,
 its dominant function, so a long turn that reflects, informs and asks is coded once. Its
-change-talk and sustain-talk codes agree closely with a separate count of them by the same judge
-(Appendix~\ref{app:coder}). Its hardest therapist-side call, praise against affirmation, is where
+change-talk and sustain-talk codes, which PCT and change-talk persistence use, agree closely with a
+separate count of them by the same judge and well with the other judge's codes, utterance by
+utterance ($\kappa$ $0.71$ and $0.70$ over all model states; Appendix~\ref{app:coder}). Its hardest therapist-side call, praise against affirmation, is where
 the two judges differ on the $\Kz$ and $\Kf$ policies (Table~\ref{tab:codes}). The two judges agree on the
-direction of the $K$ differences in the codes that the body reports, but little beyond chance on the code of an
+direction of the $K$ differences in the codes that the body reports, but only weakly on the code of an
 individual therapist utterance ($\kappa$ $0.08$--$0.26$), and no human coder has checked the codes.
