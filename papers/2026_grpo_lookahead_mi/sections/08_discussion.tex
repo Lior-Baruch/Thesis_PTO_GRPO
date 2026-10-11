@@ -6,7 +6,7 @@
 % 2026-10-07 (review round 4): the claims are scoped to this pair of runs.
 We asked whether a small therapist model learns motivational interviewing better when the judge
 that rewards each of its turns also sees how the conversation continues. In this pair of runs it
-did: the five-turn look-ahead model finished ahead on every instrument on the training personas, under both judges, against the other run's
+did: the five-turn look-ahead model finished ahead on every instrument on the 96 personas, under both judges, against the other run's
 best and last checkpoints. It also became a different therapist.
 
 % \dnotedone{rephrased}{[paid for non-specific praise \textasciitilde] [stops at the reply \textasciitilde] [paying] [paid]}
@@ -26,23 +26,22 @@ which scores a turn before the patient has answered it, clearly favored them aga
 The $\Kf$ policy learned part of what MI prescribes, reflecting the patient's change talk, and
 under it change talk persisted more often; its MI-inconsistent habit is a different one: it meets
 sustain talk with persuasion more often than the Base. Why the policies differ stays open
-(Appendix~\ref{app:mechanism}): the $\Kf$ reward agrees only slightly better with the finished
+(Appendix~\ref{app:mechanism}): the $\Kf$ reward agrees slightly better with the finished
 session's score, the runs' update directions diverge from training iteration 4 on, and the
-$\Kz$ updates are larger; one run per horizon cannot tell which matters.
+$\Kz$ updates are larger; telling which matters needs ablations.
 
 \dnotedone{the reward choice; what it leaves open is now in the Limitations}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
-Both runs optimized \QQ, which rates the session from the patient's side. Q1 also credits moves
-that MI uses sparingly: its examples of good practice include a therapist who
-``suggests practical steps \ldots, provides uplifting messages, or encourages perseverance'' and
-one who ``provides advice or information that directly relates to'' the patient's challenges
-(Appendix~\ref{app:instruments}), so the reward partly credits both habits we document, the $\Kz$
-policy's praise and the $\Kf$ policy's persuasion.
+Both runs optimized \QQ, which rates the session from the patient's side; Q1's examples of good
+practice include ``uplifting messages'' and ``advice or information'' (Appendix~\ref{app:instruments}),
+so the reward partly credits both habits we document, the $\Kz$ policy's praise and the $\Kf$
+policy's persuasion.
 
 \textbf{Conclusion.}
 % \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
-Scoring each candidate turn with the five turns after it gave
-a policy ahead on every instrument on the training personas and a different therapist, one that persuades after
-sustain talk but reflects change talk and praises far less.
+In this pair of runs, scoring each candidate turn with the five turns after it gave
+a policy ahead on every instrument and a different therapist, one that persuades after
+sustain talk but praises far less and reflects change talk. Under it, the patient's change talk
+persisted more often.
 % \dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
 % \dnotedone{cut}{coding the process as well as the outcome ??}
 % \dnotedone{cut}{headroom ??}
