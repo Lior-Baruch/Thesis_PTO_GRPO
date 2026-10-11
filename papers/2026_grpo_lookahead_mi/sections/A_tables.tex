@@ -22,10 +22,10 @@ patients with an unseen problem (Appendices~\ref{app:vsbase}--\ref{app:unseen}).
 \subsection{The look-ahead rollouts}
 \label{app:rollouts}
 
-In most cases the five-turn look-ahead ran as specified: of the
-$121{,}088$ logged $\Kf$ candidates ($88\%$ of those scored), $82\%$ had a rollout that ran all
-five turns, and most of the rest ended because the simulated patient closed the session ($16\%$
-of all candidates). Candidates whose rollout ended early scored at or slightly below their
+The five-turn look-ahead ran as specified for at least $97\%$ of the $121{,}088$ logged $\Kf$
+candidates ($88\%$ of those scored): $82\%$ had a rollout that ran all five turns and $16\%$ one that
+stopped early because the simulated patient closed the session, as \S\ref{sec:lagrpo} allows.
+Candidates whose rollout ended early scored at or slightly below their
 group's mean (by at most $0.09$ points). A patient call inside the rollout is attempted three
 times; if it still fails, the rollout stops and the oracle scores the transcript so far, as it does
 when either speaker closes the session or the policy's turn is empty. Of the logged candidates,
@@ -370,8 +370,8 @@ iteration 10, held out $0.30$ against $0.62$; $\dz{=}0.92$, held out $1.13$; $|\
 to $1.04$ across the rows under the training oracle and from $0.54$ to $1.26$ under the held-out
 judge). Each persona's average spans ten conversations and so varies less than a single
 conversation, which makes these \dz\ larger than Table~\ref{tab:endpoint}'s for the same gap. Over
-iterations 1--7 alone, MICI favors $\Kz$ under the training oracle ($0.24$ MI-inconsistent acts per
-therapist turn against $0.28$; $\dz{=}0.38$), as at iteration 3 in Figure~\ref{fig:headline}.
+iterations 1--7 alone, MICI significantly favors $\Kz$ under the training oracle ($0.24$ MI-inconsistent acts per
+therapist turn against $0.28$; $\dz{=}0.38$, $p_{\mathrm{Holm}}{=}.003$), as at iteration 3 in Figure~\ref{fig:headline}.
 
 \subsection{A second draw of the final policy}
 \label{app:seconddraw}
@@ -425,31 +425,49 @@ $92\%$ against $86\%$ under the training oracle ($\dz{=}0.13$, not significant).
 \subsection{Patients with an unseen problem}
 \label{app:unseen}
 
-The 96 personas serve both as training prompts and as the evaluation set (Limitations). As a check
-outside that set we wrote 48 new personas with a problem the training grid never had, alcohol: the
-smoking persona's sentences rewritten for drinking (``You have been drinking alcohol heavily
-for many years, and it has become a daily habit''), every other factor as in training
+% 2026-10-11 (Lior: no "training personas"; the extra evaluation is shown here, a short mention in
+% the body): opens as an extra evaluation, behaviors first, "only" dropped, tests against the Base
+% added. Was: "The 96 personas serve both as training prompts and as the evaluation set
+% (Limitations). As a check outside that set we wrote 48 new personas with a problem the training
+% grid never had, alcohol: ..., every other factor as in training (...)" ... "as on the training
+% personas" ... "These are 48 conversations per policy with one new problem: they test transfer to
+% that problem, not to the patient population." (The Limitations keep that scope.)
+As an extra evaluation we wrote 48 new personas with a problem none of the 96 personas has, alcohol:
+the smoking persona's sentences rewritten for drinking (``You have been drinking alcohol heavily
+for many years, and it has become a daily habit''), every other factor as in the 96
 (2~gender~$\times$ 3~cooperation~$\times$ 2~duration~$\times$ 2~prior~attempts~$\times$ 2~ages).
-The Base, $\Kz$ at iterations 8 and 10 and $\Kf$ at 10 each held one conversation with each of
-them, with the same patient seed for all four, and both judges scored and coded them as in the body
+Each new persona thus differs from its smoking counterpart among the 96 only in its problem, so the
+check measures transfer to one new problem. The Base, $\Kz$ at iterations 8 and 10 and $\Kf$ at 10
+(the four policies of Table~\ref{tab:endpoint}) each held one conversation with each of them, with
+the same patient seed for all four, and both judges scored and coded them as in the body
 (Table~\ref{tab:unseen}).
 
-Under the training oracle the $\Kf$ policy leads on all nine rows against both $\Kz$
-checkpoints, significantly on every row (\QQ: $\dz{=}0.63$ against the best checkpoint, $0.80$
-against the last), as on the training personas. Under the held-out judge its lead is significant
-only on MI-SAT, PCT and MICI, and on CSQ-8 against the last checkpoint; on Q2 the held-out judge
-prefers $\Kz$'s best checkpoint ($\dz{=}-0.54$), and on \QQ\ neither difference is significant. The
-differences in praise, complex reflection and reflection of change talk carry over under both
-judges, significantly against both checkpoints. The $\Kz$ policy praises ($0.23$ and $0.48$ of its
-turns at iterations 8 and 10; held-out judge $0.56$ and $0.78$) and the $\Kf$ policy far less ($0.05$,
-the Base's level; held-out judge $0.11$, above the Base's $0.04$); the $\Kf$ policy uses complex reflections ($0.25$ of its turns, against at most
-$0.04$) and answers change talk with a reflection in $33\%$ of cases (at most $3\%$ under $\Kz$), and it still
-meets sustain talk with persuasion ($44\%$ of cases, Base $23\%$; held-out judge $65\%$, Base
-$32\%$). In the average conversation,
-change talk is followed by change talk in $96\%$ of cases under the $\Kf$ policy, against $88\%$ and
-$83\%$ under the $\Kz$ checkpoints (held-out judge $92\%$, against $75\%$ and $70\%$; under the
-training oracle the difference from the last checkpoint is not significant). These are 48 conversations per policy with one new
-problem: they test transfer to that problem, not to the patient population.
+The differences in praise, complex reflection and reflection of change talk carry over to these
+patients under both judges, significantly against both $\Kz$ checkpoints. The $\Kz$ policy praises
+($0.23$ and $0.48$ of its turns at iterations 8 and 10; held-out judge $0.56$ and $0.78$) and the
+$\Kf$ policy far less ($0.05$, the Base's level; held-out judge $0.11$, above the Base's $0.04$);
+the $\Kf$ policy uses complex reflections ($0.25$ of its turns, against at most $0.04$) and answers
+change talk with a reflection in $33\%$ of cases (at most $3\%$ under $\Kz$), and it still meets
+sustain talk with persuasion ($44\%$ of cases, Base $23\%$; held-out judge $65\%$, Base $32\%$). In
+the average conversation, change talk is followed by change talk in $96\%$ of cases under the $\Kf$
+policy, against $88\%$ and $83\%$ under the $\Kz$ checkpoints (held-out judge $92\%$, against $75\%$
+and $70\%$; under the training oracle the difference from the last checkpoint is not significant).
+Only the $\Kf$ policy raises complex reflection, reflection of change talk and change-talk
+persistence significantly above the Base, under both judges; neither $\Kz$ checkpoint raises any of
+them under either judge.
+
+On the instruments, as on the 96 personas (Table~\ref{tab:endpoint}), the training oracle has the
+$\Kf$ policy ahead of both $\Kz$ checkpoints on all nine rows, significantly on every row (\QQ:
+$\dz{=}0.63$ against the best checkpoint, $0.80$ against the last). Under the held-out judge the
+$\Kf$ policy is significantly ahead on MI-SAT, PCT and MICI against both checkpoints and on CSQ-8
+against the last; on Q2 the held-out judge significantly prefers $\Kz$'s best checkpoint ($\dz{=}-0.54$), and on
+\QQ\ neither difference is significant. Tested against the Base the same way (persona-paired, Holm
+per judge), the $\Kf$ policy improves significantly on eight of the nine rows under both judges, all
+but MICI, which, as on the 96 personas (Appendix~\ref{app:vsbase}), does not change significantly
+under the training oracle and rises under the held-out judge. The $\Kz$ checkpoints improve on five
+to seven of the nine, but neither raises PCT significantly under either judge (differences $0.01$
+to $0.04$, against $0.08$ to $0.10$ on the 96), while the $\Kf$ policy raises it by $0.14$ under the
+training oracle and $0.15$ under the held-out judge ($0.24$ under each on the 96).
 
 \begin{table*}[t]
 \centering
@@ -491,14 +509,14 @@ change talk & $0.81$ & $0.88$ & $0.83$ & $0.96$ & $+0.42^{*\phantom{**}}$ & $+0.
 sustain talk & $0.27$ & $0.21$ & $0.23$ & $0.26$ & $+0.27^{\phantom{***}}$ & $+0.11^{\phantom{***}}$ & $+0.15^{\phantom{***}}$ & $+0.00^{\phantom{***}}$\\
 \bottomrule
 \end{tabular}
-\caption{\textbf{Patients with an unseen problem}: 48 personas with alcohol as the problem, which
-the training grid never had (Appendix~\ref{app:unseen}). Levels: means over the 48 conversations
+\caption{\textbf{Patients with an unseen problem}: 48 new personas with alcohol as the problem (the
+96 personas have smoking or obesity; Appendix~\ref{app:unseen}). Levels: means over the 48 conversations
 under the training oracle (Base: 47 on the therapist-turn rows; fewer on the reply and
 next-utterance rows); the instrument rows are as in Table~\ref{tab:endpoint}, the process rows as in
 Table~\ref{tab:process}. \dz: persona-paired, $\Kf$ at 10 minus each $\Kz$ checkpoint (instrument
 and therapist-turn rows $n{=}48$; reply and next-utterance rows 32--38, the personas with that
 patient utterance under both policies); positive means more under $\Kf$ ($\downarrow$: lower is better). Holm across the
 nine instrument rows, and separately across the ten process rows, per judge and checkpoint
-($^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$). No test involves the Base.}
+($^{*}p<.05$, $^{**}p<.01$, $^{***}p<.001$). No test in the table involves the Base.}
 \label{tab:unseen}
 \end{table*}
