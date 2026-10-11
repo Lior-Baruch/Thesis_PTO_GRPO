@@ -10,6 +10,33 @@ The CURRENT behavior these established is summarized in the root [CLAUDE.md](../
 
 ---
 
+## VRAM guard for local generation + held-out personas (landed 2026-10-08)
+
+**Why.** `generate_eval_convs.py --batch-size 6` crashed the PC (bugcheck 0x20001 HYPERVISOR_ERROR, no
+Python OOM): the Windows driver's default CUDA sysmem fallback spills an allocation past VRAM into
+system memory, and with VBS/HVCI on that took the OS down. A capped probe measured one therapist
+generation step at the 2,048-token input cap: 2.30 GB weights + 3.62 / 4.91 / 6.20 GB peak allocated at
+batch 1 / 2 / 3, i.e. ≈1.29 GB per concurrent conversation (the 2026-07-30 "≈1.1 GB" was measured on
+shorter contexts). Batch 6 ≈ 10 GB.
+
+**What landed.** `_shared.model.cap_cuda_memory(margin_gb, max_gb)` sets
+`torch.cuda.set_per_process_memory_fraction((free - margin) / total)` before the model loads, so an
+overrun raises a catchable `OutOfMemoryError` (verified: a request past a 7 GB cap raised, inside
+generate and for a raw `torch.empty`). `_shared/convs.py`: `_therapist_step_oom_safe` retries an OOM
+therapist step in halving chunks (sticky within the batch; one call over all inputs when nothing
+OOMs, so outputs are unchanged), a conversation fails alone only if it OOMs at chunk size 1, and
+`generate_all_conversations` halves the conversation batch on a pass-level OOM (only an OOM at batch
+1 counts toward the retry limit); batch lines print `peak / cap / device free`. CPU-only tests with
+mocked generation cover the chunking, the halving and termination. `generate_eval_convs.py` calls
+the cap (`--vram-margin-gb`, default 1.5), refuses a local run without `--batch-size`, checks
+`--conv-dir`'s location, and gains `--personas alcohol` (held-out personas from
+`system_prompts_builder.generate_heldout_permutations`, a separate `HeldOutProblem` enum so the
+96-persona grid is byte-identical) and `--iter 0` (the Base, no adapter). Its notebook got the cap and
+its broken `load_cfg` call fixed. An independent review (4 lenses + refuters) found the cap cannot
+see memory outside PyTorch's allocator, hence the recommended NVIDIA "CUDA - Sysmem Fallback Policy" =
+"Prefer No Sysmem Fallback" (Global tab; a per-program entry must target the Store python3.13.exe,
+not the venv launcher). Docs: CLAUDE.md § Gotchas, code/README.
+
 ## Where GRPO's wall-clock actually goes — measured; three standing hypotheses refuted (2026-08-17)
 
 Prompted by "can we make the training faster?" before resuming the GRPO K=5 arm. Everything below is

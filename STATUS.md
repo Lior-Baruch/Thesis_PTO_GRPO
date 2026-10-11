@@ -6,7 +6,7 @@ things stand*, not *how they got here*. When an entry stops being current, move 
 [Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) rather than
 appending a new dated paragraph beneath the old one.
 
-**Last updated 2026-09-14.**
+**Last updated 2026-10-11** (Next step item 00; the rest as of 2026-09-14).
 
 ## Run status — ALL FOUR ARMS COMPLETE at iteration 10
 
@@ -350,6 +350,22 @@ vendor dashboard before quoting any figure.**
 ## Next step
 
 **The experiment is data-complete. Everything below is analysis and write-up, not spend on training.**
+
+**00. NOW (2026-10-11) — the P1 paper is submission-ready and with the supervisors.** Lior sent them
+the final PDF and emailed them about the ARR reviewer form (a qualified co-author, by Oct 14) and
+the OpenReview profiles (by Oct 19); the upload (deadline Oct 12) waits for their read. State,
+plan and open items: `papers/2026_grpo_lookahead_mi/README.md` (rows 16c–18) and `CHECKLIST_ARR.md`.
+New since 2026-09-14 and worth knowing before any further analysis:
+- **A held-out-persona check exists** (2026-10-08/09): 48 personas with alcohol, a problem absent
+  from the 96-persona grid, simulated by the GRPO Base / K=0 at 8 and 10 / K=5 at 10 and scored on
+  both graders (≈$12). Report: `Exp3_PTO_GRPO/eda/results/lookahead/heldout_personas.{md,csv}`
+  (`eda/tools/score_heldout.py`, `heldout_check.py`; conversations under
+  `data/grpo_Exp3/conversations/heldout_alcohol/`, lake names `GRPOExp3_LA{0,5}_alc_*`). The coded
+  behaviors replicate under both graders; the instrument lead holds under the training oracle and
+  is mixed under the held-out judge (Q2 favors K=0's best checkpoint).
+- **Local GPU generation has a VRAM guard** after batch 6 crashed the PC on 2026-10-08
+  (`_shared.cap_cuda_memory`, OOM halving; use `--batch-size 4`; CLAUDE.md § Gotchas).
+
 
 **0. NEW (2026-09-17) — two text-level result families landed ahead of the P1 refactor**, so the
 paper can carry MI *process* rather than only scores: `lookahead/text` (judge-free embedding

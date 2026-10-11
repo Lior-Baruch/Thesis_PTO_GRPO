@@ -13,6 +13,32 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-10-07 to 2026-10-11 — P1 made submission-ready; a held-out-persona check; the PC crash
+
+**The paper.** Review round 4 (ten lenses, 61 items, Lior's decisions in
+`papers/2026_grpo_lookahead_mi/REVIEW_2026-10-07.md`), the length pass to 8 pages, a content pass,
+review round 5 (17 lenses with every finding verified, 72 items; Lior picked by question rounds from
+his phone), the held-out-persona check, and a strengthening pass on 2026-10-11 (Lior: no "training
+personas" framing; minimize what weakens, emphasize what is strong; 36 verified edits). Anonymity
+checked, the ARR checklist re-pointed, no code archive with the submission ("will be released upon
+publication"). On 2026-10-11 Lior sent the final version to the supervisors and emailed them about
+the ARR reviewer form and the OpenReview profiles; the upload (deadline Oct 12) waits for their read.
+
+**The held-out-persona check (2026-10-08/09).** 48 new personas with alcohol, a problem absent from the
+training grid (the smoking sentences rewritten for drinking, every other factor as in training),
+simulated by the GRPO Base, K=0 at iterations 8 and 10 and K=5 at 10 with one patient seed, and scored
+on all nine calls by both graders (≈$12). Training oracle: K=5 significantly ahead on all nine rows
+against both K=0 checkpoints (Q1+Q2 d_z 0.63 / 0.80). Held-out judge: significant K=5 leads on three
+rows against K=0's best (MI-SAT, PCT, MICI) and four against its last (+ CSQ-8); Q2 significantly
+favors K=0's best (d_z -0.54). The coded behaviors (praise under K=0; complex reflections and
+reflecting change talk under K=5) replicate under both graders. Report:
+`eda/results/lookahead/heldout_personas.{md,csv}`; paper Appendix A.9.
+
+**The PC crash (2026-10-08).** The first held-out generation at `--batch-size 6` crashed the machine
+(bugcheck 0x20001 HYPERVISOR_ERROR) once a trained policy's contexts reached the 2,048-token cap:
+2.30 GB of weights + ≈1.29 GB per conversation there, i.e. ≈10 GB at batch 6. A VRAM guard landed
+(CHANGELOG_TRAINER) and the rest ran at batch 3 with a peak of 7.6 GB under a 9.3 GB cap.
+
 ## 2026-09-04 — ONE submission after all: P1 (GRPO with look-ahead) goes to ARR October; the 2×2 (P2) retired
 
 **The decision.** Lior: "Archive P2, we are going with P1." `papers/2026_pto_grpo_mi/` (*Same
