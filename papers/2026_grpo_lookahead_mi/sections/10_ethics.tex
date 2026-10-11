@@ -12,8 +12,8 @@ patient, including when the patient argued for the status quo, and its training 
 praising replies above the others while it did so (Appendix~\ref{app:premium}). In
 a counseling setting, this is not a neutral artifact of optimization: praise that overrides what
 the patient has said is a habit MI training works against. We report it
-prominently, including what the $K{=}5$ policy learned instead, persuasion when the patient
-argues against change (\S\ref{sec:therapist}--\ref{sec:patient}), so that a reader evaluating this line of work sees the failure mode
+prominently, along with the $\Kf$ policy's own MI-inconsistent habit, persuading more often than the
+Base when the patient argues against change (\S\ref{sec:therapist}--\ref{sec:patient}), so that a reader evaluating this line of work sees the failure mode
 as clearly as the improvement.
 
 % 2026-10-07 (review round 4): attribution and counting fixed. Before: "The 96 personas vary six
@@ -21,11 +21,14 @@ as clearly as the improvement.
 % narrow caricature of help-seeking, authored by the researchers rather than derived from clinical data, ..."
 \textbf{Simulated patients encode a narrow population.} The 96 personas combine six attributes, one
 of them the presenting problem (smoking or obesity). They are a coarse and culturally narrow
-caricature of patients, two thirds of them sent to therapy by someone else, adapted from
+picture of patients, two thirds of them sent to therapy by someone else, adapted from
 \citet{yosef2024assessing} rather than derived from clinical data, and results on
-them should not be read as generalizing across presenting problems, demographics, or cultures;
-because all 96 personas serve for both training and evaluation, generalization cannot be measured
-within this grid, and the one check outside it covers a single new problem (see Limitations).
+them should not be read as generalizing across presenting problems, demographics, or cultures
+(Appendix~\ref{app:unseen} tests one further problem).
+% 2026-10-11 (Lior: no "training personas" framing): the shared training/evaluation personas are
+% stated in the Limitations only. Was: "... caricature of patients, ... or cultures; because all 96
+% personas serve for both training and evaluation, generalization cannot be measured within this
+% grid, and the one check outside it covers a single new problem (see Limitations)."
 
 \textbf{Judges inherit their models' biases.}
 % \dnotedone{rephrased: the facts kept, the verdict replaced by what we did about it}{[this seems too negative, tone down]}
