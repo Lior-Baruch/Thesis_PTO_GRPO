@@ -16,7 +16,11 @@ table (Table~\ref{tab:scores-heldout}) for \S\ref{sec:reward}, the process figur
 \textbf{Where it agrees and where it differs.} Across the 21 model states it preserves the sign of
 $87.9\%$ of the pairwise state $\times$ instrument contrasts the training oracle makes
 (Appendix~\ref{app:saturation}), and it agrees on the direction of every contrast at iteration 10
-in the body. On \QQ\ it separates the runs at iterations 4--10, the training oracle at 4 and
+in the body. Of the $9 \times 10 = 90$ $\Kf$ vs.\ $\Kz$ contrasts on Table~\ref{tab:endpoint}'s rows at
+iterations 1--10, it finds 48 significant and the training oracle 47 (the stars of
+Tables~\ref{tab:scores-heldout} and~\ref{tab:scores}); 42 are significant under both, and each of its
+48 has the sign of the training oracle's estimate, so no contrast is significant in opposite
+directions under the two judges. On \QQ\ it separates the runs at iterations 4--10, the training oracle at 4 and
 6--10. Against $\Kz$'s best checkpoint (iteration 8, chosen by the training oracle)
 the final $\Kf$ policy leads significantly on \QQ\ ($\dz{=}0.38$) and on six of the other eight
 rows, all but Q2 ($\dz{=}0.18$) and WAI-SR ($\dz{=}0.10$; Table~\ref{tab:endpoint}). We do not select
@@ -27,7 +31,7 @@ $2.87$ at 10, lowest $2.78$ at 8) while the training oracle's \QQ\ rises from $4
 favors $\Kz$ significantly only on MITI and MICI, both at iteration 3. On the process,
 under it the $\Kf$ policy's non-specific praise rises from the Base's $0.04$ to $0.20$ at
 iteration 10, so on its reading the $\Kf$ policy's MI-inconsistent share at
-iteration 10 is $0.47$, lower than $\Kz$'s $0.80$ but more than double the Base's $0.21$; along the
+iteration 10 is $0.47$, against $\Kz$'s $0.80$ and the Base's $0.21$; along the
 run (Table~\ref{tab:process-all-heldout}) it has $\Kz$ significantly lower at iterations 3 and 5 and
 $\Kf$ significantly lower at 8 and 10. It also sees the $\Kf$
 policy persuade after $0.58$ of the patient's sustain talk (Base $0.25$) and reflect sustain talk
@@ -40,8 +44,8 @@ iteration 3 rather than 5.
 \caption{Figure~\ref{fig:headline} under the held-out judge: every instrument by iteration, mean
 $\pm$ SE over the 96 personas (the Base: over its 192 conversations, two per persona), from the Base (dotted line);
 PCT at $\Kz$'s iterations 1 and 3 and $\Kf$'s iteration 1 leaves out the four conversations with
-neither change nor sustain talk (Appendix~\ref{app:instruments}); a star marks a significant $\Kf$ vs.\
-$\Kz$ contrast, which at iteration 3 favors $\Kz$ on MITI and MICI. Levels are in this judge's own
+neither change nor sustain talk (Appendix~\ref{app:instruments}); stars mark significant $\Kf$ vs.\
+$\Kz$ contrasts, all favoring $\Kf$ except MITI and MICI at iteration 3. Levels are in this judge's own
 units and are not comparable to Figure~\ref{fig:headline}'s.}
 \label{fig:grid-heldout}
 \end{figure*}
