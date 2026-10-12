@@ -1,6 +1,6 @@
 % 2026-10-07 (content pass): no \clearpage here, as for Appendix B (with it, this appendix's first
 % column held only the heading and one sentence, whatever the position of Figure 9).
-\section{The mechanism analysis in full}
+\section{The Mechanism Analysis in Full}
 \label{app:mechanism}
 
 This appendix expands what \S\ref{sec:discussion} says about the training rewards and the updates:
@@ -14,7 +14,7 @@ figures do. The analyses of training candidates read the per-candidate generatio
 partial in six training iterations after a crash and resume (iterations 2, 6 and 8 of the $\Kz$
 run and 1, 2 and 7 of the $\Kf$ run, with $50$--$74\%$ of their gradient groups logged).
 
-\subsection{The faithfulness statistic}
+\subsection{The Faithfulness Statistic}
 \label{app:faithfulness}
 
 \begin{figure*}[t]
@@ -70,7 +70,7 @@ the two runs are \emph{different policies} generating \emph{different conversati
 comparison measures a joint property of the scoring rule and of the trajectory the scoring rule put
 the policy on; it cannot separate them.
 
-\subsection{At a matched policy, nothing is detectable}
+\subsection{At a Matched Policy, Nothing Is Detectable}
 
 There is exactly one cut in this design where the scoring rule is close to the only difference: the
 first iteration, where both runs start from the same Base policy and differ only in whether five
@@ -85,7 +85,7 @@ under $K$-specific rewards, and the $\Kf$ run's log of that iteration holds only
 steps 55--108, after the resume of Appendix~\ref{app:repro}), so this is an absence of evidence
 rather than evidence of absence; we report it alongside the pooled estimate.
 
-\subsection{Dispersion, and the iteration-10 inversion}
+\subsection{Dispersion, and the Iteration-10 Inversion}
 
 The mean best-minus-worst margin within a group is $1.300\times$ larger under $\Kf$
 $[1.275, 1.326]$; the within-group standard deviation grows by $1.293\times$ $[1.267, 1.317]$; the
@@ -103,7 +103,7 @@ whose eight samples the oracle scores increasingly alike. This does not break th
 at that same iteration the ratio of ratios is $0.964$, so margin and standard deviation still move
 together. We offer the praise account as consistent with the timing, not as demonstrated.
 
-\subsection{The size of the updates}
+\subsection{The Size of the Updates}
 \label{app:trainer}
 
 \begin{table}[t]
@@ -154,7 +154,7 @@ policy's share of complex reflections stays at or below $0.03$ at every
 iteration, while the $\Kf$ policy's reaches $0.10$ at iteration 7 and $0.23$ at iteration 10
 (Table~\ref{tab:process-all}).
 
-\subsection{How much the training reward favors praise}
+\subsection{How Much the Training Reward Favors Praise}
 \label{app:premium}
 
 \begin{figure}[t]
@@ -185,7 +185,7 @@ reward still scores praising replies $0.16$ higher ($z = 5.7$) and the $\Kf$ rew
 holding both kinds rises under both runs, and faster under $\Kz$: from iteration 7 on it is about
 half of $\Kz$'s groups, against $0.28$--$0.44$ of $\Kf$'s.
 
-\subsection{The update-direction proxy}
+\subsection{The Update-Direction Proxy}
 \label{app:direction}
 
 We write each training iteration's update direction as the advantage-weighted sum of its
@@ -266,7 +266,7 @@ schedule} later. This open-vocabulary reading agrees with the keyword measure of
 Appendix~\ref{app:premium} without depending on its ten phrases.
 
 % 2026-10-07 (review round 4, Lior): Figure 4 and its paragraph moved here from the therapist section.
-\subsection{How much the therapist's turns depend on the patient}
+\subsection{How Much the Therapist's Turns Depend on the Patient}
 \label{app:embedding}
 
 \begin{figure}[t]
