@@ -1,7 +1,7 @@
-\section{Reproducibility details}
+\section{Reproducibility Details}
 \label{app:repro}
 
-\subsection{The training loop}
+\subsection{The Training Loop}
 
 Algorithm~\ref{alg:loop} states one run of \LAGRPO\ (\S\ref{sec:lagrpo}).
 
@@ -181,7 +181,7 @@ given the target behavior; the judge infers it from the conversation. The MICI s
 Table~\ref{tab:endpoint} divides these counts by the number of therapist utterances, which the
 prompt states; \S\ref{sec:therapist} uses the over-praise count.
 
-\subsection{The utterance coder}
+\subsection{The Utterance Coder}
 \label{app:coder}
 
 The utterance coder is administered as one further call per conversation under each judge, with
@@ -246,7 +246,7 @@ $0.74$, median $0.60$; change talk $0.71$, sustain talk $0.70$). The body theref
 shares within one judge and reports whether the other judge's shares move in the same direction; it
 never compares individual codes across judges.
 
-\subsection{The simulated patient and the therapist prompt}
+\subsection{The Simulated Patient and the Therapist Prompt}
 \label{app:prompts}
 
 The patient's system prompt is assembled from the six persona attributes, quoted here verbatim
@@ -283,7 +283,7 @@ Appendix~\ref{app:example}: ``Hello, welcome to your first motivational session 
 is David and I\textasciigrave{}m a professional motivational counselor. Can you start by telling
 me a little bit about yourself and why are you here?''
 
-\subsection{The keyword marker}
+\subsection{The Keyword Marker}
 \label{app:marker}
 
 The keyword marker of \S\ref{sec:therapist} is one case-insensitive regular expression matched against
@@ -300,7 +300,7 @@ matched against each patient utterance: ``I don't know'', ``not sure'', ``I gues
 ``told to be'', ``told to come'', ``leave me'', ``waste of time'', ``not interested'', ``doesn't
 matter'' and ``I'm fine''. As with the marker, only its direction between the runs is read.
 
-\subsection{Anti-degeneracy}
+\subsection{Anti-Degeneracy}
 
 The pretrained 1B model will occasionally continue past its own turn and write the patient's reply. All
 decode sites stop at the chat-template markers and truncate any completion at the first such
@@ -316,7 +316,7 @@ while under $\Kf$ they stay below $2.5\%$ of candidates and $1.5\%$ of turns. In
 training reward barely favored them (within each group, their correlation with the reward is
 $+0.05$, positive in nine of the ten training iterations and $+0.11$ in the last).
 
-\subsection{Evaluation and statistics}
+\subsection{Evaluation and Statistics}
 \label{app:stats}
 
 Model states are scored offline into a score archive keyed by judge, replicate, instrument and
@@ -341,7 +341,7 @@ times, and the band of Figure~\ref{fig:textspace-body}(a) resamples conversation
 within each family (instruments within one matched contrast, or iterations within one sweep) and
 is not pooled across families.
 
-\subsection{Cost accounting behind the disclosures}
+\subsection{Cost Accounting behind the Disclosures}
 \label{app:repro-cost}
 
 Over their ten training iterations the two runs make about the same number of oracle scoring calls
