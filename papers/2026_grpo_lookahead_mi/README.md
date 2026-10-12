@@ -9,13 +9,14 @@ exist). ACL long-paper format: 8-page body, unlimited references/appendix, manda
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
 mode (line numbers, anonymized); switch to `[final]` for camera-ready.
 
-**State at session end 2026-10-12 (deadline day): final on Overleaf, local == Overleaf == GitHub.**
-The body ends exactly at the foot of page 8 and the Limitations open page 9 (38 pages; notes hidden,
-`\dnotesfalse`); the abstract is 200 words (ACL limit); `build.py` CHECK OK; no undefined references.
-Left for Lior: upload `main.pdf` to OpenReview and paste the plain-text abstract (deadline: end of
-Oct 12 AoE, about 15:00 Tuesday in Israel); the ARR reviewer form (by Oct 14) and the OpenReview
-profiles (by Oct 19). Kfir said he might do another pass, so **the next session starts with
-`overleaf.py pull`** and shows who edited what.
+**SUBMITTED to ARR October 2026 on 2026-10-12** (preferred venue NAACL 2027; commitment by
+Dec 23). The submitted `main.pdf` is the 2026-10-12 19:10 build: the body ends exactly at the foot of
+page 8 and the Limitations open page 9 (38 pages; notes hidden, `\dnotesfalse`); the abstract is 200
+words (ACL limit); `build.py` CHECK OK; no undefined references; local == Overleaf == GitHub at
+submission. The form's values and the post-submission duties (Responsible NLP checklist and Kfir's
+service-contributor form by Oct 15 11:59 UTC; OpenReview profiles by the 8th day after the deadline)
+are in [`CHECKLIST_ARR.md`](CHECKLIST_ARR.md) § "Submitted". Any later Overleaf edit by the
+supervisors is NOT in the submitted PDF: start the next session with `overleaf.py pull` anyway.
 
 **Revised 2026-10-12 (Kfir's notes)**, each step pushed to Overleaf on Lior's go:
 - (1) Headings title-cased; GRPO, Llama 3.2 and LoRA cited at their first mention.

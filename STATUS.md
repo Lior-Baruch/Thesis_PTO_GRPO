@@ -6,7 +6,7 @@ things stand*, not *how they got here*. When an entry stops being current, move 
 [Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md](Exp3_PTO_GRPO/history/CHANGELOG_STATUS.md) rather than
 appending a new dated paragraph beneath the old one.
 
-**Last updated 2026-10-11** (Next step item 00; the rest as of 2026-09-14).
+**Last updated 2026-10-12** (Next step item 00; the rest as of 2026-09-14).
 
 ## Run status — ALL FOUR ARMS COMPLETE at iteration 10
 
@@ -351,16 +351,14 @@ vendor dashboard before quoting any figure.**
 
 **The experiment is data-complete. Everything below is analysis and write-up, not spend on training.**
 
-**00. NOW (2026-10-12, deadline day) — the P1 paper is final on Overleaf; only the OpenReview
-upload is left.** Kfir's notes (readability, examples, exactly 8 pages, cite GRPO, abstract, title
-case) were implemented and pushed: plain-language Method opening, new body examples (Table 1, a
-look-ahead group; Table 3, persona 32), abstract rewritten four times to Lior's wording, a
-readability pass after reading the PTO paper. The body ends at the foot of page 8. Lior uploads the
-PDF and pastes the abstract into OpenReview (deadline: end of Oct 12 AoE, about 15:00 Tuesday in
-Israel); Kfir may still edit on Overleaf, so the next session starts with `overleaf.py pull`. Also
-open: the ARR reviewer form (by Oct 14) and the OpenReview profiles (by Oct 19). State and history:
-`papers/2026_grpo_lookahead_mi/README.md` and `NUMBERS.md` § "2026-10-12"; checklist pointers:
-`CHECKLIST_ARR.md`.
+**00. NOW — the P1 paper is SUBMITTED to ARR October 2026 (2026-10-12; NAACL 2027 preferred,
+commitment by Dec 23).** The submitted PDF is the 38-page build of 2026-10-12 19:10 (body ends at
+the foot of page 8). What was entered in the form, and what is still owed, is in
+`papers/2026_grpo_lookahead_mi/CHECKLIST_ARR.md` § "Submitted": within 48 h of the deadline
+(Oct 13 11:59 UTC), so by **Oct 15 11:59 UTC**, the Responsible NLP checklist (answers drafted in
+that file) and Kfir's service-contributor registration; complete OpenReview profiles for all four
+authors by the 8th day after the deadline. State and history:
+`papers/2026_grpo_lookahead_mi/README.md` and `NUMBERS.md` § "2026-10-12".
 New since 2026-09-14 and worth knowing before any further analysis:
 - **A held-out-persona check exists** (2026-10-08/09): 48 personas with alcohol, a problem absent
   from the 96-persona grid, simulated by the GRPO Base / K=0 at 8 and 10 / K=5 at 10 and scored on

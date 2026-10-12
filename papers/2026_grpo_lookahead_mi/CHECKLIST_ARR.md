@@ -8,6 +8,36 @@ Answers below are drafts to paste, each with the section of the paper that backs
 was re-pointed against the final build on 2026-10-11 (below); re-check only if the PDF is rebuilt
 with structural changes. This file is local only: `overleaf.py` never pushes it.
 
+## Submitted (2026-10-12)
+
+Lior submitted on OpenReview (ARR October 2026; deadline Oct 13 11:59 UTC). The PDF is the
+2026-10-12 19:10 build (38 pages; names only in the reference list; empty PDF metadata). Entered:
+
+- **Authors (OpenReview order):** Lior Baruch, Doron Friedman, Kfir Bar, Moshe Butman. ⚠ The
+  `main.tex` author block (hidden in `[review]`) orders them Baruch, Butman, Bar, Friedman. The
+  author list freezes at the deadline; make the two agree before then, or at camera-ready.
+- **Service contributor:** Kfir Bar. **Keywords:** motivational interviewing, GRPO, look-ahead
+  reward, reinforcement learning, LLM-as-a-judge, multi-turn dialogue, credit assignment, user
+  simulation, counseling dialogue, mental health.
+- **Area:** Dialogue and Interactive Systems; area keywords: conversational modeling, evaluation and
+  metrics, applications, reinforcement learning, mental health. **Type:** Long. **Contribution:** NLP
+  engineering experiment. **Language:** eng.
+- **Not a resubmission;** no concurrent submissions; no software or data archive.
+- **Preprint:** yes (public anonymous ARR pre-print). **Preprint status:** "considering releasing a
+  non-anonymous preprint in the next two months" (not binding).
+- **Preferred venue:** NAACL (San Francisco, June 1–5, 2027). **Visa:** no; country IL.
+- Consent to share data: yes; consent to share submission details: yes; author checklist: yes;
+  blind-submission license: "On behalf of all authors, I agree".
+- TL;DR and abstract: the 200-word abstract of `00_abstract.tex` as plain text, and a one-sentence
+  TL;DR (K=5 reflects change talk instead of generic praise; leads on all eight MI measures under two
+  judges).
+
+**Still owed:** (1) the Responsible NLP checklist (a separate task in the author console), from
+sections A–E below, within 48 h of the deadline, i.e. by Oct 15 11:59 UTC; (2) Kfir's
+service-contributor registration form, same deadline; (3) complete OpenReview profiles (ORCID,
+DBLP, ACL Anthology) for all four authors by the 8th day after the deadline. All metadata except the
+PDF and the author list stays editable for two days after the deadline.
+
 **Re-pointed 2026-10-12 after Kfir's notes** (headings title-cased; two new body tables: Table 1 = the worked look-ahead example, Table 2 =
 endpoint (was 1), Table 3 = the persona-87 exchange, and every appendix table +2; Appendix E is
 Example Conversations with E.1-E.3 and no selection procedure (Lior, same day); Eq. 2 moved to D.1;
