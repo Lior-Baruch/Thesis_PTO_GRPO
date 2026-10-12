@@ -1,5 +1,12 @@
 """Rank (persona, therapist-turn index) pairs at iteration 10 for the body's Table 2 excerpt.
 
+SUPERSEDED FOR THE PAPER on 2026-10-12: Table 3 / Appendix E.1 now show persona 32, utterances 13-15
+(K=0: sustain talk -> praise -> sustain talk; K=5: change talk -> complex reflection -> change talk,
+all six codes agreed by both judges), Lior's pick from candidates listed by a search over every
+iteration-10 utterance code of both runs under both judges (kinds: praise vs complex reflection at
+the same position; change talk -> complex reflection -> change talk; sustain talk -> praise). The
+ranking below produced the earlier pick, persona 87's first exchange, and is kept for provenance.
+
 Lior's brief (2026-09-14): show a CLEAR case of the behavioural contrast -- the K=0 turn flatters a
 patient who has just expressed resistance or said nothing praise-worthy, while the K=5 turn at the
 same point does not flatter and answers better (a question or a reflection, no first-person slip,

@@ -1,4 +1,13 @@
-"""Pick the worked look-ahead example (Table 1 and Appendix E.3) from the K=5 run's training log.
+"""Print the worked look-ahead example (Table 1 and Appendix E.3) from the K=5 run's training log.
+
+THE PAPER'S EXAMPLE (since 2026-10-12, Lior's pick from candidates a search of iterations 1-10 of the
+K=5 logs listed): iteration 5, log line 480 (0-based), conversation 51 -- Reply A is candidate idx 5
+(Q1+Q2 3.87, the group's second-highest), Reply B is idx 6 (2.98, the lowest). Print it with
+
+    & ..\\..\\.venv\\Scripts\\python.exe select_example_lookahead.py --pick
+
+Everything below documents the rule-based pick from the iteration-1 log that the paper showed until
+then (log line 69); it is kept for provenance and still runs without --pick.
 
 Kfir (2026-10-12): the paper never shows the method in action. The K=5 run's per-generation log
 (``iteration_N/eda/generations.jsonl``) stores, for every GRPO group, the prompt, the eight sampled
@@ -108,10 +117,35 @@ def show(tag: str, g: dict) -> dict:
     return out
 
 
+PICK_ITER, PICK_LINE, PICK_IDX = 5, 480, (5, 6)          # the paper's Table 1: Reply A, Reply B
+
+
+def show_pick() -> int:
+    log = LOG.parents[2] / f"iteration_{PICK_ITER}" / "eda" / "generations.jsonl"
+    with open(log, encoding="utf-8") as f:
+        r = next(json.loads(line) for ln, line in enumerate(f) if ln == PICK_LINE)
+    pt = turns(r["prefix"])
+    print(f"log: {log}\nline {PICK_LINE}, conversation {r['conversation_id']}, epoch {r['epoch']:.3f}, "
+          f"prompt of {len(pt)} utterances")
+    print("  eight scores (idx order):", [round(c["score"], 3) for c in r["candidates"]])
+    for role, t in pt[-2:]:
+        print(f"  [{role}] {t}")
+    for name, idx in zip(("Reply A", "Reply B"), PICK_IDX):
+        c = next(c for c in r["candidates"] if c["idx"] == idx)
+        print(f"  --- {name}: idx {idx}, Q1+Q2 {c['score']:.3f}")
+        print(f"  [THERAPIST] {c['completion'].strip()}")
+        for role, t in turns(c["lookahead"]["tail"]):
+            print(f"  [{role}] {t}")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dump", help="write both groups as JSON")
+    ap.add_argument("--pick", action="store_true", help="print the paper's Table 1 group")
     a = ap.parse_args()
+    if a.pick:
+        return show_pick()
     med, eligible = scan()
     print(f"log: {LOG}\nmedian gap over all groups: {med:.3f}; readable groups: {len(eligible)}")
     clear = next(g for g in eligible if g["gap"] >= FACTOR * med)
