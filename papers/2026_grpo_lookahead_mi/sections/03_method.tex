@@ -4,13 +4,13 @@
 % 2026-10-12 (Kfir: explain the method first in plain language, then the details): new opening
 % paragraph; it walks through one training step and points at the worked example (Table 1).
 We train a small language model to act as a therapist by letting it practice on simulated
-patients. In each round of training it holds one conversation with each of 96 simulated patients,
+patients. Each round, it holds one conversation with each of 96 simulated patients,
 and the points where the patient has just spoken become training prompts. For each prompt the
-model drafts eight replies, an LLM judge scores each with questionnaires that rate the session from
-the patient's side, and replies scored above the average of the eight become more likely, the
-others less likely. The two runs differ in what the judge reads: with the \emph{turn-level reward},
-the conversation up to the reply; with the \emph{look-ahead reward}, also the five turns in which
-the simulated patient and the model then continue it (Table~\ref{tab:lookahead-example}).
+model drafts eight replies, an LLM judge scores each with questionnaires rating the session from
+the patient's side, and replies scored above the group average become more likely, the others less
+likely. The two runs differ in what the judge reads: with the \emph{turn-level reward}, the
+conversation ending on the reply; with the \emph{look-ahead reward}, also the five turns in which
+the simulated patient and the model continue it (Table~\ref{tab:lookahead-example}).
 
 \subsection{Task, Simulator and Oracle}
 \label{sec:task}
@@ -99,7 +99,7 @@ I don't see the point in continuing this conversation.\\
 \caption{Look-ahead on one training prompt ($K{=}5$, first iteration): the highest- (A) and
 lowest-scoring (B) of eight drafted replies, each continued for five turns by the patient simulator
 (P) and the policy (T); in parentheses, the oracle's \QQ\ score (1--5) of the extended
-conversation. A clear case, not a typical one (Appendix~\ref{app:example-lookahead}).}
+conversation. Full turns: Appendix~\ref{app:example-lookahead}.}
 \label{tab:lookahead-example}
 \end{table}
 
@@ -129,15 +129,15 @@ r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \end{equation}
 % \dnotedone{rephrased; cost clause cut, costs stay in Limitations}{[at the price of three [why? is this important?] patient-simulator calls and two policy generations per candidate and roughly twice the per-step wall-clock \ldots{} this all seems too AI. rephrase to make it clear and focus on what is interesting..]}
 At $K{=}5$ the oracle scores the candidate together with the five turns that follow it under the
-current policy (decoded as in evaluation; Table~\ref{tab:config}).
+current policy (decoded as in evaluation).
 % \dnotedone{cut: heading and PTO comparison gone, one point kept here}{which transfer? }
 % 2026-10-12 (page budget): was "A rollout is one sample from the distribution of continuations,
 % so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value, with sampling
 % noise from $P$ and $\pi$ added to the oracle's own; GRPO trains on all $G$ candidates, so that
 % variance enters every advantage."
-A rollout is one sample of what may follow, so $r_g$ is a one-sample Monte Carlo estimate of the
-candidate's downstream value, noisier than the oracle alone; GRPO trains on all $G$ candidates, so
-that noise enters every advantage.
+A rollout is one sample of what may follow, so $r_g$ is a noisy one-sample Monte Carlo estimate of
+the candidate's downstream value; GRPO trains on all $G$ candidates, so that noise enters every
+advantage.
 
 % 2026-10-12 (Kfir: technical detail to the appendix): the objective (Eq. 2) moved to Appendix D.1
 % verbatim; this paragraph says what the step does in words.
@@ -177,14 +177,14 @@ alliance and relational communication, adapted and validated there for LLM evalu
 MI sessions and shown to separate three prompted levels of skill; this is why their mean, \QQ, is
 the training reward, as for PTO \citep{baruch2025pto}. The Working Alliance Inventory, Short
 Revised (WAI-SR; \citealp{hatcher2006waisr}) and the Client Satisfaction Questionnaire (CSQ-8;
-\citealp{larsen1979csq}) are published, and MI-SAT is adapted for this task. Three code behavior:
+\citealp{larsen1979csq}) are published; MI-SAT is adapted here. Three code behavior:
 a Motivational Interviewing Treatment Integrity (MITI~4.2.1) coder
 \citep{moyers2016miti,moyers2016miti4} whose four global ratings are averaged; patient change talk
 (PCT), the share of change talk among the change and sustain talk in the utterance coder's patient
 codes (next paragraph); and MI-inconsistent behavior (MICI; acts per therapist turn, lower is
-better), counted with six codes, four of them from the Motivational Interviewing Skill Code (MISC)
-2.5 \citep{houck2010misc} and one an over-praise code of our own. \QQ\ is thus both the
-optimization target and a reported outcome; the other six instruments are not optimized directly.
+better), counted with six codes: four from the Motivational Interviewing Skill Code (MISC) 2.5
+\citep{houck2010misc}, one for judging or labeling the patient, and an over-praise code of our own. \QQ\ is thus both the
+reward and a reported outcome; the other six are not optimized directly.
 
 \textbf{The utterance coder.} For \S\ref{sec:therapist}--\ref{sec:patient} we also label every
 utterance: an LLM \emph{utterance
