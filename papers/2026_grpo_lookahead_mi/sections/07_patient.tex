@@ -3,11 +3,14 @@
 \label{sec:patient}
 
 MI judges a therapist behavior partly by what the patient says next.
+% 2026-10-12 (Kfir: readability; Lior's pick): one plain sentence says what the section finds.
+The $\Kf$ policy reflects the patient's change talk far more often than the $\Kz$ policy, and under
+it change talk continues more often; after sustain talk, the $\Kz$ policy praises and the $\Kf$
+policy persuades.
 % \dnotedone{renamed: utterance coder, defined in §3.3}{[positional codes ?]}
 % \dnotedone{answered in §3.3: each judge also runs the utterance coder}{not clear, i thought the judges were for something else and here you have a MITI classifier - /}
 The codes are in transcript order, so each patient utterance can be followed through the
-therapist's reply to the next patient utterance; the rates below are means over conversations at
-iteration 10 (Table~\ref{tab:process}; every iteration: Table~\ref{tab:process-all}).
+therapist's reply to the next; the rates are means over conversations at iteration 10 (Table~\ref{tab:process}; every iteration: Table~\ref{tab:process-all}).
 
 % 2026-10-07 (step 16, Lior): the process table (tab:process) moved to Appendix A.
 
@@ -31,9 +34,10 @@ $\Kf$ policy persuades: $39\%$ of its replies to sustain talk, against $24\%$ at
 % 2026-10-07 (step 16): the praise-reward numbers moved to the Discussion, which states them once.
 
 % \dnotedone{cut; measured change-talk persistence replaces it}{[ pays in the turns the rubric is not shown at $K{=}0$. ?]}
-\textbf{Whether change talk continues.} In the average conversation under the $\Kf$ policy, a
-patient who has just expressed change talk expresses it again in their next utterance in $97\%$ of
-cases, against $80\%$ under $\Kz$ ($88\%$ at its best checkpoint; Base $75\%$), a gap significant
+% 2026-10-12 (page budget): was "a patient who has just expressed change talk expresses it again in
+% their next utterance in $97\%$ of cases"; the definition is in Figure 3's caption, panel (e).
+\textbf{Whether change talk continues.} In the average conversation under the $\Kf$ policy, the
+patient's change talk is followed by change talk in $97\%$ of cases, against $80\%$ under $\Kz$ ($88\%$ at its best checkpoint; Base $75\%$), a gap significant
 from iteration 5 on (Figure~\ref{fig:process}e).
 % \dnotedone{cut: reading by therapist code retired; reason given here}{[the other way round: ?]}
 % \dnotedone{cut with the praise-yield paragraph}{[for the reason the next paragraph gives. \textasciitilde{}]}
