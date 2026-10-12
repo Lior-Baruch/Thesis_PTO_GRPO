@@ -1735,3 +1735,44 @@ The turns in Table 1 and App E.3-E.4 are the script's output with typeset quotat
 generated from its `--dump`); Table 1 abridges at [\ldots] and "(three turns)". The clear-case factor of
 two was set after the selection agent read groups 48, 62 and 69, so the caption and E.3 say "a clear case,
 not a typical one"; the log holds no turn-level score, so neither claims a reversed ranking.
+
+**Checkpoint 3** (Steps 4-5; Lior's picks): the persona-87 exchange is a body box again (new **Table 3**,
+abridged from App E.1, reply + the patient's next turn, one text column with inline P/T labels), replacing
+the prose quotes; plain framing sentences open "What the Patient Says Next" and "The two policies learn
+different behaviors"; the embedding-direction sentence left §5 (App C.6 only; one pointer clause stays);
+the Discussion opens on two sentences and each paragraph leads with its lesson (both rewards favored
+praise mid-training, only the turn-level one at the end; look-ahead taught one behavior MI prescribes and
+one it warns against; even a validated reward can credit habits MI discourages). Paid for with short
+last lines only (no content cut): the second-draw sentence ("A second draw of the final K=5 policy matches
+the first (|d_z| < 0.18)"), the §6 opener, the persistence sentence (now worded as the abstract's), two
+Discussion sentences, the Conclusion's last sentence. **Fit:** the Conclusion ends at the foot of page 8,
+the Limitations open page 9; floats on the pages that cite them (Figure 1 + Table 1 p.4, Figure 2 +
+Table 2 p.6, Figure 3 + Table 3 p.7); 39 pages; build.py CHECK OK, no undefined references.
+No number changed in checkpoint 3: every number in Table 3 and the new sentences was already in the paper.
+
+**Same day, after Lior's read ("remove 'A clear case, not a typical one' ... remove all the typical
+cases and hand choose examples; no need to say how we chose, we can just say it is an example"):**
+Table 1's caption now ends "Full turns: Appendix E.3."; §5 calls Table 3 "the example of Table 3" (the
+"Of 28 such pairs, this one ranks first on lexical features" sentence is gone); E.1 is "The Example of
+Table 3" without the ranking paragraph; E.2 is "A Second Example" without the seeded-draw paragraph and
+without "both differences are below the median over the 96 personas (0.53 and 0.64)"; E.3 keeps only
+what the group is and the caveat that the log has no turn-level score; **Appendix E.4 (the median-gap
+group) is deleted**; D.10 no longer lists "selection scripts". Every removed passage is kept as a %
+comment. **Numbers that left the paper:** 172 readable groups, the 1.00 gap and 0.45 median (E.3), the
+E.4 scores 2.82 / 2.36 and its 26-utterance prompt, the 28 pairs (E.1), the 0.53 / 0.64 medians (E.2).
+The selection scripts stay in the repo as provenance (`select_example_lookahead.py` still prints the
+median-gap group, for reference only).
+**Fixes from the independent verification of checkpoints 1-3** (three read-only agents: quotes vs
+source, claims vs tables, cross-references): D.8's Holm sentence read as the opposite of its meaning
+(fixed: "applied within each family (the ten iterations of a contrast repeated at every iteration, or an
+endpoint table's rows per judge and checkpoint)"); the abstract's 97% / 80% now says "(training oracle)"
+(199 words); MICI's "six codes" lists all six again (four MISC, judging/labeling, over-praise); the
+Discussion says "training iteration 4" again (update directions are indexed by training iteration);
+§3's opening says "the conversation ending on the reply" (Eq. 1 includes the reply); Table 3's K=5 turn
+keeps "I think that what you really need is support." so that "Support, huh?" answers something visible,
+and the prose says she "pushes back on the praise and on the offer of support"; D.10's transcript
+sentence now covers Tables 1 and 3 and the training log. Paid for: "(decoded as in evaluation; Table
+14)" lost its table pointer, the rollout-noise sentence and the §3 opening were tightened, "MI-SAT is
+adapted here", "Q1+Q2 is thus both the reward and a reported outcome". Fit unchanged: the Conclusion
+ends at the foot of p.8, the Limitations open p.9, floats on their pages; 38 pages; CHECK OK. All quotes
+verified verbatim; all 77 of Doron's note macros intact.
