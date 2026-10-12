@@ -351,9 +351,8 @@ bootstraps at a fixed seed, so a re-render reproduces the same bounds: the dispe
 Appendix~\ref{app:mechanism} resample groups 2{,}000 times, its rank-agreement intervals and the
 bands of Figure~\ref{fig:faithfulness} resample conversations within each model state 1{,}000
 times, and the band of Figure~\ref{fig:textspace-body}(a) resamples conversations. Holm correction is applied
-within each family (instruments within one matched contrast, or iterations within one sweep) and
-is not pooled across families: across the ten iterations for a contrast repeated at every
-iteration, and across an endpoint table's rows, per judge and checkpoint.
+within each family (the ten iterations of a contrast repeated at every iteration, or an endpoint
+table's rows per judge and checkpoint) and is not pooled across families.
 
 \subsection{Cost Accounting behind the Disclosures}
 \label{app:repro-cost}
@@ -391,11 +390,13 @@ timestamps, this reading is coarser than the iteration-matched one.
 
 \subsection{Artifacts}
 
-The code, analysis tables, claims ledger and selection scripts will be released upon publication.
+The code, analysis tables and claims ledger will be released upon publication.
 Every reported result is traceable to one of the tracked analysis tables through the claims
 ledger; Table~\ref{tab:config} gives the sources of the configuration. Every figure is drawn by scripts from those tables (Figure~\ref{fig:schematic},
 the schematic, from no data), at the width it is included at. The
-transcripts in \S\ref{sec:therapist} and Appendix~\ref{app:example} are reproduced verbatim
-from the stored conversation files. The
+transcripts in Tables~\ref{tab:lookahead-example} and~\ref{tab:excerpt} and Appendix~\ref{app:example}
+are reproduced verbatim (abridged at [\ldots] in the two tables) from the stored conversation files
+or, for Table~\ref{tab:lookahead-example} and Appendix~\ref{app:example-lookahead}, the $\Kf$ run's
+training log. The
 therapist model is openly licensed (Llama 3.2 Community License); the patient simulator and the judges are commercial APIs used
 within their terms of service.
