@@ -1,4 +1,4 @@
-"""Pick the worked look-ahead example (Table 1 and Appendix E.3-E.4) from the K=5 run's training log.
+"""Pick the worked look-ahead example (Table 1 and Appendix E.3) from the K=5 run's training log.
 
 Kfir (2026-10-12): the paper never shows the method in action. The K=5 run's per-generation log
 (``iteration_N/eda/generations.jsonl``) stores, for every GRPO group, the prompt, the eight sampled
@@ -13,16 +13,17 @@ rules and prints them verbatim:
 * the gap of a group is its highest minus its lowest candidate score; the median is over every group
   in the log;
 * the CLEAR case (body Table 1, Appendix E.3) is the first readable group in log order whose gap is at
-  least twice the median gap. The factor 2 was set after looking at a few groups, so the paper calls
-  it a clear case, not a typical one;
-* the TYPICAL case (Appendix E.4) is the readable group whose gap is closest to the median, ties
-  broken by log order.
+  least twice the median gap (the factor 2 was set after looking at a few groups);
+* the TYPICAL case is the readable group whose gap is closest to the median, ties broken by log
+  order. It is printed for reference only: Appendix E.4, which showed it, was removed on 2026-10-12
+  (Lior: the paper presents its examples as examples, without a selection procedure or a typical
+  case), so the paper shows the clear case only.
 
     & ..\\..\\.venv\\Scripts\\python.exe select_example_lookahead.py                 # print both
     & ..\\..\\.venv\\Scripts\\python.exe select_example_lookahead.py --dump out.json
 
 The log holds no turn-level (K=0) score for these candidates, so the example cannot show look-ahead
-changing a ranking; the paper says so. The iteration-1 log starts at epoch 1.0 (the run crashed and
+changing a ranking; Appendix E.3 says so. The iteration-1 log starts at epoch 1.0 (the run crashed and
 resumed in its first iteration, Appendix D), which does not affect the reward.
 """
 
