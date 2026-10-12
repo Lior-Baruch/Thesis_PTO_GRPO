@@ -41,18 +41,35 @@
 % $K{=}5$ policy learned to reflect change talk, though it met sustain talk with persuasion more
 % often than the untrained model. Under it, change talk is followed by change talk in $97\%$ of cases
 % in the average conversation, against $80\%$ under $K{=}0$ (training oracle).
+% 2026-10-12, third version (Lior did not like draft C and sent three NotebookLM rewrites to build
+% on): option 1's academic register and flow, K=5 / K=0 named, change and sustain talk defined; kept
+% from ours: the persuasion caveat and the judge behind 97% / 80%. Draft C was:
+% A good therapist reply is judged by what the patient says next. Yet in reinforcement learning for
+% dialogue, an LLM judge usually scores each reply on its own. We let the judge look ahead: before a
+% reply is scored, a simulated patient and the model continue the conversation for five more turns,
+% and the judge scores the whole exchange. We bring this look-ahead reward, first used with
+% preference-tree optimization, to Group Relative Policy Optimization (GRPO), and test it in
+% motivational interviewing (MI), where the goal is to get the patient talking about change
+% (\emph{change talk}). We train a 1B-parameter therapist twice for ten rounds, with and without
+% look-ahead. With look-ahead, it ends ahead on all eight MI measures, under the training judge and a
+% second judge from another model family. The two models also learn different habits. Scored reply
+% by reply, the model learns generic praise (``I'm so proud of you''), even when the patient argues
+% against change. With look-ahead, it learns to reflect the patient's reasons for change, and change
+% talk is followed by more change talk ($97\%$ vs.\ $80\%$, training judge). But it also argues for
+% change more often than the untrained model, which MI advises against.
 \begin{abstract}
-A good therapist reply is judged by what the patient says next. Yet in reinforcement learning for
-dialogue, an LLM judge usually scores each reply on its own. We let the judge look ahead: before a
-reply is scored, a simulated patient and the model continue the conversation for five more turns,
-and the judge scores the whole exchange. We bring this look-ahead reward, first used with
-preference-tree optimization, to Group Relative Policy Optimization (GRPO), and test it in
-motivational interviewing (MI), where the goal is to get the patient talking about change
-(\emph{change talk}). We train a 1B-parameter therapist twice for ten rounds, with and without
-look-ahead. With look-ahead, it ends ahead on all eight MI measures, under the training judge and a
-second judge from another model family. The two models also learn different habits. Scored reply
-by reply, the model learns generic praise (``I'm so proud of you''), even when the patient argues
-against change. With look-ahead, it learns to reflect the patient's reasons for change, and change
-talk is followed by more change talk ($97\%$ vs.\ $80\%$, training judge). But it also argues for
-change more often than the untrained model, which MI advises against.
+In reinforcement learning for dialogue, the LLM judge that provides the reward usually scores a
+candidate turn in isolation, without seeing how the conversation continues. In motivational
+interviewing (MI), however, a therapist's response is judged by what the patient says next: whether
+the patient argues for change (\emph{change talk}) or for the status quo (\emph{sustain talk}). We
+present \textbf{\LAGRPO}, which extends look-ahead rewards from preference-tree optimization to
+Group Relative Policy Optimization (GRPO): before the judge scores a candidate therapist turn, a
+patient simulator and the current policy continue the conversation for $K$ more turns. We train a
+1B-parameter therapist for ten iterations with a five-turn look-ahead ($K{=}5$) and with turn-level
+reward ($K{=}0$). The final $K{=}5$ policy leads on all eight MI measures, under both the training
+judge and a held-out judge from another model family. The two rewards also teach different
+behavior. The $K{=}0$ policy learns generic praise, even after sustain talk, while the $K{=}5$ policy
+learns to reflect the patient's change talk, although it argues for change more often than the
+untrained model. Under the $K{=}5$ policy, change talk is followed by more change talk in $97\%$ of
+cases, against $80\%$ under $K{=}0$ (training judge).
 \end{abstract}
