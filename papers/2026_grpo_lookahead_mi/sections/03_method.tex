@@ -4,35 +4,38 @@
 % 2026-10-12 (Kfir: explain the method first in plain language, then the details): new opening
 % paragraph; it walks through one training step and points at the worked example (Table 1).
 We train a small language model to act as a therapist by letting it practice on simulated
-patients. Each round, it holds one conversation with each of 96 simulated patients,
+patients. In each iteration, it holds one conversation with each of 96 simulated patients,
 and the points where the patient has just spoken become training prompts. For each prompt the
 model drafts eight replies, an LLM judge scores each with questionnaires rating the session from
 the patient's side, and replies scored above the group average become more likely, the others less
-likely. The two runs differ in what the judge reads: with the \emph{turn-level reward}, the
-conversation ending on the reply; with the \emph{look-ahead reward}, also the five turns in which
-the simulated patient and the model continue it (Table~\ref{tab:lookahead-example}).
+likely. In the \Kz\ run (\emph{turn-level reward}) the judge reads the conversation ending on the
+reply; in the \Kf\ run (\emph{look-ahead reward}) it also reads the five turns in which the
+simulated patient and the model continue it (Table~\ref{tab:lookahead-example}).
 
 \subsection{Task, Simulator and Oracle}
 \label{sec:task}
 
 % \dnotedone{done: merged into one Method section, task setup first}{consider unifying 3 and 4 to one Method Section. maybe easier to understand if 4 comes before 3?}
 A session is an English text conversation between a therapist policy and
-a simulated patient who is ambivalent about a health behavior.
+a simulated patient who is ambivalent about a health problem, smoking or obesity.
 % \dnotedone{answered: cites Yosef et al. 2024 and the PTO paper}{ref some kfir paper?}
 % 2026-10-07 (review round 4): the persona prompts are credited as adapted (the two uncooperative
 % clauses were rewritten for this study; Appendix D.4 quotes them).
-The patient is simulated by
-\texttt{gpt-4o-mini} conditioned on one of \textbf{96} persona system prompts, the exhaustive
-enumeration of 2~gender~$\times$ 3~cooperation~$\times$ 2~problem~$\times$
-2~duration~$\times$ 2~prior~attempts~$\times$ 2~age of
-\citet{yosef2024assessing}, as used in \citet{baruch2025pto} but with the two uncooperative clauses
-rewritten here to make the patient more adversarial (Appendix~\ref{app:prompts}). A session ends
-when either speaker closes it or at 50 utterances (the untrained model averages
-28.5). The therapist is the
-pretrained, not instruction-tuned, \texttt{Llama-3.2-1B} \citep{grattafiori2024llama3} under a fixed counselor system prompt,
-trained with LoRA adapters \citep{hu2022lora}, responses capped at 200 tokens (all setting parameters in
-Table~\ref{tab:config}). The training oracle is the same \texttt{gpt-4o-mini} with JSON-schema-constrained
-output; the \emph{training} reward is the mean of two of the evaluation instruments, Q1 and Q2,
+% 2026-10-12 (readability review, Lior's pick): "simulated by ... conditioned on ... persona
+% system prompts, the exhaustive enumeration of" -> "playing one of 96 personas, every combination
+% of"; "the two uncooperative clauses" named as the two low-cooperation levels; "responses capped"
+% given a subject; the training oracle tied to the judge of the opening paragraph (JSON schema:
+% Table 14).
+The patient is \texttt{gpt-4o-mini} playing one of \textbf{96} personas, every combination of
+2~gender~$\times$ 3~cooperation~$\times$ 2~problem~$\times$ 2~duration~$\times$
+2~prior~attempts~$\times$ 2~age from \citet{yosef2024assessing}, as in \citet{baruch2025pto} except
+that the low and low-then-high cooperation levels were rewritten to make the patient more adversarial
+(Appendix~\ref{app:prompts}). A session ends when either speaker closes it or at 50 utterances (the
+untrained model averages 28.5). The therapist is the pretrained, not instruction-tuned,
+\texttt{Llama-3.2-1B} \citep{grattafiori2024llama3} under a fixed counselor system prompt, trained
+with LoRA adapters \citep{hu2022lora}; its responses are capped at 200 tokens (all settings in
+Table~\ref{tab:config}). The \emph{training oracle}, the judge that gives the reward, is the same
+\texttt{gpt-4o-mini}; the reward is the mean of two of the evaluation instruments, Q1 and Q2,
 written \QQ\ (\S\ref{sec:setup}).
 
 % 2026-10-07 (review round 4, Lior): "Why MI" reduced to the term definitions (the motivation is
@@ -99,7 +102,8 @@ I don't see the point in continuing this conversation.\\
 \caption{Look-ahead on one training prompt ($K{=}5$, first iteration): the highest- (A) and
 lowest-scoring (B) of eight drafted replies, each continued for five turns by the patient simulator
 (P) and the policy (T); in parentheses, the oracle's \QQ\ score (1--5) of the extended
-conversation. Full turns: Appendix~\ref{app:example-lookahead}.}
+conversation. The patient takes up Reply A and dismisses Reply B. Full turns:
+Appendix~\ref{app:example-lookahead}.}
 \label{tab:lookahead-example}
 \end{table}
 
@@ -141,14 +145,17 @@ advantage.
 
 % 2026-10-12 (Kfir: technical detail to the appendix): the objective (Eq. 2) moved to Appendix D.1
 % verbatim; this paragraph says what the step does in words.
-\textbf{The update.} Each step is the GRPO update of \citet{shao2024deepseekmath}: each reward is
-standardized within its group, each candidate's tokens are made more or less likely in proportion,
+\textbf{The update.} Each step is a GRPO update \citep{shao2024deepseekmath}: each reward is
+standardized within its group, each candidate's tokens become more or less likely accordingly,
 and a KL penalty keeps the policy close to $\pi_n$ (Eq.~\ref{eq:grpo}, Appendix~\ref{app:repro}).
 
-\textbf{Minimum conversation length.} Training prompts are partial conversations, and the oracle's
-scores of very short prefixes order sessions poorly: on the Base's conversations, a prefix's
-score orders conversation pairs as the full-session score does in $73\%$ of them at two utterances,
-$85\%$ at twelve and $98\%$ at the session cap (Appendix~\ref{app:faithfulness}).
+% 2026-10-12 (readability review): was "the oracle's scores of very short prefixes order sessions
+% poorly: on the Base's conversations, a prefix's score orders conversation pairs as the
+% full-session score does in $73\%$ of them at two utterances, ..."
+\textbf{Minimum conversation length.} Training prompts are partial conversations, and the oracle
+ranks sessions poorly from very short prefixes: for pairs of the Base's conversations, the prefix
+scores order the pair as the full-session scores do in $73\%$ of pairs at two utterances, $85\%$ at
+twelve and $98\%$ at the session cap (Appendix~\ref{app:faithfulness}).
 % \dnotedone{done: cites Appendix C.1 and its new figure}{ref specific subsection and related figure}
 Both runs discard prefixes shorter than MCL${=}12$, a threshold set beforehand in a pilot on an
 earlier configuration.
@@ -171,11 +178,11 @@ Appendix~\ref{app:instruments}).
 % labeling the patient, and an over-praise code of our own. \QQ\ is thus both the optimization
 % target and a reported outcome; the six instruments outside the reward are not optimized
 % directly, and the held-out judge checks the training oracle."
-Five are questionnaires answered from the patient's point of view. Q1 and Q2 are the LLM-evaluator
-questionnaires of \citet{yosef2024assessing}, 5 and 17 Likert items on session satisfaction and on
-alliance and relational communication, adapted and validated there for LLM evaluation of simulated
-MI sessions and shown to separate three prompted levels of skill; this is why their mean, \QQ, is
-the training reward, as for PTO \citep{baruch2025pto}. The Working Alliance Inventory, Short
+Five are questionnaires answered from the patient's point of view. Q1 has 5 Likert items on session
+satisfaction and Q2 has 17 on alliance and relational communication; \citet{yosef2024assessing}
+adapted and validated both for LLM evaluation of simulated MI sessions and showed that they separate
+three prompted levels of skill, which is why their mean, \QQ, is the training reward, as for PTO
+\citep{baruch2025pto}. The Working Alliance Inventory, Short
 Revised (WAI-SR; \citealp{hatcher2006waisr}) and the Client Satisfaction Questionnaire (CSQ-8;
 \citealp{larsen1979csq}) are published; MI-SAT is adapted here. Three code behavior:
 a Motivational Interviewing Treatment Integrity (MITI~4.2.1) coder
@@ -206,12 +213,16 @@ persuasion and confront as MI-inconsistent (our grouping; Appendix~\ref{app:code
 % 2026-10-07 (review round 4): the transcript-order sentence and the MITI "MI-adherent" comparison
 % moved to Appendix D.3.
 
-\textbf{Judges.} Two LLMs each fill in the instruments and run the utterance coder (which also
-gives PCT). The \textbf{training oracle} (\primaryjudge, which also plays the patient and gave the
-training reward) is the main judge, as we ask what each horizon made of its reward; the
-\textbf{held-out judge} (\heldoutjudge, another model family, never used in training) re-scores
-everything as a check, reported in Table~\ref{tab:endpoint}, in each results section and
-Appendix~\ref{app:heldout}.
+% 2026-10-12 (readability review): was "... run the utterance coder (which also gives PCT). The
+% \textbf{training oracle} (\primaryjudge, which also plays the patient and gave the training reward)
+% is the main judge, as we ask what each horizon made of its reward; the \textbf{held-out judge}
+% (\heldoutjudge, another model family, never used in training) re-scores everything as a check,
+% reported in Table~\ref{tab:endpoint}, in each results section and Appendix~\ref{app:heldout}."
+\textbf{Judges.} Two LLMs each fill in the instruments and run the utterance coder. The main judge
+is the \textbf{training oracle} (\primaryjudge), which also plays the patient and gave the training
+reward, since we ask what each run learned from its own reward. The \textbf{held-out judge}
+(\heldoutjudge) is from another model family and was never used in training; it re-scores
+everything as a check (Table~\ref{tab:endpoint}, each results section and Appendix~\ref{app:heldout}).
 
 % 2026-10-12 (Kfir: technical detail to the appendix): the sub-batch field and the resume are in
 % Appendix D.2. Was: "their tracked run configurations differ in exactly two fields, the look-ahead
@@ -222,9 +233,8 @@ Appendix~\ref{app:heldout}.
 \textbf{The two runs.} The runs are a controlled pair: their configurations differ only in the
 look-ahead depth and a setting that applies to the look-ahead alone (Table~\ref{tab:config}), and
 one resume changed the KL reference within the $\Kf$ run's first iteration
-(Appendix~\ref{app:repro}); the horizon enters only through $r_g$. We name the runs \Kz\
-(turn-level reward) and \Kf\ (look-ahead reward): ``the \Kf\ policy'' is the therapist a run
-produces, ``the \Kf\ run'' the training.
+(Appendix~\ref{app:repro}); the horizon enters only through $r_g$. ``The \Kf\ policy'' is the
+therapist a run produces, ``the \Kf\ run'' the training.
 
 \textbf{Evaluation and statistics.} Every policy is scored on all eight instruments and coded
 utterance by utterance for all 96 personas by both judges. Tested policy contrasts are
@@ -237,6 +247,5 @@ multiple comparisons within each family of tests (Appendix~\ref{app:stats}). We 
 % call a contrast \emph{significant} when its Holm-corrected $p$ is below .05. Holm runs across the
 % ten iterations for a contrast repeated at every iteration, and across an endpoint table's rows,
 % per judge and checkpoint."
-The two judges'
-questionnaire scores are not on a common scale (on \QQ\ the held-out judge scores 1.2--1.8 points
-lower), so they are compared only through contrasts and never averaged.
+On \QQ\ the held-out judge scores 1.2--1.8 points lower than the training oracle, so the two
+judges' scores are compared only through contrasts and never averaged.
