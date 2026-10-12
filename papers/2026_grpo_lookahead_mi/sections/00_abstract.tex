@@ -57,19 +57,30 @@
 % against change. With look-ahead, it learns to reflect the patient's reasons for change, and change
 % talk is followed by more change talk ($97\%$ vs.\ $80\%$, training judge). But it also argues for
 % change more often than the untrained model, which MI advises against.
+% Fourth version, same day (Lior: open on RL with verifiable vs. unverifiable rewards; not "judged by
+% what the patient says next", which sounds like only the next utterance matters, but where the
+% conversation leads, like a chess move). The third version opened: "In reinforcement learning for
+% dialogue, the LLM judge that provides the reward usually scores a candidate turn in isolation,
+% without seeing how the conversation continues. In motivational interviewing (MI), however, a
+% therapist's response is judged by what the patient says next: whether the patient argues for
+% change (\emph{change talk}) or for the status quo (\emph{sustain talk})."; its results sentences
+% said "under both the training judge and a held-out judge from another model family" and "The two
+% rewards also teach different behavior. The $K{=}0$ policy learns ... the patient's change talk".
+% Same pass, after Lior pointed to the PTO paper's abstract: from it, "goal-oriented dialogue" and a
+% one-phrase definition of MI ("a counseling method for behavior change").
 \begin{abstract}
-In reinforcement learning for dialogue, the LLM judge that provides the reward usually scores a
-candidate turn in isolation, without seeing how the conversation continues. In motivational
-interviewing (MI), however, a therapist's response is judged by what the patient says next: whether
-the patient argues for change (\emph{change talk}) or for the status quo (\emph{sustain talk}). We
-present \textbf{\LAGRPO}, which extends look-ahead rewards from preference-tree optimization to
-Group Relative Policy Optimization (GRPO): before the judge scores a candidate therapist turn, a
-patient simulator and the current policy continue the conversation for $K$ more turns. We train a
-1B-parameter therapist for ten iterations with a five-turn look-ahead ($K{=}5$) and with turn-level
-reward ($K{=}0$). The final $K{=}5$ policy leads on all eight MI measures, under both the training
-judge and a held-out judge from another model family. The two rewards also teach different
-behavior. The $K{=}0$ policy learns generic praise, even after sustain talk, while the $K{=}5$ policy
-learns to reflect the patient's change talk, although it argues for change more often than the
-untrained model. Under the $K{=}5$ policy, change talk is followed by more change talk in $97\%$ of
-cases, against $80\%$ under $K{=}0$ (training judge).
+Reinforcement learning has improved language models most on tasks with verifiable rewards, like
+mathematics. In goal-oriented dialogue, an LLM judge usually supplies the reward, scoring each turn
+without seeing what follows. Yet, as in chess, a move is worth what it leads to. In motivational
+interviewing (MI), a counseling method for behavior change, an unremarkable turn may lead the
+patient to argue for change (\emph{change talk}) rather than for the status quo (\emph{sustain
+talk}). We present \textbf{\LAGRPO}, which extends look-ahead rewards from preference-tree
+optimization to Group Relative Policy Optimization (GRPO): before the judge scores a turn, a
+patient simulator and the current policy continue the conversation for $K$ turns. We train a
+1B-parameter therapist for ten iterations with a five-turn look-ahead ($K{=}5$) and without
+($K{=}0$). The $K{=}5$ policy leads on all eight MI measures, under the training judge and a
+held-out judge. The rewards teach different behavior: the $K{=}0$ policy learns generic praise, even
+after sustain talk, while the $K{=}5$ policy learns to reflect change talk, although it argues for
+change more often than the untrained model. Under $K{=}5$, change talk is followed by more change
+talk in $97\%$ of cases, against $80\%$ under $K{=}0$ (training judge).
 \end{abstract}
