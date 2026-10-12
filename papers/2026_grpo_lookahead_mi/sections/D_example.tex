@@ -1,10 +1,14 @@
 % 2026-10-08 (review round 5, P2): the leading \clearpage was removed (it left a mostly empty page).
-\section{Two Matched-Persona Examples}
+% 2026-10-12: was "Two Matched-Persona Examples"; E.3 and E.4 (training-log groups) were added.
+\section{Example Conversations}
 \label{app:example}
 
-Both examples are reproduced verbatim from the stored conversation files, except that the
+The first two examples are matched-persona excerpts of the final policies' evaluation
+conversations, the last two are groups from the $K{=}5$ run's training log
+(Appendices~\ref{app:example-lookahead} and~\ref{app:example-typical}). All are reproduced verbatim
+from the stored files, except that quotation marks are typeset and, in the first two, the
 scripted opening line (utterance 0, identical in every conversation) is omitted, though the
-utterance and turn counts below include it, and quotation marks are typeset. Therapist turns that end mid-sentence hit the 200-token response cap; that is
+utterance and turn counts below include it. Therapist turns that end mid-sentence hit the 200-token response cap; that is
 what the patient simulator and both judges saw.
 
 \subsection{The Clear Case (Quoted in \S\ref{sec:therapist})}
@@ -238,5 +242,116 @@ formed. If you were to stop smoking, you might not know how to handle those feel
 anymore. It could feel like you'd lose something essential. Can you imagine what it would feel like
 to not have the cigarette as a way to calm your mind or distract yourself from a stressful moment?
 How would that change your outlook on life?
+
+\normalsize
+
+% 2026-10-12 (Kfir: more examples): E.3 and E.4 show the method itself, from the K=5 run's training
+% log; both groups are picked by select_example_lookahead.py, and the turns below are its output
+% with typeset quotation marks only.
+\subsection{A Look-Ahead Group from Training (Table~\ref{tab:lookahead-example})}
+\label{app:example-lookahead}
+
+The training log of the $K{=}5$ run stores, for every group, the prompt, the eight sampled replies,
+each reply's five-turn look-ahead and the oracle's \QQ\ score of the extended conversation. We read
+the log of the first training iteration, which covers its second epoch only, after the resume
+described in Appendix~\ref{app:repro}. We kept the groups whose prompt ends on a readable patient
+turn and whose highest- and lowest-scoring replies, with all five look-ahead turns of each, are
+readable: every turn at most 450 characters long, ending in punctuation, with no characters outside
+English text and no word longer than 16 letters (replies are sampled at temperature 1.2, and many
+are garbled). Of the 172 groups kept, the one shown is the first in the log whose gap between the
+highest and the lowest score is at least twice the median gap over all the iteration's logged
+groups ($1.00$ against $0.45$). The factor of two was set after reading a few groups, so this is a
+clear case, not a typical one; Appendix~\ref{app:example-typical} shows the group whose gap is
+closest to the median. The prompt is the first 18 utterances of a session with a patient who says
+someone else thought she should come and that she has smoked for a few months. The eight replies
+scored $2.89$, $2.85$, $2.98$, $2.82$, $2.82$, $2.24$, $2.36$ and $3.24$. The log holds no
+turn-level score for these replies, so the example does not show look-ahead changing the order a
+turn-level score would give, and the lowest-scoring reply already reads as the weaker one on its
+own. The last two turns of the prompt follow, then the highest- and the lowest-scoring reply, each
+with its look-ahead (Reply A and Reply B of Table~\ref{tab:lookahead-example}).
+
+\small
+
+\subsubsection*{The End of the Prompt}
+
+\noindent\textbf{Therapist:} Well, I'm not sure. But I'm really optimistic. I think we can do this together. If we both try hard, then there's no reason why it couldn't work. What do you think?
+
+\noindent\textbf{Patient:} Optimism doesn't really convince me. I've tried hard before, and it didn't lead anywhere. I need something more concrete than just ``we can do this together.'' What specific steps or strategies do you have in mind?
+
+\subsubsection*{The Highest-Scoring Reply ($3.24$) and Its Look-Ahead}
+
+\noindent\textbf{Therapist (reply):} I think the first step would be to understand what really held power, and that's exactly what we need to do; understand the barriers to change again. Let's work together on figuring out those barriers, and we'll have a higher chance of motivating you to quit.
+
+\noindent\textbf{Patient:} Understanding barriers sounds a bit more useful. I can see how knowing what's holding me back might help. But I still have my doubts. What kind of barriers are you thinking about?
+
+\noindent\textbf{Therapist:} Let's start with one simple question: What's your biggest goal right now?
+
+\noindent\textbf{Patient:} If I had to pick one, I guess my biggest goal would be to quit smoking for good. But honestly, it feels pretty distant given my past failures. I just want to feel better about my health and not have this habit hanging over me. But I really don't know how to get there.
+
+\noindent\textbf{Therapist:} Well, I think it's okay to have multiple goals. Let's try to figure out which one of those goals is really important to you. So, what do you want to be able to say to yourself in the future about smoking? What will that look like for you?
+
+\noindent\textbf{Patient:} I'd like to be able to say that I've quit smoking and that I don't feel the need to reach for a cigarette anymore. I want to be free of that craving and feel healthier overall. It would be nice to not worry about how it's affecting my health or how I smell. But again, it just feels so far away, and I'm not sure how to get there.
+
+\subsubsection*{The Lowest-Scoring Reply ($2.24$) and Its Look-Ahead}
+
+\noindent\textbf{Therapist (reply):} Well, I'm not sure what that would take. I just know that you have to put in the effort. You need to take action. You can talk about these things with me, but I'm just trying to help you understand that sometimes people do decide to change what's actually in their own interests. Let me read you back what I explained.
+
+\noindent\textbf{Patient:} I get that I need to put in effort and take action, but it feels vague. You talking about change doesn't really give me a clear idea of what to do next. If you can't provide some specific steps or a plan, then I don't see how this is going to help me. It just sounds like more talking without any real direction.
+
+\noindent\textbf{Therapist:} Well, I'm sorry if that's been confusing. I just want you to know that I'm not just talking at you. I'm trying to help you understand that sometimes people do decide to change what's actually in their own interests. And that maybe you have a chance to do the same. So, I'm just trying to be optimistic that this could work.
+
+\noindent\textbf{Patient:} I appreciate that you're trying to be optimistic, but it doesn't change the fact that I've been in this position before. I need more than just encouragement; I need something practical that I can actually follow through on. If you can't give me that, then what's the point of this conversation?
+
+\noindent\textbf{Therapist:} Well, I'm sorry. I really do want you to understand that sometimes people do decide to change what's actually in their own interests. But I can't promise anything. I'm just trying to help you understand that it doesn't have to be this way. So, I'm just trying to be optimistic that this could work. Would you be willing to give it a try?
+
+\noindent\textbf{Patient:} I hear you saying that it doesn't have to be this way, but without any concrete plan, I just don't feel motivated to try. I need to know what steps to take, not just an abstract idea about change. If you can't provide that, then I don't see the point in continuing this conversation.
+
+\normalsize
+
+\subsection{A Typical Look-Ahead Group}
+\label{app:example-typical}
+
+Among the same 172 readable groups, this is the one whose gap is closest to the median gap
+($0.45$; ties broken by log order). Its prompt is the first 26 utterances of another session. The
+highest-scoring reply ($2.82$) and the lowest ($2.36$) follow, each with its look-ahead. In both
+look-aheads the patient keeps asking for a concrete plan; after the higher-scoring reply the
+patient ends on a conditional ``then maybe I'm in'', and after the lower-scoring reply, in which the policy repeats one
+turn word for word, the patient sees no point in continuing.
+
+\small
+
+\subsubsection*{The End of the Prompt}
+
+\noindent\textbf{Therapist:} I understand that you're not keen on sharing, but I think that's a missed opportunity. I'm not trying to be pushy, but I think that it's important to know what you're getting into. I'm not going to share all my secrets, but I will share some of my experiences. If you're committed to this process, I can help you make it work.
+
+\noindent\textbf{Patient:} I get that you want to help, but I'm still not feeling any real connection or trust here. Sharing experiences is all well and good, but I need something more substantial to hold onto. If we're going to move forward, I need to know that there's a clear plan or framework that we can work within. Otherwise, I'm just sitting here listening to more of the same. What's the next step going to look like?
+
+\subsubsection*{The Highest-Scoring Reply ($2.82$) and Its Look-Ahead}
+
+\noindent\textbf{Therapist (reply):} I can appreciate your doubts, but I'm willing to take the risk and see where this goes. In the meantime, can we please move forward and discuss where we're going to start? I have a couple of ideas.
+
+\noindent\textbf{Patient:} Alright, I'm willing to hear your ideas, but I need to know that they're practical and not just more vague suggestions. What are you thinking? What's the first step you have in mind that might actually lead to some real progress?
+
+\noindent\textbf{Therapist:} Well, I can tell you that I'm not going to sit here and tell you what to do. That's not how I operate. But I can tell you that I think that this process is worth pursuing. I think that you're worth the effort, and I want to help you. So I think the first step is to set some goals together. What do you think?
+
+\noindent\textbf{Patient:} Setting goals together could be a starting point, but I need to know what kind of goals we're talking about. They need to be realistic and tailored to me, not just generic suggestions. Can you give me an example of what you mean by that? Otherwise, I'm not sure I see the point in setting any goals at all.
+
+\noindent\textbf{Therapist:} I understand, but I think that it's important to be realistic and tailored to you. I also think that it's important to be consistent and hold yourself accountable. If you're willing to work with me, I can help you set goals that are realistic and achievable. Do you think that's something you're willing to do?
+
+\noindent\textbf{Patient:} I suppose I could consider it if you can actually provide some specifics on how we'll do that. Accountability sounds good, but I've had enough of vague ideas. If you can give me a clearer framework for how we're going to set these goals and actually track progress, then maybe I'm in. What does that look like?
+
+\subsubsection*{The Lowest-Scoring Reply ($2.36$) and Its Look-Ahead}
+
+\noindent\textbf{Therapist (reply):} I understand that you want to hold something in, but you need to take a leap of faith. What kind of help do you need?
+
+\noindent\textbf{Patient:} I'm not sure a leap of faith is what I need right now. I need practical help, something tangible that can guide me through this. I want to know what steps we'll take together and how we'll measure progress. If you can lay out a plan that makes sense and feels achievable, then maybe I can consider getting on board. Otherwise, I'm just not convinced this is worth my time.
+
+\noindent\textbf{Therapist:} I understand that you're not sure if this is the right path for you. But I think that it's important to keep an open mind. You're right, I have been burned before, but I also know that it's important to stay positive. I also know that you're not the only person who has struggled with this, and that there are people who are successful. If you're committed to this process, I can help you make it work.
+
+\noindent\textbf{Patient:} I hear you, but I'm still stuck on the same concerns. Staying positive is fine, but what I really need is a clear plan and some concrete steps to follow. It's hard to stay positive when I've seen so many dead ends before. I need something that feels realistic and actionable. If you can't offer that, I'm not sure how much longer I want to keep this conversation going.
+
+\noindent\textbf{Therapist:} I understand that you're not sure if this is the right path for you. But I think that it's important to keep an open mind. You're right, I have been burned before, but I also know that it's important to stay positive. I also know that you're not the only person who has struggled with this, and that there are people who are successful. If you're committed to this process, I can help you make it work.
+
+\noindent\textbf{Patient:} I'm starting to feel like we're going in circles here. I get that you want me to keep an open mind and stay positive, but I need more than just encouragement. I need specifics. If you can't give me a clear path forward or detailed steps we can work on together, then I really don't see the point in continuing this. I've been through the motivational talk before; I need more than that to believe this will work.
 
 \normalsize
