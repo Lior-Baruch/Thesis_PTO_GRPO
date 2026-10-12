@@ -1,4 +1,4 @@
-\section{Supplementary results}
+\section{Supplementary Results}
 \label{app:tables}
 
 Table~\ref{tab:scores}: every instrument at every iteration under the training oracle (the held-out
@@ -19,7 +19,7 @@ against the Base, the contrast by cooperation, a test over the whole run, a seco
 final $\Kf$ policy, the two Base draws, change talk after each reply, the patient's side and
 patients with an unseen problem (Appendices~\ref{app:vsbase}--\ref{app:unseen}).
 
-\subsection{The look-ahead rollouts}
+\subsection{The Look-Ahead Rollouts}
 \label{app:rollouts}
 
 The five-turn look-ahead ran as specified for at least $97\%$ of the $121{,}088$ logged $\Kf$
@@ -336,7 +336,7 @@ under the held-out judge, and is unchanged for $\Kf$ under the training oracle (
 interval $-0.04$ to $0.04$). $\Kz$ at iteration 8 likewise improves significantly on every row
 under both judges except MICI, which rises significantly.
 
-\subsection{Where the lead comes from}
+\subsection{Where the Lead Comes From}
 \label{app:cooperation}
 
 The 96 personas fall into three thirds by the cooperation the
@@ -359,7 +359,7 @@ against $+0.57$ and $+0.49$). At iteration 10 the $\Kf$ lead lies on task and go
 $0.57$; held out $0.68$ and $0.53$) and is small or absent on the bond ($\dz{=}0.26$; held out
 $-0.06$).
 
-\subsection{A test over the whole run}
+\subsection{A Test over the Whole Run}
 \label{app:wholerun}
 
 To check that the iteration-10 contrast does not depend on the
@@ -373,7 +373,7 @@ conversation, which makes these \dz\ larger than Table~\ref{tab:endpoint}'s for 
 iterations 1--7 alone, MICI significantly favors $\Kz$ under the training oracle ($0.24$ MI-inconsistent acts per
 therapist turn against $0.28$; $\dz{=}0.38$, $p_{\mathrm{Holm}}{=}.003$), as at iteration 3 in Figure~\ref{fig:headline}.
 
-\subsection{A second draw of the final policy}
+\subsection{A Second Draw of the Final Policy}
 \label{app:seconddraw}
 
 % \dnotedone{renamed: `each policy'}{[state -?]}
@@ -387,7 +387,7 @@ This measures how much the scores move when the same trained model holds a new s
 conversations; it says nothing about how different a second training run would be (see
 Limitations).
 
-\subsection{The two Base draws}
+\subsection{The Two Base Draws}
 \label{app:basedraws}
 
 The Base is two draws of 96 conversations from the same model with the same seeds. Tested against
@@ -397,7 +397,7 @@ by at most $0.18$ and $0.24$ across the twelve process measures of Table~\ref{ta
 reaches $p < .05$ even before correction. This is the size of difference that sampling the
 conversations alone produces.
 
-\subsection{Change talk after each reply}
+\subsection{Change Talk after Each Reply}
 \label{app:reply}
 
 At iteration 10, under the training oracle, the $\Kf$ policy's four most common replies to change talk
@@ -410,7 +410,7 @@ after sustain talk, pooled over turns, so each session counts by how many such u
 averaged over conversations, as in Table~\ref{tab:process}, the policy's overall rates are $0.97$
 and $0.33$); \S\ref{sec:patient} therefore reads no code's next utterance as its effect.
 
-\subsection{The patient's side}
+\subsection{The Patient's Side}
 \label{app:patientside}
 
 At iteration 10 the $\Kf$ policy's patients write longer utterances
@@ -422,7 +422,7 @@ $92\%$ against $86\%$ under the training oracle ($\dz{=}0.13$, not significant).
 % 2026-10-08 (Lior: held-out personas, "appendix + 1 body sentence"). Numbers: EDA
 % results/lookahead/heldout_personas.{md,csv} (tools/score_heldout.py, tools/heldout_check.py);
 % table rows by render_process_tables.py --heldout.
-\subsection{Patients with an unseen problem}
+\subsection{Patients with an Unseen Problem}
 \label{app:unseen}
 
 % 2026-10-11 (Lior: no "training personas"; the extra evaluation is shown here, a short mention in
