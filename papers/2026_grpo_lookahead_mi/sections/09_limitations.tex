@@ -21,7 +21,9 @@ slower: about twice the time per training step, and $51.2$ against $27.9$ GPU-ho
 Compared at equal GPU-hours rather than equal iterations, the result depends on the budget: the
 $\Kz$ run is ahead at about 13 GPU-hours under both judges, and from about 23 GPU-hours up to the
 $\Kz$ run's total of $27.9$ the two are level under the training oracle while $\Kf$ leads under the
-held-out judge (Appendix~\ref{app:repro-cost}).
+held-out judge (Appendix~\ref{app:repro-cost}). The extra cost is paid only in training: look-ahead
+is needed only to compute the reward, and the trained therapist replies without simulating
+anything.
 
 \paragraph{\boldmath $K \in \{0, 5\}$ only.}
 % \dnotedone{rephrased}{rephrase - need more runs to explore further.}
