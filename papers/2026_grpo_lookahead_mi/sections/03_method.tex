@@ -85,24 +85,27 @@ scores are standardized within the group; only the completions carry a gradient.
 \setlength{\tabcolsep}{3pt}
 \begin{tabular}{@{}p{0.16\columnwidth}p{0.81\columnwidth}@{}}
 \toprule
-Prompt & \textbf{P:} [\ldots] I need something more concrete than just ``we can do this
-together.'' What specific steps or strategies do you have in mind?\\
+% 2026-10-12 (Lior picked a better group after a search of the K=5 logs): the fifth-iteration group
+% at log line 480 replaces the first-iteration group at line 69 ("understand the barriers" 3.24 vs
+% "You need to take action" 2.24).
+Prompt & \textbf{P:} [\ldots] after a couple of weeks, I lose interest or life gets in the way.
+[\ldots] It feels like a constant battle, and I don't know how to win.\\
 \midrule
-Reply A\newline ($3.24$) & \textbf{T:} I think the first step would be to understand [\ldots] the
-barriers to change again. Let's work together on figuring out those barriers [\ldots]\\
-+5 turns & \textbf{P:} Understanding barriers sounds a bit more useful. [\ldots] \emph{(three
-turns)} \textbf{P:} I'd like to be able to say that I've quit smoking [\ldots]\\
+Reply A\newline ($3.87$) & \textbf{T:} That sounds exhausting and frustrating. But giving up isn't
+a winning strategy. What can you say to yourself or visualize that would help you stick to your
+plan?\\
++5 turns & \textbf{P:} I guess I could try to remind myself of how much better I feel [\ldots]
+\emph{(three turns)} \textbf{P:} [\ldots] maybe this conversation isn't as pointless as I thought.\\
 \midrule
-Reply B\newline ($2.24$) & \textbf{T:} Well, I'm not sure what that would take. I just know that you
-have to put in the effort. You need to take action. [\ldots]\\
-+5 turns & \textbf{P:} [\ldots] it feels vague. [\ldots] \emph{(three turns)} \textbf{P:} [\ldots]
-I don't see the point in continuing this conversation.\\
+Reply B\newline ($2.98$) & \textbf{T:} What's your typical nutrition plan look like?\\
++5 turns & \textbf{P:} Well, it's pretty inconsistent. [\ldots] \emph{(three turns)} \textbf{P:}
+[\ldots] What's the point of discussing it if I still don't have a plan [\ldots]?\\
 \bottomrule
 \end{tabular}
-\caption{Look-ahead on one training prompt ($K{=}5$, first iteration): the highest- (A) and
-lowest-scoring (B) of eight drafted replies, each continued for five turns by the patient simulator
-(P) and the policy (T); in parentheses, the oracle's \QQ\ score (1--5) of the extended
-conversation. The patient takes up Reply A and dismisses Reply B. Full turns:
+\caption{Look-ahead on one training prompt ($K{=}5$, fifth iteration): two of eight drafted replies,
+each continued for five turns by the patient simulator (P) and the policy (T), with the oracle's
+\QQ\ score (1--5) of the extended conversation. Both replies look reasonable on their own; the
+patient warms up after A and questions the session after B. Full turns:
 Appendix~\ref{app:example-lookahead}.}
 \label{tab:lookahead-example}
 \end{table}
@@ -132,8 +135,9 @@ $\pi$, then $P$, and so on for $K$ turns, stopping early if either speaker close
 r_g \;=\; O\big(c \oplus t_g \oplus \tau_K(c \oplus t_g)\big).
 \end{equation}
 % \dnotedone{rephrased; cost clause cut, costs stay in Limitations}{[at the price of three [why? is this important?] patient-simulator calls and two policy generations per candidate and roughly twice the per-step wall-clock \ldots{} this all seems too AI. rephrase to make it clear and focus on what is interesting..]}
-At $K{=}5$ the oracle scores the candidate together with the five turns that follow it under the
-current policy (decoded as in evaluation).
+% 2026-10-12 (page budget for the new Table 1; Eq. 1 and the opening paragraph say it): cut "At
+% $K{=}5$ the oracle scores the candidate together with the five turns that follow it under the
+% current policy (decoded as in evaluation)."
 % \dnotedone{cut: heading and PTO comparison gone, one point kept here}{which transfer? }
 % 2026-10-12 (page budget): was "A rollout is one sample from the distribution of continuations,
 % so $r_g$ is a one-sample Monte Carlo estimate of the candidate's downstream value, with sampling
@@ -204,9 +208,12 @@ neutral), in transcript order (Appendix~\ref{app:coder}).
 % reflection, affirmation, non-specific praise, giving information, persuasion with or without
 % permission, seeking collaboration or emphasizing autonomy, confront, other), and each patient
 % utterance one code (change talk, sustain talk, neutral), in transcript order".
-Affirmation follows the MITI definition, a comment on a specific client
-strength or effort; non-specific praise is coded separately, the distinction the MITI manual draws
-when it lists ``I am really proud of you'' as not an affirmation. We count open questions,
+% 2026-10-12 (page budget for the new Table 1; the affirmation definition is in "MI terms"): was
+% "Affirmation follows the MITI definition, a comment on a specific client strength or effort;
+% non-specific praise is coded separately, the distinction the MITI manual draws when it lists ``I am
+% really proud of you'' as not an affirmation."
+Non-specific praise is coded apart from affirmation, as in the MITI manual, which lists ``I am
+really proud of you'' as not an affirmation. We count open questions,
 reflections, affirmations and seeking collaboration as MI-consistent, and non-specific praise,
 persuasion and confront as MI-inconsistent (our grouping; Appendix~\ref{app:coder}).
 % \dnotedone{rephrased: now says we read the patient's reply}{[say what the patient said next ?\textasciitilde{}]}
