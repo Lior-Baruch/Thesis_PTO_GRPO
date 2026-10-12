@@ -13,6 +13,30 @@ and [CHANGELOG_TRAINER.md](CHANGELOG_TRAINER.md) (trainers + `code/_shared/`).
 
 ---
 
+## 2026-10-12 — Kfir's notes on P1, the deadline day
+
+Kfir (NLP supervisor) asked for a more readable paper: explain the method first in plain language,
+more examples, a body that fills exactly 8 pages with the Limitations on page 9, GRPO cited at its
+first mention, an abstract without the stranded MI sentence, title-case headings. Done in three
+checkpoints, each pushed to Overleaf on Lior's go, then refined with him:
+- **Method:** a plain-language opening paragraph that names the two runs; a worked look-ahead
+  example (Table 1); the GRPO objective, batch sizes, code list, resume detail and statistics detail
+  moved to Appendix D.
+- **Examples:** after two searches of the data, Lior picked Table 1 = the K=5 run's iteration-5
+  group at log line 480 (an empathic reflection plus an open question vs. an intake question, 3.87
+  vs. 2.98), and Table 3 = persona 32, utterances 13–15 (K=0 praise after sustain talk; K=5 complex
+  reflection of change talk). Examples are presented as examples: the selection procedures and the
+  "typical case" appendix were removed (Lior).
+- **Abstract:** four versions; the final one opens on verifiable vs. unverifiable rewards and the
+  chess point ("a turn that seems weak at the time may lead the patient to argue for change").
+- **Readability pass** after reading the whole paper and the PTO paper: PTO's finding stated as
+  PTO reports it, turn shares as percentages, dense sentences untangled, a Limitations sentence that
+  look-ahead costs only at training time.
+- **Verification:** three read-only checks (quotes against the source, claims against the tables,
+  cross-references) found seven real problems, including a Holm sentence that read as its opposite
+  and an abstract number with no judge named; all were fixed. No number in the paper changed except
+  the example scores, which are logged in `NUMBERS.md` § "2026-10-12".
+
 ## 2026-10-07 to 2026-10-11 — P1 made submission-ready; a held-out-persona check; the PC crash
 
 **The paper.** Review round 4 (ten lenses, 61 items, Lior's decisions in

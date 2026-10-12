@@ -7,16 +7,39 @@
 cycle feeds **NAACL 2027** and **COLING 2027**, and the venue is chosen in December once reviews
 exist). ACL long-paper format: 8-page body, unlimited references/appendix, mandatory unnumbered
 Limitations (page-exempt), optional Ethics Statement (page-exempt). `acl.sty` builds in `[review]`
-mode (line numbers, anonymized); switch to `[final]` for camera-ready. **State 2026-10-12 (deadline day): Kfir's notes implemented (below); the body ends exactly at the foot of page 8 and the Limitations open page 9; 38 pages; examples are presented as examples, no selection procedure (Lior); awaiting Lior's last read, then the PDF and the new abstract go to OpenReview.** (State at session end 2026-10-11: submission-ready and with the supervisors.)
+mode (line numbers, anonymized); switch to `[final]` for camera-ready.
 
-**Revised 2026-10-12 (Kfir's notes, deadline day)** in three checkpoints, each pushed to Overleaf on
-Lior's go: (1) abstract rewritten in plain language, numbered headings title-cased, GRPO / Llama 3.2 / LoRA
-cited at first mention; (2) §3 opens with a plain-language walk through one training step and a worked
-look-ahead example (new **Table 1**, from the K=5 training log by
-[`select_example_lookahead.py`](select_example_lookahead.py); the endpoint table is now Table 2), full turns
-in Appendix E.3, and the update equation, batch sizes, code list, sub-batch / resume detail and
-statistics detail moved to Appendix D; (3) the results sections and the Discussion made easier to learn
-from, and the body filled to exactly 8 pages. Every new number and every move: `NUMBERS.md` § "2026-10-12". The body fits: 37 pages, the Conclusion ends on page 8 and the Limitations open on page 8 (notes hidden, `\dnotesfalse`); abstract 199 words; anonymity checked (PDF text, metadata, images, links: clean); `CHECKLIST_ARR.md` re-pointed to the final build; no code archive with the submission (Artifacts and three appendix sentences say "will be released upon publication"). Lior sent the PDF to his supervisors for review and emailed them about the ARR reviewer form (by Oct 14) and the OpenReview profiles (by Oct 19); the upload waits for their read (deadline Oct 12). The length history (the body once ran 3⅓ pages over; cut in plan steps 15–16) is in the plan rows below.
+**State at session end 2026-10-12 (deadline day): final on Overleaf, local == Overleaf == GitHub.**
+The body ends exactly at the foot of page 8 and the Limitations open page 9 (38 pages; notes hidden,
+`\dnotesfalse`); the abstract is 200 words (ACL limit); `build.py` CHECK OK; no undefined references.
+Left for Lior: upload `main.pdf` to OpenReview and paste the plain-text abstract (deadline: end of
+Oct 12 AoE, about 15:00 Tuesday in Israel); the ARR reviewer form (by Oct 14) and the OpenReview
+profiles (by Oct 19). Kfir said he might do another pass, so **the next session starts with
+`overleaf.py pull`** and shows who edited what.
+
+**Revised 2026-10-12 (Kfir's notes)**, each step pushed to Overleaf on Lior's go:
+- (1) Headings title-cased; GRPO, Llama 3.2 and LoRA cited at their first mention.
+- (2) The Method opens with a plain-language walk through one training step that names the two runs.
+  The GRPO objective, batch sizes, code list, sub-batch and resume detail, and statistics detail moved
+  to Appendix D.
+- (3) Results and Discussion made easier to learn from: lesson-first Discussion paragraphs, turn
+  shares as percentages, dense sentences untangled; PTO's finding stated as PTO reports it.
+- **Examples (Lior's picks after two searches of the data; presented as examples, with no selection
+  procedure and no "typical case"):**
+  - **Table 1** = the K=5 run's iteration-5 group, log line 480: "That sounds exhausting and
+    frustrating… What can you say to yourself…?" (3.87) vs "What's your typical nutrition plan look
+    like?" (2.98). Print it with [`select_example_lookahead.py`](select_example_lookahead.py) `--pick`.
+  - **Table 3** = persona 32, utterances 13–15: K=0 praise after sustain talk vs K=5 complex
+    reflection of change talk.
+  - Appendix E: E.1 = persona 32's utterances 11–15, E.2 = persona 21, E.3 = the Table 1 group.
+- **Abstract:** four versions to Lior's wording. The final one opens on verifiable vs unverifiable
+  rewards and the chess point.
+
+Every new number and every move: `NUMBERS.md` § "2026-10-12". The 2026-10-11 checks still hold:
+anonymity clean (PDF text, metadata, images, links), no code archive with the submission ("will be
+released upon publication"). `CHECKLIST_ARR.md` was re-pointed: table numbers +2, Appendix E
+renamed. The length history (the body once ran 3⅓ pages over; cut in plan steps 15–16) is in the
+plan rows below.
 
 **Provenance.** Revived 2026-08-27 on Lior's instruction, ported from the archived ICLR-format
 draft at [`../archive/2026_grpo_lookahead_mi/`](../archive/2026_grpo_lookahead_mi/). **Rewritten

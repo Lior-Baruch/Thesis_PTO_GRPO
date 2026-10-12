@@ -351,10 +351,16 @@ vendor dashboard before quoting any figure.**
 
 **The experiment is data-complete. Everything below is analysis and write-up, not spend on training.**
 
-**00. NOW (2026-10-11) — the P1 paper is submission-ready and with the supervisors.** Lior sent them
-the final PDF and emailed them about the ARR reviewer form (a qualified co-author, by Oct 14) and
-the OpenReview profiles (by Oct 19); the upload (deadline Oct 12) waits for their read. State,
-plan and open items: `papers/2026_grpo_lookahead_mi/README.md` (rows 16c–18) and `CHECKLIST_ARR.md`.
+**00. NOW (2026-10-12, deadline day) — the P1 paper is final on Overleaf; only the OpenReview
+upload is left.** Kfir's notes (readability, examples, exactly 8 pages, cite GRPO, abstract, title
+case) were implemented and pushed: plain-language Method opening, new body examples (Table 1, a
+look-ahead group; Table 3, persona 32), abstract rewritten four times to Lior's wording, a
+readability pass after reading the PTO paper. The body ends at the foot of page 8. Lior uploads the
+PDF and pastes the abstract into OpenReview (deadline: end of Oct 12 AoE, about 15:00 Tuesday in
+Israel); Kfir may still edit on Overleaf, so the next session starts with `overleaf.py pull`. Also
+open: the ARR reviewer form (by Oct 14) and the OpenReview profiles (by Oct 19). State and history:
+`papers/2026_grpo_lookahead_mi/README.md` and `NUMBERS.md` § "2026-10-12"; checklist pointers:
+`CHECKLIST_ARR.md`.
 New since 2026-09-14 and worth knowing before any further analysis:
 - **A held-out-persona check exists** (2026-10-08/09): 48 personas with alcohol, a problem absent
   from the 96-persona grid, simulated by the GRPO Base / K=0 at 8 and 10 / K=5 at 10 and scored on
