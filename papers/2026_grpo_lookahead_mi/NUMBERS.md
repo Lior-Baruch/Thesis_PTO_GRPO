@@ -1776,3 +1776,5 @@ sentence now covers Tables 1 and 3 and the training log. Paid for: "(decoded as 
 adapted here", "Q1+Q2 is thus both the reward and a reported outcome". Fit unchanged: the Conclusion
 ends at the foot of p.8, the Limitations open p.9, floats on their pages; 38 pages; CHECK OK. All quotes
 verified verbatim; all 77 of Doron's note macros intact.
+
+**Abstract rewritten again, same day** (Lior: "more readable and understandable and in human english"; he picked draft C of three, all <= 200 words): it opens on "A good therapist reply is judged by what the patient says next", drops the K symbols, quotes the K=0 praise ("I'm so proud of you", Table 3), and keeps every fact and number of the previous version (eight measures, two judges, 1B, ten rounds, 97% vs. 80% tagged "training judge"; "against K=0's last and best checkpoints" and the explicit sustain-talk persuasion are now "ends ahead" and "argues for change more often than the untrained model, which MI advises against"). 199 words in the rendered PDF; layout unchanged.
