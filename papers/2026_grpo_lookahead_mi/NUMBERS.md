@@ -1705,3 +1705,33 @@ talk in 33% ..." sentence (the numbers stay in Table 3 / App A); the long Q1 rub
 (the point stays; quotes in App D.3); "training personas" everywhere.
 **Settled kept:** abstract and bullet 1 "all eight ... under the training oracle and a held-out judge" (M4);
 no gain ratios; MICI never claimed reduced vs the Base.
+
+## 2026-10-12 — Kfir's notes (deadline day; plan agreed with Lior: three checkpoints)
+
+Kfir (NLP supervisor, email 2026-10-11): too technical, explain the method first in plain language and
+move detail to the appendix; more examples (a conversation); fill exactly 8 pages (Limitations on p.9);
+cite GRPO; the abstract's MI sentence reads as unconnected / AI; title-case the numbered headings.
+**Checkpoint 1** (pushed): abstract = Lior's pick "C, plain-language" (197 words; the held-out 94% / 73%
+pair now only in §6); every numbered heading title-cased (Chicago style, as the title); GRPO cited at its
+first mention in §1; Llama 3.2 and LoRA cited in §3.1. **Checkpoint 2** (Step 3): a plain-language opening
+paragraph of §3 and a worked look-ahead example (new Table 1; the endpoint table is now Table 2), full turns
+in new Appendices E.3 (clear case) and E.4 (typical case), Appendix E retitled "Example Conversations".
+Moved to the appendix (each leaves a one-line pointer; old text kept as % comments): "The update" + Eq. 2
+(now App D.1, still Eq. 2), the loop's batch sizes and validation split (Algorithm 1, Table 12), the coder's
+eleven-code list (App D.4), the sub-batch and KL-resume detail (App D.2), the d_z definition and the Holm
+families (App D.8). Tightened for the page budget: the notation paragraph, the rollout-noise sentence, the
+Instruments paragraph (a grouping sentence opens it), the Figure 1 caption, contribution bullet 1's result
+sentence ("under two judges from different model families").
+
+| Claim (where) | Value | Source |
+|---|---|---|
+| Table 1 + App E.3: Reply A / Reply B score 3.24 / 2.24 (Q1+Q2), the highest / lowest of the eight | 3.235294 (Q1 3.0, Q2 3.4706) / 2.235294 (Q1 2.0, Q2 2.4706) | `select_example_lookahead.py` on `runs/full/GRPO_Iterative_Q1Q2_Llama32-1B_LA5_MCL12_G8/iteration_1/eda/generations.jsonl`, log line 69 (0-based), conversation 28, branch 69, epoch 1.074 |
+| App E.3: the eight scores 2.89, 2.85, 2.98, 2.82, 2.82, 2.24, 2.36, 3.24 | 2.888235, 2.847059, 2.976471, 2.817647, 2.817647, 2.235294, 2.364706, 3.235294 (idx order) | same |
+| App E.3: gap 1.00 against a median gap of 0.45; 172 readable groups; prompt of 18 utterances | 1.000 / 0.452941 (median over every logged group of the iteration); 172; 18 | same |
+| App E.4: typical group 2.82 / 2.36, gap closest to the median, prompt of 26 utterances | 2.817647 / 2.364706; gap 0.452941; log line 780, conversation 85, epoch 1.889 | same |
+| §3 opening paragraph: 96 patients, eight replies, five turns | design constants (Table 12) | — |
+
+The turns in Table 1 and App E.3-E.4 are the script's output with typeset quotation marks only (E.3-E.4
+generated from its `--dump`); Table 1 abridges at [\ldots] and "(three turns)". The clear-case factor of
+two was set after the selection agent read groups 48, 62 and 69, so the caption and E.3 say "a clear case,
+not a typical one"; the log holds no turn-level score, so neither claims a reversed ranking.
