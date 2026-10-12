@@ -27,34 +27,36 @@ did, and it also became a different therapist.
 % persisted more often; its MI-inconsistent habit is a different one: it meets sustain talk with
 % persuasion more often than the Base."
 Both rewards favored praise in the middle of training, and only the one that never sees the
-patient's answer still did at the end. Among the eight candidates for a prompt, those with a
-keyword-marker phrase scored $0.22$--$0.33$ within-group standard deviations above the others under
-$\Kz$, as the Introduction hypothesized, and $0.16$--$0.21$ under $\Kf$ (models of iterations 4--7;
-under $\Kf$ clearly above zero only at 6--7). In the last round (the iteration-9 model's
-candidates), only the $\Kz$ reward clearly favored them (Appendix~\ref{app:premium}), and the final
-$\Kz$ policy praises in $0.41$ of its turns.
+patient's answer still did at the end. For the models of iterations 4--7, candidates with a
+keyword-marker phrase scored $0.22$--$0.33$ within-group standard deviations above the others in
+their group of eight under $\Kz$, as the Introduction hypothesized, and $0.16$--$0.21$ under $\Kf$,
+clearly above zero only at 6--7. In the last round, on the iteration-9 model's candidates, only the
+$\Kz$ reward clearly favored them (Appendix~\ref{app:premium}), and the final $\Kz$ policy praises
+in $41\%$ of its turns.
 
 % \dnotedone{rephrased}{[again after $97\%$ of their change talk ??]}
 % \dnotedone{rephrased, one idea per sentence}{- try to rephrase this - there is an interesting story here but need to tell it better}
 Look-ahead taught one behavior MI prescribes and one it warns against. The $\Kf$ policy
-learned to reflect the patient's change talk, and under it change talk persisted more often, but
-it meets sustain talk with persuasion more often than the Base. Why the policies differ stays open
+learned to reflect change talk, and under it change talk persisted more often. But it meets
+sustain talk with persuasion more often than the Base. Why the policies differ stays open
 (Appendix~\ref{app:mechanism}): the $\Kf$ reward agrees slightly better with the finished
 session's score, the runs' update directions diverge from training iteration 4 on, and the
 $\Kz$ updates are larger; telling which matters needs ablations.
 
 \dnotedone{the reward choice; what it leaves open is now in the Limitations}{need to talk about this - here briefly but also in intro and/or discussion - I guess the excuse is following Yosef et al .. }
-Even a validated reward can credit habits that MI discourages: both runs optimized \QQ, which
-rates the session from the patient's side, and Q1's examples of good
-practice include ``uplifting messages'' and ``advice or information'' (Appendix~\ref{app:instruments}),
-so the reward partly credits both habits we document, the $\Kz$ policy's praise and the $\Kf$
-policy's persuasion.
+Even a validated reward can credit habits that MI discourages. Both runs optimized \QQ, which
+rates the session from the patient's side, and Q1's examples of good practice include ``uplifting
+messages'' and ``advice or information'' (Appendix~\ref{app:instruments}). The reward thus partly
+credits both habits we document: the $\Kz$ policy's praise and the $\Kf$ policy's persuasion.
 
 \textbf{Conclusion.}
 % \dnotedone{cut}{For a group-relative optimiser in multi-turn dialogue, what the judge is shown is a first-order design choice \textasciitilde}
-In this pair of runs, scoring each candidate turn with the five turns after it gave
-a policy ahead on every instrument on the 96 personas and a different therapist, one that persuades after
-sustain talk but praises far less and reflects change talk. Under it, change talk persisted more
+% 2026-10-12 (readability review): was "... gave a policy ahead on every instrument on the 96
+% personas and a different therapist, one that persuades after sustain talk but praises far less and
+% reflects change talk."
+In this pair of runs, scoring each candidate turn with the five turns after it gave a policy that
+leads on every instrument on the 96 personas and is a different therapist: it praises far less and
+reflects change talk, though it persuades after sustain talk. Under it, change talk persisted more
 often.
 % \dnotedone{cut, with the whole ``We recommend'' sentence}{reporting the reward horizon as a hyperparameter ??}
 % \dnotedone{cut}{coding the process as well as the outcome ??}
