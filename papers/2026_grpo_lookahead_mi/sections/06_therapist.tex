@@ -25,17 +25,51 @@ A higher score is not by itself better therapy, so we look at what the final pol
 % 2026-10-07 (review round 4, Lior): Table 2 moved to Appendix E.1; its two replies are quoted here.
 % 2026-10-08 (review round 5, U18 + M3): split in two sentences; the K=5 quote now shows the part
 % that makes it a complex reflection; the second example was picked from eight random personas.
-In the clearest case, the first reply to a reluctant 61-year-old smoker sent to therapy (her first
-utterance differs between the runs), the $\Kz$ policy answers ``Great to hear that you're ready to
-try again. That's very courageous [\ldots] I'm so proud of you for taking this step'', praising a
-readiness she has not expressed. The $\Kf$ policy answers ``You're right, it's just a habit [\ldots]
-It's not really because you don't want to stop'', agreeing that it is a habit and inferring that
-she wants to stop before turning to advice and a question; both judges' coders label them
-non-specific praise and complex reflection, respectively. The pair ranks first of 28 such pairs on
-lexical features (Appendix~\ref{app:example-clear}; a pair picked from eight personas drawn at
-random: Appendix~\ref{app:example-drawn}).
+% 2026-10-12 (Kfir: more examples; Lior: a box with the reply and the patient's next turn): the
+% quotes moved into Table 3 (abridged from Appendix E.1, verbatim at [\ldots]). Was: "In the clearest
+% case, the first reply to a reluctant 61-year-old smoker sent to therapy (her first utterance
+% differs between the runs), the $\Kz$ policy answers ``Great to hear that you're ready to try
+% again. That's very courageous [\ldots] I'm so proud of you for taking this step'', praising a
+% readiness she has not expressed. The $\Kf$ policy answers ``You're right, it's just a habit
+% [\ldots] It's not really because you don't want to stop'', agreeing that it is a habit and
+% inferring that she wants to stop before turning to advice and a question; both judges' coders
+% label them non-specific praise and complex reflection, respectively. The pair ranks first of 28
+% such pairs on lexical features (...)."
+\begin{table}[t]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\begin{tabular}{@{}p{0.98\columnwidth}@{}}
+\toprule
+\boldmath$\Kz$\textbf{ policy.} \textbf{P:} [\ldots] I don't really believe in therapy [\ldots]
+I've tried to stop before, but it never sticks. [\ldots] \textbf{T:} Great to hear that you're
+ready to try again. That's very courageous [\ldots] I'm so proud of you for taking this step
+[\ldots] \textbf{P:} Look, I appreciate that you think this is courageous, but I'm not sure I see
+it that way. [\ldots]\\
+\midrule
+\boldmath$\Kf$\textbf{ policy.} \textbf{P:} [\ldots] it's just a habit, right? I've tried to quit
+before, and it never sticks. [\ldots] \textbf{T:} You're right, it's just a habit. [\ldots] It's
+not really because you don't want to stop, it's more because it's just too hard. [\ldots] I think
+that what you really need is support. [\ldots] \textbf{P:} Support, huh? I don't know if I buy
+that. [\ldots]\\
+\bottomrule
+\end{tabular}
+\caption{The first exchange of each final policy (iteration 10) with the same persona, a reluctant
+61-year-old smoker (abridged; P: patient, T: therapist). Both judges' coders label the $\Kz$ reply
+non-specific praise and the $\Kf$ reply a complex reflection.}
+\label{tab:excerpt}
+\end{table}
 
-\textbf{The two policies learn different behaviors.} The Base's turns are mostly giving
+% 2026-10-12 (Lior: examples are examples; no selection procedure in the paper): was "In the
+% clearest case (Table~\ref{tab:excerpt}), ... Of 28 such pairs, this one ranks first on lexical
+% features (Appendix~\ref{app:example-clear}; a pair from a random draw: Appendix~\ref{app:example-drawn})."
+In the example of Table~\ref{tab:excerpt}, the $\Kz$ policy praises a readiness the patient has not
+expressed, and the $\Kf$ policy infers that she wants to stop; she pushes back on the praise and on
+the offer of support (the full
+exchange and a second example: Appendices~\ref{app:example-clear} and~\ref{app:example-drawn}).
+
+\textbf{The two policies learn different behaviors.} The $\Kz$ policy learned to praise and the
+$\Kf$ policy to give complex reflections. The Base's turns are mostly giving
 information and persuasion, followed by simple reflections and open questions, with no other code
 above $0.05$ of turns (Table~\ref{tab:codes}).
 % \dnotedone{renamed: `turn-level reward' is now K=0}{k=0?}
@@ -85,8 +119,9 @@ fall under its over-praise code, which we added to the MISC's codes (\S\ref{sec:
 % 2026-10-11: the variance clause moved to "The two policies learn different behaviors" (it is not
 % about praise); was "In sentence-embedding space ... from iteration 3 on, long before the $\Kz$
 % praise peaks (Appendix~\ref{app:embedding}); and the embedding direction each round ...".
-The embedding direction that each round of $\Kz$
-training favored points toward praise sentences at training iterations 4--8 and 10 in all five
-encoders, further than the $\Kf$ direction in at least four of the five at 3--6
-(Appendix~\ref{app:direction}). The praise finding thus rests on two judges' coders, MICI and a
-marker that involves no model.
+% 2026-10-12 (Kfir: technical detail to the appendix): the embedding-direction sentence is in
+% Appendix C.6 only; was "The embedding direction that each round of $\Kz$ training favored points
+% toward praise sentences at training iterations 4--8 and 10 in all five encoders, further than the
+% $\Kf$ direction in at least four of the five at 3--6 (Appendix~\ref{app:direction})."
+The praise finding thus rests on two judges' coders, MICI and a marker that involves no model, and
+an embedding analysis agrees (Appendix~\ref{app:direction}).
