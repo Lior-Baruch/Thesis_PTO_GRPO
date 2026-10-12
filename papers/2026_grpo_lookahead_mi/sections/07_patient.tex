@@ -9,8 +9,12 @@ it change talk continues more often; after sustain talk, the $\Kz$ policy praise
 policy persuades.
 % \dnotedone{renamed: utterance coder, defined in §3.3}{[positional codes ?]}
 % \dnotedone{answered in §3.3: each judge also runs the utterance coder}{not clear, i thought the judges were for something else and here you have a MITI classifier - /}
-The codes are in transcript order, so each patient utterance can be followed through the
-therapist's reply to the next; the rates are means over conversations at iteration 10 (Table~\ref{tab:process}; every iteration: Table~\ref{tab:process-all}).
+% 2026-10-12 (readability review): was "The codes are in transcript order, so each patient
+% utterance can be followed through the therapist's reply to the next; the rates are means ..."
+% (the Method says the codes are in transcript order).
+Because the codes are in transcript order, each patient utterance can be followed through the
+therapist's reply to the patient's next utterance. The rates below are means over conversations at
+iteration 10 (Table~\ref{tab:process}; every iteration: Table~\ref{tab:process-all}).
 
 % 2026-10-07 (step 16, Lior): the process table (tab:process) moved to Appendix A.
 
@@ -19,17 +23,22 @@ therapist's reply to the next; the rates are means over conversations at iterati
 % \dnotedone{endpoint dropped; the opening says iteration 10}{[endpoint ?]}
 % \dnotedone{answered: reflection defined in §3.1, reply rates in Appendix D.3}{[reflects it?]}
 % \dnotedone{metaphor dropped: now change talk, defined in §3.1}{[own case for change -?]}
+% 2026-10-12 (readability review): was "... in $26\%$ of cases, against $0.3\%$ under $\Kz$ (Base
+% $14\%$; ...). ... gives it more often ($37\%$, against $26\%$ under $\Kz$; Base $22\%$),
+% significantly against $\Kz$'s best checkpoint but not its last, and against both under the
+% held-out judge."
 When the patient expresses change talk, the $\Kf$ policy answers with a reflection in $26\%$ of
-cases, against $0.3\%$ under $\Kz$ (Base $14\%$; Figure~\ref{fig:responsiveness}). A reflection is also
-one of MI's answers to sustain talk \citep{miller2013mi}, and the $\Kf$ policy gives it more often
-($37\%$, against $26\%$ under $\Kz$; Base $22\%$), significantly against $\Kz$'s best checkpoint but
-not its last, and against both under the held-out judge. Each final policy also has
-its own MI-inconsistent answer to sustain talk.
+cases, nearly twice the Base's $14\%$, and the $\Kz$ policy almost never does ($0.3\%$;
+Figure~\ref{fig:responsiveness}). A reflection is also one of MI's answers to sustain talk
+\citep{miller2013mi}, and the $\Kf$ policy gives it more often: $37\%$, against $26\%$ under $\Kz$
+and $22\%$ at the Base. The gap is significant under the held-out judge; under the training oracle,
+only against $\Kz$'s best checkpoint. Each policy also has an
+MI-inconsistent answer to sustain talk.
 % \dnotedone{rephrased: praise regardless became praise in reply to sustain talk}{of what?}
 % \dnotedone{rephrased: the reply of Table 2, measured across conversations}{[This is Table \ref{tab:excerpt} as a rate -?]}
 % \dnotedone{renamed: K=0 / K=5 only in the results}{[turn-level policy - 0? use consistent names]}
-The $\Kz$ policy praises: $32\%$ of its replies to sustain talk, against $2\%$ at the Base. The
-$\Kf$ policy persuades: $39\%$ of its replies to sustain talk, against $24\%$ at the Base.
+The $\Kz$ policy praises: $32\%$ of its replies, against $2\%$ at the Base. The
+$\Kf$ policy persuades: $39\%$, against $24\%$ at the Base.
 % \dnotedone{answered: praise premium measured, Appendix C.4}{[which the rubric rewards in the turn where it happens ??]}
 % 2026-10-07 (step 16): the praise-reward numbers moved to the Discussion, which states them once.
 
@@ -37,13 +46,17 @@ $\Kf$ policy persuades: $39\%$ of its replies to sustain talk, against $24\%$ at
 % 2026-10-12 (page budget): was "a patient who has just expressed change talk expresses it again in
 % their next utterance in $97\%$ of cases"; the definition is in Figure 3's caption, panel (e).
 \textbf{Whether change talk continues.} In the average conversation under the $\Kf$ policy, the
-patient's change talk is followed by change talk in $97\%$ of cases, against $80\%$ under $\Kz$ ($88\%$ at its best checkpoint; Base $75\%$), a gap significant
-from iteration 5 on (Figure~\ref{fig:process}e).
+patient's change talk is followed by change talk in $97\%$ of cases, against $80\%$ under $\Kz$ and
+$75\%$ at the Base; the $\Kz$ run's best checkpoint reaches $88\%$. The gap is significant from
+iteration 5 on (Figure~\ref{fig:process}e).
 % \dnotedone{cut: reading by therapist code retired; reason given here}{[the other way round: ?]}
 % \dnotedone{cut with the praise-yield paragraph}{[for the reason the next paragraph gives. \textasciitilde{}]}
-No single kind of reply explains the gap: after change talk, each of the $\Kf$ policy's four most
-common replies, complex reflections included, is followed by change talk about as often as the
-others (Appendix~\ref{app:reply}).
+No single kind of reply explains the gap: the $\Kf$ policy's four most common replies to change
+talk, complex reflections included, are each followed by more change talk about equally often
+(Appendix~\ref{app:reply}).
+% 2026-10-12 (readability review): was "No single kind of reply explains the gap: after change talk,
+% each of the $\Kf$ policy's four most common replies, complex reflections included, is followed by
+% change talk about as often as the others (Appendix~\ref{app:reply})."
 % 2026-10-11 (cut; Tables~\ref{tab:process} and~\ref{tab:process-heldout} keep the row): was "After
 % sustain talk, the next patient utterance is change talk in $33\%$ of cases under $\Kf$, against $28\%$
 % under $\Kz$ and at the Base, a difference significant against $\Kz$'s best checkpoint ($22\%$) but
