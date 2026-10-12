@@ -4,6 +4,18 @@
 \subsection{The Training Loop}
 
 Algorithm~\ref{alg:loop} states one run of \LAGRPO\ (\S\ref{sec:lagrpo}).
+% 2026-10-12 (Kfir: technical detail to the appendix): the objective moved here verbatim from the
+% Method's "The update" paragraph.
+Each step maximizes the per-token GRPO surrogate of \citet{shao2024deepseekmath},
+\begin{equation}
+\label{eq:grpo}
+\ell_{g,i} = \min(\rho_{g,i} A_g,\,\bar{\rho}_{g,i} A_g) - \beta\,\mathrm{KL}_{g,i},
+\end{equation}
+averaged over tokens and the group ($A_g$: $r_g$ standardized within its group; $\rho_{g,i}$: the
+token's probability ratio between $\pi$ and
+the sampling policy; $\bar{\rho}_{g,i}$: its clip to $[1{-}\epsilon, 1{+}\epsilon]$; KL to $\pi_n$).
+With one update per sampled batch, $\rho_{g,i}{=}1$ and the step is the advantage-weighted policy
+gradient with the KL penalty.
 
 \begin{algorithm}[h]
 \caption{\LAGRPO\ (one run)}
@@ -333,13 +345,15 @@ conversations.
 All contrasts are persona-paired. The 96 personas are reshuffled every iteration, so pairing
 recovers the persona identity by replaying the shuffle; pairing on file order would join unrelated
 conversations across iterations. Tests
-are Wilcoxon signed-rank; effect sizes are Cohen's \dz; intervals are percentile
+are Wilcoxon signed-rank; effect sizes are Cohen's \dz, the mean persona-paired difference divided
+by its standard deviation; intervals are percentile
 bootstraps at a fixed seed, so a re-render reproduces the same bounds: the dispersion ratios of
 Appendix~\ref{app:mechanism} resample groups 2{,}000 times, its rank-agreement intervals and the
 bands of Figure~\ref{fig:faithfulness} resample conversations within each model state 1{,}000
 times, and the band of Figure~\ref{fig:textspace-body}(a) resamples conversations. Holm correction is applied
 within each family (instruments within one matched contrast, or iterations within one sweep) and
-is not pooled across families.
+is not pooled across families: across the ten iterations for a contrast repeated at every
+iteration, and across an endpoint table's rows, per judge and checkpoint.
 
 \subsection{Cost Accounting behind the Disclosures}
 \label{app:repro-cost}
