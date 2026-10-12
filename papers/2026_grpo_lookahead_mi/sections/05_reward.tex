@@ -49,15 +49,21 @@ under the training oracle (Holm across iterations); ($\Kz$): $\Kz$ better.}
 \label{tab:endpoint}
 \end{table*}
 
+% 2026-10-12 (readability review): the significance qualifiers got their own sentence; was "...
+% against the last and against the best checkpoint of the $\Kz$ run (iteration 8;
+% Table~\ref{tab:endpoint}), significantly on every row under the training oracle and, against the
+% last, under the held-out judge." and "... the $\Kf$ policy ends level with the Base ($0.21$
+% MI-inconsistent acts per therapist turn against $0.21$) and the $\Kz$ policy above it ($0.84$; ...)".
 \textbf{The final policies.} At iteration 10 the $\Kf$ policy leads on every instrument, under
-both judges, against the last and against the best checkpoint of the $\Kz$ run (iteration 8;
-Table~\ref{tab:endpoint}), significantly on every row under the training oracle and, against the last, under the held-out judge. On the reward
+both judges, against both the last and the best checkpoint of the $\Kz$ run (iteration 8;
+Table~\ref{tab:endpoint}). All leads are significant under the training oracle, as are those over
+the last checkpoint under the held-out judge. On the reward
 rubric, scored on a 1--5 scale, the $\Kf$ policy scores $4.52$, against $3.75$ at $\Kz$'s last
 checkpoint ($\dz{=}0.91$) and $4.08$ at its best ($\dz{=}0.74$).
 % \dnotedone{cut}{[, and MI-inconsistent behaviour shows the largest standardised effect of all - ??]}
-Against the Base, both runs improve significantly on every instrument except MICI, which neither
-improves: the $\Kf$ policy ends level with the Base ($0.21$ MI-inconsistent acts per therapist turn
-against $0.21$) and the $\Kz$ policy above it ($0.84$; Appendix~\ref{app:vsbase}).
+Against the Base, both runs improve significantly on every instrument except MICI
+(MI-inconsistent acts per therapist turn): the $\Kf$ policy ends at the Base's $0.21$, the $\Kz$
+policy at $0.84$ (Appendix~\ref{app:vsbase}).
 
 \textbf{\boldmath Onset, and the $\Kz$ decline.} $\Kf$ leads significantly on \QQ\ at iteration 4 and from
 6 on; on the other instruments its first significant lead comes between iteration 4 (CSQ-8,
