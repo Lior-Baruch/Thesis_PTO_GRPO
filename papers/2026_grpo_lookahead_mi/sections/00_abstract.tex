@@ -68,19 +68,21 @@
 % rewards also teach different behavior. The $K{=}0$ policy learns ... the patient's change talk".
 % Same pass, after Lior pointed to the PTO paper's abstract: from it, "goal-oriented dialogue" and a
 % one-phrase definition of MI ("a counseling method for behavior change").
+% Lior: "unremarkable" unclear -> "a turn that seems weak at the time" (his pick); paid for by
+% "verifiable tasks", "with five-turn look-ahead" and "followed by change talk".
 \begin{abstract}
-Reinforcement learning has improved language models most on tasks with verifiable rewards, like
-mathematics. In goal-oriented dialogue, an LLM judge usually supplies the reward, scoring each turn
-without seeing what follows. Yet, as in chess, a move is worth what it leads to. In motivational
-interviewing (MI), a counseling method for behavior change, an unremarkable turn may lead the
+Reinforcement learning has improved language models most on verifiable tasks, like mathematics. In
+goal-oriented dialogue, an LLM judge usually supplies the reward, scoring each turn without seeing
+what follows. Yet, as in chess, a move is worth what it leads to. In motivational interviewing
+(MI), a counseling method for behavior change, a turn that seems weak at the time may lead the
 patient to argue for change (\emph{change talk}) rather than for the status quo (\emph{sustain
 talk}). We present \textbf{\LAGRPO}, which extends look-ahead rewards from preference-tree
 optimization to Group Relative Policy Optimization (GRPO): before the judge scores a turn, a
 patient simulator and the current policy continue the conversation for $K$ turns. We train a
-1B-parameter therapist for ten iterations with a five-turn look-ahead ($K{=}5$) and without
+1B-parameter therapist for ten iterations with five-turn look-ahead ($K{=}5$) and without
 ($K{=}0$). The $K{=}5$ policy leads on all eight MI measures, under the training judge and a
 held-out judge. The rewards teach different behavior: the $K{=}0$ policy learns generic praise, even
 after sustain talk, while the $K{=}5$ policy learns to reflect change talk, although it argues for
-change more often than the untrained model. Under $K{=}5$, change talk is followed by more change
-talk in $97\%$ of cases, against $80\%$ under $K{=}0$ (training judge).
+change more often than the untrained model. Under $K{=}5$, change talk is followed by change talk
+in $97\%$ of cases, against $80\%$ under $K{=}0$ (training judge).
 \end{abstract}
