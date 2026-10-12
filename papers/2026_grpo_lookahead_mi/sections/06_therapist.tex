@@ -71,34 +71,50 @@ exchange and a second example: Appendices~\ref{app:example-clear} and~\ref{app:e
 \textbf{The two policies learn different behaviors.} The $\Kz$ policy learned to praise and the
 $\Kf$ policy to give complex reflections. The Base's turns are mostly giving
 information and persuasion, followed by simple reflections and open questions, with no other code
-above $0.05$ of turns (Table~\ref{tab:codes}).
+above $5\%$ of turns (Table~\ref{tab:codes}).
 % \dnotedone{renamed: `turn-level reward' is now K=0}{k=0?}
 % \dnotedone{reworded: `the distribution of therapist behaviours shifts'}{[the mix -?]}
 % \dnotedone{renamed: `significantly', defined once in §3.3}{[clears Holm ?]}
 Under $\Kz$ the distribution of therapist behaviors shifts, late and unevenly, toward
-\textbf{non-specific praise}: from $0.04$ of the Base's turns to $0.22$ of the $\Kz$ policy's at
-iteration 8, $0.08$ at iteration 9 and $0.41$ at iteration 10 (Figure~\ref{fig:process}a),
+\textbf{non-specific praise}: from $4\%$ of the Base's turns to $22\%$ of the $\Kz$ policy's at
+iteration 8, $8\%$ at iteration 9 and $41\%$ at iteration 10 (Figure~\ref{fig:process}a),
 significantly more than under $\Kf$ at iterations 8 and 10. The dip at iteration 9 follows the one
 late round, on the iteration-8 model's candidates, in which the $\Kz$ reward barely favored praise
 (Appendix~\ref{app:premium}).
 % \dnotedone{reworded: now `Under K=5 it' (the behaviour distribution)}{[the mix \textasciitilde{}]}
-Under $\Kf$ the shift is instead toward \textbf{complex reflections} (Figure~\ref{fig:process}c): from $0.02$ of the Base's
-turns to $0.23$ at iteration 10, significantly more than under $\Kz$ (never above $0.03$) from iteration 4 on,
-and the share of MI-consistent turns at iteration 10 is $0.44$ against $\Kz$'s $0.29$ (Base
-$0.31$). Both policies lose open-question turns ($0.09$ of the Base's turns; $\Kz$ $0.00$, $\Kf$ $0.01$)
-and roughly triple their turn length ($273$ characters at the Base; $\Kz$ $896$, $\Kf$ $849$), near
-the 200-token cap. In sentence-embedding space the $\Kz$ policy's replies vary less from patient to
+% 2026-10-12 (readability review; shares written as percentages throughout this section): was
+% "... from $0.02$ of the Base's turns to $0.23$ at iteration 10, significantly more than under $\Kz$
+% (never above $0.03$) from iteration 4 on, and the share of MI-consistent turns at iteration 10 is
+% $0.44$ against $\Kz$'s $0.29$ (Base $0.31$). Both policies lose open-question turns ($0.09$ of the
+% Base's turns; $\Kz$ $0.00$, $\Kf$ $0.01$) and roughly triple their turn length ($273$ characters at
+% the Base; $\Kz$ $896$, $\Kf$ $849$), near the 200-token cap."
+Under $\Kf$ the shift is instead toward \textbf{complex reflections} (Figure~\ref{fig:process}c):
+from $2\%$ of the Base's turns to $23\%$ at iteration 10, significantly more than under $\Kz$ (never
+above $3\%$) from iteration 4 on. At iteration 10, $44\%$ of the $\Kf$ policy's turns are
+MI-consistent, against $29\%$ of the $\Kz$ policy's and $31\%$ of the Base's. Both policies nearly
+stop asking open questions ($9\%$ of the Base's turns) and roughly triple the length of their turns,
+from $273$ characters at the Base to $896$ under $\Kz$ and $849$ under $\Kf$, near the 200-token cap. In sentence-embedding space the $\Kz$ policy's replies vary less from patient to
 patient than the $\Kf$ policy's, relative to their variation within a session, from iteration 3 on
 (Appendix~\ref{app:embedding}).
 
 The $\Kf$ policy also persuades more: persuasion, arguing for change on the patient's behalf (the
-\emph{righting reflex} that MI warns against; \citealp{miller2013mi}), rises from $0.20$ of the
-Base's turns to $0.28$ of its own (Figure~\ref{fig:process}d).
+\emph{righting reflex} that MI warns against; \citealp{miller2013mi}), rises from $20\%$ of the
+Base's turns to $28\%$ of its own (Figure~\ref{fig:process}d).
 % \dnotedone{rephrased: says what Chiu et al. report}{[the failure mode \citet{chiu2024bolt} report for LLM therapists -?]}
 It is the tendency \citet{chiu2024bolt} report in LLM therapists, which advise where an MI
-counselor would reflect. The coder's MI-inconsistent share rises from the Base's $0.25$ under both policies, to $0.33$ under $\Kf$ with its persuasion and to $0.46$ under $\Kz$ with its late praise (Table~\ref{tab:process}); the $\Kf$ policy's MICI under the training oracle does not (\S\ref{sec:reward}). The held-out judge agrees on the
-direction of each coded change at iteration 10 and codes $0.76$ of the $\Kz$ policy's turns as praise
-against $0.20$ of the $\Kf$ policy's, itself above the Base's $0.04$ (Appendix~\ref{app:heldout}).
+counselor would reflect.
+% 2026-10-12 (readability review): was "The coder's MI-inconsistent share rises from the Base's
+% $0.25$ under both policies, to $0.33$ under $\Kf$ with its persuasion and to $0.46$ under $\Kz$ with
+% its late praise (Table~\ref{tab:process}); the $\Kf$ policy's MICI under the training oracle does
+% not (\S\ref{sec:reward}). The held-out judge agrees on the direction of each coded change at
+% iteration 10 and codes $0.76$ of the $\Kz$ policy's turns as praise against $0.20$ of the $\Kf$
+% policy's, itself above the Base's $0.04$ (Appendix~\ref{app:heldout})."
+By the coder's count, $25\%$ of the Base's turns are MI-inconsistent, against $33\%$ of the $\Kf$
+policy's, mostly persuasion, and $46\%$ of the $\Kz$ policy's, mostly praise (Table~\ref{tab:process}).
+Yet the training oracle's MICI for the $\Kf$ policy does not rise (\S\ref{sec:reward}). The held-out
+judge agrees on the direction of each coded change at iteration 10. It labels $76\%$ of the $\Kz$
+policy's turns as praise and $20\%$ of the $\Kf$ policy's, both above the Base's $4\%$
+(Appendix~\ref{app:heldout}).
 
 % 2026-10-07 (content pass): "Corroboration without a judge" and "In embedding space" merged.
 \textbf{Corroboration.} A
